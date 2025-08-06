@@ -4,44 +4,34 @@ import { Shield, Zap, Droplets, Sparkles, Star, Award } from 'lucide-react';
 const Affiliates: React.FC = () => {
   const brands = [
     { 
-      image: '/meguires.jpg',
-      color: 'bg-black'
+      image: '/koch.png',
+      color: 'bg-black',
+      url: 'https://www.koch-chemie.com'
     },
     { 
-      image: '/3m.png',
-      color: 'bg-black'
+      image: '/starke.png',
+      color: 'bg-black',
+      url: 'https://starkeyachtcare.com/'
     },
     { 
-      image: '/griots.jpg',
-      color: 'bg-black'
+      image: '/menzerna.webp',
+      color: 'bg-black',
+      url: 'https://www.menzerna.com'
     },
     { 
-      image: '/c6.webp',
-      color: 'bg-black'
+      image: '/underdog.webp',
+      color: 'bg-black',
+      url: 'https://getundrdog.com/.com'
     },
     { 
-      image: '/xpel.png',
-      color: 'bg-black'
+      image: '/mirka.webp',
+      color: 'bg-black',
+      url: 'https://www.mirka.com'
     },
     { 
-      image: '/shopvac.jpg',
-      color: 'bg-black'
-    },
-    { 
-      image: '/chemicalguys.jpg',
-      color: 'bg-black'
-    },
-    { 
-      image: '/adams.webp',
-      color: 'bg-black'
-    },
-    { 
-      image: '/3d.png',
-      color: 'bg-black'
-    },
-    { 
-      image: '/carpro.png',
-      color: 'bg-black'
+      image: '/rupes.png',
+      color: 'bg-black',
+      url: 'https://www.rupes.com'
     },
   ];
 
@@ -51,26 +41,28 @@ const Affiliates: React.FC = () => {
        
         <div className="flex justify-center items-center gap-4">
           {brands.map((brand, index) => (
-            <div
+            <a
               key={index}
+              href={brand.url}
+              target="_blank"
+              rel="noopener noreferrer"
               className="group flex flex-col items-center"
             >
                              <div className={`w-40 h-40 ${brand.color} rounded-full flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl overflow-hidden`}>
                  <img 
                    src={brand.image} 
                                        className={`w-full h-full ${
-                      brand.image.includes('3m.png') ? 'object-contain scale-90' : 
-                      brand.image.includes('griots.jpg') ? 'object-contain scale-100' : 
-                      brand.image.includes('chemicalguys.jpg') ? 'object-contain scale-125' : 
-                      brand.image.includes('adams.webp') ? 'object-contain scale-125' :
-                      brand.image.includes('carpro.png') ? 'object-contain scale-125' :
-                      brand.image.includes('c6.webp') ? 'object-contain scale-150' : 'object-cover'
+                      brand.image.includes('koch.png') ? 'object-contain scale-125' :
+                      brand.image.includes('underdog.webp') ? 'object-contain scale-90' : 
+                      brand.image.includes('mirka.webp') ? 'object-contain scale-150' : 
+                      brand.image.includes('menzerna.webp') ? 'object-contain scale-100' : 
+                      brand.image.includes('rupes.png') ? 'object-contain scale-100' : 'object-cover'
                     }`}
                  />
                </div>
-              <span className="text-gray-300 text-sm mt-3 font-medium group-hover:text-white transition-colors">
-              </span>
-            </div>
+                             <span className="text-gray-300 text-sm mt-3 font-medium group-hover:text-white transition-colors">
+               </span>
+             </a>
           ))}
         </div>
       </div>
