@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Car, Shield, Paintbrush, Palette, Sun, Zap, Ship } from 'lucide-react';
 import Hero from './Hero';
 import ServicesGrid from './ServicesGrid';
-import Gallery from './Gallery';
 import Contact from './Contact';
 import Affiliates from './Affiliates';
 import Footer from './Footer';
@@ -47,8 +46,6 @@ const HomePage: React.FC = () => {
       {/* Separator Line - Change 'border-orange-500' to any color you want */}
       <div className="w-full border-t-2 border-stone-600 my-0"></div>
       
-      <Gallery />
-
       <Affiliates />
 
       <Contact header={config.header} footer={config.footer} />
@@ -76,7 +73,6 @@ const config = {
     navLinks: [
       { name: 'Home', href: '#', onClick: () => window.scrollTo({ top: 0, behavior: 'smooth' }) },
       { name: 'Services', href: '#services', onClick: () => scrollToSection('services') },
-      { name: 'Gallery', href: '#gallery', onClick: () => scrollToSection('gallery') },
       { name: 'Contact', href: '#', onClick: () => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }) }
     ]
   },
@@ -126,7 +122,6 @@ const config = {
     quickLinks: [
       { name: 'Home', href: '#', onClick: () => window.scrollTo({ top: 0, behavior: 'smooth' }) },
       { name: 'Services', href: '#services', onClick: () => scrollToSection('services') },
-      { name: 'Gallery', href: '#gallery', onClick: () => scrollToSection('gallery') },
       { name: 'Contact', href: '#', onClick: () => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }) }
     ],
     attribution: {
