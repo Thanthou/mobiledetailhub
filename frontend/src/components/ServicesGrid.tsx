@@ -1,5 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Car, Shield, Paintbrush, Palette, Sun, Zap } from 'lucide-react';
+import AutoDetailingModal from './services/AutoDetailing';
+import MarineDetailingModal from './services/MarineDetailing';
+import RVDetailingModal from './services/RVDetailing';
+import InteriorExteriorModal from './services/InteriorExterior';
+import CeramicCoatingModal from './services/CeramicCoating';
+import PaintProtectionFilmModal from './services/PaintProtectionFilm';
 
 interface ServiceItem {
   title: string;
@@ -13,6 +19,53 @@ interface ServicesGridProps {
 }
 
 const ServicesGrid: React.FC<ServicesGridProps> = ({ services, onRequestQuote }) => {
+  const [isAutoDetailingModalOpen, setIsAutoDetailingModalOpen] = useState(false);
+  const [isMarineDetailingModalOpen, setIsMarineDetailingModalOpen] = useState(false);
+  const [isRVDetailingModalOpen, setIsRVDetailingModalOpen] = useState(false);
+  const [isInteriorExteriorModalOpen, setIsInteriorExteriorModalOpen] = useState(false);
+  const [isCeramicCoatingModalOpen, setIsCeramicCoatingModalOpen] = useState(false);
+  const [isPaintProtectionFilmModalOpen, setIsPaintProtectionFilmModalOpen] = useState(false);
+
+  const handleServiceClick = (service: ServiceItem) => {
+    if (service.title === 'Auto Detailing') {
+      setIsAutoDetailingModalOpen(true);
+    } else if (service.title === 'Marine Detailing') {
+      setIsMarineDetailingModalOpen(true);
+    } else if (service.title === 'RV Detailing') {
+      setIsRVDetailingModalOpen(true);
+    } else if (service.title === 'Interior / Exterior') {
+      setIsInteriorExteriorModalOpen(true);
+    } else if (service.title === 'Ceramic Coating') {
+      setIsCeramicCoatingModalOpen(true);
+    } else if (service.title === 'Paint Protection Film') {
+      setIsPaintProtectionFilmModalOpen(true);
+    }
+  };
+
+  const closeAutoDetailingModal = () => {
+    setIsAutoDetailingModalOpen(false);
+  };
+
+  const closeMarineDetailingModal = () => {
+    setIsMarineDetailingModalOpen(false);
+  };
+
+  const closeRVDetailingModal = () => {
+    setIsRVDetailingModalOpen(false);
+  };
+
+  const closeInteriorExteriorModal = () => {
+    setIsInteriorExteriorModalOpen(false);
+  };
+
+  const closeCeramicCoatingModal = () => {
+    setIsCeramicCoatingModalOpen(false);
+  };
+
+  const closePaintProtectionFilmModal = () => {
+    setIsPaintProtectionFilmModalOpen(false);
+  };
+
   return (
     <section className="bg-stone-900 py-16">
       {/* Full Width Services Grid */}
@@ -21,6 +74,7 @@ const ServicesGrid: React.FC<ServicesGridProps> = ({ services, onRequestQuote })
           <div
             key={index}
             className="relative h-80 md:h-96 lg:h-[28rem] overflow-hidden group cursor-pointer rounded-lg shadow-lg"
+            onClick={() => handleServiceClick(service)}
           >
             <img
               src={service.image}
@@ -66,6 +120,32 @@ const ServicesGrid: React.FC<ServicesGridProps> = ({ services, onRequestQuote })
           </a>
         </div>
       </div>
+
+      {/* Service Modals */}
+      <AutoDetailingModal
+        isOpen={isAutoDetailingModalOpen}
+        onClose={closeAutoDetailingModal}
+      />
+      <MarineDetailingModal
+        isOpen={isMarineDetailingModalOpen}
+        onClose={closeMarineDetailingModal}
+      />
+                  <RVDetailingModal
+              isOpen={isRVDetailingModalOpen}
+              onClose={closeRVDetailingModal}
+            />
+            <InteriorExteriorModal
+              isOpen={isInteriorExteriorModalOpen}
+              onClose={closeInteriorExteriorModal}
+            />
+            <CeramicCoatingModal
+              isOpen={isCeramicCoatingModalOpen}
+              onClose={closeCeramicCoatingModal}
+            />
+            <PaintProtectionFilmModal
+              isOpen={isPaintProtectionFilmModalOpen}
+              onClose={closePaintProtectionFilmModal}
+            />
     </section>
   );
 };
