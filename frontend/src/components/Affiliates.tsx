@@ -48,6 +48,21 @@ const Affiliates: React.FC = () => {
       color: 'bg-black',
       url: 'https://www.autofiber.com/'
     },
+    { 
+      image: '/lake-country.png',
+      color: 'bg-black',
+      url: 'https://lakecountrymfg.com/'
+    },
+    { 
+      image: '/poka.png',
+      color: 'bg-black',
+      url: 'https://pokapremium.com/'
+    },
+    { 
+      image: '/lamin-x.png',
+      color: 'bg-black',
+      url: 'https://lamin-x.com/'
+    },
   ];
 
   return (
@@ -74,6 +89,9 @@ const Affiliates: React.FC = () => {
                       brand.image.includes('mtm_hydro.jpg') ? 'object-contain scale-75' :
                       brand.image.includes('yot-stik.webp') ? 'object-contain scale-90' :
                       brand.image.includes('auto-fiber.webp') ? 'object-contain scale-150' :
+                      brand.image.includes('lake-country.png') ? 'object-contain scale-100' :
+                      brand.image.includes('poka.png') ? 'object-contain scale-100' :
+                      brand.image.includes('lamin-x.png') ? 'object-contain scale-150 ml-3' :
                       brand.image.includes('rupes.png') ? 'object-contain scale-100' : 'object-cover'
                     }`}
                  />
