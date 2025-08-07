@@ -1,16 +1,20 @@
 import React, { useState } from 'react';
-import { X, ChevronLeft, ChevronRight, Shield, Sparkles, Zap } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Shield, Sparkles, Play, Image } from 'lucide-react';
 
 export const ceramicCoatingService = {
   title: 'Ceramic Coating',
-  description: 'Professional ceramic coating application that provides long-lasting protection for your vehicle. Our nano-ceramic coatings create a hydrophobic barrier that repels water, dirt, and contaminants while maintaining a brilliant shine for years.',
-  pricing: [
-    'Basic Coating: $800 - 2-year protection with basic prep',
-    'Standard Coating: $1200 - 5-year protection with paint correction',
-    'Premium Coating: $1800 - 9-year protection with full paint restoration',
-    'Luxury Coating: $2500 - 10-year protection with multi-layer application'
+  description: [
+    'Long-lasting protection (1–7 years)',
+    'High-gloss, showroom finish',
+    'Scratch and swirl resistance',
+    'UV and environmental protection',
+    'Easier maintenance and cleaning',
+    'Repels water, dirt, and grime'
   ],
-  images: ['/ceramic-coating.png', '/ceramic-application.png', '/ceramic-result.png', '/ceramic-protection.png']
+  images: ['/ceramic-coating.png', '/ceramic-application.png', '/ceramic-result.png', '/ceramic-protection.png'],
+  videos: [
+    '/cc_final1.mp4'
+  ]
 };
 
 interface CeramicCoatingModalProps {
@@ -20,6 +24,8 @@ interface CeramicCoatingModalProps {
 
 const CeramicCoatingModal: React.FC<CeramicCoatingModalProps> = ({ isOpen, onClose }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+  const [activeTab, setActiveTab] = useState<'videos' | 'images'>('videos');
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => 
@@ -30,6 +36,18 @@ const CeramicCoatingModal: React.FC<CeramicCoatingModalProps> = ({ isOpen, onClo
   const prevImage = () => {
     setCurrentImageIndex((prev) => 
       prev === 0 ? ceramicCoatingService.images.length - 1 : prev - 1
+    );
+  };
+
+  const nextVideo = () => {
+    setCurrentVideoIndex((prev) => 
+      prev === ceramicCoatingService.videos.length - 1 ? 0 : prev + 1
+    );
+  };
+
+  const prevVideo = () => {
+    setCurrentVideoIndex((prev) => 
+      prev === 0 ? ceramicCoatingService.videos.length - 1 : prev - 1
     );
   };
 
@@ -60,27 +78,48 @@ const CeramicCoatingModal: React.FC<CeramicCoatingModalProps> = ({ isOpen, onClo
               <Sparkles className="h-5 w-5 mr-2 text-cyan-500" />
               Service Description
             </h3>
-            <p className="text-gray-700 leading-relaxed text-lg">{ceramicCoatingService.description}</p>
+            <ul className="text-gray-700 leading-relaxed text-lg space-y-2">
+              {ceramicCoatingService.description.map((item, index) => (
+                <li key={index} className="flex items-start">
+                  <span className="text-cyan-500 mr-3 mt-1">•</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
           </div>
 
-          {/* Pricing */}
-          <div className="mb-8">
-            <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-              <Zap className="h-5 w-5 mr-2 text-cyan-500" />
-              Pricing Packages
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {ceramicCoatingService.pricing.map((price, index) => (
-                <div key={index} className="bg-gray-50 p-4 rounded-lg border-l-4 border-cyan-500">
-                  <p className="text-gray-700 font-medium">{price}</p>
-                </div>
-              ))}
+          {/* Gallery Tabs */}
+          <div className="mb-6">
+            <div className="flex space-x-4 border-b border-gray-200">
+              <button
+                onClick={() => setActiveTab('videos')}
+                className={`flex items-center px-4 py-2 font-medium transition-colors ${
+                  activeTab === 'videos'
+                    ? 'text-cyan-500 border-b-2 border-cyan-500'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <Play className="h-5 w-5 mr-2" />
+                Videos ({ceramicCoatingService.videos.length})
+              </button>
+              <button
+                onClick={() => setActiveTab('images')}
+                className={`flex items-center px-4 py-2 font-medium transition-colors ${
+                  activeTab === 'images'
+                    ? 'text-cyan-500 border-b-2 border-cyan-500'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <Image className="h-5 w-5 mr-2" />
+                Images ({ceramicCoatingService.images.length})
+              </button>
             </div>
           </div>
 
           {/* Image Gallery */}
-          <div className="mb-8">
-            <h3 className="text-xl font-semibold text-gray-900 mb-4">Gallery</h3>
+          {activeTab === 'images' && (
+            <div className="mb-8">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Image Gallery</h3>
             <div className="relative">
               {/* Main Image */}
               <div className="relative h-80 md:h-96 bg-gray-200 rounded-lg overflow-hidden shadow-lg">
@@ -125,6 +164,59 @@ const CeramicCoatingModal: React.FC<CeramicCoatingModalProps> = ({ isOpen, onClo
               )}
             </div>
           </div>
+          )}
+
+          {/* Video Gallery */}
+          {activeTab === 'videos' && (
+            <div className="mb-8">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Video Gallery</h3>
+              <div className="relative">
+                {/* Main Video */}
+                <div className="relative h-96 md:h-[500px] lg:h-[600px] max-w-2xl mx-auto bg-gray-200 rounded-lg overflow-hidden shadow-lg">
+                  <video
+                    src={ceramicCoatingService.videos[currentVideoIndex]}
+                    title={`Ceramic Coating - Video ${currentVideoIndex + 1}`}
+                    className="w-full h-full object-contain"
+                    controls
+                    preload="metadata"
+                  />
+                  
+                  {/* Navigation Arrows */}
+                  {ceramicCoatingService.videos.length > 1 && (
+                    <>
+                      <button
+                        onClick={prevVideo}
+                        className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-75 transition-all z-10"
+                      >
+                        <ChevronLeft className="h-6 w-6" />
+                      </button>
+                      <button
+                        onClick={nextVideo}
+                        className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-75 transition-all z-10"
+                      >
+                        <ChevronRight className="h-6 w-6" />
+                      </button>
+                    </>
+                  )}
+                </div>
+
+                {/* Video Thumbnail Navigation */}
+                {ceramicCoatingService.videos.length > 1 && (
+                  <div className="flex justify-center mt-4 space-x-2">
+                    {ceramicCoatingService.videos.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentVideoIndex(index)}
+                        className={`w-4 h-4 rounded-full transition-all ${
+                          index === currentVideoIndex ? 'bg-cyan-500' : 'bg-gray-300'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* CTA Button */}
           <div className="text-center">

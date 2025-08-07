@@ -10,7 +10,9 @@ import QuoteModal from './QuoteModal';
 const scrollToSection = (sectionId: string) => {
   const element = document.getElementById(sectionId);
   if (element) {
-    element.scrollIntoView({ behavior: 'smooth' });
+    const elementPosition = element.offsetTop;
+    const offset = 80; // Additional scroll down
+    window.scrollTo({ top: elementPosition + offset, behavior: 'smooth' });
   }
 };
 

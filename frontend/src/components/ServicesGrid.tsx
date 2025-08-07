@@ -27,6 +27,9 @@ const ServicesGrid: React.FC<ServicesGridProps> = ({ services, onRequestQuote })
   const [isPaintProtectionFilmModalOpen, setIsPaintProtectionFilmModalOpen] = useState(false);
 
   const handleServiceClick = (service: ServiceItem) => {
+    // Scroll down a bit more when a service is clicked
+    window.scrollBy({ top: 100, behavior: 'smooth' });
+    
     if (service.title === 'Auto Detailing') {
       setIsAutoDetailingModalOpen(true);
     } else if (service.title === 'Marine Detailing') {
