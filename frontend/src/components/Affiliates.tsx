@@ -33,6 +33,21 @@ const Affiliates: React.FC = () => {
       color: 'bg-black',
       url: 'https://www.rupes.com'
     },
+    { 
+      image: '/mtm_hydro.jpg',
+      color: 'bg-black',
+      url: 'https://www.mtmhydroparts.com/'
+    },
+    { 
+      image: '/yot-stik.webp',
+      color: 'bg-black',
+      url: 'https://www.yotstik.com/'
+    },
+    { 
+      image: '/auto-fiber.webp',
+      color: 'bg-black',
+      url: 'https://www.autofiber.com/'
+    },
   ];
 
   return (
@@ -56,6 +71,9 @@ const Affiliates: React.FC = () => {
                       brand.image.includes('underdog.webp') ? 'object-contain scale-90' : 
                       brand.image.includes('mirka.webp') ? 'object-contain scale-150' : 
                       brand.image.includes('menzerna.webp') ? 'object-contain scale-100' : 
+                      brand.image.includes('mtm_hydro.jpg') ? 'object-contain scale-75' :
+                      brand.image.includes('yot-stik.webp') ? 'object-contain scale-90' :
+                      brand.image.includes('auto-fiber.webp') ? 'object-contain scale-150' :
                       brand.image.includes('rupes.png') ? 'object-contain scale-100' : 'object-cover'
                     }`}
                  />
