@@ -128,27 +128,57 @@ const ServicesGrid: React.FC<ServicesGridProps> = ({ services, onRequestQuote })
       <AutoDetailingModal
         isOpen={isAutoDetailingModalOpen}
         onClose={closeAutoDetailingModal}
+        onBookNow={() => {
+          closeAutoDetailingModal();
+          window.open('/booking?detailer_id=joe123', '_blank');
+        }}
+        onRequestQuote={onRequestQuote}
       />
       <MarineDetailingModal
         isOpen={isMarineDetailingModalOpen}
         onClose={closeMarineDetailingModal}
+        onBookNow={() => {
+          closeMarineDetailingModal();
+          window.open('/booking?detailer_id=joe123', '_blank');
+        }}
+        onRequestQuote={onRequestQuote}
       />
-                  <RVDetailingModal
-              isOpen={isRVDetailingModalOpen}
-              onClose={closeRVDetailingModal}
-            />
-            <InteriorExteriorModal
-              isOpen={isInteriorExteriorModalOpen}
-              onClose={closeInteriorExteriorModal}
-            />
-            <CeramicCoatingModal
-              isOpen={isCeramicCoatingModalOpen}
-              onClose={closeCeramicCoatingModal}
-            />
-            <PaintProtectionFilmModal
-              isOpen={isPaintProtectionFilmModalOpen}
-              onClose={closePaintProtectionFilmModal}
-            />
+      <RVDetailingModal
+        isOpen={isRVDetailingModalOpen}
+        onClose={closeRVDetailingModal}
+        onBookNow={() => {
+          closeRVDetailingModal();
+          window.open('/booking?detailer_id=joe123', '_blank');
+        }}
+        onRequestQuote={onRequestQuote}
+      />
+      <InteriorExteriorModal
+        isOpen={isInteriorExteriorModalOpen}
+        onClose={closeInteriorExteriorModal}
+        onBookNow={() => {
+          closeInteriorExteriorModal();
+          window.open('/booking?detailer_id=joe123', '_blank');
+        }}
+        onRequestQuote={onRequestQuote}
+      />
+      <CeramicCoatingModal
+        isOpen={isCeramicCoatingModalOpen}
+        onClose={closeCeramicCoatingModal}
+        onBookNow={() => {
+          closeCeramicCoatingModal();
+          window.open('/booking?detailer_id=joe123', '_blank');
+        }}
+        onRequestQuote={onRequestQuote}
+      />
+      <PaintProtectionFilmModal
+        isOpen={isPaintProtectionFilmModalOpen}
+        onClose={closePaintProtectionFilmModal}
+        onBookNow={() => {
+          closePaintProtectionFilmModal();
+          window.open('/booking?detailer_id=joe123', '_blank');
+        }}
+        onRequestQuote={onRequestQuote}
+      />
     </section>
   );
 };

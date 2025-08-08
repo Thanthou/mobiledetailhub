@@ -1,31 +1,39 @@
 import React, { useState } from 'react';
-import { X, ChevronLeft, ChevronRight, Shield, Sparkles, Play, Image } from 'lucide-react';
+import { X, Shield, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
+import CTAButtonsContainer from '../shared/CTAButtonsContainer';
+import ImageGalleryModal from '../ImageGalleryModal';
 
 export const ceramicCoatingService = {
   title: 'Ceramic Coating',
   description: [
-    'Long-lasting protection (1–7 years)',
-    'High-gloss, showroom finish',
-    'Scratch and swirl resistance',
-    'UV and environmental protection',
-    'Easier maintenance and cleaning',
-    'Repels water, dirt, and grime'
+    '✅ Long-lasting protection (1–7 years)',
+    '✅ High-gloss, showroom finish',
+    '✅ Scratch and swirl resistance',
+    '✅ UV and environmental protection',
+    '✅ Easier maintenance and cleaning',
+    '✅ Repels water, dirt, and grime'
   ],
-  images: ['/ceramic/ceramic-coating.png', '/ceramic/ceramic-application.png', '/ceramic/ceramic-result.png', '/ceramic/ceramic-protection.png'],
+  images: [
+    '/ceramic/ceramic1.jpeg', 
+    '/ceramic/ceramic2.png'],
   videos: [
-    '/ceramic/cc_final1.mp4'
+    '/ceramic/video1.mp4',
+    '/ceramic/video2.mp4',
   ]
 };
 
 interface CeramicCoatingModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onBookNow?: () => void;
+  onRequestQuote?: () => void;
 }
 
-const CeramicCoatingModal: React.FC<CeramicCoatingModalProps> = ({ isOpen, onClose }) => {
+const CeramicCoatingModal: React.FC<CeramicCoatingModalProps> = ({ isOpen, onClose, onBookNow, onRequestQuote }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [activeTab, setActiveTab] = useState<'videos' | 'images'>('videos');
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => 
@@ -57,7 +65,7 @@ const CeramicCoatingModal: React.FC<CeramicCoatingModalProps> = ({ isOpen, onClo
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg max-w-5xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="bg-gradient-to-r from-cyan-600 to-teal-700 text-white p-6 rounded-t-lg flex justify-between items-center">
+        <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-6 rounded-t-lg flex justify-between items-center">
           <div className="flex items-center">
             <Shield className="h-8 w-8 mr-3" />
             <h2 className="text-2xl font-bold">{ceramicCoatingService.title}</h2>
@@ -75,110 +83,55 @@ const CeramicCoatingModal: React.FC<CeramicCoatingModalProps> = ({ isOpen, onClo
           {/* Description */}
           <div className="mb-8">
             <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-              <Sparkles className="h-5 w-5 mr-2 text-cyan-500" />
+              <Sparkles className="h-5 w-5 mr-2 text-orange-500" />
               Service Description
             </h3>
-            <ul className="text-gray-700 leading-relaxed text-lg space-y-2">
-              {ceramicCoatingService.description.map((item, index) => (
-                <li key={index} className="flex items-start">
-                  <span className="text-cyan-500 mr-3 mt-1">•</span>
-                  <span>{item}</span>
-                </li>
-              ))}
+            <ul className="space-y-2">
+              {Array.isArray(ceramicCoatingService.description) ? (
+                ceramicCoatingService.description.map((item, index) => (
+                  <li key={index} className="text-gray-700 leading-relaxed text-lg flex items-start">
+                    <span className="mr-2">{item}</span>
+                  </li>
+                ))
+              ) : (
+                <p className="text-gray-700 leading-relaxed text-lg">{ceramicCoatingService.description}</p>
+              )}
             </ul>
           </div>
 
-          {/* Gallery Tabs */}
-          <div className="mb-6">
-            <div className="flex space-x-4 border-b border-gray-200">
+          {/* Gallery */}
+          <div className="mb-8">
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">Gallery</h3>
+            
+            {/* Tab Navigation */}
+            <div className="flex space-x-1 mb-4">
               <button
                 onClick={() => setActiveTab('videos')}
-                className={`flex items-center px-4 py-2 font-medium transition-colors ${
+                className={`px-4 py-2 rounded-lg font-medium transition-all ${
                   activeTab === 'videos'
-                    ? 'text-cyan-500 border-b-2 border-cyan-500'
-                    : 'text-gray-500 hover:text-gray-700'
+                    ? 'bg-orange-500 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 }`}
               >
-                <Play className="h-5 w-5 mr-2" />
                 Videos ({ceramicCoatingService.videos.length})
               </button>
               <button
-                onClick={() => setActiveTab('images')}
-                className={`flex items-center px-4 py-2 font-medium transition-colors ${
-                  activeTab === 'images'
-                    ? 'text-cyan-500 border-b-2 border-cyan-500'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
+                onClick={() => setIsGalleryOpen(true)}
+                className="px-4 py-2 rounded-lg font-medium transition-all bg-gray-200 text-gray-700 hover:bg-gray-300"
               >
-                <Image className="h-5 w-5 mr-2" />
                 Images ({ceramicCoatingService.images.length})
               </button>
             </div>
-          </div>
 
-          {/* Image Gallery */}
-          {activeTab === 'images' && (
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Image Gallery</h3>
-            <div className="relative">
-              {/* Main Image */}
-              <div className="relative h-80 md:h-96 bg-gray-200 rounded-lg overflow-hidden shadow-lg">
-                <img
-                  src={ceramicCoatingService.images[currentImageIndex]}
-                  alt={`Ceramic Coating - Image ${currentImageIndex + 1}`}
-                  className="w-full h-full object-cover"
-                />
-                
-                {/* Navigation Arrows */}
-                {ceramicCoatingService.images.length > 1 && (
-                  <>
-                    <button
-                      onClick={prevImage}
-                      className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-75 transition-all"
-                    >
-                      <ChevronLeft className="h-6 w-6" />
-                    </button>
-                    <button
-                      onClick={nextImage}
-                      className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-75 transition-all"
-                    >
-                      <ChevronRight className="h-6 w-6" />
-                    </button>
-                  </>
-                )}
-              </div>
-
-              {/* Thumbnail Navigation */}
-              {ceramicCoatingService.images.length > 1 && (
-                <div className="flex justify-center mt-4 space-x-2">
-                  {ceramicCoatingService.images.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentImageIndex(index)}
-                      className={`w-4 h-4 rounded-full transition-all ${
-                        index === currentImageIndex ? 'bg-cyan-500' : 'bg-gray-300'
-                      }`}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-          )}
-
-          {/* Video Gallery */}
-          {activeTab === 'videos' && (
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Video Gallery</h3>
+            {/* Videos Tab */}
+            {activeTab === 'videos' && (
               <div className="relative">
                 {/* Main Video */}
-                <div className="relative h-96 md:h-[500px] lg:h-[600px] max-w-2xl mx-auto bg-gray-200 rounded-lg overflow-hidden shadow-lg">
+                <div className="relative bg-gray-200 rounded-lg overflow-hidden shadow-lg">
                   <video
                     src={ceramicCoatingService.videos[currentVideoIndex]}
-                    title={`Ceramic Coating - Video ${currentVideoIndex + 1}`}
-                    className="w-full h-full object-contain"
                     controls
-                    preload="metadata"
+                    className="w-full max-h-96 object-contain"
                   />
                   
                   {/* Navigation Arrows */}
@@ -200,7 +153,7 @@ const CeramicCoatingModal: React.FC<CeramicCoatingModalProps> = ({ isOpen, onClo
                   )}
                 </div>
 
-                {/* Video Thumbnail Navigation */}
+                {/* Thumbnail Navigation */}
                 {ceramicCoatingService.videos.length > 1 && (
                   <div className="flex justify-center mt-4 space-x-2">
                     {ceramicCoatingService.videos.map((_, index) => (
@@ -208,26 +161,38 @@ const CeramicCoatingModal: React.FC<CeramicCoatingModalProps> = ({ isOpen, onClo
                         key={index}
                         onClick={() => setCurrentVideoIndex(index)}
                         className={`w-4 h-4 rounded-full transition-all ${
-                          index === currentVideoIndex ? 'bg-cyan-500' : 'bg-gray-300'
+                          index === currentVideoIndex ? 'bg-orange-500' : 'bg-gray-300'
                         }`}
                       />
                     ))}
                   </div>
                 )}
               </div>
-            </div>
-          )}
-
-          {/* CTA Button */}
-          <div className="text-center">
-            <button
-              onClick={onClose}
-              className="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-4 px-10 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
-            >
-              Get Ceramic Coating Quote
-            </button>
+            )}
           </div>
+
+          {/* CTA Buttons */}
+          <CTAButtonsContainer
+            onBookNow={() => {
+              onClose();
+              onBookNow?.();
+            }}
+            onRequestQuote={() => {
+              onClose();
+              onRequestQuote?.();
+            }}
+          />
         </div>
+
+        {/* Image Gallery Modal */}
+        <ImageGalleryModal
+          isOpen={isGalleryOpen}
+          onClose={() => setIsGalleryOpen(false)}
+          images={ceramicCoatingService.images}
+          currentIndex={currentImageIndex}
+          onIndexChange={setCurrentImageIndex}
+          title="Ceramic Coating Gallery"
+        />
       </div>
     </div>
   );

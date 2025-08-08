@@ -57,7 +57,7 @@ const HomePage: React.FC = () => {
       ]
     },
     hero: {
-      backgroundImage: '/auto_detailing/car3.png',
+      backgroundImage: '/auto_detailing/hero_image.png',
       headline: 'Premium Mobile Detailing',
       // subheadline: 'Premium Mobile Detailing',
       ctaText: 'Book Now',
@@ -66,32 +66,32 @@ const HomePage: React.FC = () => {
     services: [
       {
         title: 'Auto Detailing',
-        image: '/auto_detailing/sports.png',
+        image: '/auto_detailing/service_image.png',
         icon: <Car className="h-6 w-6" />
       },
       {
         title: 'Marine Detailing',
-        image: '/boat_detailing/boat-detail5.png',
+        image: '/boat_detailing/service_image.png',
         icon: <Ship className="h-6 w-6" />
       },
       {
         title: 'RV Detailing',
-        image: '/rv_detailing/rv-detail.png',
+        image: '/rv_detailing/service_image.png',
         icon: <Paintbrush className="h-6 w-6" />
       },
       {
         title: 'Interior / Exterior',
-        image: '/interior_exterior/in-ex.png',
+        image: '/interior_exterior/service_image.png',
         icon: <Palette className="h-6 w-6" />
       },
       {
         title: 'Ceramic Coating',
-        image: '/ceramic/ceramic.png',
+        image: '/ceramic/service_image.png',
         icon: <Sun className="h-6 w-6" />
       },
       {
         title: 'Paint Protection Film',
-        image: '/ppf/ppf-car.png',
+        image: '/ppf/service_image.png',
         icon: <Zap className="h-6 w-6" />
       }
     ],

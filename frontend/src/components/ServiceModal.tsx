@@ -2,6 +2,7 @@ import React from 'react';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 
 import { ServiceDetails } from './services';
+import ImageGalleryModal from './ImageGalleryModal';
 
 interface ServiceModalProps {
   isOpen: boolean;
@@ -11,6 +12,7 @@ interface ServiceModalProps {
 
 const ServiceModal: React.FC<ServiceModalProps> = ({ isOpen, onClose, service }) => {
   const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
+  const [isGalleryOpen, setIsGalleryOpen] = React.useState(false);
 
   if (!isOpen || !service) return null;
 
@@ -65,7 +67,8 @@ const ServiceModal: React.FC<ServiceModalProps> = ({ isOpen, onClose, service })
                 <img
                   src={service.images[currentImageIndex]}
                   alt={`${service.title} - Image ${currentImageIndex + 1}`}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                  onClick={() => setIsGalleryOpen(true)}
                 />
                 
                 {/* Navigation Arrows */}
@@ -115,6 +118,16 @@ const ServiceModal: React.FC<ServiceModalProps> = ({ isOpen, onClose, service })
           </div>
         </div>
       </div>
+
+              {/* Image Gallery Modal */}
+        <ImageGalleryModal
+          isOpen={isGalleryOpen}
+          onClose={() => setIsGalleryOpen(false)}
+          images={service.images}
+          currentIndex={currentImageIndex}
+          onIndexChange={setCurrentImageIndex}
+          title={`${service.title} Gallery`}
+        />
     </div>
   );
 };
