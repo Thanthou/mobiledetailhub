@@ -137,9 +137,22 @@ const categoryConfig = {
   }
 };
 
-const FAQ: React.FC = () => {
-  const [isExpanded, setIsExpanded] = useState(false);
+interface FAQProps {
+  autoExpand?: boolean;
+}
+
+interface FAQRef {
+  expand: () => void;
+}
+
+const FAQ = React.forwardRef<FAQRef, FAQProps>(({ autoExpand = false }, ref) => {
+  const [isExpanded, setIsExpanded] = useState(autoExpand);
   const [openItems, setOpenItems] = useState<number[]>([]);
+
+  // Expose expand function to parent component
+  React.useImperativeHandle(ref, () => ({
+    expand: () => setIsExpanded(true)
+  }));
 
   // Group FAQs by category
   const groupedFAQs = faqData.reduce((acc, item, index) => {
@@ -374,6 +387,6 @@ const FAQ: React.FC = () => {
       </div>
     </section>
   );
-};
+});
 
 export default FAQ;
