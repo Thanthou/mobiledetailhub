@@ -8,6 +8,19 @@ export const businessConfig = {
   location: 'Bullhead City, AZ',
   email: 'jps@mobiledetailhub.com',
   
+  // Service Areas/Locations
+  serviceLocations: [
+    'Bullhead City, AZ',
+    'Laughlin, NV',
+    'Mohave Valley, AZ',
+    'Needles, CA',
+    'Fort Mohave, AZ',
+    "Katherine's Landing, AZ",
+    'Lake Havasu City, AZ',
+    'Lake Mohave',
+    'Colorado River',
+  ],
+  
   // Social Media Links
   socialMedia: {
     facebook: 'https://facebook.com/mobiledetailhub', // Replace with actual URL

@@ -9,9 +9,10 @@ interface ContactProps {
   footer: {
     email: string;
   };
+  serviceLocations?: string[];
 }
 
-const Contact: React.FC<ContactProps> = ({ header, footer }) => {
+const Contact: React.FC<ContactProps> = ({ header, footer, serviceLocations }) => {
   return (
     <section id="contact" className="bg-stone-700 py-16">
       <div className="max-w-6xl mx-auto px-4">
@@ -63,30 +64,12 @@ const Contact: React.FC<ContactProps> = ({ header, footer }) => {
               <h3 className="text-xl font-bold text-white mb-4">Service Areas</h3>
               <div className="flex justify-center">
                 <div className="grid grid-cols-2 gap-x-12 gap-y-2 text-orange-500">
-                  <div className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Bullhead City, AZ</span>
-                  </div>
-                  <div className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Laughlin, NV</span>
-                  </div>
-                  <div className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Kingman, AZ</span>
-                  </div>
-                  <div className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Fort Mohave, AZ</span>
-                  </div>
-                  <div className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Needles, CA</span>
-                  </div>
-                  <div className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Lake Havasu City, AZ</span>
-                  </div>
+                  {serviceLocations?.map((location, index) => (
+                    <div key={index} className="flex items-start">
+                      <span className="mr-2">•</span>
+                      <span>{location}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
               <p className="text-sm text-gray-300 mt-4">

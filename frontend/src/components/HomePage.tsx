@@ -136,7 +136,7 @@ const HomePage: React.FC = () => {
       
       <Affiliates />
 
-      <Contact header={config.header} footer={config.footer} />
+      <Contact header={config.header} footer={config.footer} serviceLocations={businessConfig.serviceLocations} />
 
       <QuoteModal isOpen={showQuoteModal} onClose={closeQuoteModal} />
       
