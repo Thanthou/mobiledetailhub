@@ -15,7 +15,7 @@ export const businessConfig = {
     'Mohave Valley, AZ',
     'Needles, CA',
     'Fort Mohave, AZ',
-    "Katherine's Landing, AZ",
+    "Katherine Landing, AZ",
     'Lake Havasu City, AZ',
     'Lake Mohave',
     'Colorado River',
