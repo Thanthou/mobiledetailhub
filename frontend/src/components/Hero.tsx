@@ -13,6 +13,11 @@ interface HeroProps {
     location: string;
     navLinks: { name: string; href: string; onClick?: () => void }[];
   };
+  socialLinks?: {
+    facebook?: string;
+    instagram?: string;
+    tiktok?: string;
+  };
   onRequestQuote?: () => void;
 }
 
@@ -23,6 +28,7 @@ const Hero: React.FC<HeroProps> = ({
   ctaText, 
   ctaLink,
   header,
+  socialLinks,
   onRequestQuote 
 }) => {
   return (
@@ -33,6 +39,7 @@ const Hero: React.FC<HeroProps> = ({
         phone={header.phone}
         location={header.location}
         navLinks={header.navLinks}
+        socialLinks={socialLinks}
       />
       
       {/* Background Image */}

@@ -35,17 +35,7 @@ const CeramicCoatingModal: React.FC<CeramicCoatingModalProps> = ({ isOpen, onClo
   const [activeTab, setActiveTab] = useState<'videos' | 'images'>('videos');
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 
-  const nextImage = () => {
-    setCurrentImageIndex((prev) => 
-      prev === ceramicCoatingService.images.length - 1 ? 0 : prev + 1
-    );
-  };
 
-  const prevImage = () => {
-    setCurrentImageIndex((prev) => 
-      prev === 0 ? ceramicCoatingService.images.length - 1 : prev - 1
-    );
-  };
 
   const nextVideo = () => {
     setCurrentVideoIndex((prev) => 

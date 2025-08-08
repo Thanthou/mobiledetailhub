@@ -1,5 +1,21 @@
 import React from 'react';
-import { Phone, MapPin, Mail } from 'lucide-react';
+import { Phone, MapPin, Facebook, Instagram, Youtube } from 'lucide-react';
+
+// Custom TikTok icon component
+const TikTokIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg 
+    className={className} 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round"
+  >
+    <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+  </svg>
+);
+
 
 interface FooterProps {
   contactPhone: string;
@@ -10,14 +26,20 @@ interface FooterProps {
     text: string;
     link: string;
   };
+  socialLinks?: {
+    facebook?: string;
+    instagram?: string;
+    tiktok?: string;
+    youtube?: string;
+  };
   onRequestQuote?: () => void;
 }
 
-const Footer: React.FC<FooterProps> = ({ contactPhone, location, email, quickLinks, attribution, onRequestQuote }) => {
+const Footer: React.FC<FooterProps> = ({ contactPhone, location, email, quickLinks, attribution, socialLinks, onRequestQuote }) => {
   return (
     <footer className="bg-stone-800 text-white py-16">
       <div className="max-w-6xl mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-32 mb-8">
           {/* Contact Information */}
           <div className="space-y-4">
             <h3 className="text-2xl font-bold mb-6 text-orange-400">Get In Touch</h3>
@@ -29,10 +51,15 @@ const Footer: React.FC<FooterProps> = ({ contactPhone, location, email, quickLin
             </div>
 
             <div className="flex items-center space-x-3">
-              <Mail className="h-5 w-5 text-orange-400" />
+              <span className="text-orange-400 text-lg font-bold">@</span>
               <a href={`mailto:${email}`} className="text-lg hover:text-orange-400 transition-colors duration-200">
                 {email}
               </a>
+            </div>
+
+            <div className="flex items-center space-x-3">
+              <MapPin className="h-5 w-5 text-orange-400" />
+              <span className="text-lg text-gray-300">{location}</span>
             </div>
           </div>
 
@@ -58,6 +85,59 @@ const Footer: React.FC<FooterProps> = ({ contactPhone, location, email, quickLin
               ))}
             </ul>
           </div>
+
+          {/* Social Media */}
+          {socialLinks && (
+            <div>
+              <h3 className="text-2xl font-bold mb-6 text-orange-400">Follow Us</h3>
+              <div className="flex flex-col space-y-4">
+                {socialLinks.facebook && (
+                  <a 
+                    href={socialLinks.facebook} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center space-x-3 text-gray-300 hover:text-orange-400 transition-colors duration-200"
+                  >
+                    <Facebook className="h-7 w-7" />
+                    <span className="text-xl">Facebook</span>
+                  </a>
+                )}
+                {socialLinks.instagram && (
+                  <a 
+                    href={socialLinks.instagram} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center space-x-3 text-gray-300 hover:text-orange-400 transition-colors duration-200"
+                  >
+                    <Instagram className="h-7 w-7" />
+                    <span className="text-xl">Instagram</span>
+                  </a>
+                )}
+                {socialLinks.tiktok && (
+                  <a 
+                    href={socialLinks.tiktok} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center space-x-3 text-gray-300 hover:text-orange-400 transition-colors duration-200"
+                  >
+                    <TikTokIcon className="h-7 w-7" />
+                    <span className="text-xl">TikTok</span>
+                  </a>
+                )}
+                {socialLinks.youtube && (
+                  <a 
+                    href={socialLinks.youtube} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center space-x-3 text-gray-300 hover:text-orange-400 transition-colors duration-200"
+                  >
+                    <Youtube className="h-7 w-7" />
+                    <span className="text-xl">YouTube</span>
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Call to Action */}
           <div>

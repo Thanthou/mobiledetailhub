@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Car, Shield, Paintbrush, Palette, Sun, Zap, Ship } from 'lucide-react';
+import { Car, Paintbrush, Palette, Sun, Zap, Ship } from 'lucide-react';
 import Hero from './Hero';
 import ServicesGrid from './ServicesGrid';
 import Contact from './Contact';
@@ -7,6 +7,7 @@ import Affiliates from './Affiliates';
 import Footer from './Footer';
 import QuoteModal from './QuoteModal';
 import FAQ from './FAQ';
+import { businessConfig } from '../config/businessConfig';
 
 const scrollToSection = (sectionId: string) => {
   const element = document.getElementById(sectionId);
@@ -46,9 +47,9 @@ const HomePage: React.FC = () => {
   // Configuration object for easy customization
   const config = {
     header: {
-      businessName: "JP's Mobile Detail",
-      phone: '(702) 420-3151',
-      location: 'Bullhead City, AZ',
+      businessName: businessConfig.name,
+      phone: businessConfig.phone,
+      location: businessConfig.location,
       navLinks: [
         { name: 'Home', href: '#', onClick: () => window.scrollTo({ top: 0, behavior: 'smooth' }) },
         { name: 'Services', href: '#services', onClick: () => scrollToSection('services') },
@@ -56,12 +57,13 @@ const HomePage: React.FC = () => {
         { name: 'Contact', href: '#', onClick: () => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }) }
       ]
     },
+    socialMedia: businessConfig.socialMedia,
     hero: {
-      backgroundImage: '/auto_detailing/hero_image.png',
-      headline: 'Premium Mobile Detailing',
+      backgroundImage: businessConfig.hero.backgroundImage,
+      headline: businessConfig.hero.headline,
       // subheadline: 'Premium Mobile Detailing',
-      ctaText: 'Book Now',
-      ctaLink: '/booking?detailer_id=joe123'
+      ctaText: businessConfig.hero.ctaText,
+      ctaLink: businessConfig.bookingLink
     },
     services: [
       {
@@ -96,33 +98,31 @@ const HomePage: React.FC = () => {
       }
     ],
     footer: {
-      contactPhone: '(702) 420-3151',
-      location: 'Bullhead City, AZ',
-      email: 'service@jpsmobiledetail.com',
+      contactPhone: businessConfig.phone,
+      location: businessConfig.location,
+      email: businessConfig.email,
       quickLinks: [
         { name: 'Home', href: '#', onClick: () => window.scrollTo({ top: 0, behavior: 'smooth' }) },
         { name: 'Services', href: '#services', onClick: () => scrollToSection('services') },
         { name: 'FAQ', href: '#faq', onClick: () => scrollToFAQ() },
         { name: 'Contact', href: '#', onClick: () => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }) }
       ],
-      attribution: {
-        text: 'Powered by MobileDetailHub',
-        link: 'https://mobiledetailhub.com'
-      }
+      attribution: businessConfig.attribution
     }
   };
 
   return (
     <div className="min-h-screen">
-      <Hero
-        backgroundImage={config.hero.backgroundImage}
-        headline={config.hero.headline}
-        subheadline=""
-        ctaText={config.hero.ctaText}
-        ctaLink={config.hero.ctaLink}
-        header={config.header}
-        onRequestQuote={openQuoteModal}
-      />
+              <Hero 
+          backgroundImage={config.hero.backgroundImage}
+          headline={config.hero.headline}
+          subheadline=""
+          ctaText={config.hero.ctaText}
+          ctaLink={config.hero.ctaLink}
+          header={config.header}
+          socialLinks={config.socialMedia}
+          onRequestQuote={openQuoteModal}
+        />
       
       <div id="services">
         <ServicesGrid services={config.services} onRequestQuote={openQuoteModal} />
@@ -140,12 +140,13 @@ const HomePage: React.FC = () => {
 
       <QuoteModal isOpen={showQuoteModal} onClose={closeQuoteModal} />
       
-      <Footer
+            <Footer 
         contactPhone={config.footer.contactPhone}
         location={config.footer.location}
         email={config.footer.email}
         quickLinks={config.footer.quickLinks}
         attribution={config.footer.attribution}
+        socialLinks={config.socialMedia}
         onRequestQuote={openQuoteModal}
       />
     </div>
