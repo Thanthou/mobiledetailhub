@@ -11,9 +11,9 @@ export const ceramicCoatingService = {
     'Easier maintenance and cleaning',
     'Repels water, dirt, and grime'
   ],
-  images: ['/ceramic-coating.png', '/ceramic-application.png', '/ceramic-result.png', '/ceramic-protection.png'],
+  images: ['/ceramic/ceramic-coating.png', '/ceramic/ceramic-application.png', '/ceramic/ceramic-result.png', '/ceramic/ceramic-protection.png'],
   videos: [
-    '/cc_final1.mp4'
+    '/ceramic/cc_final1.mp4'
   ]
 };
 

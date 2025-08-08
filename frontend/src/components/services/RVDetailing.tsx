@@ -11,9 +11,9 @@ export const rvDetailingService = {
     'Luxury RV Detail: $900 - Complete restoration with premium products and extended warranty'
   ],
   images: [
-    '/rv-detail.png',
-    '/rv-detailed.png',
-    '/rv-detailed.png'
+    '/rv_detailing/rv-detail.png',
+    '/rv_detailing/rv-detailed.png',
+    '/rv_detailing/rv-detailed.png'
   ]
 };
 

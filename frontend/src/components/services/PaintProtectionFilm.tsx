@@ -4,10 +4,10 @@ import { X, ChevronLeft, ChevronRight, Shield, Zap, Play, Image } from 'lucide-r
 export const paintProtectionFilmService = {
   title: 'Paint Protection Film',
   description: 'Protect Your Investment with PPF\n\n• Shields against rock chips, scratches, and harsh wear\n• Virtually invisible — preserves your paint\'s original look\n• See it in action: knife, screws, rocks — the film takes the damage, your paint doesn\'t\n• Professionally installed for long-lasting, seamless coverage\n\n*Watch how PPF is applied and what it can withstand.*',
-  images: ['/ppf-installation.png', '/ppf-protection.png', '/ppf-result.png', '/ppf-detail.png'],
+  images: ['/ppf/ppf-installation.png', '/ppf/ppf-protection.png', '/ppf/ppf-result.png', '/ppf/ppf-detail.png'],
         videos: [
-    '/ppf_worth.mp4', // First PPF video
-    '/ppf_final1.mp4', // Second PPF video
+    '/ppf/ppf_worth.mp4', // First PPF video
+    '/ppf/ppf_final1.mp4', // Second PPF video
   ]
 };
 

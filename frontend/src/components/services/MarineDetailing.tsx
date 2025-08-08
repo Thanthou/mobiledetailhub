@@ -11,11 +11,11 @@ export const marineDetailingService = {
     'Luxury Marine Detail: $1200 - Complete restoration with premium marine products'
   ],
   images: [
-    '/boat-detail.png',
-    '/boat-detail2.png',
-    '/boat-detail3.png',
-    '/boat-detail4.png',
-    '/boat-detail5.png'
+    '/boat_detailing/boat-detail.png',
+    '/boat_detailing/boat-detail2.png',
+    '/boat_detailing/boat-detail3.png',
+    '/boat_detailing/boat-detail4.png',
+    '/boat_detailing/boat-detail5.png'
   ]
 };
 

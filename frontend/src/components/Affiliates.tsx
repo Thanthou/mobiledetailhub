@@ -4,69 +4,69 @@ import { Shield, Zap, Droplets, Sparkles, Star, Award } from 'lucide-react';
 const Affiliates: React.FC = () => {
   const brands = [
     { 
-      image: '/koch.png',
+      image: '/affiliates/koch.png',
       color: 'bg-black',
       url: 'https://www.koch-chemie.com'
     },
     { 
-      image: '/starke.png',
+      image: '/affiliates/starke.png',
       color: 'bg-black',
       url: 'https://starkeyachtcare.com/'
     },
     { 
-      image: '/menzerna.webp',
+      image: '/affiliates/menzerna.webp',
       color: 'bg-black',
       url: 'https://www.menzerna.com'
     },
     { 
-      image: '/underdog.webp',
+      image: '/affiliates/underdog.webp',
       color: 'bg-black',
       url: 'https://getundrdog.com/.com'
     },
     { 
-      image: '/mirka.webp',
+      image: '/affiliates/mirka.webp',
       color: 'bg-black',
       url: 'https://www.mirka.com'
     },
     { 
-      image: '/rupes.png',
+      image: '/affiliates/rupes.png',
       color: 'bg-black',
       url: 'https://www.rupes.com'
     },
     { 
-      image: '/mtm_hydro.jpg',
+      image: '/affiliates/mtm_hydro.jpg',
       color: 'bg-black',
       url: 'https://www.mtmhydroparts.com/'
     },
     { 
-      image: '/yot-stik.webp',
+      image: '/affiliates/yot-stik.webp',
       color: 'bg-black',
       url: 'https://www.yotstik.com/'
     },
     { 
-      image: '/auto-fiber.webp',
+      image: '/affiliates/auto-fiber.webp',
       color: 'bg-black',
       url: 'https://www.autofiber.com/'
     },
     { 
-      image: '/lake-country.png',
+      image: '/affiliates/lake-country.png',
       color: 'bg-black',
       url: 'https://lakecountrymfg.com/'
     },
     { 
-      image: '/poka.png',
+      image: '/affiliates/poka.png',
       color: 'bg-black',
       url: 'https://pokapremium.com/'
     },
     { 
-      image: '/lamin-x.png',
+      image: '/affiliates/lamin-x.png',
       color: 'bg-black',
       url: 'https://lamin-x.com/'
     },
   ];
 
   return (
-    <section className="bg-stone-800 py-28">
+    <section className="bg-stone-800 py-12">
       <div className="w-full">
        
         <div className="flex justify-center items-center gap-4">

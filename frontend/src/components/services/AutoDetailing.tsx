@@ -11,10 +11,10 @@ export const autoDetailingService = {
     'Luxury Detail: $500 - Complete restoration with premium products and extended warranty'
   ],
   images: [
-    '/car2.png',
-    '/car3.png',
-    '/sports.png',
-    '/auto_detail.png'
+    '/auto_detailing/car2.png',
+    '/auto_detailing/car3.png',
+    '/auto_detailing/sports.png',
+    '/auto_detailing/auto_detail.png'
   ]
 };
 

@@ -10,10 +10,12 @@ export const interiorExteriorService = {
     'Restores a like-new feel inside and out',
     'Ideal for regular maintenance or full rejuvenation'
   ],
-  images: ['/interior-detail.png', '/exterior-detail.png', '/interior-exterior.png', '/detail-complete.png'],
+  images: ['/interior_exterior/interior-detail.png', '/interior_exterior/exterior-detail.png', '/interior_exterior/interior-exterior.png', '/interior_exterior/detail-complete.png'],
   videos: [
-    '/interior2_final.mp4',
-    '/exterior1_final.mp4'
+    '/interior_exterior/interior2_final.mp4',
+    '/interior_exterior/exterior1_final.mp4',
+    '/interior_exterior/interior_final1.mp4',
+    '/interior_exterior/interior.mp4'
   ]
 };
 

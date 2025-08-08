@@ -6,6 +6,7 @@ import Contact from './Contact';
 import Affiliates from './Affiliates';
 import Footer from './Footer';
 import QuoteModal from './QuoteModal';
+import FAQ from './FAQ';
 
 const scrollToSection = (sectionId: string) => {
   const element = document.getElementById(sectionId);
@@ -45,6 +46,9 @@ const HomePage: React.FC = () => {
         <ServicesGrid services={config.services} onRequestQuote={openQuoteModal} />
       </div>
       
+      {/* FAQ Section */}
+      <FAQ />
+      
       {/* Separator Line - Change 'border-orange-500' to any color you want */}
       <div className="w-full border-t-2 border-stone-600 my-0"></div>
       
@@ -79,7 +83,7 @@ const config = {
     ]
   },
   hero: {
-    backgroundImage: '/car3.png',
+    backgroundImage: '/auto_detailing/car3.png',
     headline: 'Premium Mobile Detailing',
     // subheadline: 'Premium Mobile Detailing',
     ctaText: 'Book Now',
@@ -88,32 +92,32 @@ const config = {
   services: [
     {
       title: 'Auto Detailing',
-      image: 'sports.png',
+      image: '/auto_detailing/sports.png',
       icon: <Car className="h-6 w-6" />
     },
     {
       title: 'Marine Detailing',
-      image: 'boat-detail5.png',
+      image: '/boat_detailing/boat-detail5.png',
       icon: <Ship className="h-6 w-6" />
     },
     {
       title: 'RV Detailing',
-      image: 'rv-detail.png',
+      image: '/rv_detailing/rv-detail.png',
       icon: <Paintbrush className="h-6 w-6" />
     },
     {
       title: 'Interior / Exterior',
-      image: 'in-ex.png',
+      image: '/interior_exterior/in-ex.png',
       icon: <Palette className="h-6 w-6" />
     },
     {
       title: 'Ceramic Coating',
-      image: 'ceramic.png',
+      image: '/ceramic/ceramic.png',
       icon: <Sun className="h-6 w-6" />
     },
     {
       title: 'Paint Protection Film',
-      image: 'ppf-car.png',
+      image: '/ppf/ppf-car.png',
       icon: <Zap className="h-6 w-6" />
     }
   ],
