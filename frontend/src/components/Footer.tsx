@@ -46,9 +46,9 @@ const Footer: React.FC<FooterProps> = ({ contactPhone, location, email, quickLin
             <h3 className="text-2xl font-bold mb-6 text-orange-400">Get In Touch</h3>
             <div className="flex items-center space-x-3">
               <Phone className="h-5 w-5 text-orange-400" />
-              <a href={`tel:${contactPhone}`} className="text-lg hover:text-orange-400 transition-colors duration-200">
+              <span className="text-lg text-white">
                 {contactPhone}
-              </a>
+              </span>
             </div>
 
             <div className="flex items-center space-x-3">

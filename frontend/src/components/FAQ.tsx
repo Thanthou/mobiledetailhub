@@ -318,13 +318,11 @@ const FAQ = React.forwardRef<FAQRef, FAQProps>(({ autoExpand = false }, ref) => 
             <div className="mt-8 text-center">
               <p className="text-gray-300 text-sm">
                 Need more information about our mobile detailing services? 
-                <a 
-                  href="tel:702-420-3151" 
-                  className="text-orange-400 hover:text-orange-300 ml-1 font-medium"
-                  aria-label="Call us at 702-420-3151"
+                <span 
+                  className="text-orange-400 ml-1 font-medium"
                 >
                   Call us at (702) 420-3151
-                </a>
+                </span>
                 {' '}or{' '}
                 <a 
                   href="mailto:service@jpsmobiledetail.com" 

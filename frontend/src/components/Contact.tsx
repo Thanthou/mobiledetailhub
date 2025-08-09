@@ -29,9 +29,9 @@ const Contact: React.FC<ContactProps> = ({ header, footer, serviceLocations }) =
                   </div>
                   <div className="text-left w-48">
                     <h3 className="font-semibold text-white">Phone</h3>
-                    <a href={`tel:${header.phone}`} className="text-orange-500 hover:text-orange-400 text-lg">
+                    <span className="text-orange-500 text-lg">
                       {header.phone}
-                    </a>
+                    </span>
                   </div>
                 </div>
 
