@@ -3,7 +3,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const nodemailer = require('nodemailer');
-const twilio = require('twilio');
+// const twilio = require('twilio'); // Removed for now
 const config = require('../shared/config.js');
 const { business } = config;
 require('dotenv').config();
@@ -31,23 +31,10 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// SMS function using Twilio
+// SMS function disabled for now
 const sendSMS = async (phone, message) => {
-  const accountSid = process.env.TWILIO_ACCOUNT_SID;
-  const authToken = process.env.TWILIO_AUTH_TOKEN;
-  const fromPhone = process.env.TWILIO_PHONE_NUMBER;
-
-  if (!accountSid || !authToken || !fromPhone) {
-    throw new Error('Twilio credentials not configured');
-  }
-
-  const client = twilio(accountSid, authToken);
-  
-  return await client.messages.create({
-    body: message,
-    from: fromPhone,
-    to: `+1${phone}` // Add +1 for US numbers
-  });
+  console.log('SMS functionality disabled - would send:', message);
+  return { success: false, message: 'SMS disabled' };
 };
 
 // Email transporter setup
@@ -107,11 +94,13 @@ app.post('/api/contact', async (req, res) => {
       Submitted at: ${new Date().toLocaleString()}
     `;
 
-    // Send email
+    // Send email to multiple recipients
     const transporter = createTransporter();
+    const recipients = config.emailNotifications || [process.env.NOTIFICATION_EMAIL || business.email];
+    
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
-      to: process.env.NOTIFICATION_EMAIL || business.email,
+      to: recipients.join(', '), // Send to all email addresses
       subject: `New Contact Form Submission - ${name}`,
       text: emailContent,
       html: emailContent.replace(/\n/g, '<br>')
@@ -174,11 +163,13 @@ app.post('/api/quote', async (req, res) => {
       Submitted at: ${new Date().toLocaleString()}
     `;
 
-    // Send email
+    // Send email to multiple recipients
     const transporter = createTransporter();
+    const recipients = config.emailNotifications || [process.env.NOTIFICATION_EMAIL || business.email];
+    
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
-      to: process.env.NOTIFICATION_EMAIL || business.email,
+      to: recipients.join(', '), // Send to all email addresses
       subject: `New Quote Request - ${name} - ${service}`,
       text: emailContent,
       html: emailContent.replace(/\n/g, '<br>')

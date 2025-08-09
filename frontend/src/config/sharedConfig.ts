@@ -3,7 +3,7 @@ export const businessConfig = {
   name: "JP's Mobile Detail",
   phone: '(702) 420-3151',
   location: 'Bullhead City, AZ',
-  email: 'JPsMobileDetailing@hotmail.com',
+  email: 'service@mobiledetailhub.com',
   
   serviceLocations: [
     'Bullhead City, AZ',

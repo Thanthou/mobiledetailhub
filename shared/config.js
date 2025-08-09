@@ -3,11 +3,17 @@
 const config = {
   business: {
     name: "JP's Mobile Detail",
-    email: 'JPsMobileDetailing@hotmail.com',
+    email: 'service@mobiledetailhub.com',
     phone: '(702) 420-3151',
     smsPhone: '+17024203151', // SMS notifications (no formatting)
     location: 'Bullhead City, AZ'
   },
+
+  // Email notifications - quotes will be sent to all these addresses
+  emailNotifications: [
+    'JPsMobileDetailing@hotmail.com',
+    'bcoleman143@gmail.com'  // Add more emails here as needed
+  ],
   
   serviceLocations: [
     'Bullhead City, AZ',
