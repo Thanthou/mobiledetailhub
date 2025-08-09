@@ -10,9 +10,10 @@ interface ContactProps {
     email: string;
   };
   serviceLocations?: string[];
+  onRequestQuote?: () => void;
 }
 
-const Contact: React.FC<ContactProps> = ({ header, footer, serviceLocations }) => {
+const Contact: React.FC<ContactProps> = ({ header, footer, serviceLocations, onRequestQuote }) => {
   return (
     <section id="contact" className="bg-stone-700 py-16">
       <div className="max-w-6xl mx-auto px-4">
@@ -51,9 +52,12 @@ const Contact: React.FC<ContactProps> = ({ header, footer, serviceLocations }) =
                   </div>
                   <div className="text-left w-48">
                     <h3 className="font-semibold text-white">Email</h3>
-                    <a href={`mailto:${footer.email}`} className="text-orange-500 hover:text-orange-400 text-lg">
+                    <button 
+                      onClick={onRequestQuote}
+                      className="text-orange-500 hover:text-orange-400 text-lg hover:underline cursor-pointer bg-transparent border-none p-0 font-inherit"
+                    >
                       {footer.email}
-                    </a>
+                    </button>
                   </div>
                 </div>
               </div>

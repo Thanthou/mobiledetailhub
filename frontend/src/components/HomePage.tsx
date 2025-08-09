@@ -7,7 +7,7 @@ import Affiliates from './Affiliates';
 import Footer from './Footer';
 import QuoteModal from './QuoteModal';
 import FAQ from './FAQ';
-import { businessConfig } from '../config/businessConfig';
+import { businessConfig } from '../config/sharedConfig';
 
 const scrollToSection = (sectionId: string) => {
   const element = document.getElementById(sectionId);
@@ -137,14 +137,14 @@ const HomePage: React.FC = () => {
       </div>
       
       {/* FAQ Section */}
-      <FAQ ref={faqRef} />
+      <FAQ ref={faqRef} onRequestQuote={openQuoteModal} />
       
       {/* Separator Line - Change 'border-orange-500' to any color you want */}
       <div className="w-full border-t-2 border-stone-600 my-0"></div>
       
       <Affiliates />
 
-      <Contact header={config.header} footer={config.footer} serviceLocations={businessConfig.serviceLocations} />
+      <Contact header={config.header} footer={config.footer} serviceLocations={businessConfig.serviceLocations} onRequestQuote={openQuoteModal} />
 
       <QuoteModal isOpen={showQuoteModal} onClose={closeQuoteModal} />
       

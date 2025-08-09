@@ -3,6 +3,9 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const nodemailer = require('nodemailer');
+const twilio = require('twilio');
+const config = require('../shared/config.js');
+const { business } = config;
 require('dotenv').config();
 
 const app = express();
@@ -28,10 +31,29 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// SMS function using Twilio
+const sendSMS = async (phone, message) => {
+  const accountSid = process.env.TWILIO_ACCOUNT_SID;
+  const authToken = process.env.TWILIO_AUTH_TOKEN;
+  const fromPhone = process.env.TWILIO_PHONE_NUMBER;
+
+  if (!accountSid || !authToken || !fromPhone) {
+    throw new Error('Twilio credentials not configured');
+  }
+
+  const client = twilio(accountSid, authToken);
+  
+  return await client.messages.create({
+    body: message,
+    from: fromPhone,
+    to: `+1${phone}` // Add +1 for US numbers
+  });
+};
+
 // Email transporter setup
 const createTransporter = () => {
   if (process.env.EMAIL_SERVICE === 'gmail') {
-    return nodemailer.createTransporter({
+    return nodemailer.createTransport({
       service: 'gmail',
       auth: {
         user: process.env.EMAIL_USER,
@@ -40,7 +62,7 @@ const createTransporter = () => {
     });
   } else {
     // For other email services or custom SMTP
-    return nodemailer.createTransporter({
+    return nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: process.env.SMTP_PORT,
       secure: true,
@@ -89,7 +111,7 @@ app.post('/api/contact', async (req, res) => {
     const transporter = createTransporter();
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
-      to: process.env.NOTIFICATION_EMAIL || process.env.EMAIL_USER,
+      to: process.env.NOTIFICATION_EMAIL || business.email,
       subject: `New Contact Form Submission - ${name}`,
       text: emailContent,
       html: emailContent.replace(/\n/g, '<br>')
@@ -156,11 +178,21 @@ app.post('/api/quote', async (req, res) => {
     const transporter = createTransporter();
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
-      to: process.env.NOTIFICATION_EMAIL || process.env.EMAIL_USER,
+      to: process.env.NOTIFICATION_EMAIL || business.email,
       subject: `New Quote Request - ${name} - ${service}`,
       text: emailContent,
       html: emailContent.replace(/\n/g, '<br>')
     });
+
+    // Send SMS notification
+    try {
+      const smsMessage = `New Quote: ${name}\nService: ${service}\nVehicle: ${vehicle}\nPhone: ${phone}\nEmail: ${email}`;
+      await sendSMS(business.smsPhone, smsMessage);
+      console.log('SMS sent successfully');
+    } catch (smsError) {
+      console.error('SMS failed:', smsError.message);
+      // Don't fail the request if SMS fails
+    }
 
     res.json({ 
       success: true, 
@@ -195,5 +227,5 @@ app.use('*', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`🚗 JPS Backend server running on port ${PORT}`);
-  console.log(`📧 Email notifications: ${process.env.NOTIFICATION_EMAIL || 'Not configured'}`);
+  console.log(`📧 Email notifications: ${process.env.NOTIFICATION_EMAIL || business.email}`);
 }); 

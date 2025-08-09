@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { CheckCircle } from 'lucide-react';
+import { apiService } from '../services/api';
 
 interface QuoteModalProps {
   isOpen: boolean;
@@ -16,25 +17,22 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
     message: ''
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   const services = [
-    'Auto Detailing',
-    'Ceramic Pro',
+    'Detail',
+    'Ceramic Coating',
     'Paint Protection Film',
-    'Car Wrap',
-    'Window Tinting',
-    'Powder Coating',
     'Other'
   ];
 
   const vehicleTypes = [
-    'Sedan',
-    'SUV',
+    'Car',
     'Truck',
-    'Coupe',
-    'Convertible',
+    'Marine',
+    'RV',
     'Motorcycle',
-    'RV/Trailer',
     'Other'
   ];
 
@@ -46,25 +44,41 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically send the form data to your backend
-    console.log('Form submitted:', formData);
-    setIsSubmitted(true);
-    
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setIsSubmitted(false);
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        service: '',
-        vehicleType: '',
-        message: ''
+    setIsSubmitting(true);
+    setError('');
+
+    try {
+      await apiService.submitQuoteRequest({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        vehicle: formData.vehicleType,
+        service: formData.service,
+        additionalInfo: formData.message
       });
-      onClose();
-    }, 3000);
+
+      setIsSubmitted(true);
+      
+      // Reset form after 3 seconds
+      setTimeout(() => {
+        setIsSubmitted(false);
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          service: '',
+          vehicleType: '',
+          message: ''
+        });
+        onClose();
+      }, 3000);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to submit quote request');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -85,6 +99,11 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
           
           {!isSubmitted ? (
             <form onSubmit={handleSubmit} className="space-y-4">
+              {error && (
+                <div className="bg-red-600 text-white p-3 rounded-lg text-sm">
+                  {error}
+                </div>
+              )}
               <div>
                 <label htmlFor="modal-name" className="block text-sm font-medium text-white mb-2">
                   Full Name *
@@ -191,9 +210,10 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
               <div className="flex gap-3 pt-4">
                 <button
                   type="submit"
-                  className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+                  disabled={isSubmitting}
+                  className="flex-1 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-500 disabled:cursor-not-allowed text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg disabled:transform-none disabled:shadow-none"
                 >
-                  Send Request
+                  {isSubmitting ? 'Sending...' : 'Send Request'}
                 </button>
                 <button
                   type="button"

@@ -59,7 +59,7 @@ const faqData: FAQItem[] = [
   },
   {
     question: "How do I book a mobile detailing appointment?",
-    answer: "Booking a mobile detailing appointment is easy! You can call us at (702) 420-3151, email service@jpsmobiledetail.com, or click the 'Book Now' button on our website. We’ll help you choose the right detailing package and schedule a convenient time at your home, office, storage facility, or marina.",
+    answer: "Booking a mobile detailing appointment is easy! You can call us at (702) 420-3151, email jps@mobiledetailhub.com, or click the 'Book Now' button on our website. We'll help you choose the right detailing package and schedule a convenient time at your home, office, storage facility, or marina.",
     category: "Scheduling"
   },
   {
@@ -94,13 +94,14 @@ const faqData: FAQItem[] = [
 
 interface FAQProps {
   autoExpand?: boolean;
+  onRequestQuote?: () => void;
 }
 
 interface FAQRef {
   expand: () => void;
 }
 
-const FAQ = React.forwardRef<FAQRef, FAQProps>(({ autoExpand = false }, ref) => {
+const FAQ = React.forwardRef<FAQRef, FAQProps>(({ autoExpand = false, onRequestQuote }, ref) => {
   const [isExpanded, setIsExpanded] = useState(autoExpand);
   const [openItems, setOpenItems] = useState<number[]>([]);
 
@@ -324,13 +325,13 @@ const FAQ = React.forwardRef<FAQRef, FAQProps>(({ autoExpand = false }, ref) => 
                   Call us at (702) 420-3151
                 </span>
                 {' '}or{' '}
-                <a 
-                  href="mailto:service@jpsmobiledetail.com" 
-                  className="text-orange-400 hover:text-orange-300 font-medium"
-                  aria-label="Email us at service@jpsmobiledetail.com"
+                <button 
+                  onClick={onRequestQuote}
+                  className="text-orange-400 hover:text-orange-300 font-medium hover:underline cursor-pointer bg-transparent border-none p-0 font-inherit"
+                  aria-label="Request a quote"
                 >
                   email us
-                </a>
+                </button>
                 {' '}for personalized assistance.
               </p>
             </div>
