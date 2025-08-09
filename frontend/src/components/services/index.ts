@@ -1,9 +1,10 @@
 // Service type definition
 export interface ServiceDetails {
   title: string;
-  description: string;
-  pricing: string[];
+  description: string[];
+  pricing?: string[];
   images: string[];
+  videos?: string[];
 }
 
 // Import service data

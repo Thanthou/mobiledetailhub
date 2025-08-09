@@ -52,14 +52,6 @@ const RVDetailingModal: React.FC<RVDetailingModalProps> = ({ isOpen, onClose, on
 
   if (!isOpen) return null;
 
-  const nextImage = () => {
-    setCurrentImageIndex((prev) => (prev + 1) % rvDetailingService.images.length);
-  };
-
-  const prevImage = () => {
-    setCurrentImageIndex((prev) => (prev - 1 + rvDetailingService.images.length) % rvDetailingService.images.length);
-  };
-
   const nextVideo = () => {
     setCurrentVideoIndex((prev) => (prev + 1) % rvDetailingService.videos.length);
   };

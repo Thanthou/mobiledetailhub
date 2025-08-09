@@ -28,7 +28,6 @@ const Hero: React.FC<HeroProps> = ({
   headline, 
   subheadline, 
   ctaText, 
-  ctaLink,
   header,
   socialLinks,
   onBookNow,

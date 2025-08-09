@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Car, Shield, Paintbrush, Palette, Sun, Zap } from 'lucide-react';
 import AutoDetailingModal from './services/AutoDetailing';
 import MarineDetailingModal from './services/MarineDetailing';
 import RVDetailingModal from './services/RVDetailing';

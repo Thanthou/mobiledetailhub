@@ -37,17 +37,7 @@ const PaintProtectionFilmModal: React.FC<PaintProtectionFilmModalProps> = ({ isO
   const [activeTab, setActiveTab] = useState<'images' | 'videos'>('videos');
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 
-  const nextImage = () => {
-    setCurrentImageIndex((prev) => 
-      prev === paintProtectionFilmService.images.length - 1 ? 0 : prev + 1
-    );
-  };
 
-  const prevImage = () => {
-    setCurrentImageIndex((prev) => 
-      prev === 0 ? paintProtectionFilmService.images.length - 1 : prev - 1
-    );
-  };
 
   const nextVideo = () => {
     setCurrentVideoIndex((prev) => 

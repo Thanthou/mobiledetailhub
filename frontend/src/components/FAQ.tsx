@@ -91,51 +91,6 @@ const faqData: FAQItem[] = [
   
   ];
 
-// Category configuration with icons and colors
-const categoryConfig = {
-  Services: { 
-    icon: "🔧", 
-    color: "from-blue-500 to-blue-600",
-    bgColor: "bg-blue-50",
-    borderColor: "border-blue-500"
-  },
-  Locations: { 
-    icon: "📍", 
-    color: "from-green-500 to-green-600",
-    bgColor: "bg-green-50",
-    borderColor: "border-green-500"
-  },
-  Scheduling: { 
-    icon: "📅", 
-    color: "from-purple-500 to-purple-600",
-    bgColor: "bg-purple-50",
-    borderColor: "border-purple-500"
-  },
-  Payments: { 
-    icon: "💳", 
-    color: "from-yellow-500 to-yellow-600",
-    bgColor: "bg-yellow-50",
-    borderColor: "border-yellow-500"
-  },
-  Warranty: { 
-    icon: "🛡️", 
-    color: "from-red-500 to-red-600",
-    bgColor: "bg-red-50",
-    borderColor: "border-red-500"
-  },
-  Weather: { 
-    icon: "🌤️", 
-    color: "from-cyan-500 to-cyan-600",
-    bgColor: "bg-cyan-50",
-    borderColor: "border-cyan-500"
-  },
-  General: { 
-    icon: "❓", 
-    color: "from-gray-500 to-gray-600",
-    bgColor: "bg-gray-50",
-    borderColor: "border-gray-500"
-  }
-};
 
 interface FAQProps {
   autoExpand?: boolean;
@@ -216,7 +171,6 @@ const FAQ = React.forwardRef<FAQRef, FAQProps>(({ autoExpand = false }, ref) => 
       if (faqSection) {
         const faqRect = faqSection.getBoundingClientRect();
         const faqTop = faqRect.top;
-        const faqBottom = faqRect.bottom;
         
         // Check if user has scrolled to the bottom (within 50px)
         if (scrollTop + windowHeight >= documentHeight - 50) {

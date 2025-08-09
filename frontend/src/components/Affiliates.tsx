@@ -1,5 +1,4 @@
 import React from 'react';
-import { Shield, Zap, Droplets, Sparkles, Star, Award } from 'lucide-react';
 
 const Affiliates: React.FC = () => {
   const brands = [

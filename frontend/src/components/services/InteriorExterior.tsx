@@ -35,17 +35,7 @@ const InteriorExteriorModal: React.FC<InteriorExteriorModalProps> = ({ isOpen, o
   const [activeTab, setActiveTab] = useState<'videos' | 'images'>('videos');
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 
-  const nextImage = () => {
-    setCurrentImageIndex((prev) => 
-      prev === interiorExteriorService.images.length - 1 ? 0 : prev + 1
-    );
-  };
 
-  const prevImage = () => {
-    setCurrentImageIndex((prev) => 
-      prev === 0 ? interiorExteriorService.images.length - 1 : prev - 1
-    );
-  };
 
   const nextVideo = () => {
     setCurrentVideoIndex((prev) => 

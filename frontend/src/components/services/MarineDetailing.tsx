@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, ChevronLeft, ChevronRight, Ship, Anchor, Waves } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Ship, Anchor } from 'lucide-react';
 import CTAButtonsContainer from '../shared/CTAButtonsContainer';
 import ImageGalleryModal from '../ImageGalleryModal';
 
@@ -59,14 +59,6 @@ const MarineDetailingModal: React.FC<MarineDetailingModalProps> = ({ isOpen, onC
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 
   if (!isOpen) return null;
-
-  const nextImage = () => {
-    setCurrentImageIndex((prev) => (prev + 1) % marineDetailingService.images.length);
-  };
-
-  const prevImage = () => {
-    setCurrentImageIndex((prev) => (prev - 1 + marineDetailingService.images.length) % marineDetailingService.images.length);
-  };
 
   const nextVideo = () => {
     setCurrentVideoIndex((prev) => (prev + 1) % marineDetailingService.videos.length);

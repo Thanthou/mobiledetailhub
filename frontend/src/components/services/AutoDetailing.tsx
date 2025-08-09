@@ -43,14 +43,6 @@ const AutoDetailingModal: React.FC<AutoDetailingModalProps> = ({ isOpen, onClose
 
   if (!isOpen) return null;
 
-  const nextImage = () => {
-    setCurrentImageIndex((prev) => (prev + 1) % autoDetailingService.images.length);
-  };
-
-  const prevImage = () => {
-    setCurrentImageIndex((prev) => (prev - 1 + autoDetailingService.images.length) % autoDetailingService.images.length);
-  };
-
   const nextVideo = () => {
     setCurrentVideoIndex((prev) => (prev + 1) % autoDetailingService.videos.length);
   };

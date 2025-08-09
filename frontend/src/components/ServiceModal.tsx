@@ -47,16 +47,18 @@ const ServiceModal: React.FC<ServiceModalProps> = ({ isOpen, onClose, service })
           </div>
 
           {/* Pricing */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">Pricing</h3>
-            <ul className="space-y-2">
-              {service.pricing.map((price, index) => (
-                <li key={index} className="text-gray-700 flex justify-between">
-                  <span>{price}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {service.pricing && (
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">Pricing</h3>
+              <ul className="space-y-2">
+                {service.pricing.map((price, index) => (
+                  <li key={index} className="text-gray-700 flex justify-between">
+                    <span>{price}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* Image Gallery */}
           <div className="mb-6">
