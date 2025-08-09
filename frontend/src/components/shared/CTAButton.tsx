@@ -2,7 +2,7 @@ import React from 'react';
 
 interface CTAButtonProps {
   type: 'book' | 'quote';
-  onClick: () => void;
+  onClick?: () => void;
   className?: string;
 }
 

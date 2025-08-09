@@ -44,6 +44,13 @@ const HomePage: React.FC = () => {
     setShowQuoteModal(false);
   };
 
+  const handleBookNow = () => {
+    if (businessConfig.bookingEnabled) {
+      window.location.href = businessConfig.bookingLink;
+    }
+    // If booking disabled, do nothing (no action)
+  };
+
   // Configuration object for easy customization
   const config = {
     header: {
@@ -121,11 +128,12 @@ const HomePage: React.FC = () => {
           ctaLink={config.hero.ctaLink}
           header={config.header}
           socialLinks={config.socialMedia}
+          onBookNow={handleBookNow}
           onRequestQuote={openQuoteModal}
         />
       
       <div id="services">
-        <ServicesGrid services={config.services} onRequestQuote={openQuoteModal} />
+        <ServicesGrid services={config.services} onBookNow={handleBookNow} onRequestQuote={openQuoteModal} />
       </div>
       
       {/* FAQ Section */}
@@ -147,6 +155,7 @@ const HomePage: React.FC = () => {
         quickLinks={config.footer.quickLinks}
         attribution={config.footer.attribution}
         socialLinks={config.socialMedia}
+        onBookNow={handleBookNow}
         onRequestQuote={openQuoteModal}
       />
     </div>

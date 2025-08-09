@@ -17,7 +17,9 @@ interface HeroProps {
     facebook?: string;
     instagram?: string;
     tiktok?: string;
+    youtube?: string;
   };
+  onBookNow?: () => void;
   onRequestQuote?: () => void;
 }
 
@@ -29,6 +31,7 @@ const Hero: React.FC<HeroProps> = ({
   ctaLink,
   header,
   socialLinks,
+  onBookNow,
   onRequestQuote 
 }) => {
   return (
@@ -57,12 +60,12 @@ const Hero: React.FC<HeroProps> = ({
           {subheadline}
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <a
-            href={ctaLink}
+          <button
+            onClick={onBookNow}
             className="inline-block bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 px-8 rounded-lg text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl"
           >
             {ctaText}
-          </a>
+          </button>
           <a
             href="#"
             onClick={(e) => {

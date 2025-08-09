@@ -23,14 +23,15 @@ export const businessConfig = {
   
   // Social Media Links
   socialMedia: {
-    facebook: 'https://facebook.com/mobiledetailhub', // Replace with actual URL
-    instagram: 'https://instagram.com/mobiledetailhub', // Replace with actual URL
-    tiktok: 'https://tiktok.com/@mobiledetailhub', // Replace with actual URL
-    youtube: 'https://youtube.com/@mobiledetailhub' // Replace with actual URL'
+    facebook: 'https://facebook.com/mobiledetailhub',
+    instagram: 'https://instagram.com/mobiledetailhub',
+    tiktok: 'https://tiktok.com/@mobiledetailhub',
+    youtube: 'https://youtube.com/@mobiledetailhub'
   },
   
   // Booking & Links
   bookingLink: '/booking?detailer_id=joe123',
+  bookingEnabled: false, // Set to true to enable booking functionality
   
   // Website Content
   hero: {

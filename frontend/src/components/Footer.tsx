@@ -32,10 +32,11 @@ interface FooterProps {
     tiktok?: string;
     youtube?: string;
   };
+  onBookNow?: () => void;
   onRequestQuote?: () => void;
 }
 
-const Footer: React.FC<FooterProps> = ({ contactPhone, location, email, quickLinks, attribution, socialLinks, onRequestQuote }) => {
+const Footer: React.FC<FooterProps> = ({ contactPhone, location, email, quickLinks, attribution, socialLinks, onBookNow, onRequestQuote }) => {
   return (
     <footer className="bg-stone-800 text-white py-16">
       <div className="max-w-6xl mx-auto px-4">
@@ -147,12 +148,12 @@ const Footer: React.FC<FooterProps> = ({ contactPhone, location, email, quickLin
           <div>
             <h3 className="text-2xl font-bold mb-6 text-orange-400">Get Started</h3>
             <div className="space-y-4">
-              <a
-                href="/booking?detailer_id=joe123"
+              <button
+                onClick={onBookNow}
                 className="inline-block bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg text-base transition-all duration-300 transform hover:scale-105 hover:shadow-lg w-full text-center"
               >
                 Book Now
-              </a>
+              </button>
               <a
                 href="#"
                 onClick={(e) => {

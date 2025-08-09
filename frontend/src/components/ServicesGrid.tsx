@@ -15,10 +15,11 @@ interface ServiceItem {
 
 interface ServicesGridProps {
   services: ServiceItem[];
+  onBookNow?: () => void;
   onRequestQuote?: () => void;
 }
 
-const ServicesGrid: React.FC<ServicesGridProps> = ({ services, onRequestQuote }) => {
+const ServicesGrid: React.FC<ServicesGridProps> = ({ services, onBookNow, onRequestQuote }) => {
   const [isAutoDetailingModalOpen, setIsAutoDetailingModalOpen] = useState(false);
   const [isMarineDetailingModalOpen, setIsMarineDetailingModalOpen] = useState(false);
   const [isRVDetailingModalOpen, setIsRVDetailingModalOpen] = useState(false);
@@ -105,12 +106,12 @@ const ServicesGrid: React.FC<ServicesGridProps> = ({ services, onRequestQuote })
           Choose your preferred way to get in touch. We're here to help with all your detailing needs.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <a
-            href="/booking?detailer_id=joe123"
+          <button
+            onClick={onBookNow}
             className="inline-block bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 px-8 rounded-lg text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl"
           >
             Book Now
-          </a>
+          </button>
           <a
             href="#"
             onClick={(e) => {
@@ -130,7 +131,7 @@ const ServicesGrid: React.FC<ServicesGridProps> = ({ services, onRequestQuote })
         onClose={closeAutoDetailingModal}
         onBookNow={() => {
           closeAutoDetailingModal();
-          window.open('/booking?detailer_id=joe123', '_blank');
+          onBookNow?.();
         }}
         onRequestQuote={onRequestQuote}
       />
@@ -139,7 +140,7 @@ const ServicesGrid: React.FC<ServicesGridProps> = ({ services, onRequestQuote })
         onClose={closeMarineDetailingModal}
         onBookNow={() => {
           closeMarineDetailingModal();
-          window.open('/booking?detailer_id=joe123', '_blank');
+          onBookNow?.();
         }}
         onRequestQuote={onRequestQuote}
       />
@@ -148,7 +149,7 @@ const ServicesGrid: React.FC<ServicesGridProps> = ({ services, onRequestQuote })
         onClose={closeRVDetailingModal}
         onBookNow={() => {
           closeRVDetailingModal();
-          window.open('/booking?detailer_id=joe123', '_blank');
+          onBookNow?.();
         }}
         onRequestQuote={onRequestQuote}
       />
@@ -157,7 +158,7 @@ const ServicesGrid: React.FC<ServicesGridProps> = ({ services, onRequestQuote })
         onClose={closeInteriorExteriorModal}
         onBookNow={() => {
           closeInteriorExteriorModal();
-          window.open('/booking?detailer_id=joe123', '_blank');
+          onBookNow?.();
         }}
         onRequestQuote={onRequestQuote}
       />
@@ -166,7 +167,7 @@ const ServicesGrid: React.FC<ServicesGridProps> = ({ services, onRequestQuote })
         onClose={closeCeramicCoatingModal}
         onBookNow={() => {
           closeCeramicCoatingModal();
-          window.open('/booking?detailer_id=joe123', '_blank');
+          onBookNow?.();
         }}
         onRequestQuote={onRequestQuote}
       />
@@ -175,7 +176,7 @@ const ServicesGrid: React.FC<ServicesGridProps> = ({ services, onRequestQuote })
         onClose={closePaintProtectionFilmModal}
         onBookNow={() => {
           closePaintProtectionFilmModal();
-          window.open('/booking?detailer_id=joe123', '_blank');
+          onBookNow?.();
         }}
         onRequestQuote={onRequestQuote}
       />
