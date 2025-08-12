@@ -108,14 +108,10 @@ const ServicesGrid: React.FC<ServicesGridProps> = ({ services, onBookNow, onRequ
 
       {/* Call to Action Buttons */}
       <div className="text-center py-20 px-4">
-        <h2 className="text-3xl font-bold text-white mb-6">Ready to Get Started?</h2>
-        <p className="text-gray-300 mb-8 max-w-2xl mx-auto">
-          Choose your preferred way to get in touch. We're here to help with all your detailing needs.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
           <button
             onClick={onBookNow}
-            className="inline-block bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 px-8 rounded-lg text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl"
+            className="inline-block bg-orange-500 hover:bg-orange-600 text-white font-bold py-6 px-12 rounded-lg text-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl"
           >
             Book Now
           </button>
@@ -125,7 +121,7 @@ const ServicesGrid: React.FC<ServicesGridProps> = ({ services, onBookNow, onRequ
               e.preventDefault();
               onRequestQuote?.();
             }}
-            className="inline-block bg-transparent border-2 border-white hover:bg-white hover:text-gray-900 text-white font-bold py-4 px-8 rounded-lg text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl"
+            className="inline-block bg-transparent border-2 border-white hover:bg-white hover:text-gray-900 text-white font-bold py-6 px-12 rounded-lg text-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl"
           >
             Request a Quote
           </a>

@@ -28,7 +28,7 @@ const Footer: React.FC<FooterProps> = ({ onBookNow, onRequestQuote }) => {
   
   if (isLoading) {
     return (
-      <footer className="bg-stone-800 text-white py-16">
+      <footer className="bg-stone-800 text-white py-14">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center">Loading footer...</div>
         </div>
@@ -38,7 +38,7 @@ const Footer: React.FC<FooterProps> = ({ onBookNow, onRequestQuote }) => {
 
   if (error || !businessConfig || !getBusinessInfoWithOverrides) {
     return (
-      <footer className="bg-stone-800 text-white py-16">
+      <footer className="bg-stone-800 text-white py-14">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center">Error loading footer</div>
         </div>
@@ -52,7 +52,7 @@ const Footer: React.FC<FooterProps> = ({ onBookNow, onRequestQuote }) => {
   const parentAttribution = parentConfig?.attribution;
 
   return (
-    <footer className="bg-stone-800 text-white py-16">
+    <footer className="bg-stone-800 text-white py-14">
       <div className="max-w-6xl mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-32 mb-8">
           {/* Contact Information */}

@@ -8,7 +8,7 @@ const Affiliates: React.FC = () => {
   // Show loading state while waiting for config
   if (isLoading || !businessConfig) {
     return (
-      <section className="bg-stone-800 py-12">
+      <section className="bg-stone-800 py-10">
         <div className="w-full">
           <div className="text-center text-white">Loading affiliates...</div>
         </div>
@@ -18,7 +18,7 @@ const Affiliates: React.FC = () => {
 
   if (error) {
     return (
-      <section className="bg-stone-800 py-12">
+      <section className="bg-stone-800 py-10">
         <div className="w-full">
           <div className="text-center text-white">Error loading affiliates: {error}</div>
         </div>
@@ -43,7 +43,7 @@ const Affiliates: React.FC = () => {
   // If no affiliates data in config, show default affiliates
   if (!affiliates || affiliateItems.length === 0) {
     return (
-      <section className="bg-stone-800 py-12">
+      <section className="bg-stone-800 py-10">
         <div className="w-full">
           <div className="text-center text-white">Affiliates section not configured</div>
         </div>
@@ -52,7 +52,7 @@ const Affiliates: React.FC = () => {
   }
 
   return (
-    <section className="bg-stone-800 py-12">
+    <section className="bg-stone-800 py-10">
       <div className="w-full">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-white mb-2">

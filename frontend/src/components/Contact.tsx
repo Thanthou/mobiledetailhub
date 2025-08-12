@@ -11,7 +11,7 @@ const Contact: React.FC<ContactProps> = ({ onRequestQuote }) => {
   
   if (isLoading) {
     return (
-      <section id="contact" className="bg-stone-700 py-16">
+      <section id="contact" className="bg-stone-700 py-12">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center text-white">Loading contact information...</div>
         </div>
@@ -21,7 +21,7 @@ const Contact: React.FC<ContactProps> = ({ onRequestQuote }) => {
 
   if (error || !businessConfig || !getBusinessInfoWithOverrides) {
     return (
-      <section id="contact" className="bg-stone-700 py-16">
+      <section id="contact" className="bg-stone-700 py-12">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center text-white">Error loading contact information</div>
         </div>
@@ -34,7 +34,7 @@ const Contact: React.FC<ContactProps> = ({ onRequestQuote }) => {
   const { contact, serviceLocations } = businessConfig;
 
   return (
-    <section id="contact" className="bg-stone-700 py-16">
+    <section id="contact" className="bg-stone-700 py-12">
       <div className="max-w-6xl mx-auto px-4">
         <div className="max-w-7xl mx-auto">
           {/* Contact Information and Service Areas */}
