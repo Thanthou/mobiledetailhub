@@ -1,103 +1,98 @@
 import React from 'react';
+import { useBusinessConfig } from '../hooks/useBusinessConfig';
+import { getAffiliates } from '../config/affiliates';
 
 const Affiliates: React.FC = () => {
-  const brands = [
-    { 
-      image: '/affiliates/koch.png',
-      color: 'bg-black',
-      url: 'https://www.koch-chemie.com'
-    },
-    { 
-      image: '/affiliates/starke.png',
-      color: 'bg-black',
-      url: 'https://starkeyachtcare.com/'
-    },
-    { 
-      image: '/affiliates/menzerna.webp',
-      color: 'bg-black',
-      url: 'https://www.menzerna.com'
-    },
-    { 
-      image: '/affiliates/underdog.webp',
-      color: 'bg-black',
-      url: 'https://getundrdog.com/.com'
-    },
-    { 
-      image: '/affiliates/mirka.webp',
-      color: 'bg-black',
-      url: 'https://www.mirka.com'
-    },
-    { 
-      image: '/affiliates/rupes.png',
-      color: 'bg-black',
-      url: 'https://www.rupes.com'
-    },
-    { 
-      image: '/affiliates/mtm_hydro.jpg',
-      color: 'bg-black',
-      url: 'https://www.mtmhydroparts.com/'
-    },
-    { 
-      image: '/affiliates/yot-stik.webp',
-      color: 'bg-black',
-      url: 'https://www.yotstik.com/'
-    },
-    { 
-      image: '/affiliates/auto-fiber.webp',
-      color: 'bg-black',
-      url: 'https://www.autofiber.com/'
-    },
-    { 
-      image: '/affiliates/lake-country.png',
-      color: 'bg-black',
-      url: 'https://lakecountrymfg.com/'
-    },
-    { 
-      image: '/affiliates/poka.png',
-      color: 'bg-black',
-      url: 'https://pokapremium.com/'
-    },
-    { 
-      image: '/affiliates/lamin-x.png',
-      color: 'bg-black',
-      url: 'https://lamin-x.com/'
-    },
-  ];
+  const { businessConfig, isLoading, error } = useBusinessConfig();
+
+  // Show loading state while waiting for config
+  if (isLoading || !businessConfig) {
+    return (
+      <section className="bg-stone-800 py-12">
+        <div className="w-full">
+          <div className="text-center text-white">Loading affiliates...</div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="bg-stone-800 py-12">
+        <div className="w-full">
+          <div className="text-center text-white">Error loading affiliates: {error}</div>
+        </div>
+      </section>
+    );
+  }
+
+  // Get affiliates data from business config
+  const { affiliates } = businessConfig;
+  
+  // Handle both old items structure and new keywords structure
+  let affiliateItems: any[] = [];
+  
+  if (affiliates?.keywords && affiliates.keywords.length > 0) {
+    // New keyword-based system
+    affiliateItems = getAffiliates(affiliates.keywords);
+  } else if (affiliates?.items && affiliates.items.length > 0) {
+    // Old items-based system (for backward compatibility)
+    affiliateItems = affiliates.items;
+  }
+  
+  // If no affiliates data in config, show default affiliates
+  if (!affiliates || affiliateItems.length === 0) {
+    return (
+      <section className="bg-stone-800 py-12">
+        <div className="w-full">
+          <div className="text-center text-white">Affiliates section not configured</div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="bg-stone-800 py-12">
       <div className="w-full">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold text-white mb-2">
+            {affiliates.headline || 'Trusted brands we work with'}
+          </h2>
+        </div>
        
         <div className="flex justify-center items-center gap-4">
-          {brands.map((brand, index) => (
+          {affiliateItems.map((affiliate, index) => (
             <a
               key={index}
-              href={brand.url}
+              href={affiliate.url || '#'}
               target="_blank"
               rel="noopener noreferrer"
               className="group flex flex-col items-center"
+              onClick={(e) => {
+                // Prevent navigation if no URL
+                if (!affiliate.url) {
+                  e.preventDefault();
+                }
+              }}
             >
-                             <div className={`w-40 h-40 ${brand.color} rounded-full flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl overflow-hidden`}>
-                 <img 
-                   src={brand.image} 
-                                       className={`w-full h-full ${
-                      brand.image.includes('koch.png') ? 'object-contain scale-125' :
-                      brand.image.includes('underdog.webp') ? 'object-contain scale-90' : 
-                      brand.image.includes('mirka.webp') ? 'object-contain scale-150' : 
-                      brand.image.includes('menzerna.webp') ? 'object-contain scale-100' : 
-                      brand.image.includes('mtm_hydro.jpg') ? 'object-contain scale-75' :
-                      brand.image.includes('yot-stik.webp') ? 'object-contain scale-90' :
-                      brand.image.includes('auto-fiber.webp') ? 'object-contain scale-150' :
-                      brand.image.includes('lake-country.png') ? 'object-contain scale-100' :
-                      brand.image.includes('poka.png') ? 'object-contain scale-100' :
-                      brand.image.includes('lamin-x.png') ? 'object-contain scale-150 ml-3' :
-                      brand.image.includes('rupes.png') ? 'object-contain scale-100' : 'object-cover'
-                    }`}
-                 />
-               </div>
-                             <span className="text-gray-300 text-sm mt-3 font-medium group-hover:text-white transition-colors">
-               </span>
-             </a>
+              <div className="w-40 h-40 bg-black rounded-full flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl overflow-hidden">
+                <img 
+                  src={affiliate.logo} 
+                  alt={affiliate.name}
+                  className={`object-contain ${affiliate.scale || 'scale-75'} ${affiliate.verticalPosition || 'translate-y-0'} ${affiliate.horizontalPosition || 'translate-x-0'}`} // Use individual scale, vertical and horizontal position from affiliate config
+                  onError={(e) => {
+                    // Fallback if image fails to load
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                    target.nextElementSibling?.classList.remove('hidden');
+                  }}
+                />
+                {/* Fallback text if image fails */}
+                <span className="hidden text-white text-lg font-bold text-center px-4">
+                  {affiliate.name}
+                </span>
+              </div>
+            </a>
           ))}
         </div>
       </div>

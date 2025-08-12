@@ -1,5 +1,7 @@
 import React from 'react';
 import { Phone, MapPin, Facebook, Instagram, Youtube } from 'lucide-react';
+import { useBusinessConfig } from '../hooks/useBusinessConfig';
+import { scrollToTop, scrollToServices, scrollToBottom } from '../utils/scrollUtils';
 
 // Custom TikTok icon component
 const TikTokIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -16,27 +18,39 @@ const TikTokIcon: React.FC<{ className?: string }> = ({ className }) => (
   </svg>
 );
 
-
 interface FooterProps {
-  contactPhone: string;
-  location: string;
-  email: string;
-  quickLinks: { name: string; href: string; onClick?: () => void }[];
-  attribution: {
-    text: string;
-    link: string;
-  };
-  socialLinks?: {
-    facebook?: string;
-    instagram?: string;
-    tiktok?: string;
-    youtube?: string;
-  };
   onBookNow?: () => void;
   onRequestQuote?: () => void;
 }
 
-const Footer: React.FC<FooterProps> = ({ contactPhone, location, email, quickLinks, attribution, socialLinks, onBookNow, onRequestQuote }) => {
+const Footer: React.FC<FooterProps> = ({ onBookNow, onRequestQuote }) => {
+  const { businessConfig, parentConfig, isLoading, error, getBusinessInfoWithOverrides } = useBusinessConfig();
+  
+  if (isLoading) {
+    return (
+      <footer className="bg-stone-800 text-white py-16">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center">Loading footer...</div>
+        </div>
+      </footer>
+    );
+  }
+
+  if (error || !businessConfig || !getBusinessInfoWithOverrides) {
+    return (
+      <footer className="bg-stone-800 text-white py-16">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center">Error loading footer</div>
+        </div>
+      </footer>
+    );
+  }
+
+  // Get business info with overrides applied
+  const businessInfo = getBusinessInfoWithOverrides;
+  const { footer, header } = businessConfig;
+  const parentAttribution = parentConfig?.attribution;
+
   return (
     <footer className="bg-stone-800 text-white py-16">
       <div className="max-w-6xl mx-auto px-4">
@@ -47,7 +61,7 @@ const Footer: React.FC<FooterProps> = ({ contactPhone, location, email, quickLin
             <div className="flex items-center space-x-3">
               <Phone className="h-5 w-5 text-orange-400" />
               <span className="text-lg text-white">
-                {contactPhone}
+                {businessInfo.phone}
               </span>
             </div>
 
@@ -61,13 +75,13 @@ const Footer: React.FC<FooterProps> = ({ contactPhone, location, email, quickLin
                 onClick={onRequestQuote}
                 className="text-lg hover:text-orange-400 transition-colors duration-200 hover:underline cursor-pointer bg-transparent border-none p-0 font-inherit"
               >
-                {email}
+                {businessInfo.email}
               </button>
             </div>
 
             <div className="flex items-center space-x-3">
               <MapPin className="h-5 w-5 text-orange-400" />
-              <span className="text-lg text-gray-300">{location}</span>
+              <span className="text-lg text-gray-300">{businessInfo.address}</span>
             </div>
           </div>
 
@@ -75,118 +89,131 @@ const Footer: React.FC<FooterProps> = ({ contactPhone, location, email, quickLin
           <div>
             <h3 className="text-2xl font-bold mb-6 text-orange-400">Quick Links</h3>
             <ul className="space-y-3">
-              {quickLinks.map((link, index) => (
-                <li key={index}>
-                  <a
-                    href={link.href}
-                    onClick={(e) => {
-                      if (link.onClick) {
+              {footer.quickLinks.map((link, index) => {
+                // Skip gallery link
+                if (link.name === 'Gallery') return null;
+                
+                return (
+                  <li key={index}>
+                    <a
+                      href={link.href}
+                      onClick={(e) => {
                         e.preventDefault();
-                        link.onClick();
-                      }
-                    }}
-                    className="text-lg hover:text-orange-400 transition-colors duration-200 flex items-center"
-                  >
-                    {link.name}
-                  </a>
-                </li>
-              ))}
+                        
+                        // Handle different navigation types
+                        if (link.href === '/') {
+                          scrollToTop();
+                        } else if (link.href === '/contact') {
+                          scrollToBottom();
+                        } else if (link.href === '/services') {
+                          scrollToServices();
+                        }
+                      }}
+                      className="text-lg hover:text-orange-400 transition-colors duration-200 flex items-center cursor-pointer"
+                    >
+                      {link.name}
+                    </a>
+                  </li>
+                );
+              })}
             </ul>
           </div>
 
           {/* Social Media */}
-          {socialLinks && (
+          {parentConfig?.socialMedia && (
             <div>
               <h3 className="text-2xl font-bold mb-6 text-orange-400">Follow Us</h3>
               <div className="flex flex-col space-y-4">
-                {socialLinks.facebook && (
+                {parentConfig.socialMedia.facebook && (
                   <a 
-                    href={socialLinks.facebook} 
+                    href={parentConfig.socialMedia.facebook} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="flex items-center space-x-3 text-gray-300 hover:text-orange-400 transition-colors duration-200"
+                    className="text-white hover:text-orange-400 transition-colors duration-200 flex items-center space-x-3"
                   >
-                    <Facebook className="h-7 w-7" />
-                    <span className="text-xl">Facebook</span>
+                    <Facebook className="h-6 w-6" />
+                    <span className="text-lg">Facebook</span>
                   </a>
                 )}
-                {socialLinks.instagram && (
+                {parentConfig.socialMedia.instagram && (
                   <a 
-                    href={socialLinks.instagram} 
+                    href={parentConfig.socialMedia.instagram} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="flex items-center space-x-3 text-gray-300 hover:text-orange-400 transition-colors duration-200"
+                    className="text-white hover:text-orange-400 transition-colors duration-200 flex items-center space-x-3"
                   >
-                    <Instagram className="h-7 w-7" />
-                    <span className="text-xl">Instagram</span>
+                    <Instagram className="h-6 w-6" />
+                    <span className="text-lg">Instagram</span>
                   </a>
                 )}
-                {socialLinks.tiktok && (
+                {parentConfig.socialMedia.tiktok && (
                   <a 
-                    href={socialLinks.tiktok} 
+                    href={parentConfig.socialMedia.tiktok} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="flex items-center space-x-3 text-gray-300 hover:text-orange-400 transition-colors duration-200"
+                    className="text-white hover:text-orange-400 transition-colors duration-200 flex items-center space-x-3"
                   >
-                    <TikTokIcon className="h-7 w-7" />
-                    <span className="text-xl">TikTok</span>
+                    <TikTokIcon className="h-6 w-6" />
+                    <span className="text-lg">TikTok</span>
                   </a>
                 )}
-                {socialLinks.youtube && (
+                {parentConfig.socialMedia.youtube && (
                   <a 
-                    href={socialLinks.youtube} 
+                    href={parentConfig.socialMedia.youtube} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="flex items-center space-x-3 text-gray-300 hover:text-orange-400 transition-colors duration-200"
+                    className="text-white hover:text-orange-400 transition-colors duration-200 flex items-center space-x-3"
                   >
-                    <Youtube className="h-7 w-7" />
-                    <span className="text-xl">YouTube</span>
+                    <Youtube className="h-6 w-6" />
+                    <span className="text-lg">YouTube</span>
                   </a>
                 )}
               </div>
             </div>
           )}
 
-          {/* Call to Action */}
-          <div>
-            <h3 className="text-2xl font-bold mb-6 text-orange-400">Get Started</h3>
-            <div className="space-y-4">
+          {/* CTA Buttons */}
+          <div className="space-y-4">
+            <h3 className="text-2xl font-bold mb-6 text-orange-400">Ready to Book?</h3>
+            <div className="space-y-3">
               <button
                 onClick={onBookNow}
-                className="inline-block bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg text-base transition-all duration-300 transform hover:scale-105 hover:shadow-lg w-full text-center"
+                className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105"
               >
                 Book Now
               </button>
-              <a
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  onRequestQuote?.();
-                }}
-                className="inline-block bg-transparent border-2 border-orange-500 hover:bg-orange-500 hover:text-white text-orange-500 font-bold py-3 px-6 rounded-lg text-base transition-all duration-300 transform hover:scale-105 hover:shadow-lg w-full text-center"
+              <button
+                onClick={onRequestQuote}
+                className="w-full bg-transparent border-2 border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105"
               >
-                Request a Quote
-              </a>
+                Request Quote
+              </button>
             </div>
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="border-t border-orange-400 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <div className="text-center md:text-left mb-4 md:mb-0">
-            <p className="text-gray-300">
-              © 2025 JP's Mobile Detail. All rights reserved.
-            </p>
-          </div>
-          <div className="text-center md:text-right">
-            <a
-              href={attribution.link}
-              className="text-sm text-gray-400 hover:text-orange-400 transition-colors duration-200"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {attribution.text}
-            </a>
+        {/* Bottom Section */}
+        <div className="border-t border-stone-600 pt-8">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="text-center md:text-left mb-4 md:mb-0">
+              <p className="text-gray-300">
+                © 2024 {footer.businessName}. All rights reserved.
+              </p>
+            </div>
+            
+            <div className="text-center md:text-right">
+              <p className="text-gray-300">
+                {businessInfo.attribution} -{' '}
+                <a 
+                  href={parentAttribution?.link || footer.attribution.link} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-orange-400 hover:text-orange-300 transition-colors duration-200"
+                >
+                  {parentAttribution?.text || footer.attribution.text}
+                </a>
+              </p>
+            </div>
           </div>
         </div>
       </div>

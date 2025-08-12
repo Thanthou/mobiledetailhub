@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { X, ChevronLeft, ChevronRight, Home, MapPin} from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, ChevronLeft, ChevronRight, Home, Shield } from 'lucide-react';
 import CTAButtonsContainer from '../shared/CTAButtonsContainer';
 import ImageGalleryModal from '../ImageGalleryModal';
+import { getCurrentTheme } from '../../config/themes';
 
 export const rvDetailingService = {
   title: 'RV Detailing',
@@ -49,6 +50,32 @@ const RVDetailingModal: React.FC<RVDetailingModalProps> = ({ isOpen, onClose, on
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [activeTab, setActiveTab] = useState<'images' | 'videos'>('videos');
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [theme, setTheme] = useState<any>(null);
+
+  useEffect(() => {
+    const currentTheme = getCurrentTheme();
+    setTheme(currentTheme);
+  }, []);
+
+  // Get images from theme
+  const getServiceImages = () => {
+    if (!theme?.images?.rv) {
+      // Fallback to default images if theme doesn't have rv images
+      return [
+        '/rv_detailing/rv1.png',
+        '/rv_detailing/rv2.jfif',
+        '/rv_detailing/rv3.jfif',
+        '/rv_detailing/rv4.jfif',
+        '/rv_detailing/rv5.jfif',
+        '/rv_detailing/rv6.jfif',
+        '/rv_detailing/rv7.jfif',
+        '/rv_detailing/rv8.jfif',
+      ];
+    }
+    return [theme.images.rv]; // Use theme image
+  };
+
+  const serviceImages = getServiceImages();
 
   if (!isOpen) return null;
 
@@ -82,7 +109,7 @@ const RVDetailingModal: React.FC<RVDetailingModalProps> = ({ isOpen, onClose, on
           {/* Description */}
           <div className="mb-8">
             <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-              <MapPin className="h-5 w-5 mr-2 text-orange-500" />
+              <Shield className="h-5 w-5 mr-2 text-orange-500" />
               Service Description
             </h3>
             <ul className="space-y-2">
@@ -120,7 +147,7 @@ const RVDetailingModal: React.FC<RVDetailingModalProps> = ({ isOpen, onClose, on
                 onClick={() => setIsGalleryOpen(true)}
                 className="px-4 py-2 rounded-lg font-medium transition-all bg-gray-200 text-gray-700 hover:bg-gray-300"
               >
-                Images ({rvDetailingService.images.length})
+                Images ({serviceImages.length})
               </button>
             </div>
 
@@ -189,7 +216,7 @@ const RVDetailingModal: React.FC<RVDetailingModalProps> = ({ isOpen, onClose, on
         <ImageGalleryModal
           isOpen={isGalleryOpen}
           onClose={() => setIsGalleryOpen(false)}
-          images={rvDetailingService.images}
+          images={serviceImages}
           currentIndex={currentImageIndex}
           onIndexChange={setCurrentImageIndex}
           title="RV Detailing Gallery"

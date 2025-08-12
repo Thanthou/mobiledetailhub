@@ -1,19 +1,38 @@
 import React from 'react';
 import { Phone, MapPin, Mail } from 'lucide-react';
+import { useBusinessConfig } from '../hooks/useBusinessConfig';
 
 interface ContactProps {
-  header: {
-    phone: string;
-    location: string;
-  };
-  footer: {
-    email: string;
-  };
-  serviceLocations?: string[];
   onRequestQuote?: () => void;
 }
 
-const Contact: React.FC<ContactProps> = ({ header, footer, serviceLocations, onRequestQuote }) => {
+const Contact: React.FC<ContactProps> = ({ onRequestQuote }) => {
+  const { businessConfig, isLoading, error, getBusinessInfoWithOverrides } = useBusinessConfig();
+  
+  if (isLoading) {
+    return (
+      <section id="contact" className="bg-stone-700 py-16">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center text-white">Loading contact information...</div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error || !businessConfig || !getBusinessInfoWithOverrides) {
+    return (
+      <section id="contact" className="bg-stone-700 py-16">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center text-white">Error loading contact information</div>
+        </div>
+      </section>
+    );
+  }
+
+  // Get business info with overrides applied
+  const businessInfo = getBusinessInfoWithOverrides;
+  const { contact, serviceLocations } = businessConfig;
+
   return (
     <section id="contact" className="bg-stone-700 py-16">
       <div className="max-w-6xl mx-auto px-4">
@@ -22,7 +41,7 @@ const Contact: React.FC<ContactProps> = ({ header, footer, serviceLocations, onR
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-40">
             {/* Contact Information */}
             <div className="text-center">
-              <h2 className="text-3xl font-bold text-white mb-6">Contact Information</h2>
+              <h2 className="text-3xl font-bold text-white mb-6">{contact.headline}</h2>
               <div className="space-y-6">
                 <div className="flex items-center justify-center space-x-4">
                   <div className="bg-orange-500 p-3 rounded-full">
@@ -31,7 +50,7 @@ const Contact: React.FC<ContactProps> = ({ header, footer, serviceLocations, onR
                   <div className="text-left w-48">
                     <h3 className="font-semibold text-white">Phone</h3>
                     <span className="text-orange-500 text-lg">
-                      {header.phone}
+                      {businessInfo.phone}
                     </span>
                   </div>
                 </div>
@@ -42,7 +61,7 @@ const Contact: React.FC<ContactProps> = ({ header, footer, serviceLocations, onR
                   </div>
                   <div className="text-left w-48">
                     <h3 className="font-semibold text-white">Location</h3>
-                    <p className="text-orange-500 text-lg">{header.location}</p>
+                    <p className="text-orange-500 text-lg">{businessInfo.address}</p>
                   </div>
                 </div>
 
@@ -56,7 +75,7 @@ const Contact: React.FC<ContactProps> = ({ header, footer, serviceLocations, onR
                       onClick={onRequestQuote}
                       className="text-orange-500 hover:text-orange-400 text-lg hover:underline cursor-pointer bg-transparent border-none p-0 font-inherit"
                     >
-                      {footer.email}
+                      {businessInfo.email}
                     </button>
                   </div>
                 </div>
@@ -68,7 +87,7 @@ const Contact: React.FC<ContactProps> = ({ header, footer, serviceLocations, onR
               <h3 className="text-xl font-bold text-white mb-4">Service Areas</h3>
               <div className="flex justify-center">
                 <div className="grid grid-cols-2 gap-x-12 gap-y-2 text-orange-500">
-                  {serviceLocations?.map((location, index) => (
+                  {contact.locations?.map((location, index) => (
                     <div key={index} className="flex items-start">
                       <span className="mr-2">•</span>
                       <span>{location}</span>

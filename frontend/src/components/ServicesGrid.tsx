@@ -26,6 +26,14 @@ const ServicesGrid: React.FC<ServicesGridProps> = ({ services, onBookNow, onRequ
   const [isCeramicCoatingModalOpen, setIsCeramicCoatingModalOpen] = useState(false);
   const [isPaintProtectionFilmModalOpen, setIsPaintProtectionFilmModalOpen] = useState(false);
 
+  // Debug logging when services prop changes
+  React.useEffect(() => {
+    console.log('ServicesGrid: Services prop updated:', services);
+    services.forEach((service, index) => {
+      console.log(`ServicesGrid: Service ${index + 1}: ${service.title} - Image: ${service.image}`);
+    });
+  }, [services]);
+
   const handleServiceClick = (service: ServiceItem) => {
     // Scroll down a bit more when a service is clicked
     window.scrollBy({ top: 100, behavior: 'smooth' });

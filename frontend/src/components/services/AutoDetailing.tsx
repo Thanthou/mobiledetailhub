@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, ChevronLeft, ChevronRight, Car, Shield } from 'lucide-react';
 import CTAButtonsContainer from '../shared/CTAButtonsContainer';
 import ImageGalleryModal from '../ImageGalleryModal';
+import { getCurrentTheme } from '../../config/themes';
 
 export const autoDetailingService = {
   title: 'Auto Detailing',
@@ -40,6 +41,29 @@ const AutoDetailingModal: React.FC<AutoDetailingModalProps> = ({ isOpen, onClose
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [activeTab, setActiveTab] = useState<'images' | 'videos'>('videos');
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [theme, setTheme] = useState<any>(null);
+
+  useEffect(() => {
+    const currentTheme = getCurrentTheme();
+    setTheme(currentTheme);
+  }, []);
+
+  // Get images from theme
+  const getServiceImages = () => {
+    if (!theme?.images?.auto) {
+      // Fallback to default images if theme doesn't have auto images
+      return [
+        '/auto_detailing/car1.jfif',
+        '/auto_detailing/car2.jfif',
+        '/auto_detailing/car3.jfif',
+        '/auto_detailing/car4.jfif',
+        '/auto_detailing/car5.webp',
+      ];
+    }
+    return [theme.images.auto]; // Use theme image
+  };
+
+  const serviceImages = getServiceImages();
 
   if (!isOpen) return null;
 
@@ -109,7 +133,7 @@ const AutoDetailingModal: React.FC<AutoDetailingModalProps> = ({ isOpen, onClose
                 onClick={() => setIsGalleryOpen(true)}
                 className="px-4 py-2 rounded-lg font-medium transition-all bg-gray-200 text-gray-700 hover:bg-gray-300"
               >
-                Images ({autoDetailingService.images.length})
+                Images ({serviceImages.length})
               </button>
             </div>
 
@@ -180,7 +204,7 @@ const AutoDetailingModal: React.FC<AutoDetailingModalProps> = ({ isOpen, onClose
         <ImageGalleryModal
           isOpen={isGalleryOpen}
           onClose={() => setIsGalleryOpen(false)}
-          images={autoDetailingService.images}
+          images={serviceImages}
           currentIndex={currentImageIndex}
           onIndexChange={setCurrentImageIndex}
           title="Auto Detailing Gallery"

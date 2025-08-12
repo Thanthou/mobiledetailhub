@@ -1,5 +1,7 @@
 import React from 'react';
 import { Phone, MapPin, Menu, Facebook, Instagram, Youtube } from 'lucide-react';
+import { useBusinessConfig } from '../hooks/useBusinessConfig';
+import { scrollToTop, scrollToServices, scrollToBottom } from '../utils/scrollUtils';
 
 // Custom TikTok icon component
 const TikTokIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -16,65 +18,119 @@ const TikTokIcon: React.FC<{ className?: string }> = ({ className }) => (
   </svg>
 );
 
-interface HeaderProps {
-  businessName: string;
-  phone: string;
-  location: string;
-  navLinks: { name: string; href: string; onClick?: () => void }[];
-  socialLinks?: {
-    facebook?: string;
-    instagram?: string;
-    tiktok?: string;
-    youtube?: string;
-  };
-}
+const Header: React.FC = () => {
+  const { businessConfig, parentConfig, isLoading, error, getBusinessInfoWithOverrides } = useBusinessConfig();
+  
+  if (isLoading) {
+    return (
+      <header className="absolute top-0 left-0 right-0 z-20 bg-black/20 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="text-white text-center">Loading...</div>
+        </div>
+      </header>
+    );
+  }
 
-const Header: React.FC<HeaderProps> = ({ businessName, phone, location, navLinks, socialLinks }) => {
+  if (error || !businessConfig || !getBusinessInfoWithOverrides) {
+    console.error('Header component error:', { error, businessConfig: !!businessConfig, getBusinessInfoWithOverrides: !!getBusinessInfoWithOverrides });
+    
+    return (
+      <header className="absolute top-0 left-0 right-0 z-20 bg-black/20 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="text-white text-center">
+            <div className="mb-2">Error loading header</div>
+            <div className="text-sm text-gray-300">
+              {error && <div>Error: {error}</div>}
+              {!businessConfig && <div>Missing business config</div>}
+              {!getBusinessInfoWithOverrides && <div>Missing business info</div>}
+            </div>
+          </div>
+        </div>
+      </header>
+    );
+  }
+
+  // Get business info with overrides applied
+  const businessInfo = getBusinessInfoWithOverrides;
+  const { header } = businessConfig;
+  
+  // Check if this is mdh (Mobile Detail Hub) - the special case
+  const isMdh = businessInfo.name.toLowerCase().includes('mobile detail hub') || businessInfo.name.toLowerCase() === 'mdh';
+  
   return (
     <header className="absolute top-0 left-0 right-0 z-20 bg-black/20 backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo/Business Name */}
           <div className="text-white">
-            <h1 className="text-2xl md:text-3xl font-bold">{businessName}</h1>
-            <div className="flex items-center space-x-4 text-sm text-gray-200 mt-1">
-              <div className="flex items-center space-x-1">
-                <Phone className="h-4 w-4" />
-                <span>{phone}</span>
-              </div>
-              <div className="flex items-center space-x-1">
-                <MapPin className="h-4 w-4" />
-                <span>{location}</span>
-              </div>
+            <div className="flex items-center space-x-3">
+              {/* Only show favicon for mdh */}
+              {isMdh && (
+                <img 
+                  src="/favicon.png" 
+                  alt="Mobile Detail Hub Logo" 
+                  className="h-8 w-8 md:h-10 md:w-10"
+                />
+              )}
+              <h1 className="text-2xl md:text-3xl font-bold">{businessInfo.name}</h1>
             </div>
+            {/* Only show phone and location if NOT mdh */}
+            {!isMdh && (
+              <div className="flex items-center space-x-4 text-sm text-gray-200 mt-1">
+                <div className="flex items-center space-x-1">
+                  <Phone className="h-4 w-4" />
+                  <span>{businessInfo.phone}</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <MapPin className="h-4 w-4" />
+                  <span>{businessInfo.address}</span>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             <nav className="flex items-center space-x-8">
-              {navLinks.map((link, index) => (
-                <a
-                  key={index}
-                  href={link.href}
-                  onClick={(e) => {
-                    if (link.onClick) {
+              {header.navLinks.map((link, index) => {
+                // Skip gallery link
+                if (link.name === 'Gallery') return null;
+                
+                return (
+                  <a
+                    key={index}
+                    href={link.href}
+                    onClick={(e) => {
                       e.preventDefault();
-                      link.onClick();
-                    }
-                  }}
-                  className="text-white hover:text-orange-400 transition-colors duration-200 font-medium"
-                >
-                  {link.name}
-                </a>
-              ))}
+                      
+                      // Handle different navigation types
+                      if (link.href === '/') {
+                        scrollToTop();
+                      } else if (link.href === '/contact') {
+                        scrollToBottom();
+                      } else if (link.href === '/services') {
+                        scrollToServices();
+                      }
+                      
+                      // Call onClick if it exists
+                      if (link.onClick) {
+                        link.onClick();
+                      }
+                    }}
+                    className="text-white hover:text-orange-400 transition-colors duration-200 font-medium"
+                  >
+                    {link.name}
+                  </a>
+                );
+              })}
             </nav>
             
             {/* Social Media Icons */}
-            {socialLinks && (
+            {parentConfig?.socialMedia && (
               <div className="flex items-center space-x-3 ml-4">
-                {socialLinks.facebook && (
+                {parentConfig.socialMedia.facebook && (
                   <a 
-                    href={socialLinks.facebook} 
+                    href={parentConfig.socialMedia.facebook} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="text-white hover:text-orange-400 transition-colors duration-200"
@@ -82,9 +138,9 @@ const Header: React.FC<HeaderProps> = ({ businessName, phone, location, navLinks
                     <Facebook className="h-5 w-5" />
                   </a>
                 )}
-                {socialLinks.instagram && (
+                {parentConfig.socialMedia.instagram && (
                   <a 
-                    href={socialLinks.instagram} 
+                    href={parentConfig.socialMedia.instagram} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="text-white hover:text-orange-400 transition-colors duration-200"
@@ -92,9 +148,9 @@ const Header: React.FC<HeaderProps> = ({ businessName, phone, location, navLinks
                     <Instagram className="h-5 w-5" />
                   </a>
                 )}
-                {socialLinks.tiktok && (
+                {parentConfig.socialMedia.tiktok && (
                   <a 
-                    href={socialLinks.tiktok} 
+                    href={parentConfig.socialMedia.tiktok} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="text-white hover:text-orange-400 transition-colors duration-200"
@@ -102,9 +158,9 @@ const Header: React.FC<HeaderProps> = ({ businessName, phone, location, navLinks
                     <TikTokIcon className="h-5 w-5" />
                   </a>
                 )}
-                {socialLinks.youtube && (
+                {parentConfig.socialMedia.youtube && (
                   <a 
-                    href={socialLinks.youtube} 
+                    href={parentConfig.socialMedia.youtube} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="text-white hover:text-orange-400 transition-colors duration-200"

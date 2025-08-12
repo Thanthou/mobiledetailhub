@@ -1,0 +1,38 @@
+# Ignore media files to improve Cursor performance
+frontend/public/**/*.jfif
+frontend/public/**/*.webp
+frontend/public/**/*.png
+frontend/public/**/*.jpg
+frontend/public/**/*.jpeg
+frontend/public/**/*.mp4
+frontend/public/**/*.avif
+
+# Ignore large media directories
+frontend/public/auto_detailing/
+frontend/public/boat_detailing/
+frontend/public/ceramic/
+frontend/public/interior_exterior/
+frontend/public/marine_detailing/
+frontend/public/ppf/
+frontend/public/rv_detailing/
+frontend/public/affiliates/
+
+# Keep favicon and essential images
+!frontend/public/favicon.png
+frontend/public/themes/beach/images/*.png
+
+# Additional media formats to ignore
+frontend/public/**/*.gif
+frontend/public/**/*.svg
+frontend/public/**/*.bmp
+frontend/public/**/*.tiff
+frontend/public/**/*.mov
+frontend/public/**/*.avi
+frontend/public/**/*.wmv
+frontend/public/**/*.flv
+frontend/public/**/*.mkv
+
+# Ignore other theme image directories (keeping only beach)
+frontend/public/themes/default/images/
+frontend/public/themes/southwest/images/
+frontend/public/themes/beach/images/

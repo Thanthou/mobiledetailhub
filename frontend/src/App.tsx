@@ -9,11 +9,11 @@ function App() {
   );
 }
 
-// Configuration object for shared data
+// Configuration object for shared data (not used - business config is loaded dynamically)
 const config = {
   header: {
     businessName: "JP's Mobile Detail",
-    phone: '(702) 420-3151',
+    phone: '', // Loaded from business config
     location: 'Bullhead City, AZ',
     navLinks: [
       { name: 'Home', href: '/' },
@@ -30,7 +30,7 @@ const config = {
     ctaLink: '/booking?detailer_id=joe123'
   },
   footer: {
-    contactPhone: '(702) 420-3151',
+    contactPhone: '', // Loaded from business config
     location: 'Bullhead City, AZ',
     email: 'service@jpsmobiledetail.com',
     quickLinks: [

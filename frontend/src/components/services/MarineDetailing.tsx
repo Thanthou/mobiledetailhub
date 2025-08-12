@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { X, ChevronLeft, ChevronRight, Ship, Anchor } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, ChevronLeft, ChevronRight, Anchor, Shield } from 'lucide-react';
 import CTAButtonsContainer from '../shared/CTAButtonsContainer';
 import ImageGalleryModal from '../ImageGalleryModal';
+import { getCurrentTheme } from '../../config/themes';
 
 export const marineDetailingService = {
   title: 'Marine Detailing',
@@ -57,6 +58,47 @@ const MarineDetailingModal: React.FC<MarineDetailingModalProps> = ({ isOpen, onC
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [activeTab, setActiveTab] = useState<'images' | 'videos'>('videos');
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [theme, setTheme] = useState<any>(null);
+
+  useEffect(() => {
+    const currentTheme = getCurrentTheme();
+    setTheme(currentTheme);
+  }, []);
+
+  // Get images from theme
+  const getServiceImages = () => {
+    if (!theme?.images?.marine) {
+      // Fallback to default images if theme doesn't have marine images
+      return [
+        '/boat_detailing/boat1.jfif',
+        '/boat_detailing/boat2.jfif',
+        '/boat_detailing/boat3.jfif',
+        '/boat_detailing/boat4.jfif',
+        '/boat_detailing/boat5.jfif',
+        '/boat_detailing/boat6.jfif',
+        '/boat_detailing/boat7.jfif',
+        '/boat_detailing/boat8.jfif',
+        '/boat_detailing/boat9.jfif',
+        '/boat_detailing/boat10.jfif',
+        '/boat_detailing/boat11.jfif',
+        '/boat_detailing/boat12.jfif',
+        '/boat_detailing/boat13.jfif',
+        '/boat_detailing/boat14.jfif',
+        '/boat_detailing/boat15.jfif',
+        '/boat_detailing/boat16.jfif',
+        '/boat_detailing/boat17.jfif',
+        '/boat_detailing/boat18.jfif',
+        '/boat_detailing/boat19.jfif',
+        '/boat_detailing/boat20.jfif',
+        '/boat_detailing/boat21.jfif',
+        '/boat_detailing/boat22.jfif',
+        '/boat_detailing/boat23.jfif',
+      ];
+    }
+    return [theme.images.marine]; // Use theme image
+  };
+
+  const serviceImages = getServiceImages();
 
   if (!isOpen) return null;
 
@@ -74,7 +116,7 @@ const MarineDetailingModal: React.FC<MarineDetailingModalProps> = ({ isOpen, onC
         {/* Header */}
         <div className="flex justify-between items-center p-6 border-b bg-gradient-to-r from-orange-500 to-orange-600 text-white">
           <div className="flex items-center space-x-3">
-            <Ship className="h-8 w-8" />
+            <Shield className="h-8 w-8" />
             <h2 className="text-2xl font-bold">{marineDetailingService.title}</h2>
           </div>
           <button
@@ -126,7 +168,7 @@ const MarineDetailingModal: React.FC<MarineDetailingModalProps> = ({ isOpen, onC
                 onClick={() => setIsGalleryOpen(true)}
                 className="px-4 py-2 rounded-lg font-medium transition-all bg-gray-200 text-gray-700 hover:bg-gray-300"
               >
-                Images ({marineDetailingService.images.length})
+                Images ({serviceImages.length})
               </button>
             </div>
 
@@ -197,7 +239,7 @@ const MarineDetailingModal: React.FC<MarineDetailingModalProps> = ({ isOpen, onC
         <ImageGalleryModal
           isOpen={isGalleryOpen}
           onClose={() => setIsGalleryOpen(false)}
-          images={marineDetailingService.images}
+          images={serviceImages}
           currentIndex={currentImageIndex}
           onIndexChange={setCurrentImageIndex}
           title="Marine Detailing Gallery"

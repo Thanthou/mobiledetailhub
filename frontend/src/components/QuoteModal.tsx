@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { CheckCircle } from 'lucide-react';
 import { apiService } from '../services/api';
+import { useBusinessConfig } from '../hooks/useBusinessConfig';
+import { formatPhoneNumberAsTyped, isCompletePhoneNumber } from '../utils/phoneFormatter';
 
 interface QuoteModalProps {
   isOpen: boolean;
@@ -8,6 +10,8 @@ interface QuoteModalProps {
 }
 
 const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
+  const { businessConfig, isLoading: configLoading, error: configError } = useBusinessConfig();
+  
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -20,14 +24,15 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  const services = [
+  // Use business config for services and vehicle types if available
+  const services = businessConfig?.services?.available || [
     'Detail',
     'Ceramic Coating',
     'Paint Protection Film',
     'Other'
   ];
 
-  const vehicleTypes = [
+  const vehicleTypes = businessConfig?.services?.vehicleTypes || [
     'Car',
     'Truck',
     'Marine',
@@ -50,10 +55,13 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
     setError('');
 
     try {
+      // Ensure phone number is properly formatted before submission
+      const formattedPhone = formData.phone ? formatPhoneNumberAsTyped(formData.phone, 0).value : '';
+      
       await apiService.submitQuoteRequest({
         name: formData.name,
         email: formData.email,
-        phone: formData.phone,
+        phone: formattedPhone,
         vehicle: formData.vehicleType,
         service: formData.service,
         additionalInfo: formData.message
@@ -83,12 +91,50 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
+  // Show loading state while config is loading
+  if (configLoading) {
+    return (
+      <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div className="bg-stone-800 rounded-lg shadow-xl max-w-md w-full p-6">
+          <div className="text-center text-white">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-4"></div>
+            <p>Loading...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state if config failed to load
+  if (configError) {
+    return (
+      <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div className="bg-stone-800 rounded-lg shadow-xl max-w-md w-full p-6">
+          <div className="text-center text-white">
+            <p className="text-red-400">Error loading configuration</p>
+            <button
+              onClick={onClose}
+              className="mt-4 bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
       <div className="bg-stone-800 rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-white">Request a Quote</h2>
+            <div>
+              <h2 className="text-2xl font-bold text-white">Request a Quote</h2>
+              {businessConfig?.business?.name && (
+                <p className="text-sm text-gray-300 mt-1">{businessConfig.business.name}</p>
+              )}
+            </div>
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-white text-2xl font-bold"
@@ -145,10 +191,40 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
                   id="modal-phone"
                   name="phone"
                   value={formData.phone}
-                  onChange={handleInputChange}
+                  onChange={(e) => {
+                    const input = e.target.value;
+                    const cursorPosition = e.target.selectionStart || 0;
+                    
+                    // Format the phone number as user types
+                    const { value: formattedValue, cursorPosition: newPosition } = formatPhoneNumberAsTyped(input, cursorPosition);
+                    
+                    // Update form data
+                    setFormData(prev => ({
+                      ...prev,
+                      phone: formattedValue
+                    }));
+                    
+                    // Set cursor position after React re-renders
+                    setTimeout(() => {
+                      e.target.setSelectionRange(newPosition, newPosition);
+                    }, 0);
+                  }}
+                  onBlur={(e) => {
+                    // Format on blur to ensure proper format
+                    const formatted = formatPhoneNumberAsTyped(e.target.value, 0).value;
+                    setFormData(prev => ({
+                      ...prev,
+                      phone: formatted
+                    }));
+                  }}
                   className="w-full px-4 py-3 border border-gray-600 bg-stone-700 text-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
-                  placeholder="(928) 555-0123"
+                  placeholder="(555) 123-4567"
                 />
+                {formData.phone && !isCompletePhoneNumber(formData.phone) && (
+                  <p className="text-sm text-orange-400 mt-1">
+                    Please enter a complete 10-digit phone number
+                  </p>
+                )}
               </div>
 
               <div>
@@ -230,6 +306,11 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
               <h3 className="text-xl font-bold text-white mb-2">Request Sent!</h3>
               <p className="text-gray-300 mb-4">
                 Thank you for your request. We'll get back to you within 24 hours.
+                {businessConfig?.business?.name && (
+                  <span className="block mt-2 text-sm">
+                    Your request has been sent to {businessConfig.business.name}.
+                  </span>
+                )}
               </p>
               <button
                 onClick={onClose}
