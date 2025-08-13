@@ -10,23 +10,33 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Security middleware
-app.use(helmet());
-
-// Rate limiting - more permissive for development
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000 // limit each IP to 1000 requests per windowMs (increased for development)
-});
-app.use('/api/', limiter);
-
-// CORS configuration - more permissive for development
+// CORS configuration - MUST be first, before any other middleware
 app.use(cors({
   origin: ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:4173'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+// Add CORS debugging middleware
+app.use((req, res, next) => {
+  console.log('=== CORS DEBUG ===');
+  console.log('Request origin:', req.get('origin'));
+  console.log('Request method:', req.method);
+  console.log('Request path:', req.path);
+  console.log('==================');
+  next();
+});
+
+// Security middleware
+app.use(helmet());
+
+// Rate limiting - more permissive for development
+// const limiter = rateLimit({
+//   windowMs: 15 * 60 * 1000, // 15 minutes
+//   max: 10000 // limit each IP to 10000 requests per windowMs (increased for development)
+// });
+// app.use('/api/', limiter);
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));

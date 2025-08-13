@@ -1,6 +1,7 @@
 import React from 'react';
 import { Phone, MapPin, Mail } from 'lucide-react';
 import { useBusinessConfig } from '../hooks/useBusinessConfig';
+import { useLocation } from '../contexts/LocationContext';
 
 interface ContactProps {
   onRequestQuote?: () => void;
@@ -8,6 +9,7 @@ interface ContactProps {
 
 const Contact: React.FC<ContactProps> = ({ onRequestQuote }) => {
   const { businessConfig, isLoading, error, getBusinessInfoWithOverrides } = useBusinessConfig();
+  const { selectedLocation } = useLocation();
   
   if (isLoading) {
     return (
@@ -32,6 +34,8 @@ const Contact: React.FC<ContactProps> = ({ onRequestQuote }) => {
   // Get business info with overrides applied
   const businessInfo = getBusinessInfoWithOverrides;
   const { contact, serviceLocations } = businessConfig;
+  
+
 
   return (
     <section id="contact" className="bg-stone-700 py-12">
@@ -41,7 +45,7 @@ const Contact: React.FC<ContactProps> = ({ onRequestQuote }) => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-40">
             {/* Contact Information */}
             <div className="text-center">
-              <h2 className="text-3xl font-bold text-white mb-6">{contact.headline}</h2>
+                             <h2 className="text-3xl font-bold text-white mb-6">Get In Touch</h2>
               <div className="space-y-6">
                 <div className="flex items-center justify-center space-x-4">
                   <div className="bg-orange-500 p-3 rounded-full">
@@ -61,7 +65,9 @@ const Contact: React.FC<ContactProps> = ({ onRequestQuote }) => {
                   </div>
                   <div className="text-left w-48">
                     <h3 className="font-semibold text-white">Location</h3>
-                    <p className="text-orange-500 text-lg">{businessInfo.address}</p>
+                    <p className="text-orange-500 text-lg">
+                      {selectedLocation ? `${selectedLocation.city}, ${selectedLocation.state}` : businessInfo.address}
+                    </p>
                   </div>
                 </div>
 
@@ -87,7 +93,7 @@ const Contact: React.FC<ContactProps> = ({ onRequestQuote }) => {
               <h3 className="text-xl font-bold text-white mb-4">Service Areas</h3>
               <div className="flex justify-center">
                 <div className="grid grid-cols-2 gap-x-12 gap-y-2 text-orange-500">
-                  {contact.locations?.map((location, index) => (
+                  {(serviceLocations || []).map((location, index) => (
                     <div key={index} className="flex items-start">
                       <span className="mr-2">•</span>
                       <span>{location}</span>

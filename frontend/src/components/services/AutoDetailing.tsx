@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { X, ChevronLeft, ChevronRight, Car, Shield } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Car, Shield, Image as ImageIcon } from 'lucide-react';
 import CTAButtonsContainer from '../shared/CTAButtonsContainer';
 import ImageGalleryModal from '../ImageGalleryModal';
-import { getCurrentTheme } from '../../config/themes';
+
 
 export const autoDetailingService = {
   title: 'Auto Detailing',
@@ -41,29 +41,29 @@ const AutoDetailingModal: React.FC<AutoDetailingModalProps> = ({ isOpen, onClose
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [activeTab, setActiveTab] = useState<'images' | 'videos'>('videos');
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
-  const [theme, setTheme] = useState<any>(null);
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    const currentTheme = getCurrentTheme();
-    setTheme(currentTheme);
-  }, []);
-
-  // Get images from theme
+  // Get service images - no theme system needed
   const getServiceImages = () => {
-    if (!theme?.images?.auto) {
-      // Fallback to default images if theme doesn't have auto images
-      return [
-        '/auto_detailing/car1.jfif',
-        '/auto_detailing/car2.jfif',
-        '/auto_detailing/car3.jfif',
-        '/auto_detailing/car4.jfif',
-        '/auto_detailing/car5.webp',
-      ];
-    }
-    return [theme.images.auto]; // Use theme image
+    return [
+      '/auto_detailing/car1.jfif',
+      '/auto_detailing/car2.jfif',
+      '/auto_detailing/car3.jfif',
+      '/auto_detailing/car4.jfif',
+      '/auto_detailing/car5.webp',
+    ];
   };
 
   const serviceImages = getServiceImages();
+
+  // Handle image loading errors
+  const handleImageError = (imagePath: string) => {
+    setImageErrors(prev => new Set(prev).add(imagePath));
+    console.warn(`Failed to load image: ${imagePath}`);
+  };
+
+  // Filter out images that failed to load
+  const validImages = serviceImages.filter(img => !imageErrors.has(img));
 
   if (!isOpen) return null;
 
@@ -73,6 +73,14 @@ const AutoDetailingModal: React.FC<AutoDetailingModalProps> = ({ isOpen, onClose
 
   const prevVideo = () => {
     setCurrentVideoIndex((prev) => (prev - 1 + autoDetailingService.videos.length) % autoDetailingService.videos.length);
+  };
+
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % validImages.length);
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + validImages.length) % validImages.length);
   };
 
   return (
@@ -176,6 +184,59 @@ const AutoDetailingModal: React.FC<AutoDetailingModalProps> = ({ isOpen, onClose
                         onClick={() => setCurrentVideoIndex(index)}
                         className={`w-4 h-4 rounded-full transition-all ${
                           index === currentVideoIndex ? 'bg-orange-500' : 'bg-gray-300'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Images Tab */}
+            {activeTab === 'images' && (
+              <div className="space-y-4">
+                {validImages.length > 0 ? (
+                  <div className="relative">
+                    <img
+                      src={validImages[currentImageIndex]}
+                      alt={`${autoDetailingService.title} ${currentImageIndex + 1}`}
+                      className="w-full h-64 object-cover rounded-lg shadow-lg"
+                      onError={() => handleImageError(validImages[currentImageIndex])}
+                    />
+                    {validImages.length > 1 && (
+                      <>
+                        <button
+                          onClick={prevImage}
+                          className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-all"
+                        >
+                          <ChevronLeft className="h-5 w-5" />
+                        </button>
+                        <button
+                          onClick={nextImage}
+                          className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-all"
+                        >
+                          <ChevronRight className="h-5 w-5" />
+                        </button>
+                      </>
+                    )}
+                  </div>
+                ) : (
+                  <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <div className="text-center text-gray-500">
+                      <ImageIcon className="h-16 w-16 mx-auto mb-2 opacity-50" />
+                      <p>No images available</p>
+                    </div>
+                  </div>
+                )}
+                
+                {validImages.length > 1 && (
+                  <div className="flex justify-center space-x-2">
+                    {validImages.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentImageIndex(index)}
+                        className={`w-3 h-3 rounded-full ${
+                          index === currentImageIndex ? 'bg-orange-500' : 'bg-gray-300'
                         }`}
                       />
                     ))}

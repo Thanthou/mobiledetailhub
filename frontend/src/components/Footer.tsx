@@ -2,6 +2,7 @@ import React from 'react';
 import { Phone, MapPin, Facebook, Instagram, Youtube } from 'lucide-react';
 import { useBusinessConfig } from '../hooks/useBusinessConfig';
 import { scrollToTop, scrollToServices, scrollToBottom } from '../utils/scrollUtils';
+import { GetStarted } from './shared';
 
 // Custom TikTok icon component
 const TikTokIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -21,9 +22,10 @@ const TikTokIcon: React.FC<{ className?: string }> = ({ className }) => (
 interface FooterProps {
   onBookNow?: () => void;
   onRequestQuote?: () => void;
+  businessSlug?: string; // Add business slug to determine which CTA to show
 }
 
-const Footer: React.FC<FooterProps> = ({ onBookNow, onRequestQuote }) => {
+const Footer: React.FC<FooterProps> = ({ onBookNow, onRequestQuote, businessSlug }) => {
   const { businessConfig, parentConfig, isLoading, error, getBusinessInfoWithOverrides } = useBusinessConfig();
   
   if (isLoading) {
@@ -48,13 +50,14 @@ const Footer: React.FC<FooterProps> = ({ onBookNow, onRequestQuote }) => {
 
   // Get business info with overrides applied
   const businessInfo = getBusinessInfoWithOverrides;
-  const { footer, header } = businessConfig;
   const parentAttribution = parentConfig?.attribution;
+  
+
 
   return (
-    <footer className="bg-stone-800 text-white py-14">
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-32 mb-8">
+    <footer className="bg-stone-800 text-white py-16">
+      <div className="max-w-7xl mx-auto px-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-20 mb-12">
           {/* Contact Information */}
           <div className="space-y-4">
             <h3 className="text-2xl font-bold mb-6 text-orange-400">Get In Touch</h3>
@@ -72,7 +75,11 @@ const Footer: React.FC<FooterProps> = ({ onBookNow, onRequestQuote }) => {
                 </svg>
               </div>
               <button 
-                onClick={onRequestQuote}
+                onClick={() => {
+                  // Handle location submission - you can customize this behavior
+                  console.log('Location submitted:', { location: '', zipCode: '', city: '', state: '' });
+                  // You could open a booking modal or redirect to a booking page
+                }}
                 className="text-lg hover:text-orange-400 transition-colors duration-200 hover:underline cursor-pointer bg-transparent border-none p-0 font-inherit"
               >
                 {businessInfo.email}
@@ -85,11 +92,15 @@ const Footer: React.FC<FooterProps> = ({ onBookNow, onRequestQuote }) => {
             </div>
           </div>
 
-          {/* Quick Links */}
+          {/* Quick Links - Separate Column */}
           <div>
             <h3 className="text-2xl font-bold mb-6 text-orange-400">Quick Links</h3>
             <ul className="space-y-3">
-              {footer.quickLinks.map((link, index) => {
+              {[
+                { name: 'Home', href: '/' },
+                { name: 'Services', href: '/services' },
+                { name: 'Contact', href: '/contact' }
+              ].map((link, index) => {
                 // Skip gallery link
                 if (link.name === 'Gallery') return null;
                 
@@ -119,7 +130,7 @@ const Footer: React.FC<FooterProps> = ({ onBookNow, onRequestQuote }) => {
             </ul>
           </div>
 
-          {/* Social Media */}
+          {/* Social Media - Separate Column */}
           {parentConfig?.socialMedia && (
             <div>
               <h3 className="text-2xl font-bold mb-6 text-orange-400">Follow Us</h3>
@@ -172,22 +183,40 @@ const Footer: React.FC<FooterProps> = ({ onBookNow, onRequestQuote }) => {
             </div>
           )}
 
-          {/* CTA Buttons */}
+          {/* CTA Section - Dedicated column for GetStarted */}
           <div className="space-y-4">
-            <h3 className="text-2xl font-bold mb-6 text-orange-400">Ready to Book?</h3>
+            <h3 className="text-2xl font-bold mb-6 text-orange-400">
+              {businessSlug === 'mdh' ? 'Ready to Get Started?' : 'Ready to Book?'}
+            </h3>
             <div className="space-y-3">
-              <button
-                onClick={onBookNow}
-                className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105"
-              >
-                Book Now
-              </button>
-              <button
-                onClick={onRequestQuote}
-                className="w-full bg-transparent border-2 border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105"
-              >
-                Request Quote
-              </button>
+              {businessSlug === 'mdh' ? (
+                // Show GetStarted for MDH
+                <GetStarted
+                  onLocationSubmit={(location, zipCode, city, state) => {
+                    // Handle location submission - you can customize this behavior
+                    console.log('Location submitted:', { location, zipCode, city, state });
+                    // You could open a booking modal or redirect to a booking page
+                  }}
+                  placeholder="Enter your zip code or city"
+                  className="w-full"
+                />
+              ) : (
+                // Show original buttons for other businesses
+                <>
+                  <button
+                    onClick={onBookNow}
+                    className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105"
+                  >
+                    Book Now
+                  </button>
+                  <button
+                    onClick={onRequestQuote}
+                    className="w-full bg-transparent border-2 border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105"
+                  >
+                    Request Quote
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -197,20 +226,20 @@ const Footer: React.FC<FooterProps> = ({ onBookNow, onRequestQuote }) => {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="text-center md:text-left mb-4 md:mb-0">
               <p className="text-gray-300">
-                © 2024 {footer.businessName}. All rights reserved.
+                © 2024 {businessInfo.name}. All rights reserved.
               </p>
             </div>
             
             <div className="text-center md:text-right">
               <p className="text-gray-300">
-                {businessInfo.attribution} -{' '}
+                Powered by MobileDetailHub -{' '}
                 <a 
-                  href={parentAttribution?.link || footer.attribution.link} 
+                  href="https://mobiledetailhub.com" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-orange-400 hover:text-orange-300 transition-colors duration-200"
                 >
-                  {parentAttribution?.text || footer.attribution.text}
+                  MobileDetailHub
                 </a>
               </p>
             </div>

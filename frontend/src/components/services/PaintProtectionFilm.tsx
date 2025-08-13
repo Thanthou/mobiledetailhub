@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, ChevronLeft, ChevronRight, Shield } from 'lucide-react';
 import CTAButtonsContainer from '../shared/CTAButtonsContainer';
 import ImageGalleryModal from '../ImageGalleryModal';
 
+
 export const paintProtectionFilmService = {
   title: 'Paint Protection Film',
   description: [
-    'Invisible shield that protects your vehicle\'s paint from damage',
-    'Prevents scratches, chips, and road debris damage',
-    'Self-healing properties for minor surface imperfections',
-    'Maintains original paint appearance and value',
-    'Professional installation for optimal protection'
+    '✅ Invisible shield that protects your vehicle\'s paint from damage',
+    '✅ Prevents scratches, chips, and road debris damage',
+    '✅ Self-healing properties for minor surface imperfections',
+    '✅ Maintains original paint appearance and value',
+    '✅ Professional installation for optimal protection'
   ],
   images: [
     '/ppf/ppf1.jpg',
@@ -28,104 +29,171 @@ export const paintProtectionFilmService = {
 interface PaintProtectionFilmModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onBookNow?: () => void;
+  onRequestQuote?: () => void;
 }
 
-const PaintProtectionFilmModal: React.FC<PaintProtectionFilmModalProps> = ({ isOpen, onClose }) => {
-  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+const PaintProtectionFilmModal: React.FC<PaintProtectionFilmModalProps> = ({ isOpen, onClose, onBookNow, onRequestQuote }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+  const [activeTab, setActiveTab] = useState<'images' | 'videos'>('videos');
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  // Get service images - no theme system needed
+  const getServiceImages = () => {
+    return [
+      '/ppf/ppf1.jpg',
+      '/ppf/ppf2.webp',
+      '/ppf/ppf3.webp',
+      '/ppf/ppf4.avif',
+      '/ppf/service_image.png'
+    ];
+  };
+
+  const serviceImages = getServiceImages();
 
   if (!isOpen) return null;
 
+  const nextVideo = () => {
+    setCurrentVideoIndex((prev) => (prev + 1) % paintProtectionFilmService.videos.length);
+  };
+
+  const prevVideo = () => {
+    setCurrentVideoIndex((prev) => (prev - 1 + paintProtectionFilmService.videos.length) % paintProtectionFilmService.videos.length);
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-lg max-w-5xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b">
-          <h2 className="text-2xl font-bold text-gray-800">{paintProtectionFilmService.title}</h2>
+        <div className="flex justify-between items-center p-6 border-b bg-gradient-to-r from-orange-500 to-orange-600 text-white">
+          <div className="flex items-center space-x-3">
+            <Shield className="h-8 w-8" />
+            <h2 className="text-2xl font-bold">{paintProtectionFilmService.title}</h2>
+          </div>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 transition-colors"
+            className="text-white hover:text-gray-200 transition-colors"
           >
-            <X size={24} />
+            <X className="h-6 w-6" />
           </button>
         </div>
 
         {/* Content */}
         <div className="p-6">
           {/* Description */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3">Service Overview</h3>
-            <ul className="space-y-2 text-gray-600">
-              {paintProtectionFilmService.description.map((item, index) => (
-                <li key={index} className="flex items-start">
-                  <Shield className="w-5 h-5 text-blue-600 mt-0.5 mr-2 flex-shrink-0" />
-                  {item}
-                </li>
-              ))}
+          <div className="mb-8">
+            <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+              <Shield className="h-5 w-5 mr-2 text-orange-500" />
+              Service Description
+            </h3>
+            <ul className="space-y-2">
+              {Array.isArray(paintProtectionFilmService.description) ? (
+                paintProtectionFilmService.description.map((item, index) => (
+                  <li key={index} className="text-gray-700 leading-relaxed text-lg flex items-start">
+                    <span className="mr-2">{item}</span>
+                  </li>
+                ))
+              ) : (
+                <p className="text-gray-700 leading-relaxed text-lg">{paintProtectionFilmService.description}</p>
+              )}
             </ul>
           </div>
 
-          {/* Media Section */}
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Images */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-800">Images</h3>
-                <button
-                  onClick={() => setIsGalleryOpen(true)}
-                  className="px-4 py-2 rounded-lg font-medium transition-all bg-gray-200 text-gray-700 hover:bg-gray-300"
-                >
-                  View All ({paintProtectionFilmService.images.length})
-                </button>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                {paintProtectionFilmService.images.slice(0, 4).map((image, index) => (
-                  <div key={index} className="aspect-square rounded-lg overflow-hidden bg-gray-100">
-                    <img
-                      src={image}
-                      alt={`${paintProtectionFilmService.title} ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                ))}
-              </div>
+          {/* Gallery */}
+          <div className="mb-8">
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">Gallery</h3>
+            
+            {/* Tab Navigation */}
+            <div className="flex space-x-1 mb-4">
+              <button
+                onClick={() => setActiveTab('videos')}
+                className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                  activeTab === 'videos'
+                    ? 'bg-orange-500 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                Videos ({paintProtectionFilmService.videos.length})
+              </button>
+              <button
+                onClick={() => setIsGalleryOpen(true)}
+                className="px-4 py-2 rounded-lg font-medium transition-all bg-gray-200 text-gray-700 hover:bg-gray-300"
+              >
+                Images ({serviceImages.length})
+              </button>
             </div>
 
-            {/* Videos */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-800">Videos</h3>
-              <div className="space-y-3">
-                {paintProtectionFilmService.videos.map((video, index) => (
-                  <div key={index} className="aspect-video rounded-lg overflow-hidden bg-gray-100">
-                    <video
-                      src={video}
-                      controls
-                      className="w-full h-full object-cover"
-                    >
-                      Your browser does not support the video tag.
-                    </video>
+            {/* Videos Tab */}
+            {activeTab === 'videos' && (
+              <div className="relative">
+                {/* Main Video */}
+                <div className="relative bg-gray-200 rounded-lg overflow-hidden shadow-lg">
+                  <video
+                    src={paintProtectionFilmService.videos[currentVideoIndex]}
+                    controls
+                    className="w-full max-h-96 object-contain"
+                  />
+                  
+                  {/* Navigation Arrows */}
+                  {paintProtectionFilmService.videos.length > 1 && (
+                    <>
+                      <button
+                        onClick={prevVideo}
+                        className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-75 transition-all z-10"
+                      >
+                        <ChevronLeft className="h-6 w-6" />
+                      </button>
+                      <button
+                        onClick={nextVideo}
+                        className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-75 transition-all z-10"
+                      >
+                        <ChevronRight className="h-6 w-6" />
+                      </button>
+                    </>
+                  )}
+                </div>
+
+                {/* Thumbnail Navigation */}
+                {paintProtectionFilmService.videos.length > 1 && (
+                  <div className="flex justify-center mt-4 space-x-2">
+                    {paintProtectionFilmService.videos.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentVideoIndex(index)}
+                        className={`w-4 h-4 rounded-full transition-all ${
+                          index === currentVideoIndex ? 'bg-orange-500' : 'bg-gray-300'
+                        }`}
+                      />
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
-            </div>
+            )}
           </div>
 
           {/* CTA Buttons */}
-          <div className="mt-8">
-            <CTAButtonsContainer />
-          </div>
+          <CTAButtonsContainer
+            onBookNow={() => {
+              onClose();
+              onBookNow?.();
+            }}
+            onRequestQuote={() => {
+              onClose();
+              onRequestQuote?.();
+            }}
+          />
         </div>
-      </div>
 
-      {/* Image Gallery Modal */}
-      <ImageGalleryModal
-        isOpen={isGalleryOpen}
-        onClose={() => setIsGalleryOpen(false)}
-        images={paintProtectionFilmService.images}
-        currentIndex={currentImageIndex}
-        onIndexChange={setCurrentImageIndex}
-      />
+        {/* Image Gallery Modal */}
+        <ImageGalleryModal
+          isOpen={isGalleryOpen}
+          onClose={() => setIsGalleryOpen(false)}
+          images={serviceImages}
+          currentIndex={currentImageIndex}
+          onIndexChange={setCurrentImageIndex}
+          title="Paint Protection Film Gallery"
+        />
+      </div>
     </div>
   );
 };

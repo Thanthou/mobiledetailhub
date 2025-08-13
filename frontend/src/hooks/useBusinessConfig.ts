@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
-import { getCurrentBusiness } from '../config/themes';
+// No theme system needed - business config is loaded directly
 
 interface BusinessConfig {
   domain: string;
   slug: string;
-  theme: string;
   business: {
     name: string;
     email: string;
@@ -232,14 +231,24 @@ export const useBusinessConfig = (): UseBusinessConfigReturn => {
 
         console.log('useBusinessConfig: Starting to load configs...');
 
-        // Get current business from theme system
-        const businessSlug = getCurrentBusiness();
-        console.log('useBusinessConfig: Current business slug:', businessSlug);
+        // Detect business from URL or default to 'mdh'
+        let businessSlug = 'mdh';
         
-        if (!businessSlug) {
-          throw new Error('No business selected');
+        // Check if there's a business in the URL path
+        const pathParts = window.location.pathname.split('/');
+        if (pathParts.length > 1 && ['jps', 'mdh', 'abc'].includes(pathParts[1])) {
+          businessSlug = pathParts[1];
         }
-
+        
+        // Check if there's a business query parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const businessFromQuery = urlParams.get('business');
+        if (businessFromQuery && ['jps', 'mdh', 'abc'].includes(businessFromQuery)) {
+          businessSlug = businessFromQuery;
+        }
+        
+        console.log('useBusinessConfig: Detected business slug:', businessSlug);
+        
         setCurrentBusinessSlug(businessSlug);
 
         // Load business-specific config

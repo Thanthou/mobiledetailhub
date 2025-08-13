@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { X, ChevronLeft, ChevronRight, Home, Shield } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Home, Shield, ImageIcon } from 'lucide-react';
 import CTAButtonsContainer from '../shared/CTAButtonsContainer';
 import ImageGalleryModal from '../ImageGalleryModal';
-import { getCurrentTheme } from '../../config/themes';
+
 
 export const rvDetailingService = {
   title: 'RV Detailing',
@@ -50,29 +50,18 @@ const RVDetailingModal: React.FC<RVDetailingModalProps> = ({ isOpen, onClose, on
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [activeTab, setActiveTab] = useState<'images' | 'videos'>('videos');
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
-  const [theme, setTheme] = useState<any>(null);
-
-  useEffect(() => {
-    const currentTheme = getCurrentTheme();
-    setTheme(currentTheme);
-  }, []);
-
-  // Get images from theme
+  // Get service images - no theme system needed
   const getServiceImages = () => {
-    if (!theme?.images?.rv) {
-      // Fallback to default images if theme doesn't have rv images
-      return [
-        '/rv_detailing/rv1.png',
-        '/rv_detailing/rv2.jfif',
-        '/rv_detailing/rv3.jfif',
-        '/rv_detailing/rv4.jfif',
-        '/rv_detailing/rv5.jfif',
-        '/rv_detailing/rv6.jfif',
-        '/rv_detailing/rv7.jfif',
-        '/rv_detailing/rv8.jfif',
-      ];
-    }
-    return [theme.images.rv]; // Use theme image
+    return [
+      '/rv_detailing/rv1.png',
+      '/rv_detailing/rv2.jfif',
+      '/rv_detailing/rv3.jfif',
+      '/rv_detailing/rv4.jfif',
+      '/rv_detailing/rv5.jfif',
+      '/rv_detailing/rv6.jfif',
+      '/rv_detailing/rv7.jfif',
+      '/rv_detailing/rv8.jfif',
+    ];
   };
 
   const serviceImages = getServiceImages();
@@ -190,6 +179,61 @@ const RVDetailingModal: React.FC<RVDetailingModalProps> = ({ isOpen, onClose, on
                         onClick={() => setCurrentVideoIndex(index)}
                         className={`w-4 h-4 rounded-full transition-all ${
                           index === currentVideoIndex ? 'bg-orange-500' : 'bg-gray-300'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Images Tab */}
+            {activeTab === 'images' && (
+              <div className="space-y-4">
+                {serviceImages.length > 0 ? (
+                  <div className="relative">
+                    <img
+                      src={serviceImages[currentImageIndex]}
+                      alt={`${rvDetailingService.title} ${currentImageIndex + 1}`}
+                      className="w-full h-64 object-cover rounded-lg shadow-lg"
+                      onError={(e) => {
+                        console.warn(`Failed to load image: ${serviceImages[currentImageIndex]}`);
+                      }}
+                    />
+                    {serviceImages.length > 1 && (
+                      <>
+                        <button
+                          onClick={() => setCurrentImageIndex((prev) => (prev - 1 + serviceImages.length) % serviceImages.length)}
+                          className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-all"
+                        >
+                          <ChevronLeft className="h-5 w-5" />
+                        </button>
+                        <button
+                          onClick={() => setCurrentImageIndex((prev) => (prev + 1) % serviceImages.length)}
+                          className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-all"
+                        >
+                          <ChevronRight className="h-5 w-5" />
+                        </button>
+                      </>
+                    )}
+                  </div>
+                ) : (
+                  <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <div className="text-center text-gray-500">
+                      <ImageIcon className="h-16 w-16 mx-auto mb-2 opacity-50" />
+                      <p>No images available</p>
+                    </div>
+                  </div>
+                )}
+                
+                {serviceImages.length > 1 && (
+                  <div className="flex justify-center space-x-2">
+                    {serviceImages.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentImageIndex(index)}
+                        className={`w-3 h-3 rounded-full ${
+                          index === currentImageIndex ? 'bg-orange-500' : 'bg-gray-300'
                         }`}
                       />
                     ))}

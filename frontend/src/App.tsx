@@ -1,11 +1,14 @@
 import React from 'react';
 import HomePage from './components/HomePage';
+import { LocationProvider } from './contexts/LocationContext';
 
 function App() {
   return (
-    <div className="bg-white">
-      <HomePage />
-    </div>
+    <LocationProvider>
+      <div className="bg-white">
+        <HomePage />
+      </div>
+    </LocationProvider>
   );
 }
 

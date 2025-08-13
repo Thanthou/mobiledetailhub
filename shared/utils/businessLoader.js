@@ -59,11 +59,23 @@ function getSlugFromDomain(hostname, req = null) {
         console.log(`Development mode: Using business from URL path: ${pathParts[1]}`);
         return pathParts[1];
       }
+      
+      // Check if there's a business indicator in the referer header
+      const referer = req.get('referer');
+      if (referer) {
+        const url = new URL(referer);
+        const pathParts = url.pathname.split('/');
+        if (pathParts.length > 1 && ['jps', 'mdh', 'abc'].includes(pathParts[1])) {
+          console.log(`Development mode: Using business from referer path: ${pathParts[1]}`);
+          return pathParts[1];
+        }
+      }
     }
     
-    // Default to 'jps' for development testing
-    console.log('Development mode: Defaulting to business: jps');
-    return 'jps';
+    // Check environment variable for default business
+    const defaultBusiness = process.env.DEFAULT_BUSINESS || 'mdh';
+    console.log(`Development mode: Using default business from env: ${defaultBusiness}`);
+    return defaultBusiness;
   }
 
   // Handle main domain (mobiledetailhub.com)

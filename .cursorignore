@@ -31,8 +31,3 @@ frontend/public/**/*.avi
 frontend/public/**/*.wmv
 frontend/public/**/*.flv
 frontend/public/**/*.mkv
-
-# Ignore other theme image directories (keeping only beach)
-frontend/public/themes/default/images/
-frontend/public/themes/southwest/images/
-frontend/public/themes/beach/images/

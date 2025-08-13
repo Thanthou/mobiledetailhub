@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Car, Ship, Paintbrush, Palette, Sun, Zap } from 'lucide-react';
 import { getAvailableBusinesses, loadBusinessConfig } from '../utils/businessLoader';
-import { getUnifiedThemeConfig, getCurrentBusiness } from '../config/themes';
+import { usePerformanceMonitor } from '../hooks/usePerformanceMonitor';
 import BusinessSelector from './BusinessSelector';
 import Hero from './Hero';
 import ServicesGrid from './ServicesGrid';
@@ -11,7 +11,6 @@ import Affiliates from './Affiliates';
 import Footer from './Footer';
 import QuoteModal from './QuoteModal';
 import ServiceModal from './ServiceModal';
-import type { UnifiedThemeConfig } from '../config/themes';
 
 interface Service {
   title: string;
@@ -22,14 +21,36 @@ interface Service {
 }
 
 const HomePage: React.FC = () => {
-  const [currentBusiness, setCurrentBusiness] = useState<string>('jps');
-  const [currentConfig, setCurrentConfig] = useState<any>(null);
-  const [businessConfig, setBusinessConfig] = useState<string>('jps');
-  const [isLoading, setIsLoading] = useState(false);
-  const [isThemeReady, setIsThemeReady] = useState(false);
-  const [unifiedConfig, setUnifiedConfig] = useState<UnifiedThemeConfig | null>(null);
+  // Detect business from URL or default to 'mdh'
+  const detectBusinessFromURL = () => {
+    let businessSlug = 'mdh';
+    
+    // Check if there's a business in the URL path
+    const pathParts = window.location.pathname.split('/');
+    if (pathParts.length > 1 && ['jps', 'mdh', 'abc'].includes(pathParts[1])) {
+      businessSlug = pathParts[1];
+      console.log(`HomePage: Detected business from URL path: ${businessSlug}`);
+    }
+    
+    // Check if there's a business query parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const businessFromQuery = urlParams.get('business');
+    if (businessFromQuery && ['jps', 'mdh', 'abc'].includes(businessFromQuery)) {
+      businessSlug = businessFromQuery;
+      console.log(`HomePage: Detected business from query param: ${businessSlug}`);
+    }
+    
+    console.log(`HomePage: Final detected business: ${businessSlug}`);
+    return businessSlug;
+  };
 
-  // Load available businesses
+  const [currentBusiness, setCurrentBusiness] = useState<string>(detectBusinessFromURL);
+  const [currentConfig, setCurrentConfig] = useState<any>(null);
+  const [businessConfig, setBusinessConfig] = useState<string>(detectBusinessFromURL);
+  const [isLoading, setIsLoading] = useState(false);
+  const { logPerformanceReport } = usePerformanceMonitor();
+
+  // Load available businesses and check initial URL
   useEffect(() => {
     console.log('HomePage: useEffect for loading businesses triggered');
     const loadBusinesses = async () => {
@@ -43,6 +64,29 @@ const HomePage: React.FC = () => {
     };
     
     loadBusinesses();
+
+    // Check if there's already a business in the URL on page load
+    const pathParts = window.location.pathname.split('/');
+    if (pathParts.length > 1 && ['jps', 'mdh', 'abc'].includes(pathParts[1])) {
+      const businessFromUrl = pathParts[1];
+      console.log('HomePage: Found business in URL on page load:', businessFromUrl);
+      if (businessFromUrl !== currentBusiness) {
+        setCurrentBusiness(businessFromUrl);
+      }
+    }
+  }, []);
+
+  // Listen for URL changes (back/forward navigation)
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      if (event.state && event.state.business) {
+        console.log('HomePage: PopState detected, switching to business:', event.state.business);
+        setCurrentBusiness(event.state.business);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
   // Load initial business config
@@ -58,16 +102,11 @@ const HomePage: React.FC = () => {
         setCurrentConfig(config);
         setBusinessConfig(currentBusiness);
         
-        console.log('HomePage: Getting unified theme config for business:', currentBusiness);
-        // Get unified theme config
-        const unified = getUnifiedThemeConfig(currentBusiness);
-        console.log('HomePage: Unified theme config loaded:', unified);
-        setUnifiedConfig(unified);
-        setIsThemeReady(true);
+              // Config loaded successfully
+        
         setIsLoading(false);
         
         console.log('HomePage: Initial config loaded:', config);
-        console.log('HomePage: Unified config loaded:', unified);
       } catch (error) {
         console.error('HomePage: Error loading initial config:', error);
         setIsLoading(false);
@@ -76,6 +115,18 @@ const HomePage: React.FC = () => {
 
     loadInitialConfig();
   }, [currentBusiness]);
+
+  // Add performance logging when config is ready
+  useEffect(() => {
+    if (currentConfig) {
+      // Log performance after a short delay to allow media to load
+      const timer = setTimeout(() => {
+        logPerformanceReport();
+      }, 2000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [currentConfig, logPerformanceReport]);
 
   // Handle business change
   const handleBusinessChange = async (businessSlug: string) => {
@@ -89,8 +140,11 @@ const HomePage: React.FC = () => {
     setCurrentBusiness(businessSlug);
     setIsLoading(true);
     setCurrentConfig(null);
-    setUnifiedConfig(null);
-    setIsThemeReady(false);
+
+    // Update the URL to trigger useBusinessConfig hook reload
+    const newUrl = `/${businessSlug}`;
+    window.history.pushState({ business: businessSlug }, '', newUrl);
+    console.log('HomePage: Updated URL to:', newUrl);
 
     const timeoutId = setTimeout(() => {
       console.error('HomePage: handleBusinessChange: Timeout reached, resetting loading state');
@@ -106,15 +160,9 @@ const HomePage: React.FC = () => {
       setCurrentConfig(config);
       setBusinessConfig(businessSlug);
       
-      console.log('HomePage: handleBusinessChange: Getting unified theme config for:', businessSlug);
-      // Get unified theme config
-      const unified = getUnifiedThemeConfig(businessSlug);
-      console.log('HomePage: handleBusinessChange - Unified config loaded:', unified);
-      setUnifiedConfig(unified);
-      setIsThemeReady(true);
       setIsLoading(false);
       
-      console.log('HomePage: handleBusinessChange - Unified config loaded:', unified);
+      console.log('HomePage: handleBusinessChange - Config loaded successfully');
     } catch (error) {
       clearTimeout(timeoutId);
       console.error('HomePage: handleBusinessChange - Error loading config:', error);
@@ -122,14 +170,17 @@ const HomePage: React.FC = () => {
     }
   };
 
-  // Create services configuration using unified theme
+  // Create services configuration using business config
   const config = useMemo(() => {
-    if (!unifiedConfig) return null;
+    if (!currentConfig) return null;
+    
+    // Debug logging
+    console.log('HomePage: Creating config with currentConfig:', currentConfig);
     
     return {
       header: {
-        logo: unifiedConfig.business.business.name,
-        tagline: unifiedConfig.business.business.tagline,
+        logo: currentConfig.business?.name || 'Business Name',
+        tagline: 'Professional Mobile Detailing',
       },
       socialMedia: {
         facebook: 'https://facebook.com/mobiledetailhub',
@@ -138,59 +189,74 @@ const HomePage: React.FC = () => {
         youtube: 'https://youtube.com/@mobiledetailhub'
       },
       hero: {
-        backgroundImage: unifiedConfig.theme.images.hero,
-        headline: unifiedConfig.business.hero.headline,
-        subheadline: unifiedConfig.business.hero.subheadline,
-        ctaText: unifiedConfig.business.hero.ctaText,
-        ctaSubtext: unifiedConfig.business.hero.ctaSubtext,
+        backgroundImage: currentConfig.hero?.backgroundImage || '/hero/image1.png',
+        headline: currentConfig.hero?.headline || 'Premium Mobile Detailing',
+        subheadline: currentConfig.hero?.subheadline || 'Professional service at your location',
+        ctaText: currentConfig.hero?.ctaText || 'Book Now',
+        ctaSubtext: currentConfig.hero?.ctaSubtext || 'Contact us today',
       },
       services: [
         {
-          title: unifiedConfig.business.services.auto.title,
-          image: `${unifiedConfig.theme.images.auto}?theme=${currentBusiness || 'default'}`,
+          title: 'Auto Detailing',
+          image: '/auto_detailing/image1.png',
           icon: <Car className="h-6 w-6" />,
-          description: unifiedConfig.business.services.auto.highlights,
-          images: [unifiedConfig.theme.images.auto]
+          description: ['Professional service', 'Quality results'],
+          images: [
+            '/auto_detailing/image1.png',
+          ]
         },
         {
-          title: unifiedConfig.business.services.marine.title,
-          image: `${unifiedConfig.theme.images.marine}?theme=${currentBusiness || 'default'}`,
+          title: 'Marine Detailing',
+          image: '/boat_detailing/image1.png',
           icon: <Ship className="h-6 w-6" />,
-          description: unifiedConfig.business.services.marine.highlights,
-          images: [unifiedConfig.theme.images.marine]
+          description: ['Boat care', 'Marine expertise'],
+          images: [
+            '/boat_detailing/image1.png',
+          ]
         },
         {
-          title: unifiedConfig.business.services.rv.title,
-          image: `${unifiedConfig.theme.images.rv}?theme=${currentBusiness || 'default'}`,
+          title: 'RV Detailing',
+          image: '/rv_detailing/image1.png',
           icon: <Paintbrush className="h-6 w-6" />,
-          description: unifiedConfig.business.services.rv.highlights,
-          images: [unifiedConfig.theme.images.rv]
+          description: ['RV maintenance', 'Travel ready'],
+          images: [
+            '/rv_detailing/image1.png',
+          ]
         },
         {
           title: 'Interior / Exterior',
-          image: '/interior_exterior/service_image.png',
-          icon: <Palette className="h-6 w-6" />
+          image: '/interior_exterior/image1.png',
+          icon: <Palette className="h-6 w-6" />,
+          images: [
+            '/interior_exterior/image1.png',
+          ]
         },
         {
           title: 'Ceramic Coating',
-          image: '/ceramic/service_image.png',
-          icon: <Sun className="h-6 w-6" />
+          image: '/ceramic/image1.png',
+          icon: <Sun className="h-6 w-6" />,
+          images: [
+            '/ceramic/image1.png',
+          ]
         },
         {
           title: 'Paint Protection Film',
-          image: '/ppf/service_image.png',
-          icon: <Zap className="h-6 w-6" />
+          image: '/ppf/image1.png',
+          icon: <Zap className="h-6 w-6" />,
+          images: [
+            '/ppf/image1.png',
+          ]
         }
       ],
       footer: {
-        businessName: unifiedConfig.business.business.name,
-        phone: currentConfig?.business?.phone || unifiedConfig.business.contact.phone,
-        email: currentConfig?.business?.email || unifiedConfig.business.contact.email,
-        hours: currentConfig?.business?.hours || unifiedConfig.business.contact.hours,
-        locations: unifiedConfig.business.locations,
+        businessName: currentConfig.business?.name || 'Business Name',
+        phone: currentConfig.business?.phone || 'Contact for details',
+        email: currentConfig.business?.email || 'info@business.com',
+        hours: currentConfig.business?.hours || 'Mon-Fri 9AM-5PM',
+        locations: currentConfig.serviceLocations || ['Main Location'],
       }
     };
-  }, [unifiedConfig, currentBusiness, currentConfig]);
+  }, [currentConfig, currentBusiness]);
 
   // Modal state
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
@@ -216,7 +282,7 @@ const HomePage: React.FC = () => {
   };
 
   // Loading state
-  if (!isThemeReady || !unifiedConfig || isLoading) {
+  if (!currentConfig || isLoading) {
     return (
       <div className="min-h-screen bg-stone-900 flex items-center justify-center">
         <div className="text-center text-white">
@@ -227,9 +293,9 @@ const HomePage: React.FC = () => {
           <p className="text-sm text-gray-400 mt-2">
             Current business: {currentBusiness || 'none'}
           </p>
-          {currentConfig?.theme && (
+          {currentConfig?.business?.name && (
             <p className="text-sm text-blue-400 mt-1">
-              Loading: {currentConfig.theme} theme
+              Loading: {currentConfig.business.name}
             </p>
           )}
           {/* Manual reset button if loading gets stuck */}
@@ -267,6 +333,34 @@ const HomePage: React.FC = () => {
         onBusinessChange={handleBusinessChange}
         selectedBusiness={currentBusiness}
       />
+      
+      {/* Development Mode Indicator */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="fixed top-4 left-4 z-50">
+          <div className="bg-yellow-500 text-black px-3 py-2 rounded-lg shadow-lg text-sm font-medium mb-2">
+            Dev Mode: {currentBusiness.toUpperCase()}
+          </div>
+          <div className="flex gap-2 mb-2">
+            {['mdh', 'jps', 'abc'].map((business) => (
+              <button
+                key={business}
+                onClick={() => handleBusinessChange(business)}
+                disabled={isLoading || business === currentBusiness}
+                className={`px-3 py-1 text-xs rounded ${
+                  business === currentBusiness
+                    ? 'bg-green-600 text-white cursor-default'
+                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                {business.toUpperCase()}
+              </button>
+            ))}
+          </div>
+          <div className="text-xs text-black bg-yellow-200 px-2 py-1 rounded">
+            URL: /{currentBusiness} or ?business={currentBusiness}
+          </div>
+        </div>
+      )}
 
       {/* Hero Section */}
       <Hero
@@ -277,10 +371,11 @@ const HomePage: React.FC = () => {
       {/* Services Section */}
       <div id="services">
         <ServicesGrid
-          key={`${currentBusiness}-${unifiedConfig.theme.images.auto || 'default'}-${unifiedConfig.theme.images.marine || 'default'}-${unifiedConfig.theme.images.rv || 'default'}`}
+          key={`${currentBusiness}-${currentConfig?.hero?.backgroundImage || 'default'}`}
           services={config.services}
           onBookNow={handleBookNow}
           onRequestQuote={openQuoteModal}
+          businessSlug={currentBusiness}
         />
       </div>
 
@@ -305,6 +400,7 @@ const HomePage: React.FC = () => {
       <Footer
         onBookNow={handleBookNow}
         onRequestQuote={openQuoteModal}
+        businessSlug={currentBusiness}
       />
 
       {/* Modals */}

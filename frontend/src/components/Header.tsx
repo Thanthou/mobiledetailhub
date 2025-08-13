@@ -1,6 +1,7 @@
 import React from 'react';
 import { Phone, MapPin, Menu, Facebook, Instagram, Youtube } from 'lucide-react';
 import { useBusinessConfig } from '../hooks/useBusinessConfig';
+import { useLocation } from '../contexts/LocationContext';
 import { scrollToTop, scrollToServices, scrollToBottom } from '../utils/scrollUtils';
 
 // Custom TikTok icon component
@@ -20,6 +21,7 @@ const TikTokIcon: React.FC<{ className?: string }> = ({ className }) => (
 
 const Header: React.FC = () => {
   const { businessConfig, parentConfig, isLoading, error, getBusinessInfoWithOverrides } = useBusinessConfig();
+  const { selectedLocation, clearLocation } = useLocation();
   
   if (isLoading) {
     return (
@@ -55,7 +57,18 @@ const Header: React.FC = () => {
   const { header } = businessConfig;
   
   // Check if this is mdh (Mobile Detail Hub) - the special case
-  const isMdh = businessInfo.name.toLowerCase().includes('mobile detail hub') || businessInfo.name.toLowerCase() === 'mdh';
+  const isMdh = businessInfo.name.toLowerCase().includes('mobile detail hub') || 
+                businessInfo.name.toLowerCase() === 'mdh' || 
+                businessInfo.name === 'Mobile Detail Hub' ||
+                businessConfig.slug === 'mdh';
+  
+  // Debug logging
+  console.log('Header - Business Info:', {
+    name: businessInfo.name,
+    phone: businessInfo.phone,
+    address: businessInfo.address,
+    isMdh: isMdh
+  });
   
   return (
     <header className="absolute top-0 left-0 right-0 z-20 bg-black/20 backdrop-blur-sm">
@@ -67,7 +80,7 @@ const Header: React.FC = () => {
               {/* Only show favicon for mdh */}
               {isMdh && (
                 <img 
-                  src="/favicon.png" 
+                  src="/favicon.webp" 
                   alt="Mobile Detail Hub Logo" 
                   className="h-8 w-8 md:h-10 md:w-10"
                 />
@@ -81,9 +94,26 @@ const Header: React.FC = () => {
                   <Phone className="h-4 w-4" />
                   <span>{businessInfo.phone}</span>
                 </div>
-                <div className="flex items-center space-x-1">
-                  <MapPin className="h-4 w-4" />
-                  <span>{businessInfo.address}</span>
+                <div className="flex items-center space-x-3">
+                  <MapPin className="h-5 w-5 text-orange-400" />
+                  <span className="text-lg text-gray-300">
+                    {selectedLocation ? (
+                      <div className="flex items-center space-x-2">
+                        <span className="text-orange-400 font-medium">
+                          📍 {selectedLocation.city}, {selectedLocation.state}
+                        </span>
+                        <button
+                          onClick={clearLocation}
+                          className="text-xs text-gray-400 hover:text-white transition-colors"
+                          title="Clear location"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ) : (
+                      businessInfo.address
+                    )}
+                  </span>
                 </div>
               </div>
             )}
@@ -92,7 +122,11 @@ const Header: React.FC = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             <nav className="flex items-center space-x-8">
-              {header.navLinks.map((link, index) => {
+              {(header?.navLinks || [
+                { name: 'Home', href: '/' },
+                { name: 'Services', href: '/services' },
+                { name: 'Contact', href: '/contact' }
+              ]).map((link, index) => {
                 // Skip gallery link
                 if (link.name === 'Gallery') return null;
                 

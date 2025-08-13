@@ -11,7 +11,7 @@ module.exports = {
     email: 'service@abcmobiledetail.com',
     phone: '(702) 420-6066',
     smsPhone: '+17024206066',
-    address: 'Your City, ST',
+    address: 'Las Vegas, NV',
     hours: 'Mon-Sat: 8AM-6PM',
     services: ['Auto Detailing', 'Marine Detailing', 'RV Detailing', 'Interior/Exterior', 'Ceramic Coating', 'Paint Protection Film'],
     description: 'Quality mobile detailing services for all vehicle types'
@@ -24,8 +24,22 @@ module.exports = {
   
   // Service Areas/Locations
   serviceLocations: [
-    'Your City, ST',
-    'Nearby City, ST'
+    'Las Vegas, NV',
+    'Henderson, NV',
+    'North Las Vegas, NV',
+    'Boulder City, NV',
+    'Summerlin, NV',
+    'Green Valley, NV',
+    'Anthem, NV',
+    'Enterprise, NV',
+    'Spring Valley, NV',
+    'Paradise, NV',
+    'Sunrise Manor, NV',
+    'Whitney, NV',
+    'Winchester, NV',
+    'Mount Charleston, NV',
+    'Red Rock Canyon, NV',
+    'Valley of Fire, NV'
   ],
 
   // Branding & Styling
