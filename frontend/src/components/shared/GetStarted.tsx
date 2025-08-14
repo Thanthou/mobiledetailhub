@@ -213,17 +213,10 @@ const GetStarted: React.FC<GetStartedProps> = ({
           // Stay on current domain if it's MDH
           window.location.href = '/';
         } else {
-          const currentHost = window.location.host;
-          
-          if (currentHost.includes('localhost')) {
-            // Development mode - use query parameter
-            const redirectUrl = `/?business=${businessConfig.slug}`;
-            window.location.href = redirectUrl;
-          } else {
-            // Always redirect to path-based URL
-            const redirectUrl = `https://mobiledetailhub.com/${businessConfig.slug}`;
-            window.location.href = redirectUrl;
-          }
+          // TEMPORARILY DISABLED - just show alert instead of redirecting
+          alert(`Found business: ${businessConfig.slug}`);
+          console.log('Business found:', businessConfig);
+          // TODO: Re-enable routing once main site can handle /jps paths
         }
       } else {
         alert('Sorry, we don\'t currently serve this area. Please contact us for more information.');
