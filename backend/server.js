@@ -29,6 +29,11 @@ app.use(cors({
       'https://www.mobiledetailhub.com'
     ];
     
+    // Allow Vercel preview URLs (for development and testing)
+    if (origin.includes('.vercel.app')) {
+      return callback(null, true);
+    }
+    
     // Check if origin is in allowed domains
     if (allowedDomains.includes(origin)) {
       return callback(null, true);
