@@ -15,7 +15,6 @@ const GetStarted: React.FC<GetStartedProps> = ({
   className = '',
 }) => {
   const [inputValue, setInputValue] = useState('');
-  // NEW: use the new Suggestion type (fallback to any for wider TS compatibility)
   const [predictions, setPredictions] = useState<Array<any>>([]);
   const [showPredictions, setShowPredictions] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -24,79 +23,74 @@ const GetStarted: React.FC<GetStartedProps> = ({
 
   const inputRef = useRef<HTMLInputElement>(null);
   const predictionsRef = useRef<HTMLDivElement>(null);
-  // NEW: keep a session token per typing session (billing + better relevance)
   const sessionTokenRef = useRef<any | null>(null);
   
-  // Get location context at component level
   const { setSelectedLocation } = useLocation();
 
   // Load Google Places API
   useEffect(() => {
-    const loadGooglePlacesAPI = () => {
-      // Check if API is already loaded and properly initialized
-      if (window.google?.maps?.places && window.google?.maps?.importLibrary) {
-        // Give the API a moment to finish initializing
-        setTimeout(checkAPIReady, 300);
-        return;
-      }
-      
-      // Check if script is already being loaded
-      if (document.querySelector('script[src*="maps.googleapis.com"]')) {
-        setTimeout(checkAPIReady, 500);
-        return;
-      }
-      
-      const script = document.createElement('script');
-      const apiKey = (import.meta as any).env?.VITE_GOOGLE_MAPS_API_KEY || 'DEMO_KEY';
-      
-      // Use a more robust API loading approach
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&v=beta`;
-      script.async = true;
-      script.defer = true;
-      script.onload = () => setTimeout(() => checkAPIReady(), 500);
-      script.onerror = (err) => {
-        console.error('Failed to load Google Maps JS API', err);
-        // Disable location functionality if API fails to load
-        setApiLoaded(false);
-      };
-      document.head.appendChild(script);
-    };
-
     const checkAPIReady = async () => {
       try {
         if (!window.google?.maps?.importLibrary) {
           setTimeout(checkAPIReady, 250);
           return;
         }
-        // NEW: ensure the modern Autocomplete Data API is available
+        
         const placesLib = (await window.google.maps.importLibrary('places')) as google.maps.PlacesLibrary;
         const AutocompleteSuggestion: any = (placesLib as any).AutocompleteSuggestion;
+        
         if (AutocompleteSuggestion?.fetchAutocompleteSuggestions) {
           setApiLoaded(true);
-          // Test business configs when API is ready
-          // testBusinessConfigs(); // Removed since this function no longer exists
         } else {
-          // fallback: keep polling a bit more
           setTimeout(checkAPIReady, 250);
         }
       } catch (error) {
         console.error('Google Maps API initialization error:', error);
-        // If API fails to initialize, disable location functionality
         setApiLoaded(false);
       }
+    };
+
+    const loadGooglePlacesAPI = () => {
+      if (window.google?.maps) {
+        setTimeout(checkAPIReady, 300);
+        return;
+      }
+      
+      if (document.querySelector('script[src*="maps.googleapis.com"]')) {
+        setTimeout(checkAPIReady, 500);
+        return;
+      }
+      
+      const script = document.createElement('script');
+      const apiKey = (import.meta as any).env?.VITE_GOOGLE_MAPS_API_KEY;
+      
+      if (!apiKey) {
+        console.error('Google Maps API key not found. Please set VITE_GOOGLE_MAPS_API_KEY in your .env file');
+        setApiLoaded(false);
+        return;
+      }
+      
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&v=beta`;
+      script.async = true;
+      script.defer = true;
+      script.onload = () => setTimeout(() => checkAPIReady(), 500);
+      script.onerror = (err) => {
+        console.error('Failed to load Google Maps JS API', err);
+        setApiLoaded(false);
+      };
+      document.head.appendChild(script);
     };
 
     loadGooglePlacesAPI();
   }, []);
 
-  // Handle input changes and get predictions (new API)
+  // Handle input changes and get predictions
   const handleInputChange = async (value: string) => {
     setInputValue(value);
 
     if (!value.trim()) {
       setPredictions([]);
       setShowPredictions(false);
-      // reset token for a fresh session when user clears input
       sessionTokenRef.current = null;
       return;
     }
@@ -109,7 +103,6 @@ const GetStarted: React.FC<GetStartedProps> = ({
 
     setIsLoading(true);
     try {
-      // Additional safety check for Google Maps API
       if (!window.google?.maps?.importLibrary) {
         console.warn('Google Maps API not available');
         setPredictions([]);
@@ -120,22 +113,17 @@ const GetStarted: React.FC<GetStartedProps> = ({
       const { AutocompleteSuggestion, AutocompleteSessionToken } =
         (await window.google.maps.importLibrary('places')) as google.maps.PlacesLibrary as any;
 
-      // create (or reuse) a session token for this typing session
       if (!sessionTokenRef.current) {
         sessionTokenRef.current = new AutocompleteSessionToken();
       }
 
-      // Request tuned for city/ZIP entry
       const request: any = {
         input: value,
-        region: 'us', // bias to US
-        includedPrimaryTypes: ['locality', 'postal_code'], // cities + ZIPs
-        // You can also bias or restrict by area later using locationRestriction/origin
+        region: 'us',
+        includedPrimaryTypes: ['locality', 'postal_code'],
+        sessionToken: sessionTokenRef.current,
       };
-      // attach the session token (billing & relevance)
-      request.sessionToken = sessionTokenRef.current;
 
-      // NEW: promise-based suggestions
       const { suggestions } = await AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
       setPredictions(suggestions || []);
       setShowPredictions((suggestions || []).length > 0);
@@ -143,7 +131,6 @@ const GetStarted: React.FC<GetStartedProps> = ({
       console.error('GetStarted: Error getting suggestions', err);
       setPredictions([]);
       setShowPredictions(false);
-      // Disable API if it's consistently failing
       if (err instanceof Error && err.message.includes('wI')) {
         console.warn('Google Maps API appears to be broken, disabling location functionality');
         setApiLoaded(false);
@@ -153,7 +140,7 @@ const GetStarted: React.FC<GetStartedProps> = ({
     }
   };
 
-  // Handle prediction selection (new API)
+  // Handle prediction selection
   const handlePredictionSelect = async (suggestion: any) => {
     try {
       const label = suggestion.placePrediction.text?.toString?.() ?? '';
@@ -165,11 +152,10 @@ const GetStarted: React.FC<GetStartedProps> = ({
       let city = '';
       let state = '';
 
-      // Ask for structured address parts
-      const place = suggestion.placePrediction.toPlace(); // implicit placeId binding
+      const place = suggestion.placePrediction.toPlace();
       await place.fetchFields({
         fields: ['addressComponents', 'formattedAddress'],
-      }); // ends the session under the hood
+      });
 
       const comps = (place.addressComponents || []) as Array<{
         longText?: string;
@@ -179,16 +165,11 @@ const GetStarted: React.FC<GetStartedProps> = ({
 
       const get = (type: string) => comps.find((c) => c.types?.includes(type));
       zipCode = get('postal_code')?.longText ?? '';
-      city =
-        get('locality')?.longText ??
-        get('postal_town')?.longText ??
-        '';
+      city = get('locality')?.longText ?? get('postal_town')?.longText ?? '';
       state = get('administrative_area_level_1')?.shortText ?? '';
 
-      // Find which business serves this location
       await handleLocationSearch(label, zipCode, city, state);
     } catch (e) {
-      // graceful fallback: parse the text label
       const text = suggestion?.placePrediction?.text?.toString?.() ?? '';
       const parts = text.split(', ');
       let zip = '', c = '', s = '';
@@ -198,7 +179,6 @@ const GetStarted: React.FC<GetStartedProps> = ({
       }
       await handleLocationSearch(text, zip, c, s);
     } finally {
-      // NEW: reset session token for the next search session
       sessionTokenRef.current = null;
     }
   };
@@ -212,13 +192,11 @@ const GetStarted: React.FC<GetStartedProps> = ({
     }
   };
 
-  // New function to handle location search and business routing
+  // Handle location search and business routing
   const handleLocationSearch = async (location: string, zipCode?: string, city?: string, state?: string) => {
     setSearchingLocation(true);
     
     try {
-      
-      // Store the selected location in context
       setSelectedLocation({
         city: city || '',
         state: state || '',
@@ -226,46 +204,29 @@ const GetStarted: React.FC<GetStartedProps> = ({
         fullLocation: location
       });
       
-      
-      // Call the callback if provided
       onLocationSubmit?.(location, zipCode, city, state);
       
-      
-      // Find which business serves this location
       const businessConfig = await findBusinessByLocation(location, zipCode, city, state);
       
       if (businessConfig) {
-        // Found a business that serves this location
         if (businessConfig.slug === 'mdh') {
-          // Stay on current domain if it's MDH
           window.location.href = '/';
         } else {
-          // Redirect to business subdomain
-          const currentProtocol = window.location.protocol;
           const currentHost = window.location.host;
           
           if (currentHost.includes('localhost')) {
-            // Development mode - use query parameter
             const redirectUrl = `/?business=${businessConfig.slug}`;
             window.location.href = redirectUrl;
           } else {
-            // Production mode - redirect to subdomain
-            const subdomain = `${businessConfig.slug}.mobiledetailhub.com`;
-            const redirectUrl = `${currentProtocol}//${subdomain}`;
+            const redirectUrl = `https://mobiledetailhub.com/${businessConfig.slug}`;
             window.location.href = redirectUrl;
           }
         }
       } else {
-        // Could show a message that no service is available in this area
         alert('Sorry, we don\'t currently serve this area. Please contact us for more information.');
       }
     } catch (error) {
       console.error('GetStarted: Error handling location search:', error);
-      console.error('GetStarted: Error details:', {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : 'No stack trace',
-        error
-      });
       alert('Sorry, there was an error processing your location. Please try again.');
     } finally {
       setSearchingLocation(false);
