@@ -12,19 +12,32 @@ const PORT = process.env.PORT || 3001;
 
 // CORS configuration - MUST be first, before any other middleware
 app.use(cors({
-  origin: [
-    'http://localhost:5173', 
-    'http://localhost:3000', 
-    'http://localhost:4173',
-    'https://jps.mobiledetailhub.com',
-    'https://abc.mobiledetailhub.com',
-    'https://mobiledetailhub.com',
-    'https://jps-detailing.vercel.app',
-    'https://jps-detailing-git-main.vercel.app',
-    'https://jps-detailing-git-develop.vercel.app',
-    'https://mobiledetailhub-9s88vbdp6-bcoleman143-3795s-projects.vercel.app',
-    'https://mobiledetailhub.vercel.app'
-  ],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Allow localhost for development
+    if (origin.startsWith('http://localhost:')) {
+      return callback(null, true);
+    }
+    
+    // Allow only your actual business domains (including www subdomain)
+    const allowedDomains = [
+      'https://jps.mobiledetailhub.com',
+      'https://abc.mobiledetailhub.com',
+      'https://mobiledetailhub.com',
+      'https://www.mobiledetailhub.com'
+    ];
+    
+    // Check if origin is in allowed domains
+    if (allowedDomains.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // Log blocked origins for debugging
+    console.log('CORS blocked origin:', origin);
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
