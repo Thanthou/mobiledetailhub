@@ -16,7 +16,7 @@ app.use(cors({
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     
-    // Allow localhost for development
+    // Allow any localhost port for development
     if (origin.startsWith('http://localhost:')) {
       return callback(null, true);
     }

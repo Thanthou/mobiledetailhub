@@ -1,13 +1,23 @@
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from './components/HomePage';
 import { LocationProvider } from './contexts/LocationContext';
 
 function App() {
   return (
     <LocationProvider>
-      <div className="bg-white">
-        <HomePage />
-      </div>
+      <Router>
+        <div className="bg-white">
+          <Routes>
+            {/* Main routes - all business paths go to HomePage */}
+            <Route path="/" element={<HomePage />} />
+            <Route path="/:businessSlug" element={<HomePage />} />
+            
+            {/* Catch all other routes */}
+            <Route path="*" element={<HomePage />} />
+          </Routes>
+        </div>
+      </Router>
     </LocationProvider>
   );
 }

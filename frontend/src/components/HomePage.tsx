@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Car, Ship, Paintbrush, Palette, Sun, Zap } from 'lucide-react';
 import { getAvailableBusinesses, loadBusinessConfig } from '../utils/businessLoader';
 import { usePerformanceMonitor } from '../hooks/usePerformanceMonitor';
@@ -21,6 +22,10 @@ interface Service {
 }
 
 const HomePage: React.FC = () => {
+  // Get business slug from URL parameters
+  const { businessSlug } = useParams<{ businessSlug?: string }>();
+  const navigate = useNavigate();
+  
   // State variables
   const [currentBusiness, setCurrentBusiness] = useState<string>('mdh');
   const [currentConfig, setCurrentConfig] = useState<any>(null);
@@ -31,17 +36,14 @@ const HomePage: React.FC = () => {
 
   // Detect business from URL path or query params
   useEffect(() => {
-    const pathParts = window.location.pathname.split('/');
-    let businessSlug = pathParts[1];
-    
-    // If no business in path, check query params
-    if (!businessSlug || !['jps', 'mdh', 'abc'].includes(businessSlug)) {
-      const urlParams = new URLSearchParams(window.location.search);
-      businessSlug = urlParams.get('business') || 'mdh';
+    // Use businessSlug from URL params if available
+    if (businessSlug && ['jps', 'mdh', 'abc'].includes(businessSlug)) {
+      setCurrentBusiness(businessSlug);
+    } else {
+      // Fallback to default business
+      setCurrentBusiness('mdh');
     }
-    
-    setCurrentBusiness(businessSlug);
-  }, []);
+  }, [businessSlug]);
 
   // Load available businesses
   useEffect(() => {
@@ -55,18 +57,6 @@ const HomePage: React.FC = () => {
     };
 
     loadBusinesses();
-  }, []);
-
-  // Handle business change from URL
-  useEffect(() => {
-    const handlePopState = (event: PopStateEvent) => {
-      if (event.state && event.state.business) {
-        setCurrentBusiness(event.state.business);
-      }
-    };
-
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
   // Load initial business config
@@ -101,9 +91,8 @@ const HomePage: React.FC = () => {
     setCurrentConfig(null);
     setBusinessConfigs(prev => ({ ...prev, [businessSlug]: null }));
 
-    // Update URL
-    const newUrl = `/${businessSlug}`;
-    window.history.pushState({ business: businessSlug }, '', newUrl);
+    // Update URL using React Router
+    navigate(`/${businessSlug}`);
     setCurrentBusiness(businessSlug);
 
     try {
@@ -127,7 +116,7 @@ const HomePage: React.FC = () => {
     setCurrentBusiness('mdh');
     setCurrentConfig(null);
     setBusinessConfigs({});
-    window.history.pushState({ business: 'mdh' }, '', '/mdh');
+    navigate('/mdh');
   };
 
   // Create services configuration using business config
@@ -181,7 +170,8 @@ const HomePage: React.FC = () => {
     
     return defaultServices.map((service: Service) => ({
       ...service,
-      title: currentConfig.services?.available?.[0] || service.title,
+      // Don't override individual service titles - keep them as defined
+      // title: currentConfig.services?.available?.[0] || service.title,
       description: currentConfig.services?.description || service.description
     }));
   }, [currentConfig]);
