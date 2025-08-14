@@ -33,19 +33,32 @@ const GetStarted: React.FC<GetStartedProps> = ({
   // Load Google Places API
   useEffect(() => {
     const loadGooglePlacesAPI = () => {
-      if (window.google?.maps?.places) {
+      // Check if API is already loaded and properly initialized
+      if (window.google?.maps?.places && window.google?.maps?.importLibrary) {
         // Give the API a moment to finish initializing
-        setTimeout(() => checkAPIReady(), 300);
+        setTimeout(checkAPIReady, 300);
         return;
       }
+      
+      // Check if script is already being loaded
+      if (document.querySelector('script[src*="maps.googleapis.com"]')) {
+        setTimeout(checkAPIReady, 500);
+        return;
+      }
+      
       const script = document.createElement('script');
       const apiKey = (import.meta as any).env?.VITE_GOOGLE_MAPS_API_KEY || 'DEMO_KEY';
-      // keeps your existing loader – the new API is still under "libraries=places"
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+      
+      // Use a more robust API loading approach
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&v=beta`;
       script.async = true;
       script.defer = true;
-      script.onload = () => setTimeout(() => checkAPIReady(), 300);
-      script.onerror = (err) => console.error('Failed to load Google Maps JS API', err);
+      script.onload = () => setTimeout(() => checkAPIReady(), 500);
+      script.onerror = (err) => {
+        console.error('Failed to load Google Maps JS API', err);
+        // Disable location functionality if API fails to load
+        setApiLoaded(false);
+      };
       document.head.appendChild(script);
     };
 
@@ -66,8 +79,10 @@ const GetStarted: React.FC<GetStartedProps> = ({
           // fallback: keep polling a bit more
           setTimeout(checkAPIReady, 250);
         }
-      } catch {
-        setTimeout(checkAPIReady, 250);
+      } catch (error) {
+        console.error('Google Maps API initialization error:', error);
+        // If API fails to initialize, disable location functionality
+        setApiLoaded(false);
       }
     };
 
@@ -94,6 +109,14 @@ const GetStarted: React.FC<GetStartedProps> = ({
 
     setIsLoading(true);
     try {
+      // Additional safety check for Google Maps API
+      if (!window.google?.maps?.importLibrary) {
+        console.warn('Google Maps API not available');
+        setPredictions([]);
+        setShowPredictions(false);
+        return;
+      }
+
       const { AutocompleteSuggestion, AutocompleteSessionToken } =
         (await window.google.maps.importLibrary('places')) as google.maps.PlacesLibrary as any;
 
@@ -120,6 +143,11 @@ const GetStarted: React.FC<GetStartedProps> = ({
       console.error('GetStarted: Error getting suggestions', err);
       setPredictions([]);
       setShowPredictions(false);
+      // Disable API if it's consistently failing
+      if (err instanceof Error && err.message.includes('wI')) {
+        console.warn('Google Maps API appears to be broken, disabling location functionality');
+        setApiLoaded(false);
+      }
     } finally {
       setIsLoading(false);
     }

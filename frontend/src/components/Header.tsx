@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Phone, MapPin, Menu, Facebook, Instagram, Youtube } from 'lucide-react';
+import { Phone, Menu, Facebook, Instagram, Youtube } from 'lucide-react';
 import { useBusinessConfig } from '../hooks/useBusinessConfig';
-import { useLocation } from '../contexts/LocationContext';
 import { scrollToTop, scrollToServices, scrollToBottom, scrollToFAQ } from '../utils/scrollUtils';
 import { GetStarted } from './shared';
+import ServiceAreas from './ServiceAreas';
 
 // Custom TikTok icon component
 const TikTokIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -22,8 +22,6 @@ const TikTokIcon: React.FC<{ className?: string }> = ({ className }) => (
 
 const Header: React.FC = () => {
   const { businessConfig, parentConfig, isLoading, error, getBusinessInfoWithOverrides } = useBusinessConfig();
-  const { selectedLocation, clearLocation } = useLocation();
-  const [showLocationInput, setShowLocationInput] = useState(false);
   
   if (isLoading) {
     return (
@@ -64,13 +62,7 @@ const Header: React.FC = () => {
                 businessInfo.name === 'Mobile Detail Hub' ||
                 businessConfig.slug === 'mdh';
   
-  // Debug logging
-  console.log('Header - Business Info:', {
-    name: businessInfo.name,
-    phone: businessInfo.phone,
-    address: businessInfo.address,
-    isMdh: isMdh
-  });
+
   
   return (
     <header className="absolute top-0 left-0 right-0 z-20 bg-black/20 backdrop-blur-sm">
@@ -96,55 +88,14 @@ const Header: React.FC = () => {
                   <Phone className="h-4 w-4" />
                   <span>{businessInfo.phone}</span>
                 </div>
-                <div className="flex items-center space-x-3">
-                  <MapPin className="h-5 w-5 text-orange-400" />
-                  {showLocationInput ? (
-                    <div className="flex items-center space-x-2">
-                      <GetStarted
-                        onLocationSubmit={(location, zipCode, city, state) => {
-                          // Location will be handled by GetStarted component
-                          setShowLocationInput(false);
-                        }}
-                        placeholder="Enter new location"
-                        className="w-48"
-                      />
-                      <button
-                        onClick={() => setShowLocationInput(false)}
-                        className="text-xs text-gray-400 hover:text-white transition-colors"
-                        title="Cancel"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ) : (
-                    <span className="text-lg text-gray-300">
-                      {selectedLocation ? (
-                        <div className="flex items-center space-x-2">
-                          <button
-                            onClick={() => setShowLocationInput(true)}
-                            className="text-orange-400 font-medium hover:text-orange-300 transition-colors cursor-pointer"
-                          >
-                            {selectedLocation.city}, {selectedLocation.state}
-                          </button>
-                          <button
-                            onClick={clearLocation}
-                            className="text-xs text-gray-400 hover:text-white transition-colors"
-                            title="Clear location"
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => setShowLocationInput(true)}
-                          className="hover:text-orange-400 transition-colors cursor-pointer"
-                        >
-                          {businessInfo.address}
-                        </button>
-                      )}
-                    </span>
-                  )}
-                </div>
+                <ServiceAreas 
+                  variant="header" 
+                  onLocationClick={() => {
+                    // Open location input field
+                    console.log('Header location clicked - should open location input');
+                    // You can implement your own location input logic here
+                  }}
+                />
               </div>
             )}
           </div>

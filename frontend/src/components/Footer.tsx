@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { Phone, MapPin, Facebook, Instagram, Youtube } from 'lucide-react';
+import React from 'react';
+import { Phone, Facebook, Instagram, Youtube } from 'lucide-react';
 import { useBusinessConfig } from '../hooks/useBusinessConfig';
-import { useLocation } from '../contexts/LocationContext';
 import { scrollToTop, scrollToServices, scrollToBottom, scrollToFAQ } from '../utils/scrollUtils';
 import { GetStarted } from './shared';
+import ServiceAreas from './ServiceAreas';
 
 // Custom TikTok icon component
 const TikTokIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -28,8 +28,6 @@ interface FooterProps {
 
 const Footer: React.FC<FooterProps> = ({ onBookNow, onRequestQuote, businessSlug }) => {
   const { businessConfig, parentConfig, isLoading, error, getBusinessInfoWithOverrides } = useBusinessConfig();
-  const { selectedLocation, clearLocation } = useLocation();
-  const [showLocationInput, setShowLocationInput] = useState(false);
   
   if (isLoading) {
     return (
@@ -55,6 +53,9 @@ const Footer: React.FC<FooterProps> = ({ onBookNow, onRequestQuote, businessSlug
   const businessInfo = getBusinessInfoWithOverrides;
   const parentAttribution = parentConfig?.attribution;
   
+  // Check if this is MDH to conditionally hide phone and location
+  const isMdh = businessConfig.slug === 'mdh';
+  
 
 
   return (
@@ -64,12 +65,14 @@ const Footer: React.FC<FooterProps> = ({ onBookNow, onRequestQuote, businessSlug
           {/* Contact Information */}
           <div className="space-y-4">
             <h3 className="text-2xl font-bold mb-6 text-orange-400">Get In Touch</h3>
-            <div className="flex items-center space-x-3">
-              <Phone className="h-5 w-5 text-orange-400" />
-              <span className="text-lg text-white">
-                {businessInfo.phone}
-              </span>
-            </div>
+            {!isMdh && (
+              <div className="flex items-center space-x-3">
+                <Phone className="h-5 w-5 text-orange-400" />
+                <span className="text-lg text-white">
+                  {businessInfo.phone}
+                </span>
+              </div>
+            )}
 
             <div className="flex items-center space-x-3">
               <div className="text-orange-400">
@@ -89,55 +92,14 @@ const Footer: React.FC<FooterProps> = ({ onBookNow, onRequestQuote, businessSlug
               </button>
             </div>
 
-            <div className="flex items-center space-x-3">
-              <MapPin className="h-5 w-5 text-orange-400" />
-              {showLocationInput ? (
-                <div className="flex items-center space-x-2">
-                  <GetStarted
-                    onLocationSubmit={(location, zipCode, city, state) => {
-                      // Location will be handled by GetStarted component
-                      setShowLocationInput(false);
-                    }}
-                    placeholder="Enter new location"
-                    className="w-48"
-                  />
-                  <button
-                    onClick={() => setShowLocationInput(false)}
-                    className="text-xs text-gray-400 hover:text-white transition-colors"
-                    title="Cancel"
-                  >
-                    ✕
-                  </button>
-                </div>
-              ) : (
-                <span className="text-lg text-gray-300">
-                  {selectedLocation ? (
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => setShowLocationInput(true)}
-                        className="text-orange-400 font-medium hover:text-orange-300 transition-colors cursor-pointer"
-                      >
-                        {selectedLocation.city}, {selectedLocation.state}
-                      </button>
-                      <button
-                        onClick={clearLocation}
-                        className="text-xs text-gray-400 hover:text-white transition-colors"
-                        title="Clear location"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => setShowLocationInput(true)}
-                      className="hover:text-orange-400 transition-colors cursor-pointer"
-                    >
-                      {businessInfo.address}
-                    </button>
-                  )}
-                </span>
-              )}
-            </div>
+            <ServiceAreas 
+              variant="footer" 
+              onLocationClick={() => {
+                // Open location input field
+                console.log('Footer location clicked - should open location input');
+                // You can implement your own location input logic here
+              }}
+            />
           </div>
 
           {/* Quick Links - Separate Column */}

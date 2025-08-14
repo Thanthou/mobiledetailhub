@@ -21,16 +21,17 @@ module.exports = {
   // Service Areas/Locations
   serviceLocations: [
     'Bullhead City, AZ',
-    'Laughlin, NV',
     'Mohave Valley, AZ',
-    'Needles, CA',
     'Fort Mohave, AZ',
-    "Katherine Landing, AZ",
+    'Katherine Landing, AZ',
     'Lake Havasu City, AZ',
     'Kingman, AZ',
+    'Laughlin, NV',
+    'Needles, CA',
     'Lake Mohave',
     'Colorado River'
   ],
+
 
   services: {
     available: ['Detail', 'Ceramic Coating', 'Paint Protection Film'],

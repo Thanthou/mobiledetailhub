@@ -241,11 +241,7 @@ const FAQ = React.forwardRef<FAQRef, FAQProps>(
           const faqRect = faqSection.getBoundingClientRect();
           const faqTop = faqRect.top;
 
-          // Auto-expand when FAQ section is in view
-          if (faqTop < windowHeight * 0.3 && faqTop > -100) {
-            setIsExpanded(true);
-          }
-
+          // Only auto-collapse, don't auto-expand
           if (scrollTop + windowHeight >= documentHeight - 50) {
             setIsExpanded(false);
             setOpenItems([]);

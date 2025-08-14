@@ -3,3 +3,5 @@ export { default as CTAButtonsContainer } from './CTAButtonsContainer';
 export { default as GetStarted } from './GetStarted';
 export { default as LazyVideo } from './LazyVideo';
 export { default as OptimizedImage } from './OptimizedImage';
+export { default as ServiceAreas } from '../ServiceAreas';
+

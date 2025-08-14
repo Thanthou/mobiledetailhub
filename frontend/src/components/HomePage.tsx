@@ -10,7 +10,7 @@ import FAQ from './FAQ';
 import Affiliates from './Affiliates';
 import Footer from './Footer';
 import QuoteModal from './QuoteModal';
-import ServiceModal from './ServiceModal';
+
 
 interface Service {
   title: string;
@@ -260,21 +260,10 @@ const HomePage: React.FC = () => {
 
   // Modal state
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
-  const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
 
   const openQuoteModal = () => setIsQuoteModalOpen(true);
   const closeQuoteModal = () => setIsQuoteModalOpen(false);
-
-  const openServiceModal = (service: Service) => {
-    setSelectedService(service);
-    setIsServiceModalOpen(true);
-  };
-
-  const closeServiceModal = () => {
-    setSelectedService(null);
-    setIsServiceModalOpen(false);
-  };
 
   const handleBookNow = () => {
     // Handle booking logic
@@ -381,13 +370,7 @@ const HomePage: React.FC = () => {
         onClose={closeQuoteModal}
       />
 
-      {selectedService && (
-        <ServiceModal
-          isOpen={isServiceModalOpen}
-          onClose={closeServiceModal}
-          service={selectedService}
-        />
-      )}
+
     </div>
   );
 };

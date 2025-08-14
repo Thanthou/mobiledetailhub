@@ -94,7 +94,8 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
         const saved = localStorage.getItem('selectedLocation');
         if (saved) {
           const parsed = JSON.parse(saved);
-          if (JSON.stringify(parsed) !== JSON.stringify(selectedLocation)) {
+          // Only update if the parsed location is different from current
+          if (!selectedLocation || JSON.stringify(parsed) !== JSON.stringify(selectedLocation)) {
             setSelectedLocation(parsed);
           }
         }
@@ -107,7 +108,7 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
       window.removeEventListener('storage', handleStorageChange);
       clearInterval(interval);
     };
-  }, [selectedLocation]);
+  }, []); // Remove selectedLocation dependency to prevent infinite loops
 
   const clearLocation = () => {
     setSelectedLocation(null);

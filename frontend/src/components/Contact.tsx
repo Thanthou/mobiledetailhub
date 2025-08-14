@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
-import { Phone, MapPin, Mail } from 'lucide-react';
+import { Phone, Mail, MapPin } from 'lucide-react';
 import { useBusinessConfig } from '../hooks/useBusinessConfig';
 import { useLocation } from '../contexts/LocationContext';
 import { GetStarted } from './shared';
+import { 
+  BUSINESS_SERVICE_AREAS, 
+  CITY_TO_BUSINESS_MAPPING 
+} from '../utils/serviceAreaMapping';
 
 interface ContactProps {
   onRequestQuote?: () => void;
@@ -28,7 +32,6 @@ const Contact: React.FC<ContactProps> = ({ onRequestQuote }) => {
 
   const handleCityClick = (city: string, businessSlug: string) => {
     // Set the location in context for the target business
-    console.log(`Navigating to ${businessSlug} for ${city}`);
     
     // Extract state from the city's current state context
     const currentState = businessConfig?.stateCities ? 
@@ -48,7 +51,6 @@ const Contact: React.FC<ContactProps> = ({ onRequestQuote }) => {
       
       // Store in localStorage so the target business can access it
       localStorage.setItem('selectedLocation', JSON.stringify(locationData));
-      console.log('Location stored for target business:', locationData);
     }
     
     // Determine the target URL based on environment
@@ -70,7 +72,6 @@ const Contact: React.FC<ContactProps> = ({ onRequestQuote }) => {
 
   const handleLocalCityClick = (city: string, state: string) => {
     // Set the location for the current business (non-MDH)
-    console.log(`Setting location to ${city}, ${state} for current business`);
     
     const locationData = {
       city: city,
@@ -219,89 +220,113 @@ const Contact: React.FC<ContactProps> = ({ onRequestQuote }) => {
 
             {/* Service Areas */}
             <div className={`bg-stone-800 p-6 rounded-lg shadow-lg text-center ${businessConfig.slug === 'mdh' ? 'max-w-md' : ''}`}>
-              <h3 
-                className={`text-xl font-bold mb-4 cursor-pointer transition-colors ${
-                  expandedStates.size > 0 
-                    ? 'text-orange-500 hover:text-orange-400' 
-                    : 'text-white'
-                }`}
-                onClick={() => expandedStates.size > 0 && setExpandedStates(new Set())}
-              >
-                {expandedStates.size > 0 ? '← Service Areas' : 'Service Areas'}
+              <h3 className="text-xl font-bold mb-4 text-white">
+                Service Areas
               </h3>
-              <div className="flex justify-center">
-                <div className="grid grid-cols-1 gap-3 text-orange-500">
-                  {businessConfig.stateCities ? (
-                    // Show either all states OR cities for selected state
-                    expandedStates.size > 0 ? (
-                      // Show cities for the selected state
-                      Object.entries(businessConfig.stateCities).map(([state, cities]) => {
-                        if (expandedStates.has(state)) {
-                          return (
-                            <div key={state} className="text-left">
-                              <div className="grid grid-cols-1 gap-1 text-sm">
-                                {(cities as string[]).map((city: string, index: number) => {
-                                  const businessSlug = businessConfig.cityToBusiness?.[city];
-                                  return (
-                                    <button
-                                      key={index}
-                                      onClick={() => {
-                                        if (businessSlug) {
-                                          handleCityClick(city, businessSlug);
-                                        }
-                                      }}
-                                      className="text-orange-500 hover:text-orange-400 transition-colors cursor-pointer text-left hover:underline"
-                                      title={`Click to go to ${businessSlug} business`}
-                                    >
-                                      {city}
-                                    </button>
-                                  );
-                                })}
+              
+              {businessConfig.slug === 'mdh' ? (
+                // MDH - Interactive service areas
+                <div className="flex justify-center">
+                  <div className="grid grid-cols-1 gap-3 text-orange-500">
+                    {(businessConfig.stateCities || BUSINESS_SERVICE_AREAS[businessConfig.slug]) ? (
+                      // Show either all states OR cities for selected state
+                      expandedStates.size > 0 ? (
+                        // Show cities for the selected state
+                        Object.entries(businessConfig.stateCities || BUSINESS_SERVICE_AREAS[businessConfig.slug]).map(([state, cities]) => {
+                          if (expandedStates.has(state)) {
+                            return (
+                              <div key={state} className="text-left">
+                                <div className="grid grid-cols-1 gap-1 text-sm">
+                                  {(cities as string[]).map((city: string, index: number) => {
+                                    const businessSlug = businessConfig.cityToBusiness?.[city] || CITY_TO_BUSINESS_MAPPING[city]?.[0];
+                                    const isCurrentBusinessCity = businessSlug === businessConfig.slug;
+                                    
+                                    return (
+                                      <button
+                                        key={index}
+                                        onClick={() => {
+                                          if (isCurrentBusinessCity) {
+                                            // For current business cities, update local location
+                                            handleLocalCityClick(city, state);
+                                          } else if (businessSlug) {
+                                            // For other business cities, navigate to that business
+                                            handleCityClick(city, businessSlug);
+                                          }
+                                        }}
+                                        className="text-orange-500 hover:text-orange-400 transition-colors cursor-pointer text-left hover:underline"
+                                        title={isCurrentBusinessCity ? `Click to set location to ${city}, ${state}` : `Click to go to ${businessSlug} business`}
+                                      >
+                                        {city}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
                               </div>
+                            );
+                          }
+                          return null;
+                        })
+                      ) : (
+                        // Show all clickable states
+                        Object.entries(businessConfig.stateCities || BUSINESS_SERVICE_AREAS[businessConfig.slug]).map(([state, cities]) => (
+                          <div key={state} className="text-center">
+                            <button
+                              onClick={() => toggleState(state)}
+                              className="text-lg font-semibold hover:text-orange-400 transition-colors cursor-pointer"
+                            >
+                              {state}
+                            </button>
+                          </div>
+                        ))
+                      )
+                    ) : (
+                      // Fallback to original serviceLocations display
+                      <div className="grid grid-cols-2 gap-x-16 gap-y-2 mx-auto w-fit">
+                        {(serviceLocations || []).map((location, index) => {
+                          const parsedLocation = parseLocation(location);
+                          return (
+                            <div key={index} className="flex items-start">
+                              <span className="mr-2">•</span>
+                              {parsedLocation.isClickable ? (
+                                <button
+                                  onClick={() => handleLocalCityClick(parsedLocation.city, parsedLocation.state)}
+                                  className="text-orange-500 hover:text-orange-400 transition-colors cursor-pointer hover:underline"
+                                  title={`Click to set location to ${parsedLocation.city}, ${parsedLocation.state}`}
+                                >
+                                  {location}
+                                </button>
+                              ) : (
+                                <span>{location}</span>
+                              )}
                             </div>
                           );
-                        }
-                        return null;
-                      })
-                    ) : (
-                      // Show all clickable states
-                      Object.entries(businessConfig.stateCities).map(([state, cities]) => (
-                        <div key={state} className="text-center">
-                          <button
-                            onClick={() => toggleState(state)}
-                            className="text-lg font-semibold hover:text-orange-400 transition-colors cursor-pointer"
-                          >
-                            {state}
-                          </button>
-                        </div>
-                      ))
-                    )
-                  ) : (
-                    // Fallback to original serviceLocations display
-                    <div className="grid grid-cols-2 gap-x-12 gap-y-2">
-                      {(serviceLocations || []).map((location, index) => {
-                        const parsedLocation = parseLocation(location);
-                        return (
-                          <div key={index} className="flex items-start">
-                            <span className="mr-2">•</span>
-                            {parsedLocation.isClickable ? (
-                              <button
-                                onClick={() => handleLocalCityClick(parsedLocation.city, parsedLocation.state)}
-                                className="text-orange-500 hover:text-orange-400 transition-colors cursor-pointer hover:underline"
-                                title={`Click to set location to ${parsedLocation.city}, ${parsedLocation.state}`}
-                              >
-                                {location}
-                              </button>
-                            ) : (
-                              <span>{location}</span>
-                            )}
-                          </div>
-                        );
-                      })}
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                // Subdomain - Show all service areas directly from config.js
+                <div className="text-left">
+                  
+                  <div className="grid grid-cols-2 gap-x-20 gap-y-2 mx-auto w-fit">
+                    {(businessConfig.serviceLocations || []).map((location, index) => (
+                      <div key={index} className="text-orange-500 text-sm flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>{location}</span>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* Fallback if no serviceLocations data */}
+                  {(!businessConfig.serviceLocations || businessConfig.serviceLocations.length === 0) && (
+                    <div className="text-gray-400 text-sm">
+                      No service areas configured
                     </div>
                   )}
                 </div>
-              </div>
+              )}
+              
               <p className="text-sm text-gray-300 mt-4">
                 Don't see your area? Give us a call - we may still be able to help!
               </p>

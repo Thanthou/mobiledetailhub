@@ -165,32 +165,22 @@ export const useBusinessConfig = (): UseBusinessConfigReturn => {
 
   // Helper function to get value based on override settings
   const getValueWithOverride = (businessValue: string, parentValue: string, overrideFlag: boolean) => {
-    console.log('getValueWithOverride:', { businessValue, parentValue, overrideFlag });
-    
     if (overrideFlag && parentValue) {
-      console.log('Using parent value:', parentValue);
       return parentValue; // Use parent company value
     }
     
     if (businessValue) {
-      console.log('Using business value:', businessValue);
       return businessValue; // Use business value
     }
     
-    console.log('Falling back to parent value:', parentValue);
     return parentValue; // Fallback to parent if business value is empty
   };
 
   // Helper function to get business info with overrides applied
   const getBusinessInfoWithOverrides = () => {
     if (!businessConfig || !parentConfig) {
-      console.log('Missing configs:', { businessConfig: !!businessConfig, parentConfig: !!parentConfig });
       return null;
     }
-
-    console.log('Applying overrides:', businessConfig.overrides);
-    console.log('Business values:', businessConfig.business);
-    console.log('Parent values:', parentConfig.business);
 
     const result = {
       name: businessConfig.business.name,
@@ -221,7 +211,6 @@ export const useBusinessConfig = (): UseBusinessConfigReturn => {
       )
     };
 
-    console.log('Final result with overrides:', result);
     return result;
   };
 
@@ -230,8 +219,6 @@ export const useBusinessConfig = (): UseBusinessConfigReturn => {
       try {
         setIsLoading(true);
         setError(null);
-
-        console.log('useBusinessConfig: Starting to load configs...');
 
         // Detect business from URL or default to 'mdh'
         let businessSlug = 'mdh';
@@ -249,21 +236,16 @@ export const useBusinessConfig = (): UseBusinessConfigReturn => {
           businessSlug = businessFromQuery;
         }
         
-        console.log('useBusinessConfig: Detected business slug:', businessSlug);
-        
         setCurrentBusinessSlug(businessSlug);
 
         // Load business-specific config
-        console.log('useBusinessConfig: Loading business config for:', businessSlug);
-        const businessResponse = await fetch(`http://localhost:3001/api/business-config/${businessSlug}`);
-        console.log('useBusinessConfig: Business response status:', businessResponse.status);
+        const businessResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/business-config/${businessSlug}`);
         
         if (!businessResponse.ok) {
           throw new Error(`Failed to load business config: ${businessResponse.status}`);
         }
         
         const businessData: BusinessConfig = await businessResponse.json();
-        console.log('useBusinessConfig: Business config loaded:', businessData);
         setBusinessConfig(businessData);
 
         // Check for city parameter and update location context if needed
@@ -285,18 +267,14 @@ export const useBusinessConfig = (): UseBusinessConfigReturn => {
             
             // Store in localStorage for the LocationContext to pick up
             localStorage.setItem('selectedLocation', JSON.stringify(locationData));
-            console.log('Location updated for city from URL:', locationData);
           }
         }
 
         // Load parent company config (MDH)
-        console.log('useBusinessConfig: Loading parent config for: mdh');
-        const parentResponse = await fetch('http://localhost:3001/api/business-config/mdh');
-        console.log('useBusinessConfig: Parent response status:', parentResponse.status);
+        const parentResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/business-config/mdh`);
         
         if (parentResponse.ok) {
           const parentData: ParentConfig = await parentResponse.json();
-          console.log('useBusinessConfig: Parent config loaded:', parentData);
           setParentConfig(parentData);
         } else {
           console.warn('useBusinessConfig: Failed to load parent config, using defaults');
@@ -321,8 +299,6 @@ export const useBusinessConfig = (): UseBusinessConfigReturn => {
             }
           });
         }
-
-        console.log('useBusinessConfig: All configs loaded successfully');
 
       } catch (err) {
         console.error('useBusinessConfig: Error loading configs:', err);
