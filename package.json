@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "description": "Mobile Detail Hub - Multi-business detailing services platform",
   "private": true,
-  "workspaces": [
-    "frontend",
-    "backend"
-  ],
+  // "workspaces": [
+  //   "frontend",
+  //   "backend"
+  // ],
   "scripts": {
-    "build": "npm run build --workspace=frontend",
+    "build": "cd frontend && npm run build",
     "dev": "concurrently \"npm run dev --workspace=frontend\" \"npm run dev --workspace=backend\"",
     "install:all": "npm install && npm install --workspace=frontend && npm install --workspace=backend"
   },
