@@ -3,6 +3,8 @@
 
 // No theme system needed - business config is loaded directly
 
+import { config } from '../config/environment';
+
 interface BusinessConfig {
   domain: string;
   slug: string;
@@ -27,7 +29,7 @@ interface Business {
 }
 
 // Backend API base URL
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_BASE_URL = config.apiUrl;
 
 export const getAvailableBusinesses = async (): Promise<Business[]> => {
   try {
