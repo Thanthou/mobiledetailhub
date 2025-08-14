@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Phone, MapPin, Mail } from 'lucide-react';
 import { useBusinessConfig } from '../hooks/useBusinessConfig';
 import { useLocation } from '../contexts/LocationContext';
+import { GetStarted } from './shared';
 
 interface ContactProps {
   onRequestQuote?: () => void;
@@ -9,7 +10,100 @@ interface ContactProps {
 
 const Contact: React.FC<ContactProps> = ({ onRequestQuote }) => {
   const { businessConfig, isLoading, error, getBusinessInfoWithOverrides } = useBusinessConfig();
-  const { selectedLocation } = useLocation();
+  const { selectedLocation, setSelectedLocation } = useLocation();
+  const [showLocationInput, setShowLocationInput] = useState(false);
+  const [expandedStates, setExpandedStates] = useState<Set<string>>(new Set());
+  
+  const toggleState = (state: string) => {
+    setExpandedStates(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(state)) {
+        newSet.delete(state);
+      } else {
+        newSet.add(state);
+      }
+      return newSet;
+    });
+  };
+
+  const handleCityClick = (city: string, businessSlug: string) => {
+    // Set the location in context for the target business
+    console.log(`Navigating to ${businessSlug} for ${city}`);
+    
+    // Extract state from the city's current state context
+    const currentState = businessConfig?.stateCities ? 
+      Object.keys(businessConfig.stateCities).find(state => 
+        (businessConfig.stateCities?.[state] || []).includes(city)
+      ) : null;
+    
+    if (currentState) {
+      // Set the location in context before navigation
+      // This will be stored in localStorage and available to the target business
+      const locationData = {
+        city: city,
+        state: currentState,
+        zipCode: '', // We don't have zip code from city click
+        fullLocation: `${city}, ${currentState}`
+      };
+      
+      // Store in localStorage so the target business can access it
+      localStorage.setItem('selectedLocation', JSON.stringify(locationData));
+      console.log('Location stored for target business:', locationData);
+    }
+    
+    // Determine the target URL based on environment
+    const currentDomain = window.location.hostname;
+    let targetUrl = '';
+    
+    if (currentDomain === 'localhost' || currentDomain.includes('127.0.0.1')) {
+      // Development: use query parameter
+      targetUrl = `/?business=${businessSlug}&city=${encodeURIComponent(city)}`;
+    } else {
+      // Production: use subdomain
+      const currentProtocol = window.location.protocol;
+      targetUrl = `${currentProtocol}//${businessSlug}.mobiledetailhub.com?city=${encodeURIComponent(city)}`;
+    }
+    
+    // Navigate to the target business
+    window.location.href = targetUrl;
+  };
+
+  const handleLocalCityClick = (city: string, state: string) => {
+    // Set the location for the current business (non-MDH)
+    console.log(`Setting location to ${city}, ${state} for current business`);
+    
+    const locationData = {
+      city: city,
+      state: state,
+      zipCode: '',
+      fullLocation: `${city}, ${state}`
+    };
+    
+    // Update the location context directly
+    setSelectedLocation(locationData);
+  };
+
+  const isClickableLocation = (location: string) => {
+    // Check if location matches "City, ST" format
+    const cityStateMatch = location.match(/^(.+?),\s*([A-Z]{2})$/);
+    return cityStateMatch !== null;
+  };
+
+  const parseLocation = (location: string) => {
+    const cityStateMatch = location.match(/^(.+?),\s*([A-Z]{2})$/);
+    if (cityStateMatch) {
+      return {
+        city: cityStateMatch[1].trim(),
+        state: cityStateMatch[2],
+        isClickable: true
+      };
+    }
+    return {
+      city: location,
+      state: '',
+      isClickable: false
+    };
+  };
   
   if (isLoading) {
     return (
@@ -42,63 +136,170 @@ const Contact: React.FC<ContactProps> = ({ onRequestQuote }) => {
       <div className="max-w-6xl mx-auto px-4">
         <div className="max-w-7xl mx-auto">
           {/* Contact Information and Service Areas */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-40">
-            {/* Contact Information */}
-            <div className="text-center">
-                             <h2 className="text-3xl font-bold text-white mb-6">Get In Touch</h2>
-              <div className="space-y-6">
-                <div className="flex items-center justify-center space-x-4">
-                  <div className="bg-orange-500 p-3 rounded-full">
-                    <Phone className="h-6 w-6 text-white" />
+          <div className={`${businessConfig.slug === 'mdh' ? 'flex justify-center' : 'grid grid-cols-1 lg:grid-cols-2 gap-40'}`}>
+            {/* Contact Information - Only show for non-MDH businesses */}
+            {businessConfig.slug !== 'mdh' && (
+              <div className="text-center">
+                <h2 className="text-3xl font-bold text-white mb-6">Get In Touch</h2>
+                <div className="space-y-6">
+                  <div className="flex items-center justify-center space-x-4">
+                    <div className="bg-orange-500 p-3 rounded-full">
+                      <Phone className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="text-left w-48">
+                      <h3 className="font-semibold text-white">Phone</h3>
+                      <span className="text-orange-500 text-lg">
+                        {businessInfo.phone}
+                      </span>
+                    </div>
                   </div>
-                  <div className="text-left w-48">
-                    <h3 className="font-semibold text-white">Phone</h3>
-                    <span className="text-orange-500 text-lg">
-                      {businessInfo.phone}
-                    </span>
-                  </div>
-                </div>
 
-                <div className="flex items-center justify-center space-x-4">
-                  <div className="bg-orange-500 p-3 rounded-full">
-                    <MapPin className="h-6 w-6 text-white" />
+                  <div className="flex items-center justify-center space-x-4">
+                    <div className="bg-orange-500 p-3 rounded-full">
+                      <MapPin className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="text-left w-48">
+                      <h3 className="font-semibold text-white">Location</h3>
+                      {showLocationInput ? (
+                        <div className="space-y-2">
+                          <GetStarted
+                            onLocationSubmit={(location, zipCode, city, state) => {
+                              // Location will be handled by GetStarted component
+                              setShowLocationInput(false);
+                            }}
+                            placeholder="Enter new location"
+                            className="w-full"
+                          />
+                          <button
+                            onClick={() => setShowLocationInput(false)}
+                            className="text-xs text-gray-300 hover:text-white transition-colors"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => setShowLocationInput(true)}
+                            className="text-orange-500 hover:text-orange-400 text-lg hover:underline cursor-pointer bg-transparent border-none p-0 font-inherit transition-colors"
+                          >
+                            {selectedLocation ? `${selectedLocation.city}, ${selectedLocation.state}` : businessInfo.address}
+                          </button>
+                          {selectedLocation && (
+                            <button
+                              onClick={() => setSelectedLocation(null)} // Clear location from context
+                              className="text-xs text-gray-400 hover:text-white transition-colors"
+                              title="Clear location"
+                            >
+                              ✕
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <div className="text-left w-48">
-                    <h3 className="font-semibold text-white">Location</h3>
-                    <p className="text-orange-500 text-lg">
-                      {selectedLocation ? `${selectedLocation.city}, ${selectedLocation.state}` : businessInfo.address}
-                    </p>
-                  </div>
-                </div>
 
-                <div className="flex items-center justify-center space-x-4">
-                  <div className="bg-orange-500 p-3 rounded-full">
-                    <Mail className="h-6 w-6 text-white" />
-                  </div>
-                  <div className="text-left w-48">
-                    <h3 className="font-semibold text-white">Email</h3>
-                    <button 
-                      onClick={onRequestQuote}
-                      className="text-orange-500 hover:text-orange-400 text-lg hover:underline cursor-pointer bg-transparent border-none p-0 font-inherit"
-                    >
-                      {businessInfo.email}
-                    </button>
+                  <div className="flex items-center justify-center space-x-4">
+                    <div className="bg-orange-500 p-3 rounded-full">
+                      <Mail className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="text-left w-48">
+                      <h3 className="font-semibold text-white">Email</h3>
+                      <button 
+                        onClick={onRequestQuote}
+                        className="text-orange-500 hover:text-orange-400 text-lg hover:underline cursor-pointer bg-transparent border-none p-0 font-inherit"
+                      >
+                        {businessInfo.email}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Service Areas */}
-            <div className="bg-stone-800 p-6 rounded-lg shadow-lg text-center">
-              <h3 className="text-xl font-bold text-white mb-4">Service Areas</h3>
+            <div className={`bg-stone-800 p-6 rounded-lg shadow-lg text-center ${businessConfig.slug === 'mdh' ? 'max-w-md' : ''}`}>
+              <h3 
+                className={`text-xl font-bold mb-4 cursor-pointer transition-colors ${
+                  expandedStates.size > 0 
+                    ? 'text-orange-500 hover:text-orange-400' 
+                    : 'text-white'
+                }`}
+                onClick={() => expandedStates.size > 0 && setExpandedStates(new Set())}
+              >
+                {expandedStates.size > 0 ? '← Service Areas' : 'Service Areas'}
+              </h3>
               <div className="flex justify-center">
-                <div className="grid grid-cols-2 gap-x-12 gap-y-2 text-orange-500">
-                  {(serviceLocations || []).map((location, index) => (
-                    <div key={index} className="flex items-start">
-                      <span className="mr-2">•</span>
-                      <span>{location}</span>
+                <div className="grid grid-cols-1 gap-3 text-orange-500">
+                  {businessConfig.stateCities ? (
+                    // Show either all states OR cities for selected state
+                    expandedStates.size > 0 ? (
+                      // Show cities for the selected state
+                      Object.entries(businessConfig.stateCities).map(([state, cities]) => {
+                        if (expandedStates.has(state)) {
+                          return (
+                            <div key={state} className="text-left">
+                              <div className="grid grid-cols-1 gap-1 text-sm">
+                                {(cities as string[]).map((city: string, index: number) => {
+                                  const businessSlug = businessConfig.cityToBusiness?.[city];
+                                  return (
+                                    <button
+                                      key={index}
+                                      onClick={() => {
+                                        if (businessSlug) {
+                                          handleCityClick(city, businessSlug);
+                                        }
+                                      }}
+                                      className="text-orange-500 hover:text-orange-400 transition-colors cursor-pointer text-left hover:underline"
+                                      title={`Click to go to ${businessSlug} business`}
+                                    >
+                                      {city}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          );
+                        }
+                        return null;
+                      })
+                    ) : (
+                      // Show all clickable states
+                      Object.entries(businessConfig.stateCities).map(([state, cities]) => (
+                        <div key={state} className="text-center">
+                          <button
+                            onClick={() => toggleState(state)}
+                            className="text-lg font-semibold hover:text-orange-400 transition-colors cursor-pointer"
+                          >
+                            {state}
+                          </button>
+                        </div>
+                      ))
+                    )
+                  ) : (
+                    // Fallback to original serviceLocations display
+                    <div className="grid grid-cols-2 gap-x-12 gap-y-2">
+                      {(serviceLocations || []).map((location, index) => {
+                        const parsedLocation = parseLocation(location);
+                        return (
+                          <div key={index} className="flex items-start">
+                            <span className="mr-2">•</span>
+                            {parsedLocation.isClickable ? (
+                              <button
+                                onClick={() => handleLocalCityClick(parsedLocation.city, parsedLocation.state)}
+                                className="text-orange-500 hover:text-orange-400 transition-colors cursor-pointer hover:underline"
+                                title={`Click to set location to ${parsedLocation.city}, ${parsedLocation.state}`}
+                              >
+                                {location}
+                              </button>
+                            ) : (
+                              <span>{location}</span>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
               <p className="text-sm text-gray-300 mt-4">

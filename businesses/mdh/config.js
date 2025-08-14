@@ -13,36 +13,82 @@ module.exports = {
     address: 'Los Angeles, CA',
   },
 
-  // Service Areas/Locations
+  // Service Areas/Locations - Auto-generated from all business configs
   serviceLocations: [
-    'Los Angeles, CA',
-    'Beverly Hills, CA',
-    'Santa Monica, CA',
-    'Culver City, CA',
-    'West Hollywood, CA',
-    'Hollywood, CA',
-    'Downtown LA, CA',
-    'Venice, CA',
-    'Marina del Rey, CA',
-    'Manhattan Beach, CA',
-    'Redondo Beach, CA',
-    'Torrance, CA',
-    'Long Beach, CA',
-    'Pasadena, CA',
-    'Glendale, CA',
-    'Burbank, CA',
-    'North Hollywood, CA',
-    'Studio City, CA',
-    'Encino, CA',
-    'Sherman Oaks, CA',
-    'Van Nuys, CA',
-    'Woodland Hills, CA',
-    'Calabasas, CA',
-    'Agoura Hills, CA',
-    'Thousand Oaks, CA',
-    'Westlake Village, CA',
-    'Malibu, CA'
+    'Arizona',
+    'California',
+    'Nevada'
   ],
+  
+
+  
+
+
+  // State-to-cities mapping - Auto-generated from all business configs
+  stateCities: {
+    "Arizona": [
+      "Bullhead City",
+      "Fort Mohave",
+      "Katherine Landing",
+      "Kingman",
+      "Lake Havasu City",
+      "Mohave Valley"
+    ],
+    "California": [
+      "Needles"
+    ],
+    "Nevada": [
+      "Anthem",
+      "Boulder City",
+      "Enterprise",
+      "Green Valley",
+      "Henderson",
+      "Las Vegas",
+      "Laughlin",
+      "Mount Charleston",
+      "North Las Vegas",
+      "Paradise",
+      "Red Rock Canyon",
+      "Spring Valley",
+      "Summerlin",
+      "Sunrise Manor",
+      "Valley of Fire",
+      "Whitney",
+      "Winchester"
+    ]
+  },
+
+  // City-to-business mapping - Auto-generated from all business configs
+  cityToBusiness: {
+    "Anthem": "abc",
+    "Boulder City": "abc",
+    "Enterprise": "abc",
+    "Green Valley": "abc",
+    "Henderson": "abc",
+    "Las Vegas": "abc",
+    "Mount Charleston": "abc",
+    "North Las Vegas": "abc",
+    "Paradise": "abc",
+    "Red Rock Canyon": "abc",
+    "Spring Valley": "abc",
+    "Summerlin": "abc",
+    "Sunrise Manor": "abc",
+    "Valley of Fire": "abc",
+    "Whitney": "abc",
+    "Winchester": "abc",
+    "Bullhead City": "jps",
+    "Fort Mohave": "jps",
+    "Katherine Landing": "jps",
+    "Kingman": "jps",
+    "Lake Havasu City": "jps",
+    "Mohave Valley": "jps",
+    "Laughlin": "jps",
+    "Needles": "jps"
+  },
+  
+
+
+
 
   // Social Media Links
   socialMedia: {

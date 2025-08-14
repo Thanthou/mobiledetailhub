@@ -16,6 +16,7 @@ interface BusinessConfig {
   domain: string;
   emailNotifications?: string[];
   serviceLocations?: string[]; // Add service locations array
+  stateCities?: { [state: string]: string[] }; // Add state-to-cities mapping
 }
 
 interface Business {

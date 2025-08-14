@@ -334,34 +334,6 @@ const HomePage: React.FC = () => {
         selectedBusiness={currentBusiness}
       />
       
-      {/* Development Mode Indicator */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="fixed top-4 left-4 z-50">
-          <div className="bg-yellow-500 text-black px-3 py-2 rounded-lg shadow-lg text-sm font-medium mb-2">
-            Dev Mode: {currentBusiness.toUpperCase()}
-          </div>
-          <div className="flex gap-2 mb-2">
-            {['mdh', 'jps', 'abc'].map((business) => (
-              <button
-                key={business}
-                onClick={() => handleBusinessChange(business)}
-                disabled={isLoading || business === currentBusiness}
-                className={`px-3 py-1 text-xs rounded ${
-                  business === currentBusiness
-                    ? 'bg-green-600 text-white cursor-default'
-                    : 'bg-blue-600 hover:bg-blue-700 text-white'
-                } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-              >
-                {business.toUpperCase()}
-              </button>
-            ))}
-          </div>
-          <div className="text-xs text-black bg-yellow-200 px-2 py-1 rounded">
-            URL: /{currentBusiness} or ?business={currentBusiness}
-          </div>
-        </div>
-      )}
-
       {/* Hero Section */}
       <Hero
         onBookNow={handleBookNow}

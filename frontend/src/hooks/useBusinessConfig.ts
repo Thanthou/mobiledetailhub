@@ -24,6 +24,8 @@ interface BusinessConfig {
   };
   emailNotifications: string[];
   serviceLocations: string[];
+  stateCities?: { [state: string]: string[] }; // Add state-to-cities mapping
+  cityToBusiness?: { [city: string]: string }; // Add city-to-business mapping
   branding: {
     primaryColor: string;
     secondaryColor: string;
@@ -263,6 +265,29 @@ export const useBusinessConfig = (): UseBusinessConfigReturn => {
         const businessData: BusinessConfig = await businessResponse.json();
         console.log('useBusinessConfig: Business config loaded:', businessData);
         setBusinessConfig(businessData);
+
+        // Check for city parameter and update location context if needed
+        const cityFromUrl = urlParams.get('city');
+        if (cityFromUrl && businessData.stateCities) {
+          // Find which state this city belongs to
+          const cityState = Object.keys(businessData.stateCities).find(state => 
+            businessData.stateCities![state].includes(cityFromUrl)
+          );
+          
+          if (cityState) {
+            // Update the location context with the city and state
+            const locationData = {
+              city: cityFromUrl,
+              state: cityState,
+              zipCode: '',
+              fullLocation: `${cityFromUrl}, ${cityState}`
+            };
+            
+            // Store in localStorage for the LocationContext to pick up
+            localStorage.setItem('selectedLocation', JSON.stringify(locationData));
+            console.log('Location updated for city from URL:', locationData);
+          }
+        }
 
         // Load parent company config (MDH)
         console.log('useBusinessConfig: Loading parent config for: mdh');

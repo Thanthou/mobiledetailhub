@@ -6,7 +6,8 @@
   "scripts": {
     "start": "cross-env NODE_ENV=development node server.js",
     "dev": "cross-env NODE_ENV=development nodemon server.js",
-    "build": "echo 'No build step required'"
+    "build": "echo 'No build step required'",
+    "generate-mdh-areas": "node ../scripts/generateMDHServiceAreas.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
