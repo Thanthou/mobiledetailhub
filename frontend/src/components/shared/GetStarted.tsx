@@ -14,6 +14,20 @@ const GetStarted: React.FC<GetStartedProps> = ({
   placeholder = 'Enter your zip code or city',
   className = '',
 }) => {
+  // TEMPORARILY DISABLED due to Google Maps API issues
+  return (
+    <div className={`text-center ${className}`}>
+      <div className="text-gray-500 text-sm">
+        Location input temporarily unavailable
+      </div>
+      <p className="text-xs text-gray-400 mt-1">
+        Google Maps API integration is being fixed
+      </p>
+    </div>
+  );
+
+  // Original component code commented out below
+  /*
   const [inputValue, setInputValue] = useState('');
   const [predictions, setPredictions] = useState<Array<any>>([]);
   const [showPredictions, setShowPredictions] = useState(false);
@@ -315,6 +329,7 @@ const GetStarted: React.FC<GetStartedProps> = ({
       )}
     </div>
   );
+  */
 };
 
 export default GetStarted;
