@@ -94,6 +94,11 @@ function getSlugFromDomain(hostname, req = null) {
     return 'mdh';
   }
 
+  // Handle Render domains - treat them as main domain
+  if (hostname.includes('onrender.com')) {
+    return 'mdh';
+  }
+
   // Extract subdomain for other businesses
   const parts = hostname.split('.');
   if (parts.length >= 3) {
