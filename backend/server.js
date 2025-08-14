@@ -21,7 +21,9 @@ app.use(cors({
     'https://mobiledetailhub.com',
     'https://jps-detailing.vercel.app',
     'https://jps-detailing-git-main.vercel.app',
-    'https://jps-detailing-git-develop.vercel.app'
+    'https://jps-detailing-git-develop.vercel.app',
+    'https://mobiledetailhub-9s88vbdp6-bcoleman143-3795s-projects.vercel.app',
+    'https://mobiledetailhub.vercel.app'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
