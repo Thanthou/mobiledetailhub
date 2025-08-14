@@ -210,14 +210,21 @@ const GetStarted: React.FC<GetStartedProps> = ({
       
       if (businessConfig) {
         if (businessConfig.slug === 'mdh') {
+          // Stay on current domain if it's MDH
           window.location.href = '/';
         } else {
           const currentHost = window.location.host;
           
           if (currentHost.includes('localhost')) {
+            // Development mode - use query parameter
             const redirectUrl = `/?business=${businessConfig.slug}`;
             window.location.href = redirectUrl;
+          } else if (currentHost === 'mobiledetailhub.com') {
+            // On main site - redirect to business subdomain
+            const redirectUrl = `https://${businessConfig.slug}.mobiledetailhub.com`;
+            window.location.href = redirectUrl;
           } else {
+            // On business site - redirect to business path
             const redirectUrl = `https://mobiledetailhub.com/${businessConfig.slug}`;
             window.location.href = redirectUrl;
           }
