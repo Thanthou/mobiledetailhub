@@ -18,7 +18,10 @@ app.use(cors({
     'http://localhost:4173',
     'https://jps.mobiledetailhub.com',
     'https://abc.mobiledetailhub.com',
-    'https://mobiledetailhub.com'
+    'https://mobiledetailhub.com',
+    'https://jps-detailing.vercel.app',
+    'https://jps-detailing-git-main.vercel.app',
+    'https://jps-detailing-git-develop.vercel.app'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -50,7 +53,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Middleware to load business config based on domain
-// Only apply to routes that need business context
+// Only apply to routes that don't need business context
 app.use((req, res, next) => {
   // Skip business config loading for routes that don't need it
   if (req.path === '/api/health' || req.path === '/api/businesses' || req.path.startsWith('/api/business-config/')) {
@@ -388,8 +391,14 @@ app.use('*', (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`🚗 Multi-Business Backend server running on port ${PORT}`);
-  console.log(`📧 Ready to serve multiple business domains`);
-  console.log(`📁 Available businesses: ${require('../shared/utils/businessLoader.js').listBusinesses().join(', ')}`);
-}); 
+// For local development
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`🚗 Multi-Business Backend server running on port ${PORT}`);
+    console.log(`📧 Ready to serve multiple business domains`);
+    console.log(`📁 Available businesses: ${require('../shared/utils/businessLoader.js').listBusinesses().join(', ')}`);
+  });
+}
+
+// Export for Vercel serverless functions
+module.exports = app; 
