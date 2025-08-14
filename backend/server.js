@@ -391,14 +391,12 @@ app.use('*', (req, res) => {
   });
 });
 
-// For local development
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, () => {
-    console.log(`🚗 Multi-Business Backend server running on port ${PORT}`);
-    console.log(`📧 Ready to serve multiple business domains`);
-    console.log(`📁 Available businesses: ${require('../shared/utils/businessLoader.js').listBusinesses().join(', ')}`);
-  });
-}
+// Start the server
+app.listen(PORT, () => {
+  console.log(`🚗 Multi-Business Backend server running on port ${PORT}`);
+  console.log(`📧 Ready to serve multiple business domains`);
+  console.log(`📁 Available businesses: ${require('../shared/utils/businessLoader.js').listBusinesses().join(', ')}`);
+});
 
 // Export for Vercel serverless functions
 module.exports = app; 
