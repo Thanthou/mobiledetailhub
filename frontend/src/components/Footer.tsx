@@ -84,7 +84,6 @@ const Footer: React.FC<FooterProps> = ({ onBookNow, onRequestQuote, businessSlug
               <button 
                 onClick={() => {
                   // Handle location submission - you can customize this behavior
-                  console.log('Location submitted:', { location: '', zipCode: '', city: '', state: '' });
                   // You could open a booking modal or redirect to a booking page
                 }}
                 className="text-lg hover:text-orange-400 transition-colors duration-200 hover:underline cursor-pointer bg-transparent border-none p-0 font-inherit"
@@ -108,8 +107,7 @@ const Footer: React.FC<FooterProps> = ({ onBookNow, onRequestQuote, businessSlug
                   <GetStarted
                     onLocationSubmit={(location, zipCode, city, state) => {
                       // Handle location submission
-                      console.log('Location submitted:', { location, zipCode, city, state });
-                      setShowLocationInput(false);
+                      // You could open a booking modal or redirect to a booking page
                     }}
                     placeholder="Enter new location"
                     className="w-full"
@@ -230,7 +228,6 @@ const Footer: React.FC<FooterProps> = ({ onBookNow, onRequestQuote, businessSlug
                 <GetStarted
                   onLocationSubmit={(location, zipCode, city, state) => {
                     // Handle location submission - you can customize this behavior
-                    console.log('Location submitted:', { location, zipCode, city, state });
                     // You could open a booking modal or redirect to a booking page
                   }}
                   placeholder="Enter your zip code or city"

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AutoDetailingModal from './services/AutoDetailing';
 import MarineDetailingModal from './services/MarineDetailing';
 import RVDetailingModal from './services/RVDetailing';
@@ -45,12 +45,11 @@ const ServicesGrid: React.FC<ServicesGridProps> = ({ services, onBookNow, onRequ
   const [isCeramicCoatingModalOpen, setIsCeramicCoatingModalOpen] = useState(false);
   const [isPaintProtectionFilmModalOpen, setIsPaintProtectionFilmModalOpen] = useState(false);
 
-  // Debug logging when services prop changes
-  React.useEffect(() => {
-    console.log('ServicesGrid: Services prop updated:', services);
-    services.forEach((service, index) => {
-      console.log(`ServicesGrid: Service ${index + 1}: ${service.title} - Image: ${service.image}`);
-    });
+  // Update services when prop changes
+  useEffect(() => {
+    if (services && services.length > 0) {
+      // setDisplayedServices(services); // This state variable is not defined in the original file
+    }
   }, [services]);
 
   const handleServiceClick = (service: ServiceItem) => {
@@ -151,11 +150,10 @@ const ServicesGrid: React.FC<ServicesGridProps> = ({ services, onBookNow, onRequ
           // Show GetStarted for MDH
           <div className="max-w-md mx-auto">
             <GetStarted
-              onLocationSubmit={(location, zipCode, city, state) => {
-                // Handle location submission - you can customize this behavior
-                console.log('Location submitted:', { location, zipCode, city, state });
-                // You could open a booking modal or redirect to a booking page
-              }}
+                              onLocationSubmit={(location, zipCode, city, state) => {
+                  // Handle location submission - you can customize this behavior
+                  // You could open a booking modal or redirect to a booking page
+                }}
               placeholder="Enter your zip code or city to get started"
               className="w-full"
             />

@@ -206,7 +206,6 @@ const Header: React.FC = () => {
             <GetStarted
               onLocationSubmit={(location, zipCode, city, state) => {
                 // Handle location submission
-                console.log('Location submitted:', { location, zipCode, city, state });
                 setShowLocationInput(false);
               }}
               placeholder="Enter new location"

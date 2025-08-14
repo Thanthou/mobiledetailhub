@@ -100,8 +100,6 @@ function generateMDHServiceAreas() {
       return fs.statSync(fullPath).isDirectory() && dir !== 'mdh';
     });
   
-  console.log('Found business directories:', businessDirs);
-  
   // Extract states and cities from each business config
   const allStateCities = {};
   const allCityToBusiness = {};
@@ -110,7 +108,6 @@ function generateMDHServiceAreas() {
     const configPath = path.join(businessesDir, businessDir, 'config.js');
     if (fs.existsSync(configPath)) {
       const { stateCities, cityToBusiness } = extractStatesAndCitiesFromConfig(configPath, businessDir);
-      console.log(`${businessDir}:`, stateCities);
       
       // Merge cities for each state
       Object.keys(stateCities).forEach(state => {
@@ -140,11 +137,6 @@ function generateMDHServiceAreas() {
     const fullStateName = STATE_MAPPING[stateAbbr] || stateAbbr;
     stateCitiesDict[fullStateName] = allStateCities[stateAbbr];
   });
-  
-  console.log('\nAll unique states found:', sortedStates);
-  console.log('State list for MDH:', stateList);
-  console.log('State-to-cities dictionary:', stateCitiesDict);
-  console.log('City-to-business mapping:', allCityToBusiness);
   
   // Read current MDH config
   let mdhConfig = fs.readFileSync(mdhConfigPath, 'utf8');

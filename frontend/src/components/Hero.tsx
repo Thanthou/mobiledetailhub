@@ -89,7 +89,6 @@ const Hero: React.FC<HeroProps> = ({ onBookNow, onRequestQuote }) => {
           <div className="max-w-md mx-auto">
             <GetStarted
               onLocationSubmit={(location, zipCode, city, state) => {
-                console.log('Location submitted:', { location, zipCode, city, state });
                 // Handle location submission for MDH
                 if (onBookNow) {
                   onBookNow();

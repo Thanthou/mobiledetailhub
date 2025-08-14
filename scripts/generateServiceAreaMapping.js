@@ -104,8 +104,6 @@ function generateServiceAreaMapping() {
       return fs.statSync(fullPath).isDirectory();
     });
   
-  console.log('Found business directories:', businessDirs);
-  
   // Extract states and cities from each business config
   const allStateCities = {};
   const allCityToBusiness = {};
@@ -115,7 +113,6 @@ function generateServiceAreaMapping() {
     const configPath = path.join(businessesDir, businessDir, 'config.js');
     if (fs.existsSync(configPath)) {
       const { stateCities, cityToBusiness } = extractStatesAndCitiesFromConfig(configPath, businessDir);
-      console.log(`${businessDir}:`, stateCities);
       
       // Store business-specific service areas
       businessServiceAreas[businessDir] = stateCities;
@@ -150,11 +147,6 @@ function generateServiceAreaMapping() {
   
   // Sort states
   const sortedStates = Object.keys(allStateCities).sort();
-  
-  console.log('\nAll unique states found:', sortedStates);
-  console.log('State-to-cities dictionary:', allStateCities);
-  console.log('City-to-business mapping:', allCityToBusiness);
-  console.log('Business-specific service areas:', businessServiceAreas);
   
   // Generate the TypeScript file content
   const fileContent = `// Service Area Mapping - Auto-generated from business configs

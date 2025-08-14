@@ -30,11 +30,6 @@ app.use(cors({
 
 // Add CORS debugging middleware
 app.use((req, res, next) => {
-  console.log('=== CORS DEBUG ===');
-  console.log('Request origin:', req.get('origin'));
-  console.log('Request method:', req.method);
-  console.log('Request path:', req.path);
-  console.log('==================');
   next();
 });
 
@@ -63,14 +58,8 @@ app.use((req, res, next) => {
   try {
     const hostname = req.get('host') || req.hostname;
     const businessSlug = getSlugFromDomain(hostname, req);
-    console.log('=== MIDDLEWARE DEBUG ===');
-    console.log('Hostname:', hostname);
-    console.log('Detected business slug:', businessSlug);
     req.businessConfig = loadBusinessConfig(businessSlug);
-    console.log('Loaded business config:', req.businessConfig);
     req.business = req.businessConfig.business;
-    console.log('Set req.business:', req.business);
-    console.log('=======================');
     next();
   } catch (error) {
     console.error('Failed to load business config:', error);
@@ -83,7 +72,6 @@ app.use((req, res, next) => {
 
 // SMS function disabled for now
 const sendSMS = async (phone, message) => {
-  console.log('SMS functionality disabled - would send:', message);
   return { success: false, message: 'SMS disabled' };
 };
 
@@ -121,13 +109,10 @@ app.get('/api/businesses', (req, res) => {
   try {
     const { listBusinesses, loadBusinessConfig } = require('../shared/utils/businessLoader.js');
     const businessSlugs = listBusinesses();
-    console.log('Available business slugs:', businessSlugs);
     
     const businesses = businessSlugs.map(slug => {
       try {
-        console.log(`Loading config for business: ${slug}`);
         const config = loadBusinessConfig(slug);
-        console.log(`Successfully loaded config for ${slug}:`, config.business.name);
         return {
           slug: slug,
           name: config.business.name,
@@ -143,7 +128,6 @@ app.get('/api/businesses', (req, res) => {
       }
     });
 
-    console.log('Final businesses list:', businesses);
     res.json(businesses);
   } catch (error) {
     console.error('Error listing businesses:', error);
@@ -160,7 +144,6 @@ app.get('/api/business-config/:slug', (req, res) => {
     const { loadBusinessConfig } = require('../shared/utils/businessLoader.js');
     const { slug } = req.params;
     
-    console.log(`Loading business config for slug: ${slug}`);
     const config = loadBusinessConfig(slug);
     
     res.json(config);
@@ -210,7 +193,6 @@ app.post('/api/contact', async (req, res) => {
       const { loadBusinessConfig } = require('../shared/utils/businessLoader.js');
       const mdhConfig = loadBusinessConfig('mdh');
       mdhEmail = mdhConfig.business.email || mdhEmail;
-      console.log('MDH email loaded from config for contact form:', mdhEmail);
     } catch (error) {
       console.warn('Failed to load MDH config for contact form, using fallback email:', mdhEmail);
     }
@@ -224,16 +206,12 @@ app.post('/api/contact', async (req, res) => {
     // 1. Add current business email first
     if (currentBusinessEmail) {
       allEmails.push(currentBusinessEmail);
-      console.log('Added current business email for contact form:', currentBusinessEmail);
     }
     
     // 2. Add MDH email (if different from current business email)
     if (mdhEmail && mdhEmail !== currentBusinessEmail) {
       allEmails.push(mdhEmail);
-      console.log('Added MDH email for contact form:', mdhEmail);
     }
-    
-    console.log('Final email list for contact form:', allEmails);
     
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
@@ -309,7 +287,6 @@ app.post('/api/quote', async (req, res) => {
       const { loadBusinessConfig } = require('../shared/utils/businessLoader.js');
       const mdhConfig = loadBusinessConfig('mdh');
       mdhEmail = mdhConfig.business.email || mdhEmail;
-      console.log('MDH email loaded from config:', mdhEmail);
     } catch (error) {
       console.warn('Failed to load MDH config, using fallback email:', mdhEmail);
     }
@@ -317,30 +294,18 @@ app.post('/api/quote', async (req, res) => {
     // Get current business email from the current business config
     const currentBusinessEmail = req.business.email; // This is from the current business (e.g., JP's)
     
-    // Debug logging to see what's loaded
-    console.log('=== DEBUG: Business Config Loading ===');
-    console.log('req.business:', req.business);
-    console.log('req.businessConfig:', req.businessConfig);
-    console.log('Current business email from req.business.email:', currentBusinessEmail);
-    console.log('Current business name from req.business.name:', req.business.name);
-    console.log('=====================================');
-    
     // Always send to: 1) Current business email, 2) MDH email
     const allEmails = [];
     
     // 1. Add current business email first
     if (currentBusinessEmail) {
       allEmails.push(currentBusinessEmail);
-      console.log('Added current business email:', currentBusinessEmail);
     }
     
     // 2. Add MDH email (if different from current business email)
     if (mdhEmail && mdhEmail !== currentBusinessEmail) {
       allEmails.push(mdhEmail);
-      console.log('Added MDH email:', mdhEmail);
     }
-    
-    console.log('Final email list:', allEmails);
     
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
@@ -354,7 +319,6 @@ app.post('/api/quote', async (req, res) => {
     try {
       const smsMessage = `New Quote from ${req.business.name || 'Business'}: ${name}\nService: ${service}\nVehicle: ${vehicle}\nPhone: ${phone}\nEmail: ${email}`;
       await sendSMS(req.business.smsPhone, smsMessage);
-      console.log('SMS sent successfully');
     } catch (smsError) {
       console.error('SMS failed:', smsError.message);
       // Don't fail the request if SMS fails

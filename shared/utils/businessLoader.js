@@ -16,12 +16,10 @@ function loadBusinessConfig(slug) {
     
     // Path when running from backend/ directory (Render)
     configPath = path.join(__dirname, '../businesses', slug, 'config.js');
-    console.log(`Trying path 1: ${configPath}`);
     
     // If that doesn't exist, try the path when running from root
     if (!fs.existsSync(configPath)) {
       configPath = path.join(__dirname, '../../businesses', slug, 'config.js');
-      console.log(`Trying path 2: ${configPath}`);
     }
     
     // Check if config file exists
@@ -60,14 +58,12 @@ function getSlugFromDomain(hostname, req = null) {
       // Check if there's a business parameter in the URL
       const businessFromQuery = req.query.business;
       if (businessFromQuery && ['jps', 'mdh', 'abc'].includes(businessFromQuery)) {
-        console.log(`Development mode: Using business from query param: ${businessFromQuery}`);
         return businessFromQuery;
       }
       
       // Check if there's a business indicator in the URL path
       const pathParts = req.path.split('/');
       if (pathParts.length > 1 && ['jps', 'mdh', 'abc'].includes(pathParts[1])) {
-        console.log(`Development mode: Using business from URL path: ${pathParts[1]}`);
         return pathParts[1];
       }
       
@@ -77,7 +73,6 @@ function getSlugFromDomain(hostname, req = null) {
         const url = new URL(referer);
         const pathParts = url.pathname.split('/');
         if (pathParts.length > 1 && ['jps', 'mdh', 'abc'].includes(pathParts[1])) {
-          console.log(`Development mode: Using business from referer path: ${pathParts[1]}`);
           return pathParts[1];
         }
       }
@@ -85,7 +80,6 @@ function getSlugFromDomain(hostname, req = null) {
     
     // Check environment variable for default business
     const defaultBusiness = process.env.DEFAULT_BUSINESS || 'mdh';
-    console.log(`Development mode: Using default business from env: ${defaultBusiness}`);
     return defaultBusiness;
   }
 

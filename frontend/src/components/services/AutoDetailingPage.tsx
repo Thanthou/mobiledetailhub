@@ -43,8 +43,12 @@ const AutoDetailingPage: React.FC = () => {
             Professional Care for Your Vehicle
           </p>
           <CTAButtonsContainer
-            onBookNow={() => console.log('Book now clicked')}
-            onRequestQuote={() => console.log('Request quote clicked')}
+            onBookNow={() => {
+              // Handle book now action
+            }}
+            onRequestQuote={() => {
+              // Handle request quote action
+            }}
           />
         </div>
       </section>
@@ -102,8 +106,12 @@ const AutoDetailingPage: React.FC = () => {
             Book your auto detailing service today and experience the difference professional care makes.
           </p>
           <CTAButtonsContainer
-            onBookNow={() => console.log('Book now clicked')}
-            onRequestQuote={() => console.log('Request quote clicked')}
+            onBookNow={() => {
+              // Handle book now action
+            }}
+            onRequestQuote={() => {
+              // Handle request quote action
+            }}
           />
         </div>
       </section>

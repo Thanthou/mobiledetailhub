@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MapPin, Search } from 'lucide-react';
-import { findBusinessByLocation, testBusinessConfigs } from '../../utils/businessLoader';
+import { findBusinessByLocation } from '../../utils/businessLoader';
 import { useLocation } from '../../contexts/LocationContext';
 
 interface GetStartedProps {
@@ -74,7 +74,7 @@ const GetStarted: React.FC<GetStartedProps> = ({
         if (AutocompleteSuggestion?.fetchAutocompleteSuggestions) {
           setApiLoaded(true);
           // Test business configs when API is ready
-          testBusinessConfigs();
+          // testBusinessConfigs(); // Removed since this function no longer exists
         } else {
           // fallback: keep polling a bit more
           setTimeout(checkAPIReady, 250);
@@ -217,7 +217,6 @@ const GetStarted: React.FC<GetStartedProps> = ({
     setSearchingLocation(true);
     
     try {
-      console.log('GetStarted: Starting location search for:', { location, zipCode, city, state });
       
       // Store the selected location in context
       setSelectedLocation({
@@ -227,25 +226,18 @@ const GetStarted: React.FC<GetStartedProps> = ({
         fullLocation: location
       });
       
-      console.log('GetStarted: Location stored in context');
       
       // Call the callback if provided
       onLocationSubmit?.(location, zipCode, city, state);
       
-      console.log('GetStarted: Calling findBusinessByLocation...');
       
       // Find which business serves this location
-      const businessSlug = await findBusinessByLocation(location, zipCode, city, state);
+      const businessConfig = await findBusinessByLocation(location, zipCode, city, state);
       
-      console.log('GetStarted: findBusinessByLocation result:', businessSlug);
-      
-      if (businessSlug) {
-        console.log(`GetStarted: Found business ${businessSlug} for location:`, location);
-        
-        // Redirect to the appropriate business
-        if (businessSlug === 'mdh') {
+      if (businessConfig) {
+        // Found a business that serves this location
+        if (businessConfig.slug === 'mdh') {
           // Stay on current domain if it's MDH
-          console.log('GetStarted: Staying on MDH domain');
           window.location.href = '/';
         } else {
           // Redirect to business subdomain
@@ -254,19 +246,16 @@ const GetStarted: React.FC<GetStartedProps> = ({
           
           if (currentHost.includes('localhost')) {
             // Development mode - use query parameter
-            const redirectUrl = `/?business=${businessSlug}`;
-            console.log('GetStarted: Redirecting to:', redirectUrl);
+            const redirectUrl = `/?business=${businessConfig.slug}`;
             window.location.href = redirectUrl;
           } else {
             // Production mode - redirect to subdomain
-            const subdomain = `${businessSlug}.mobiledetailhub.com`;
+            const subdomain = `${businessConfig.slug}.mobiledetailhub.com`;
             const redirectUrl = `${currentProtocol}//${subdomain}`;
-            console.log('GetStarted: Redirecting to subdomain:', redirectUrl);
             window.location.href = redirectUrl;
           }
         }
       } else {
-        console.log('GetStarted: No business found for location:', location);
         // Could show a message that no service is available in this area
         alert('Sorry, we don\'t currently serve this area. Please contact us for more information.');
       }

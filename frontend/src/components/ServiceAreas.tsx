@@ -37,29 +37,18 @@ const ServiceAreas: React.FC<ServiceAreasProps> = ({
   const isMdh = businessConfig.slug === 'mdh';
   const businessSlug = businessConfig.slug;
 
-  // Debug logging to see what's being detected
-  console.log('ServiceAreas debug:', {
+  // Debug logging
+  const debugInfo = {
     businessSlug,
-    isMdh,
-    businessInfo: businessInfo?.name,
-    businessAddress: businessInfo?.address,
-    businessConfigKeys: Object.keys(businessConfig || {}),
-    windowLocation: window.location.href,
-    pathname: window.location.pathname,
-    search: window.location.search
-  });
+    businessConfig,
+    hasServiceLocations: businessConfig?.serviceLocations?.length > 0,
+    serviceLocationsCount: businessConfig?.serviceLocations?.length || 0,
+    stateCities: businessConfig?.stateCities,
+    cityToBusiness: businessConfig?.cityToBusiness
+  };
 
   // For subdomain businesses, just show their address as service area
   if (!isMdh) {
-    console.log('ServiceAreas: Rendering subdomain version for:', businessSlug);
-    
-    // Add visible debug indicator
-    const debugIndicator = (
-      <div className="absolute -top-2 -left-2 bg-green-500 text-white px-2 py-1 rounded text-xs z-50">
-        Subdomain: {businessSlug}
-      </div>
-    );
-    
     const handleShowServiceAreas = () => {
       setShowServiceAreas(true);
     };
@@ -94,8 +83,6 @@ const ServiceAreas: React.FC<ServiceAreasProps> = ({
         {/* Simple Service Area Display for Subdomains */}
         {showServiceAreas && (
           <div className="mt-4 p-4 bg-white rounded-lg shadow-lg border border-gray-200 max-w-md relative z-50">
-            {/* Debug indicator */}
-            {debugIndicator}
             
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
@@ -145,12 +132,10 @@ const ServiceAreas: React.FC<ServiceAreasProps> = ({
   }
 
   // MDH - Use existing service area mapping system
-  console.log('ServiceAreas: Rendering MDH version for:', businessSlug);
   const availableStates = Object.keys(SERVICE_AREA_MAPPING).sort();
   const businessStateCities = SERVICE_AREA_MAPPING;
 
   const handleShowServiceAreas = () => {
-    console.log('handleShowServiceAreas called');
     setShowServiceAreas(true);
     setSelectedState(null);
     setSelectedCity(null);
@@ -184,18 +169,10 @@ const ServiceAreas: React.FC<ServiceAreasProps> = ({
   let buttonText: string;
   if (selectedLocation && (variant === 'header' || variant === 'footer')) {
     buttonText = `${selectedLocation.city}, ${selectedLocation.state}`;
-    console.log(`ServiceAreas ${variant}: Using selected location:`, selectedLocation);
   } else {
     buttonText = 'Anywhere, USA';
   }
   
-  // Debug logging for location context
-  console.log(`ServiceAreas ${variant} render:`, {
-    selectedLocation,
-    buttonText,
-    variant
-  });
-
   // Get cities for a specific state and business
   const getCitiesForStateAndBusiness = (state: string, businessSlug: string) => {
     // MDH shows all cities in the state
@@ -216,10 +193,6 @@ const ServiceAreas: React.FC<ServiceAreasProps> = ({
       {/* Service Areas Display */}
       {showServiceAreas && (
         <div className="mt-4 p-4 bg-white rounded-lg shadow-lg border border-gray-200 max-w-2xl relative z-50">
-          {/* Debug info - remove after testing */}
-          <div className="absolute -top-2 -right-2 bg-red-500 text-white px-2 py-1 rounded text-xs">
-            Debug: Open
-          </div>
           
           {/* Header */}
           <div className="flex items-center justify-between mb-4">

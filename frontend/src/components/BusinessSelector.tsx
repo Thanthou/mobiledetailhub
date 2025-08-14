@@ -26,7 +26,6 @@ const BusinessSelector: React.FC<BusinessSelectorProps> = ({ onBusinessChange, s
       try {
         setError(null);
         const businesses = await getAvailableBusinesses();
-        console.log('Fetched businesses from unified loader:', businesses);
         setAvailableBusinesses(businesses);
       } catch (error) {
         console.error('Failed to fetch businesses:', error);

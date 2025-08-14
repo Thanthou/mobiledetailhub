@@ -21,66 +21,38 @@ interface Service {
 }
 
 const HomePage: React.FC = () => {
-  // Detect business from URL or default to 'mdh'
-  const detectBusinessFromURL = () => {
-    let businessSlug = 'mdh';
-    
-    // Check if there's a business in the URL path
-    const pathParts = window.location.pathname.split('/');
-    if (pathParts.length > 1 && ['jps', 'mdh', 'abc'].includes(pathParts[1])) {
-      businessSlug = pathParts[1];
-      console.log(`HomePage: Detected business from URL path: ${businessSlug}`);
-    }
-    
-    // Check if there's a business query parameter
-    const urlParams = new URLSearchParams(window.location.search);
-    const businessFromQuery = urlParams.get('business');
-    if (businessFromQuery && ['jps', 'mdh', 'abc'].includes(businessFromQuery)) {
-      businessSlug = businessFromQuery;
-      console.log(`HomePage: Detected business from query param: ${businessSlug}`);
-    }
-    
-    console.log(`HomePage: Final detected business: ${businessSlug}`);
-    return businessSlug;
-  };
-
-  const [currentBusiness, setCurrentBusiness] = useState<string>(detectBusinessFromURL);
-  const [currentConfig, setCurrentConfig] = useState<any>(null);
-  const [businessConfig, setBusinessConfig] = useState<string>(detectBusinessFromURL);
-  const [isLoading, setIsLoading] = useState(false);
-  const { logPerformanceReport } = usePerformanceMonitor();
-
-  // Load available businesses and check initial URL
+  // Detect business from URL path or query params
   useEffect(() => {
-    console.log('HomePage: useEffect for loading businesses triggered');
-    const loadBusinesses = async () => {
-      try {
-        console.log('HomePage: Calling getAvailableBusinesses()');
-        const businesses = await getAvailableBusinesses();
-        console.log('HomePage: Available businesses loaded successfully:', businesses);
-      } catch (error) {
-        console.error('HomePage: Error loading businesses:', error);
-      }
-    };
-    
-    loadBusinesses();
-
-    // Check if there's already a business in the URL on page load
     const pathParts = window.location.pathname.split('/');
-    if (pathParts.length > 1 && ['jps', 'mdh', 'abc'].includes(pathParts[1])) {
-      const businessFromUrl = pathParts[1];
-      console.log('HomePage: Found business in URL on page load:', businessFromUrl);
-      if (businessFromUrl !== currentBusiness) {
-        setCurrentBusiness(businessFromUrl);
-      }
+    let businessSlug = pathParts[1];
+    
+    // If no business in path, check query params
+    if (!businessSlug || !['jps', 'mdh', 'abc'].includes(businessSlug)) {
+      const urlParams = new URLSearchParams(window.location.search);
+      businessSlug = urlParams.get('business') || 'mdh';
     }
+    
+    setCurrentBusiness(businessSlug);
   }, []);
 
-  // Listen for URL changes (back/forward navigation)
+  // Load available businesses
+  useEffect(() => {
+    const loadBusinesses = async () => {
+      try {
+        const fetchedBusinesses = await getAvailableBusinesses();
+        setBusinesses(fetchedBusinesses);
+      } catch (error) {
+        console.error('Error loading businesses:', error);
+      }
+    };
+
+    loadBusinesses();
+  }, []);
+
+  // Handle business change from URL
   useEffect(() => {
     const handlePopState = (event: PopStateEvent) => {
       if (event.state && event.state.business) {
-        console.log('HomePage: PopState detected, switching to business:', event.state.business);
         setCurrentBusiness(event.state.business);
       }
     };
@@ -91,172 +63,75 @@ const HomePage: React.FC = () => {
 
   // Load initial business config
   useEffect(() => {
-    console.log('HomePage: useEffect for loading initial config triggered, currentBusiness:', currentBusiness);
-    const loadInitialConfig = async () => {
-      try {
-        console.log('HomePage: Starting to load initial config for business:', currentBusiness);
-        setIsLoading(true);
-        console.log('HomePage: Calling loadBusinessConfig with:', currentBusiness);
-        const config = await loadBusinessConfig(currentBusiness);
-        console.log('HomePage: Initial config loaded successfully:', config);
-        setCurrentConfig(config);
-        setBusinessConfig(currentBusiness);
-        
-              // Config loaded successfully
-        
-        setIsLoading(false);
-        
-        console.log('HomePage: Initial config loaded:', config);
-      } catch (error) {
-        console.error('HomePage: Error loading initial config:', error);
-        setIsLoading(false);
-      }
-    };
+    if (currentBusiness && !businessConfigs[currentBusiness]) {
+      const loadInitialConfig = async () => {
+        try {
+          const config = await loadBusinessConfig(currentBusiness);
+          if (config) {
+            setBusinessConfigs(prev => ({ ...prev, [currentBusiness]: config }));
+          }
+        } catch (error) {
+          console.error(`Error loading initial config for ${currentBusiness}:`, error);
+        }
+      };
 
-    loadInitialConfig();
-  }, [currentBusiness]);
+      loadInitialConfig();
+    }
+  }, [currentBusiness, businessConfigs]);
 
-  // Add performance logging when config is ready
+  // Update current config when business changes
   useEffect(() => {
-    if (currentConfig) {
-      // Log performance after a short delay to allow media to load
-      const timer = setTimeout(() => {
-        logPerformanceReport();
-      }, 2000);
-      
-      return () => clearTimeout(timer);
+    if (currentBusiness && businessConfigs[currentBusiness]) {
+      setCurrentConfig(businessConfigs[currentBusiness]);
     }
-  }, [currentConfig, logPerformanceReport]);
+  }, [currentBusiness, businessConfigs]);
 
-  // Handle business change
   const handleBusinessChange = async (businessSlug: string) => {
-    console.log('HomePage: handleBusinessChange called with:', businessSlug);
-    if (isLoading) {
-      console.log('HomePage: handleBusinessChange: Already loading, ignoring request');
-      return;
-    }
+    if (isLoading) return;
 
-    console.log('HomePage: handleBusinessChange: Setting loading state and clearing configs');
-    setCurrentBusiness(businessSlug);
     setIsLoading(true);
     setCurrentConfig(null);
+    setBusinessConfigs(prev => ({ ...prev, [businessSlug]: null }));
 
-    // Update the URL to trigger useBusinessConfig hook reload
+    // Update URL
     const newUrl = `/${businessSlug}`;
     window.history.pushState({ business: businessSlug }, '', newUrl);
-    console.log('HomePage: Updated URL to:', newUrl);
-
-    const timeoutId = setTimeout(() => {
-      console.error('HomePage: handleBusinessChange: Timeout reached, resetting loading state');
-      setIsLoading(false);
-    }, 10000); // 10 second timeout
+    setCurrentBusiness(businessSlug);
 
     try {
-      console.log('HomePage: handleBusinessChange: Loading business config for:', businessSlug);
       const config = await loadBusinessConfig(businessSlug);
-      clearTimeout(timeoutId);
-      
-      console.log('HomePage: handleBusinessChange - New config loaded:', config);
-      setCurrentConfig(config);
-      setBusinessConfig(businessSlug);
-      
-      setIsLoading(false);
-      
-      console.log('HomePage: handleBusinessChange - Config loaded successfully');
+      if (config) {
+        setBusinessConfigs(prev => ({ ...prev, [businessSlug]: config }));
+        setCurrentConfig(config);
+      }
     } catch (error) {
-      clearTimeout(timeoutId);
-      console.error('HomePage: handleBusinessChange - Error loading config:', error);
+      console.error(`Error loading business config for ${businessSlug}:`, error);
+    } finally {
       setIsLoading(false);
     }
   };
 
+  const handleBookNow = () => {
+    // Handle book now action
+  };
+
+  const handleManualReset = () => {
+    setCurrentBusiness('mdh');
+    setCurrentConfig(null);
+    setBusinessConfigs({});
+    window.history.pushState({ business: 'mdh' }, '', '/mdh');
+  };
+
   // Create services configuration using business config
-  const config = useMemo(() => {
-    if (!currentConfig) return null;
+  const servicesConfig = useMemo(() => {
+    if (!currentConfig) return defaultServices;
     
-    // Debug logging
-    console.log('HomePage: Creating config with currentConfig:', currentConfig);
-    
-    return {
-      header: {
-        logo: currentConfig.business?.name || 'Business Name',
-        tagline: 'Professional Mobile Detailing',
-      },
-      socialMedia: {
-        facebook: 'https://facebook.com/mobiledetailhub',
-        instagram: 'https://instagram.com/mobiledetailhub',
-        tiktok: 'https://tiktok.com/@mobiledetailhub',
-        youtube: 'https://youtube.com/@mobiledetailhub'
-      },
-      hero: {
-        backgroundImage: currentConfig.hero?.backgroundImage || '/hero/image1.png',
-        headline: currentConfig.hero?.headline || 'Premium Mobile Detailing',
-        subheadline: currentConfig.hero?.subheadline || 'Professional service at your location',
-        ctaText: currentConfig.hero?.ctaText || 'Book Now',
-        ctaSubtext: currentConfig.hero?.ctaSubtext || 'Contact us today',
-      },
-      services: [
-        {
-          title: 'Auto Detailing',
-          image: '/auto_detailing/image1.png',
-          icon: <Car className="h-6 w-6" />,
-          description: ['Professional service', 'Quality results'],
-          images: [
-            '/auto_detailing/image1.png',
-          ]
-        },
-        {
-          title: 'Marine Detailing',
-          image: '/boat_detailing/image1.png',
-          icon: <Ship className="h-6 w-6" />,
-          description: ['Boat care', 'Marine expertise'],
-          images: [
-            '/boat_detailing/image1.png',
-          ]
-        },
-        {
-          title: 'RV Detailing',
-          image: '/rv_detailing/image1.png',
-          icon: <Paintbrush className="h-6 w-6" />,
-          description: ['RV maintenance', 'Travel ready'],
-          images: [
-            '/rv_detailing/image1.png',
-          ]
-        },
-        {
-          title: 'Interior / Exterior',
-          image: '/interior_exterior/image1.png',
-          icon: <Palette className="h-6 w-6" />,
-          images: [
-            '/interior_exterior/image1.png',
-          ]
-        },
-        {
-          title: 'Ceramic Coating',
-          image: '/ceramic/image1.png',
-          icon: <Sun className="h-6 w-6" />,
-          images: [
-            '/ceramic/image1.png',
-          ]
-        },
-        {
-          title: 'Paint Protection Film',
-          image: '/ppf/image1.png',
-          icon: <Zap className="h-6 w-6" />,
-          images: [
-            '/ppf/image1.png',
-          ]
-        }
-      ],
-      footer: {
-        businessName: currentConfig.business?.name || 'Business Name',
-        phone: currentConfig.business?.phone || 'Contact for details',
-        email: currentConfig.business?.email || 'info@business.com',
-        hours: currentConfig.business?.hours || 'Mon-Fri 9AM-5PM',
-        locations: currentConfig.serviceLocations || ['Main Location'],
-      }
-    };
-  }, [currentConfig, currentBusiness]);
+    return defaultServices.map(service => ({
+      ...service,
+      title: currentConfig.services?.available?.[0] || service.title,
+      description: currentConfig.services?.description || service.description
+    }));
+  }, [currentConfig]);
 
   // Modal state
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
@@ -264,11 +139,6 @@ const HomePage: React.FC = () => {
 
   const openQuoteModal = () => setIsQuoteModalOpen(true);
   const closeQuoteModal = () => setIsQuoteModalOpen(false);
-
-  const handleBookNow = () => {
-    // Handle booking logic
-    console.log('Book now clicked');
-  };
 
   // Loading state
   if (!currentConfig || isLoading) {
@@ -290,7 +160,6 @@ const HomePage: React.FC = () => {
           {/* Manual reset button if loading gets stuck */}
           <button
             onClick={() => {
-              console.log('Manual reset triggered');
               setIsLoading(false);
               if (currentBusiness) {
                 handleBusinessChange(currentBusiness);
