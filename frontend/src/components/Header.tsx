@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Phone, MapPin, Menu, Facebook, Instagram, Youtube } from 'lucide-react';
 import { useBusinessConfig } from '../hooks/useBusinessConfig';
 import { useLocation } from '../contexts/LocationContext';
-import { scrollToTop, scrollToServices, scrollToBottom } from '../utils/scrollUtils';
+import { scrollToTop, scrollToServices, scrollToBottom, scrollToFAQ } from '../utils/scrollUtils';
 import { GetStarted } from './shared';
 
 // Custom TikTok icon component
@@ -155,6 +155,7 @@ const Header: React.FC = () => {
               {(header?.navLinks || [
                 { name: 'Home', href: '/' },
                 { name: 'Services', href: '/services' },
+                { name: 'FAQ', href: '/faq' },
                 { name: 'Contact', href: '/contact' }
               ]).map((link, index) => {
                 // Skip gallery link
@@ -174,6 +175,8 @@ const Header: React.FC = () => {
                         scrollToBottom();
                       } else if (link.href === '/services') {
                         scrollToServices();
+                      } else if (link.href === '/faq') {
+                        scrollToFAQ();
                       }
                       
                       // Call onClick if it exists

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Phone, MapPin, Facebook, Instagram, Youtube } from 'lucide-react';
 import { useBusinessConfig } from '../hooks/useBusinessConfig';
 import { useLocation } from '../contexts/LocationContext';
-import { scrollToTop, scrollToServices, scrollToBottom } from '../utils/scrollUtils';
+import { scrollToTop, scrollToServices, scrollToBottom, scrollToFAQ } from '../utils/scrollUtils';
 import { GetStarted } from './shared';
 
 // Custom TikTok icon component
@@ -147,6 +147,7 @@ const Footer: React.FC<FooterProps> = ({ onBookNow, onRequestQuote, businessSlug
               {[
                 { name: 'Home', href: '/' },
                 { name: 'Services', href: '/services' },
+                { name: 'FAQ', href: '/faq' },
                 { name: 'Contact', href: '/contact' }
               ].map((link, index) => {
                 // Skip gallery link
@@ -166,6 +167,8 @@ const Footer: React.FC<FooterProps> = ({ onBookNow, onRequestQuote, businessSlug
                           scrollToBottom();
                         } else if (link.href === '/services') {
                           scrollToServices();
+                        } else if (link.href === '/faq') {
+                          scrollToFAQ();
                         }
                       }}
                       className="text-lg hover:text-orange-400 transition-colors duration-200 flex items-center cursor-pointer"

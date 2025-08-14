@@ -200,6 +200,34 @@ const FAQ = React.forwardRef<FAQRef, FAQProps>(
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [JSON.stringify(faqData)]);
 
+    // ===== Auto-expand when scrolled to via navigation =====
+    useEffect(() => {
+      const handleHashChange = () => {
+        if (window.location.hash === '#faq') {
+          setIsExpanded(true);
+          // Small delay to ensure smooth scrolling completes
+          setTimeout(() => {
+            setIsExpanded(true);
+          }, 100);
+        }
+      };
+
+      const handleFAQNavigation = () => {
+        setIsExpanded(true);
+      };
+
+      // Check on mount
+      handleHashChange();
+
+      // Listen for hash changes and custom events
+      window.addEventListener('hashchange', handleHashChange);
+      window.addEventListener('faq-navigation', handleFAQNavigation);
+      return () => {
+        window.removeEventListener('hashchange', handleHashChange);
+        window.removeEventListener('faq-navigation', handleFAQNavigation);
+      };
+    }, []);
+
     // ===== Auto-collapse on scroll logic =====
     useEffect(() => {
       const handleScroll = () => {
@@ -212,6 +240,11 @@ const FAQ = React.forwardRef<FAQRef, FAQProps>(
         if (faqSection) {
           const faqRect = faqSection.getBoundingClientRect();
           const faqTop = faqRect.top;
+
+          // Auto-expand when FAQ section is in view
+          if (faqTop < windowHeight * 0.3 && faqTop > -100) {
+            setIsExpanded(true);
+          }
 
           if (scrollTop + windowHeight >= documentHeight - 50) {
             setIsExpanded(false);

@@ -51,10 +51,18 @@ export function scrollToContact(): void {
 }
 
 /**
- * Scrolls to the FAQ section
+ * Scrolls to the FAQ section and sets URL hash
  */
 export function scrollToFAQ(): void {
+  // Set URL hash to trigger FAQ expansion
+  window.location.hash = 'faq';
   scrollToElement('faq');
+  
+  // Small delay to ensure FAQ component detects the hash change
+  setTimeout(() => {
+    // Trigger a custom event that the FAQ component can listen for
+    window.dispatchEvent(new CustomEvent('faq-navigation'));
+  }, 100);
 }
 
 /**
