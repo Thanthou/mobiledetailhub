@@ -11,6 +11,18 @@
   ],
   "rewrites": [
     {
+      "source": "/jps",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/abc", 
+      "destination": "/index.html"
+    },
+    {
+      "source": "/mdh",
+      "destination": "/index.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
