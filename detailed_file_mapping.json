@@ -1,0 +1,765 @@
+{
+  "-files  grep vercel": {
+    "relative_path": "-files  grep vercel",
+    "size_bytes": 187,
+    "modified": 1754519543.0794718,
+    "is_file": true,
+    "is_dir": false
+  },
+  ".cursorignore": {
+    "relative_path": ".cursorignore",
+    "size_bytes": 906,
+    "modified": 1755115413.4681687,
+    "is_file": true,
+    "is_dir": false
+  },
+  "how --name-only HEAD": {
+    "relative_path": "how --name-only HEAD",
+    "size_bytes": 360,
+    "modified": 1755202014.470285,
+    "is_file": true,
+    "is_dir": false
+  },
+  "package.json": {
+    "relative_path": "package.json",
+    "size_bytes": 542,
+    "modified": 1755211578.028015,
+    "is_file": true,
+    "is_dir": false
+  },
+  "README.md": {
+    "relative_path": "README.md",
+    "size_bytes": 22,
+    "modified": 1755200661.763527,
+    "is_file": true,
+    "is_dir": false
+  },
+  "vercel.json": {
+    "relative_path": "vercel.json",
+    "size_bytes": 526,
+    "modified": 1755212334.7878394,
+    "is_file": true,
+    "is_dir": false
+  },
+  "backend\\.env": {
+    "relative_path": "backend\\.env",
+    "size_bytes": 252,
+    "modified": 1755198892.232227,
+    "is_file": true,
+    "is_dir": false
+  },
+  "backend\\package.json": {
+    "relative_path": "backend\\package.json",
+    "size_bytes": 912,
+    "modified": 1755201625.975785,
+    "is_file": true,
+    "is_dir": false
+  },
+  "backend\\README.md": {
+    "relative_path": "backend\\README.md",
+    "size_bytes": 2195,
+    "modified": 1754609439.5723765,
+    "is_file": true,
+    "is_dir": false
+  },
+  "backend\\server.js": {
+    "relative_path": "backend\\server.js",
+    "size_bytes": 13458,
+    "modified": 1755210177.7271626,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\.env": {
+    "relative_path": "frontend\\.env",
+    "size_bytes": 81,
+    "modified": 1755124854.7742028,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\.gitignore": {
+    "relative_path": "frontend\\.gitignore",
+    "size_bytes": 258,
+    "modified": 1754435102.644114,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\eslint.config.js": {
+    "relative_path": "frontend\\eslint.config.js",
+    "size_bytes": 739,
+    "modified": 1754435102.6740797,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\index.html": {
+    "relative_path": "frontend\\index.html",
+    "size_bytes": 6015,
+    "modified": 1754764429.344407,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\package.json": {
+    "relative_path": "frontend\\package.json",
+    "size_bytes": 966,
+    "modified": 1755132725.3677113,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\postcss.config.js": {
+    "relative_path": "frontend\\postcss.config.js",
+    "size_bytes": 81,
+    "modified": 1754435102.7021086,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\tailwind.config.js": {
+    "relative_path": "frontend\\tailwind.config.js",
+    "size_bytes": 170,
+    "modified": 1754435102.8341033,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\tsconfig.app.json": {
+    "relative_path": "frontend\\tsconfig.app.json",
+    "size_bytes": 552,
+    "modified": 1754435102.85808,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\tsconfig.json": {
+    "relative_path": "frontend\\tsconfig.json",
+    "size_bytes": 119,
+    "modified": 1754435102.7261026,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\tsconfig.node.json": {
+    "relative_path": "frontend\\tsconfig.node.json",
+    "size_bytes": 479,
+    "modified": 1754435102.7790802,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\vite.config.ts": {
+    "relative_path": "frontend\\vite.config.ts",
+    "size_bytes": 465,
+    "modified": 1755205328.888719,
+    "is_file": true,
+    "is_dir": false
+  },
+  "scripts\\file_mapper.py": {
+    "relative_path": "scripts\\file_mapper.py",
+    "size_bytes": 5375,
+    "modified": 1755212514.8338327,
+    "is_file": true,
+    "is_dir": false
+  },
+  "scripts\\generateMDHServiceAreas.js": {
+    "relative_path": "scripts\\generateMDHServiceAreas.js",
+    "size_bytes": 7292,
+    "modified": 1755203164.3430917,
+    "is_file": true,
+    "is_dir": false
+  },
+  "scripts\\generateServiceAreaMapping.js": {
+    "relative_path": "scripts\\generateServiceAreaMapping.js",
+    "size_bytes": 9354,
+    "modified": 1755203177.2660728,
+    "is_file": true,
+    "is_dir": false
+  },
+  "scripts\\README.md": {
+    "relative_path": "scripts\\README.md",
+    "size_bytes": 4299,
+    "modified": 1755129487.5061908,
+    "is_file": true,
+    "is_dir": false
+  },
+  "shared\\utils\\businessLoader.js": {
+    "relative_path": "shared\\utils\\businessLoader.js",
+    "size_bytes": 4212,
+    "modified": 1755203077.3729558,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\.bolt\\config.json": {
+    "relative_path": "frontend\\.bolt\\config.json",
+    "size_bytes": 39,
+    "modified": 1754435102.9720938,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\.bolt\\prompt": {
+    "relative_path": "frontend\\.bolt\\prompt",
+    "size_bytes": 401,
+    "modified": 1754435102.948081,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\public\\favicon.webp": {
+    "relative_path": "frontend\\public\\favicon.webp",
+    "size_bytes": 1530,
+    "modified": 1755104158.7858267,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\App.tsx": {
+    "relative_path": "frontend\\src\\App.tsx",
+    "size_bytes": 1807,
+    "modified": 1755205258.0097601,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\index.css": {
+    "relative_path": "frontend\\src\\index.css",
+    "size_bytes": 974,
+    "modified": 1755112571.2941267,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\main.tsx": {
+    "relative_path": "frontend\\src\\main.tsx",
+    "size_bytes": 234,
+    "modified": 1754435103.0000806,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\vite-env.d.ts": {
+    "relative_path": "frontend\\src\\vite-env.d.ts",
+    "size_bytes": 38,
+    "modified": 1754435103.0201128,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\components\\Affiliates.tsx": {
+    "relative_path": "frontend\\src\\components\\Affiliates.tsx",
+    "size_bytes": 3796,
+    "modified": 1755040740.1075737,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\components\\BusinessSelector.tsx": {
+    "relative_path": "frontend\\src\\components\\BusinessSelector.tsx",
+    "size_bytes": 5067,
+    "modified": 1755203105.7430103,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\components\\Contact.tsx": {
+    "relative_path": "frontend\\src\\components\\Contact.tsx",
+    "size_bytes": 15863,
+    "modified": 1755210560.4901462,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\components\\FAQ.tsx": {
+    "relative_path": "frontend\\src\\components\\FAQ.tsx",
+    "size_bytes": 18135,
+    "modified": 1755130668.5135095,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\components\\Footer.tsx": {
+    "relative_path": "frontend\\src\\components\\Footer.tsx",
+    "size_bytes": 11421,
+    "modified": 1755210560.4901462,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\components\\Header.tsx": {
+    "relative_path": "frontend\\src\\components\\Header.tsx",
+    "size_bytes": 8959,
+    "modified": 1755210560.491186,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\components\\Hero.tsx": {
+    "relative_path": "frontend\\src\\components\\Hero.tsx",
+    "size_bytes": 4341,
+    "modified": 1755210560.4901462,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\components\\HomePage.tsx": {
+    "relative_path": "frontend\\src\\components\\HomePage.tsx",
+    "size_bytes": 8746,
+    "modified": 1755205522.6236882,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\components\\ImageGalleryModal.tsx": {
+    "relative_path": "frontend\\src\\components\\ImageGalleryModal.tsx",
+    "size_bytes": 4281,
+    "modified": 1754686894.9367363,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\components\\QuoteModal.tsx": {
+    "relative_path": "frontend\\src\\components\\QuoteModal.tsx",
+    "size_bytes": 12931,
+    "modified": 1755036881.1839805,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\components\\ServiceAreas.tsx": {
+    "relative_path": "frontend\\src\\components\\ServiceAreas.tsx",
+    "size_bytes": 11517,
+    "modified": 1755203150.3546238,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\components\\ServicesGrid.tsx": {
+    "relative_path": "frontend\\src\\components\\ServicesGrid.tsx",
+    "size_bytes": 9667,
+    "modified": 1755210560.4901462,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\config\\affiliates.ts": {
+    "relative_path": "frontend\\src\\config\\affiliates.ts",
+    "size_bytes": 7743,
+    "modified": 1755040367.898337,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\config\\environment.ts": {
+    "relative_path": "frontend\\src\\config\\environment.ts",
+    "size_bytes": 820,
+    "modified": 1755210435.1907127,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\contexts\\LocationContext.tsx": {
+    "relative_path": "frontend\\src\\contexts\\LocationContext.tsx",
+    "size_bytes": 4363,
+    "modified": 1755134865.006881,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\hooks\\useBusinessConfig.ts": {
+    "relative_path": "frontend\\src\\hooks\\useBusinessConfig.ts",
+    "size_bytes": 9640,
+    "modified": 1755209905.813946,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\hooks\\usePerformanceMonitor.ts": {
+    "relative_path": "frontend\\src\\hooks\\usePerformanceMonitor.ts",
+    "size_bytes": 3712,
+    "modified": 1755103976.3569899,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\services\\api.ts": {
+    "relative_path": "frontend\\src\\services\\api.ts",
+    "size_bytes": 1773,
+    "modified": 1755209905.813946,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\types\\google-maps.d.ts": {
+    "relative_path": "frontend\\src\\types\\google-maps.d.ts",
+    "size_bytes": 90,
+    "modified": 1755125558.4110618,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\utils\\businessLoader.ts": {
+    "relative_path": "frontend\\src\\utils\\businessLoader.ts",
+    "size_bytes": 5156,
+    "modified": 1755210443.3299093,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\utils\\phoneFormatter.test.ts": {
+    "relative_path": "frontend\\src\\utils\\phoneFormatter.test.ts",
+    "size_bytes": 2027,
+    "modified": 1755036881.1659782,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\utils\\phoneFormatter.ts": {
+    "relative_path": "frontend\\src\\utils\\phoneFormatter.ts",
+    "size_bytes": 3575,
+    "modified": 1755036818.4939911,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\utils\\README.md": {
+    "relative_path": "frontend\\src\\utils\\README.md",
+    "size_bytes": 2876,
+    "modified": 1755132725.3677113,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\utils\\scrollUtils.ts": {
+    "relative_path": "frontend\\src\\utils\\scrollUtils.ts",
+    "size_bytes": 1851,
+    "modified": 1755130341.5938942,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\utils\\serviceAreaMapping.ts": {
+    "relative_path": "frontend\\src\\utils\\serviceAreaMapping.ts",
+    "size_bytes": 6749,
+    "modified": 1755133616.5266519,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\components\\services\\AutoDetailing.tsx": {
+    "relative_path": "frontend\\src\\components\\services\\AutoDetailing.tsx",
+    "size_bytes": 10768,
+    "modified": 1755116901.5343466,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\components\\services\\AutoDetailingPage.tsx": {
+    "relative_path": "frontend\\src\\components\\services\\AutoDetailingPage.tsx",
+    "size_bytes": 4701,
+    "modified": 1755203263.138525,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\components\\services\\CeramicCoating.tsx": {
+    "relative_path": "frontend\\src\\components\\services\\CeramicCoating.tsx",
+    "size_bytes": 10470,
+    "modified": 1755116901.5353448,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\components\\services\\index.ts": {
+    "relative_path": "frontend\\src\\components\\services\\index.ts",
+    "size_bytes": 862,
+    "modified": 1754698349.2042758,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\components\\services\\InteriorExterior.tsx": {
+    "relative_path": "frontend\\src\\components\\services\\InteriorExterior.tsx",
+    "size_bytes": 7765,
+    "modified": 1755116901.5363448,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\components\\services\\MarineDetailing.tsx": {
+    "relative_path": "frontend\\src\\components\\services\\MarineDetailing.tsx",
+    "size_bytes": 11870,
+    "modified": 1755116901.537347,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\components\\services\\PaintProtectionFilm.tsx": {
+    "relative_path": "frontend\\src\\components\\services\\PaintProtectionFilm.tsx",
+    "size_bytes": 7715,
+    "modified": 1755116901.537347,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\components\\services\\RVDetailing.tsx": {
+    "relative_path": "frontend\\src\\components\\services\\RVDetailing.tsx",
+    "size_bytes": 11249,
+    "modified": 1755116901.537347,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\components\\shared\\CTAButton.tsx": {
+    "relative_path": "frontend\\src\\components\\shared\\CTAButton.tsx",
+    "size_bytes": 843,
+    "modified": 1754697685.6270003,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\components\\shared\\CTAButtonsContainer.tsx": {
+    "relative_path": "frontend\\src\\components\\shared\\CTAButtonsContainer.tsx",
+    "size_bytes": 725,
+    "modified": 1754697685.6270003,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\components\\shared\\GetStarted.tsx": {
+    "relative_path": "frontend\\src\\components\\shared\\GetStarted.tsx",
+    "size_bytes": 11596,
+    "modified": 1755212183.2823353,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\components\\shared\\index.ts": {
+    "relative_path": "frontend\\src\\components\\shared\\index.ts",
+    "size_bytes": 359,
+    "modified": 1755132845.9553847,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\components\\shared\\LazyVideo.tsx": {
+    "relative_path": "frontend\\src\\components\\shared\\LazyVideo.tsx",
+    "size_bytes": 3481,
+    "modified": 1755103976.3549898,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\src\\components\\shared\\OptimizedImage.tsx": {
+    "relative_path": "frontend\\src\\components\\shared\\OptimizedImage.tsx",
+    "size_bytes": 1698,
+    "modified": 1755104958.4839537,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\public\\affiliates\\3d.png": {
+    "relative_path": "frontend\\public\\affiliates\\3d.png",
+    "size_bytes": 63881,
+    "modified": 1754515608.4553585,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\public\\affiliates\\3m.png": {
+    "relative_path": "frontend\\public\\affiliates\\3m.png",
+    "size_bytes": 55127,
+    "modified": 1754513312.631609,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\public\\affiliates\\adams.webp": {
+    "relative_path": "frontend\\public\\affiliates\\adams.webp",
+    "size_bytes": 91850,
+    "modified": 1754515432.0187902,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\public\\affiliates\\auto-fiber.webp": {
+    "relative_path": "frontend\\public\\affiliates\\auto-fiber.webp",
+    "size_bytes": 8906,
+    "modified": 1754595183.65426,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\public\\affiliates\\c6.webp": {
+    "relative_path": "frontend\\public\\affiliates\\c6.webp",
+    "size_bytes": 3570,
+    "modified": 1754514600.4564612,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\public\\affiliates\\carpro.png": {
+    "relative_path": "frontend\\public\\affiliates\\carpro.png",
+    "size_bytes": 1356,
+    "modified": 1754515778.6530824,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\public\\affiliates\\ceramic_pro.jfif": {
+    "relative_path": "frontend\\public\\affiliates\\ceramic_pro.jfif",
+    "size_bytes": 5720,
+    "modified": 1755038839.4294748,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\public\\affiliates\\chemicalguys.jpg": {
+    "relative_path": "frontend\\public\\affiliates\\chemicalguys.jpg",
+    "size_bytes": 119937,
+    "modified": 1754515354.487235,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\public\\affiliates\\griots.jpg": {
+    "relative_path": "frontend\\public\\affiliates\\griots.jpg",
+    "size_bytes": 53033,
+    "modified": 1754513737.3706849,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\public\\affiliates\\koch.png": {
+    "relative_path": "frontend\\public\\affiliates\\koch.png",
+    "size_bytes": 1959,
+    "modified": 1754520527.6598303,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\public\\affiliates\\lake-country.png": {
+    "relative_path": "frontend\\public\\affiliates\\lake-country.png",
+    "size_bytes": 5642,
+    "modified": 1754607302.7237926,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\public\\affiliates\\lamin-x.png": {
+    "relative_path": "frontend\\public\\affiliates\\lamin-x.png",
+    "size_bytes": 4095,
+    "modified": 1754607754.0979848,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\public\\affiliates\\meguires.jpg": {
+    "relative_path": "frontend\\public\\affiliates\\meguires.jpg",
+    "size_bytes": 226008,
+    "modified": 1754512599.8583004,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\public\\affiliates\\menzerna.webp": {
+    "relative_path": "frontend\\public\\affiliates\\menzerna.webp",
+    "size_bytes": 18876,
+    "modified": 1754520980.8486347,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\public\\affiliates\\mirka.webp": {
+    "relative_path": "frontend\\public\\affiliates\\mirka.webp",
+    "size_bytes": 11914,
+    "modified": 1754521104.5249102,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\public\\affiliates\\mtm_hydro.jpg": {
+    "relative_path": "frontend\\public\\affiliates\\mtm_hydro.jpg",
+    "size_bytes": 155902,
+    "modified": 1754594748.0294938,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\public\\affiliates\\poka.png": {
+    "relative_path": "frontend\\public\\affiliates\\poka.png",
+    "size_bytes": 2490,
+    "modified": 1754607426.2972474,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\public\\affiliates\\rupes.png": {
+    "relative_path": "frontend\\public\\affiliates\\rupes.png",
+    "size_bytes": 12886,
+    "modified": 1754520893.333086,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\public\\affiliates\\shopvac.jpg": {
+    "relative_path": "frontend\\public\\affiliates\\shopvac.jpg",
+    "size_bytes": 5225,
+    "modified": 1754515197.0885856,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\public\\affiliates\\starke.png": {
+    "relative_path": "frontend\\public\\affiliates\\starke.png",
+    "size_bytes": 18140,
+    "modified": 1754521468.8683517,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\public\\affiliates\\underdog.webp": {
+    "relative_path": "frontend\\public\\affiliates\\underdog.webp",
+    "size_bytes": 15642,
+    "modified": 1754520791.23448,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\public\\affiliates\\xpel.png": {
+    "relative_path": "frontend\\public\\affiliates\\xpel.png",
+    "size_bytes": 1701,
+    "modified": 1754514985.5237157,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\public\\affiliates\\yot-stik.webp": {
+    "relative_path": "frontend\\public\\affiliates\\yot-stik.webp",
+    "size_bytes": 27350,
+    "modified": 1754594980.9537055,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\public\\auto_detailing\\image1.png": {
+    "relative_path": "frontend\\public\\auto_detailing\\image1.png",
+    "size_bytes": 2279123,
+    "modified": 1754796813.1529293,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\public\\auto_detailing\\image2.png": {
+    "relative_path": "frontend\\public\\auto_detailing\\image2.png",
+    "size_bytes": 2646498,
+    "modified": 1754792246.5723073,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\public\\boat_detailing\\image1.png": {
+    "relative_path": "frontend\\public\\boat_detailing\\image1.png",
+    "size_bytes": 2593365,
+    "modified": 1754798542.6109629,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\public\\boat_detailing\\image2.png": {
+    "relative_path": "frontend\\public\\boat_detailing\\image2.png",
+    "size_bytes": 2434054,
+    "modified": 1754792270.6258712,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\public\\ceramic\\image1.png": {
+    "relative_path": "frontend\\public\\ceramic\\image1.png",
+    "size_bytes": 2454682,
+    "modified": 1754440763.5315115,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\public\\hero\\image1.png": {
+    "relative_path": "frontend\\public\\hero\\image1.png",
+    "size_bytes": 2292163,
+    "modified": 1754797853.7477412,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\public\\hero\\image2.png": {
+    "relative_path": "frontend\\public\\hero\\image2.png",
+    "size_bytes": 2214466,
+    "modified": 1754792255.38637,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\public\\interior_exterior\\image1.png": {
+    "relative_path": "frontend\\public\\interior_exterior\\image1.png",
+    "size_bytes": 1764092,
+    "modified": 1754441265.7899776,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\public\\ppf\\image1.png": {
+    "relative_path": "frontend\\public\\ppf\\image1.png",
+    "size_bytes": 1978272,
+    "modified": 1754439610.0148177,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\public\\rv_detailing\\image1.png": {
+    "relative_path": "frontend\\public\\rv_detailing\\image1.png",
+    "size_bytes": 2576638,
+    "modified": 1754798967.4038002,
+    "is_file": true,
+    "is_dir": false
+  },
+  "frontend\\public\\rv_detailing\\image2.png": {
+    "relative_path": "frontend\\public\\rv_detailing\\image2.png",
+    "size_bytes": 2610963,
+    "modified": 1754792280.2289965,
+    "is_file": true,
+    "is_dir": false
+  },
+  "businesses\\abc\\config.js": {
+    "relative_path": "businesses\\abc\\config.js",
+    "size_bytes": 2017,
+    "modified": 1755133610.5583098,
+    "is_file": true,
+    "is_dir": false
+  },
+  "businesses\\jps\\config.js": {
+    "relative_path": "businesses\\jps\\config.js",
+    "size_bytes": 1324,
+    "modified": 1755151075.3023207,
+    "is_file": true,
+    "is_dir": false
+  },
+  "businesses\\mdh\\config.js": {
+    "relative_path": "businesses\\mdh\\config.js",
+    "size_bytes": 2970,
+    "modified": 1755129448.2861023,
+    "is_file": true,
+    "is_dir": false
+  }
+}
