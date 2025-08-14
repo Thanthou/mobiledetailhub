@@ -27,7 +27,7 @@ const GetStarted: React.FC<GetStartedProps> = ({
   );
 
   // Original component code commented out below
-  /*
+  
   const [inputValue, setInputValue] = useState('');
   const [predictions, setPredictions] = useState<Array<any>>([]);
   const [showPredictions, setShowPredictions] = useState(false);
@@ -329,7 +329,7 @@ const GetStarted: React.FC<GetStartedProps> = ({
       )}
     </div>
   );
-  */
+  
 };
 
 export default GetStarted;
