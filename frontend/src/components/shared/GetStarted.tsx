@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MapPin, Search } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { findBusinessByLocation } from '../../utils/businessLoader';
 import { useLocation } from '../../contexts/LocationContext';
 
@@ -26,6 +27,7 @@ const GetStarted: React.FC<GetStartedProps> = ({
   const sessionTokenRef = useRef<any | null>(null);
   
   const { setSelectedLocation } = useLocation();
+  const navigate = useNavigate();
 
   // Load Google Places API
   useEffect(() => {
@@ -211,16 +213,11 @@ const GetStarted: React.FC<GetStartedProps> = ({
              if (businessConfig) {
          if (businessConfig.slug === 'mdh') {
            // Stay on current domain if it's MDH
-           window.location.href = '/';
+           navigate('/');
          } else {
-           // Route to the appropriate business subdomain
-           const currentDomain = window.location.hostname;
-           const baseDomain = currentDomain.includes('localhost') 
-             ? 'localhost:5173' 
-             : 'mobiledetailhub.com';
-           const newUrl = `https://${baseDomain}/${businessConfig.slug}`;
-           console.log('Redirecting to:', newUrl);
-           window.location.href = newUrl;
+           // Route to the appropriate business using React Router
+           console.log('Navigating to business:', businessConfig.slug);
+           navigate(`/${businessConfig.slug}`);
          }
        } else {
         alert('Sorry, we don\'t currently serve this area. Please contact us for more information.');
