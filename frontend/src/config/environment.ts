@@ -4,7 +4,7 @@ export const config = {
   apiUrl: import.meta.env.VITE_API_URL || 
     (import.meta.env.PROD 
       ? 'https://mobiledetailhub.onrender.com'  // Render backend URL
-      : 'http://localhost:3001'
+      : 'https://mobiledetailhub.onrender.com'  // Use Render backend for development too
     ),
   
   // Environment

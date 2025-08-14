@@ -21,6 +21,14 @@ interface Service {
 }
 
 const HomePage: React.FC = () => {
+  // State variables
+  const [currentBusiness, setCurrentBusiness] = useState<string>('mdh');
+  const [currentConfig, setCurrentConfig] = useState<any>(null);
+  const [businesses, setBusinesses] = useState<any[]>([]);
+  const [businessConfigs, setBusinessConfigs] = useState<{[key: string]: any}>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
+
   // Detect business from URL path or query params
   useEffect(() => {
     const pathParts = window.location.pathname.split('/');
@@ -123,10 +131,55 @@ const HomePage: React.FC = () => {
   };
 
   // Create services configuration using business config
+  const defaultServices: Service[] = [
+    {
+      title: 'Auto Detailing',
+      image: '/auto_detailing/image1.png',
+      icon: <Car className="h-6 w-6" />,
+      description: ['Professional service', 'Quality results'],
+      images: ['/auto_detailing/image1.png']
+    },
+    {
+      title: 'Marine Detailing',
+      image: '/boat_detailing/image1.png',
+      icon: <Ship className="h-6 w-6" />,
+      description: ['Boat care', 'Marine expertise'],
+      images: ['/boat_detailing/image1.png']
+    },
+    {
+      title: 'RV Detailing',
+      image: '/rv_detailing/image1.png',
+      icon: <Paintbrush className="h-6 w-6" />,
+      description: ['RV maintenance', 'Travel ready'],
+      images: ['/rv_detailing/image1.png']
+    },
+    {
+      title: 'Interior / Exterior',
+      image: '/interior_exterior/image1.png',
+      icon: <Palette className="h-6 w-6" />,
+      description: ['Complete care', 'Inside and out'],
+      images: ['/interior_exterior/image1.png']
+    },
+    {
+      title: 'Ceramic Coating',
+      image: '/ceramic/image1.png',
+      icon: <Sun className="h-6 w-6" />,
+      description: ['Long-term protection', 'Enhanced shine'],
+      images: ['/ceramic/image1.png']
+    },
+    {
+      title: 'Paint Protection Film',
+      image: '/ppf/image1.png',
+      icon: <Zap className="h-6 w-6" />,
+      description: ['Ultimate protection', 'Invisible shield'],
+      images: ['/ppf/image1.png']
+    }
+  ];
+
   const servicesConfig = useMemo(() => {
     if (!currentConfig) return defaultServices;
     
-    return defaultServices.map(service => ({
+    return defaultServices.map((service: Service) => ({
       ...service,
       title: currentConfig.services?.available?.[0] || service.title,
       description: currentConfig.services?.description || service.description
@@ -134,7 +187,6 @@ const HomePage: React.FC = () => {
   }, [currentConfig]);
 
   // Modal state
-  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
 
   const openQuoteModal = () => setIsQuoteModalOpen(true);
@@ -174,7 +226,7 @@ const HomePage: React.FC = () => {
     );
   }
 
-  if (!config) {
+  if (!currentConfig) {
     return (
       <div className="min-h-screen bg-stone-900 flex items-center justify-center">
         <div className="text-center text-white">
@@ -202,7 +254,7 @@ const HomePage: React.FC = () => {
       <div id="services">
         <ServicesGrid
           key={`${currentBusiness}-${currentConfig?.hero?.backgroundImage || 'default'}`}
-          services={config.services}
+          services={servicesConfig}
           onBookNow={handleBookNow}
           onRequestQuote={openQuoteModal}
           businessSlug={currentBusiness}
