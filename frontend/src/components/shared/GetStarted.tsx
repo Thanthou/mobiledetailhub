@@ -208,17 +208,21 @@ const GetStarted: React.FC<GetStartedProps> = ({
       
       const businessConfig = await findBusinessByLocation(location, zipCode, city, state);
       
-      if (businessConfig) {
-        if (businessConfig.slug === 'mdh') {
-          // Stay on current domain if it's MDH
-          window.location.href = '/';
-        } else {
-          // TEMPORARILY DISABLED - just show alert instead of redirecting
-          alert(`Found business: ${businessConfig.slug}`);
-          console.log('Business found:', businessConfig);
-          // TODO: Re-enable routing once main site can handle /jps paths
-        }
-      } else {
+             if (businessConfig) {
+         if (businessConfig.slug === 'mdh') {
+           // Stay on current domain if it's MDH
+           window.location.href = '/';
+         } else {
+           // Route to the appropriate business subdomain
+           const currentDomain = window.location.hostname;
+           const baseDomain = currentDomain.includes('localhost') 
+             ? 'localhost:5173' 
+             : 'mobiledetailhub.com';
+           const newUrl = `https://${baseDomain}/${businessConfig.slug}`;
+           console.log('Redirecting to:', newUrl);
+           window.location.href = newUrl;
+         }
+       } else {
         alert('Sorry, we don\'t currently serve this area. Please contact us for more information.');
       }
     } catch (error) {
