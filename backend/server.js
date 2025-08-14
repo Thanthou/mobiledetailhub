@@ -13,11 +13,18 @@ const PORT = process.env.PORT || 3001;
 // CORS configuration - MUST be first, before any other middleware
 app.use(cors({
   origin: function (origin, callback) {
+    // Log all origins for debugging
+    console.log('CORS check for origin:', origin);
+    
     // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
+    if (!origin) {
+      console.log('CORS: Allowing request with no origin');
+      return callback(null, true);
+    }
     
     // Allow any localhost port for development
     if (origin.startsWith('http://localhost:')) {
+      console.log('CORS: Allowing localhost origin:', origin);
       return callback(null, true);
     }
     
@@ -31,21 +38,24 @@ app.use(cors({
     
     // Allow Vercel preview URLs (for development and testing)
     if (origin.includes('.vercel.app')) {
+      console.log('CORS: Allowing Vercel preview origin:', origin);
       return callback(null, true);
     }
     
     // Allow Vercel production domain
     if (origin.includes('vercel.app') || origin.includes('vercel.com')) {
+      console.log('CORS: Allowing Vercel production origin:', origin);
       return callback(null, true);
     }
     
     // Check if origin is in allowed domains
     if (allowedDomains.includes(origin)) {
+      console.log('CORS: Allowing business domain origin:', origin);
       return callback(null, true);
     }
     
     // Log blocked origins for debugging
-    console.log('CORS blocked origin:', origin);
+    console.log('CORS BLOCKED origin:', origin);
     callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
@@ -55,6 +65,7 @@ app.use(cors({
 
 // Add CORS debugging middleware
 app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.path} from ${req.get('origin') || 'unknown origin'}`);
   next();
 });
 
@@ -74,6 +85,8 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Middleware to load business config based on domain
 // Only apply to routes that don't need business context
+// TEMPORARILY DISABLED FOR DEBUGGING
+/*
 app.use((req, res, next) => {
   // Skip business config loading for routes that don't need it
   if (req.path === '/api/health' || req.path === '/api/businesses' || req.path.startsWith('/api/business-config/')) {
@@ -94,6 +107,7 @@ app.use((req, res, next) => {
     });
   }
 });
+*/
 
 // SMS function disabled for now
 const sendSMS = async (phone, message) => {
@@ -126,14 +140,31 @@ const createTransporter = () => {
 
 // Routes
 app.get('/api/health', (req, res) => {
+  console.log('Health endpoint hit');
   res.json({ status: 'OK', message: 'Multi-Business Backend is running' });
+});
+
+// Simple test endpoint for debugging
+app.get('/api/test', (req, res) => {
+  console.log('Test endpoint hit from origin:', req.get('origin'));
+  res.json({ 
+    status: 'OK', 
+    message: 'Test endpoint working',
+    timestamp: new Date().toISOString(),
+    origin: req.get('origin')
+  });
 });
 
 // Get available businesses
 app.get('/api/businesses', (req, res) => {
+  console.log('Businesses endpoint hit');
   try {
+    console.log('Attempting to require shared utils...');
     const { listBusinesses, loadBusinessConfig } = require('../shared/utils/businessLoader.js');
+    console.log('Successfully loaded shared utils');
+    
     const businessSlugs = listBusinesses();
+    console.log('Business slugs:', businessSlugs);
     
     const businesses = businessSlugs.map(slug => {
       try {
@@ -153,6 +184,7 @@ app.get('/api/businesses', (req, res) => {
       }
     });
 
+    console.log('Sending businesses response:', businesses);
     res.json(businesses);
   } catch (error) {
     console.error('Error listing businesses:', error);
@@ -165,6 +197,7 @@ app.get('/api/businesses', (req, res) => {
 
 // Get business configuration by slug
 app.get('/api/business-config/:slug', (req, res) => {
+  console.log(`Business config endpoint hit for slug: ${req.params.slug}`);
   try {
     const { loadBusinessConfig } = require('../shared/utils/businessLoader.js');
     const { slug } = req.params;

@@ -33,16 +33,20 @@ const API_BASE_URL = config.apiUrl;
 
 export const getAvailableBusinesses = async (): Promise<Business[]> => {
   try {
+    console.log('Fetching businesses from:', `${API_BASE_URL}/api/businesses`);
     const response = await fetch(`${API_BASE_URL}/api/businesses`);
     
     if (!response.ok) {
+      console.error(`HTTP error! status: ${response.status}, statusText: ${response.statusText}`);
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     
     const businesses = await response.json();
+    console.log('Successfully loaded businesses:', businesses);
     return businesses;
   } catch (error) {
     console.error('Error fetching businesses:', error);
+    console.error('API_BASE_URL was:', API_BASE_URL);
     return [];
   }
 };
@@ -60,16 +64,20 @@ export const getBusinessBySlug = async (slug: string): Promise<Business | null> 
 
 export const loadBusinessConfig = async (businessSlug: string): Promise<BusinessConfig | null> => {
   try {
+    console.log(`Loading business config for ${businessSlug} from:`, `${API_BASE_URL}/api/business-config/${businessSlug}`);
     const response = await fetch(`${API_BASE_URL}/api/business-config/${businessSlug}`);
     
     if (!response.ok) {
+      console.error(`HTTP error loading config for ${businessSlug}! status: ${response.status}, statusText: ${response.statusText}`);
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     
     const config = await response.json();
+    console.log(`Successfully loaded config for ${businessSlug}:`, config);
     return config;
   } catch (error) {
     console.error(`Error loading business config for ${businessSlug}:`, error);
+    console.error('API_BASE_URL was:', API_BASE_URL);
     return null;
   }
 };

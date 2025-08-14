@@ -18,3 +18,11 @@ export const config = {
     mdh: 'mobiledetailhub.com'
   }
 };
+
+// Debug logging
+console.log('Environment config loaded:', {
+  apiUrl: config.apiUrl,
+  isProduction: config.isProduction,
+  isDevelopment: config.isDevelopment,
+  viteApiUrl: import.meta.env.VITE_API_URL
+});
