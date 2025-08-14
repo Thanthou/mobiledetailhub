@@ -52,21 +52,21 @@ class ApiService {
   }
 
   async submitContactForm(data: ContactFormData): Promise<ApiResponse> {
-    return this.makeRequest('/contact', {
+    return this.makeRequest('/api/contact', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
   async submitQuoteRequest(data: QuoteFormData): Promise<ApiResponse> {
-    return this.makeRequest('/quote', {
+    return this.makeRequest('/api/quote', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
   async checkHealth(): Promise<ApiResponse> {
-    return this.makeRequest('/health');
+    return this.makeRequest('/api/health');
   }
 }
 

@@ -34,6 +34,11 @@ app.use(cors({
       return callback(null, true);
     }
     
+    // Allow Vercel production domain
+    if (origin.includes('vercel.app') || origin.includes('vercel.com')) {
+      return callback(null, true);
+    }
+    
     // Check if origin is in allowed domains
     if (allowedDomains.includes(origin)) {
       return callback(null, true);

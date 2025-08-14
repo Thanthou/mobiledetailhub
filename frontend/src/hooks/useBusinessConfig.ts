@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { config } from '../config/environment';
 // No theme system needed - business config is loaded directly
 
 interface BusinessConfig {
@@ -239,7 +240,7 @@ export const useBusinessConfig = (): UseBusinessConfigReturn => {
         setCurrentBusinessSlug(businessSlug);
 
         // Load business-specific config
-        const businessResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/business-config/${businessSlug}`);
+        const businessResponse = await fetch(`${config.apiUrl}/api/business-config/${businessSlug}`);
         
         if (!businessResponse.ok) {
           throw new Error(`Failed to load business config: ${businessResponse.status}`);
@@ -271,7 +272,7 @@ export const useBusinessConfig = (): UseBusinessConfigReturn => {
         }
 
         // Load parent company config (MDH)
-        const parentResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/business-config/mdh`);
+        const parentResponse = await fetch(`${config.apiUrl}/api/business-config/mdh`);
         
         if (parentResponse.ok) {
           const parentData: ParentConfig = await parentResponse.json();
