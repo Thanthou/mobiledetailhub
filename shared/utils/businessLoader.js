@@ -11,11 +11,22 @@ const fs = require('fs');
  */
 function loadBusinessConfig(slug) {
   try {
-    const configPath = path.join(__dirname, '../../businesses', slug, 'config.js');
+    // Try multiple possible paths for different deployment scenarios
+    let configPath;
+    
+    // Path when running from backend/ directory (Render)
+    configPath = path.join(__dirname, '../businesses', slug, 'config.js');
+    console.log(`Trying path 1: ${configPath}`);
+    
+    // If that doesn't exist, try the path when running from root
+    if (!fs.existsSync(configPath)) {
+      configPath = path.join(__dirname, '../../businesses', slug, 'config.js');
+      console.log(`Trying path 2: ${configPath}`);
+    }
     
     // Check if config file exists
     if (!fs.existsSync(configPath)) {
-      throw new Error(`Business config not found for slug: ${slug}`);
+      throw new Error(`Business config not found for slug: ${slug} at path: ${configPath}`);
     }
 
     // Clear require cache to allow hot reloading in development
