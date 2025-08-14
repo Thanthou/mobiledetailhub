@@ -14,7 +14,7 @@ interface ContactProps {
 
 const Contact: React.FC<ContactProps> = ({ onRequestQuote }) => {
   const { businessConfig, isLoading, error, getBusinessInfoWithOverrides } = useBusinessConfig();
-  const { selectedLocation, setSelectedLocation } = useLocation();
+  const { selectedLocation, setSelectedLocation, hasValidLocation } = useLocation();
   const [showLocationInput, setShowLocationInput] = useState(false);
   const [expandedStates, setExpandedStates] = useState<Set<string>>(new Set());
   
@@ -187,9 +187,9 @@ const Contact: React.FC<ContactProps> = ({ onRequestQuote }) => {
                             onClick={() => setShowLocationInput(true)}
                             className="text-orange-500 hover:text-orange-400 text-lg hover:underline cursor-pointer bg-transparent border-none p-0 font-inherit transition-colors"
                           >
-                            {selectedLocation ? `${selectedLocation.city}, ${selectedLocation.state}` : businessInfo.address}
+                            {hasValidLocation() ? `${selectedLocation!.city}, ${selectedLocation!.state}` : businessInfo.address}
                           </button>
-                          {selectedLocation && (
+                          {hasValidLocation() && (
                             <button
                               onClick={() => setSelectedLocation(null)} // Clear location from context
                               className="text-xs text-gray-400 hover:text-white transition-colors"

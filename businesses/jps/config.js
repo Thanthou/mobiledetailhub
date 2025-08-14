@@ -32,6 +32,36 @@ module.exports = {
     'Colorado River'
   ],
 
+  // State-to-cities mapping for location handling
+  stateCities: {
+    "Arizona": [
+      "Bullhead City",
+      "Fort Mohave",
+      "Katherine Landing",
+      "Kingman",
+      "Lake Havasu City",
+      "Mohave Valley"
+    ],
+    "California": [
+      "Needles"
+    ],
+    "Nevada": [
+      "Laughlin"
+    ]
+  },
+
+  // City-to-business mapping for routing
+  cityToBusiness: {
+    "Bullhead City": "jps",
+    "Fort Mohave": "jps",
+    "Katherine Landing": "jps",
+    "Kingman": "jps",
+    "Lake Havasu City": "jps",
+    "Mohave Valley": "jps",
+    "Laughlin": "jps",
+    "Needles": "jps"
+  },
+
 
   services: {
     available: ['Detail', 'Ceramic Coating', 'Paint Protection Film'],

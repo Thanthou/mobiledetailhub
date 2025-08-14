@@ -199,12 +199,15 @@ const GetStarted: React.FC<GetStartedProps> = ({
     setSearchingLocation(true);
     
     try {
-      setSelectedLocation({
-        city: city || '',
-        state: state || '',
-        zipCode: zipCode || '',
-        fullLocation: location
-      });
+      // Only set location if we have both city and state
+      if (city && state) {
+        setSelectedLocation({
+          city: city,
+          state: state,
+          zipCode: zipCode || '',
+          fullLocation: location
+        });
+      }
       
       onLocationSubmit?.(location, zipCode, city, state);
       

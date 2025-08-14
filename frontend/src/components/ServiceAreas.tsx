@@ -26,7 +26,7 @@ const ServiceAreas: React.FC<ServiceAreasProps> = ({
   onLocationClick
 }) => {
   const { businessConfig } = useBusinessConfig();
-  const { selectedLocation } = useLocation();
+  const { selectedLocation, hasValidLocation } = useLocation();
   const [showServiceAreas, setShowServiceAreas] = useState(false);
   const [selectedState, setSelectedState] = useState<string | null>(null);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
@@ -59,8 +59,8 @@ const ServiceAreas: React.FC<ServiceAreasProps> = ({
 
     // Button text for subdomains - show selected location if available, otherwise show business address
     let buttonText: string;
-    if (selectedLocation && (variant === 'header' || variant === 'footer')) {
-      buttonText = `${selectedLocation.city}, ${selectedLocation.state}`;
+    if (hasValidLocation() && (variant === 'header' || variant === 'footer')) {
+      buttonText = `${selectedLocation!.city}, ${selectedLocation!.state}`;
     } else {
       buttonText = businessInfo.address;
     }
@@ -167,8 +167,8 @@ const ServiceAreas: React.FC<ServiceAreasProps> = ({
 
   // Button text for MDH - show selected location if available, otherwise show "Anywhere, USA"
   let buttonText: string;
-  if (selectedLocation && (variant === 'header' || variant === 'footer')) {
-    buttonText = `${selectedLocation.city}, ${selectedLocation.state}`;
+  if (hasValidLocation() && (variant === 'header' || variant === 'footer')) {
+    buttonText = `${selectedLocation!.city}, ${selectedLocation!.state}`;
   } else {
     buttonText = 'Anywhere, USA';
   }

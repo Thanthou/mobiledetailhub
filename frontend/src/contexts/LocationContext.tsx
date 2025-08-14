@@ -12,6 +12,7 @@ interface LocationContextType {
   setSelectedLocation: (location: LocationData | null) => void;
   clearLocation: () => void;
   updateLocationWithState: (city: string, state: string) => void;
+  hasValidLocation: () => boolean;
 }
 
 const LocationContext = createContext<LocationContextType | undefined>(undefined);
@@ -34,7 +35,14 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
     try {
       const saved = localStorage.getItem('selectedLocation');
       if (saved) {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        // Only return if we have complete location data
+        if (parsed && parsed.city && parsed.state) {
+          return parsed;
+        }
+        // If incomplete, remove from localStorage and return null
+        localStorage.removeItem('selectedLocation');
+        return null;
       }
       
       // Check URL parameters for city and business
@@ -52,9 +60,13 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
           fullLocation: cityFromUrl
         };
         
-        // Store this location for the business to use
-        localStorage.setItem('selectedLocation', JSON.stringify(locationData));
-        return locationData;
+        // Only store if we have both city and state
+        if (cityFromUrl && cityFromUrl.includes(',')) {
+          localStorage.setItem('selectedLocation', JSON.stringify(locationData));
+          return locationData;
+        }
+        // If no comma, don't store incomplete location data
+        return null;
       }
       
       return null;
@@ -65,7 +77,7 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
 
   // Persist to localStorage whenever location changes
   useEffect(() => {
-    if (selectedLocation) {
+    if (selectedLocation && selectedLocation.city && selectedLocation.state) {
       localStorage.setItem('selectedLocation', JSON.stringify(selectedLocation));
     } else {
       localStorage.removeItem('selectedLocation');
@@ -75,14 +87,17 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
   // Listen for localStorage changes from other components (like business config)
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'selectedLocation' && e.newValue) {
-        try {
-          const newLocation = JSON.parse(e.newValue);
-          setSelectedLocation(newLocation);
-        } catch {
-          // Ignore invalid JSON
+              if (e.key === 'selectedLocation' && e.newValue) {
+          try {
+            const newLocation = JSON.parse(e.newValue);
+            // Only set if we have complete location data
+            if (newLocation && newLocation.city && newLocation.state) {
+              setSelectedLocation(newLocation);
+            }
+          } catch {
+            // Ignore invalid JSON
+          }
         }
-      }
     };
 
     // Listen for storage events (when localStorage changes in other tabs/windows)
@@ -90,18 +105,18 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
     
     // Also check localStorage periodically for changes from same window
     const interval = setInterval(() => {
-      try {
-        const saved = localStorage.getItem('selectedLocation');
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          // Only update if the parsed location is different from current
-          if (!selectedLocation || JSON.stringify(parsed) !== JSON.stringify(selectedLocation)) {
-            setSelectedLocation(parsed);
+              try {
+          const saved = localStorage.getItem('selectedLocation');
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            // Only update if we have complete location data and it's different from current
+            if (parsed && parsed.city && parsed.state && (!selectedLocation || JSON.stringify(parsed) !== JSON.stringify(selectedLocation))) {
+              setSelectedLocation(parsed);
+            }
           }
+        } catch {
+          // Ignore errors
         }
-      } catch {
-        // Ignore errors
-      }
     }, 1000);
 
     return () => {
@@ -115,7 +130,7 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
   };
 
   const updateLocationWithState = (city: string, state: string) => {
-    if (selectedLocation && selectedLocation.city === city && !selectedLocation.state) {
+    if (selectedLocation && selectedLocation.city === city && !selectedLocation.state && city && state) {
       const updatedLocation: LocationData = {
         ...selectedLocation,
         state: state,
@@ -125,8 +140,12 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
     }
   };
 
+  const hasValidLocation = () => {
+    return !!(selectedLocation && selectedLocation.city && selectedLocation.state);
+  };
+
   return (
-    <LocationContext.Provider value={{ selectedLocation, setSelectedLocation, clearLocation, updateLocationWithState }}>
+    <LocationContext.Provider value={{ selectedLocation, setSelectedLocation, clearLocation, updateLocationWithState, hasValidLocation }}>
       {children}
     </LocationContext.Provider>
   );

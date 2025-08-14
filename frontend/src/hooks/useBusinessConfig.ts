@@ -266,8 +266,10 @@ export const useBusinessConfig = (): UseBusinessConfigReturn => {
               fullLocation: `${cityFromUrl}, ${cityState}`
             };
             
-            // Store in localStorage for the LocationContext to pick up
-            localStorage.setItem('selectedLocation', JSON.stringify(locationData));
+            // Only store if we have both city and state
+            if (cityFromUrl && cityState) {
+              localStorage.setItem('selectedLocation', JSON.stringify(locationData));
+            }
           }
         }
 
