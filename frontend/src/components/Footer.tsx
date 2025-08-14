@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Phone, Facebook, Instagram, Youtube } from 'lucide-react';
 import { useBusinessConfig } from '../hooks/useBusinessConfig';
 import { scrollToTop, scrollToServices, scrollToBottom, scrollToFAQ } from '../utils/scrollUtils';
@@ -28,6 +28,7 @@ interface FooterProps {
 
 const Footer: React.FC<FooterProps> = ({ onBookNow, onRequestQuote, businessSlug }) => {
   const { businessConfig, parentConfig, isLoading, error, getBusinessInfoWithOverrides } = useBusinessConfig();
+  const [showLocationInput, setShowLocationInput] = useState(false);
   
   if (isLoading) {
     return (
@@ -95,11 +96,33 @@ const Footer: React.FC<FooterProps> = ({ onBookNow, onRequestQuote, businessSlug
             <ServiceAreas 
               variant="footer" 
               onLocationClick={() => {
-                // Open location input field
-                console.log('Footer location clicked - should open location input');
-                // You can implement your own location input logic here
+                setShowLocationInput(true);
               }}
             />
+            
+            {/* Inline Location Input */}
+            {showLocationInput && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
+                  <h3 className="text-lg font-semibold mb-4">Enter New Location</h3>
+                  <GetStarted
+                    onLocationSubmit={(location, zipCode, city, state) => {
+                      // Handle location submission
+                      console.log('Location submitted:', { location, zipCode, city, state });
+                      setShowLocationInput(false);
+                    }}
+                    placeholder="Enter new location"
+                    className="w-full"
+                  />
+                  <button
+                    onClick={() => setShowLocationInput(false)}
+                    className="text-xs text-gray-500 hover:text-gray-700 mt-2"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Quick Links - Separate Column */}

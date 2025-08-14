@@ -22,6 +22,7 @@ const TikTokIcon: React.FC<{ className?: string }> = ({ className }) => (
 
 const Header: React.FC = () => {
   const { businessConfig, parentConfig, isLoading, error, getBusinessInfoWithOverrides } = useBusinessConfig();
+  const [showLocationInput, setShowLocationInput] = useState(false);
   
   if (isLoading) {
     return (
@@ -65,138 +66,162 @@ const Header: React.FC = () => {
 
   
   return (
-    <header className="absolute top-0 left-0 right-0 z-20 bg-black/20 backdrop-blur-sm">
-      <div className="max-w-7xl mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
-          {/* Logo/Business Name */}
-          <div className="text-white">
-            <div className="flex items-center space-x-3">
-              {/* Only show favicon for mdh */}
-              {isMdh && (
-                <img 
-                  src="/favicon.webp" 
-                  alt="Mobile Detail Hub Logo" 
-                  className="h-8 w-8 md:h-10 md:w-10"
-                />
-              )}
-              <h1 className="text-2xl md:text-3xl font-bold">{businessInfo.name}</h1>
-            </div>
-            {/* Only show phone and location if NOT mdh */}
-            {!isMdh && (
-              <div className="flex items-center space-x-4 text-sm text-gray-200 mt-1">
-                <div className="flex items-center space-x-1">
-                  <Phone className="h-4 w-4" />
-                  <span>{businessInfo.phone}</span>
-                </div>
-                <ServiceAreas 
-                  variant="header" 
-                  onLocationClick={() => {
-                    // Open location input field
-                    console.log('Header location clicked - should open location input');
-                    // You can implement your own location input logic here
-                  }}
-                />
+    <>
+      <header className="absolute top-0 left-0 right-0 z-20 bg-black/20 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            {/* Logo/Business Name */}
+            <div className="text-white">
+              <div className="flex items-center space-x-3">
+                {/* Only show favicon for mdh */}
+                {isMdh && (
+                  <img 
+                    src="/favicon.webp" 
+                    alt="Mobile Detail Hub Logo" 
+                    className="h-8 w-8 md:h-10 md:w-10"
+                  />
+                )}
+                <h1 className="text-2xl md:text-3xl font-bold">{businessInfo.name}</h1>
               </div>
-            )}
-          </div>
-
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            <nav className="flex items-center space-x-8">
-              {(header?.navLinks || [
-                { name: 'Home', href: '/' },
-                { name: 'Services', href: '/services' },
-                { name: 'FAQ', href: '/faq' },
-                { name: 'Contact', href: '/contact' }
-              ]).map((link, index) => {
-                // Skip gallery link
-                if (link.name === 'Gallery') return null;
-                
-                return (
-                  <a
-                    key={index}
-                    href={link.href}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      
-                      // Handle different navigation types
-                      if (link.href === '/') {
-                        scrollToTop();
-                      } else if (link.href === '/contact') {
-                        scrollToBottom();
-                      } else if (link.href === '/services') {
-                        scrollToServices();
-                      } else if (link.href === '/faq') {
-                        scrollToFAQ();
-                      }
-                      
-                      // Call onClick if it exists
-                      if (link.onClick) {
-                        link.onClick();
-                      }
+              {/* Only show phone and location if NOT mdh */}
+              {!isMdh && (
+                <div className="flex items-center space-x-4 text-sm text-gray-200 mt-1">
+                  <div className="flex items-center space-x-1">
+                    <Phone className="h-4 w-4" />
+                    <span>{businessInfo.phone}</span>
+                  </div>
+                  <ServiceAreas 
+                    variant="header" 
+                    onLocationClick={() => {
+                      setShowLocationInput(true);
                     }}
-                    className="text-white hover:text-orange-400 transition-colors duration-200 font-medium"
-                  >
-                    {link.name}
-                  </a>
-                );
-              })}
-            </nav>
-            
-            {/* Social Media Icons */}
-            {parentConfig?.socialMedia && (
-              <div className="flex items-center space-x-3 ml-4">
-                {parentConfig.socialMedia.facebook && (
-                  <a 
-                    href={parentConfig.socialMedia.facebook} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-white hover:text-orange-400 transition-colors duration-200"
-                  >
-                    <Facebook className="h-5 w-5" />
-                  </a>
-                )}
-                {parentConfig.socialMedia.instagram && (
-                  <a 
-                    href={parentConfig.socialMedia.instagram} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-white hover:text-orange-400 transition-colors duration-200"
-                  >
-                    <Instagram className="h-5 w-5" />
-                  </a>
-                )}
-                {parentConfig.socialMedia.tiktok && (
-                  <a 
-                    href={parentConfig.socialMedia.tiktok} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-white hover:text-orange-400 transition-colors duration-200"
-                  >
-                    <TikTokIcon className="h-5 w-5" />
-                  </a>
-                )}
-                {parentConfig.socialMedia.youtube && (
-                  <a 
-                    href={parentConfig.socialMedia.youtube} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-white hover:text-orange-400 transition-colors duration-200"
-                  >
-                    <Youtube className="h-5 w-5" />
-                  </a>
-                )}
-              </div>
-            )}
-          </div>
+                  />
+                </div>
+              )}
+            </div>
 
-          {/* Mobile Menu Button */}
-          <button className="md:hidden text-white hover:text-orange-400 transition-colors duration-200">
-            <Menu className="h-6 w-6" />
-          </button>
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-8">
+              <nav className="flex items-center space-x-8">
+                {(header?.navLinks || [
+                  { name: 'Home', href: '/' },
+                  { name: 'Services', href: '/services' },
+                  { name: 'FAQ', href: '/faq' },
+                  { name: 'Contact', href: '/contact' }
+                ]).map((link, index) => {
+                  // Skip gallery link
+                  if (link.name === 'Gallery') return null;
+                  
+                  return (
+                    <a
+                      key={index}
+                      href={link.href}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        
+                        // Handle different navigation types
+                        if (link.href === '/') {
+                          scrollToTop();
+                        } else if (link.href === '/contact') {
+                          scrollToBottom();
+                        } else if (link.href === '/services') {
+                          scrollToServices();
+                        } else if (link.href === '/faq') {
+                          scrollToFAQ();
+                        }
+                        
+                        // Call onClick if it exists
+                        if (link.onClick) {
+                          link.onClick();
+                        }
+                      }}
+                      className="text-white hover:text-orange-400 transition-colors duration-200 font-medium"
+                    >
+                      {link.name}
+                    </a>
+                  );
+                })}
+              </nav>
+              
+              {/* Social Media Icons */}
+              {parentConfig?.socialMedia && (
+                <div className="flex items-center space-x-3 ml-4">
+                  {parentConfig.socialMedia.facebook && (
+                    <a 
+                      href={parentConfig.socialMedia.facebook} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-white hover:text-orange-400 transition-colors duration-200"
+                    >
+                      <Facebook className="h-5 w-5" />
+                    </a>
+                  )}
+                  {parentConfig.socialMedia.instagram && (
+                    <a 
+                      href={parentConfig.socialMedia.instagram} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-white hover:text-orange-400 transition-colors duration-200"
+                    >
+                      <Instagram className="h-5 w-5" />
+                    </a>
+                  )}
+                  {parentConfig.socialMedia.tiktok && (
+                    <a 
+                      href={parentConfig.socialMedia.tiktok} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-white hover:text-orange-400 transition-colors duration-200"
+                    >
+                      <TikTokIcon className="h-5 w-5" />
+                    </a>
+                  )}
+                  {parentConfig.socialMedia.youtube && (
+                    <a 
+                      href={parentConfig.socialMedia.youtube} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-white hover:text-orange-400 transition-colors duration-200"
+                    >
+                      <Youtube className="h-5 w-5" />
+                    </a>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Mobile Menu Button */}
+            <button className="md:hidden text-white hover:text-orange-400 transition-colors duration-200">
+              <Menu className="h-6 w-6" />
+            </button>
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+      
+      {/* Location Input Modal - Outside header to avoid positioning issues */}
+      {showLocationInput && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4">Enter New Location</h3>
+            <GetStarted
+              onLocationSubmit={(location, zipCode, city, state) => {
+                // Handle location submission
+                console.log('Location submitted:', { location, zipCode, city, state });
+                setShowLocationInput(false);
+              }}
+              placeholder="Enter new location"
+              className="w-full"
+            />
+            <button
+              onClick={() => setShowLocationInput(false)}
+              className="text-xs text-gray-500 hover:text-gray-700 mt-2"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
