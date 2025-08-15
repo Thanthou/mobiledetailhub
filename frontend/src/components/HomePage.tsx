@@ -7,7 +7,7 @@ import BusinessSelector from './BusinessSelector';
 import Hero from './Hero';
 import ServicesGrid from './ServicesGrid';
 import Contact from './Contact';
-import FAQ from './FAQ';
+import FAQ from './faq_mdh';
 import Affiliates from './Affiliates';
 import Footer from './Footer';
 import QuoteModal from './QuoteModal';

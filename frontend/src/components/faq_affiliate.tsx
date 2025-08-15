@@ -28,7 +28,7 @@ interface FAQItem {
   question: string;
   answer: string;
   category: FAQCategory;
-  services?: ServiceTag[]; // optional filters for page-specific FAQs
+  services?: ServiceTag[];
 }
 
 interface FAQItemWithIndex extends FAQItem {
@@ -85,7 +85,7 @@ function buildServiceFAQs(cfg: any): FAQItem[] {
         category: 'Services',
         question: `Do you offer ceramic coating in ${primaryArea}?`,
         answer:
-          'Yes. We install professional ceramic coatings for long-lasting gloss and easier washes. Packages vary by durability; we’ll prep the paint properly before application.',
+          'Yes. We install professional ceramic coatings for long-lasting gloss and easier washes. Packages vary by durability; we\'ll prep the paint properly before application.',
       },
       {
         category: 'Services',
@@ -109,7 +109,7 @@ function buildServiceFAQs(cfg: any): FAQItem[] {
         category: 'Services',
         question: `Do you install Paint Protection Film (PPF) in ${primaryArea}?`,
         answer:
-          'Yes. PPF protects against rock chips and road rash. It’s a self-healing urethane film applied to high-impact areas or full panels.',
+          'Yes. PPF protects against rock chips and road rash. It\'s a self-healing urethane film applied to high-impact areas or full panels.',
       },
       {
         category: 'Services',
@@ -141,7 +141,64 @@ function buildServiceFAQs(cfg: any): FAQItem[] {
   return out;
 }
 
-const FAQ = React.forwardRef<FAQRef, FAQProps>(
+// ===== Generic affiliate FAQ items =====
+function buildGenericAffiliateFAQs(cfg: any): FAQItem[] {
+  if (!cfg) return [];
+
+  const businessName = cfg.business?.name || 'We';
+  const primaryArea = cfg.business?.address || 'your area';
+  const phone = cfg.business?.phone || '(702) 420-6066';
+
+  return [
+    {
+      category: 'Services',
+      question: `What mobile detailing services does ${businessName} offer?`,
+      answer: `${businessName} offers comprehensive mobile detailing including interior and exterior cleaning, ceramic coating, paint protection film (PPF), and specialized services for cars, trucks, SUVs, boats, and RVs.`,
+    },
+    {
+      category: 'Pricing & Quotes',
+      question: `How much does mobile detailing cost with ${businessName}?`,
+      answer: `Pricing varies based on vehicle size, condition, and services requested. ${businessName} offers competitive rates starting from $150 for basic detailing. Contact us for a personalized quote based on your specific needs.`,
+    },
+    {
+      category: 'Scheduling & Weather',
+      question: 'What happens if it rains on my scheduled detail day?',
+      answer: 'We monitor weather conditions and will reschedule if rain is expected during your appointment. We want to ensure the best results for your vehicle, so we\'ll work with you to find a suitable alternative time.',
+    },
+    {
+      category: 'Locations',
+      question: `What areas does ${businessName} service?`,
+      answer: `${businessName} services ${primaryArea} and surrounding regions. Our mobile service comes to you, so we can detail your vehicle at your home, office, or any convenient location.`,
+    },
+    {
+      category: 'Preparation',
+      question: 'How should I prepare my vehicle for detailing?',
+      answer: 'Remove personal items and trash from your vehicle. We\'ll handle the rest! For best results, try to avoid eating or smoking in your vehicle 24 hours before your appointment.',
+    },
+    {
+      category: 'Payments & Deposits',
+      question: 'What payment methods do you accept?',
+      answer: 'We accept cash, credit cards, and digital payments. A deposit may be required for larger projects like ceramic coating or PPF installation.',
+    },
+    {
+      category: 'Warranty & Guarantee',
+      question: 'Do you offer any warranties on your services?',
+      answer: 'Yes! Our ceramic coatings come with manufacturer warranties, and we stand behind all our work with a satisfaction guarantee. We\'ll make it right if you\'re not completely satisfied.',
+    },
+    {
+      category: 'Aftercare & Maintenance',
+      question: 'How do I maintain my vehicle after ceramic coating?',
+      answer: 'After ceramic coating, maintenance is simple! Regular washing with pH-neutral soap, avoiding automatic car washes with harsh chemicals, and periodic inspections will keep your coating performing optimally.',
+    },
+    {
+      category: 'General',
+      question: 'How long does a typical detail take?',
+      answer: 'A basic detail typically takes 2-3 hours, while ceramic coating can take 1-2 days depending on the package. We\'ll give you a specific timeline when you book your appointment.',
+    },
+  ];
+}
+
+const FAQAffiliate = React.forwardRef<FAQRef, FAQProps>(
   ({ autoExpand = false, onRequestQuote }, ref) => {
     const { businessConfig, isLoading, error } = useBusinessConfig();
     const [isExpanded, setIsExpanded] = useState(autoExpand);
@@ -151,19 +208,10 @@ const FAQ = React.forwardRef<FAQRef, FAQProps>(
       expand: () => setIsExpanded(true),
     }));
 
-    // ===== Build FAQ data (dynamic Services + static config items) =====
-    const staticItems: FAQItem[] =
-      (businessConfig?.faq?.items || []).map((item: any) => ({
-        question: item.question,
-        answer: item.answer,
-        category:
-          (item.category as FAQCategory) ||
-          'General', // fallback if config lacks category
-      })) ?? [];
-
+    // ===== Build FAQ data (generic affiliate + dynamic service items) =====
+    const genericAffiliateItems = buildGenericAffiliateFAQs(businessConfig);
     const dynamicServiceItems = buildServiceFAQs(businessConfig);
-
-    const faqData: FAQItem[] = [...dynamicServiceItems, ...staticItems];
+    const faqData: FAQItem[] = [...genericAffiliateItems, ...dynamicServiceItems];
 
     // ===== Structured data (JSON-LD) =====
     useEffect(() => {
@@ -307,72 +355,6 @@ const FAQ = React.forwardRef<FAQRef, FAQProps>(
 
     const categories = Object.keys(groupedFAQs);
 
-    // If no data at all
-    if (faqData.length === 0) {
-      return (
-        <section
-          className="bg-stone-700 py-16"
-          id="faq"
-          aria-labelledby="faq-heading"
-        >
-          <div className="max-w-6xl mx-auto px-4">
-            {!isExpanded ? (
-              <div className="text-center flex justify-center items-center">
-                <button
-                  onClick={toggleExpanded}
-                  className="bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-full px-12 py-6 md:px-16 md:py-8 flex items-center justify-center transition-all duration-300 transform hover:scale-105 shadow-lg"
-                  aria-label="View Frequently Asked Questions about mobile detailing services"
-                >
-                  <span className="text-2xl md:text-3xl font-bold">FAQ</span>
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                <header className="text-center">
-                  <h2
-                    id="faq-heading"
-                    className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2 leading-tight"
-                  >
-                    Frequently Asked Questions
-                  </h2>
-                  <p className="text-lg text-gray-300 mb-6">
-                    Have questions about our mobile detailing services? Contact
-                    us for more information.
-                  </p>
-                  <button
-                    onClick={toggleExpanded}
-                    className="inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors mb-6"
-                    aria-label="Hide FAQ section"
-                  >
-                    <ChevronUp className="h-5 w-5" />
-                    Hide FAQ
-                  </button>
-                </header>
-
-                <div className="text-center py-8">
-                  <div className="space-y-4">
-                    <p className="text-gray-300">
-                      <span className="text-orange-400 font-medium">
-                        Call us at {businessConfig.business.phone}
-                      </span>{' '}
-                      or{' '}
-                      <button
-                        onClick={onRequestQuote}
-                        className="text-orange-400 hover:text-orange-300 underline font-medium"
-                      >
-                        request a quote online
-                      </button>{' '}
-                      to get started.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </section>
-      );
-    }
-
     // ===== Main render =====
     return (
       <section className="bg-stone-700 py-16" id="faq" aria-labelledby="faq-heading">
@@ -469,6 +451,25 @@ const FAQ = React.forwardRef<FAQRef, FAQProps>(
                   </div>
                 ))}
               </div>
+
+              {/* Contact CTA */}
+              <div className="text-center py-8">
+                <div className="space-y-4">
+                  <p className="text-gray-300">
+                    <span className="text-orange-400 font-medium">
+                      Call us at {businessConfig.business.phone}
+                    </span>{' '}
+                    or{' '}
+                    <button
+                      onClick={onRequestQuote}
+                      className="text-orange-400 hover:text-orange-300 underline font-medium"
+                    >
+                      request a quote online
+                    </button>{' '}
+                    to get started.
+                  </p>
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -477,4 +478,4 @@ const FAQ = React.forwardRef<FAQRef, FAQProps>(
   }
 );
 
-export default FAQ;
+export default FAQAffiliate;
