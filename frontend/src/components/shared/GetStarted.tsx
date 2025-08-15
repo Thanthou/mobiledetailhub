@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { MapPin, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { findBusinessByLocation } from '../../utils/businessLoader';
@@ -21,6 +22,7 @@ const GetStarted: React.FC<GetStartedProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [apiLoaded, setApiLoaded] = useState(false);
   const [searchingLocation, setSearchingLocation] = useState(false);
+  const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
 
   const inputRef = useRef<HTMLInputElement>(null);
   const predictionsRef = useRef<HTMLDivElement>(null);
@@ -252,6 +254,20 @@ const GetStarted: React.FC<GetStartedProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Update dropdown position when predictions are shown
+  useEffect(() => {
+    if (showPredictions && inputRef.current) {
+      const rect = inputRef.current.getBoundingClientRect();
+      setDropdownStyle({
+        position: 'absolute',
+        top: rect.bottom + window.scrollY,
+        left: rect.left + window.scrollX,
+        width: rect.width,
+        zIndex: 9999,
+      });
+    }
+  }, [showPredictions, predictions.length]);
+
   return (
     <div className={`relative ${className}`}>
       {!apiLoaded && <div className="mb-2 text-xs text-gray-400 text-center">Loading Google Places…</div>}
@@ -299,10 +315,11 @@ const GetStarted: React.FC<GetStartedProps> = ({
         </div>
       )}
 
-      {showPredictions && predictions.length > 0 && (
+      {showPredictions && predictions.length > 0 && ReactDOM.createPortal(
         <div
           ref={predictionsRef}
-          className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50"
+          style={dropdownStyle}
+          className="bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto"
         >
           {predictions.map((sugg: any, i: number) => (
             <button
@@ -318,7 +335,8 @@ const GetStarted: React.FC<GetStartedProps> = ({
               </div>
             </button>
           ))}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

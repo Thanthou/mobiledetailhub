@@ -58,7 +58,7 @@ const Hero: React.FC<HeroProps> = ({ onBookNow, onRequestQuote }) => {
   const isMdh = businessConfig.slug === 'mdh';
   
   return (
-    <section className="hero-section flex items-end justify-center">
+    <section className="hero-section flex items-end justify-center relative overflow-visible z-[100]">
       {/* Header Overlay */}
       <Header />
       
