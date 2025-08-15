@@ -2,6 +2,7 @@ import React from 'react';
 import { Facebook, Instagram, Youtube } from 'lucide-react';
 import { useBusinessConfig } from '../hooks/useBusinessConfig';
 import LocationEditModal from './shared/LocationEditModal';
+import GetStarted from './shared/GetStarted';
 
 // Custom TikTok icon component
 const TikTokIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -122,7 +123,10 @@ const Footer: React.FC<FooterProps> = ({ businessSlug }) => {
           {businessSlug === 'mdh' && (
             <div className="max-w-2xl mx-auto w-full px-4 mt-12">
               <h3 className="text-2xl font-bold mb-6 text-orange-400 text-center">Ready to Get Started?</h3>
-              {/* The GetStarted component was removed, so this block is now empty */}
+              <GetStarted
+                placeholder="Enter your zip code or city"
+                className="w-full"
+              />
             </div>
           )}
         </div>

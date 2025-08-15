@@ -15,6 +15,15 @@ export interface Affiliate {
 
 // Master affiliates dictionary
 export const AFFILIATES_DICT: Record<string, Affiliate> = {
+  'testbrand': {
+    name: 'Test Brand',
+    description: 'This is a test brand',
+    logo: '/affiliates/testbrand.png',
+    url: 'https://example.com',
+    scale: 'scale-100',
+    verticalPosition: 'translate-y-0',
+    horizontalPosition: 'translate-x-0'
+  },
   '3d': {
     name: '3D',
     description: 'Professional auto detailing supplies and car care products',

@@ -201,9 +201,9 @@ app.get('/api/business-config/:slug', (req, res) => {
   try {
     const { loadBusinessConfig } = require('../shared/utils/businessLoader.js');
     const { slug } = req.params;
-    
     const config = loadBusinessConfig(slug);
-    
+    // Debug log:
+    console.log('Loaded config for', slug, JSON.stringify(config, null, 2));
     res.json(config);
   } catch (error) {
     console.error(`Error loading business config for ${req.params.slug}:`, error);

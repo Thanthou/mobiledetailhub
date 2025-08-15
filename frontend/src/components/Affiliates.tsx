@@ -4,6 +4,7 @@ import { getAffiliates } from '../config/affiliates';
 
 const Affiliates: React.FC = () => {
   const { businessConfig, isLoading, error } = useBusinessConfig();
+  console.log('Affiliates businessConfig:', businessConfig);
 
   // Show loading state while waiting for config
   if (isLoading || !businessConfig) {
@@ -39,6 +40,7 @@ const Affiliates: React.FC = () => {
     // Old items-based system (for backward compatibility)
     affiliateItems = affiliates.items;
   }
+  console.log('Affiliate items to render:', affiliateItems);
   
   // If no affiliates data in config, show default affiliates
   if (!affiliates || affiliateItems.length === 0) {

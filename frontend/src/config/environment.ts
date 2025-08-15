@@ -13,8 +13,8 @@ export const config = {
   
   // Business domains
   domains: {
-    jps: 'jps.mobiledetailhub.com',
-    abc: 'abc.mobiledetailhub.com',
+    jps: 'mobiledetailhub.com/jps',
+    abc: 'mobiledetailhub.com/abc',
     mdh: 'mobiledetailhub.com'
   }
 };
