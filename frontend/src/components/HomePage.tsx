@@ -7,7 +7,8 @@ import BusinessSelector from './BusinessSelector';
 import Hero from './Hero';
 import ServicesGrid from './ServicesGrid';
 import Contact from './Contact';
-import FAQ from './faq_mdh';
+import FAQAffiliate from './faq_affiliate';
+import FAQMDH from './faq_mdh';
 import Affiliates from './Affiliates';
 import Footer from './Footer';
 import QuoteModal from './QuoteModal';
@@ -255,7 +256,11 @@ const HomePage: React.FC = () => {
 
       {/* FAQ Section */}
       <div id="faq">
-        <FAQ />
+        {currentBusiness === 'mdh' ? (
+          <FAQMDH onRequestQuote={openQuoteModal} />
+        ) : (
+          <FAQAffiliate onRequestQuote={openQuoteModal} />
+        )}
       </div>
 
       {/* Affiliates Section */}

@@ -58,8 +58,8 @@ const Contact: React.FC<ContactProps> = ({ onRequestQuote }) => {
     let targetUrl = '';
     
     if (currentDomain === 'localhost' || currentDomain.includes('127.0.0.1')) {
-      // Development: use query parameter
-      targetUrl = `/?business=${businessSlug}&city=${encodeURIComponent(city)}`;
+      // Development: use path routing
+      targetUrl = `/${businessSlug}`;
     } else {
       // Production: use subdomain
       const currentProtocol = window.location.protocol;
@@ -189,15 +189,6 @@ const Contact: React.FC<ContactProps> = ({ onRequestQuote }) => {
                           >
                             {hasValidLocation() ? `${selectedLocation!.city}, ${selectedLocation!.state}` : businessInfo.address}
                           </button>
-                          {hasValidLocation() && (
-                            <button
-                              onClick={() => setSelectedLocation(null)} // Clear location from context
-                              className="text-xs text-gray-400 hover:text-white transition-colors"
-                              title="Clear location"
-                            >
-                              ✕
-                            </button>
-                          )}
                         </div>
                       )}
                     </div>

@@ -215,12 +215,15 @@ const GetStarted: React.FC<GetStartedProps> = ({
       
              if (businessConfig) {
          if (businessConfig.slug === 'mdh') {
-           // Stay on current domain if it's MDH
            navigate('/');
+           if (window.location.pathname === '/') {
+             window.location.reload();
+           }
          } else {
-           // Route to the appropriate business using React Router
-           console.log('Navigating to business:', businessConfig.slug);
            navigate(`/${businessConfig.slug}`);
+           if (window.location.pathname === `/${businessConfig.slug}`) {
+             window.location.reload();
+           }
          }
        } else {
         alert('Sorry, we don\'t currently serve this area. Please contact us for more information.');
