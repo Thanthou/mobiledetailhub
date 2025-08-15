@@ -875,13 +875,6 @@ const FAQMDH = React.forwardRef<FAQRef, FAQProps>(
                 <div className="text-center py-8">
                   <div className="space-y-4">
                     <p className="text-gray-300">
-                      {businessConfig?.business?.phone ? (
-                        <>
-                          <span className="text-orange-400 font-medium">
-                            Call us at {businessConfig.business.phone}
-                          </span>{" "}
-                        </>
-                      ) : null}
                       {onRequestQuote ? (
                         <>
                           or{" "}
