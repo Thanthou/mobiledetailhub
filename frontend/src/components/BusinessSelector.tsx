@@ -89,7 +89,9 @@ const BusinessSelector: React.FC<BusinessSelectorProps> = ({ onBusinessChange, s
                   {selectedBusinessData?.name || 'Select Business'}
                 </div>
                 <div className="text-xs text-gray-500">
-                  {selectedBusinessData?.domain || 'No domain'}
+                  {selectedBusinessData?.slug === 'mdh'
+                    ? 'mobiledetailhub.com'
+                    : `mobiledetailhub.com/${selectedBusinessData?.slug}`}
                 </div>
                 {isChanging && (
                   <div className="text-xs text-blue-500 mt-1">Switching...</div>
@@ -112,7 +114,7 @@ const BusinessSelector: React.FC<BusinessSelectorProps> = ({ onBusinessChange, s
                     }`}
                   >
                     <div className="font-medium">{business.name}</div>
-                    <div className="text-xs text-gray-500">{business.domain}</div>
+                    <div className="text-xs text-gray-500">{business.slug === 'mdh' ? 'mobiledetailhub.com' : `mobiledetailhub.com/${business.slug}`}</div>
                     {isChanging && business.slug !== selectedBusiness && (
                       <div className="text-xs text-gray-400 mt-1">Please wait...</div>
                     )}

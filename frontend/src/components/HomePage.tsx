@@ -229,10 +229,12 @@ const HomePage: React.FC = () => {
   return (
     <div className="min-h-screen bg-stone-900">
       {/* Business Selector (Development Only) */}
-      <BusinessSelector
-        onBusinessChange={handleBusinessChange}
-        selectedBusiness={currentBusiness}
-      />
+      {import.meta.env.DEV && (
+        <BusinessSelector
+          onBusinessChange={handleBusinessChange}
+          selectedBusiness={currentBusiness}
+        />
+      )}
       
       {/* Hero Section */}
       <Hero
