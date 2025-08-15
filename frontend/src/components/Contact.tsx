@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Phone, Mail, MapPin } from 'lucide-react';
 import { useBusinessConfig } from '../hooks/useBusinessConfig';
 import { useLocation } from '../contexts/LocationContext';
-import { GetStarted } from './shared';
+import LocationEditModal from './shared/LocationEditModal';
 import { 
   BUSINESS_SERVICE_AREAS, 
   CITY_TO_BUSINESS_MAPPING 
@@ -14,8 +14,7 @@ interface ContactProps {
 
 const Contact: React.FC<ContactProps> = ({ onRequestQuote }) => {
   const { businessConfig, isLoading, error, getBusinessInfoWithOverrides } = useBusinessConfig();
-  const { selectedLocation, setSelectedLocation, hasValidLocation } = useLocation();
-  const [showLocationInput, setShowLocationInput] = useState(false);
+  const { setSelectedLocation } = useLocation();
   const [expandedStates, setExpandedStates] = useState<Set<string>>(new Set());
   
   const toggleState = (state: string) => {
@@ -84,12 +83,6 @@ const Contact: React.FC<ContactProps> = ({ onRequestQuote }) => {
     setSelectedLocation(locationData);
   };
 
-  const isClickableLocation = (location: string) => {
-    // Check if location matches "City, ST" format
-    const cityStateMatch = location.match(/^(.+?),\s*([A-Z]{2})$/);
-    return cityStateMatch !== null;
-  };
-
   const parseLocation = (location: string) => {
     const cityStateMatch = location.match(/^(.+?),\s*([A-Z]{2})$/);
     if (cityStateMatch) {
@@ -128,7 +121,7 @@ const Contact: React.FC<ContactProps> = ({ onRequestQuote }) => {
 
   // Get business info with overrides applied
   const businessInfo = getBusinessInfoWithOverrides;
-  const { contact, serviceLocations } = businessConfig;
+  const { serviceLocations } = businessConfig;
   
 
 
@@ -161,36 +154,12 @@ const Contact: React.FC<ContactProps> = ({ onRequestQuote }) => {
                     </div>
                     <div className="text-left w-48">
                       <h3 className="font-semibold text-white">Location</h3>
-                       {showLocationInput ? (
-                         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                           <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
-                             <h3 className="text-lg font-semibold mb-4">Enter New Location</h3>
-                             <GetStarted
-                               onLocationSubmit={(location, zipCode, city, state) => {
-                                 // Location will be handled by GetStarted component
-                                 setShowLocationInput(false);
-                               }}
-                               placeholder="Enter new location"
-                               className="w-full"
-                             />
-                             <button
-                               onClick={() => setShowLocationInput(false)}
-                               className="text-xs text-gray-500 hover:text-gray-700 mt-2"
-                             >
-                               Cancel
-                             </button>
-                           </div>
-                         </div>
-                       ) : (
-                        <div className="flex items-center space-x-2">
-                          <button
-                            onClick={() => setShowLocationInput(true)}
-                            className="text-orange-500 hover:text-orange-400 text-lg hover:underline cursor-pointer bg-transparent border-none p-0 font-inherit transition-colors"
-                          >
-                            {hasValidLocation() ? `${selectedLocation!.city}, ${selectedLocation!.state}` : businessInfo.address}
-                          </button>
-                        </div>
-                      )}
+                      <LocationEditModal
+                        placeholder="Enter new location"
+                        buttonClassName="text-orange-500"
+                        fallbackText={businessInfo.address}
+                        showIcon={false}
+                      />
                     </div>
                   </div>
 

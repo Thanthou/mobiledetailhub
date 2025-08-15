@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Phone, Menu, Facebook, Instagram, Youtube } from 'lucide-react';
 import { useBusinessConfig } from '../hooks/useBusinessConfig';
 import { scrollToTop, scrollToServices, scrollToBottom, scrollToFAQ } from '../utils/scrollUtils';
-import { GetStarted } from './shared';
-import ServiceAreas from './ServiceAreas';
+import LocationEditModal from './shared/LocationEditModal';
 
 // Custom TikTok icon component
 const TikTokIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -22,7 +21,6 @@ const TikTokIcon: React.FC<{ className?: string }> = ({ className }) => (
 
 const Header: React.FC = () => {
   const { businessConfig, parentConfig, isLoading, error, getBusinessInfoWithOverrides } = useBusinessConfig();
-  const [showLocationInput, setShowLocationInput] = useState(false);
   
   if (isLoading) {
     return (
@@ -90,11 +88,12 @@ const Header: React.FC = () => {
                     <Phone className="h-4 w-4" />
                     <span>{businessInfo.phone}</span>
                   </div>
-                  <ServiceAreas 
-                    variant="header" 
-                    onLocationClick={() => {
-                      setShowLocationInput(true);
-                    }}
+                  <LocationEditModal
+                    placeholder="Enter new location"
+                    buttonClassName="text-orange-500"
+                    fallbackText={businessInfo.address}
+                    showIcon={true}
+                    gapClassName="space-x-2"
                   />
                 </div>
               )}
@@ -198,28 +197,6 @@ const Header: React.FC = () => {
         </div>
       </header>
       
-      {/* Location Input Modal - Outside header to avoid positioning issues */}
-      {showLocationInput && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold mb-4">Enter New Location</h3>
-            <GetStarted
-              onLocationSubmit={(location, zipCode, city, state) => {
-                // Handle location submission
-                setShowLocationInput(false);
-              }}
-              placeholder="Enter new location"
-              className="w-full"
-            />
-            <button
-              onClick={() => setShowLocationInput(false)}
-              className="text-xs text-gray-500 hover:text-gray-700 mt-2"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
     </>
   );
 };

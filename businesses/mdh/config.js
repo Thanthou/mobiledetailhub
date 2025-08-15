@@ -110,7 +110,7 @@ module.exports = {
   affiliates: {
     headline: 'Trusted brands we work with',
     // Just list the affiliate keywords - the full data comes from the master affiliates config
-    keywords: ['ceramic_pro', 'xpel']
+    keywords: ['ceramic_pro', 'xpel','underdog', 'yot-stik', 'starke', 'rupes', 'poka', 'mtm_hydro', 'mirka', 'menzerna', 'lamin-x', 'lake-country', 'koch']
   },
 
   // Booking & Links
