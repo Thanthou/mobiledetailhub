@@ -11,8 +11,7 @@ import ContactMDH from './contact/ContactMDH';
 import FAQAffiliate from './faq_affiliate';
 import FAQMDH from './faq_mdh';
 import Affiliates from './Affiliates';
-import FooterMDH from './FooterMDH';
-import FooterAffiliate from './FooterAffiliate';
+import { FooterMDH, FooterAffiliate } from './footer';
 import QuoteModal from './QuoteModal';
 
 

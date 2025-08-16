@@ -1,7 +1,7 @@
 import React from 'react';
 import { Facebook, Instagram, Youtube } from 'lucide-react';
-import { useBusinessConfig } from '../hooks/useBusinessConfig';
-import CTAButtonsContainer from './shared/CTAButtonsContainer';
+import { useBusinessConfig } from '../../hooks/useBusinessConfig';
+import CTAButtonsContainer from '../shared/CTAButtonsContainer';
 
 // Custom TikTok icon component
 const TikTokIcon: React.FC<{ className?: string }> = ({ className }) => (
