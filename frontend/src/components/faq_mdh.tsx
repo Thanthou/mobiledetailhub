@@ -503,7 +503,7 @@ function buildServiceFAQs(cfg: any): FAQItem[] {
     out.push(
       {
         category: "Services",
-        question: `What does a full mobile detail include in ${primaryArea}?`,
+        question: `What does a full mobile detail include?`,
         answer:
           "Our standard mobile detail covers a hand wash, decontamination, paint-safe drying, wheels/tires, interior vacuum, crevice cleaning, interior glass, and wipe-down. Heavier stains, pet hair, or polishing can be added as upgrades.",
       },
@@ -519,7 +519,7 @@ function buildServiceFAQs(cfg: any): FAQItem[] {
     out.push(
       {
         category: "Services",
-        question: `Do you offer ceramic coating in ${primaryArea}?`,
+        question: `Do you offer ceramic coating?`,
         answer:
           "Yes. We install professional ceramic coatings for long-lasting gloss and easier washes. Packages vary by durability; we'll prep the paint properly before application.",
       },
@@ -542,7 +542,7 @@ function buildServiceFAQs(cfg: any): FAQItem[] {
     out.push(
       {
         category: "Services",
-        question: `Do you install Paint Protection Film (PPF) in ${primaryArea}?`,
+        question: `Do you install Paint Protection Film (PPF)?`,
         answer:
           "Yes. PPF protects against rock chips and road rash. It's a self-healing urethane film applied to high-impact areas or full panels.",
       },

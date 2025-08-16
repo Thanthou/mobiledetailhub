@@ -257,9 +257,9 @@ const HomePage: React.FC = () => {
       {/* FAQ Section */}
       <div id="faq">
         {currentBusiness === 'mdh' ? (
-          <FAQMDH onRequestQuote={openQuoteModal} />
+          <FAQMDH onRequestQuote={openQuoteModal} autoCollapseOnScroll={true} />
         ) : (
-          <FAQAffiliate onRequestQuote={openQuoteModal} />
+          <FAQAffiliate onRequestQuote={openQuoteModal} autoCollapseOnScroll={true} />
         )}
       </div>
 

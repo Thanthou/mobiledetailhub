@@ -3,6 +3,7 @@ import { Facebook, Instagram, Youtube } from 'lucide-react';
 import { useBusinessConfig } from '../hooks/useBusinessConfig';
 import LocationEditModal from './shared/LocationEditModal';
 import GetStarted from './shared/GetStarted';
+import CTAButtonsContainer from './shared/CTAButtonsContainer';
 
 // Custom TikTok icon component
 const TikTokIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -21,9 +22,10 @@ const TikTokIcon: React.FC<{ className?: string }> = ({ className }) => (
 
 interface FooterProps {
   businessSlug?: string; // Add business slug to determine which CTA to show
+  onRequestQuote?: () => void; // Add this line
 }
 
-const Footer: React.FC<FooterProps> = ({ businessSlug }) => {
+const Footer: React.FC<FooterProps> = ({ businessSlug, onRequestQuote }) => {
   const { businessConfig, parentConfig, isLoading, error, getBusinessInfoWithOverrides } = useBusinessConfig();
   
   if (isLoading) {
@@ -52,47 +54,25 @@ const Footer: React.FC<FooterProps> = ({ businessSlug }) => {
 
   return (
     <footer className="bg-stone-800 text-white py-16">
-      <div className="max-w-7xl mx-auto px-8">
+      <div className="max-w-6xl mx-auto px-4">
         {/* Header Row */}
         <div className="grid grid-cols-3 mb-2">
-          <div className="text-center font-bold text-orange-400 text-xl">Get In Touch</div>
           <div className="text-center font-bold text-orange-400 text-xl">Quick Links</div>
           <div className="text-center font-bold text-orange-400 text-xl">Follow Us</div>
+          <div className="text-center font-bold text-orange-400 text-xl">&nbsp;</div>
         </div>
 
         {/* Content and Google field wrapper */}
         <div className="mb-12 space-y-2 ml-0">
-          <div className="grid grid-cols-3 gap-x-8">
-            {/* Column 1: Get In Touch */}
-            <div className="flex flex-col space-y-2 ml-20">
-              <div className="flex items-center space-x-3 text-left w-full">
-                <div className="w-6 flex-shrink-0 flex">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="text-orange-500">
-                    <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
-                  </svg>
-                </div>
-                <button className="text-lg hover:text-orange-400 transition-colors duration-200 hover:underline cursor-pointer bg-transparent border-none p-0 font-inherit text-left">
-                  {businessInfo.email}
-                </button>
-              </div>
-              <div className="flex items-center w-full">
-                <LocationEditModal
-                  placeholder="Enter your city or zip code"
-                  buttonClassName="text-orange-500"
-                  fallbackText={businessInfo.address}
-                  showIcon={true}
-                  gapClassName="space-x-4"
-                />
-              </div>
-            </div>
-            {/* Column 2: Quick Links */}
+          <div className="grid grid-cols-3 gap-x-4">
+            {/* Column 1: Quick Links */}
             <div className="flex flex-col space-y-2 ml-40 max-w-[100px] w-full">
               <a href="/" className="text-lg hover:text-orange-400 transition-colors duration-200 flex items-center cursor-pointer text-left">Home</a>
               <a href="/services" className="text-lg hover:text-orange-400 transition-colors duration-200 flex items-center cursor-pointer text-left">Services</a>
               <a href="/faq" className="text-lg hover:text-orange-400 transition-colors duration-200 flex items-center cursor-pointer text-left">FAQ</a>
               <a href="/contact" className="text-lg hover:text-orange-400 transition-colors duration-200 flex items-center cursor-pointer text-left">Contact</a>
             </div>
-            {/* Column 3: Follow Us */}
+            {/* Column 2: Follow Us */}
             <div className="flex flex-col space-y-2 ml-32 max-w-[130px] w-full">
               {parentConfig?.socialMedia?.facebook && (
                 <a href={parentConfig.socialMedia.facebook} target="_blank" rel="noopener noreferrer" className="text-white hover:text-orange-400 transition-colors duration-200 flex items-center space-x-2 text-left">
@@ -119,6 +99,16 @@ const Footer: React.FC<FooterProps> = ({ businessSlug }) => {
                 </a>
               )}
             </div>
+            {/* Column 3: CTA Buttons (affiliates only) */}
+            <div className="flex flex-col items-center justify-start min-h-[180px]">
+              {businessSlug !== 'mdh' && (
+                <CTAButtonsContainer 
+                  onBookNow={undefined} // You can pass a real handler if you want Book Now to do something
+                  onRequestQuote={onRequestQuote}
+                  className="w-full max-w-xs"
+                />
+              )}
+            </div>
           </div>
           {businessSlug === 'mdh' && (
             <div className="max-w-2xl mx-auto w-full px-4 mt-12">
@@ -133,6 +123,8 @@ const Footer: React.FC<FooterProps> = ({ businessSlug }) => {
 
         {/* Bottom Section */}
         <div className="border-t border-stone-600 pt-8">
+          {/* Vertically stacked CTA buttons for affiliates only */}
+          {/* (Moved to column 4 above) */}
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="text-center md:text-left mb-4 md:mb-0">
               <p className="text-gray-300">

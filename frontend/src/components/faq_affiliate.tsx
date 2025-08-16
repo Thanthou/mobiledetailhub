@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useBusinessConfig } from "../hooks/useBusinessConfig";
+import { useLocation } from '../contexts/LocationContext';
+import CTAButtonsContainer from './shared/CTAButtonsContainer';
 
 /** =============================================
  * Affiliate FAQ (SEO-optimized + Modularized)
@@ -36,6 +38,7 @@ interface FAQItemWithIndex extends FAQItem {
 interface FAQProps {
   autoExpand?: boolean;
   onRequestQuote?: () => void;
+  onBookNow?: () => void; // <-- Add this line
   /** Optional UX toggle — defaults to false for better engagement/SEO */
   autoCollapseOnScroll?: boolean;
 }
@@ -52,8 +55,9 @@ function getGeoParts(cfg: any) {
   // Prefer structured geo if present; fall back to address string.
   const city = business.city || business.locality || "Your City";
   const state = business.state || business.region || "Your State";
-  const zip = business.zip || business.postalCode || "Your ZIP";
-  const address = business.address || `${city}, ${state} ${zip}`;
+  // Remove all fallback to 'Your ZIP'
+  const zip = business.zip || business.postalCode || '';
+  const address = business.address || `${city}, ${state}${zip ? ' ' + zip : ''}`;
 
   const primaryArea = address;
   const nearbyList = serviceLocations?.length
@@ -72,7 +76,8 @@ const AFFILIATE_FAQ_SERVICES = (cfg: any): FAQItem[] => {
   return [
     {
       category: "Services",
-      question: `What mobile detailing services do you offer in ${cityState} (${zip})?`,
+      // Remove (Your ZIP) from question
+      question: `What mobile detailing services do you offer in ${cityState}?`,
       answer:
         `We provide full-service mobile car detailing in ${cityState} — exterior wash, decon (iron/tar/clay), paint-safe drying, wheel & tire cleaning, interior vacuuming and crevice work, interior glass, and protectants. Add-ons include one-step & multi-step machine polishing, ceramic coating, headlight restoration, odor removal, and paint protection film (PPF).`,
     },
@@ -84,7 +89,8 @@ const AFFILIATE_FAQ_SERVICES = (cfg: any): FAQItem[] => {
     },
     {
       category: "Services",
-      question: `Do you install Paint Protection Film (PPF) near ${zip}?`,
+      // Remove (Your ZIP) from question
+      question: `Do you install Paint Protection Film (PPF) near ${cityState}?`,
       answer:
         `We install self-healing urethane PPF on high-impact areas (front bumper, hood, fenders, mirrors) or full panels. PPF helps prevent rock chips and road rash on ${city} highways and local roads, and can be combined with a ceramic top coat for easier cleaning.`,
     },
@@ -320,10 +326,30 @@ export const AFFILIATE_FAQ_ITEMS = (cfg: any): FAQItem[] => buildAffiliateItems(
 // ===== Component =====
 const FAQAffiliateOptimized = React.forwardRef<FAQRef, FAQProps>(
   (
-    { autoExpand = false, onRequestQuote, autoCollapseOnScroll = false },
+    { autoExpand = false, onRequestQuote, onBookNow, autoCollapseOnScroll = false },
     ref
   ) => {
     const { businessConfig, isLoading, error } = useBusinessConfig();
+    const { selectedLocation, hasValidLocation } = useLocation();
+
+    // Merge selected location into businessConfig for geo context
+    const geoConfig = useMemo(() => {
+      if (!businessConfig) return null;
+      if (hasValidLocation() && selectedLocation) {
+        // Clone businessConfig and override city/state/zip
+        return {
+          ...businessConfig,
+          business: {
+            ...businessConfig.business,
+            city: selectedLocation.city,
+            state: selectedLocation.state,
+            zip: selectedLocation.zipCode,
+            address: `${selectedLocation.city}, ${selectedLocation.state} ${selectedLocation.zipCode || ''}`.trim(),
+          },
+        };
+      }
+      return businessConfig;
+    }, [businessConfig, hasValidLocation, selectedLocation]);
 
     const [isExpanded, setIsExpanded] = useState(autoExpand);
     const [openItems, setOpenItems] = useState<number[]>([]);
@@ -335,9 +361,9 @@ const FAQAffiliateOptimized = React.forwardRef<FAQRef, FAQProps>(
 
     // Build data
     const faqData: FAQItem[] = useMemo(() => {
-      if (!businessConfig) return [];
-      return AFFILIATE_FAQ_ITEMS(businessConfig);
-    }, [businessConfig]);
+      if (!geoConfig) return [];
+      return AFFILIATE_FAQ_ITEMS(geoConfig);
+    }, [geoConfig]);
 
     // JSON-LD FAQPage schema
     useEffect(() => {
@@ -368,24 +394,51 @@ const FAQAffiliateOptimized = React.forwardRef<FAQRef, FAQProps>(
       script.textContent = JSON.stringify(structuredData);
     }, [faqData]);
 
-    // Optional auto-collapse on scroll
+    // Refactored auto-collapse on scroll (always mount, robust logic)
     useEffect(() => {
       if (!autoCollapseOnScroll || typeof window === "undefined") return;
+
       const handleScroll = () => {
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
         const windowHeight = window.innerHeight;
         const documentHeight = document.documentElement.scrollHeight;
         const faqSection = document.getElementById("faq");
         if (!faqSection) return;
-        const r = faqSection.getBoundingClientRect();
-        if (scrollTop + windowHeight >= documentHeight - 50 || r.top > windowHeight * 0.95) {
+        const faqRect = faqSection.getBoundingClientRect();
+        // Collapse if FAQ is scrolled above viewport (with 100px threshold)
+        if (faqRect.bottom < -100) {
+          setIsExpanded(false);
+          setOpenItems([]);
+          setOpenCategories([]);
+        }
+        // Collapse if FAQ is scrolled below viewport (with 100px threshold)
+        else if (faqRect.top > windowHeight + 100) {
+          setIsExpanded(false);
+          setOpenItems([]);
+          setOpenCategories([]);
+        }
+        // Collapse if user is near the bottom of the page (within 200px)
+        else if (scrollTop + windowHeight >= documentHeight - 200) {
           setIsExpanded(false);
           setOpenItems([]);
           setOpenCategories([]);
         }
       };
-      window.addEventListener("scroll", handleScroll);
-      return () => window.removeEventListener("scroll", handleScroll);
+
+      // Throttle scroll events for better performance
+      let ticking = false;
+      const throttledScroll = () => {
+        if (!ticking) {
+          requestAnimationFrame(() => {
+            handleScroll();
+            ticking = false;
+          });
+          ticking = true;
+        }
+      };
+
+      window.addEventListener("scroll", throttledScroll);
+      return () => window.removeEventListener("scroll", throttledScroll);
     }, [autoCollapseOnScroll]);
 
     // UI helpers
@@ -412,7 +465,7 @@ const FAQAffiliateOptimized = React.forwardRef<FAQRef, FAQProps>(
     const categories = useMemo(() => Object.keys(groupedFAQs), [groupedFAQs]);
 
     // Dynamic heading bits
-    const geo = getGeoParts(businessConfig || {});
+    const geo = getGeoParts(geoConfig || {});
 
     if (isLoading || !businessConfig) {
       return (
@@ -540,15 +593,11 @@ const FAQAffiliateOptimized = React.forwardRef<FAQRef, FAQProps>(
 
               <div className="text-center py-8">
                 <div className="space-y-4">
-                  <p className="text-gray-300">
-                    <button
-                      onClick={onRequestQuote}
-                      className="text-orange-400 hover:text-orange-300 underline font-medium"
-                    >
-                      Request an instant quote
-                    </button>
-                    {" "}or book online in minutes.
-                  </p>
+                  {/* Replace the text and link with CTAButtonsContainer */}
+                  <CTAButtonsContainer 
+                    onBookNow={onBookNow}
+                    onRequestQuote={onRequestQuote}
+                  />
                 </div>
               </div>
             </div>

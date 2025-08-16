@@ -14,7 +14,7 @@ const CTAButtonsContainer: React.FC<CTAButtonsContainerProps> = ({
 }) => {
   return (
     <div className={`text-center space-y-4 ${className}`}>
-      <div className="flex flex-col sm:flex-row gap-4 justify-center">
+      <div className="flex flex-col gap-4 justify-center">
         <CTAButton 
           type="book" 
           onClick={onBookNow}
