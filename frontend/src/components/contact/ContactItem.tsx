@@ -1,8 +1,7 @@
 import React from 'react';
-import { DivideIcon as LucideIcon } from 'lucide-react';
 
 interface ContactItemProps {
-  icon: LucideIcon;
+  icon: React.ElementType;
   title: string;
   children: React.ReactNode;
 }

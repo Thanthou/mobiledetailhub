@@ -1,5 +1,5 @@
 import React from 'react';
-import { Facebook, Instagram, Youtube } from 'lucide-react';
+import { Facebook, Instagram, Youtube, Phone, Mail, UserPlus } from 'lucide-react';
 import { useBusinessConfig } from '../hooks/useBusinessConfig';
 import GetStarted from './shared/GetStarted';
 
@@ -18,7 +18,9 @@ const TikTokIcon: React.FC<{ className?: string }> = ({ className }) => (
   </svg>
 );
 
-const FooterMDH: React.FC = () => {
+interface FooterProps {}
+
+const FooterMDH: React.FC<FooterProps> = () => {
   const { businessConfig, parentConfig, isLoading, error, getBusinessInfoWithOverrides } = useBusinessConfig();
   
   if (isLoading) {
@@ -48,8 +50,8 @@ const FooterMDH: React.FC = () => {
     <footer className="bg-stone-800 text-white py-16">
       <div className="max-w-6xl mx-auto px-4">
         {/* Main Content Grid */}
-        <div className="max-w-2xl mx-auto pl-16">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 mb-12">
+        <div className="max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 mb-12">
             {/* Column 1: Quick Links */}
             <div className="text-center md:text-left">
               <h3 className="font-bold text-orange-400 text-xl mb-6">Quick Links</h3>
@@ -119,6 +121,30 @@ const FooterMDH: React.FC = () => {
                 )}
               </div>
             </div>
+
+            {/* Column 3: Connect */}
+            <div className="text-center md:text-left">
+              <h3 className="font-bold text-orange-400 text-xl mb-6">Connect</h3>
+              <div className="flex flex-col space-y-3">
+                <div className="flex items-center justify-center md:justify-start space-x-3">
+                  <Phone className="h-5 w-5 flex-shrink-0 text-orange-400" />
+                  <span className="text-lg">(888) 555-1234</span>
+                </div>
+                <div className="flex items-center justify-center md:justify-start space-x-3">
+                  <Mail className="h-5 w-5 flex-shrink-0 text-orange-400" />
+                  <span className="text-lg">service@mobiledetailhub.com</span>
+                </div>
+                <div className="flex items-center justify-center md:justify-start space-x-3">
+                  <UserPlus className="h-5 w-5 flex-shrink-0 text-orange-400" />
+                  <a 
+                    href="/join-us" 
+                    className="text-lg hover:text-orange-400 transition-colors duration-200"
+                  >
+                    Join as a Detailer
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -141,7 +167,7 @@ const FooterMDH: React.FC = () => {
             </div>
             <div className="text-center md:text-right">
               <p className="text-gray-300 text-base">
-                Powered by MobileDetailHub -{' '}
+                Powered by -{' '}
                 <a 
                   href="https://mobiledetailhub.com" 
                   target="_blank" 

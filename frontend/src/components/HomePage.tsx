@@ -4,7 +4,7 @@ import { Car, Ship, Paintbrush, Palette, Sun, Zap } from 'lucide-react';
 import { getAvailableBusinesses, loadBusinessConfig } from '../utils/businessLoader';
 import { usePerformanceMonitor } from '../hooks/usePerformanceMonitor';
 import BusinessSelector from './BusinessSelector';
-import Hero from './Hero';
+import Hero from './hero/Hero';
 import ServicesGrid from './ServicesGrid';
 import ContactAffiliate from './contact/ContactAffiliate';
 import ContactMDH from './contact/ContactMDH';
