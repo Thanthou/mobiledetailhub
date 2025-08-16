@@ -6,11 +6,13 @@ import { usePerformanceMonitor } from '../hooks/usePerformanceMonitor';
 import BusinessSelector from './BusinessSelector';
 import Hero from './Hero';
 import ServicesGrid from './ServicesGrid';
-import Contact from './Contact';
+import ContactAffiliate from './contact/ContactAffiliate';
+import ContactMDH from './contact/ContactMDH';
 import FAQAffiliate from './faq_affiliate';
 import FAQMDH from './faq_mdh';
 import Affiliates from './Affiliates';
-import Footer from './Footer';
+import FooterMDH from './FooterMDH';
+import FooterAffiliate from './FooterAffiliate';
 import QuoteModal from './QuoteModal';
 
 
@@ -270,17 +272,19 @@ const HomePage: React.FC = () => {
 
       {/* Contact Section */}
       <div id="contact">
-        <Contact
-          onRequestQuote={openQuoteModal}
-        />
+        {currentBusiness === 'mdh' ? (
+          <ContactMDH />
+        ) : (
+          <ContactAffiliate onRequestQuote={openQuoteModal} />
+        )}
       </div>
 
       {/* Footer */}
-      <Footer
-        onBookNow={handleBookNow}
-        onRequestQuote={openQuoteModal}
-        businessSlug={currentBusiness}
-      />
+      {currentBusiness === 'mdh' ? (
+        <FooterMDH businessSlug={currentBusiness} />
+      ) : (
+        <FooterAffiliate businessSlug={currentBusiness} onRequestQuote={openQuoteModal} />
+      )}
 
       {/* Modals */}
       <QuoteModal
