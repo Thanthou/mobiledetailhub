@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Car, Ship, Paintbrush, Palette, Sun, Zap } from 'lucide-react';
 import { getAvailableBusinesses, loadBusinessConfig } from '../utils/businessLoader';
-import { usePerformanceMonitor } from '../hooks/usePerformanceMonitor';
+// import { usePerformanceMonitor } from '../hooks/usePerformanceMonitor';
 import BusinessSelector from './BusinessSelector';
 import Hero from './hero/Hero';
 import ServicesGrid from './ServicesGrid';
@@ -10,7 +10,7 @@ import ContactAffiliate from './contact/ContactAffiliate';
 import ContactMDH from './contact/ContactMDH';
 import FAQAffiliate from './faq_affiliate';
 import FAQMDH from './faq_mdh';
-import Affiliates from './Affiliates';
+import Brands from './brands/Brands';
 import { FooterMDH, FooterAffiliate } from './footer';
 import QuoteModal from './QuoteModal';
 
@@ -265,8 +265,8 @@ const HomePage: React.FC = () => {
       </div>
 
       {/* Affiliates Section */}
-      <div id="affiliates">
-        <Affiliates />
+      <div id="brands">
+        <Brands />
       </div>
 
       {/* Contact Section */}

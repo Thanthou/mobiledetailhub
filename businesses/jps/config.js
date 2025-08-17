@@ -75,7 +75,7 @@ module.exports = {
   },
 
   // Affiliates Section
-  affiliates: {
+brands: {
     keywords: ['underdog', 'yot-stik', 'starke', 'rupes', 'poka', 'mtm_hydro', 'mirka', 'menzerna', 'lamin-x', 'lake-country', 'koch']
   },
 };

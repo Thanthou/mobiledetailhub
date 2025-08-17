@@ -1,12 +1,12 @@
 import React from 'react';
-import { useBusinessConfig } from '../hooks/useBusinessConfig';
-import Logo from './header/Logo';
-import ContactInfo from './header/ContactInfo';
-import Navigation from './header/Navigation';
-import SocialMediaIcons from './header/SocialMediaIcons';
-import MobileMenu from './header/MobileMenu';
-import AuthSection from './header/AuthSection';
-import { HEADER_CONSTANTS } from './header/constants';
+import { useBusinessConfig } from '../../hooks/useBusinessConfig';
+import Logo from './Logo';
+import ContactInfo from './ContactInfo';
+import Navigation from './Navigation';
+import SocialMediaIcons from './SocialMediaIcons';
+import MobileMenu from './MobileMenu';
+import AuthSection from './AuthSection';
+import { HEADER_CONSTANTS } from './constants';
 
 const Header: React.FC = () => {
   const { businessConfig, parentConfig, isLoading, error, getBusinessInfoWithOverrides } = useBusinessConfig();

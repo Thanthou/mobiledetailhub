@@ -6,7 +6,7 @@ interface MDHHeroContentProps {
 }
 
 const MDHHeroContent: React.FC<MDHHeroContentProps> = ({ onBookNow }) => {
-  const handleLocationSubmit = (location: string, zipCode: string, city: string, state: string) => {
+  const handleLocationSubmit = (_location?: string, _zipCode?: string, _city?: string, _state?: string) => {
     // Handle location submission for MDH
     if (onBookNow) {
       onBookNow();

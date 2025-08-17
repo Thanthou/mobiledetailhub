@@ -16,7 +16,7 @@ const ContactInfo: React.FC<ContactInfoProps> = ({ phone, address }) => {
       </div>
       <LocationEditModal
         placeholder="Enter new location"
-        buttonClassName="text-orange-500"
+        buttonClassName="text-gray-200"
         fallbackText={address}
         showIcon={true}
         gapClassName="space-x-2"

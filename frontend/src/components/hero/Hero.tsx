@@ -1,5 +1,5 @@
 import React from 'react';
-import Header from '../Header';
+import Header from '../header/Header';
 import { useBusinessConfig } from '../../hooks/useBusinessConfig';
 import HeroBackground from './HeroBackground';
 import HeroContent from './HeroContent';
