@@ -44,7 +44,7 @@ const SocialMediaColumn: React.FC<SocialMediaColumnProps> = ({ socialMedia }) =>
   const visibleLinks = socialLinks.filter(link => link.url);
 
   return (
-    <div className="text-center">
+    <div className="text-center md:text-left">
       <h3 className="font-bold text-orange-400 text-xl mb-6">Follow Us</h3>
       <div className="flex flex-col space-y-3">
         {visibleLinks.map(({ platform, url, icon: Icon, label }) => (
@@ -53,7 +53,7 @@ const SocialMediaColumn: React.FC<SocialMediaColumnProps> = ({ socialMedia }) =>
             href={url} 
             target="_blank" 
             rel="noopener noreferrer" 
-            className="text-white hover:text-orange-400 transition-colors duration-200 flex items-center justify-center space-x-3"
+            className="text-white hover:text-orange-400 transition-colors duration-200 flex items-center justify-center md:justify-start space-x-3"
           >
             <Icon className="h-5 w-5 flex-shrink-0" />
             <span className="text-lg">{label}</span>

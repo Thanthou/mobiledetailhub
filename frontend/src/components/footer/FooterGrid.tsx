@@ -8,9 +8,9 @@ interface FooterGridProps {
   businessSlug?: string;
 }
 
-const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig, businessSlug }) => {
+const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig}) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 mb-12 max-w-5xl mx-auto">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-0 mb-12 ml-52">
       <QuickLinksColumn />
       <SocialMediaColumn socialMedia={parentConfig?.socialMedia} />
       <ConnectColumn />

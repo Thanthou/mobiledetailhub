@@ -9,7 +9,7 @@ const QuickLinksColumn: React.FC = () => {
   ];
 
   return (
-    <div className="text-center md:text-left md:justify-self-end">
+    <div className="text-center md:text-left">
       <h3 className="font-bold text-orange-400 text-xl mb-6">Quick Links</h3>
       <div className="flex flex-col space-y-3">
         {quickLinks.map((link, index) => (

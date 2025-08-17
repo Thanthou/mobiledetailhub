@@ -1,7 +1,20 @@
 import React from 'react';
-import { Phone, Mail, UserPlus } from 'lucide-react';
+import { Phone, Mail, UserPlus, LogIn } from 'lucide-react';
+import { useAuth } from '../../../contexts/AuthContext';
 
 const ConnectColumn: React.FC = () => {
+  const { isLoggedIn, login } = useAuth();
+
+  const handleLogin = () => {
+    // Mock login - in real app this would open a login modal or redirect
+    const mockUser = {
+      id: '1',
+      name: 'John Smith',
+      email: 'john.smith@example.com'
+    };
+    login(mockUser);
+  };
+
   const connectItems = [
     {
       icon: Phone,
@@ -51,6 +64,19 @@ const ConnectColumn: React.FC = () => {
             </div>
           );
         })}
+        
+        {/* Login Button - Only show if not logged in */}
+        {!isLoggedIn && (
+          <div className="flex items-center justify-center md:justify-start space-x-3">
+            <LogIn className="h-5 w-5 flex-shrink-0 text-orange-400" />
+            <button
+              onClick={handleLogin}
+              className="text-lg hover:text-orange-400 transition-colors duration-200 bg-transparent border-none p-0 font-inherit cursor-pointer"
+            >
+              Login
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

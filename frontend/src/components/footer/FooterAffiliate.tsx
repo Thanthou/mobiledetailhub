@@ -144,7 +144,7 @@ const FooterAffiliate: React.FC<FooterProps> = ({ onRequestQuote }) => {
             </div>
             <div className="text-center md:text-right">
               <p className="text-gray-300 text-base">
-                Powered by MobileDetailHub -{' '}
+                Powered by -{' '}
                 <a 
                   href="https://mobiledetailhub.com" 
                   target="_blank" 
