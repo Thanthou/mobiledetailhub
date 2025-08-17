@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { getAvailableBusinesses } from '../utils/businessLoader';
+import ReactDOM from 'react-dom';
 
 interface BusinessOption {
   slug: string;
@@ -58,16 +59,8 @@ const BusinessSelector: React.FC<BusinessSelectorProps> = ({ onBusinessChange, s
     }, 1000); // 1 second cooldown
   };
 
-  if (loading) {
-    return (
-      <div className="fixed top-4 right-4 z-50 bg-white border border-gray-300 rounded-lg p-3 shadow-lg">
-        <div className="text-sm text-gray-600">Loading businesses...</div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="fixed top-4 right-4 z-50">
+  const selectorContent = (
+    <div className="fixed top-4 right-4 z-[100]">
       <div className="bg-white border border-gray-300 rounded-lg shadow-lg">
         <div className="p-2">
           <div className="text-xs text-gray-500 mb-1">Development Mode</div>
@@ -127,6 +120,17 @@ const BusinessSelector: React.FC<BusinessSelectorProps> = ({ onBusinessChange, s
       </div>
     </div>
   );
+
+  if (loading) {
+    return ReactDOM.createPortal(
+      <div className="fixed top-4 right-4 z-[100] bg-white border border-gray-300 rounded-lg p-3 shadow-lg">
+        {/* Loading content */}
+      </div>,
+      document.body
+    );
+  }
+
+  return ReactDOM.createPortal(selectorContent, document.body);
 };
 
 export default BusinessSelector;

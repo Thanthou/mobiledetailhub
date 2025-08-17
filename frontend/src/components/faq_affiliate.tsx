@@ -597,6 +597,7 @@ const FAQAffiliateOptimized = React.forwardRef<FAQRef, FAQProps>(
                   <CTAButtonsContainer 
                     onBookNow={onBookNow}
                     onRequestQuote={onRequestQuote}
+                    direction="row"
                   />
                 </div>
               </div>
