@@ -9,7 +9,7 @@ module.exports = {
     name: "JP's Mobile Detail",
     email: 'JPsMobileDetailing@hotmail.com',
     phone: '(702) 420-3151',
-    smsPhone: '+17024203151', // SMS notifications (no formatting)
+    smsPhone: '+17024203151',
     address: 'Bullhead City, AZ',
   },
 
@@ -31,36 +31,6 @@ module.exports = {
     'Lake Mohave',
     'Colorado River'
   ],
-
-  // State-to-cities mapping for location handling
-  stateCities: {
-    "Arizona": [
-      "Bullhead City",
-      "Fort Mohave",
-      "Katherine Landing",
-      "Kingman",
-      "Lake Havasu City",
-      "Mohave Valley"
-    ],
-    "California": [
-      "Needles"
-    ],
-    "Nevada": [
-      "Laughlin"
-    ]
-  },
-
-  // City-to-business mapping for routing
-  cityToBusiness: {
-    "Bullhead City": "jps",
-    "Fort Mohave": "jps",
-    "Katherine Landing": "jps",
-    "Kingman": "jps",
-    "Lake Havasu City": "jps",
-    "Mohave Valley": "jps",
-    "Laughlin": "jps",
-    "Needles": "jps"
-  },
 
 
   services: {

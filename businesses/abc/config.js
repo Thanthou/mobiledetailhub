@@ -42,47 +42,47 @@ module.exports = {
     'Valley of Fire, NV'
   ],
 
-  // State-to-cities mapping for location handling
-  stateCities: {
-    "Nevada": [
-      "Las Vegas",
-      "Henderson",
-      "North Las Vegas",
-      "Boulder City",
-      "Summerlin",
-      "Green Valley",
-      "Anthem",
-      "Enterprise",
-      "Spring Valley",
-      "Paradise",
-      "Sunrise Manor",
-      "Whitney",
-      "Winchester",
-      "Mount Charleston",
-      "Red Rock Canyon",
-      "Valley of Fire"
-    ]
-  },
+  // // State-to-cities mapping for location handling
+  // stateCities: {
+  //   "Nevada": [
+  //     "Las Vegas",
+  //     "Henderson",
+  //     "North Las Vegas",
+  //     "Boulder City",
+  //     "Summerlin",
+  //     "Green Valley",
+  //     "Anthem",
+  //     "Enterprise",
+  //     "Spring Valley",
+  //     "Paradise",
+  //     "Sunrise Manor",
+  //     "Whitney",
+  //     "Winchester",
+  //     "Mount Charleston",
+  //     "Red Rock Canyon",
+  //     "Valley of Fire"
+  //   ]
+  // },
 
-  // City-to-business mapping for routing
-  cityToBusiness: {
-    "Las Vegas": "abc",
-    "Henderson": "abc",
-    "North Las Vegas": "abc",
-    "Boulder City": "abc",
-    "Summerlin": "abc",
-    "Green Valley": "abc",
-    "Anthem": "abc",
-    "Enterprise": "abc",
-    "Spring Valley": "abc",
-    "Paradise": "abc",
-    "Sunrise Manor": "abc",
-    "Whitney": "abc",
-    "Winchester": "abc",
-    "Mount Charleston": "abc",
-    "Red Rock Canyon": "abc",
-    "Valley of Fire": "abc"
-  },
+  // // City-to-business mapping for routing
+  // cityToBusiness: {
+  //   "Las Vegas": "abc",
+  //   "Henderson": "abc",
+  //   "North Las Vegas": "abc",
+  //   "Boulder City": "abc",
+  //   "Summerlin": "abc",
+  //   "Green Valley": "abc",
+  //   "Anthem": "abc",
+  //   "Enterprise": "abc",
+  //   "Spring Valley": "abc",
+  //   "Paradise": "abc",
+  //   "Sunrise Manor": "abc",
+  //   "Whitney": "abc",
+  //   "Winchester": "abc",
+  //   "Mount Charleston": "abc",
+  //   "Red Rock Canyon": "abc",
+  //   "Valley of Fire": "abc"
+  // },
 
   // Branding & Styling
   branding: {

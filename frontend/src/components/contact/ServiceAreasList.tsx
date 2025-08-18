@@ -1,5 +1,10 @@
 import React from 'react';
-import { BUSINESS_SERVICE_AREAS, CITY_TO_BUSINESS_MAPPING } from '../../utils/serviceAreaMapping';
+import {
+  getStates,
+  getCitiesForState,
+  getBusinessesForCity,
+  STATE_CITIES_MAPPING
+} from 'shared/utils/serviceAreaMapping';
 
 interface ServiceAreasListProps {
   businessConfig: any;
@@ -33,7 +38,8 @@ const ServiceAreasList: React.FC<ServiceAreasListProps> = ({
   };
 
   const renderMDHServiceAreas = () => {
-    const stateCities = businessConfig.stateCities || BUSINESS_SERVICE_AREAS[businessConfig.slug];
+    // Use STATE_CITIES_MAPPING for MDH
+    const stateCities = STATE_CITIES_MAPPING;
     
     if (!stateCities) {
       return renderFallbackServiceAreas();
@@ -42,7 +48,7 @@ const ServiceAreasList: React.FC<ServiceAreasListProps> = ({
     if (expandedStates.size > 0) {
         // Find the expanded state
         const [expandedState] = Array.from(expandedStates);
-        const cities = stateCities[expandedState] || [];
+        const cities = getCitiesForState(expandedState);
         return (
           <div key={expandedState} className="text-left">
             {/* Back button */}
@@ -54,7 +60,8 @@ const ServiceAreasList: React.FC<ServiceAreasListProps> = ({
             </button>
             <div className="grid grid-cols-1 gap-1 text-sm">
               {cities.map((city: string, index: number) => {
-                const businessSlug = businessConfig.cityToBusiness?.[city] || CITY_TO_BUSINESS_MAPPING[city]?.[0];
+                const businesses = getBusinessesForCity(expandedState, city);
+                const businessSlug = businesses[0];
                 const isCurrentBusinessCity = businessSlug === businessConfig.slug;
                 return (
                   <button
@@ -80,7 +87,7 @@ const ServiceAreasList: React.FC<ServiceAreasListProps> = ({
     
 
     // Show all clickable states
-    return Object.entries(stateCities).map(([state]) => (
+    return getStates().map((state: string) => (
       <div key={state} className="text-center">
         <button
           onClick={() => onToggleState(state)}
