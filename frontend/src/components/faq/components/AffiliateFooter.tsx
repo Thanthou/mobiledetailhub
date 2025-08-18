@@ -16,7 +16,8 @@ const AffiliateFooter: React.FC<AffiliateFooterProps> = ({
         <CTAButtonsContainer 
           onBookNow={onBookNow}
           onRequestQuote={onRequestQuote}
-          className="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-md mx-auto"
+          direction="row"
+          className="gap-4 justify-center items-center max-w-md mx-auto"
         />
       </div>
     </div>
