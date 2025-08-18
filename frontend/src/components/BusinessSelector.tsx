@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { getAvailableBusinesses } from '../utils/businessLoader';
 import ReactDOM from 'react-dom';
+import { config } from '../config/environment';
 
 interface BusinessOption {
   slug: string;
@@ -27,7 +28,18 @@ const BusinessSelector: React.FC<BusinessSelectorProps> = ({ onBusinessChange, s
       try {
         setError(null);
         const businesses = await getAvailableBusinesses();
-        setAvailableBusinesses(businesses);
+        let updatedBusinesses = businesses;
+        if (config.isDevelopment) {
+          updatedBusinesses = [
+            ...businesses,
+            {
+              slug: 'affiliate-dashboard',
+              name: 'Affiliate Dashboard',
+              domain: '/affiliate-dashboard'
+            }
+          ];
+        }
+        setAvailableBusinesses(updatedBusinesses);
       } catch (error) {
         console.error('Failed to fetch businesses:', error);
         setError(error instanceof Error ? error.message : 'Unknown error');
@@ -46,7 +58,10 @@ const BusinessSelector: React.FC<BusinessSelectorProps> = ({ onBusinessChange, s
     if (isChanging || businessSlug === selectedBusiness) {
       return; // Prevent rapid switching or switching to same business
     }
-    
+    if (businessSlug === 'affiliate-dashboard') {
+      window.location.href = '/affiliate-dashboard';
+      return;
+    }
     setIsChanging(true);
     setIsOpen(false);
     
