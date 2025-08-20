@@ -1,6 +1,5 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { resolve } from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -8,21 +7,16 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
-  resolve: {
-    alias: {
-      shared: resolve(__dirname, '../shared'),
+  server: {
+    proxy: {
+      '/api': 'http://localhost:3001',
     },
   },
-  // Handle client-side routing in production
   build: {
     rollupOptions: {
       output: {
         manualChunks: undefined,
       },
     },
-  },
-  // Ensure proper handling of client-side routes
-  server: {
-    historyApiFallback: true,
   },
 });

@@ -5,14 +5,16 @@ interface CTAButtonsContainerProps {
   onBookNow?: () => void;
   onRequestQuote?: () => void;
   className?: string;
-  direction?: 'row' | 'col'; // new prop
+  direction?: 'row' | 'col';
+  quoteVariant?: 'filled' | 'outlined';
 }
 
 const CTAButtonsContainer: React.FC<CTAButtonsContainerProps> = ({ 
   onBookNow, 
   onRequestQuote, 
   className = '',
-  direction = 'col', // default vertical
+  direction = 'col',
+  quoteVariant = 'filled',
 }) => {
   return (
     <div className={`text-center space-y-4 ${className}`}>
@@ -24,6 +26,7 @@ const CTAButtonsContainer: React.FC<CTAButtonsContainerProps> = ({
         <CTAButton 
           type="quote" 
           onClick={onRequestQuote} 
+          variant={quoteVariant}
         />
       </div>
     </div>

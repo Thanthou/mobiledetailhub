@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { MapPin } from 'lucide-react';
 import { useLocation } from '../../contexts/LocationContext';
-import GetStarted from './GetStarted';
+import GetStarted from './LocationSearchBar';
 
 interface LocationEditModalProps {
   placeholder?: string;

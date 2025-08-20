@@ -1,5 +1,6 @@
 import React from 'react';
 import { useRecentAppointments } from '../hooks/useRecentAppointments';
+import { getStatusColor } from '../utils/getStatusColor';
 
 export const RecentAppointments: React.FC = () => {
   const { appointments } = useRecentAppointments();
@@ -29,11 +30,7 @@ export const RecentAppointments: React.FC = () => {
             <div className="text-right">
               <p className="text-gray-300 text-sm">{appointment.date}</p>
               <p className="text-white font-medium">{appointment.time}</p>
-              <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                appointment.status === 'confirmed' 
-                  ? 'bg-green-900 text-green-300' 
-                  : 'bg-yellow-900 text-yellow-300'
-              }`}>
+              <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(appointment.status)}`}>
                 {appointment.status}
               </span>
             </div>

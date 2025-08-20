@@ -3,28 +3,42 @@ import HomePage from './components/HomePage';
 import { LocationProvider } from './contexts/LocationContext';
 import { AuthProvider } from './contexts/AuthContext';
 import DashboardPage from './pages/affiliateDashboard/DashboardPage';
+import Header from './components/01_header';
+import DevModeDropdown from './components/DevModeDropdown';
 
 function App() {
   return (
     <AuthProvider>
       <LocationProvider>
         <Router>
-          <div className="bg-white">
+          <div>
+            <DevModeDropdown />
             <Routes>
-              {/* Main routes - all business paths go to HomePage */}
-              <Route path="/" element={<HomePage />} />
-              <Route path="/:businessSlug" element={<HomePage />} />
-              <Route path="/affiliate-dashboard" element={<DashboardPage />} />
-              
-              {/* Catch all other routes */}
-              <Route path="*" element={<HomePage />} />
-            </Routes>
+            <Route path="/affiliate-dashboard" element={<DashboardPage />} />
+            <Route path="/:businessSlug" element={
+              <>
+                <Header />
+                <HomePage />
+              </>
+            } />
+            <Route path="/" element={
+              <>
+                <Header />
+                <HomePage />
+              </>
+            } />
+            <Route path="*" element={
+              <>
+                <Header />
+                <HomePage />
+              </>
+            } />
+          </Routes>
           </div>
         </Router>
       </LocationProvider>
     </AuthProvider>
   );
 }
-
 
 export default App;
