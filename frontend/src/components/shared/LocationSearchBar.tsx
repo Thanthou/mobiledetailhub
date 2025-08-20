@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { MapPin, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from '../../contexts/LocationContext';
+import { findBusinessByLocation } from '../../utils/findBusinessByLocation';
 
 interface GetStartedProps {
   onLocationSubmit?: (location: string, zipCode?: string, city?: string, state?: string) => void;
@@ -190,7 +191,30 @@ const GetStarted: React.FC<GetStartedProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (inputValue.trim()) {
-      await handleLocationSearch(inputValue.trim());
+      // Parse manual input for city, state when Google Places doesn't provide structured data
+      const input = inputValue.trim();
+      let city = '', state = '', zipCode = '';
+      
+      // Try to parse "City, State" or "City, State Zip" format
+      if (input.includes(',')) {
+        const parts = input.split(',').map(part => part.trim());
+        city = parts[0];
+        
+        if (parts[1]) {
+          // Check if second part contains zip code
+          const stateZip = parts[1].split(' ');
+          if (stateZip.length > 1 && /^\d{5}(-\d{4})?$/.test(stateZip[stateZip.length - 1])) {
+            // Last part is a zip code
+            state = stateZip.slice(0, -1).join(' ');
+            zipCode = stateZip[stateZip.length - 1];
+          } else {
+            // No zip code, just state
+            state = parts[1];
+          }
+        }
+      }
+      
+      await handleLocationSearch(input, zipCode, city, state);
       sessionTokenRef.current = null;
     }
   };
@@ -212,7 +236,7 @@ const GetStarted: React.FC<GetStartedProps> = ({
       
       onLocationSubmit?.(location, zipCode, city, state);
       
-      const businessConfig = await findBusinessByLocation(location, zipCode, city, state);
+      const businessConfig = await findBusinessByLocation(zipCode, city, state);
       
              if (businessConfig) {
          if (businessConfig.slug === 'mdh') {

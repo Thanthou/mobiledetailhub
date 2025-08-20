@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { CheckCircle } from 'lucide-react';
 import { apiService } from '../services/api';
-import { useBusinessConfig } from '../hooks/useBusinessConfig';
 import { formatPhoneNumberAsTyped, isCompletePhoneNumber } from '../utils/phoneFormatter';
 
 interface QuoteModalProps {
