@@ -1,26 +1,29 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { LoginModal, UserMenu } from '../login';
 
 const LoginButton: React.FC = () => {
-  const { login } = useAuth();
+  const { isLoggedIn } = useAuth();
+  const [showModal, setShowModal] = useState(false);
 
-  const handleLogin = () => {
-    // Mock login - in real app this would open a login modal or redirect
-    const mockUser = {
-      id: '1',
-      name: 'John Smith',
-      email: 'john.smith@example.com'
-    };
-    login(mockUser);
-  };
+  if (isLoggedIn) {
+    return <UserMenu />;
+  }
 
   return (
-    <button
-      onClick={handleLogin}
-      className="text-white hover:text-orange-400 transition-colors duration-200 font-medium"
-    >
-      Login
-    </button>
+    <>
+      <button
+        onClick={() => setShowModal(true)}
+        className="text-white hover:text-orange-400 transition-colors duration-200 font-medium"
+      >
+        Login
+      </button>
+
+      <LoginModal 
+        isOpen={showModal} 
+        onClose={() => setShowModal(false)} 
+      />
+    </>
   );
 };
 

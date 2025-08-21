@@ -1,19 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Phone, Mail, UserPlus, LogIn } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
+import { LoginModal, UserMenu } from '../../login';
 
 const ConnectColumn: React.FC = () => {
-  const { isLoggedIn, login } = useAuth();
-
-  const handleLogin = () => {
-    // Mock login - in real app this would open a login modal or redirect
-    const mockUser = {
-      id: '1',
-      name: 'John Smith',
-      email: 'john.smith@example.com'
-    };
-    login(mockUser);
-  };
+  const { isLoggedIn } = useAuth();
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const connectItems = [
     {
@@ -66,18 +58,25 @@ const ConnectColumn: React.FC = () => {
         })}
         
         {/* Login Button - Only show if not logged in */}
-        {!isLoggedIn && (
+        {!isLoggedIn ? (
           <div className="flex items-center justify-center md:justify-start space-x-3">
             <LogIn className="h-5 w-5 flex-shrink-0 text-orange-400" />
             <button
-              onClick={handleLogin}
+              onClick={() => setShowLoginModal(true)}
               className="text-lg hover:text-orange-400 transition-colors duration-200 bg-transparent border-none p-0 font-inherit cursor-pointer"
             >
               Login
             </button>
           </div>
+        ) : (
+          <UserMenu />
         )}
       </div>
+      
+      <LoginModal 
+        isOpen={showLoginModal} 
+        onClose={() => setShowLoginModal(false)} 
+      />
     </div>
   );
 };

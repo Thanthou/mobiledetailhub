@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { User, LogOut, Settings, ChevronDown } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const UserMenu: React.FC = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -24,6 +26,33 @@ const UserMenu: React.FC = () => {
   const handleLogout = () => {
     logout();
     setIsOpen(false);
+  };
+
+  const handleAccountClick = () => {
+    setIsOpen(false);
+    
+    console.log('Full user object:', user); // Debug log
+    console.log('User role:', user?.role); // Debug log
+    
+    // Check if user email suggests admin status (temporary workaround)
+    const isAdminByEmail = user?.email?.toLowerCase().includes('admin') || 
+                           user?.email?.toLowerCase().includes('cole') ||
+                           user?.name?.toLowerCase().includes('admin');
+    
+    console.log('Is admin by email check:', isAdminByEmail);
+    
+    // Route based on user role or email check
+    if (user?.role === 'admin' || isAdminByEmail) {
+      navigate('/admin-dashboard');
+    } else if (user?.role === 'affiliate') {
+      navigate('/affiliate-dashboard');
+    } else if (user?.role === 'user') {
+      navigate('/client-dashboard');
+    } else {
+      // Fallback to client dashboard for unknown roles
+      console.log('No role found, defaulting to client dashboard');
+      navigate('/client-dashboard');
+    }
   };
 
   // Get display name (prefer first name, fallback to full name or email)
@@ -57,7 +86,7 @@ const UserMenu: React.FC = () => {
           </div>
           
           <button
-            onClick={() => setIsOpen(false)}
+            onClick={handleAccountClick}
             className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
           >
             <User className="h-4 w-4 mr-3" />

@@ -7,6 +7,12 @@ export const config = {
       : ''  // Empty string for development to use relative URLs with Vite proxy
     ),
   
+  // API URLs for admin dashboard toggle
+  apiUrls: {
+    local: import.meta.env.VITE_API_URL_LOCAL || 'http://localhost:3001',
+    live: import.meta.env.VITE_API_URL_LIVE || 'https://mobiledetailhub.onrender.com'
+  },
+  
   // Environment
   isProduction: import.meta.env.PROD,
   isDevelopment: import.meta.env.DEV,
