@@ -32,7 +32,7 @@ END $$;
 INSERT INTO users (email, password_hash, name, phone, is_admin, role) 
 VALUES (
   'test@example.com',
-  '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', -- password123
+  '$2a$10$5z.SGFtHTwWLqDdODP/68.RJV9AwSyQoDvL/fuu2C.iyaT7.GlW.i', -- password123
   'Test User',
   '+1-555-123-4567',
   true,

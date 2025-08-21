@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import ConnectColumn from '../columns/ConnectColumn';
 import SocialMediaColumn from '../columns/SocialMediaColumn';
 import { MapPin } from 'lucide-react';
+import { config } from '../../../config/environment';
 
 interface ServiceArea {
   state: string;
@@ -20,7 +21,7 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/service_areas')
+    fetch(`${config.apiUrl}/api/service_areas`)
       .then(res => res.json())
       .then(data => {
         setServiceAreas(data);

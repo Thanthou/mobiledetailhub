@@ -4,6 +4,7 @@ import FooterBottom from '../FooterBottom';
 import FooterLoadingState from '../FooterLoadingState';
 import FooterErrorState from '../FooterErrorState';
 import { GetStarted } from '../../shared';
+import { config as envConfig } from '../../../config/environment';
 
 type MDHConfig = {
   name?: string;
@@ -23,7 +24,7 @@ const MDHFooter: React.FC = () => {
     setIsLoading(true);
     setError(false);
 
-    fetch('/api/mdh-config')
+    fetch(`${envConfig.apiUrl}/api/mdh-config`)
       .then(res => res.json())
       .then(data => {
         setConfig(data);

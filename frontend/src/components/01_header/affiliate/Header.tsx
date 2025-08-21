@@ -9,6 +9,7 @@ import { scrollToTop } from '../../../utils/scrollToTop';
 import LoginButton from '../LoginButton';
 import { useAuth } from '../../../contexts/AuthContext';
 import UserMenu from '../UserMenu';
+import { config } from '../../../config/environment';
 
 const HeaderAffiliate: React.FC = () => {
   const { businessSlug } = useSiteContext();
@@ -25,8 +26,8 @@ const HeaderAffiliate: React.FC = () => {
   useEffect(() => {
     setLoading(true);
     Promise.all([
-      fetch('/api/mdh-config').then(res => res.json()),
-      businessSlug ? fetch(`/api/businesses/${businessSlug}`).then(res => res.json()) : Promise.resolve(null),
+      fetch(`${config.apiUrl}/api/mdh-config`).then(res => res.json()),
+      businessSlug ? fetch(`${config.apiUrl}/api/businesses/${businessSlug}`).then(res => res.json()) : Promise.resolve(null),
     ])
       .then(([mdhConfig, businessData]) => {
         setLogoUrl(mdhConfig.logo_url);

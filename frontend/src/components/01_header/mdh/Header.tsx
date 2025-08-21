@@ -5,6 +5,7 @@ import LoginButton from '../LoginButton';
 import { useAuth } from '../../../contexts/AuthContext';
 import UserMenu from '../UserMenu';
 import { scrollToTop } from '../../../utils/scrollToTop';
+import { config } from '../../../config/environment';
 
 const HeaderMDH: React.FC = () => {
   const { user } = useAuth();
@@ -15,7 +16,7 @@ const HeaderMDH: React.FC = () => {
 
   useEffect(() => {
     setLoading(true);
-    fetch('/api/mdh-config')
+    fetch(`${config.apiUrl}/api/mdh-config`)
       .then(res => res.json())
       .then(data => {
         setLogoUrl(data.logo_url);
