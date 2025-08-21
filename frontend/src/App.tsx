@@ -4,6 +4,7 @@ import { LocationProvider } from './contexts/LocationContext';
 import { AuthProvider } from './contexts/AuthContext';
 import DashboardPage from './pages/affiliateDashboard/DashboardPage';
 import Header from './components/01_header';
+import DevModeDropdown from './components/DevModeDropdown';
 import { useScrollToTop } from './hooks/useScrollToTop';
 
 // Component to handle scroll-to-top functionality
@@ -19,6 +20,7 @@ function App() {
         <Router>
           <ScrollToTop />
           <div>
+            <DevModeDropdown />
             <Routes>
             <Route path="/affiliate-dashboard" element={<DashboardPage />} />
             <Route path="/:businessSlug" element={
