@@ -73,43 +73,63 @@ app.get('/api/clients/field/:field', async (req, res) => {
     }
   });
 
-  // Businesses endpoint
-app.get('/api/businesses', async (req, res) => {
+    // Affiliates endpoint
+  app.get('/api/affiliates', async (req, res) => {
     try {
-      const result = await pool.query('SELECT * FROM businesses LIMIT 1');
+      const result = await pool.query('SELECT * FROM affiliates LIMIT 1');
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'businesses not found' });
+        return res.status(404).json({ error: 'affiliates not found' });
       }
       res.json(result.rows[0]);
     } catch (err) {
-      console.error('Error fetching businesses:', err);
+      console.error('Error fetching affiliates:', err);
       res.status(500).json({ error: 'Internal server error' });
     }
   });
 
-  // Businesses: get field
-app.get('/api/businesses/field/:field', async (req, res) => {
+  // Affiliates: get field
+  app.get('/api/affiliates/field/:field', async (req, res) => {
     const { field } = req.params;
     const allowedFields = [
-      'id', 'slug', 'name', 'email', 'phone', 'sms_phone', 'address', 'domain', 'service_locations', 'state_cities', 'created_at', 'updated_at'
+      'id', 'slug', 'name', 'email', 'phone', 'sms_phone', 'address', 'logo_url', 'website', 'description', 'service_areas', 'state_cities', 'is_active', 'created_at', 'updated_at'
     ];
     if (!allowedFields.includes(field)) {
       return res.status(400).json({ error: 'Invalid field' });
     }
     try {
-      const result = await pool.query(`SELECT ${field} FROM businesses LIMIT 1`);
+      const result = await pool.query(`SELECT ${field} FROM affiliates LIMIT 1`);
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Business not found' });
+        return res.status(404).json({ error: 'Affiliate not found' });
       }
       res.json({ [field]: result.rows[0][field] });
     } catch (err) {
-      console.error('Error fetching business field:', err);
+      console.error('Error fetching affiliate field:', err);
       res.status(500).json({ error: 'Internal server error' });
     }
   });
 
-  // Business lookup by location (city, state, zip) - MUST come before /:slug routes
-app.get('/api/businesses/lookup', async (req, res) => {
+  // Get all affiliate slugs for dev mode dropdown
+  app.get('/api/affiliates/slugs', async (req, res) => {
+    try {
+      console.log('Fetching affiliate slugs...');
+      const result = await pool.query('SELECT slug, name, is_active FROM affiliates ORDER BY name');
+      console.log('Query result:', result.rows);
+      
+      const affiliates = result.rows.map(row => ({
+        slug: row.slug,
+        name: row.name || row.slug
+      }));
+      console.log('Mapped affiliates:', affiliates);
+      
+      res.json(affiliates);
+    } catch (err) {
+      console.error('Error fetching affiliate slugs:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Affiliate lookup by location (city, state, zip) - MUST come before /:slug routes
+app.get('/api/affiliates/lookup', async (req, res) => {
   const { city, state, zip } = req.query;
   
   // Debug logging
@@ -117,12 +137,12 @@ app.get('/api/businesses/lookup', async (req, res) => {
   
   try {
     // More flexible query: prioritize city+state match, zip is optional
-    let query = 'SELECT DISTINCT slug FROM business_area WHERE LOWER(city) = LOWER($1) AND LOWER(state) = LOWER($2)';
+    let query = 'SELECT DISTINCT a.slug FROM affiliates a JOIN affiliate_service_areas asa ON a.id = asa.affiliate_id WHERE LOWER(asa.city) = LOWER($1) AND LOWER(asa.state) = LOWER($2)';
     const params = [city, state];
     
     // Only add zip constraint if zip is provided AND the database has a zip for this location
     if (zip) {
-      query += ` AND (zip = $3 OR zip IS NULL)`;
+      query += ` AND (asa.zip = $3 OR asa.zip IS NULL)`;
       params.push(zip);
     }
     
@@ -135,12 +155,12 @@ app.get('/api/businesses/lookup', async (req, res) => {
     
     if (result.rows.length === 0) {
       // Let's also check what's actually in the database for debugging
-      const debugQuery = 'SELECT * FROM business_area WHERE city ILIKE $1 OR state ILIKE $2 LIMIT 5';
+      const debugQuery = 'SELECT asa.city, asa.state, asa.zip, a.slug FROM affiliate_service_areas asa JOIN affiliates a ON asa.affiliate_id = a.id WHERE asa.city ILIKE $1 OR asa.state ILIKE $2 LIMIT 5';
       const debugResult = await pool.query(debugQuery, [`%${city}%`, `%${state}%`]);
       console.log('Debug query result:', debugResult.rows);
       
       return res.status(404).json({ 
-        error: 'No businesses found for this location',
+        error: 'No affiliates found for this location',
         debug: {
           searchedFor: { city, state, zip },
           similarResults: debugResult.rows
@@ -157,12 +177,12 @@ app.get('/api/businesses/lookup', async (req, res) => {
       }
     }
     
-    // Return array of business slugs
+    // Return array of affiliate slugs
     const slugs = result.rows.map(row => row.slug);
     res.json({ slugs, count: slugs.length });
     
   } catch (err) {
-    console.error('Error looking up businesses by location:', err);
+    console.error('Error looking up affiliates by location:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -170,9 +190,9 @@ app.get('/api/businesses/lookup', async (req, res) => {
 // Helper function to update missing zip codes
 async function updateMissingZipCodes(city, state, zip) {
   try {
-    // Update any business_area records that have the same city/state but null zip
+    // Update any affiliate_service_areas records that have the same city/state but null zip
     const updateQuery = `
-      UPDATE business_area 
+      UPDATE affiliate_service_areas 
       SET zip = $1 
       WHERE LOWER(city) = LOWER($2) 
         AND LOWER(state) = LOWER($3) 
@@ -193,7 +213,7 @@ async function updateMissingZipCodes(city, state, zip) {
 }
 
 // Manual zip code update endpoint (for admin use)
-app.post('/api/businesses/update-zip', async (req, res) => {
+app.post('/api/affiliates/update-zip', async (req, res) => {
   const { city, state, zip } = req.body;
   
   if (!city || !state || !zip) {
@@ -215,74 +235,41 @@ app.post('/api/businesses/update-zip', async (req, res) => {
   }
 });
 
-  app.get('/api/businesses/:slug', async (req, res) => {
+  app.get('/api/affiliates/:slug', async (req, res) => {
     const { slug } = req.params;
     try {
-      const result = await pool.query('SELECT * FROM businesses WHERE slug = $1', [slug]);
+      const result = await pool.query('SELECT * FROM affiliates WHERE slug = $1', [slug]);
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Business not found' });
+        return res.status(404).json({ error: 'Affiliate not found' });
       }
       res.json(result.rows[0]);
     } catch (err) {
-      console.error('Error fetching business by slug:', err);
+      console.error('Error fetching affiliate by slug:', err);
       res.status(500).json({ error: 'Internal server error' });
     }
   });
 
-  app.get('/api/businesses/:slug/field/:field', async (req, res) => {
+  app.get('/api/affiliates/:slug/field/:field', async (req, res) => {
     const { slug, field } = req.params;
     const allowedFields = [
-      'id', 'slug', 'name', 'email', 'phone', 'sms_phone', 'address', 'domain', 'service_locations', 'state_cities', 'created_at', 'updated_at'
+      'id', 'slug', 'name', 'email', 'phone', 'sms_phone', 'address', 'logo_url', 'website', 'description', 'service_areas', 'state_cities', 'is_active', 'created_at', 'updated_at'
     ];
     if (!allowedFields.includes(field)) {
       return res.status(400).json({ error: 'Invalid field' });
     }
     try {
-      const result = await pool.query(`SELECT ${field} FROM businesses WHERE slug = $1`, [slug]);
-      if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Business not found' });
-      }
-      res.json({ [field]: result.rows[0][field] });
-    } catch (err) {
-      console.error('Error fetching business field by slug:', err);
-      res.status(500).json({ error: 'Internal server error' });
-    }
-  });
-
-    // Affiliates endpoint
-app.get('/api/affiliates', async (req, res) => {
-    try {
-      const result = await pool.query('SELECT * FROM affiliates LIMIT 1');
-      if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'affiliates not found' });
-      }
-      res.json(result.rows[0]);
-    } catch (err) {
-      console.error('Error fetching affiliates:', err);
-      res.status(500).json({ error: 'Internal server error' });
-    }
-  });
-
-  // Affiliates: get field
-app.get('/api/affiliates/field/:field', async (req, res) => {
-    const { field } = req.params;
-    const allowedFields = [
-      'id', 'user_id', 'business_id', 'service_areas', 'onboarding_status', 'created_at', 'updated_at'
-    ];
-    if (!allowedFields.includes(field)) {
-      return res.status(400).json({ error: 'Invalid field' });
-    }
-    try {
-      const result = await pool.query(`SELECT ${field} FROM affiliates LIMIT 1`);
+      const result = await pool.query(`SELECT ${field} FROM affiliates WHERE slug = $1`, [slug]);
       if (result.rows.length === 0) {
         return res.status(404).json({ error: 'Affiliate not found' });
       }
       res.json({ [field]: result.rows[0][field] });
     } catch (err) {
-      console.error('Error fetching affiliate field:', err);
+      console.error('Error fetching affiliate field by slug:', err);
       res.status(500).json({ error: 'Internal server error' });
     }
   });
+
+
 
 // MDH Config endpoint
 app.get('/api/mdh-config', async (req, res) => {
@@ -331,16 +318,23 @@ app.get('/api/service_areas', async (req, res) => {
   }
 });
 
-app.get('/api/businesses/:slug/business_area', async (req, res) => {
+app.get('/api/affiliates/:slug/service_areas', async (req, res) => {
   const { slug } = req.params;
   try {
     const result = await pool.query(
-      'SELECT city, state FROM business_area WHERE slug = $1',
+      'SELECT service_areas FROM affiliates WHERE slug = $1',
       [slug]
     );
-    res.json(result.rows);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Affiliate not found' });
+    }
+    
+    // Return the service_areas array or empty array if null
+    const serviceAreas = result.rows[0].service_areas || [];
+    res.json(serviceAreas);
   } catch (err) {
-    console.error('Error fetching business_area:', err);
+    console.error('Error fetching affiliate service areas:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -690,15 +684,34 @@ app.get('/admin', authenticateToken, requireAdmin, (req, res) => {
               created_at TIMESTAMP DEFAULT NOW()
             );
 
-            -- Create basic businesses table
-            CREATE TABLE IF NOT EXISTS businesses (
+            -- Create basic affiliates table
+            CREATE TABLE IF NOT EXISTS affiliates (
               id SERIAL PRIMARY KEY,
-              slug VARCHAR(100) UNIQUE,
-              name VARCHAR(255),
+              slug VARCHAR(100) UNIQUE NOT NULL,
+              name VARCHAR(255) NOT NULL,
               email VARCHAR(255),
               phone VARCHAR(50),
+              sms_phone VARCHAR(50),
               address TEXT,
-              created_at TIMESTAMP DEFAULT NOW()
+              logo_url TEXT,
+              website VARCHAR(255),
+              description TEXT,
+              service_areas TEXT[],
+              state_cities JSONB,
+              is_active BOOLEAN DEFAULT TRUE,
+              created_at TIMESTAMP DEFAULT NOW(),
+              updated_at TIMESTAMP DEFAULT NOW()
+            );
+
+            -- Create affiliate_service_areas table
+            CREATE TABLE IF NOT EXISTS affiliate_service_areas (
+              id SERIAL PRIMARY KEY,
+              affiliate_id INTEGER REFERENCES affiliates(id) ON DELETE CASCADE,
+              state VARCHAR(50) NOT NULL,
+              city VARCHAR(100) NOT NULL,
+              zip VARCHAR(20),
+              created_at TIMESTAMP DEFAULT NOW(),
+              UNIQUE(affiliate_id, state, city)
             );
           \`;
           
@@ -713,6 +726,11 @@ app.get('/admin', authenticateToken, requireAdmin, (req, res) => {
 
         async function showMDHConfig() {
           document.getElementById('sqlQuery').value = "SELECT * FROM mdh_config;";
+          runQuery();
+        }
+
+        async function showAffiliates() {
+          document.getElementById('sqlQuery').value = "SELECT * FROM affiliates;";
           runQuery();
         }
 

@@ -1,38 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import SocialMediaIcons from '../SocialMediaIcons';
 import { NAV_LINKS } from '../constants';
 import LoginButton from '../LoginButton';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useMDHConfig } from '../../../contexts/MDHConfigContext';
 import UserMenu from '../UserMenu';
 import { scrollToTop } from '../../../utils/scrollToTop';
-import { config } from '../../../config/environment';
 
 const HeaderMDH: React.FC = () => {
   const { user } = useAuth();
-  const [logoUrl, setLogoUrl] = useState<string | null>(null);
-  const [headerDisplay, setHeaderDisplay] = useState<string | null>(null);
-  const [socialMedia, setSocialMedia] = useState<any>({});
-  const [loading, setLoading] = useState(true);
+  const { mdhConfig, isLoading, error } = useMDHConfig();
 
-  useEffect(() => {
-    setLoading(true);
-    fetch(`${config.apiUrl}/api/mdh-config`)
-      .then(res => res.json())
-      .then(data => {
-        setLogoUrl(data.logo_url);
-        setHeaderDisplay(data.header_display);
-        setSocialMedia({
-          facebook: data.facebook,
-          instagram: data.instagram,
-          tiktok: data.tiktok,
-          youtube: data.youtube,
-        });
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <header className="fixed top-0 z-50 bg-black/20 backdrop-blur-sm w-full">
         <div className="w-full py-4">
@@ -44,7 +23,7 @@ const HeaderMDH: React.FC = () => {
     );
   }
 
-  if (!logoUrl && !headerDisplay) {
+  if (error || !mdhConfig) {
     return (
       <header className="fixed top-0 z-50 bg-black/20 backdrop-blur-sm w-full">
         <div className="w-full py-4">
@@ -88,10 +67,10 @@ const HeaderMDH: React.FC = () => {
             className="flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity duration-200"
             onClick={scrollToTop}
           >
-            {logoUrl && (
-              <img src={logoUrl} alt="Logo" className="h-8 w-8 md:h-10 md:w-10" />
+            {mdhConfig.logo_url && (
+              <img src={mdhConfig.logo_url} alt="Logo" className="h-8 w-8 md:h-10 md:w-10" />
             )}
-            <h1 className="text-2xl md:text-3xl font-bold text-white">{headerDisplay}</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-white">{mdhConfig.header_display}</h1>
           </div>
 
           {/* 2. Links/Social Media */}
@@ -107,8 +86,13 @@ const HeaderMDH: React.FC = () => {
                 </a>
               ))}
             </nav>
-            {Object.values(socialMedia).some(Boolean) && (
-              <SocialMediaIcons socialMedia={socialMedia} />
+            {(mdhConfig.facebook || mdhConfig.instagram || mdhConfig.tiktok || mdhConfig.youtube) && (
+              <SocialMediaIcons socialMedia={{
+                facebook: mdhConfig.facebook,
+                instagram: mdhConfig.instagram,
+                tiktok: mdhConfig.tiktok,
+                youtube: mdhConfig.youtube,
+              }} />
             )}
           </div>
 

@@ -1,48 +1,21 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import FooterGrid from './Grid';
 import FooterBottom from '../FooterBottom';
 import FooterLoadingState from '../FooterLoadingState';
 import FooterErrorState from '../FooterErrorState';
 import { GetStarted } from '../../shared';
-import { config as envConfig } from '../../../config/environment';
-
-type MDHConfig = {
-  name?: string;
-  facebook?: string;
-  instagram?: string;
-  tiktok?: string;
-  youtube?: string;
-  // add other fields as needed
-};
+import { useMDHConfig } from '../../../contexts/MDHConfigContext';
 
 const MDHFooter: React.FC = () => {
-  const [config, setConfig] = useState<MDHConfig | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(false);
-
-  useEffect(() => {
-    setIsLoading(true);
-    setError(false);
-
-    fetch(`${envConfig.apiUrl}/api/mdh-config`)
-      .then(res => res.json())
-      .then(data => {
-        setConfig(data);
-        setIsLoading(false);
-      })
-      .catch(() => {
-        setError(true);
-        setIsLoading(false);
-      });
-  }, []);
+  const { mdhConfig, isLoading, error } = useMDHConfig();
 
   if (isLoading) return <FooterLoadingState />;
-  if (error || !config) return <FooterErrorState />;
+  if (error || !mdhConfig) return <FooterErrorState />;
 
   return (
     <footer className="bg-stone-800 text-white py-16">
       <div className="max-w-6xl mx-auto px-4">
-        <FooterGrid parentConfig={config} />
+        <FooterGrid parentConfig={mdhConfig} />
         
         {/* Get Started Section - Centered Below Columns */}
         <div className="text-center mb-12">
@@ -57,7 +30,7 @@ const MDHFooter: React.FC = () => {
           </div>
         </div>
         
-        <FooterBottom businessInfo={{ name: config.name || 'Your Business' }} />
+        <FooterBottom businessInfo={{ name: mdhConfig.header_display || 'Mobile Detail Hub' }} />
       </div>
     </footer>
   );

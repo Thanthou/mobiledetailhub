@@ -1,25 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import FooterGrid from './Grid';
 import FooterBottom from '../FooterBottom';
 import FooterLoadingState from '../FooterLoadingState';
 import FooterErrorState from '../FooterErrorState';
 import { useSiteContext } from '../../../hooks/useSiteContext';
-
-type BusinessData = {
-  name?: string;
-  phone?: string;
-  email?: string;
-  facebook?: string;
-  instagram?: string;
-  tiktok?: string;
-  youtube?: string;
-  // add other fields as needed
-};
-
-interface ServiceArea {
-  city: string;
-  state: string;
-}
+import { useAffiliate } from '../../../contexts/AffiliateContext';
+import { useMDHConfig } from '../../../contexts/MDHConfigContext';
 
 interface AffiliateFooterProps {
   onRequestQuote: () => void;
@@ -27,48 +13,43 @@ interface AffiliateFooterProps {
 
 const AffiliateFooter: React.FC<AffiliateFooterProps> = ({ onRequestQuote }) => {
   const { businessSlug } = useSiteContext();
-  const [businessData, setBusinessData] = useState<BusinessData | null>(null);
-  const [serviceAreas, setServiceAreas] = useState<ServiceArea[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const { affiliateData, isLoading: affiliateLoading, error: affiliateError } = useAffiliate();
+  const { mdhConfig, isLoading: mdhLoading, error: mdhError } = useMDHConfig();
 
-  useEffect(() => {
-    setIsLoading(true);
-    setError(false);
-    
-    // Fetch business data if we have a business slug
-    const fetchBusinessData = businessSlug 
-      ? fetch(`/api/businesses/${businessSlug}`)
-          .then(res => res.json())
-          .then(data => setBusinessData(data))
-          .catch(() => setError(true))
-      : Promise.resolve();
+  const isLoading = affiliateLoading || mdhLoading;
+  const hasError = affiliateError || mdhError;
 
-    // Fetch service areas if we have a business slug
-    const fetchServiceAreas = businessSlug 
-      ? fetch(`/api/businesses/${businessSlug}/business_area`)
-          .then(res => res.json())
-          .then(data => setServiceAreas(data))
-          .catch(() => setServiceAreas([]))
-      : Promise.resolve();
+  // Convert service_areas array to the format expected by FooterGrid
+  const serviceAreas = affiliateData?.service_areas?.map(area => {
+    const parts = area.split(', ');
+    return {
+      city: parts[0] || '',
+      state: parts[1] || ''
+    };
+  }) || [];
 
-    Promise.all([fetchBusinessData, fetchServiceAreas])
-      .finally(() => setIsLoading(false));
-  }, [businessSlug]);
+  // Combine affiliate data with MDH social media config
+  const combinedConfig = {
+    ...affiliateData,
+    facebook: mdhConfig?.facebook,
+    instagram: mdhConfig?.instagram,
+    tiktok: mdhConfig?.tiktok,
+    youtube: mdhConfig?.youtube,
+  };
 
   if (isLoading) return <FooterLoadingState />;
-  if (error || !businessData) return <FooterErrorState />;
+  if (hasError || !affiliateData || !mdhConfig) return <FooterErrorState />;
 
   return (
     <footer className="bg-stone-800 text-white py-16">
       <div className="max-w-6xl mx-auto px-4">
         <FooterGrid 
-          parentConfig={businessData} 
+          parentConfig={combinedConfig} 
           businessSlug={businessSlug}
           serviceAreas={serviceAreas}
           onRequestQuote={onRequestQuote} 
         />
-        <FooterBottom businessInfo={{ name: businessData.name || 'Your Business' }} />
+        <FooterBottom businessInfo={{ name: affiliateData.name || 'Your Business' }} />
       </div>
     </footer>
   );

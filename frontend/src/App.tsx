@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from './components/HomePage';
 import { LocationProvider } from './contexts/LocationContext';
 import { AuthProvider } from './contexts/AuthContext';
+import { MDHConfigProvider } from './contexts/MDHConfigContext';
+import { AffiliateProvider } from './contexts/AffiliateContext';
 import DashboardPage from './pages/affiliateDashboard/DashboardPage';
 import AdminDashboard from './pages/adminDashboard/Dashboard';
 import Header from './components/01_header';
@@ -52,22 +54,24 @@ function App() {
             <Route path="/affiliate-dashboard" element={<DashboardPage />} />
             <Route path="/client-dashboard" element={<div className="min-h-screen bg-gray-900 flex items-center justify-center"><h1 className="text-white text-2xl">Client Dashboard Coming Soon</h1></div>} />
             <Route path="/:businessSlug" element={
-              <>
-                <Header />
-                <HomePage />
-              </>
+              <MDHConfigProvider>
+                <AffiliateProvider>
+                  <Header />
+                  <HomePage />
+                </AffiliateProvider>
+              </MDHConfigProvider>
             } />
             <Route path="/" element={
-              <>
+              <MDHConfigProvider>
                 <Header />
                 <HomePage />
-              </>
+              </MDHConfigProvider>
             } />
             <Route path="*" element={
-              <>
+              <MDHConfigProvider>
                 <Header />
                 <HomePage />
-              </>
+              </MDHConfigProvider>
             } />
           </Routes>
           </div>

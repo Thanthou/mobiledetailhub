@@ -291,7 +291,7 @@ function AdminDashboard() {
                 <option value="" disabled>Quick Templates</option>
                 <option value="SELECT * FROM users LIMIT 10;">Show Users</option>
                 <option value="SELECT COUNT(*) FROM users;">Count Users</option>
-                <option value="SELECT * FROM businesses LIMIT 10;">Show Businesses</option>
+                <option value="SELECT * FROM affiliates LIMIT 10;">Show Affiliates</option>
                 <option value="SELECT * FROM mdh_config;">Show MDH Config</option>
                 <option value="SELECT * FROM service_areas LIMIT 10;">Show Service Areas</option>
                 <option value="SHOW TABLES;">Show Tables</option>
