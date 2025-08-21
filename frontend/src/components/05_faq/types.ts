@@ -34,7 +34,6 @@ export interface FAQItemWithIndex extends FAQItem {
 
 export interface FAQProps {
   autoExpand?: boolean;
-  onRequestQuote?: () => void;
   /** Optional UX toggle — defaults to false for better engagement/SEO */
   autoCollapseOnScroll?: boolean;
 }

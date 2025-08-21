@@ -24,15 +24,6 @@ const ContactInfoColumn: React.FC<ContactInfoColumnProps> = ({ businessInfo, onR
           </span>
         </ContactItem>
 
-        <ContactItem icon={MapPin} title="Location">
-          <LocationEditModal
-            placeholder="Enter new location"
-            buttonClassName="text-orange-500"
-            fallbackText={businessInfo.address}
-            showIcon={false}
-          />
-        </ContactItem>
-
         <ContactItem icon={Mail} title="Email">
           <button 
             onClick={onRequestQuote}
@@ -40,6 +31,15 @@ const ContactInfoColumn: React.FC<ContactInfoColumnProps> = ({ businessInfo, onR
           >
             {businessInfo.email}
           </button>
+        </ContactItem>
+
+        <ContactItem icon={MapPin} title="Location">
+          <LocationEditModal
+            placeholder="Enter new location"
+            buttonClassName="text-orange-500"
+            fallbackText={businessInfo.address}
+            showIcon={false}
+          />
         </ContactItem>
       </div>
     </div>

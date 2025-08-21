@@ -4,6 +4,7 @@ import { NAV_LINKS } from '../constants';
 import LoginButton from '../LoginButton';
 import { useAuth } from '../../../contexts/AuthContext';
 import UserMenu from '../UserMenu';
+import { scrollToTop } from '../../../utils/scrollToTop';
 
 const HeaderMDH: React.FC = () => {
   const { user } = useAuth();
@@ -30,36 +31,27 @@ const HeaderMDH: React.FC = () => {
       .catch(() => setLoading(false));
   }, []);
 
-  let content;
   if (loading) {
-    content = <div className="text-white text-center">Loading...</div>;
-  } else if (!logoUrl && !headerDisplay) {
-    content = <div className="text-white text-center">Header placeholder</div>;
-  } else {
-    content = (
-      <div className="flex items-center space-x-6">
-        <div className="flex items-center space-x-3">
-          {logoUrl && (
-            <img src={logoUrl} alt="Logo" className="h-8 w-8 md:h-10 md:w-10" />
-          )}
-          <h1 className="text-2xl md:text-3xl font-bold text-white">{headerDisplay}</h1>
+    return (
+      <header className="fixed top-0 z-50 bg-black/20 backdrop-blur-sm w-full">
+        <div className="w-full py-4">
+          <div className="max-w-7xl mx-auto flex items-center px-4">
+            <div className="text-white text-center">Loading...</div>
+          </div>
         </div>
-        <nav className="flex space-x-4 ml-8">
-          {NAV_LINKS.map(link => (
-            <a
-              key={link.name}
-              href={link.href}
-              className="text-white hover:text-orange-400 transition-colors duration-200"
-            >
-              {link.name}
-            </a>
-          ))}
-        </nav>
-        {Object.values(socialMedia).some(Boolean) && (
-          <SocialMediaIcons socialMedia={socialMedia} />
-        )}
-        {user ? <UserMenu /> : <LoginButton />}
-      </div>
+      </header>
+    );
+  }
+
+  if (!logoUrl && !headerDisplay) {
+    return (
+      <header className="fixed top-0 z-50 bg-black/20 backdrop-blur-sm w-full">
+        <div className="w-full py-4">
+          <div className="max-w-7xl mx-auto flex items-center px-4">
+            <div className="text-white text-center">Header placeholder</div>
+          </div>
+        </div>
+      </header>
     );
   }
 
@@ -68,7 +60,10 @@ const HeaderMDH: React.FC = () => {
       <div className="w-full py-4">
         <div className="max-w-7xl mx-auto flex items-center px-4">
           {/* 1. Logo/Business Name */}
-          <div className="flex items-center space-x-3">
+          <div 
+            className="flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity duration-200"
+            onClick={scrollToTop}
+          >
             {logoUrl && (
               <img src={logoUrl} alt="Logo" className="h-8 w-8 md:h-10 md:w-10" />
             )}

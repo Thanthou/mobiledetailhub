@@ -6,24 +6,21 @@ import { useLocation } from '../../../contexts/LocationContext';
 export const useAffiliateData = (businessConfig: any) => {
   const { selectedLocation } = useLocation();
 
-  // Merge selected location into businessConfig for geo context
+  // Create geo config from selected location even without business config
   const geoConfig = useMemo(() => {
-    if (!businessConfig) return null;
     if (selectedLocation) {
-      // Clone businessConfig and override city/state/zip
       return {
-        ...businessConfig,
         business: {
-          ...businessConfig.business,
           city: selectedLocation.city,
           state: selectedLocation.state,
           zip: selectedLocation.zipCode,
           address: `${selectedLocation.city}, ${selectedLocation.state} ${selectedLocation.zipCode || ''}`.trim(),
         },
+        serviceLocations: [], // Empty array for nearby locations
       };
     }
-    return businessConfig;
-  }, [businessConfig, selectedLocation]);
+    return null;
+  }, [selectedLocation]);
 
   const faqData: FAQItem[] = useMemo(() => {
     if (!geoConfig) return [];

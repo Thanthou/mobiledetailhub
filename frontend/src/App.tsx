@@ -5,12 +5,20 @@ import { AuthProvider } from './contexts/AuthContext';
 import DashboardPage from './pages/affiliateDashboard/DashboardPage';
 import Header from './components/01_header';
 import DevModeDropdown from './components/DevModeDropdown';
+import { useScrollToTop } from './hooks/useScrollToTop';
+
+// Component to handle scroll-to-top functionality
+const ScrollToTop = () => {
+  useScrollToTop();
+  return null;
+};
 
 function App() {
   return (
     <AuthProvider>
       <LocationProvider>
         <Router>
+          <ScrollToTop />
           <div>
             <DevModeDropdown />
             <Routes>

@@ -13,7 +13,11 @@ type MDHConfig = {
   // add other fields as needed
 };
 
-const AffiliateFooter: React.FC = () => {
+interface AffiliateFooterProps {
+  onRequestQuote: () => void;
+}
+
+const AffiliateFooter: React.FC<AffiliateFooterProps> = ({ onRequestQuote }) => {
   const [config, setConfig] = useState<MDHConfig | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -39,7 +43,7 @@ const AffiliateFooter: React.FC = () => {
   return (
     <footer className="bg-stone-800 text-white py-16">
       <div className="max-w-6xl mx-auto px-4">
-        <FooterGrid parentConfig={config} />
+        <FooterGrid parentConfig={config} onRequestQuote={onRequestQuote} />
         <FooterBottom businessInfo={{ name: config.name || 'Your Business' }} />
       </div>
     </footer>

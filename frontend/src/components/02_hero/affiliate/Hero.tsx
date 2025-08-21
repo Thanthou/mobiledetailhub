@@ -1,5 +1,5 @@
 import React from 'react';
-import CTAButtonsContainer from '../../shared/CTAButtonsContainer';
+import CTAButtonsContainer from '../../Book_Quote/CTAButtonsContainer';
 
 interface BusinessHeroContentProps {
   onBookNow?: () => void;
@@ -18,9 +18,8 @@ const BusinessHeroContent: React.FC<BusinessHeroContentProps> = ({
       <CTAButtonsContainer
         onBookNow={onBookNow}
         onRequestQuote={onRequestQuote}
-        direction="row"
+        variant="side-by-side"
         className="justify-center items-center"
-        quoteVariant="outlined"
       />
     </div>
   );

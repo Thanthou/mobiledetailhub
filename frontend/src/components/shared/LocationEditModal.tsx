@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { MapPin } from 'lucide-react';
 import { useLocation } from '../../contexts/LocationContext';
 import GetStarted from './LocationSearchBar';
@@ -42,8 +43,8 @@ const LocationEditModal: React.FC<LocationEditModalProps> = ({
         {showIcon && <MapPin className="h-5 w-5 text-orange-400" />}
         <span>{buttonText}</span>
       </button>
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]">
+      {showModal && createPortal(
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999]" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
             <h3 className="text-lg font-semibold mb-4">{modalTitle}</h3>
             <GetStarted
@@ -64,7 +65,8 @@ const LocationEditModal: React.FC<LocationEditModalProps> = ({
               Cancel
             </button>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

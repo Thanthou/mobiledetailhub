@@ -1,0 +1,15 @@
+{
+    "Airstream": ["Classic", "Flying Cloud", "Basecamp", "Interstate", "Globetrotter", "Custom"],
+    "Winnebago": ["Travato", "Revel", "View", "Minnie Winnie", "Solis", "Custom"],
+    "Thor Motor Coach": ["Four Winds", "Chateau", "Axis", "Vegas", "Tuscany", "Custom"],
+    "Forest River": ["Georgetown", "Forester", "Sunseeker", "FR3", "Flagstaff", "Custom"],
+    "Jayco": ["Greyhawk", "Redhawk", "Melbourne", "Seneca", "Alante", "Custom"],
+    "Tiffin": ["Allegro", "Phaeton", "Wayfarer", "Open Road", "Zephyr", "Custom"],
+    "Coachmen": ["Freelander", "Leprechaun", "Mirada", "Pursuit", "Galleria", "Custom"],
+    "Newmar": ["Bay Star", "Dutch Star", "King Aire", "Ventana", "Canyon Star", "Custom"],
+    "Entegra Coach": ["Odyssey", "Vision", "Accolade", "Aspire", "Anthem", "Custom"],
+    "Keystone": ["Montana", "Outback", "Cougar", "Bullet", "Passport", "Custom"],
+    "Custom": ["Custom"]
+}
+
+

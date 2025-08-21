@@ -18,9 +18,13 @@ import { useSiteContext } from '../../hooks/useSiteContext';
 import FooterMDH from './mdh/Footer';
 import FooterAffiliate from './affiliate/Footer';
 
-const Footer = () => {
+interface FooterProps {
+  onRequestQuote: () => void;
+}
+
+const Footer: React.FC<FooterProps> = ({ onRequestQuote }) => {
   const { isMDH } = useSiteContext();
-  return isMDH ? <FooterMDH /> : <FooterAffiliate />;
+  return isMDH ? <FooterMDH /> : <FooterAffiliate onRequestQuote={onRequestQuote} />;
 };
 
 export default Footer;

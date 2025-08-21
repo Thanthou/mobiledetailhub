@@ -3,6 +3,9 @@ import React, { useEffect, useState } from 'react';
 import SocialMediaIcons from '../SocialMediaIcons';
 import { NAV_LINKS } from '../constants';
 import { useSiteContext } from '../../../hooks/useSiteContext';
+import { useLocation } from '../../../contexts/LocationContext';
+import LocationEditModal from '../../shared/LocationEditModal';
+import { scrollToTop } from '../../../utils/scrollToTop';
 import LoginButton from '../LoginButton';
 import { useAuth } from '../../../contexts/AuthContext';
 import UserMenu from '../UserMenu';
@@ -10,6 +13,7 @@ import UserMenu from '../UserMenu';
 const HeaderAffiliate: React.FC = () => {
   const { businessSlug } = useSiteContext();
   const { user } = useAuth();
+  const { selectedLocation } = useLocation();
   console.log('HeaderAffiliate businessSlug:', businessSlug);
 
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
@@ -35,6 +39,7 @@ const HeaderAffiliate: React.FC = () => {
         if (businessData) {
           setBusinessName(businessData.name);
           setPhone(businessData.phone);
+          console.log('Business data:', businessData);
         }
         setLoading(false);
       })
@@ -72,13 +77,34 @@ const HeaderAffiliate: React.FC = () => {
           {/* 1. Logo/Business Name/Info */}
           <div className="flex items-center space-x-3">
             {logoUrl && (
-              <img src={logoUrl} alt="Logo" className="h-8 w-8 md:h-10 md:w-10" />
+              <button 
+                onClick={scrollToTop}
+                className="hover:opacity-80 transition-opacity duration-200 cursor-pointer"
+              >
+                <img src={logoUrl} alt="Logo" className="h-8 w-8 md:h-10 md:w-10" />
+              </button>
             )}
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-white">{businessName}</h1>
-              <div className="text-white text-1g font-semibold">
-                {phone && <div>{phone}</div>}
-              </div>
+              <button 
+                onClick={scrollToTop}
+                className="hover:opacity-80 transition-opacity duration-200 cursor-pointer text-left"
+              >
+                <h1 className="text-2xl md:text-3xl font-bold text-white">{businessName}</h1>
+              </button>
+                             <div className="text-white text-sm md:text-base font-semibold">
+                 <div className="flex items-center space-x-2">
+                   {phone && <span>{phone}</span>}
+                   {phone && selectedLocation && <span className="text-orange-400">•</span>}
+                   {selectedLocation && (
+                     <LocationEditModal
+                       placeholder="Enter new location"
+                       buttonClassName="text-white hover:text-orange-400 text-sm md:text-base font-semibold hover:underline cursor-pointer"
+                       fallbackText={selectedLocation.fullLocation}
+                       showIcon={false}
+                     />
+                   )}
+                 </div>
+               </div>
             </div>
           </div>
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useFAQState } from '../hooks/useFAQState';
 import { useFAQData } from '../hooks/useFAQData';
+import FAQExpandButton from '../components/FAQExpandButton';
 import FAQHeader from '../components/FAQHeader';
 import FAQCategory from '../components/FAQCategory';
 import FAQFooter from '../components/FAQFooter';
@@ -15,7 +16,6 @@ const FAQMDH: React.FC = () => {
     toggleExpanded,
     toggleItem,
     toggleCategory,
-    resetState,
   } = useFAQState(false);
 
   // Use static MDH FAQ data (no backend)
@@ -26,15 +26,10 @@ const FAQMDH: React.FC = () => {
   const nearbyList = '';
 
   return (
-    <section className="bg-stone-700 py-16" id="faq" aria-labelledby="faq-heading">
+          <section className="bg-stone-800 py-16" id="faq" aria-labelledby="faq-heading">
       <div className="max-w-6xl mx-auto px-4">
         {!isExpanded ? (
-          <button
-            onClick={() => setIsExpanded(true)}
-            className="mx-auto block bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors mb-6"
-          >
-            Show FAQ
-          </button>
+          <FAQExpandButton onToggleExpanded={() => setIsExpanded(true)} />
         ) : (
           <div className="space-y-6">
             <FAQHeader
@@ -55,7 +50,7 @@ const FAQMDH: React.FC = () => {
                 />
               ))}
             </div>
-            <FAQFooter onRequestQuote={() => {}} />
+            <FAQFooter />
           </div>
         )}
       </div>

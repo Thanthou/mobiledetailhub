@@ -1,0 +1,13 @@
+{
+    "Harley-Davidson": ["Sportster", "Softail", "Touring", "Street", "LiveWire", "Custom"],
+    "Honda": ["CBR600RR", "CB500X", "Rebel 500", "Africa Twin", "Gold Wing", "Custom"],
+    "Yamaha": ["YZF-R6", "MT-07", "MT-09", "XSR900", "Tenere 700", "Custom"],
+    "Kawasaki": ["Ninja 400", "Ninja ZX-6R", "Z650", "Versys 650", "Vulcan S", "Custom"],
+    "Suzuki": ["GSX-R750", "SV650", "V-Strom 650", "Hayabusa", "Boulevard M109R", "Custom"],
+    "BMW": ["S 1000 RR", "R 1250 GS", "F 850 GS", "K 1600 GTL", "R nineT", "Custom"],
+    "Ducati": ["Panigale V4", "Monster", "Multistrada", "Scrambler", "Diavel", "Custom"],
+    "Triumph": ["Street Triple", "Bonneville", "Tiger 900", "Rocket 3", "Thruxton", "Custom"],
+    "KTM": ["Duke 390", "RC 390", "790 Adventure", "1290 Super Duke", "690 Enduro", "Custom"],
+    "Indian": ["Scout", "Chief", "FTR", "Challenger", "Roadmaster", "Custom"],
+    "Custom": ["Custom"]
+}

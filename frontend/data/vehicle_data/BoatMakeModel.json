@@ -1,0 +1,13 @@
+{
+    "Bayliner": ["Element E16", "VR5 Bowrider", "DX2000", "Trophy T20", "Ciera 8", "Custom"],
+    "Yamaha": ["212X", "242 Limited S", "AR195", "SX210", "190 FSH Deluxe", "Custom"],
+    "Sea Ray": ["SPX 190", "SDX 250", "SLX 280", "Sundancer 320", "L650 Fly", "Custom"],
+    "Boston Whaler": ["Montauk 170", "Dauntless 220", "Outrage 250", "Vantage 230", "Conquest 285", "Custom"],
+    "Chaparral": ["19 SSi", "21 SSi", "246 SSi", "347 SSX", "310 Signature", "Custom"],
+    "MasterCraft": ["XT21", "X24", "NXT22", "ProStar", "XStar", "Custom"],
+    "Tracker": ["Pro Team 175 TXW", "Grizzly 2072", "Targa V-18", "Classic XL", "Pro Guide V-175", "Custom"],
+    "Regal": ["1900 ES", "23 OBX", "26 FasDeck", "33 SAV", "38 XO", "Custom"],
+    "Lund": ["Rebel XL", "Impact XS", "Pro-V", "Fury", "Adventure", "Custom"],
+    "Ranger": ["RT188P", "Z518", "Z521L", "Z185", "Z520R", "Custom"],
+    "Custom": ["Custom"]
+}

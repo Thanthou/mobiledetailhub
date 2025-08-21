@@ -29,4 +29,4 @@ const CTAButton: React.FC<CTAButtonProps> = ({ type, onClick, className = '', va
   );
 };
 
-export default CTAButton; 
+export default CTAButton;
