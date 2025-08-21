@@ -73,10 +73,10 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig }) => {
         </div>
 
         {/* Column 3: Service Areas */}
-        <div className="text-center">
+        <div className="text-center md:text-right">
           <h3 className="font-bold text-orange-400 text-xl mb-6">Service Areas</h3>
           {loading ? (
-            <div className="text-white">Loading...</div>
+            <div className="text-white md:text-right">Loading...</div>
           ) : (
             <div className="space-y-2">
               {selectedState === null ? (
@@ -85,7 +85,7 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig }) => {
                   <button
                     key={state}
                     onClick={() => selectState(state)}
-                    className="block w-full text-orange-400 hover:text-orange-300 text-lg font-medium cursor-pointer transition-colors text-center"
+                    className="block w-full text-white hover:text-gray-300 text-lg font-medium cursor-pointer transition-colors text-center md:text-right"
                   >
                     {state}
                   </button>
@@ -96,14 +96,14 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig }) => {
                   {citiesByState[selectedState].map((city, index) => (
                     <div
                       key={`${selectedState}-${city}-${index}`}
-                      className="text-orange-400 text-sm text-center"
+                      className="text-orange-400 text-sm text-center md:text-right"
                     >
                       {city}
                     </div>
                   ))}
                   <button
                     onClick={goBackToStates}
-                    className="text-gray-400 hover:text-gray-300 text-xs cursor-pointer transition-colors mt-2 text-center block w-full"
+                    className="text-gray-400 hover:text-gray-300 text-xs cursor-pointer transition-colors mt-2 text-center md:text-right block w-full"
                   >
                     ← Back to states
                   </button>

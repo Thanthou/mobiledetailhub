@@ -3,7 +3,6 @@ import Hero from './02_hero';
 import Services from './03_services/Services';
 import * as Reviews from './04_reviews';
 import FAQ from './05_faq';
-import Contact from './06_contact';
 import Footer from './07_footer';
 import { QuoteModal, BookingModal } from './Book_Quote';
 import { useSiteContext } from '../hooks/useSiteContext';
@@ -47,7 +46,6 @@ const HomePage = () => {
       <section id="faq">
         <FAQ />
       </section>
-      <section id="contact"><Contact /></section>
       <section id="footer">
         <Footer onRequestQuote={handleOpenQuoteModal} />
       </section>

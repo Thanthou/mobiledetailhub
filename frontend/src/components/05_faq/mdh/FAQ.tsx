@@ -26,7 +26,7 @@ const FAQMDH: React.FC = () => {
   const nearbyList = '';
 
   return (
-          <section className="bg-stone-800 py-16" id="faq" aria-labelledby="faq-heading">
+          <section className="bg-stone-700 py-16" id="faq" aria-labelledby="faq-heading">
       <div className="max-w-6xl mx-auto px-4">
         {!isExpanded ? (
           <FAQExpandButton onToggleExpanded={() => setIsExpanded(true)} />

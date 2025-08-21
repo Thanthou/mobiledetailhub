@@ -42,7 +42,7 @@ export const Reviews: React.FC<ReviewsProps> = ({
   };
   
   return (
-    <section className="bg-stone-700 py-20 px-4 sm:px-6 lg:px-8">
+    <section className="bg-stone-800 py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
         <ReviewsHeader reviews={sortedReviews} />

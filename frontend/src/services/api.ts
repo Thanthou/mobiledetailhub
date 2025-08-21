@@ -2,14 +2,6 @@ import { config } from '../config/environment';
 
 const API_BASE_URL = config.apiUrl;
 
-export interface ContactFormData {
-  name: string;
-  email: string;
-  phone?: string;
-  message: string;
-  service?: string;
-}
-
 export interface QuoteFormData {
   name: string;
   email: string;
@@ -49,13 +41,6 @@ class ApiService {
       console.error('API request failed:', error);
       throw new Error(error instanceof Error ? error.message : 'An error occurred');
     }
-  }
-
-  async submitContactForm(data: ContactFormData): Promise<ApiResponse> {
-    return this.makeRequest('/api/contact', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
   }
 
   async submitQuoteRequest(data: QuoteFormData): Promise<ApiResponse> {
