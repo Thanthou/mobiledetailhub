@@ -1,3 +1,4 @@
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from './components/HomePage';
 import { LocationProvider } from './contexts/LocationContext';
@@ -5,7 +6,9 @@ import { AuthProvider } from './contexts/AuthContext';
 import DashboardPage from './pages/affiliateDashboard/DashboardPage';
 import AdminDashboard from './pages/adminDashboard/Dashboard';
 import Header from './components/01_header';
-import DevModeDropdown from './components/DevModeDropdown';
+const DevModeDropdown = import.meta.env.DEV 
+  ? React.lazy(() => import('./components/DevModeDropdown'))
+  : null;
 import { useScrollToTop } from './hooks/useScrollToTop';
 
 // Component to handle scroll-to-top functionality
@@ -21,7 +24,7 @@ function App() {
         <Router>
           <ScrollToTop />
           <div>
-            <DevModeDropdown />
+          {import.meta.env.DEV && DevModeDropdown && <DevModeDropdown />}
             <Routes>
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
             <Route path="/affiliate-dashboard" element={<DashboardPage />} />
