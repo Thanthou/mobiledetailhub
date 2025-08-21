@@ -432,24 +432,39 @@ app.post('/api/auth/register', async (req, res) => {
 
 // User Login
 app.post('/api/auth/login', async (req, res) => {
+  console.log('=== LOGIN ATTEMPT ===');
+  console.log('Request body:', req.body);
+  console.log('Request headers:', req.headers);
+  
   const { email, password } = req.body;
 
   if (!email || !password) {
+    console.log('Missing email or password');
     return res.status(400).json({ error: 'Email and password are required' });
   }
 
   try {
+    console.log('Looking for user with email:', email);
+    
     // Find user
     const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    console.log('Database query result:', result.rows.length, 'rows found');
+    
     if (result.rows.length === 0) {
+      console.log('User not found');
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
     const user = result.rows[0];
+    console.log('User found:', { id: user.id, email: user.email, is_admin: user.is_admin });
 
     // Check password
+    console.log('Comparing password with hash:', user.password_hash);
     const validPassword = await bcrypt.compare(password, user.password_hash);
+    console.log('Password comparison result:', validPassword);
+    
     if (!validPassword) {
+      console.log('Invalid password');
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
