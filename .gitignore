@@ -15,3 +15,5 @@ backend/dist/
 # OS files
 .DS_Store
 Thumbs.db
+
+src/components/DevModeDropdown.tsx

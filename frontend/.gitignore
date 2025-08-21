@@ -23,3 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 .env
+
+# Development components
+src/components/DevModeDropdown.tsx
