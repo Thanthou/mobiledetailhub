@@ -38,6 +38,54 @@ const LoginPage = () => {
   );
 };
 
+// Minimal main page wrapper that doesn't require database data
+const HomePageWrapper = () => {
+  return (
+    <div className="min-h-screen bg-gray-900">
+      {/* Minimal header */}
+      <header className="bg-gray-800 shadow-sm border-b border-gray-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center">
+              <h1 className="text-xl font-semibold text-white">Mobile Detail Hub</h1>
+            </div>
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={() => window.location.href = '/admin-dashboard'}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Admin Login
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+      
+      {/* Main content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-white mb-4">Welcome to Mobile Detail Hub</h2>
+          <p className="text-gray-300 mb-8">Your mobile detailing service platform</p>
+          <div className="space-y-4">
+            <button 
+              onClick={() => window.location.href = '/admin-dashboard'}
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 mr-4"
+            >
+              Access Admin Dashboard
+            </button>
+            <button 
+              onClick={() => window.location.href = '/login'}
+              className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+            >
+              Login
+            </button>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+};
+
 function App() {
   return (
     <AuthProvider>
@@ -51,24 +99,8 @@ function App() {
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
             <Route path="/affiliate-dashboard" element={<DashboardPage />} />
             <Route path="/client-dashboard" element={<div className="min-h-screen bg-gray-900 flex items-center justify-center"><h1 className="text-white text-2xl">Client Dashboard Coming Soon</h1></div>} />
-            <Route path="/:businessSlug" element={
-              <>
-                <Header />
-                <HomePage />
-              </>
-            } />
-            <Route path="/" element={
-              <>
-                <Header />
-                <HomePage />
-              </>
-            } />
-            <Route path="*" element={
-              <>
-                <Header />
-                <HomePage />
-              </>
-            } />
+            <Route path="/" element={<HomePageWrapper />} />
+            <Route path="*" element={<HomePageWrapper />} />
           </Routes>
           </div>
         </Router>
