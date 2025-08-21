@@ -19,7 +19,7 @@ const LocationEditModal: React.FC<LocationEditModalProps> = ({
   placeholder = 'Enter your city or zip code',
   className = '',
   buttonClassName = '',
-  modalTitle = 'Enter New Location',
+  modalTitle = 'Update your location',
   onLocationChange,
   fallbackText = 'Set Location',
   showIcon = true,

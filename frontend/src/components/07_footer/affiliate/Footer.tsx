@@ -3,9 +3,12 @@ import FooterGrid from './Grid';
 import FooterBottom from '../FooterBottom';
 import FooterLoadingState from '../FooterLoadingState';
 import FooterErrorState from '../FooterErrorState';
+import { useSiteContext } from '../../../hooks/useSiteContext';
 
-type MDHConfig = {
+type BusinessData = {
   name?: string;
+  phone?: string;
+  email?: string;
   facebook?: string;
   instagram?: string;
   tiktok?: string;
@@ -13,38 +16,59 @@ type MDHConfig = {
   // add other fields as needed
 };
 
+interface ServiceArea {
+  city: string;
+  state: string;
+}
+
 interface AffiliateFooterProps {
   onRequestQuote: () => void;
 }
 
 const AffiliateFooter: React.FC<AffiliateFooterProps> = ({ onRequestQuote }) => {
-  const [config, setConfig] = useState<MDHConfig | null>(null);
+  const { businessSlug } = useSiteContext();
+  const [businessData, setBusinessData] = useState<BusinessData | null>(null);
+  const [serviceAreas, setServiceAreas] = useState<ServiceArea[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
 
   useEffect(() => {
     setIsLoading(true);
     setError(false);
-    fetch('/api/mdh-config')
-      .then(res => res.json())
-      .then(data => {
-        setConfig(data);
-        setIsLoading(false);
-      })
-      .catch(() => {
-        setError(true);
-        setIsLoading(false);
-      });
-  }, []);
+    
+    // Fetch business data if we have a business slug
+    const fetchBusinessData = businessSlug 
+      ? fetch(`/api/businesses/${businessSlug}`)
+          .then(res => res.json())
+          .then(data => setBusinessData(data))
+          .catch(() => setError(true))
+      : Promise.resolve();
+
+    // Fetch service areas if we have a business slug
+    const fetchServiceAreas = businessSlug 
+      ? fetch(`/api/businesses/${businessSlug}/business_area`)
+          .then(res => res.json())
+          .then(data => setServiceAreas(data))
+          .catch(() => setServiceAreas([]))
+      : Promise.resolve();
+
+    Promise.all([fetchBusinessData, fetchServiceAreas])
+      .finally(() => setIsLoading(false));
+  }, [businessSlug]);
 
   if (isLoading) return <FooterLoadingState />;
-  if (error || !config) return <FooterErrorState />;
+  if (error || !businessData) return <FooterErrorState />;
 
   return (
     <footer className="bg-stone-800 text-white py-16">
       <div className="max-w-6xl mx-auto px-4">
-        <FooterGrid parentConfig={config} onRequestQuote={onRequestQuote} />
-        <FooterBottom businessInfo={{ name: config.name || 'Your Business' }} />
+        <FooterGrid 
+          parentConfig={businessData} 
+          businessSlug={businessSlug}
+          serviceAreas={serviceAreas}
+          onRequestQuote={onRequestQuote} 
+        />
+        <FooterBottom businessInfo={{ name: businessData.name || 'Your Business' }} />
       </div>
     </footer>
   );
