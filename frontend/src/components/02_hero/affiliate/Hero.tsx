@@ -19,7 +19,7 @@ const BusinessHeroContent: React.FC<BusinessHeroContentProps> = ({
         onBookNow={onBookNow}
         onRequestQuote={onRequestQuote}
         variant="side-by-side"
-        className="justify-center items-center"
+        className="max-w-md mx-auto [&>*]:w-48 [&>*]:justify-center"
       />
     </div>
   );

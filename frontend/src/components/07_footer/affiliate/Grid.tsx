@@ -143,7 +143,7 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig, businessSlug, ser
           Ready to Get Started?
         </h3>
         <CTAButtonsContainer 
-          className="max-w-md mx-auto [&>*]:flex-1 [&>*]:justify-center" 
+          className="max-w-md mx-auto [&>*]:w-48 [&>*]:justify-center" 
           variant="side-by-side"
           onBookNow={handleBookNow}
           onRequestQuote={onRequestQuote}
