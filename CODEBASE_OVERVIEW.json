@@ -1,0 +1,2402 @@
+{
+  "timestamp": "2025-08-22T20:59:13.852Z",
+  "project": {
+    "name": "mobiledetailhub",
+    "version": "1.0.0",
+    "description": "Mobile Detail Hub - Multi-business detailing services platform",
+    "scripts": {
+      "build": "cd frontend && npm run build",
+      "dev": "concurrently \"npm run dev --workspace=frontend\" \"npm run dev --workspace=backend\"",
+      "install:all": "npm install && npm install --workspace=frontend && npm install --workspace=backend",
+      "overview": "node scripts/generate-codebase-overview.js"
+    },
+    "frontend": {
+      "name": "vite-react-typescript-starter",
+      "version": "0.0.0",
+      "dependencies": [
+        "lucide-react",
+        "react",
+        "react-dom",
+        "react-router-dom"
+      ],
+      "devDependencies": [
+        "@eslint/js",
+        "@types/google.maps",
+        "@types/react",
+        "@types/react-dom",
+        "@vitejs/plugin-react",
+        "autoprefixer",
+        "eslint",
+        "eslint-plugin-react-hooks",
+        "eslint-plugin-react-refresh",
+        "globals",
+        "postcss",
+        "tailwindcss",
+        "typescript",
+        "typescript-eslint",
+        "vite"
+      ]
+    },
+    "backend": {
+      "name": "backend",
+      "version": "1.0.0",
+      "dependencies": [
+        "cors",
+        "dotenv",
+        "express",
+        "helmet",
+        "pg",
+        "bcryptjs",
+        "jsonwebtoken"
+      ],
+      "devDependencies": [
+        "nodemon"
+      ]
+    }
+  },
+  "structure": {
+    "root": {
+      "type": "directory",
+      "items": {
+        "backend": {
+          "type": "directory",
+          "items": {
+            "controllers": {
+              "type": "file",
+              "truncated": true
+            },
+            "database": {
+              "type": "file",
+              "truncated": true
+            },
+            "DATABASE_SETUP.md": {
+              "type": "file",
+              "size": 900
+            },
+            "middleware": {
+              "type": "file",
+              "truncated": true
+            },
+            "models": {
+              "type": "file",
+              "truncated": true
+            },
+            "package-lock.json": {
+              "type": "file",
+              "size": 49648
+            },
+            "package.json": {
+              "type": "file",
+              "size": 571
+            },
+            "README.md": {
+              "type": "file",
+              "size": 1247
+            },
+            "README_SERVICES_CONFIG.md": {
+              "type": "file",
+              "size": 1546
+            },
+            "routes": {
+              "type": "file",
+              "truncated": true
+            },
+            "scripts": {
+              "type": "file",
+              "truncated": true
+            },
+            "server.js": {
+              "type": "file",
+              "size": 1347
+            },
+            "services": {
+              "type": "file",
+              "truncated": true
+            },
+            "STRUCTURE.md": {
+              "type": "file",
+              "size": 3678
+            },
+            "types": {
+              "type": "file",
+              "truncated": true
+            },
+            "utils": {
+              "type": "file",
+              "truncated": true
+            }
+          }
+        },
+        "CODEBASE_OVERVIEW.json": {
+          "type": "file",
+          "size": 62519
+        },
+        "CODEBASE_OVERVIEW.md": {
+          "type": "file",
+          "size": 4805
+        },
+        "frontend": {
+          "type": "directory",
+          "items": {
+            "data": {
+              "type": "file",
+              "truncated": true
+            },
+            "eslint.config.js": {
+              "type": "file",
+              "size": 739
+            },
+            "index.html": {
+              "type": "file",
+              "size": 6160
+            },
+            "package-lock.json": {
+              "type": "file",
+              "size": 145034
+            },
+            "package.json": {
+              "type": "file",
+              "size": 966
+            },
+            "postcss.config.js": {
+              "type": "file",
+              "size": 81
+            },
+            "public": {
+              "type": "file",
+              "truncated": true
+            },
+            "src": {
+              "type": "file",
+              "truncated": true
+            },
+            "tailwind.config.js": {
+              "type": "file",
+              "size": 170
+            },
+            "tsconfig.app.json": {
+              "type": "file",
+              "size": 629
+            },
+            "tsconfig.json": {
+              "type": "file",
+              "size": 119
+            },
+            "tsconfig.node.json": {
+              "type": "file",
+              "size": 479
+            },
+            "vite.config.ts": {
+              "type": "file",
+              "size": 398
+            }
+          }
+        },
+        "package.json": {
+          "type": "file",
+          "size": 605
+        },
+        "scripts": {
+          "type": "directory",
+          "items": {
+            "generate-codebase-overview.js": {
+              "type": "file",
+              "size": 24104
+            }
+          }
+        },
+        "shared": {
+          "type": "directory",
+          "items": {
+            "utils": {
+              "type": "file",
+              "truncated": true
+            }
+          }
+        }
+      }
+    },
+    "frontend": {
+      "type": "directory",
+      "items": {
+        "data": {
+          "type": "directory",
+          "items": {
+            "index.ts": {
+              "type": "file",
+              "size": 202
+            },
+            "vehicle_data": {
+              "type": "directory",
+              "items": {
+                "BoatMakeModel.json": {
+                  "type": "file",
+                  "size": 924
+                },
+                "CarMakeModel.json": {
+                  "type": "file",
+                  "size": 42127
+                },
+                "index.ts": {
+                  "type": "file",
+                  "size": 1825
+                },
+                "MotorcycleMakeModel.json": {
+                  "type": "file",
+                  "size": 926
+                },
+                "RvMakeModel.json": {
+                  "type": "file",
+                  "size": 919
+                }
+              }
+            }
+          }
+        },
+        "eslint.config.js": {
+          "type": "file",
+          "size": 739
+        },
+        "index.html": {
+          "type": "file",
+          "size": 6160
+        },
+        "package-lock.json": {
+          "type": "file",
+          "size": 145034
+        },
+        "package.json": {
+          "type": "file",
+          "size": 966
+        },
+        "postcss.config.js": {
+          "type": "file",
+          "size": 81
+        },
+        "public": {
+          "type": "directory",
+          "items": {
+            "assets": {
+              "type": "directory",
+              "items": {
+                "auto.png": {
+                  "type": "file",
+                  "size": 2910068
+                },
+                "boat.png": {
+                  "type": "file",
+                  "size": 2419100
+                },
+                "ceramic.png": {
+                  "type": "file",
+                  "size": 2454682
+                },
+                "favicon.webp": {
+                  "type": "file",
+                  "size": 1530
+                },
+                "logo.webp": {
+                  "type": "file",
+                  "size": 1530
+                },
+                "paint_correction.png": {
+                  "type": "file",
+                  "size": 2218655
+                },
+                "ppf.png": {
+                  "type": "file",
+                  "size": 1978272
+                },
+                "rv.png": {
+                  "type": "file",
+                  "size": 3177616
+                }
+              }
+            },
+            "auto_detailing": {
+              "type": "directory",
+              "items": {
+                "image2.png": {
+                  "type": "file",
+                  "size": 2646498
+                }
+              }
+            },
+            "boat_detailing": {
+              "type": "directory",
+              "items": {
+                "image2.png": {
+                  "type": "file",
+                  "size": 2434054
+                }
+              }
+            },
+            "brands": {
+              "type": "directory",
+              "items": {
+                "3d.png": {
+                  "type": "file",
+                  "size": 63881
+                },
+                "3m.png": {
+                  "type": "file",
+                  "size": 55127
+                },
+                "adams.webp": {
+                  "type": "file",
+                  "size": 91850
+                },
+                "auto-fiber.webp": {
+                  "type": "file",
+                  "size": 8906
+                },
+                "c6.webp": {
+                  "type": "file",
+                  "size": 3570
+                },
+                "carpro.png": {
+                  "type": "file",
+                  "size": 1356
+                },
+                "ceramic_pro.jfif": {
+                  "type": "file",
+                  "size": 5720
+                },
+                "chemicalguys.jpg": {
+                  "type": "file",
+                  "size": 119937
+                },
+                "griots.jpg": {
+                  "type": "file",
+                  "size": 53033
+                },
+                "koch.png": {
+                  "type": "file",
+                  "size": 1959
+                },
+                "lake-country.png": {
+                  "type": "file",
+                  "size": 5642
+                },
+                "lamin-x.png": {
+                  "type": "file",
+                  "size": 4095
+                },
+                "meguires.jpg": {
+                  "type": "file",
+                  "size": 226008
+                },
+                "menzerna.webp": {
+                  "type": "file",
+                  "size": 18876
+                },
+                "mirka.webp": {
+                  "type": "file",
+                  "size": 11914
+                },
+                "mtm_hydro.jpg": {
+                  "type": "file",
+                  "size": 155902
+                },
+                "poka.png": {
+                  "type": "file",
+                  "size": 2490
+                },
+                "rupes.png": {
+                  "type": "file",
+                  "size": 12886
+                },
+                "shopvac.jpg": {
+                  "type": "file",
+                  "size": 5225
+                },
+                "starke.png": {
+                  "type": "file",
+                  "size": 18140
+                },
+                "underdog.webp": {
+                  "type": "file",
+                  "size": 15642
+                },
+                "xpel.png": {
+                  "type": "file",
+                  "size": 1701
+                },
+                "yot-stik.webp": {
+                  "type": "file",
+                  "size": 27350
+                }
+              }
+            },
+            "ceramic": {
+              "type": "directory",
+              "items": {}
+            },
+            "hero": {
+              "type": "directory",
+              "items": {
+                "image1.png": {
+                  "type": "file",
+                  "size": 2292163
+                },
+                "image2.png": {
+                  "type": "file",
+                  "size": 2214466
+                }
+              }
+            },
+            "interior_exterior": {
+              "type": "directory",
+              "items": {
+                "image1.png": {
+                  "type": "file",
+                  "size": 1764092
+                }
+              }
+            },
+            "ppf": {
+              "type": "directory",
+              "items": {}
+            },
+            "rv_detailing": {
+              "type": "directory",
+              "items": {
+                "image1.png": {
+                  "type": "file",
+                  "size": 2576638
+                }
+              }
+            }
+          }
+        },
+        "src": {
+          "type": "directory",
+          "items": {
+            "App.tsx": {
+              "type": "file",
+              "size": 3758
+            },
+            "assets": {
+              "type": "directory",
+              "items": {
+                "auto.png": {
+                  "type": "file",
+                  "size": 2910068
+                },
+                "boat.png": {
+                  "type": "file",
+                  "size": 2419100
+                },
+                "ceramic.png": {
+                  "type": "file",
+                  "size": 2454682
+                },
+                "paint_correction.png": {
+                  "type": "file",
+                  "size": 2218655
+                },
+                "ppf.png": {
+                  "type": "file",
+                  "size": 1978272
+                },
+                "rv.png": {
+                  "type": "file",
+                  "size": 3177616
+                }
+              }
+            },
+            "components": {
+              "type": "directory",
+              "items": {
+                "01_header": {
+                  "type": "file",
+                  "truncated": true
+                },
+                "02_hero": {
+                  "type": "file",
+                  "truncated": true
+                },
+                "03_services": {
+                  "type": "file",
+                  "truncated": true
+                },
+                "04_reviews": {
+                  "type": "file",
+                  "truncated": true
+                },
+                "05_faq": {
+                  "type": "file",
+                  "truncated": true
+                },
+                "07_footer": {
+                  "type": "file",
+                  "truncated": true
+                },
+                "Book_Quote": {
+                  "type": "file",
+                  "truncated": true
+                },
+                "brands": {
+                  "type": "file",
+                  "truncated": true
+                },
+                "DevModeDropdown.tsx": {
+                  "type": "file",
+                  "size": 2429
+                },
+                "HomePage.tsx": {
+                  "type": "file",
+                  "size": 1793
+                },
+                "login": {
+                  "type": "file",
+                  "truncated": true
+                },
+                "shared": {
+                  "type": "file",
+                  "truncated": true
+                }
+              }
+            },
+            "config": {
+              "type": "directory",
+              "items": {
+                "brands.ts": {
+                  "type": "file",
+                  "size": 7815
+                },
+                "environment.ts": {
+                  "type": "file",
+                  "size": 864
+                }
+              }
+            },
+            "contexts": {
+              "type": "directory",
+              "items": {
+                "AffiliateContext.tsx": {
+                  "type": "file",
+                  "size": 2484
+                },
+                "AuthContext.tsx": {
+                  "type": "file",
+                  "size": 5195
+                },
+                "LocationContext.tsx": {
+                  "type": "file",
+                  "size": 5480
+                },
+                "MDHConfigContext.tsx": {
+                  "type": "file",
+                  "size": 2156
+                }
+              }
+            },
+            "hooks": {
+              "type": "directory",
+              "items": {
+                "useImageRotation.ts": {
+                  "type": "file",
+                  "size": 590
+                },
+                "usePerformanceMonitor.ts": {
+                  "type": "file",
+                  "size": 4001
+                },
+                "useScrollToTop.ts": {
+                  "type": "file",
+                  "size": 540
+                },
+                "useSiteContext.ts": {
+                  "type": "file",
+                  "size": 272
+                },
+                "useVehicleData.ts": {
+                  "type": "file",
+                  "size": 3467
+                }
+              }
+            },
+            "index.css": {
+              "type": "file",
+              "size": 976
+            },
+            "main.tsx": {
+              "type": "file",
+              "size": 234
+            },
+            "pages": {
+              "type": "directory",
+              "items": {
+                "adminDashboard": {
+                  "type": "file",
+                  "truncated": true
+                },
+                "affiliateDashboard": {
+                  "type": "file",
+                  "truncated": true
+                },
+                "affiliateOnboarding": {
+                  "type": "file",
+                  "truncated": true
+                },
+                "clientDashboard": {
+                  "type": "file",
+                  "truncated": true
+                }
+              }
+            },
+            "services": {
+              "type": "directory",
+              "items": {
+                "api.ts": {
+                  "type": "file",
+                  "size": 1442
+                }
+              }
+            },
+            "types": {
+              "type": "directory",
+              "items": {
+                "google-maps.d.ts": {
+                  "type": "file",
+                  "size": 90
+                },
+                "vehicle.ts": {
+                  "type": "file",
+                  "size": 1663
+                }
+              }
+            },
+            "utils": {
+              "type": "directory",
+              "items": {
+                "findBusinessByLocation.ts": {
+                  "type": "file",
+                  "size": 1104
+                },
+                "phoneFormatter.test.ts": {
+                  "type": "file",
+                  "size": 2154
+                },
+                "phoneFormatter.ts": {
+                  "type": "file",
+                  "size": 3575
+                },
+                "scrollToTop.ts": {
+                  "type": "file",
+                  "size": 532
+                },
+                "validation.test.ts": {
+                  "type": "file",
+                  "size": 5493
+                },
+                "validation.ts": {
+                  "type": "file",
+                  "size": 7185
+                },
+                "vehicleHelpers.ts": {
+                  "type": "file",
+                  "size": 4119
+                }
+              }
+            },
+            "vite-env.d.ts": {
+              "type": "file",
+              "size": 38
+            }
+          }
+        },
+        "tailwind.config.js": {
+          "type": "file",
+          "size": 170
+        },
+        "tsconfig.app.json": {
+          "type": "file",
+          "size": 629
+        },
+        "tsconfig.json": {
+          "type": "file",
+          "size": 119
+        },
+        "tsconfig.node.json": {
+          "type": "file",
+          "size": 479
+        },
+        "vite.config.ts": {
+          "type": "file",
+          "size": 398
+        }
+      }
+    },
+    "backend": {
+      "type": "directory",
+      "items": {
+        "controllers": {
+          "type": "directory",
+          "items": {}
+        },
+        "database": {
+          "type": "directory",
+          "items": {
+            "connection.js": {
+              "type": "file",
+              "size": 768
+            }
+          }
+        },
+        "DATABASE_SETUP.md": {
+          "type": "file",
+          "size": 900
+        },
+        "middleware": {
+          "type": "directory",
+          "items": {
+            "auth.js": {
+              "type": "file",
+              "size": 813
+            }
+          }
+        },
+        "models": {
+          "type": "directory",
+          "items": {}
+        },
+        "package-lock.json": {
+          "type": "file",
+          "size": 49648
+        },
+        "package.json": {
+          "type": "file",
+          "size": 571
+        },
+        "README.md": {
+          "type": "file",
+          "size": 1247
+        },
+        "README_SERVICES_CONFIG.md": {
+          "type": "file",
+          "size": 1546
+        },
+        "routes": {
+          "type": "directory",
+          "items": {
+            "admin.js": {
+              "type": "file",
+              "size": 5161
+            },
+            "affiliates.js": {
+              "type": "file",
+              "size": 6206
+            },
+            "auth.js": {
+              "type": "file",
+              "size": 5981
+            },
+            "clients.js": {
+              "type": "file",
+              "size": 1293
+            },
+            "health.js": {
+              "type": "file",
+              "size": 1078
+            },
+            "mdhConfig.js": {
+              "type": "file",
+              "size": 1470
+            },
+            "serviceAreas.js": {
+              "type": "file",
+              "size": 2047
+            }
+          }
+        },
+        "scripts": {
+          "type": "directory",
+          "items": {
+            "add_services_description.sql": {
+              "type": "file",
+              "size": 969
+            },
+            "migrate_service_areas.py": {
+              "type": "file",
+              "size": 2362
+            }
+          }
+        },
+        "server.js": {
+          "type": "file",
+          "size": 1347
+        },
+        "services": {
+          "type": "directory",
+          "items": {}
+        },
+        "STRUCTURE.md": {
+          "type": "file",
+          "size": 3678
+        },
+        "types": {
+          "type": "directory",
+          "items": {}
+        },
+        "utils": {
+          "type": "directory",
+          "items": {
+            "databaseInit.js": {
+              "type": "file",
+              "size": 5770
+            }
+          }
+        }
+      }
+    }
+  },
+  "techStack": {
+    "frontend": {
+      "framework": "React 18.3.1",
+      "language": "TypeScript 5.5.3",
+      "buildTool": "Vite 5.4.2",
+      "styling": "Tailwind CSS 3.4.1",
+      "routing": "React Router DOM 7.7.1",
+      "icons": "Lucide React 0.344.0",
+      "bundler": "Vite with PostCSS and Autoprefixer"
+    },
+    "backend": {
+      "runtime": "Node.js",
+      "framework": "Express 5.1.0",
+      "database": "PostgreSQL with pg driver",
+      "authentication": "JWT + bcryptjs",
+      "security": "Helmet 8.1.0",
+      "cors": "CORS enabled"
+    },
+    "development": {
+      "packageManager": "npm with workspaces",
+      "linting": "ESLint 9.9.1",
+      "hotReload": "Nodemon for backend, Vite for frontend",
+      "concurrent": "Concurrently for running both services"
+    }
+  },
+  "components": {
+    "structure": {
+      "01_header": {
+        "affiliate": {
+          "Header.tsx": {
+            "type": "component",
+            "size": 4796
+          }
+        },
+        "AuthSection.tsx": {
+          "type": "component",
+          "size": 398
+        },
+        "constants.ts": {
+          "type": "component",
+          "size": 174
+        },
+        "index.tsx": {
+          "type": "component",
+          "size": 340
+        },
+        "LoginButton.tsx": {
+          "type": "component",
+          "size": 733
+        },
+        "Logo.tsx": {
+          "type": "component",
+          "size": 557
+        },
+        "mdh": {
+          "Header.tsx": {
+            "type": "component",
+            "size": 3988
+          }
+        },
+        "MobileMenu.tsx": {
+          "type": "component",
+          "size": 2812
+        },
+        "SocialMediaIcons.tsx": {
+          "type": "component",
+          "size": 1998
+        },
+        "UserMenu.tsx": {
+          "type": "component",
+          "size": 3975
+        }
+      },
+      "02_hero": {
+        "affiliate": {
+          "Hero.tsx": {
+            "type": "component",
+            "size": 792
+          }
+        },
+        "components": {
+          "HeroBackground.tsx": {
+            "type": "component",
+            "size": 1177
+          },
+          "index.ts": {
+            "type": "component",
+            "size": 63
+          }
+        },
+        "constants.ts": {
+          "type": "component",
+          "size": 295
+        },
+        "hooks": {},
+        "index.tsx": {
+          "type": "component",
+          "size": 798
+        },
+        "mdh": {
+          "Hero.tsx": {
+            "type": "component",
+            "size": 1053
+          }
+        },
+        "types": {
+          "index.ts": {
+            "type": "component",
+            "size": 65
+          }
+        }
+      },
+      "03_services": {
+        "index.ts": {
+          "type": "component",
+          "size": 862
+        },
+        "Services.tsx": {
+          "type": "component",
+          "size": 2014
+        }
+      },
+      "04_reviews": {
+        "affiliate": {
+          "index.tsx": {
+            "type": "component",
+            "size": 83
+          },
+          "Reviews.tsx": {
+            "type": "component",
+            "size": 274
+          }
+        },
+        "GoogleBadge.tsx": {
+          "type": "component",
+          "size": 944
+        },
+        "index.ts": {
+          "type": "component",
+          "size": 586
+        },
+        "mdh": {
+          "index.tsx": {
+            "type": "component",
+            "size": 71
+          },
+          "Reviews.tsx": {
+            "type": "component",
+            "size": 262
+          }
+        },
+        "mockData.ts": {
+          "type": "component",
+          "size": 2779
+        },
+        "ReviewCard.tsx": {
+          "type": "component",
+          "size": 2694
+        },
+        "Reviews.tsx": {
+          "type": "component",
+          "size": 4218
+        },
+        "ReviewsHeader.tsx": {
+          "type": "component",
+          "size": 2127
+        },
+        "StarRating.tsx": {
+          "type": "component",
+          "size": 1012
+        },
+        "types.ts": {
+          "type": "component",
+          "size": 464
+        }
+      },
+      "05_faq": {
+        "affiliate": {
+          "FAQ.tsx": {
+            "type": "component",
+            "size": 2026
+          }
+        },
+        "components": {
+          "AffiliateFooter.tsx": {
+            "type": "component",
+            "size": 223
+          },
+          "AffiliateHeader.tsx": {
+            "type": "component",
+            "size": 1141
+          },
+          "FAQErrorState.tsx": {
+            "type": "component",
+            "size": 369
+          },
+          "FAQExpandButton.tsx": {
+            "type": "component",
+            "size": 808
+          },
+          "FAQFooter.tsx": {
+            "type": "component",
+            "size": 211
+          },
+          "FAQHeader.tsx": {
+            "type": "component",
+            "size": 1075
+          },
+          "FAQItem.tsx": {
+            "type": "component",
+            "size": 2362
+          },
+          "FAQLoadingState.tsx": {
+            "type": "component",
+            "size": 373
+          },
+          "FAQTabbedInterface.tsx": {
+            "type": "component",
+            "size": 5786
+          }
+        },
+        "data": {
+          "affiliate": {
+            "aftercare.ts": {
+              "type": "component",
+              "size": 920
+            },
+            "fleet.ts": {
+              "type": "component",
+              "size": 1057
+            },
+            "general.ts": {
+              "type": "component",
+              "size": 1059
+            },
+            "index.ts": {
+              "type": "component",
+              "size": 1314
+            },
+            "locations.ts": {
+              "type": "component",
+              "size": 1729
+            },
+            "payments.ts": {
+              "type": "component",
+              "size": 962
+            },
+            "preparation.ts": {
+              "type": "component",
+              "size": 913
+            },
+            "pricing.ts": {
+              "type": "component",
+              "size": 1580
+            },
+            "scheduling.ts": {
+              "type": "component",
+              "size": 1409
+            },
+            "services.ts": {
+              "type": "component",
+              "size": 2977
+            },
+            "warranty.ts": {
+              "type": "component",
+              "size": 763
+            }
+          },
+          "mdh": {
+            "aftercare.ts": {
+              "type": "component",
+              "size": 1768
+            },
+            "fleet.ts": {
+              "type": "component",
+              "size": 1778
+            },
+            "general.ts": {
+              "type": "component",
+              "size": 1680
+            },
+            "index.ts": {
+              "type": "component",
+              "size": 1058
+            },
+            "locations.ts": {
+              "type": "component",
+              "size": 1753
+            },
+            "payments.ts": {
+              "type": "component",
+              "size": 1866
+            },
+            "preparation.ts": {
+              "type": "component",
+              "size": 1977
+            },
+            "pricing.ts": {
+              "type": "component",
+              "size": 2169
+            },
+            "scheduling.ts": {
+              "type": "component",
+              "size": 1954
+            },
+            "services.ts": {
+              "type": "component",
+              "size": 5018
+            },
+            "warranty.ts": {
+              "type": "component",
+              "size": 1765
+            }
+          }
+        },
+        "hooks": {
+          "useAffiliateData.ts": {
+            "type": "component",
+            "size": 1437
+          },
+          "useFAQData.ts": {
+            "type": "component",
+            "size": 694
+          },
+          "useFAQEffects.ts": {
+            "type": "component",
+            "size": 3352
+          },
+          "useFAQState.ts": {
+            "type": "component",
+            "size": 635
+          }
+        },
+        "index.tsx": {
+          "type": "component",
+          "size": 267
+        },
+        "mdh": {
+          "FAQ.tsx": {
+            "type": "component",
+            "size": 1749
+          }
+        },
+        "types.ts": {
+          "type": "component",
+          "size": 718
+        },
+        "utils": {
+          "dynamicFAQBuilder.ts": {
+            "type": "component",
+            "size": 3189
+          },
+          "geoHelpers.ts": {
+            "type": "component",
+            "size": 850
+          }
+        }
+      },
+      "07_footer": {
+        "affiliate": {
+          "Footer.tsx": {
+            "type": "component",
+            "size": 2104
+          },
+          "Grid.tsx": {
+            "type": "component",
+            "size": 6357
+          }
+        },
+        "columns": {
+          "ConnectColumn.tsx": {
+            "type": "component",
+            "size": 2693
+          },
+          "QuickLinksColumn.tsx": {
+            "type": "component",
+            "size": 776
+          },
+          "SocialMediaColumn.tsx": {
+            "type": "component",
+            "size": 1723
+          }
+        },
+        "FooterBottom.tsx": {
+          "type": "component",
+          "size": 1053
+        },
+        "FooterErrorState.tsx": {
+          "type": "component",
+          "size": 482
+        },
+        "FooterLoadingState.tsx": {
+          "type": "component",
+          "size": 521
+        },
+        "GetStartedSection.tsx": {
+          "type": "component",
+          "size": 457
+        },
+        "icons": {
+          "TikTokIcon.tsx": {
+            "type": "component",
+            "size": 423
+          }
+        },
+        "index.tsx": {
+          "type": "component",
+          "size": 1190
+        },
+        "mdh": {
+          "Footer.tsx": {
+            "type": "component",
+            "size": 1288
+          },
+          "Grid.tsx": {
+            "type": "component",
+            "size": 5327
+          }
+        }
+      },
+      "Book_Quote": {
+        "BookingModal.tsx": {
+          "type": "component",
+          "size": 1145
+        },
+        "CTAButton.tsx": {
+          "type": "component",
+          "size": 1159
+        },
+        "CTAButtonsContainer.tsx": {
+          "type": "component",
+          "size": 1044
+        },
+        "index.ts": {
+          "type": "component",
+          "size": 240
+        },
+        "QuoteModal.tsx": {
+          "type": "component",
+          "size": 21521
+        }
+      },
+      "brands": {
+        "BrandItem.tsx": {
+          "type": "component",
+          "size": 1570
+        },
+        "Brands.tsx": {
+          "type": "component",
+          "size": 2067
+        },
+        "BrandsEmptyState.tsx": {
+          "type": "component",
+          "size": 364
+        },
+        "BrandsErrorState.tsx": {
+          "type": "component",
+          "size": 504
+        },
+        "BrandsGrid.tsx": {
+          "type": "component",
+          "size": 589
+        },
+        "BrandsLoadingState.tsx": {
+          "type": "component",
+          "size": 654
+        },
+        "index.ts": {
+          "type": "component",
+          "size": 381
+        }
+      },
+      "DevModeDropdown.tsx": {
+        "type": "component",
+        "size": 2429
+      },
+      "HomePage.tsx": {
+        "type": "component",
+        "size": 1793
+      },
+      "login": {
+        "index.ts": {
+          "type": "component",
+          "size": 55
+        },
+        "LoginModal.tsx": {
+          "type": "component",
+          "size": 15950
+        }
+      },
+      "shared": {
+        "ErrorBoundary.tsx": {
+          "type": "component",
+          "size": 3042
+        },
+        "index.ts": {
+          "type": "component",
+          "size": 517
+        },
+        "LazyVideo.tsx": {
+          "type": "component",
+          "size": 3481
+        },
+        "LocationEditModal.tsx": {
+          "type": "component",
+          "size": 2669
+        },
+        "LocationSearchBar.tsx": {
+          "type": "component",
+          "size": 13316
+        },
+        "OptimizedImage.tsx": {
+          "type": "component",
+          "size": 1698
+        },
+        "useErrorBoundary.tsx": {
+          "type": "component",
+          "size": 1486
+        },
+        "withErrorBoundary.tsx": {
+          "type": "component",
+          "size": 2310
+        }
+      }
+    },
+    "count": 109,
+    "keyComponents": {
+      "01_header": [
+        "AuthSection.tsx",
+        "constants.ts",
+        "index.tsx",
+        "LoginButton.tsx",
+        "Logo.tsx",
+        "MobileMenu.tsx",
+        "SocialMediaIcons.tsx",
+        "UserMenu.tsx"
+      ],
+      "02_hero": [
+        "constants.ts",
+        "index.tsx"
+      ],
+      "03_services": [
+        "index.ts",
+        "Services.tsx"
+      ],
+      "04_reviews": [
+        "GoogleBadge.tsx",
+        "index.ts",
+        "mockData.ts",
+        "ReviewCard.tsx",
+        "Reviews.tsx",
+        "ReviewsHeader.tsx",
+        "StarRating.tsx",
+        "types.ts"
+      ],
+      "05_faq": [
+        "index.tsx",
+        "types.ts"
+      ],
+      "07_footer": [
+        "FooterBottom.tsx",
+        "FooterErrorState.tsx",
+        "FooterLoadingState.tsx",
+        "GetStartedSection.tsx",
+        "index.tsx"
+      ],
+      "login": [
+        "index.ts",
+        "LoginModal.tsx"
+      ],
+      "shared": [
+        "ErrorBoundary.tsx",
+        "index.ts",
+        "LazyVideo.tsx",
+        "LocationEditModal.tsx",
+        "LocationSearchBar.tsx",
+        "OptimizedImage.tsx",
+        "useErrorBoundary.tsx",
+        "withErrorBoundary.tsx"
+      ]
+    }
+  },
+  "pages": {
+    "structure": {
+      "adminDashboard": {
+        "Dashboard.tsx": {
+          "type": "page",
+          "size": 22090
+        }
+      },
+      "affiliateDashboard": {
+        "components": {
+          "DashboardHeader.tsx": {
+            "type": "page",
+            "size": 3290
+          },
+          "DashboardLayout.tsx": {
+            "type": "page",
+            "size": 301
+          },
+          "DashboardTabs.tsx": {
+            "type": "page",
+            "size": 1186
+          },
+          "TabContent.tsx": {
+            "type": "page",
+            "size": 1151
+          }
+        },
+        "DashboardPage.tsx": {
+          "type": "page",
+          "size": 1758
+        },
+        "hooks": {
+          "useDashboardData.ts": {
+            "type": "page",
+            "size": 571
+          }
+        },
+        "index.ts": {
+          "type": "page",
+          "size": 161
+        },
+        "tabs": {
+          "customers": {
+            "components": {},
+            "CustomersTab.tsx": {
+              "type": "page",
+              "size": 136
+            },
+            "hooks": {},
+            "index.ts": {
+              "type": "page",
+              "size": 57
+            },
+            "utils": {}
+          },
+          "overview": {
+            "components": {
+              "MetricsCards.tsx": {
+                "type": "page",
+                "size": 2505
+              },
+              "NotificationPanel.tsx": {
+                "type": "page",
+                "size": 1378
+              },
+              "QuickActions.tsx": {
+                "type": "page",
+                "size": 1537
+              },
+              "RecentAppointments.tsx": {
+                "type": "page",
+                "size": 1930
+              },
+              "RecentReviews.tsx": {
+                "type": "page",
+                "size": 1291
+              }
+            },
+            "hooks": {
+              "useDashboardStats.ts": {
+                "type": "page",
+                "size": 0
+              },
+              "useNotifications.ts": {
+                "type": "page",
+                "size": 1076
+              },
+              "useRecentAppointments.ts": {
+                "type": "page",
+                "size": 1278
+              },
+              "useRecentReviews.ts": {
+                "type": "page",
+                "size": 1079
+              }
+            },
+            "index.ts": {
+              "type": "page",
+              "size": 370
+            },
+            "OverviewTab.tsx": {
+              "type": "page",
+              "size": 697
+            },
+            "utils": {
+              "getStatusColor.ts": {
+                "type": "page",
+                "size": 312
+              }
+            }
+          },
+          "performance": {
+            "components": {},
+            "hooks": {},
+            "index.ts": {
+              "type": "page",
+              "size": 61
+            },
+            "PerformanceTab.tsx": {
+              "type": "page",
+              "size": 142
+            },
+            "utils": {}
+          },
+          "profile": {
+            "components": {},
+            "hooks": {},
+            "index.ts": {
+              "type": "page",
+              "size": 53
+            },
+            "ProfileTab.tsx": {
+              "type": "page",
+              "size": 130
+            },
+            "utils": {}
+          },
+          "schedule": {
+            "components": {
+              "ScheduleGrid.tsx": {
+                "type": "page",
+                "size": 3592
+              },
+              "ScheduleHeader.tsx": {
+                "type": "page",
+                "size": 2192
+              },
+              "ScheduleSidebar.tsx": {
+                "type": "page",
+                "size": 2319
+              }
+            },
+            "hooks": {
+              "useScheduleData.ts": {
+                "type": "page",
+                "size": 1374
+              }
+            },
+            "index.ts": {
+              "type": "page",
+              "size": 230
+            },
+            "ScheduleTab.tsx": {
+              "type": "page",
+              "size": 1115
+            },
+            "utils": {}
+          },
+          "services": {
+            "components": {
+              "CategorySelector.tsx": {
+                "type": "page",
+                "size": 988
+              },
+              "ServiceSelector.tsx": {
+                "type": "page",
+                "size": 967
+              },
+              "ServiceTierCards.tsx": {
+                "type": "page",
+                "size": 10154
+              },
+              "VehicleSelector.tsx": {
+                "type": "page",
+                "size": 1134
+              }
+            },
+            "hooks": {
+              "useServicesData.ts": {
+                "type": "page",
+                "size": 3132
+              }
+            },
+            "index.ts": {
+              "type": "page",
+              "size": 307
+            },
+            "ServicesTab.tsx": {
+              "type": "page",
+              "size": 5174
+            },
+            "types": {
+              "index.ts": {
+                "type": "page",
+                "size": 486
+              }
+            },
+            "utils": {}
+          }
+        },
+        "types": {
+          "index.ts": {
+            "type": "page",
+            "size": 1260
+          }
+        },
+        "utils": {
+          "constants.ts": {
+            "type": "page",
+            "size": 715
+          }
+        }
+      },
+      "affiliateOnboarding": {
+        "AffiliateApplicationPage.tsx": {
+          "type": "page",
+          "size": 6082
+        },
+        "api.ts": {
+          "type": "page",
+          "size": 1254
+        },
+        "components": {
+          "ApplicationHeader.tsx": {
+            "type": "page",
+            "size": 1957
+          },
+          "IdentityContactSection.tsx": {
+            "type": "page",
+            "size": 6545
+          },
+          "index.ts": {
+            "type": "page",
+            "size": 556
+          },
+          "LegalTermsSection.tsx": {
+            "type": "page",
+            "size": 3873
+          },
+          "LocationInput.tsx": {
+            "type": "page",
+            "size": 11257
+          },
+          "OperatingBasicsSection.tsx": {
+            "type": "page",
+            "size": 1952
+          },
+          "ProofOfWorkSection.tsx": {
+            "type": "page",
+            "size": 3489
+          },
+          "SocialMediaSection.tsx": {
+            "type": "page",
+            "size": 5582
+          },
+          "SubmitSection.tsx": {
+            "type": "page",
+            "size": 2406
+          },
+          "SuccessPage.tsx": {
+            "type": "page",
+            "size": 3012
+          }
+        },
+        "hooks": {
+          "index.ts": {
+            "type": "page",
+            "size": 158
+          },
+          "useFileUpload.ts": {
+            "type": "page",
+            "size": 1511
+          },
+          "useFormHandlers.ts": {
+            "type": "page",
+            "size": 1236
+          },
+          "useFormProgress.ts": {
+            "type": "page",
+            "size": 1523
+          }
+        },
+        "index.ts": {
+          "type": "page",
+          "size": 167
+        },
+        "types.ts": {
+          "type": "page",
+          "size": 1775
+        },
+        "useLocalDraft.ts": {
+          "type": "page",
+          "size": 2914
+        }
+      },
+      "clientDashboard": {}
+    },
+    "count": 61,
+    "mainPages": {
+      "adminDashboard": [
+        "Dashboard.tsx"
+      ],
+      "affiliateDashboard": [
+        "DashboardPage.tsx",
+        "index.ts"
+      ],
+      "affiliateOnboarding": [
+        "AffiliateApplicationPage.tsx",
+        "api.ts",
+        "index.ts",
+        "types.ts",
+        "useLocalDraft.ts"
+      ],
+      "clientDashboard": []
+    }
+  },
+  "database": {
+    "connection": {
+      "exists": true,
+      "size": 768,
+      "preview": "const { Pool } = require('pg');\r\n\r\n// PostgreSQL connection pool\r\nconst pool = new Pool({\r\n  connectionString: process.env.DATABASE_URL || `postgresql://${process.env.DB_USER || 'postgres'}:${process...."
+    },
+    "models": {
+      "exists": true,
+      "files": []
+    },
+    "routes": {
+      "exists": true,
+      "files": [
+        {
+          "name": "admin.js",
+          "size": 5161,
+          "type": ".js"
+        },
+        {
+          "name": "affiliates.js",
+          "size": 6206,
+          "type": ".js"
+        },
+        {
+          "name": "auth.js",
+          "size": 5981,
+          "type": ".js"
+        },
+        {
+          "name": "clients.js",
+          "size": 1293,
+          "type": ".js"
+        },
+        {
+          "name": "health.js",
+          "size": 1078,
+          "type": ".js"
+        },
+        {
+          "name": "mdhConfig.js",
+          "size": 1470,
+          "type": ".js"
+        },
+        {
+          "name": "serviceAreas.js",
+          "size": 2047,
+          "type": ".js"
+        }
+      ]
+    },
+    "setup": {
+      "exists": true,
+      "size": 900,
+      "preview": "# Database Setup\r\n\r\n## Environment Variables\r\n\r\nTo avoid hardcoded database credentials, create a `.env` file in the backend directory with the following variables:\r\n\r\n```bash\r\n# Database Configuratio..."
+    },
+    "schemas": {
+      "tables": {
+        "users": {
+          "columns": [
+            {
+              "name": "password_hash",
+              "type": "VARCHAR(255)",
+              "nullable": false,
+              "hasDefault": false,
+              "definition": "password_hash VARCHAR(255) NOT NULL,"
+            },
+            {
+              "name": "name",
+              "type": "VARCHAR(255)",
+              "nullable": false,
+              "hasDefault": false,
+              "definition": "name VARCHAR(255) NOT NULL,"
+            },
+            {
+              "name": "phone",
+              "type": "VARCHAR(50),",
+              "nullable": true,
+              "hasDefault": false,
+              "definition": "phone VARCHAR(50),"
+            },
+            {
+              "name": "is_admin",
+              "type": "BOOLEAN",
+              "nullable": true,
+              "hasDefault": true,
+              "definition": "is_admin BOOLEAN DEFAULT FALSE,"
+            },
+            {
+              "name": "role",
+              "type": "VARCHAR(50)",
+              "nullable": true,
+              "hasDefault": true,
+              "definition": "role VARCHAR(50) DEFAULT 'user',"
+            },
+            {
+              "name": "created_at",
+              "type": "TIMESTAMP",
+              "nullable": true,
+              "hasDefault": true,
+              "definition": "created_at TIMESTAMP DEFAULT NOW(),"
+            },
+            {
+              "name": "updated_at",
+              "type": "TIMESTAMP",
+              "nullable": true,
+              "hasDefault": true,
+              "definition": "updated_at TIMESTAMP DEFAULT NOW()"
+            }
+          ],
+          "constraints": [
+            "id SERIAL PRIMARY KEY,",
+            "email VARCHAR(255) UNIQUE NOT NULL,"
+          ]
+        },
+        "mdh_config": {
+          "columns": [
+            {
+              "name": "email",
+              "type": "VARCHAR(255),",
+              "nullable": true,
+              "hasDefault": false,
+              "definition": "email VARCHAR(255),"
+            },
+            {
+              "name": "phone",
+              "type": "VARCHAR(50),",
+              "nullable": true,
+              "hasDefault": false,
+              "definition": "phone VARCHAR(50),"
+            },
+            {
+              "name": "sms_phone",
+              "type": "VARCHAR(50),",
+              "nullable": true,
+              "hasDefault": false,
+              "definition": "sms_phone VARCHAR(50),"
+            },
+            {
+              "name": "logo_url",
+              "type": "TEXT,",
+              "nullable": true,
+              "hasDefault": false,
+              "definition": "logo_url TEXT,"
+            },
+            {
+              "name": "favicon_url",
+              "type": "TEXT,",
+              "nullable": true,
+              "hasDefault": false,
+              "definition": "favicon_url TEXT,"
+            },
+            {
+              "name": "header_display",
+              "type": "VARCHAR(255)",
+              "nullable": true,
+              "hasDefault": true,
+              "definition": "header_display VARCHAR(255) DEFAULT 'Mobile Detail Hub',"
+            },
+            {
+              "name": "facebook",
+              "type": "VARCHAR(255),",
+              "nullable": true,
+              "hasDefault": false,
+              "definition": "facebook VARCHAR(255),"
+            },
+            {
+              "name": "instagram",
+              "type": "VARCHAR(255),",
+              "nullable": true,
+              "hasDefault": false,
+              "definition": "instagram VARCHAR(255),"
+            },
+            {
+              "name": "tiktok",
+              "type": "VARCHAR(255),",
+              "nullable": true,
+              "hasDefault": false,
+              "definition": "tiktok VARCHAR(255),"
+            },
+            {
+              "name": "youtube",
+              "type": "VARCHAR(255),",
+              "nullable": true,
+              "hasDefault": false,
+              "definition": "youtube VARCHAR(255),"
+            },
+            {
+              "name": "created_at",
+              "type": "TIMESTAMP",
+              "nullable": true,
+              "hasDefault": true,
+              "definition": "created_at TIMESTAMP DEFAULT NOW(),"
+            },
+            {
+              "name": "updated_at",
+              "type": "TIMESTAMP",
+              "nullable": true,
+              "hasDefault": true,
+              "definition": "updated_at TIMESTAMP DEFAULT NOW()"
+            }
+          ],
+          "constraints": [
+            "id SERIAL PRIMARY KEY,"
+          ]
+        },
+        "service_areas": {
+          "columns": [
+            {
+              "name": "state",
+              "type": "VARCHAR(50),",
+              "nullable": true,
+              "hasDefault": false,
+              "definition": "state VARCHAR(50),"
+            },
+            {
+              "name": "city",
+              "type": "VARCHAR(100),",
+              "nullable": true,
+              "hasDefault": false,
+              "definition": "city VARCHAR(100),"
+            },
+            {
+              "name": "zip",
+              "type": "VARCHAR(20),",
+              "nullable": true,
+              "hasDefault": false,
+              "definition": "zip VARCHAR(20),"
+            },
+            {
+              "name": "created_at",
+              "type": "TIMESTAMP",
+              "nullable": true,
+              "hasDefault": true,
+              "definition": "created_at TIMESTAMP DEFAULT NOW()"
+            }
+          ],
+          "constraints": [
+            "id SERIAL PRIMARY KEY,"
+          ]
+        },
+        "affiliates": {
+          "columns": [
+            {
+              "name": "name",
+              "type": "VARCHAR(255)",
+              "nullable": false,
+              "hasDefault": false,
+              "definition": "name VARCHAR(255) NOT NULL,"
+            },
+            {
+              "name": "email",
+              "type": "VARCHAR(255),",
+              "nullable": true,
+              "hasDefault": false,
+              "definition": "email VARCHAR(255),"
+            },
+            {
+              "name": "phone",
+              "type": "VARCHAR(50),",
+              "nullable": true,
+              "hasDefault": false,
+              "definition": "phone VARCHAR(50),"
+            },
+            {
+              "name": "sms_phone",
+              "type": "VARCHAR(50),",
+              "nullable": true,
+              "hasDefault": false,
+              "definition": "sms_phone VARCHAR(50),"
+            },
+            {
+              "name": "address",
+              "type": "TEXT,",
+              "nullable": true,
+              "hasDefault": false,
+              "definition": "address TEXT,"
+            },
+            {
+              "name": "logo_url",
+              "type": "TEXT,",
+              "nullable": true,
+              "hasDefault": false,
+              "definition": "logo_url TEXT,"
+            },
+            {
+              "name": "website",
+              "type": "VARCHAR(255),",
+              "nullable": true,
+              "hasDefault": false,
+              "definition": "website VARCHAR(255),"
+            },
+            {
+              "name": "description",
+              "type": "TEXT,",
+              "nullable": true,
+              "hasDefault": false,
+              "definition": "description TEXT,"
+            },
+            {
+              "name": "service_areas",
+              "type": "TEXT[],",
+              "nullable": true,
+              "hasDefault": false,
+              "definition": "service_areas TEXT[],"
+            },
+            {
+              "name": "state_cities",
+              "type": "JSONB,",
+              "nullable": true,
+              "hasDefault": false,
+              "definition": "state_cities JSONB,"
+            },
+            {
+              "name": "is_active",
+              "type": "BOOLEAN",
+              "nullable": true,
+              "hasDefault": true,
+              "definition": "is_active BOOLEAN DEFAULT TRUE,"
+            },
+            {
+              "name": "created_at",
+              "type": "TIMESTAMP",
+              "nullable": true,
+              "hasDefault": true,
+              "definition": "created_at TIMESTAMP DEFAULT NOW(),"
+            },
+            {
+              "name": "updated_at",
+              "type": "TIMESTAMP",
+              "nullable": true,
+              "hasDefault": true,
+              "definition": "updated_at TIMESTAMP DEFAULT NOW()"
+            }
+          ],
+          "constraints": [
+            "id SERIAL PRIMARY KEY,",
+            "slug VARCHAR(100) UNIQUE NOT NULL,"
+          ]
+        },
+        "affiliate_service_areas": {
+          "columns": [
+            {
+              "name": "affiliate_id",
+              "type": "INTEGER",
+              "nullable": true,
+              "hasDefault": false,
+              "definition": "affiliate_id INTEGER REFERENCES affiliates(id) ON DELETE CASCADE,"
+            },
+            {
+              "name": "state",
+              "type": "VARCHAR(50)",
+              "nullable": false,
+              "hasDefault": false,
+              "definition": "state VARCHAR(50) NOT NULL,"
+            },
+            {
+              "name": "city",
+              "type": "VARCHAR(100)",
+              "nullable": false,
+              "hasDefault": false,
+              "definition": "city VARCHAR(100) NOT NULL,"
+            },
+            {
+              "name": "zip",
+              "type": "VARCHAR(20),",
+              "nullable": true,
+              "hasDefault": false,
+              "definition": "zip VARCHAR(20),"
+            },
+            {
+              "name": "created_at",
+              "type": "TIMESTAMP",
+              "nullable": true,
+              "hasDefault": true,
+              "definition": "created_at TIMESTAMP DEFAULT NOW(),"
+            }
+          ],
+          "constraints": [
+            "id SERIAL PRIMARY KEY,",
+            "UNIQUE(affiliate_id, state, city)"
+          ]
+        },
+        "clients": {
+          "columns": [
+            {
+              "name": "user_id",
+              "type": "INTEGER,",
+              "nullable": true,
+              "hasDefault": false,
+              "definition": "user_id INTEGER,"
+            },
+            {
+              "name": "address",
+              "type": "TEXT,",
+              "nullable": true,
+              "hasDefault": false,
+              "definition": "address TEXT,"
+            },
+            {
+              "name": "preferences",
+              "type": "JSONB,",
+              "nullable": true,
+              "hasDefault": false,
+              "definition": "preferences JSONB,"
+            },
+            {
+              "name": "created_at",
+              "type": "TIMESTAMP",
+              "nullable": true,
+              "hasDefault": true,
+              "definition": "created_at TIMESTAMP DEFAULT NOW(),"
+            },
+            {
+              "name": "updated_at",
+              "type": "TIMESTAMP",
+              "nullable": true,
+              "hasDefault": true,
+              "definition": "updated_at TIMESTAMP DEFAULT NOW(),"
+            }
+          ],
+          "constraints": [
+            "id SERIAL PRIMARY KEY,",
+            "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL"
+          ]
+        }
+      },
+      "relationships": [
+        {
+          "from": {
+            "table": "clients",
+            "column": "user_id"
+          },
+          "to": {
+            "table": "users",
+            "column": "id"
+          },
+          "type": "Foreign Key"
+        }
+      ],
+      "migrations": [
+        {
+          "file": "add_services_description.sql",
+          "type": "SQL Migration",
+          "description": "Migration script to add services_description column to mdh_config table",
+          "changes": [
+            "ALTER TABLE mdh_config ADD COLUMN services_description TEXT DEFAULT 'auto detailing, boat & RV detailing, ceramic coating, and PPF';"
+          ]
+        },
+        {
+          "file": "migrate_service_areas.py",
+          "type": "Python Migration",
+          "description": "",
+          "tables": [
+            "businesses"
+          ]
+        }
+      ],
+      "sampleData": [
+        {
+          "description": "Service areas sample data",
+          "data": "['California', 'Los Angeles', '90210'],\r\n        ['California', 'San Francisco', '94102'],\r\n        ['Texas', 'Austin', '73301'],\r\n        ['Texas', 'Dallas', '75201'],\r\n        ['Florida', 'Miami', '33101'],\r\n        ['Florida', 'Orlando', '32801'],\r\n        ['New York', 'New York', '10001'],\r\n        ['New York', 'Buffalo', '14201']"
+        }
+      ]
+    },
+    "scripts": {
+      "exists": true,
+      "files": [
+        {
+          "name": "add_services_description.sql",
+          "size": 969,
+          "type": ".sql"
+        },
+        {
+          "name": "migrate_service_areas.py",
+          "size": 2362,
+          "type": ".py"
+        }
+      ]
+    },
+    "utils": {
+      "exists": true,
+      "size": 5770,
+      "preview": "const pool = require('../database/connection');\r\n\r\n// Initialize database with sample data\r\nasync function initializeSampleData() {\r\n  try {\r\n    // Check if service_areas table has data\r\n    const re..."
+    }
+  },
+  "config": {
+    "environment": {
+      "exists": true,
+      "size": 864,
+      "preview": "// Environment configuration\r\nexport const config = {\r\n  // API URL - will be set based on environment\r\n  apiUrl: import.meta.env.VITE_API_URL || \r\n    (import.meta.env.PROD \r\n      ? 'https://mobiled..."
+    },
+    "brands": {
+      "exists": true,
+      "size": 7815,
+      "preview": "/**\r\n * Master Brands Configuration\r\n * Centralized brand data that can be referenced by business configs\r\n */\r\n\r\nexport interface Brand {\r\n  name: string;\r\n  description: string;\r\n  logo: string;\r\n  ..."
+    },
+    "contexts": {
+      "exists": true,
+      "files": [
+        {
+          "name": "AffiliateContext.tsx",
+          "size": 2484,
+          "type": ".tsx"
+        },
+        {
+          "name": "AuthContext.tsx",
+          "size": 5195,
+          "type": ".tsx"
+        },
+        {
+          "name": "LocationContext.tsx",
+          "size": 5480,
+          "type": ".tsx"
+        },
+        {
+          "name": "MDHConfigContext.tsx",
+          "size": 2156,
+          "type": ".tsx"
+        }
+      ]
+    },
+    "types": {
+      "exists": true,
+      "files": [
+        {
+          "name": "google-maps.d.ts",
+          "size": 90,
+          "type": ".ts"
+        },
+        {
+          "name": "vehicle.ts",
+          "size": 1663,
+          "type": ".ts"
+        }
+      ]
+    }
+  },
+  "services": {
+    "api": {
+      "exists": true,
+      "size": 1442,
+      "preview": "import { config } from '../config/environment';\r\n\r\nconst API_BASE_URL = config.apiUrl;\r\n\r\nexport interface QuoteFormData {\r\n  name: string;\r\n  email: string;\r\n  phone?: string;\r\n  vehicle: string;\r\n  ..."
+    },
+    "hooks": {
+      "exists": true,
+      "files": [
+        {
+          "name": "useImageRotation.ts",
+          "size": 590,
+          "type": ".ts"
+        },
+        {
+          "name": "usePerformanceMonitor.ts",
+          "size": 4001,
+          "type": ".ts"
+        },
+        {
+          "name": "useScrollToTop.ts",
+          "size": 540,
+          "type": ".ts"
+        },
+        {
+          "name": "useSiteContext.ts",
+          "size": 272,
+          "type": ".ts"
+        },
+        {
+          "name": "useVehicleData.ts",
+          "size": 3467,
+          "type": ".ts"
+        }
+      ]
+    },
+    "utils": {
+      "exists": true,
+      "files": [
+        {
+          "name": "findBusinessByLocation.ts",
+          "size": 1104,
+          "type": ".ts"
+        },
+        {
+          "name": "phoneFormatter.test.ts",
+          "size": 2154,
+          "type": ".ts"
+        },
+        {
+          "name": "phoneFormatter.ts",
+          "size": 3575,
+          "type": ".ts"
+        },
+        {
+          "name": "scrollToTop.ts",
+          "size": 532,
+          "type": ".ts"
+        },
+        {
+          "name": "validation.test.ts",
+          "size": 5493,
+          "type": ".ts"
+        },
+        {
+          "name": "validation.ts",
+          "size": 7185,
+          "type": ".ts"
+        },
+        {
+          "name": "vehicleHelpers.ts",
+          "size": 4119,
+          "type": ".ts"
+        }
+      ]
+    },
+    "data": {
+      "exists": false
+    }
+  },
+  "summary": {
+    "totalComponents": 109,
+    "totalPages": 61,
+    "databaseTables": 6,
+    "databaseMigrations": 2,
+    "techStack": {
+      "frontend": "React 18.3.1 + TypeScript 5.5.3",
+      "backend": "Express 5.1.0 + PostgreSQL with pg driver",
+      "styling": "Tailwind CSS 3.4.1"
+    },
+    "architecture": "Monorepo with React frontend and Express backend",
+    "keyFeatures": [
+      "Multi-business platform (JPS, ABC, MDH)",
+      "Affiliate management system",
+      "Client booking and dashboard",
+      "Admin dashboard",
+      "Service area management",
+      "Vehicle data integration",
+      "Google Maps integration",
+      "Responsive design with Tailwind CSS"
+    ]
+  }
+}

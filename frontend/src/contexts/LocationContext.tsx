@@ -87,17 +87,17 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
   // Listen for localStorage changes from other components (like business config)
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
-              if (e.key === 'selectedLocation' && e.newValue) {
-          try {
-            const newLocation = JSON.parse(e.newValue);
-            // Only set if we have complete location data
-            if (newLocation && newLocation.city && newLocation.state) {
-              setSelectedLocation(newLocation);
-            }
-          } catch {
-            // Ignore invalid JSON
+      if (e.key === 'selectedLocation' && e.newValue) {
+        try {
+          const newLocation = JSON.parse(e.newValue);
+          // Only set if we have complete location data
+          if (newLocation && newLocation.city && newLocation.state) {
+            setSelectedLocation(newLocation);
           }
+        } catch {
+          // Ignore invalid JSON
         }
+      }
     };
 
     // Listen for storage events (when localStorage changes in other tabs/windows)
@@ -105,25 +105,29 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
     
     // Also check localStorage periodically for changes from same window
     const interval = setInterval(() => {
-              try {
-          const saved = localStorage.getItem('selectedLocation');
-          if (saved) {
-            const parsed = JSON.parse(saved);
-            // Only update if we have complete location data and it's different from current
-            if (parsed && parsed.city && parsed.state && (!selectedLocation || JSON.stringify(parsed) !== JSON.stringify(selectedLocation))) {
-              setSelectedLocation(parsed);
-            }
+      try {
+        const saved = localStorage.getItem('selectedLocation');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          // Only update if we have complete location data and it's different from current
+          if (parsed && parsed.city && parsed.state && 
+              (!selectedLocation || 
+               parsed.city !== selectedLocation.city || 
+               parsed.state !== selectedLocation.state || 
+               parsed.zipCode !== selectedLocation.zipCode)) {
+            setSelectedLocation(parsed);
           }
-        } catch {
-          // Ignore errors
         }
-    }, 1000);
+      } catch {
+        // Ignore errors
+      }
+    }, 5000); // Increased interval to 5 seconds to reduce frequency
 
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       clearInterval(interval);
     };
-  }, []); // Remove selectedLocation dependency to prevent infinite loops
+  }, [selectedLocation]); // Added selectedLocation as dependency to prevent stale closures
 
   const clearLocation = () => {
     setSelectedLocation(null);

@@ -7,6 +7,7 @@ import { MDHConfigProvider } from './contexts/MDHConfigContext';
 import { AffiliateProvider } from './contexts/AffiliateContext';
 import DashboardPage from './pages/affiliateDashboard/DashboardPage';
 import AdminDashboard from './pages/adminDashboard/Dashboard';
+import { AffiliateApplicationPage } from './pages/affiliateOnboarding';
 import Header from './components/01_header';
 import ErrorBoundary from './components/shared/ErrorBoundary';
 const DevModeDropdown = import.meta.env.DEV 
@@ -71,6 +72,7 @@ function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/admin-dashboard" element={<AdminDashboard />} />
               <Route path="/affiliate-dashboard" element={<DashboardPage />} />
+              <Route path="/affiliate-onboarding" element={<AffiliateApplicationPage />} />
               <Route path="/client-dashboard" element={<div className="min-h-screen bg-gray-900 flex items-center justify-center"><h1 className="text-white text-2xl">Client Dashboard Coming Soon</h1></div>} />
               <Route path="/:businessSlug" element={
                 <MDHConfigProvider>

@@ -6,7 +6,8 @@
   "scripts": {
     "build": "cd frontend && npm run build",
     "dev": "concurrently \"npm run dev --workspace=frontend\" \"npm run dev --workspace=backend\"",
-    "install:all": "npm install && npm install --workspace=frontend && npm install --workspace=backend"
+    "install:all": "npm install && npm install --workspace=frontend && npm install --workspace=backend",
+    "overview": "node scripts/generate-codebase-overview.js"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

@@ -76,19 +76,48 @@ async function setupDatabase() {
       CREATE TABLE IF NOT EXISTS affiliates (
         id SERIAL PRIMARY KEY,
         slug VARCHAR(100) UNIQUE NOT NULL,
-        name VARCHAR(255) NOT NULL,
-        email VARCHAR(255),
-        phone VARCHAR(50),
-        sms_phone VARCHAR(50),
-        address TEXT,
-        logo_url TEXT,
-        website VARCHAR(255),
-        description TEXT,
-        service_areas TEXT[],
-        state_cities JSONB,
-        is_active BOOLEAN DEFAULT TRUE,
-        created_at TIMESTAMP DEFAULT NOW(),
-        updated_at TIMESTAMP DEFAULT NOW()
+        business_name VARCHAR(255) NOT NULL,
+        owner VARCHAR(255) NOT NULL,
+        phone VARCHAR(20) NOT NULL,
+        sms_phone VARCHAR(20),
+        email VARCHAR(255) NOT NULL,
+        base_location JSONB NOT NULL DEFAULT '{"city": "", "state": "", "zip": ""}',
+        services JSONB NOT NULL DEFAULT '{"auto": false, "boat": false, "rv": false, "ppf": false, "ceramic": false, "paint_correction": false}',
+        website_url VARCHAR(500),
+        gbp_url VARCHAR(500),
+        facebook_url VARCHAR(500),
+        instagram_url VARCHAR(500),
+        youtube_url VARCHAR(500),
+        tiktok_url VARCHAR(500),
+        application_status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (application_status IN ('pending', 'active', 'rejected', 'inactive')),
+        
+        -- Additional valuable columns:
+        has_insurance BOOLEAN DEFAULT false,
+        source VARCHAR(100), -- How they found you
+        notes TEXT,
+        uploads TEXT[], -- Store file references as text array instead of JSONB
+        
+        -- Business verification & compliance:
+        business_license VARCHAR(100),
+        insurance_provider VARCHAR(255),
+        insurance_expiry DATE,
+        
+        -- Operational details:
+        service_radius_miles INTEGER DEFAULT 25,
+        operating_hours JSONB,
+        emergency_contact JSONB,
+        
+        -- Performance metrics:
+        total_jobs INTEGER DEFAULT 0,
+        rating DECIMAL(3,2),
+        review_count INTEGER DEFAULT 0,
+        
+        -- Timestamps:
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        application_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        approved_date TIMESTAMP,
+        last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
       -- Create affiliate_service_areas table
@@ -116,8 +145,14 @@ async function setupDatabase() {
     
     await pool.query(setupQuery);
     
+    // Create trigger functions
+    await createTriggerFunctions();
+    
     // Add missing columns to existing tables
     await addMissingColumns();
+    
+    // Setup affiliates table indexes and triggers
+    await setupAffiliatesTable();
     
     // Insert basic data after ensuring table structure
     await insertBasicData();
@@ -127,6 +162,58 @@ async function setupDatabase() {
     
   } catch (err) {
     console.error('Error setting up database:', err);
+  }
+}
+
+// Create trigger functions
+async function createTriggerFunctions() {
+  try {
+    // Function to update updated_at timestamp
+    await pool.query(`
+      CREATE OR REPLACE FUNCTION update_updated_at_column()
+      RETURNS TRIGGER AS $$
+      BEGIN
+          NEW.updated_at = CURRENT_TIMESTAMP;
+          RETURN NEW;
+      END;
+      $$ language 'plpgsql';
+    `);
+
+    // Function to update application_date timestamp
+    await pool.query(`
+      CREATE OR REPLACE FUNCTION update_application_date_column()
+      RETURNS TRIGGER AS $$
+      BEGIN
+          NEW.application_date = CURRENT_TIMESTAMP;
+          RETURN NEW;
+      END;
+      $$ language 'plpgsql';
+    `);
+
+    // Function to update approved_date timestamp
+    await pool.query(`
+      CREATE OR REPLACE FUNCTION update_approved_date_column()
+      RETURNS TRIGGER AS $$
+      BEGIN
+          NEW.approved_date = CURRENT_TIMESTAMP;
+          RETURN NEW;
+      END;
+      $$ language 'plpgsql';
+    `);
+
+    // Function to update last_activity timestamp
+    await pool.query(`
+      CREATE OR REPLACE FUNCTION update_last_activity_column()
+      RETURNS TRIGGER AS $$
+      BEGIN
+          NEW.last_activity = CURRENT_TIMESTAMP;
+          RETURN NEW;
+      END;
+      $$ language 'plpgsql';
+    `);
+
+  } catch (err) {
+    console.error('Error creating trigger functions:', err);
   }
 }
 
@@ -156,6 +243,146 @@ async function addMissingColumns() {
     // Add any other missing columns here as needed
   } catch (err) {
     console.error('Error adding missing columns:', err);
+  }
+}
+
+// Setup affiliates table indexes and triggers
+async function setupAffiliatesTable() {
+  try {
+    // Add slug_lower index if it doesn't exist
+    await pool.query(`
+      DO $$ 
+      BEGIN 
+        IF NOT EXISTS (SELECT 1 FROM pg_class WHERE relname = 'slug_lower_idx') THEN
+          CREATE INDEX slug_lower_idx ON affiliates(LOWER(slug));
+        END IF;
+      END $$;
+    `);
+
+    // Add email_lower index if it doesn't exist
+    await pool.query(`
+      DO $$ 
+      BEGIN 
+        IF NOT EXISTS (SELECT 1 FROM pg_class WHERE relname = 'email_lower_idx') THEN
+          CREATE INDEX email_lower_idx ON affiliates(LOWER(email));
+        END IF;
+      END $$;
+    `);
+
+    // Add phone_lower index if it doesn't exist
+    await pool.query(`
+      DO $$ 
+      BEGIN 
+        IF NOT EXISTS (SELECT 1 FROM pg_class WHERE relname = 'phone_lower_idx') THEN
+          CREATE INDEX phone_lower_idx ON affiliates(LOWER(phone));
+        END IF;
+      END $$;
+    `);
+
+    // Add sms_phone_lower index if it doesn't exist
+    await pool.query(`
+      DO $$ 
+      BEGIN 
+        IF NOT EXISTS (SELECT 1 FROM pg_class WHERE relname = 'sms_phone_lower_idx') THEN
+          CREATE INDEX sms_phone_lower_idx ON affiliates(LOWER(sms_phone));
+        END IF;
+      END $$;
+    `);
+
+    // Add application_status_idx if it doesn't exist
+    await pool.query(`
+      DO $$ 
+      BEGIN 
+        IF NOT EXISTS (SELECT 1 FROM pg_class WHERE relname = 'application_status_idx') THEN
+          CREATE INDEX application_status_idx ON affiliates(application_status);
+        END IF;
+      END $$;
+    `);
+
+    // Add last_activity_idx if it doesn't exist
+    await pool.query(`
+      DO $$ 
+      BEGIN 
+        IF NOT EXISTS (SELECT 1 FROM pg_class WHERE relname = 'last_activity_idx') THEN
+          CREATE INDEX last_activity_idx ON affiliates(last_activity);
+        END IF;
+      END $$;
+    `);
+
+    // Add application_date_idx if it doesn't exist
+    await pool.query(`
+      DO $$ 
+      BEGIN 
+        IF NOT EXISTS (SELECT 1 FROM pg_class WHERE relname = 'application_date_idx') THEN
+          CREATE INDEX application_date_idx ON affiliates(application_date);
+        END IF;
+      END $$;
+    `);
+
+    // Add approved_date_idx if it doesn't exist
+    await pool.query(`
+      DO $$ 
+      BEGIN 
+        IF NOT EXISTS (SELECT 1 FROM pg_class WHERE relname = 'approved_date_idx') THEN
+          CREATE INDEX approved_date_idx ON affiliates(approved_date);
+        END IF;
+      END $$;
+    `);
+
+    // Add updated_at_trigger if it doesn't exist
+    await pool.query(`
+      DO $$ 
+      BEGIN 
+        IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_affiliates_updated_at') THEN
+          CREATE TRIGGER update_affiliates_updated_at
+          BEFORE UPDATE ON affiliates
+          FOR EACH ROW
+          EXECUTE FUNCTION update_updated_at_column();
+        END IF;
+      END $$;
+    `);
+
+    // Add application_date_trigger if it doesn't exist
+    await pool.query(`
+      DO $$ 
+      BEGIN 
+        IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_affiliates_application_date') THEN
+          CREATE TRIGGER update_affiliates_application_date
+          BEFORE UPDATE ON affiliates
+          FOR EACH ROW
+          EXECUTE FUNCTION update_application_date_column();
+        END IF;
+      END $$;
+    `);
+
+    // Add approved_date_trigger if it doesn't exist
+    await pool.query(`
+      DO $$ 
+      BEGIN 
+        IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_affiliates_approved_date') THEN
+          CREATE TRIGGER update_affiliates_approved_date
+          BEFORE UPDATE ON affiliates
+          FOR EACH ROW
+          EXECUTE FUNCTION update_approved_date_column();
+        END IF;
+      END $$;
+    `);
+
+    // Add last_activity_trigger if it doesn't exist
+    await pool.query(`
+      DO $$ 
+      BEGIN 
+        IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_affiliates_last_activity') THEN
+          CREATE TRIGGER update_affiliates_last_activity
+          BEFORE UPDATE ON affiliates
+          FOR EACH ROW
+          EXECUTE FUNCTION update_last_activity_column();
+        END IF;
+      END $$;
+    `);
+
+  } catch (err) {
+    console.error('Error setting up affiliates table:', err);
   }
 }
 
