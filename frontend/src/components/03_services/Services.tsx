@@ -1,9 +1,9 @@
-import autoImage from '/assets/auto.png';
-import boatImage from '/assets/boat.png';
-import rvImage from '/assets/rv.png';
-import ceramicImage from '/assets/ceramic.png';
-import paintCorrectionImage from '/assets/paint_correction.png';
-import ppfImage from '/assets/ppf.png';
+import autoImage from '../../assets/auto.png';
+import boatImage from '../../assets/boat.png';
+import rvImage from '../../assets/rv.png';
+import ceramicImage from '../../assets/ceramic.png';
+import paintCorrectionImage from '../../assets/paint_correction.png';
+import ppfImage from '../../assets/ppf.png';
 
 const SERVICES = [
   {
