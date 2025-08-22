@@ -74,7 +74,7 @@ const GetStarted: React.FC<GetStartedProps> = ({
         return;
       }
       
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&v=beta`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&v=beta&loading=async`;
       script.async = true;
       script.defer = true;
       script.onload = () => setTimeout(() => checkAPIReady(), 500);
@@ -303,6 +303,8 @@ const GetStarted: React.FC<GetStartedProps> = ({
           <input
             ref={inputRef}
             type="text"
+            id="location-search"
+            name="location"
             value={inputValue}
             onChange={(e) => handleInputChange(e.target.value)}
             placeholder={apiLoaded ? placeholder : 'Loading…'}

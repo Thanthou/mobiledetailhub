@@ -21,7 +21,7 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig, businessSlug, ser
   const { selectedLocation } = useLocation();
   const handleBookNow = () => {
     // TODO: Implement booking functionality
-    console.log('Book Now clicked');
+
   };
 
   return (

@@ -109,6 +109,8 @@ export const ServiceTierCards: React.FC<ServiceTierCardsProps> = ({
               {isEditing(tier.id) ? (
                 <input
                   type="text"
+                  id={`tier-name-${tier.id}`}
+                  name="tierName"
                   value={editData.name || ''}
                   onChange={(e) => setEditData(prev => ({ ...prev, name: e.target.value }))}
                   onClick={(e) => e.stopPropagation()}
@@ -124,6 +126,8 @@ export const ServiceTierCards: React.FC<ServiceTierCardsProps> = ({
                 {isEditing(tier.id) ? (
                   <input
                     type="number"
+                    id={`tier-price-${tier.id}`}
+                    name="tierPrice"
                     step="0.01"
                     value={editData.price || ''}
                     onChange={(e) => setEditData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
@@ -142,6 +146,8 @@ export const ServiceTierCards: React.FC<ServiceTierCardsProps> = ({
                   <div className="flex items-center">
                     <input
                       type="number"
+                      id={`tier-duration-${tier.id}`}
+                      name="tierDuration"
                       min="0.5"
                       step="0.5"
                       value={editData.duration || ''}
@@ -165,6 +171,8 @@ export const ServiceTierCards: React.FC<ServiceTierCardsProps> = ({
                     <div className="flex items-center flex-1">
                       <input
                         type="text"
+                        id={`tier-feature-${tier.id}-${index}`}
+                        name="tierFeature"
                         value={feature}
                         onChange={(e) => {
                           const newFeatures = [...(editData.features || [])];

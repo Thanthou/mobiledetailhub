@@ -18,7 +18,7 @@ const HeaderAffiliate: React.FC = () => {
   const { affiliateData, isLoading: affiliateLoading, error: affiliateError } = useAffiliate();
   const { mdhConfig, isLoading: mdhLoading, error: mdhError } = useMDHConfig();
   
-  console.log('HeaderAffiliate businessSlug:', businessSlug);
+
 
   const isLoading = affiliateLoading || mdhLoading;
   const hasError = affiliateError || mdhError;

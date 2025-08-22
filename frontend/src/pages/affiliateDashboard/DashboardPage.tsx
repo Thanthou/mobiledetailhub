@@ -28,7 +28,7 @@ const DashboardPage: React.FC = () => {
 
   const handleBackToForm = () => {
     // Navigate back to main site or form
-    console.log('Navigate back to form');
+
   };
 
   return (

@@ -5,7 +5,6 @@ import HeaderAffiliate from './affiliate/Header';
 
 const Header: React.FC = () => {
   const { isMDH } = useSiteContext();
-  console.log('Header index isMDH:', isMDH);
   return isMDH ? <HeaderMDH /> : <HeaderAffiliate />;
 };
 

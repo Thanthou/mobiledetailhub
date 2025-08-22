@@ -25,10 +25,4 @@ export const config = {
   }
 };
 
-// Debug logging
-console.log('Environment config loaded:', {
-  apiUrl: config.apiUrl,
-  isProduction: config.isProduction,
-  isDevelopment: config.isDevelopment,
-  viteApiUrl: import.meta.env.VITE_API_URL
-});
+// Debug logging removed for production

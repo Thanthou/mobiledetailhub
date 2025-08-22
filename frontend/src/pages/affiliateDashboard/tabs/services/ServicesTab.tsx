@@ -47,7 +47,7 @@ const ServicesTab: React.FC = () => {
   };
 
   const handleTierUpdate = (tierId: string, updates: Partial<ServiceTier>) => {
-    console.log('Updating tier:', tierId, updates);
+
     // Implementation for updating tier data
   };
 

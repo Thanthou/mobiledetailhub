@@ -19,15 +19,39 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig }) => {
   const [serviceAreas, setServiceAreas] = useState<ServiceArea[]>([]);
   const [selectedState, setSelectedState] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(`${config.apiUrl}/api/service_areas`)
-      .then(res => res.json())
-      .then(data => {
-        setServiceAreas(data);
+    const fetchServiceAreas = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await fetch(`${config.apiUrl}/api/service_areas`);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // Ensure data is always an array
+        if (Array.isArray(data)) {
+          setServiceAreas(data);
+        } else {
+          console.warn('Service areas API returned non-array data:', data);
+          setServiceAreas([]);
+        }
+      } catch (err) {
+        console.error('Failed to fetch service areas:', err);
+        setError('Failed to load service areas');
+        setServiceAreas([]);
+      } finally {
         setLoading(false);
-      })
-      .catch(() => setLoading(false));
+      }
+    };
+
+    fetchServiceAreas();
   }, []);
 
   const selectState = (state: string) => {
@@ -38,8 +62,8 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig }) => {
     setSelectedState(null);
   };
 
-  // Group cities by state
-  const citiesByState = serviceAreas.reduce((acc, area) => {
+  // Group cities by state - ensure serviceAreas is always an array
+  const citiesByState = (Array.isArray(serviceAreas) ? serviceAreas : []).reduce((acc, area) => {
     if (!acc[area.state]) {
       acc[area.state] = [];
     }
@@ -49,6 +73,10 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig }) => {
 
   // Get unique states and sort them
   const states = Object.keys(citiesByState).sort();
+  
+  // Fallback states if none available
+  const fallbackStates = ['California', 'Texas', 'Florida'];
+  const displayStates = states.length > 0 ? states : fallbackStates;
 
   return (
     <>
@@ -78,11 +106,21 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig }) => {
           <h3 className="font-bold text-orange-400 text-xl mb-6">Service Areas</h3>
           {loading ? (
             <div className="text-white md:text-right">Loading...</div>
+          ) : error ? (
+            <div className="text-gray-400 md:text-right">
+              <div className="text-sm mb-2">{error}</div>
+              <div className="text-xs">Default areas: California, Texas, Florida</div>
+            </div>
+          ) : serviceAreas.length === 0 ? (
+            <div className="text-gray-400 md:text-right">
+              <div className="text-sm mb-2">No service areas available</div>
+              <div className="text-xs">Default areas: California, Texas, Florida</div>
+            </div>
           ) : (
             <div className="space-y-2">
               {selectedState === null ? (
                 // Show all states
-                states.map(state => (
+                displayStates.map(state => (
                   <button
                     key={state}
                     onClick={() => selectState(state)}

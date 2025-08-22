@@ -43,6 +43,8 @@ export const ScheduleHeader: React.FC<ScheduleHeaderProps> = ({
           {/* Date Picker */}
           <input
             type="date"
+            id="schedule-date"
+            name="selectedDate"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
             className="bg-stone-700 border border-stone-600 text-white rounded-lg px-3 py-2 text-sm"

@@ -31,15 +31,14 @@ const UserMenu: React.FC = () => {
   const handleAccountClick = () => {
     setIsOpen(false);
     
-    console.log('Full user object:', user); // Debug log
-    console.log('User role:', user?.role); // Debug log
+
     
     // Check if user email suggests admin status (temporary workaround)
     const isAdminByEmail = user?.email?.toLowerCase().includes('admin') || 
                            user?.email?.toLowerCase().includes('cole') ||
                            user?.name?.toLowerCase().includes('admin');
     
-    console.log('Is admin by email check:', isAdminByEmail);
+
     
     // Route based on user role or email check
     if (user?.role === 'admin' || isAdminByEmail) {
@@ -50,7 +49,7 @@ const UserMenu: React.FC = () => {
       navigate('/client-dashboard');
     } else {
       // Fallback to client dashboard for unknown roles
-      console.log('No role found, defaulting to client dashboard');
+  
       navigate('/client-dashboard');
     }
   };
