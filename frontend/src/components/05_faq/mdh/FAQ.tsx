@@ -4,7 +4,7 @@ import { useFAQData } from '../hooks/useFAQData';
 import { useMDHConfig } from '../../../contexts/MDHConfigContext';
 import FAQExpandButton from '../components/FAQExpandButton';
 import FAQHeader from '../components/FAQHeader';
-import FAQCategory from '../components/FAQCategory';
+import FAQTabbedInterface from '../components/FAQTabbedInterface';
 import FAQFooter from '../components/FAQFooter';
 
 const FAQMDH: React.FC = () => {
@@ -13,14 +13,12 @@ const FAQMDH: React.FC = () => {
     isExpanded,
     setIsExpanded,
     openItems,
-    openCategories,
     toggleExpanded,
     toggleItem,
-    toggleCategory,
   } = useFAQState(false);
 
   // Use static MDH FAQ data (no backend)
-  const { groupedFAQs, categories } = useFAQData(undefined);
+  const { groupedFAQs, categories } = useFAQData();
 
   // Get configurable services description from MDH config (with fallback)
   const { mdhConfig } = useMDHConfig();
@@ -28,30 +26,23 @@ const FAQMDH: React.FC = () => {
   const nearbyList = '';
 
   return (
-          <section className="bg-stone-700 py-16" id="faq" aria-labelledby="faq-heading">
-      <div className="max-w-6xl mx-auto px-4">
+    <section className="bg-stone-900 py-16" id="faq" aria-labelledby="faq-heading">
+      <div className="max-w-7xl mx-auto px-4">
         {!isExpanded ? (
           <FAQExpandButton onToggleExpanded={() => setIsExpanded(true)} />
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-8">
             <FAQHeader
               servicesLine={servicesLine}
               nearbyList={nearbyList}
               onToggleExpanded={toggleExpanded}
             />
-            <div className="space-y-8" role="region" aria-labelledby="faq-heading">
-              {categories.map((category) => (
-                <FAQCategory
-                  key={category}
-                  category={category}
-                  items={groupedFAQs[category]}
-                  isOpen={openCategories.includes(category)}
-                  openItems={openItems}
-                  onToggleCategory={toggleCategory}
-                  onToggleItem={toggleItem}
-                />
-              ))}
-            </div>
+            <FAQTabbedInterface
+              groupedFAQs={groupedFAQs}
+              categories={categories}
+              openItems={openItems}
+              onToggleItem={toggleItem}
+            />
             <FAQFooter />
           </div>
         )}

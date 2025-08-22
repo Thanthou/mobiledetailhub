@@ -1,16 +1,11 @@
 import { useMemo } from 'react';
 import { FAQItem } from '../types';
 import { MDH_FAQ_ITEMS } from '../data/mdh';
-import { buildServiceFAQs } from '../utils/dynamicFAQBuilder';
 
-export const useFAQData = (businessConfig: any) => {
-  const dynamicServiceItems = useMemo(() => {
-    return buildServiceFAQs(businessConfig);
-  }, [businessConfig]);
-
+export const useFAQData = () => {
   const faqData: FAQItem[] = useMemo(() => {
-    return [...MDH_FAQ_ITEMS, ...dynamicServiceItems];
-  }, [dynamicServiceItems]);
+    return [...MDH_FAQ_ITEMS];
+  }, []);
 
   const groupedFAQs = useMemo(() => {
     return faqData.reduce((acc, item, index) => {

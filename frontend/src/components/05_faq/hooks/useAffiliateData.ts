@@ -3,7 +3,7 @@ import { FAQItem } from '../types';
 import { AFFILIATE_FAQ_ITEMS } from '../data/affiliate';
 import { useLocation } from '../../../contexts/LocationContext';
 
-export const useAffiliateData = (businessConfig: any) => {
+export const useAffiliateData = () => {
   const { selectedLocation } = useLocation();
 
   // Create geo config from selected location even without business config

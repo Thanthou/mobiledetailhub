@@ -4,7 +4,6 @@ import { FAQItem } from '../types';
 interface UseFAQEffectsProps {
   faqData: FAQItem[];
   isExpanded: boolean;
-  autoCollapseOnScroll: boolean;
   resetState: () => void;
   setIsExpanded: (expanded: boolean) => void;
 }
@@ -12,7 +11,6 @@ interface UseFAQEffectsProps {
 export const useFAQEffects = ({
   faqData,
   isExpanded,
-  autoCollapseOnScroll,
   resetState,
   setIsExpanded
 }: UseFAQEffectsProps) => {

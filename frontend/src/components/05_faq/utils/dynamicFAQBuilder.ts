@@ -5,10 +5,6 @@ export function buildServiceFAQs(cfg: any): FAQItem[] {
   
   const servicesAvail: string[] = cfg.services?.available ?? [];
   const vehicleTypes: string[] = cfg.services?.vehicleTypes ?? [];
-  const primaryArea: string =
-    cfg.business?.address ||
-    (cfg.serviceLocations && cfg.serviceLocations[0]) ||
-    "your area";
   const vehiclesList =
     vehicleTypes.length > 0
       ? vehicleTypes.join(", ")

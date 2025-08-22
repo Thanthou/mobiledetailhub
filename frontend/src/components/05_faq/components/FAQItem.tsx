@@ -6,9 +6,28 @@ interface FAQItemProps {
   item: FAQItemWithIndex;
   isOpen: boolean;
   onToggle: () => void;
+  highlightTerm?: string;
 }
 
-const FAQItem: React.FC<FAQItemProps> = ({ item, isOpen, onToggle }) => {
+// Helper function to highlight text
+const highlightText = (text: string, highlightTerm?: string) => {
+  if (!highlightTerm || !highlightTerm.trim()) {
+    return text;
+  }
+
+  const regex = new RegExp(`(${highlightTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+  const parts = text.split(regex);
+  
+  return parts.map((part, index) => 
+    regex.test(part) ? (
+      <mark key={index} className="bg-orange-400/20 text-orange-200 px-1 rounded">
+        {part}
+      </mark>
+    ) : part
+  );
+};
+
+const FAQItem: React.FC<FAQItemProps> = ({ item, isOpen, onToggle, highlightTerm }) => {
   return (
     <article
       className="bg-stone-700 rounded-lg shadow-sm border border-stone-600 overflow-hidden"
@@ -23,7 +42,7 @@ const FAQItem: React.FC<FAQItemProps> = ({ item, isOpen, onToggle }) => {
         aria-controls={`faq-answer-${item.originalIndex}`}
       >
         <h4 className="text-lg font-semibold text-white pr-4" itemProp="name">
-          {item.question}
+          {highlightText(item.question, highlightTerm)}
         </h4>
         {isOpen ? (
           <ChevronUp className="h-5 w-5 text-orange-400 flex-shrink-0" aria-hidden="true" />
@@ -42,7 +61,7 @@ const FAQItem: React.FC<FAQItemProps> = ({ item, isOpen, onToggle }) => {
         >
           <div className="border-t border-stone-600 pt-4">
             <p className="text-gray-300 leading-relaxed" itemProp="text">
-              {item.answer}
+              {highlightText(item.answer, highlightTerm)}
             </p>
           </div>
         </div>
