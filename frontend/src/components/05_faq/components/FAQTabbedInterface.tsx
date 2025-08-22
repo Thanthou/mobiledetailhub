@@ -44,6 +44,8 @@ const FAQTabbedInterface: React.FC<FAQTabbedInterfaceProps> = ({
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
           <input
             type="text"
+            id="faq-search"
+            name="faqSearch"
             placeholder="Search FAQs..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -93,7 +95,7 @@ const FAQTabbedInterface: React.FC<FAQTabbedInterfaceProps> = ({
             {/* FAQ Items in Grid Layout */}
             <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-2">
               {(groupedFAQs[activeCategory] || []).map((item) => (
-                <div key={item.originalIndex} className="h-fit">
+                <div key={item.originalIndex} className={openItems.includes(item.originalIndex) ? "h-fit" : "h-[120px]"}>
                   <FAQItem
                     item={item}
                     isOpen={openItems.includes(item.originalIndex)}
@@ -121,7 +123,7 @@ const FAQTabbedInterface: React.FC<FAQTabbedInterfaceProps> = ({
           
           <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-2">
             {filteredFAQs.map((item) => (
-              <div key={item.originalIndex} className="h-fit">
+              <div key={item.originalIndex} className={openItems.includes(item.originalIndex) ? "h-fit" : "h-[120px]"}>
                 <FAQItem
                   item={item}
                   isOpen={openItems.includes(item.originalIndex)}

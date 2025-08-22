@@ -30,14 +30,14 @@ const highlightText = (text: string, highlightTerm?: string) => {
 const FAQItem: React.FC<FAQItemProps> = ({ item, isOpen, onToggle, highlightTerm }) => {
   return (
     <article
-      className="bg-stone-700 rounded-lg shadow-sm border border-stone-600 overflow-hidden"
+      className={`bg-stone-700 rounded-lg shadow-sm border border-stone-600 overflow-hidden ${isOpen ? 'h-fit' : 'h-full flex flex-col'}`}
       itemScope
       itemProp="mainEntity"
       itemType="https://schema.org/Question"
     >
       <button
         onClick={onToggle}
-        className="w-full text-left p-6 flex justify-between items-center hover:bg-stone-600 transition-colors"
+        className={`w-full text-left p-6 flex justify-between items-start hover:bg-stone-600 transition-colors ${!isOpen ? 'flex-shrink-0' : ''}`}
         aria-expanded={isOpen}
         aria-controls={`faq-answer-${item.originalIndex}`}
       >
@@ -51,7 +51,7 @@ const FAQItem: React.FC<FAQItemProps> = ({ item, isOpen, onToggle, highlightTerm
         )}
       </button>
 
-      {isOpen && (
+      {isOpen ? (
         <div
           id={`faq-answer-${item.originalIndex}`}
           className="px-6 pb-6"
@@ -65,6 +65,8 @@ const FAQItem: React.FC<FAQItemProps> = ({ item, isOpen, onToggle, highlightTerm
             </p>
           </div>
         </div>
+      ) : (
+        <div className="flex-grow"></div>
       )}
     </article>
   );
