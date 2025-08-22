@@ -1,34 +1,40 @@
+import autoImage from '/assets/auto.png';
+import boatImage from '/assets/boat.png';
+import rvImage from '/assets/rv.png';
+import ceramicImage from '/assets/ceramic.png';
+import paintCorrectionImage from '/assets/paint_correction.png';
+import ppfImage from '/assets/ppf.png';
 
 const SERVICES = [
   {
     title: 'Auto Detailing',
-    image: '/assets/auto.png',
+    image: autoImage,
     link: '#',
   },
   {
     title: 'Marine Detailing',
-    image: '/assets/boat.png',
+    image: boatImage,
     link: '#',
   },
   {
     title: 'RV Detailing',
-    image: '/assets/rv.png',
+    image: rvImage,
     link: '#',
   },
   
   {
     title: 'Ceramic Coating',
-    image: '/assets/ceramic.png',
+    image: ceramicImage,
     link: '#',
   },
   {
     title: 'Paint Correction',
-    image: '/assets/paint_correction.png',
+    image: paintCorrectionImage,
     link: '#',
   },
   {
     title: 'Paint Protection Film',
-    image: '/assets/ppf.png',
+    image: ppfImage,
     link: '#',
   },
 ];
