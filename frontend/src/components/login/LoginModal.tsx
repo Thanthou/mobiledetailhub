@@ -2,6 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { X, Eye, EyeOff, Mail, Lock, LogIn, User, Phone } from 'lucide-react';
+import { 
+  validateEmail, 
+  validatePassword, 
+  validateName, 
+  validatePhone,
+  sanitizeText 
+} from '../../utils/validation';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -18,25 +25,64 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
     name: '',
     phone: ''
   });
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setFieldErrors({});
+
+    // Validate fields based on mode
+    const validations: Record<string, any> = {
+      email: validateEmail(formData.email),
+      password: validatePassword(formData.password, isLogin)
+    };
+
+    // Add registration-specific validations
+    if (!isLogin) {
+      validations.name = validateName(formData.name);
+      validations.phone = validatePhone(formData.phone);
+    }
+
+    // Check if any validation failed
+    const hasErrors = Object.values(validations).some((result: any) => !result.isValid);
+    
+    if (hasErrors) {
+      // Set field errors for display
+      const errors: Record<string, string[]> = {};
+      Object.entries(validations).forEach(([field, result]) => {
+        if (!result.isValid) {
+          errors[field] = result.errors;
+        }
+      });
+      setFieldErrors(errors);
+      return;
+    }
+
     setLoading(true);
 
     try {
       let result;
       if (isLogin) {
-        result = await login(formData.email, formData.password);
+        result = await login(
+          validations.email.sanitizedValue!, 
+          formData.password
+        );
       } else {
-        result = await register(formData.email, formData.password, formData.name, formData.phone);
+        result = await register(
+          validations.email.sanitizedValue!, 
+          formData.password,
+          validations.name.sanitizedValue!,
+          validations.phone.sanitizedValue!
+        );
       }
 
       if (result.success) {
         onClose();
         setFormData({ email: '', password: '', name: '', phone: '' });
+        setFieldErrors({});
       } else {
         setError(result.error || 'An error occurred');
       }
@@ -57,7 +103,18 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
   const handleClose = () => {
     setError('');
     setFormData({ email: '', password: '', name: '', phone: '' });
+    setFieldErrors({});
     onClose();
+  };
+
+  // Helper function to display field errors
+  const getFieldError = (fieldName: string): string | undefined => {
+    return fieldErrors[fieldName]?.[0];
+  };
+
+  // Helper function to check if field has error
+  const hasFieldError = (fieldName: string): boolean => {
+    return !!fieldErrors[fieldName]?.length;
   };
 
   const [mounted, setMounted] = useState(false);
@@ -123,17 +180,26 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <User size={18} className="text-gray-500" />
                     </div>
-                                      <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    className="w-full pl-10 pr-4 py-3 bg-stone-950 border border-stone-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 [color-scheme:dark]"
-                    placeholder="Enter your full name"
-                    required
-                  />
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      className={`w-full pl-10 pr-4 py-3 border rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 [color-scheme:dark] ${
+                        hasFieldError('name') 
+                          ? 'border-red-500 bg-red-950/20' 
+                          : 'border-stone-600 bg-stone-950'
+                      }`}
+                      placeholder="Enter your full name"
+                      required
+                    />
                   </div>
+                  {hasFieldError('name') && (
+                    <p className="text-sm text-red-400 mt-1">
+                      {getFieldError('name')}
+                    </p>
+                  )}
                 </div>
               )}
 
@@ -147,16 +213,25 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <Phone size={18} className="text-gray-500" />
                     </div>
-                                      <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    className="w-full pl-10 pr-4 py-3 bg-stone-950 border border-stone-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 [color-scheme:dark]"
-                    placeholder="Enter your phone number"
-                  />
+                    <input
+                      type="tel"
+                      id="phone"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      className={`w-full pl-10 pr-4 py-3 border rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 [color-scheme:dark] ${
+                        hasFieldError('phone') 
+                          ? 'border-red-500 bg-red-950/20' 
+                          : 'border-stone-600 bg-stone-950'
+                      }`}
+                      placeholder="Enter your phone number"
+                    />
                   </div>
+                  {hasFieldError('phone') && (
+                    <p className="text-sm text-red-400 mt-1">
+                      {getFieldError('phone')}
+                    </p>
+                  )}
                 </div>
               )}
 
@@ -175,11 +250,20 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="w-full pl-10 pr-4 py-3 bg-stone-950 border border-stone-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 [color-scheme:dark]"
+                    className={`w-full pl-10 pr-4 py-3 border rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 [color-scheme:dark] ${
+                      hasFieldError('email') 
+                        ? 'border-red-500 bg-red-950/20' 
+                        : 'border-stone-600 bg-stone-950'
+                    }`}
                     placeholder="Enter your email"
                     required
                   />
                 </div>
+                {hasFieldError('email') && (
+                  <p className="text-sm text-red-400 mt-1">
+                    {getFieldError('email')}
+                  </p>
+                )}
               </div>
 
               {/* Password Field */}
@@ -197,7 +281,11 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                     name="password"
                     value={formData.password}
                     onChange={handleInputChange}
-                    className="w-full pl-10 pr-12 py-3 bg-stone-950 border border-stone-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 [color-scheme:dark]"
+                    className={`w-full pl-10 pr-12 py-3 border rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 [color-scheme:dark] ${
+                      hasFieldError('password') 
+                        ? 'border-red-500 bg-red-950/20' 
+                        : 'border-stone-600 bg-stone-950'
+                    }`}
                     placeholder="Enter your password"
                     required
                   />
@@ -209,6 +297,11 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
+                {hasFieldError('password') && (
+                  <p className="text-sm text-red-400 mt-1">
+                    {getFieldError('password')}
+                  </p>
+                )}
               </div>
 
               {/* Remember & Forgot (Login only) */}

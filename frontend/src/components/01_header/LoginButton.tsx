@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { LoginModal, UserMenu } from '../login';
+import { LoginModal } from '../login';
+import UserMenu from './UserMenu';
 
 const LoginButton: React.FC = () => {
   const { isLoggedIn } = useAuth();

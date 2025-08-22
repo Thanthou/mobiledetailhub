@@ -3,6 +3,15 @@ import { CheckCircle } from 'lucide-react';
 import { apiService } from '../../services/api';
 import { formatPhoneNumberAsTyped, isCompletePhoneNumber } from '../../utils/phoneFormatter';
 import { useVehicleData } from '../../hooks/useVehicleData';
+import { 
+  validateName, 
+  validateEmail, 
+  validatePhone, 
+  validateVehicleField, 
+  validateService, 
+  validateMessage,
+  sanitizeText 
+} from '../../utils/validation';
 
 interface QuoteModalProps {
   isOpen: boolean;
@@ -22,6 +31,7 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
     vehicleModel: '',
     message: ''
   });
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -63,6 +73,16 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
     }
   }, [formData.vehicleMake]);
 
+  // Helper function to display field errors
+  const getFieldError = (fieldName: string): string | undefined => {
+    return fieldErrors[fieldName]?.[0];
+  };
+
+  // Helper function to check if field has error
+  const hasFieldError = (fieldName: string): boolean => {
+    return !!fieldErrors[fieldName]?.length;
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -73,20 +93,49 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
     setError('');
+    setFieldErrors({});
+
+    // Validate all required fields
+    const validations = {
+      name: validateName(formData.name),
+      email: validateEmail(formData.email),
+      phone: validatePhone(formData.phone),
+      service: validateService(formData.service),
+      vehicleType: validateVehicleField(formData.vehicleType, 'Vehicle type'),
+      vehicleMake: validateVehicleField(formData.vehicleMake, 'Vehicle make'),
+      vehicleModel: validateVehicleField(formData.vehicleModel, 'Vehicle model'),
+      message: validateMessage(formData.message, false) // Message is optional
+    };
+
+    // Check if any validation failed
+    const hasErrors = Object.values(validations).some(result => !result.isValid);
+    
+    if (hasErrors) {
+      // Set field errors for display
+      const errors: Record<string, string[]> = {};
+      Object.entries(validations).forEach(([field, result]) => {
+        if (!result.isValid) {
+          errors[field] = result.errors;
+        }
+      });
+      setFieldErrors(errors);
+      return;
+    }
+
+    setIsSubmitting(true);
 
     try {
-      // Ensure phone number is properly formatted before submission
+      // Sanitize and format data before submission
       const formattedPhone = formData.phone ? formatPhoneNumberAsTyped(formData.phone, 0).value : '';
       
       await apiService.submitQuoteRequest({
-        name: formData.name,
-        email: formData.email,
+        name: sanitizeText(validations.name.sanitizedValue!),
+        email: validations.email.sanitizedValue!,
         phone: formattedPhone,
-        vehicle: `${formData.vehicleMake} ${formData.vehicleModel}`,
-        service: formData.service,
-        additionalInfo: formData.message
+        vehicle: `${validations.vehicleMake.sanitizedValue} ${validations.vehicleModel.sanitizedValue}`,
+        service: validations.service.sanitizedValue!,
+        additionalInfo: formData.message ? sanitizeText(formData.message) : ''
       });
 
       setIsSubmitted(true);
@@ -104,6 +153,7 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
           vehicleModel: '',
           message: ''
         });
+        setFieldErrors({});
         onClose();
       }, 3000);
     } catch (error) {
@@ -158,9 +208,18 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
                       required
                       value={formData.name}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-600 bg-stone-700 text-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 ${
+                        hasFieldError('name') 
+                          ? 'border-red-500 bg-red-900/20' 
+                          : 'border-gray-600 bg-stone-700'
+                      } text-white`}
                       placeholder="Your full name"
                     />
+                    {hasFieldError('name') && (
+                      <p className="text-sm text-red-400 mt-1">
+                        {getFieldError('name')}
+                      </p>
+                    )}
                   </div>
 
                   {/* Phone */}
@@ -200,10 +259,19 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
                           phone: formatted
                         }));
                       }}
-                      className="w-full px-4 py-3 border border-gray-600 bg-stone-700 text-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 ${
+                        hasFieldError('phone') 
+                          ? 'border-red-500 bg-red-900/20' 
+                          : 'border-gray-600 bg-stone-700'
+                      } text-white`}
                       placeholder="(555) 123-4567"
                     />
-                    {formData.phone && !isCompletePhoneNumber(formData.phone) && (
+                    {hasFieldError('phone') && (
+                      <p className="text-sm text-red-400 mt-1">
+                        {getFieldError('phone')}
+                      </p>
+                    )}
+                    {formData.phone && !isCompletePhoneNumber(formData.phone) && !hasFieldError('phone') && (
                       <p className="text-sm text-orange-400 mt-1">
                         Please enter a complete 10-digit phone number
                       </p>
@@ -222,9 +290,18 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
                       required
                       value={formData.email}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-600 bg-stone-700 text-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 ${
+                        hasFieldError('email') 
+                          ? 'border-red-500 bg-red-900/20' 
+                          : 'border-gray-600 bg-stone-700'
+                      } text-white`}
                       placeholder="your@email.com"
                     />
+                    {hasFieldError('email') && (
+                      <p className="text-sm text-red-400 mt-1">
+                        {getFieldError('email')}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -246,7 +323,11 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
                       required
                       value={formData.vehicleType}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-600 bg-stone-700 text-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 ${
+                        hasFieldError('vehicleType') 
+                          ? 'border-red-500 bg-red-900/20' 
+                          : 'border-gray-600 bg-stone-700'
+                      } text-white`}
                     >
                       <option value="">Select vehicle type</option>
                       {vehicleTypes.map((type) => (
@@ -255,6 +336,11 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
                         </option>
                       ))}
                     </select>
+                    {hasFieldError('vehicleType') && (
+                      <p className="text-sm text-red-400 mt-1">
+                        {getFieldError('vehicleType')}
+                      </p>
+                    )}
                   </div>
 
                   {/* Vehicle Make */}
@@ -269,7 +355,11 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
                       value={formData.vehicleMake}
                       onChange={handleInputChange}
                       disabled={!formData.vehicleType}
-                      className="w-full px-4 py-3 border border-gray-600 bg-stone-700 text-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+                        hasFieldError('vehicleMake') 
+                          ? 'border-red-500 bg-red-900/20' 
+                          : 'border-gray-600 bg-stone-700'
+                      } text-white`}
                     >
                       <option value="">Select make</option>
                       {availableMakes.map((make) => (
@@ -278,6 +368,11 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
                         </option>
                       ))}
                     </select>
+                    {hasFieldError('vehicleMake') && (
+                      <p className="text-sm text-red-400 mt-1">
+                        {getFieldError('vehicleMake')}
+                      </p>
+                    )}
                   </div>
 
                   {/* Vehicle Model */}
@@ -292,7 +387,11 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
                       value={formData.vehicleModel}
                       onChange={handleInputChange}
                       disabled={!formData.vehicleMake}
-                      className="w-full px-4 py-3 border border-gray-600 bg-stone-700 text-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+                        hasFieldError('vehicleModel') 
+                          ? 'border-red-500 bg-red-900/20' 
+                          : 'border-gray-600 bg-stone-700'
+                      } text-white`}
                     >
                       <option value="">Select model</option>
                       {availableModels.map((model) => (
@@ -301,6 +400,11 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
                         </option>
                       ))}
                     </select>
+                    {hasFieldError('vehicleModel') && (
+                      <p className="text-sm text-red-400 mt-1">
+                        {getFieldError('vehicleModel')}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -322,7 +426,11 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
                       required
                       value={formData.service}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-600 bg-stone-700 text-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 ${
+                        hasFieldError('service') 
+                          ? 'border-red-500 bg-red-900/20' 
+                          : 'border-gray-600 bg-stone-700'
+                      } text-white`}
                     >
                       <option value="">Select a service</option>
                       {services.map((service) => (
@@ -331,6 +439,11 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
                         </option>
                       ))}
                     </select>
+                    {hasFieldError('service') && (
+                      <p className="text-sm text-red-400 mt-1">
+                        {getFieldError('service')}
+                      </p>
+                    )}
                   </div>
 
                   {/* Additional Details */}
@@ -344,9 +457,18 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
                       rows={3}
                       value={formData.message}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-600 bg-stone-700 text-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 ${
+                        hasFieldError('message') 
+                          ? 'border-red-500 bg-red-900/20' 
+                          : 'border-gray-600 bg-stone-700'
+                      } text-white`}
                       placeholder="Tell us more about your vehicle's condition, preferred appointment time, or any special requests..."
                     />
+                    {hasFieldError('message') && (
+                      <p className="text-sm text-red-400 mt-1">
+                        {getFieldError('message')}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

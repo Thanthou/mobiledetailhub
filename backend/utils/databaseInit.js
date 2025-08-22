@@ -143,6 +143,16 @@ async function addMissingColumns() {
       END $$;
     `);
     
+    // Add services_description column if it doesn't exist
+    await pool.query(`
+      DO $$ 
+      BEGIN 
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'mdh_config' AND column_name = 'services_description') THEN
+          ALTER TABLE mdh_config ADD COLUMN services_description TEXT DEFAULT 'auto detailing, boat & RV detailing, ceramic coating, and PPF';
+        END IF;
+      END $$;
+    `);
+    
     // Add any other missing columns here as needed
   } catch (err) {
     console.error('Error adding missing columns:', err);

@@ -20,6 +20,17 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Helper function to map backend user data to frontend User interface
+const mapBackendUserToFrontend = (backendUser: any): User => {
+  return {
+    id: backendUser.id,
+    name: backendUser.name,
+    email: backendUser.email,
+    phone: backendUser.phone,
+    role: backendUser.is_admin ? 'admin' : 'user'
+  };
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -32,11 +43,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (token && savedUser) {
       try {
         const userData = JSON.parse(savedUser);
-        // Temporary: Add default role if none exists
-        if (!userData.role) {
-          userData.role = 'admin'; // Change this to 'affiliate' or 'user' as needed
-        }
-        setUser(userData);
+        // Map the saved user data to ensure proper role
+        const mappedUser = mapBackendUserToFrontend(userData);
+        setUser(mappedUser);
         setLoading(false);
       } catch (error) {
         console.error('Error parsing saved user data:', error);
@@ -61,11 +70,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (response.ok) {
         const userData = await response.json();
-        // Temporary: Add default role if none exists
-        if (!userData.role) {
-          userData.role = 'admin'; // Change this to 'affiliate' or 'user' as needed
-        }
-        setUser(userData);
+        const mappedUser = mapBackendUserToFrontend(userData);
+        setUser(mappedUser);
+        // Update localStorage with properly mapped user data
+        localStorage.setItem('user', JSON.stringify(mappedUser));
       } else {
         // Token is invalid, remove it
         localStorage.removeItem('token');
@@ -93,9 +101,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const data = await response.json();
 
       if (response.ok) {
-        setUser(data.user);
+        const mappedUser = mapBackendUserToFrontend(data.user);
+        setUser(mappedUser);
         localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('user', JSON.stringify(mappedUser));
         return { success: true };
       } else {
         return { success: false, error: data.error };
@@ -118,9 +127,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const data = await response.json();
 
       if (response.ok) {
-        setUser(data.user);
+        const mappedUser = mapBackendUserToFrontend(data.user);
+        setUser(mappedUser);
         localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('user', JSON.stringify(mappedUser));
         return { success: true };
       } else {
         return { success: false, error: data.error };

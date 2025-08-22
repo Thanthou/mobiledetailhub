@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Hero from './02_hero';
 import Services from './03_services/Services';
 import * as Reviews from './04_reviews';
@@ -8,7 +8,7 @@ import { QuoteModal, BookingModal } from './Book_Quote';
 import { useSiteContext } from '../hooks/useSiteContext';
 
 const HomePage = () => {
-  const { isAffiliate, isMDH } = useSiteContext();
+  const { isAffiliate } = useSiteContext();
   
   // Centralized modal state
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
@@ -47,7 +47,7 @@ const HomePage = () => {
         <FAQ />
       </section>
       <section id="footer">
-        <Footer onRequestQuote={handleOpenQuoteModal} />
+        <Footer onRequestQuote={handleOpenQuoteModal} onBookNow={handleOpenBookingModal} />
       </section>
       
       {/* Centralized Modals */}

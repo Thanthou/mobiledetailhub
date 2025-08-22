@@ -31,23 +31,29 @@ export const testExamples = [
 
 // Function to run all tests
 export function runPhoneFormatterTests() {
-  console.log('🧪 Running Phone Formatter Tests...\n');
+  if (import.meta.env.DEV) {
+    console.log('🧪 Running Phone Formatter Tests...\n');
+  }
   
   testExamples.forEach(({ input, expected }, index) => {
     const result = formatPhoneNumber(input);
     const isComplete = isCompletePhoneNumber(input);
     const digits = getPhoneDigits(input);
     
-    console.log(`Test ${index + 1}:`);
-    console.log(`  Input: "${input}"`);
-    console.log(`  Formatted: "${result}"`);
-    console.log(`  Expected: "${expected}"`);
-    console.log(`  Is Complete: ${isComplete}`);
-    console.log(`  Digits Only: "${digits}"`);
-    console.log(`  ✅ ${result === expected ? 'PASS' : 'FAIL'}\n`);
+    if (import.meta.env.DEV) {
+      console.log(`Test ${index + 1}:`);
+      console.log(`  Input: "${input}"`);
+      console.log(`  Formatted: "${result}"`);
+      console.log(`  Expected: "${expected}"`);
+      console.log(`  Is Complete: ${isComplete}`);
+      console.log(`  Digits Only: "${digits}"`);
+      console.log(`  ✅ ${result === expected ? 'PASS' : 'FAIL'}\n`);
+    }
   });
   
-  console.log('🎯 Test Complete!');
+  if (import.meta.env.DEV) {
+    console.log('🎯 Test Complete!');
+  }
 }
 
 // Example usage in console:

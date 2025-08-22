@@ -29,13 +29,17 @@ export const usePerformanceMonitor = () => {
         metrics.current.imageLoadTimes.set(img.src, loadTime);
         
         if (loadTime > 2000) { // Log slow images
-          console.warn(`Slow image load: ${img.src} took ${loadTime.toFixed(2)}ms`);
+          if (import.meta.env.DEV) {
+            console.warn(`Slow image load: ${img.src} took ${loadTime.toFixed(2)}ms`);
+          }
         }
       });
       
       img.addEventListener('error', () => {
         metrics.current.failedLoads.add(img.src);
-        console.error(`Failed to load image: ${img.src}`);
+        if (import.meta.env.DEV) {
+          console.error(`Failed to load image: ${img.src}`);
+        }
       });
       
       return img;
@@ -54,13 +58,17 @@ export const usePerformanceMonitor = () => {
           metrics.current.videoLoadTimes.set(element.src, loadTime);
           
           if (loadTime > 3000) { // Log slow videos
-            console.warn(`Slow video load: ${element.src} took ${loadTime.toFixed(2)}ms`);
+            if (import.meta.env.DEV) {
+              console.warn(`Slow video load: ${element.src} took ${loadTime.toFixed(2)}ms`);
+            }
           }
         });
         
         element.addEventListener('error', () => {
           metrics.current.failedLoads.add(element.src);
-          console.error(`Failed to load video: ${element.src}`);
+          if (import.meta.env.DEV) {
+            console.error(`Failed to load video: ${element.src}`);
+          }
         });
       }
       
@@ -88,19 +96,23 @@ export const usePerformanceMonitor = () => {
 
   const logPerformanceReport = () => {
     const report = getMetrics();
-    console.group('🚀 Performance Report');
-    console.log(`Total page load time: ${report.totalLoadTime}ms`);
-    console.log(`Images loaded: ${report.imageLoadTimes.size}`);
-    console.log(`Videos loaded: ${report.videoLoadTimes.size}`);
-    console.log(`Failed loads: ${report.failedLoads.size}`);
-    console.log(`Average image load time: ${report.averageImageLoadTime.toFixed(2)}ms`);
-    console.log(`Average video load time: ${report.averageVideoLoadTime.toFixed(2)}ms`);
     
-    if (report.failedLoads.size > 0) {
-      console.warn('Failed media loads:', Array.from(report.failedLoads));
+    if (import.meta.env.DEV) {
+      console.group('🚀 Performance Report');
+      console.log(`Total page load time: ${report.totalLoadTime}ms`);
+      console.log(`Images loaded: ${report.imageLoadTimes.size}`);
+      console.log(`Videos loaded: ${report.videoLoadTimes.size}`);
+      console.log(`Failed loads: ${report.failedLoads.size}`);
+      console.log(`Average image load time: ${report.averageImageLoadTime.toFixed(2)}ms`);
+      console.log(`Average video load time: ${report.averageVideoLoadTime.toFixed(2)}ms`);
+      
+      if (report.failedLoads.size > 0) {
+        console.warn('Failed media loads:', Array.from(report.failedLoads));
+      }
+      
+      console.groupEnd();
     }
     
-    console.groupEnd();
     return report;
   };
 

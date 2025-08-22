@@ -22,6 +22,7 @@ router.get('/field/:field', async (req, res) => {
   // Whitelist allowed fields
   const allowedFields = [
     'email', 'phone', 'sms_phone', 'logo_url', 'favicon_url',
+    'header_display', 'tagline', 'services_description',
     'facebook', 'instagram', 'tiktok', 'youtube', 'created_at', 'updated_at'
   ];
   if (!allowedFields.includes(field)) {

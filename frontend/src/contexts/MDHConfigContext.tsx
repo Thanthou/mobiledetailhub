@@ -9,6 +9,7 @@ interface MDHConfig {
   favicon_url: string;
   header_display: string;
   tagline: string;
+  services_description: string;
   facebook: string;
   instagram: string;
   tiktok: string;

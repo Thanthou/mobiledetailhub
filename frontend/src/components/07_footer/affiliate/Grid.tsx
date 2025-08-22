@@ -15,13 +15,15 @@ interface FooterGridProps {
   businessSlug?: string;
   serviceAreas: ServiceArea[];
   onRequestQuote: () => void;
+  onBookNow?: () => void;
 }
 
-const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig, businessSlug, serviceAreas, onRequestQuote }) => {
+const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig, businessSlug, serviceAreas, onRequestQuote, onBookNow }) => {
   const { selectedLocation } = useLocation();
   const handleBookNow = () => {
-    // TODO: Implement booking functionality
-
+    if (onBookNow) {
+      onBookNow();
+    }
   };
 
   return (

@@ -8,16 +8,24 @@ export async function findBusinessByLocation(zipCode?: string, city?: string, st
   if (state) params.append('state', state);
 
   const url = `${config.apiUrl}/api/affiliates/lookup?${params.toString()}`;
-  console.log('findBusinessByLocation: Making request to:', url);
+  
+  if (import.meta.env.DEV) {
+    console.log('findBusinessByLocation: Making request to:', url);
+  }
   
   const res = await fetch(url);
   if (!res.ok) {
-    console.error('findBusinessByLocation: Request failed:', res.status, res.statusText);
+    if (import.meta.env.DEV) {
+      console.error('findBusinessByLocation: Request failed:', res.status, res.statusText);
+    }
     return null;
   }
   
   const data = await res.json();
-  console.log('findBusinessByLocation: Response:', data);
+  
+  if (import.meta.env.DEV) {
+    console.log('findBusinessByLocation: Response:', data);
+  }
   
   // Return the first affiliate slug found (assuming only 1 for now as mentioned)
   if (data.slugs && data.slugs.length > 0) {

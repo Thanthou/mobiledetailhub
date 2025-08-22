@@ -2,8 +2,8 @@ const { Pool } = require('pg');
 
 // PostgreSQL connection pool
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgresql://postgres:B95c1143!@localhost:5432/MobileDetailHub',
-  // Fallback to local database if DATABASE_URL is not set
+  connectionString: process.env.DATABASE_URL || `postgresql://${process.env.DB_USER || 'postgres'}:${process.env.DB_PASSWORD || ''}@${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || '5432'}/${process.env.DB_NAME || 'MobileDetailHub'}`,
+  // Fallback to individual environment variables if DATABASE_URL is not set
 });
 
 // Test database connection on startup

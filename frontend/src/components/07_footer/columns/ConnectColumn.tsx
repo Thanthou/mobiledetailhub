@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Phone, Mail, UserPlus, LogIn } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
-import { LoginModal, UserMenu } from '../../login';
+import { LoginModal } from '../../login';
+import UserMenu from '../../01_header/UserMenu';
 
 const ConnectColumn: React.FC = () => {
   const { isLoggedIn } = useAuth();

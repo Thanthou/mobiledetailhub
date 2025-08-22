@@ -48,18 +48,22 @@ function AdminDashboard() {
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
-  const handleQueryChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newValue = e.target.value;
-    console.log('Query change:', newValue); // Debug log
-    setQuery(newValue);
-  };
+  // const handleQueryChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  //   const newValue = e.target.value;
+  //   if (import.meta.env.DEV) {
+  //     console.log('Query change:', newValue); // Debug log
+  //   }
+  //   setQuery(newValue);
+  // };
 
-  // Alternative input handler
-  const handleInputChange = (e: any) => {
-    const value = e.target.value;
-    console.log('Input change:', value);
-    setQuery(value);
-  };
+  // // Alternative input handler
+  // const handleInputChange = (e: any) => {
+  //   const value = e.target.value;
+  //   if (import.meta.env.DEV) {
+  //     console.log('Input change:', value);
+  //   }
+  //   setQuery(value);
+  // };
 
   // Real database execution with toggle support
   const executeQuery = async () => {
@@ -81,18 +85,24 @@ function AdminDashboard() {
       }
 
       // Debug: Log token and user info
-      console.log('Token:', token);
-      console.log('User from localStorage:', localStorage.getItem('user'));
+      if (import.meta.env.DEV) {
+        console.log('Token:', token);
+        console.log('User from localStorage:', localStorage.getItem('user'));
+      }
       
       // Decode JWT token to see what's in it
       try {
         const tokenParts = token.split('.');
         if (tokenParts.length === 3) {
           const payload = JSON.parse(atob(tokenParts[1]));
-          console.log('JWT Payload:', payload);
+          if (import.meta.env.DEV) {
+            console.log('JWT Payload:', payload);
+          }
         }
       } catch (e) {
-        console.log('Could not decode JWT token');
+        if (import.meta.env.DEV) {
+          console.log('Could not decode JWT token');
+        }
       }
 
       // Use the appropriate API URL based on toggle state
@@ -177,7 +187,9 @@ function AdminDashboard() {
       a.click();
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Export error:', error);
+      if (import.meta.env.DEV) {
+        console.error('Export error:', error);
+      }
       alert('Failed to export results');
     }
   };
@@ -240,7 +252,9 @@ function AdminDashboard() {
                       const input = document.getElementById('working-query-input') as HTMLTextAreaElement;
                       if (input) {
                         setQuery(input.value);
-                        console.log('Query updated:', input.value);
+                        if (import.meta.env.DEV) {
+                          console.log('Query updated:', input.value);
+                        }
                       }
                     }}
                     className="px-3 py-1.5 text-sm bg-gray-600 text-white rounded hover:bg-gray-700"

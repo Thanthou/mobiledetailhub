@@ -8,9 +8,23 @@ import { AffiliateProvider } from './contexts/AffiliateContext';
 import DashboardPage from './pages/affiliateDashboard/DashboardPage';
 import AdminDashboard from './pages/adminDashboard/Dashboard';
 import Header from './components/01_header';
+import ErrorBoundary from './components/shared/ErrorBoundary';
 const DevModeDropdown = import.meta.env.DEV 
   ? React.lazy(() => import('./components/DevModeDropdown'))
   : null;
+
+// Custom error boundary for lazy-loaded components
+const LazyComponentErrorBoundary: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <ErrorBoundary
+    fallback={
+      <div className="p-2 text-xs text-gray-500">
+        Component failed to load
+      </div>
+    }
+  >
+    {children}
+  </ErrorBoundary>
+);
 import { useScrollToTop } from './hooks/useScrollToTop';
 
 // Component to handle scroll-to-top functionality
@@ -42,42 +56,48 @@ const LoginPage = () => {
 
 function App() {
   return (
-    <AuthProvider>
-      <LocationProvider>
-        <Router>
-          <ScrollToTop />
-          <div>
-          {import.meta.env.DEV && DevModeDropdown && <DevModeDropdown />}
-            <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/admin-dashboard" element={<AdminDashboard />} />
-            <Route path="/affiliate-dashboard" element={<DashboardPage />} />
-            <Route path="/client-dashboard" element={<div className="min-h-screen bg-gray-900 flex items-center justify-center"><h1 className="text-white text-2xl">Client Dashboard Coming Soon</h1></div>} />
-            <Route path="/:businessSlug" element={
-              <MDHConfigProvider>
-                <AffiliateProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <LocationProvider>
+          <Router>
+            <ScrollToTop />
+            <div>
+            {import.meta.env.DEV && DevModeDropdown && (
+              <LazyComponentErrorBoundary>
+                <DevModeDropdown />
+              </LazyComponentErrorBoundary>
+            )}
+              <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/admin-dashboard" element={<AdminDashboard />} />
+              <Route path="/affiliate-dashboard" element={<DashboardPage />} />
+              <Route path="/client-dashboard" element={<div className="min-h-screen bg-gray-900 flex items-center justify-center"><h1 className="text-white text-2xl">Client Dashboard Coming Soon</h1></div>} />
+              <Route path="/:businessSlug" element={
+                <MDHConfigProvider>
+                  <AffiliateProvider>
+                    <Header />
+                    <HomePage />
+                  </AffiliateProvider>
+                </MDHConfigProvider>
+              } />
+              <Route path="/" element={
+                <MDHConfigProvider>
                   <Header />
                   <HomePage />
-                </AffiliateProvider>
-              </MDHConfigProvider>
-            } />
-            <Route path="/" element={
-              <MDHConfigProvider>
-                <Header />
-                <HomePage />
-              </MDHConfigProvider>
-            } />
-            <Route path="*" element={
-              <MDHConfigProvider>
-                <Header />
-                <HomePage />
-              </MDHConfigProvider>
-            } />
-          </Routes>
-          </div>
-        </Router>
-      </LocationProvider>
-    </AuthProvider>
+                </MDHConfigProvider>
+              } />
+              <Route path="*" element={
+                <MDHConfigProvider>
+                  <Header />
+                  <HomePage />
+                </MDHConfigProvider>
+              } />
+            </Routes>
+            </div>
+          </Router>
+        </LocationProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 

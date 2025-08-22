@@ -1,6 +1,7 @@
 import React from 'react';
 import { useFAQState } from '../hooks/useFAQState';
 import { useFAQData } from '../hooks/useFAQData';
+import { useMDHConfig } from '../../../contexts/MDHConfigContext';
 import FAQExpandButton from '../components/FAQExpandButton';
 import FAQHeader from '../components/FAQHeader';
 import FAQCategory from '../components/FAQCategory';
@@ -21,8 +22,9 @@ const FAQMDH: React.FC = () => {
   // Use static MDH FAQ data (no backend)
   const { groupedFAQs, categories } = useFAQData(undefined);
 
-  // Hard-coded lines for header (can be customized)
-  const servicesLine = 'auto detailing, boat & RV detailing, ceramic coating, and PPF';
+  // Get configurable services description from MDH config (with fallback)
+  const { mdhConfig } = useMDHConfig();
+  const servicesLine = mdhConfig?.services_description || 'auto detailing, boat & RV detailing, ceramic coating, and PPF';
   const nearbyList = '';
 
   return (
