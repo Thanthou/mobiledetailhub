@@ -6,13 +6,11 @@ import { AuthProvider } from './contexts/AuthContext';
 import { MDHConfigProvider } from './contexts/MDHConfigContext';
 import { AffiliateProvider } from './contexts/AffiliateContext';
 import DashboardPage from './pages/affiliateDashboard/DashboardPage';
-import AdminDashboard from './pages/adminDashboard/Dashboard';
+import { DashboardPage as AdminDashboard } from './pages/adminDashboard';
 import { AffiliateApplicationPage } from './pages/affiliateOnboarding';
 import Header from './components/01_header';
 import ErrorBoundary from './components/shared/ErrorBoundary';
-const DevModeDropdown = import.meta.env.DEV 
-  ? React.lazy(() => import('./components/DevModeDropdown'))
-  : null;
+import DevModeDropdown from './components/DevModeDropdown';
 
 // Custom error boundary for lazy-loaded components
 const LazyComponentErrorBoundary: React.FC<{ children: React.ReactNode }> = ({ children }) => (
@@ -63,10 +61,8 @@ function App() {
           <Router>
             <ScrollToTop />
             <div>
-            {import.meta.env.DEV && DevModeDropdown && (
-              <LazyComponentErrorBoundary>
-                <DevModeDropdown />
-              </LazyComponentErrorBoundary>
+            {import.meta.env.DEV && (
+              <DevModeDropdown />
             )}
               <Routes>
               <Route path="/login" element={<LoginPage />} />
