@@ -35,6 +35,7 @@ router.get('/', authenticateToken, requireAdmin, (req, res) => {
           <button class="table-btn" onclick="showMDHConfig()">Show MDH Config</button>
           <button class="table-btn" onclick="showServiceAreas()">Show Service Areas</button>
           <button class="table-btn" onclick="showAffiliates()">Show Affiliates</button>
+          <button class="table-btn" onclick="showPendingSlugs()">Pending Slugs</button>
         </div>
 
         <h3>Custom SQL Query</h3>
@@ -97,6 +98,11 @@ router.get('/', authenticateToken, requireAdmin, (req, res) => {
           runQuery();
         }
 
+        async function showPendingSlugs() {
+          document.getElementById('sqlQuery').value = "SELECT id, business_name, owner, email, application_status, created_at FROM affiliates WHERE slug IS NULL ORDER BY created_at DESC;";
+          runQuery();
+        }
+
         function clearResult() {
           document.getElementById('result').textContent = '';
         }
@@ -125,6 +131,74 @@ router.post('/query', authenticateToken, requireAdmin, async (req, res) => {
   } catch (err) {
     console.error('Admin query error:', err);
     res.status(500).json({ error: err.message });
+  }
+});
+
+// Get affiliates without slugs for admin review
+router.get('/affiliates/pending-slugs', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT id, business_name, owner, email, application_status, created_at 
+      FROM affiliates 
+      WHERE slug IS NULL 
+      ORDER BY created_at DESC
+    `);
+    
+    res.json({
+      success: true,
+      affiliates: result.rows
+    });
+    
+  } catch (err) {
+    console.error('Error fetching affiliates without slugs:', err);
+    res.status(500).json({ error: 'Failed to fetch affiliates' });
+  }
+});
+
+// Admin endpoint to set affiliate slug
+router.put('/affiliates/:id/slug', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { slug } = req.body;
+    
+    if (!slug) {
+      return res.status(400).json({ error: 'Slug is required' });
+    }
+    
+    // Validate slug format (alphanumeric and hyphens only)
+    if (!/^[a-z0-9-]+$/.test(slug)) {
+      return res.status(400).json({ error: 'Slug must contain only lowercase letters, numbers, and hyphens' });
+    }
+    
+    // Check if slug already exists
+    const existingSlug = await pool.query(
+      'SELECT id FROM affiliates WHERE slug = $1 AND id != $2',
+      [slug, id]
+    );
+    
+    if (existingSlug.rows.length > 0) {
+      return res.status(400).json({ error: 'Slug already exists' });
+    }
+    
+    // Update the affiliate with the new slug
+    const result = await pool.query(
+      'UPDATE affiliates SET slug = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING id, slug, business_name',
+      [slug, id]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Affiliate not found' });
+    }
+    
+    res.json({
+      success: true,
+      message: 'Slug updated successfully',
+      affiliate: result.rows[0]
+    });
+    
+  } catch (err) {
+    console.error('Error updating affiliate slug:', err);
+    res.status(500).json({ error: 'Failed to update slug' });
   }
 });
 

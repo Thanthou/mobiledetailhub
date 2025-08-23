@@ -53,4 +53,27 @@
   object-position: center;
 }
 
+/* Override autocomplete background colors to maintain dark theme */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus,
+select:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px rgb(68 64 60) inset !important;
+  -webkit-text-fill-color: white !important;
+  background-color: rgb(68 64 60) !important;
+}
+
+/* Additional autocomplete overrides for different input types */
+input[type="email"]:-webkit-autofill,
+input[type="tel"]:-webkit-autofill,
+input[type="text"]:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 30px rgb(68 64 60) inset !important;
+  -webkit-text-fill-color: white !important;
+  background-color: rgb(68 64 60) !important;
+}
+
 

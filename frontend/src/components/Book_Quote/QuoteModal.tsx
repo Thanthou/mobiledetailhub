@@ -208,6 +208,7 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
                       required
                       value={formData.name}
                       onChange={handleInputChange}
+                      autoComplete="name"
                       className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 ${
                         hasFieldError('name') 
                           ? 'border-red-500 bg-red-900/20' 
@@ -259,6 +260,7 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
                           phone: formatted
                         }));
                       }}
+                      autoComplete="tel"
                       className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 ${
                         hasFieldError('phone') 
                           ? 'border-red-500 bg-red-900/20' 
@@ -290,6 +292,7 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
                       required
                       value={formData.email}
                       onChange={handleInputChange}
+                      autoComplete="email"
                       className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 ${
                         hasFieldError('email') 
                           ? 'border-red-500 bg-red-900/20' 
@@ -323,6 +326,7 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
                       required
                       value={formData.vehicleType}
                       onChange={handleInputChange}
+                      autoComplete="vehicle-type"
                       className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 ${
                         hasFieldError('vehicleType') 
                           ? 'border-red-500 bg-red-900/20' 
@@ -355,6 +359,7 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
                       value={formData.vehicleMake}
                       onChange={handleInputChange}
                       disabled={!formData.vehicleType}
+                      autoComplete="vehicle-make"
                       className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
                         hasFieldError('vehicleMake') 
                           ? 'border-red-500 bg-red-900/20' 
@@ -387,6 +392,7 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
                       value={formData.vehicleModel}
                       onChange={handleInputChange}
                       disabled={!formData.vehicleMake}
+                      autoComplete="vehicle-model"
                       className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
                         hasFieldError('vehicleModel') 
                           ? 'border-red-500 bg-red-900/20' 
@@ -426,6 +432,7 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
                       required
                       value={formData.service}
                       onChange={handleInputChange}
+                      autoComplete="service"
                       className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 ${
                         hasFieldError('service') 
                           ? 'border-red-500 bg-red-900/20' 
@@ -457,6 +464,7 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
                       rows={3}
                       value={formData.message}
                       onChange={handleInputChange}
+                      autoComplete="off"
                       className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 ${
                         hasFieldError('message') 
                           ? 'border-red-500 bg-red-900/20' 

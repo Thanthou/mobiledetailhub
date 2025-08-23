@@ -25,10 +25,11 @@ const MDHHeroContent: React.FC<MDHHeroContentProps> = ({ onBookNow }) => {
           placeholder="Enter your zip code or city"
           className="text-lg"
         />
-        <p className="text-sm text-gray-200 mt-3">
-          We'll connect you with professional detailers in your area
-        </p>
       </div>
+      
+      <p className="text-sm text-gray-200 mt-3 text-center">
+    We'll connect you with professional detailers in your area
+  </p>
     </section>
   );
 };

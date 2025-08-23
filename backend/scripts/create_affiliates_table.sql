@@ -7,7 +7,7 @@ DROP TABLE IF EXISTS affiliates CASCADE;
 -- Create the new affiliates table
 CREATE TABLE affiliates (
   id SERIAL PRIMARY KEY,
-  slug VARCHAR(100) UNIQUE NOT NULL,
+  slug VARCHAR(100) UNIQUE,
   business_name VARCHAR(255) NOT NULL,
   owner VARCHAR(255) NOT NULL,
   phone VARCHAR(20) NOT NULL,

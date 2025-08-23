@@ -75,7 +75,7 @@ async function setupDatabase() {
       -- Create basic affiliates table
       CREATE TABLE IF NOT EXISTS affiliates (
         id SERIAL PRIMARY KEY,
-        slug VARCHAR(100) UNIQUE NOT NULL,
+        slug VARCHAR(100) UNIQUE,
         business_name VARCHAR(255) NOT NULL,
         owner VARCHAR(255) NOT NULL,
         phone VARCHAR(20) NOT NULL,

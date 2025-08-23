@@ -65,12 +65,8 @@ router.post('/apply', async (req, res) => {
       }
     }
 
-    // Generate slug from business name
-    const slug = legal_name
-      .toLowerCase()
-      .replace(/[^a-z0-9\s]/g, '')
-      .replace(/\s+/g, '-')
-      .substring(0, 50);
+    // Slug will be set later by admin or affiliate
+    const slug = null;
 
     // Map categories to services JSONB
     const services = {
@@ -129,14 +125,6 @@ router.post('/apply', async (req, res) => {
 
   } catch (err) {
     console.error('Error submitting affiliate application:', err);
-    
-    // Handle duplicate slug error
-    if (err.code === '23505' && err.constraint === 'affiliates_slug_key') {
-      return res.status(400).json({ 
-        error: 'A business with this name already exists. Please contact support.' 
-      });
-    }
-    
     res.status(500).json({ error: 'Failed to submit application. Please try again.' });
   }
 });
