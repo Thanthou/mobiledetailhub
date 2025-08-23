@@ -1,23 +1,25 @@
 import React, { useState } from 'react';
-import { Terminal, Play, History, Download, Server } from 'lucide-react';
-import { config } from '../../../config/environment';
-import type { QueryResult, QueryHistory } from '../types';
-import { QUERY_TEMPLATES } from '../utils/constants';
+import { Terminal, Play, Download, Server } from 'lucide-react';
+import { config } from '../../../../../config/environment';
+import type { QueryResult } from '../../../types';
 
 export const DatabaseTab: React.FC = () => {
   const [query, setQuery] = useState('SELECT * FROM users LIMIT 10;');
   const [queryResult, setQueryResult] = useState<QueryResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isLiveDatabase, setIsLiveDatabase] = useState(true);
+  
+  // Automatically detect environment - no manual toggle needed
+  const isLiveDatabase = config.isProduction;
+  const databaseLabel = isLiveDatabase ? 'Live' : 'Local';
+  const databaseDescription = isLiveDatabase ? 'Render PostgreSQL' : 'Local PostgreSQL';
 
   const executeQuery = async () => {
     setIsLoading(true);
     setError(null);
     
     try {
-      const input = document.getElementById('working-query-input') as HTMLTextAreaElement;
-      const currentQuery = input ? input.value.trim() : query.trim();
+      const currentQuery = query.trim();
       
       if (!currentQuery) {
         throw new Error('No query entered');
@@ -68,36 +70,6 @@ export const DatabaseTab: React.FC = () => {
     }
   };
 
-  const formatExecutionTime = (ms: number) => {
-    return ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(2)}s`;
-  };
-
-  const exportResults = () => {
-    if (!queryResult) return;
-    
-    try {
-      const csv = [
-        Array.isArray(queryResult.columns) ? queryResult.columns.join(',') : '',
-        ...(Array.isArray(queryResult.rows) ? queryResult.rows.map(row => 
-          Array.isArray(row) ? row.join(',') : String(row)
-        ) : [])
-      ].join('\n');
-      
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'query_results.csv';
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      if (import.meta.env.DEV) {
-        console.error('Export error:', error);
-      }
-      alert('Failed to export results');
-    }
-  };
-
   return (
     <div className="space-y-6">
       <div className="bg-gray-800 rounded-lg shadow-sm border border-gray-700">
@@ -107,25 +79,26 @@ export const DatabaseTab: React.FC = () => {
               <Terminal className="w-5 h-5 text-blue-400" />
               SQL Query Console
             </h2>
+            
+            {/* Environment Display (Top Right) */}
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-300">Database:</span>
-                <button
-                  onClick={() => setIsLiveDatabase(!isLiveDatabase)}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                <span className="text-sm text-gray-300">Environment:</span>
+                <div
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium ${
                     isLiveDatabase 
                       ? 'bg-green-600 text-white' 
                       : 'bg-blue-600 text-white'
                   }`}
                 >
                   <Server className="w-4 h-4" />
-                  {isLiveDatabase ? 'Live' : 'Local'}
-                </button>
+                  {databaseLabel}
+                </div>
               </div>
               
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-300">
-                  Connected to: {isLiveDatabase ? 'Render PostgreSQL' : 'Local PostgreSQL'}
+                  Connected to: {databaseDescription}
                 </span>
                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
               </div>
@@ -140,32 +113,13 @@ export const DatabaseTab: React.FC = () => {
                 SQL Query
               </label>
               
-              <div className="space-y-4">
-                <textarea
-                  id="working-query-input"
-                  className="w-full h-32 px-3 py-2 bg-gray-900 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm resize-none text-white placeholder-gray-400"
-                  placeholder="Enter your SQL query here..."
-                  defaultValue={query}
-                />
-                
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => {
-                      const input = document.getElementById('working-query-input') as HTMLTextAreaElement;
-                      if (input) {
-                        setQuery(input.value);
-                      }
-                    }}
-                    className="px-3 py-1.5 text-sm bg-gray-600 text-white rounded hover:bg-gray-700"
-                  >
-                    Update Query State
-                  </button>
-                  
-                  <span className="text-xs text-gray-400">
-                    Characters: {query.length} | Current: "{query}"
-                  </span>
-                </div>
-              </div>
+              <textarea
+                id="working-query-input"
+                className="w-full h-32 px-3 py-2 bg-gray-900 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm resize-none text-white placeholder-gray-400"
+                placeholder="Enter your SQL query here..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
             </div>
             
             <div className="flex items-center gap-3">
@@ -178,18 +132,9 @@ export const DatabaseTab: React.FC = () => {
                 {isLoading ? 'Executing...' : 'Execute Query'}
               </button>
               
-              <select
-                onChange={(e) => setQuery(e.target.value)}
-                className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-white"
-                defaultValue=""
-              >
-                <option value="" disabled>Quick Templates</option>
-                {QUERY_TEMPLATES.map((template) => (
-                  <option key={template.value} value={template.value}>
-                    {template.label}
-                  </option>
-                ))}
-              </select>
+              <span className="text-xs text-gray-400">
+                Characters: {query.length}
+              </span>
             </div>
           </div>
         </div>
@@ -212,23 +157,16 @@ export const DatabaseTab: React.FC = () => {
               <div className="flex items-center gap-4">
                 <h3 className="text-lg font-semibold text-white">Query Results</h3>
                 <span className="text-sm text-gray-300">
-                  {queryResult.rowCount} row{queryResult.rowCount !== 1 ? 's' : ''} • {formatExecutionTime(queryResult.executionTime)}
+                  {queryResult.rowCount} row{queryResult.rowCount !== 1 ? 's' : ''} • {queryResult.executionTime}ms
                 </span>
                 <span className={`text-xs px-2 py-1 rounded-full ${
                   isLiveDatabase 
                     ? 'bg-green-600 text-white' 
                     : 'bg-blue-600 text-white'
                 }`}>
-                  {isLiveDatabase ? 'Live DB' : 'Local DB'}
+                  {databaseLabel}
                 </span>
               </div>
-              <button
-                onClick={exportResults}
-                className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-300 hover:text-white hover:bg-gray-700 rounded-md transition-colors"
-              >
-                <Download className="w-4 h-4" />
-                Export CSV
-              </button>
             </div>
           </div>
           

@@ -27,10 +27,6 @@ export const useAdminData = (initialData: Partial<AdminData> = {}) => {
     setAdminData(prev => ({ ...prev, ...data }));
   }, []);
 
-  const toggleDatabase = useCallback(() => {
-    setAdminData(prev => ({ ...prev, isLiveDatabase: !prev.isLiveDatabase }));
-  }, []);
-
   const addQueryHistory = useCallback((historyItem: QueryHistory) => {
     setAdminData(prev => ({
       ...prev,
@@ -41,7 +37,6 @@ export const useAdminData = (initialData: Partial<AdminData> = {}) => {
   return {
     adminData,
     updateAdminData,
-    toggleDatabase,
     addQueryHistory
   };
 };

@@ -1,0 +1,33 @@
+import React from 'react';
+import { BarChart3, TrendingUp, Activity, PieChart } from 'lucide-react';
+
+export const AnalyticsTab: React.FC = () => {
+  return (
+    <div className="space-y-6">
+      <div className="bg-gray-800 rounded-lg shadow-sm border border-gray-700">
+        <div className="px-6 py-4 border-b border-gray-700">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+              <BarChart3 className="w-5 h-5 text-blue-400" />
+              Analytics Dashboard
+            </h2>
+            <div className="flex items-center gap-2">
+              <button className="flex items-center gap-2 px-3 py-1.5 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors">
+                <TrendingUp className="w-4 h-4" />
+                Export Report
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div className="p-6">
+          <div className="text-center text-gray-300">
+            <BarChart3 className="w-16 h-16 mx-auto mb-4 text-gray-600" />
+            <h3 className="text-lg font-semibold mb-2">Analytics Coming Soon</h3>
+            <p>This section will provide comprehensive analytics and reporting capabilities.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

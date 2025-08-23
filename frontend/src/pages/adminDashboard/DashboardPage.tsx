@@ -1,13 +1,9 @@
 import React, { useState } from 'react';
-import { AdminLayout } from './components/AdminLayout';
-import { AdminTabs } from './components/AdminTabs';
-import { TabContent } from './components/TabContent';
-import { useAdminData } from './hooks/useAdminData';
+import { AdminLayout, AdminTabs, TabContent } from './components';
 import type { AdminTab } from './types';
 
 const DashboardPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<AdminTab>('database');
-  const { adminData, updateAdminData } = useAdminData();
 
   const handleTabChange = (tab: AdminTab) => {
     setActiveTab(tab);
