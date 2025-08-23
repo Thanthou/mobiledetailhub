@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, ExternalLink, Clipboard, Check } from 'lucide-react';
+import { X, ExternalLink, Clipboard, Check, Share2 } from 'lucide-react';
 
 interface GoogleBusinessProfileModalProps {
   isOpen: boolean;
@@ -108,8 +108,8 @@ const GoogleBusinessProfileModal: React.FC<GoogleBusinessProfileModalProps> = ({
                   3
                 </div>
                 <div>
-                  <p className="text-gray-300 text-sm">
-                    On your business profile page, click the "Share" button
+                                    <p className="text-gray-300 text-sm">
+                    On your business profile page, click the share <Share2 className="inline w-4 h-4 text-blue-400 mx-1" /> button
                   </p>
                 </div>
               </div>
