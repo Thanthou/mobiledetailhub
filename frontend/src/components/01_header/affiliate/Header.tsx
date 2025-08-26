@@ -10,6 +10,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import UserMenu from '../UserMenu';
 import { useAffiliate } from '../../../contexts/AffiliateContext';
 import { useMDHConfig } from '../../../contexts/MDHConfigContext';
+import { formatPhoneNumber } from '../../../utils/phoneFormatter';
 
 const HeaderAffiliate: React.FC = () => {
   const { businessSlug } = useSiteContext();
@@ -18,7 +19,6 @@ const HeaderAffiliate: React.FC = () => {
   const { affiliateData, isLoading: affiliateLoading, error: affiliateError } = useAffiliate();
   const { mdhConfig, isLoading: mdhLoading, error: mdhError } = useMDHConfig();
   
-
 
   const isLoading = affiliateLoading || mdhLoading;
   const hasError = affiliateError || mdhError;
@@ -66,22 +66,22 @@ const HeaderAffiliate: React.FC = () => {
                 onClick={scrollToTop}
                 className="hover:opacity-80 transition-opacity duration-200 cursor-pointer text-left"
               >
-                <h1 className="text-2xl md:text-3xl font-bold text-white">{affiliateData.name}</h1>
+                <h1 className="text-2xl md:text-3xl font-bold text-white">{affiliateData.business_name}</h1>
               </button>
-                             <div className="text-white text-sm md:text-base font-semibold">
-                 <div className="flex items-center space-x-2">
-                   {affiliateData.phone && <span>{affiliateData.phone}</span>}
-                   {affiliateData.phone && selectedLocation && <span className="text-orange-400">•</span>}
-                   {selectedLocation && (
-                     <LocationEditModal
-                       placeholder="Enter new location"
-                       buttonClassName="text-white hover:text-orange-400 text-sm md:text-base font-semibold hover:underline cursor-pointer"
-                       fallbackText={selectedLocation.fullLocation}
-                       showIcon={false}
-                     />
-                   )}
-                 </div>
-               </div>
+              <div className="text-white text-sm md:text-base font-semibold">
+                <div className="flex items-center space-x-2">
+                  {affiliateData.phone && <span>{formatPhoneNumber(affiliateData.phone)}</span>}
+                  {affiliateData.phone && selectedLocation && <span className="text-orange-400">•</span>}
+                  {selectedLocation && (
+                    <LocationEditModal
+                      placeholder="Enter new location"
+                      buttonClassName="text-white hover:text-orange-400 text-sm md:text-base font-semibold hover:underline cursor-pointer"
+                      fallbackText={selectedLocation.fullLocation}
+                      showIcon={false}
+                    />
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 

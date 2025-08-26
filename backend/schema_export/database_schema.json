@@ -1,0 +1,1597 @@
+{
+  "database": "MobileDetailHub",
+  "exported_at": "2025-08-25T20:56:55.226Z",
+  "tables": [
+    {
+      "table_name": "affiliate_service_areas",
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false,
+          "default_value": "nextval('affiliate_service_areas_id_seq'::regclass)",
+          "max_length": null
+        },
+        {
+          "name": "affiliate_id",
+          "type": "integer",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "state",
+          "type": "character varying",
+          "nullable": false,
+          "default_value": null,
+          "max_length": 50
+        },
+        {
+          "name": "city",
+          "type": "character varying",
+          "nullable": false,
+          "default_value": null,
+          "max_length": 100
+        },
+        {
+          "name": "zip",
+          "type": "character varying",
+          "nullable": true,
+          "default_value": null,
+          "max_length": 20
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp without time zone",
+          "nullable": true,
+          "default_value": "now()",
+          "max_length": null
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "foreign_keys": [],
+      "row_count": 0,
+      "sample_data": []
+    },
+    {
+      "table_name": "affiliates",
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false,
+          "default_value": "nextval('affiliates_id_seq'::regclass)",
+          "max_length": null
+        },
+        {
+          "name": "slug",
+          "type": "character varying",
+          "nullable": false,
+          "default_value": null,
+          "max_length": 100
+        },
+        {
+          "name": "business_name",
+          "type": "character varying",
+          "nullable": false,
+          "default_value": null,
+          "max_length": 255
+        },
+        {
+          "name": "owner",
+          "type": "character varying",
+          "nullable": false,
+          "default_value": null,
+          "max_length": 255
+        },
+        {
+          "name": "phone",
+          "type": "character varying",
+          "nullable": false,
+          "default_value": null,
+          "max_length": 20
+        },
+        {
+          "name": "sms_phone",
+          "type": "character varying",
+          "nullable": true,
+          "default_value": null,
+          "max_length": 20
+        },
+        {
+          "name": "email",
+          "type": "character varying",
+          "nullable": false,
+          "default_value": null,
+          "max_length": 255
+        },
+        {
+          "name": "base_location",
+          "type": "jsonb",
+          "nullable": false,
+          "default_value": "'{\"zip\": \"\", \"city\": \"\", \"state\": \"\"}'::jsonb",
+          "max_length": null
+        },
+        {
+          "name": "services",
+          "type": "jsonb",
+          "nullable": false,
+          "default_value": "'{\"rv\": false, \"ppf\": false, \"auto\": false, \"boat\": false, \"ceramic\": false, \"paint_correction\": false}'::jsonb",
+          "max_length": null
+        },
+        {
+          "name": "website_url",
+          "type": "character varying",
+          "nullable": true,
+          "default_value": null,
+          "max_length": 500
+        },
+        {
+          "name": "gbp_url",
+          "type": "character varying",
+          "nullable": true,
+          "default_value": null,
+          "max_length": 500
+        },
+        {
+          "name": "facebook_url",
+          "type": "character varying",
+          "nullable": true,
+          "default_value": null,
+          "max_length": 500
+        },
+        {
+          "name": "instagram_url",
+          "type": "character varying",
+          "nullable": true,
+          "default_value": null,
+          "max_length": 500
+        },
+        {
+          "name": "youtube_url",
+          "type": "character varying",
+          "nullable": true,
+          "default_value": null,
+          "max_length": 500
+        },
+        {
+          "name": "tiktok_url",
+          "type": "character varying",
+          "nullable": true,
+          "default_value": null,
+          "max_length": 500
+        },
+        {
+          "name": "application_status",
+          "type": "character varying",
+          "nullable": false,
+          "default_value": "'pending'::character varying",
+          "max_length": 20
+        },
+        {
+          "name": "has_insurance",
+          "type": "boolean",
+          "nullable": true,
+          "default_value": "false",
+          "max_length": null
+        },
+        {
+          "name": "source",
+          "type": "character varying",
+          "nullable": true,
+          "default_value": null,
+          "max_length": 100
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "uploads",
+          "type": "ARRAY",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "business_license",
+          "type": "character varying",
+          "nullable": true,
+          "default_value": null,
+          "max_length": 100
+        },
+        {
+          "name": "insurance_provider",
+          "type": "character varying",
+          "nullable": true,
+          "default_value": null,
+          "max_length": 255
+        },
+        {
+          "name": "insurance_expiry",
+          "type": "date",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "service_radius_miles",
+          "type": "integer",
+          "nullable": true,
+          "default_value": "25",
+          "max_length": null
+        },
+        {
+          "name": "operating_hours",
+          "type": "jsonb",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "emergency_contact",
+          "type": "jsonb",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "total_jobs",
+          "type": "integer",
+          "nullable": true,
+          "default_value": "0",
+          "max_length": null
+        },
+        {
+          "name": "rating",
+          "type": "numeric",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "review_count",
+          "type": "integer",
+          "nullable": true,
+          "default_value": "0",
+          "max_length": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp without time zone",
+          "nullable": true,
+          "default_value": "CURRENT_TIMESTAMP",
+          "max_length": null
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp without time zone",
+          "nullable": true,
+          "default_value": "CURRENT_TIMESTAMP",
+          "max_length": null
+        },
+        {
+          "name": "application_date",
+          "type": "timestamp without time zone",
+          "nullable": true,
+          "default_value": "CURRENT_TIMESTAMP",
+          "max_length": null
+        },
+        {
+          "name": "approved_date",
+          "type": "timestamp without time zone",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "last_activity",
+          "type": "timestamp without time zone",
+          "nullable": true,
+          "default_value": "CURRENT_TIMESTAMP",
+          "max_length": null
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "foreign_keys": [],
+      "row_count": 2,
+      "sample_data": [
+        {
+          "id": 4,
+          "slug": "jps-mobile-detailing-ceramic-coating",
+          "business_name": "JP's Mobile Detailing & Ceramic Coating",
+          "owner": "Jess Brister",
+          "phone": "7024203151",
+          "sms_phone": "+17024203151",
+          "email": "jpsmobiledetailing@hotmail.com",
+          "base_location": {
+            "zip": "86442",
+            "city": "Bullhead City",
+            "state": "AZ"
+          },
+          "services": {
+            "rv": true,
+            "ppf": false,
+            "auto": true,
+            "boat": true,
+            "ceramic": true,
+            "paint_correction": true
+          },
+          "website_url": null,
+          "gbp_url": "https://share.google/n5LFRsfL1Z46tVETr",
+          "facebook_url": null,
+          "instagram_url": null,
+          "youtube_url": null,
+          "tiktok_url": null,
+          "application_status": "pending",
+          "has_insurance": false,
+          "source": "Referral",
+          "notes": null,
+          "uploads": null,
+          "business_license": null,
+          "insurance_provider": null,
+          "insurance_expiry": null,
+          "service_radius_miles": 25,
+          "operating_hours": null,
+          "emergency_contact": null,
+          "total_jobs": 0,
+          "rating": null,
+          "review_count": 0,
+          "created_at": "2025-08-23T02:36:12.779Z",
+          "updated_at": "2025-08-23T02:36:12.779Z",
+          "application_date": "2025-08-23T02:36:12.779Z",
+          "approved_date": null,
+          "last_activity": "2025-08-23T02:36:12.779Z"
+        },
+        {
+          "id": 10,
+          "slug": "temp-1756061068969-zet561gly",
+          "business_name": "JP's Mobile Detailing & Ceramic Coatings",
+          "owner": "Jess Brister",
+          "phone": "5551231234",
+          "sms_phone": "+15551231234",
+          "email": "jpsmobiledetailing@hotmail.com",
+          "base_location": {
+            "zip": "86442",
+            "city": "Bullhead City",
+            "state": "AZ"
+          },
+          "services": {
+            "rv": true,
+            "ppf": false,
+            "auto": true,
+            "boat": true,
+            "ceramic": true,
+            "paint_correction": true
+          },
+          "website_url": null,
+          "gbp_url": "https://share.google/mPqBEkONXkntNxtlz",
+          "facebook_url": null,
+          "instagram_url": null,
+          "youtube_url": null,
+          "tiktok_url": null,
+          "application_status": "pending",
+          "has_insurance": false,
+          "source": "Referral",
+          "notes": null,
+          "uploads": [
+            "rv.png|2556518|image/png"
+          ],
+          "business_license": null,
+          "insurance_provider": null,
+          "insurance_expiry": null,
+          "service_radius_miles": 25,
+          "operating_hours": null,
+          "emergency_contact": null,
+          "total_jobs": 0,
+          "rating": null,
+          "review_count": 0,
+          "created_at": "2025-08-24T18:44:28.971Z",
+          "updated_at": "2025-08-24T18:44:28.971Z",
+          "application_date": "2025-08-24T18:44:28.971Z",
+          "approved_date": null,
+          "last_activity": "2025-08-24T18:44:28.971Z"
+        }
+      ]
+    },
+    {
+      "table_name": "availability",
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false,
+          "default_value": "nextval('availability_id_seq'::regclass)",
+          "max_length": null
+        },
+        {
+          "name": "affiliate_id",
+          "type": "integer",
+          "nullable": false,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "date",
+          "type": "date",
+          "nullable": false,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "start_time",
+          "type": "time without time zone",
+          "nullable": false,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "end_time",
+          "type": "time without time zone",
+          "nullable": false,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "capacity",
+          "type": "integer",
+          "nullable": false,
+          "default_value": "1",
+          "max_length": null
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "foreign_keys": [],
+      "row_count": 0,
+      "sample_data": []
+    },
+    {
+      "table_name": "bookings",
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false,
+          "default_value": "nextval('bookings_id_seq'::regclass)",
+          "max_length": null
+        },
+        {
+          "name": "affiliate_id",
+          "type": "integer",
+          "nullable": false,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "customer_id",
+          "type": "integer",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "service_id",
+          "type": "integer",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "tier_id",
+          "type": "integer",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "appointment_start",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "appointment_end",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "address_json",
+          "type": "jsonb",
+          "nullable": false,
+          "default_value": "'{}'::jsonb",
+          "max_length": null
+        },
+        {
+          "name": "status",
+          "type": "character varying",
+          "nullable": false,
+          "default_value": "'pending'::character varying",
+          "max_length": 20
+        },
+        {
+          "name": "total_cents",
+          "type": "integer",
+          "nullable": false,
+          "default_value": "0",
+          "max_length": null
+        },
+        {
+          "name": "stripe_payment_intent_id",
+          "type": "text",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default_value": "now()",
+          "max_length": null
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default_value": "now()",
+          "max_length": null
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "customer_id",
+          "references": "clients.id"
+        },
+        {
+          "column": "service_id",
+          "references": "services.id"
+        },
+        {
+          "column": "tier_id",
+          "references": "service_tiers.id"
+        }
+      ],
+      "row_count": 0,
+      "sample_data": []
+    },
+    {
+      "table_name": "business_area",
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false,
+          "default_value": "nextval('business_area_id_seq'::regclass)",
+          "max_length": null
+        },
+        {
+          "name": "slug",
+          "type": "character varying",
+          "nullable": false,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "city",
+          "type": "character varying",
+          "nullable": false,
+          "default_value": null,
+          "max_length": 100
+        },
+        {
+          "name": "state",
+          "type": "character varying",
+          "nullable": false,
+          "default_value": null,
+          "max_length": 2
+        },
+        {
+          "name": "zip",
+          "type": "character varying",
+          "nullable": true,
+          "default_value": null,
+          "max_length": 10
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "foreign_keys": [],
+      "row_count": 2,
+      "sample_data": [
+        {
+          "id": 1,
+          "slug": "jps",
+          "city": "Bullhead City",
+          "state": "AZ",
+          "zip": "86442"
+        },
+        {
+          "id": 2,
+          "slug": "jps",
+          "city": "Laughlin",
+          "state": "NV",
+          "zip": "89029"
+        }
+      ]
+    },
+    {
+      "table_name": "cities",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "default_value": "nextval('cities_id_seq'::regclass)",
+          "max_length": null
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "nullable": false,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "city_slug",
+          "type": "text",
+          "nullable": false,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "state_code",
+          "type": "character",
+          "nullable": false,
+          "default_value": null,
+          "max_length": 2
+        },
+        {
+          "name": "lat",
+          "type": "double precision",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "lng",
+          "type": "double precision",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "state_code",
+          "references": "states.state_code"
+        }
+      ],
+      "row_count": 1,
+      "sample_data": [
+        {
+          "id": "1",
+          "name": "Phoenix",
+          "city_slug": "phoenix",
+          "state_code": "AZ",
+          "lat": null,
+          "lng": null
+        }
+      ]
+    },
+    {
+      "table_name": "clients",
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false,
+          "default_value": "nextval('clients_id_seq'::regclass)",
+          "max_length": null
+        },
+        {
+          "name": "user_id",
+          "type": "integer",
+          "nullable": false,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "address",
+          "type": "character varying",
+          "nullable": true,
+          "default_value": null,
+          "max_length": 255
+        },
+        {
+          "name": "preferences",
+          "type": "jsonb",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp without time zone",
+          "nullable": true,
+          "default_value": "CURRENT_TIMESTAMP",
+          "max_length": null
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp without time zone",
+          "nullable": true,
+          "default_value": "CURRENT_TIMESTAMP",
+          "max_length": null
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "user_id",
+          "references": "users.id"
+        }
+      ],
+      "row_count": 0,
+      "sample_data": []
+    },
+    {
+      "table_name": "location",
+      "columns": [
+        {
+          "name": "location_id",
+          "type": "bigint",
+          "nullable": false,
+          "default_value": "nextval('location_location_id_seq'::regclass)",
+          "max_length": null
+        },
+        {
+          "name": "affiliate_id",
+          "type": "bigint",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "source_platform",
+          "type": "text",
+          "nullable": false,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "source_account_id",
+          "type": "text",
+          "nullable": false,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "source_location_id",
+          "type": "text",
+          "nullable": false,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "display_name",
+          "type": "text",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "timezone",
+          "type": "text",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default_value": "now()",
+          "max_length": null
+        }
+      ],
+      "primary_key": [
+        "location_id"
+      ],
+      "foreign_keys": [],
+      "row_count": 0,
+      "sample_data": []
+    },
+    {
+      "table_name": "mdh_config",
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false,
+          "default_value": "nextval('mdh_config_id_seq'::regclass)",
+          "max_length": null
+        },
+        {
+          "name": "email",
+          "type": "character varying",
+          "nullable": true,
+          "default_value": null,
+          "max_length": 255
+        },
+        {
+          "name": "phone",
+          "type": "character varying",
+          "nullable": true,
+          "default_value": null,
+          "max_length": 50
+        },
+        {
+          "name": "sms_phone",
+          "type": "character varying",
+          "nullable": true,
+          "default_value": null,
+          "max_length": 50
+        },
+        {
+          "name": "logo_url",
+          "type": "character varying",
+          "nullable": true,
+          "default_value": null,
+          "max_length": 255
+        },
+        {
+          "name": "favicon_url",
+          "type": "character varying",
+          "nullable": true,
+          "default_value": null,
+          "max_length": 255
+        },
+        {
+          "name": "facebook",
+          "type": "character varying",
+          "nullable": true,
+          "default_value": null,
+          "max_length": 255
+        },
+        {
+          "name": "instagram",
+          "type": "character varying",
+          "nullable": true,
+          "default_value": null,
+          "max_length": 255
+        },
+        {
+          "name": "tiktok",
+          "type": "character varying",
+          "nullable": true,
+          "default_value": null,
+          "max_length": 255
+        },
+        {
+          "name": "youtube",
+          "type": "character varying",
+          "nullable": true,
+          "default_value": null,
+          "max_length": 255
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp without time zone",
+          "nullable": true,
+          "default_value": "CURRENT_TIMESTAMP",
+          "max_length": null
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp without time zone",
+          "nullable": true,
+          "default_value": "CURRENT_TIMESTAMP",
+          "max_length": null
+        },
+        {
+          "name": "header_display",
+          "type": "character varying",
+          "nullable": true,
+          "default_value": null,
+          "max_length": 255
+        },
+        {
+          "name": "location",
+          "type": "character varying",
+          "nullable": true,
+          "default_value": null,
+          "max_length": 255
+        },
+        {
+          "name": "name",
+          "type": "character varying",
+          "nullable": true,
+          "default_value": null,
+          "max_length": 255
+        },
+        {
+          "name": "tagline",
+          "type": "text",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "services_description",
+          "type": "text",
+          "nullable": true,
+          "default_value": "'auto detailing, boat & RV detailing, ceramic coating, and PPF'::text",
+          "max_length": null
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "foreign_keys": [],
+      "row_count": 1,
+      "sample_data": [
+        {
+          "id": 1,
+          "email": "service@mobiledetailhub.com",
+          "phone": "(888) 555-1234",
+          "sms_phone": "+17024206066",
+          "logo_url": "/assets/logo.webp",
+          "favicon_url": "/assets/favicon.ico",
+          "facebook": "https://facebook.com/mobiledetailhub",
+          "instagram": "https://instagram.com/mobiledetailhub",
+          "tiktok": "https://tiktok.com/@mobiledetailhub",
+          "youtube": "https://youtube.com/mobiledetailhub",
+          "created_at": "2025-08-18T20:48:31.675Z",
+          "updated_at": "2025-08-18T20:48:31.675Z",
+          "header_display": "Mobile Detail Hub",
+          "location": "Anywhere, USA",
+          "name": "Mobile Detail Hub",
+          "tagline": null,
+          "services_description": "auto detailing, boat & RV detailing, ceramic coating, and PPF"
+        }
+      ]
+    },
+    {
+      "table_name": "quotes",
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false,
+          "default_value": "nextval('quotes_id_seq'::regclass)",
+          "max_length": null
+        },
+        {
+          "name": "affiliate_id",
+          "type": "integer",
+          "nullable": false,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "customer_id",
+          "type": "integer",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "status",
+          "type": "character varying",
+          "nullable": false,
+          "default_value": "'new'::character varying",
+          "max_length": 20
+        },
+        {
+          "name": "details_json",
+          "type": "jsonb",
+          "nullable": false,
+          "default_value": "'{}'::jsonb",
+          "max_length": null
+        },
+        {
+          "name": "estimated_total_cents",
+          "type": "integer",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default_value": "now()",
+          "max_length": null
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default_value": "now()",
+          "max_length": null
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "customer_id",
+          "references": "clients.id"
+        }
+      ],
+      "row_count": 0,
+      "sample_data": []
+    },
+    {
+      "table_name": "review",
+      "columns": [
+        {
+          "name": "review_pk",
+          "type": "bigint",
+          "nullable": false,
+          "default_value": "nextval('review_review_pk_seq'::regclass)",
+          "max_length": null
+        },
+        {
+          "name": "review_id",
+          "type": "text",
+          "nullable": false,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "location_id",
+          "type": "bigint",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "rating",
+          "type": "smallint",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "comment",
+          "type": "text",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "reviewer_name",
+          "type": "text",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "reviewer_profile",
+          "type": "text",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "create_time",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "update_time",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "is_deleted",
+          "type": "boolean",
+          "nullable": true,
+          "default_value": "false",
+          "max_length": null
+        },
+        {
+          "name": "source_platform",
+          "type": "text",
+          "nullable": false,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "raw",
+          "type": "jsonb",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        }
+      ],
+      "primary_key": [
+        "review_pk"
+      ],
+      "foreign_keys": [
+        {
+          "column": "location_id",
+          "references": "location.location_id"
+        }
+      ],
+      "row_count": 0,
+      "sample_data": []
+    },
+    {
+      "table_name": "review_reply",
+      "columns": [
+        {
+          "name": "reply_pk",
+          "type": "bigint",
+          "nullable": false,
+          "default_value": "nextval('review_reply_reply_pk_seq'::regclass)",
+          "max_length": null
+        },
+        {
+          "name": "review_pk",
+          "type": "bigint",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "reply_text",
+          "type": "text",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "reply_update_time",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        }
+      ],
+      "primary_key": [
+        "reply_pk"
+      ],
+      "foreign_keys": [
+        {
+          "column": "review_pk",
+          "references": "review.review_pk"
+        }
+      ],
+      "row_count": 0,
+      "sample_data": []
+    },
+    {
+      "table_name": "review_sync_state",
+      "columns": [
+        {
+          "name": "location_id",
+          "type": "bigint",
+          "nullable": false,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "last_seen_update",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        }
+      ],
+      "primary_key": [
+        "location_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "location_id",
+          "references": "location.location_id"
+        }
+      ],
+      "row_count": 0,
+      "sample_data": []
+    },
+    {
+      "table_name": "reviews",
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false,
+          "default_value": "nextval('reviews_id_seq'::regclass)",
+          "max_length": null
+        },
+        {
+          "name": "affiliate_id",
+          "type": "integer",
+          "nullable": false,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "source",
+          "type": "character varying",
+          "nullable": false,
+          "default_value": "'manual'::character varying",
+          "max_length": 30
+        },
+        {
+          "name": "rating",
+          "type": "integer",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "text",
+          "type": "text",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "author_name",
+          "type": "text",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default_value": "now()",
+          "max_length": null
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "foreign_keys": [],
+      "row_count": 0,
+      "sample_data": []
+    },
+    {
+      "table_name": "service_areas",
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false,
+          "default_value": "nextval('service_areas_id_seq'::regclass)",
+          "max_length": null
+        },
+        {
+          "name": "state",
+          "type": "character varying",
+          "nullable": true,
+          "default_value": null,
+          "max_length": 50
+        },
+        {
+          "name": "city",
+          "type": "character varying",
+          "nullable": true,
+          "default_value": null,
+          "max_length": 100
+        },
+        {
+          "name": "zip",
+          "type": "character varying",
+          "nullable": true,
+          "default_value": null,
+          "max_length": 20
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp without time zone",
+          "nullable": true,
+          "default_value": "now()",
+          "max_length": null
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "foreign_keys": [],
+      "row_count": 8,
+      "sample_data": [
+        {
+          "id": 1,
+          "state": "California",
+          "city": "Los Angeles",
+          "zip": "90210",
+          "created_at": "2025-08-22T01:59:48.137Z"
+        },
+        {
+          "id": 2,
+          "state": "California",
+          "city": "San Francisco",
+          "zip": "94102",
+          "created_at": "2025-08-22T01:59:48.138Z"
+        }
+      ]
+    },
+    {
+      "table_name": "service_tiers",
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false,
+          "default_value": "nextval('service_tiers_id_seq'::regclass)",
+          "max_length": null
+        },
+        {
+          "name": "service_id",
+          "type": "integer",
+          "nullable": false,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "tier_name",
+          "type": "character varying",
+          "nullable": false,
+          "default_value": null,
+          "max_length": 100
+        },
+        {
+          "name": "price_delta_cents",
+          "type": "integer",
+          "nullable": false,
+          "default_value": "0",
+          "max_length": null
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "service_id",
+          "references": "services.id"
+        }
+      ],
+      "row_count": 0,
+      "sample_data": []
+    },
+    {
+      "table_name": "services",
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false,
+          "default_value": "nextval('services_id_seq'::regclass)",
+          "max_length": null
+        },
+        {
+          "name": "affiliate_id",
+          "type": "integer",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "category",
+          "type": "character varying",
+          "nullable": false,
+          "default_value": null,
+          "max_length": 50
+        },
+        {
+          "name": "name",
+          "type": "character varying",
+          "nullable": false,
+          "default_value": null,
+          "max_length": 200
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "nullable": true,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "base_price_cents",
+          "type": "integer",
+          "nullable": false,
+          "default_value": "0",
+          "max_length": null
+        },
+        {
+          "name": "pricing_unit",
+          "type": "character varying",
+          "nullable": false,
+          "default_value": "'flat'::character varying",
+          "max_length": 20
+        },
+        {
+          "name": "min_duration_min",
+          "type": "integer",
+          "nullable": false,
+          "default_value": "60",
+          "max_length": null
+        },
+        {
+          "name": "active",
+          "type": "boolean",
+          "nullable": false,
+          "default_value": "true",
+          "max_length": null
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "foreign_keys": [],
+      "row_count": 0,
+      "sample_data": []
+    },
+    {
+      "table_name": "states",
+      "columns": [
+        {
+          "name": "state_code",
+          "type": "character",
+          "nullable": false,
+          "default_value": null,
+          "max_length": 2
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "nullable": false,
+          "default_value": null,
+          "max_length": null
+        },
+        {
+          "name": "country_code",
+          "type": "character",
+          "nullable": false,
+          "default_value": "'US'::bpchar",
+          "max_length": 2
+        }
+      ],
+      "primary_key": [
+        "state_code"
+      ],
+      "foreign_keys": [],
+      "row_count": 3,
+      "sample_data": [
+        {
+          "state_code": "AZ",
+          "name": "Arizona",
+          "country_code": "US"
+        },
+        {
+          "state_code": "NV",
+          "name": "Nevada",
+          "country_code": "US"
+        }
+      ]
+    },
+    {
+      "table_name": "users",
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false,
+          "default_value": "nextval('users_id_seq'::regclass)",
+          "max_length": null
+        },
+        {
+          "name": "email",
+          "type": "character varying",
+          "nullable": false,
+          "default_value": null,
+          "max_length": 255
+        },
+        {
+          "name": "name",
+          "type": "character varying",
+          "nullable": true,
+          "default_value": null,
+          "max_length": 255
+        },
+        {
+          "name": "role",
+          "type": "character varying",
+          "nullable": false,
+          "default_value": null,
+          "max_length": 50
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp without time zone",
+          "nullable": true,
+          "default_value": "CURRENT_TIMESTAMP",
+          "max_length": null
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp without time zone",
+          "nullable": true,
+          "default_value": "CURRENT_TIMESTAMP",
+          "max_length": null
+        },
+        {
+          "name": "is_admin",
+          "type": "boolean",
+          "nullable": true,
+          "default_value": "false",
+          "max_length": null
+        },
+        {
+          "name": "password_hash",
+          "type": "character varying",
+          "nullable": true,
+          "default_value": null,
+          "max_length": 255
+        },
+        {
+          "name": "phone",
+          "type": "character varying",
+          "nullable": true,
+          "default_value": null,
+          "max_length": 50
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "foreign_keys": [],
+      "row_count": 1,
+      "sample_data": [
+        {
+          "id": 4,
+          "email": "admin@mobiledetailhub.com",
+          "name": "Brandan Coleman",
+          "role": "admin",
+          "created_at": "2025-08-21T16:13:43.692Z",
+          "updated_at": "2025-08-21T16:13:43.692Z",
+          "is_admin": true,
+          "password_hash": "$2a$10$EAY3D9OdVXpYgby.ATOmheJwqrlTZ423Yg2a.qLzN1Ku1/oj2/LzS",
+          "phone": ""
+        }
+      ]
+    }
+  ]
+}

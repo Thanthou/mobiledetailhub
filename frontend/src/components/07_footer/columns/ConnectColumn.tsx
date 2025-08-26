@@ -22,7 +22,7 @@ const ConnectColumn: React.FC = () => {
     {
       icon: UserPlus,
       content: 'Join as a Detailer',
-      href: '/join-us'
+      href: '/affiliate-onboarding'
     }
   ];
 
@@ -33,7 +33,7 @@ const ConnectColumn: React.FC = () => {
         {connectItems.map((item, index) => {
           const Icon = item.icon;
           const isExternal = item.href.startsWith('http');
-          const isJoinLink = item.href === '/join-us';
+          const isJoinLink = item.href === '/affiliate-onboarding';
           
           return (
             <div key={index} className="flex items-center justify-center md:justify-start space-x-3">

@@ -2,6 +2,53 @@
 
 This directory contains database migration and setup scripts.
 
+## Schema Export Scripts
+
+### Quick Schema Export (`quick_schema_export.js`)
+A simple script to export your complete database schema to JSON and text files for sharing with AI assistants like ChatGPT.
+
+**Prerequisites:**
+- Make sure you have a `.env` file in your `backend/` directory with your database credentials
+- Required environment variables: `DB_PASSWORD` (others have sensible defaults)
+
+**Usage:**
+```bash
+cd backend/scripts
+node quick_schema_export.js
+```
+
+**What it exports:**
+- Table structure (columns, types, constraints)
+- Primary and foreign keys
+- Row counts
+- Sample data (first 2 rows from each table)
+
+**Output:**
+- `../schema_export/database_schema.json` - JSON format
+- `../schema_export/database_schema.txt` - Human-readable format
+
+### Full Schema Export (`export_schema.js`)
+A comprehensive schema export script with detailed information about indexes, constraints, and statistics.
+
+**Prerequisites:**
+- Make sure you have a `.env` file in your `backend/` directory with your database credentials
+- Required environment variables: `DB_PASSWORD` (others have sensible defaults)
+
+**Usage:**
+```bash
+cd backend/scripts
+node export_schema.js
+```
+
+**Features:**
+- Environment variable support
+- Detailed constraint information
+- Index details
+- Table statistics
+- Column comments
+
+See `README_SCHEMA_EXPORT.md` for detailed documentation.
+
 ## Affiliates Table Migration
 
 ### Running the Migration

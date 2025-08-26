@@ -5,6 +5,14 @@ const pool = require('../database/connection');
 // POST endpoint for affiliate applications
 router.post('/apply', async (req, res) => {
   try {
+    // Test database connection first
+    try {
+      await pool.query('SELECT 1');
+    } catch (dbError) {
+      console.error('Database connection test failed:', dbError);
+      return res.status(500).json({ error: 'Database connection failed. Please try again.' });
+    }
+
     const {
       legal_name,
       primary_contact,
@@ -18,7 +26,6 @@ router.post('/apply', async (req, res) => {
       facebook_url,
       youtube_url,
       website_url,
-      uploads,
       has_insurance,
       source,
       notes
@@ -31,14 +38,8 @@ router.post('/apply', async (req, res) => {
       phone,
       email,
       base_location,
-      categories,
-      uploads: uploads ? `${uploads.length} files` : 'no files'
+      categories
     });
-
-    // Log the actual uploads data to see what's causing the JSON error
-    if (uploads) {
-      console.log('Raw uploads data:', JSON.stringify(uploads, null, 2));
-    }
 
     // Validate required fields
     if (!legal_name || !primary_contact || !phone || !email || !base_location) {
@@ -47,61 +48,81 @@ router.post('/apply', async (req, res) => {
       });
     }
 
-    // Sanitize and validate uploads field
-    let sanitizedUploads = null;
-    if (uploads && Array.isArray(uploads) && uploads.length > 0) {
-      try {
-        // Convert to a simple text array format to avoid JSONB parsing issues
-        sanitizedUploads = uploads
-          .filter(file => file && typeof file === 'object')
-          .map(file => `${file.name || 'unknown'}|${file.size || 0}|${file.type || 'unknown'}`)
-          .filter(filename => filename && filename !== 'unknown|0|unknown');
-        
-        console.log('Sanitized uploads (text array):', sanitizedUploads);
-        
-      } catch (error) {
-        console.error('Error sanitizing uploads:', error);
-        sanitizedUploads = null; // Fallback to null if sanitization fails
-      }
+    // Validate base_location structure
+    if (!base_location.city || !base_location.state) {
+      return res.status(400).json({ 
+        error: 'Missing required location fields: city and state are required' 
+      });
     }
 
-    // Slug will be set later by admin or affiliate
-    const slug = null;
-
-    // Map categories to services JSONB
-    const services = {
-      auto: categories.includes('Auto Detailing'),
-      boat: categories.includes('Boat Detailing'),
-      rv: categories.includes('RV Detailing'),
-      ppf: categories.includes('PPF Installation'),
-      ceramic: categories.includes('Ceramic Coating'),
-      paint_correction: categories.includes('Paint Correction')
-    };
+    // Generate a temporary slug for new applications
+    // This satisfies the NOT NULL constraint and can be updated later by admin
+    const tempSlug = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
     // Format phone numbers
     const formattedPhone = phone.replace(/\D/g, '');
     const smsPhone = formattedPhone.length === 10 ? `+1${formattedPhone}` : null;
 
+    // First, create or find the address record
+    let addressId;
+    try {
+      // Check if address already exists
+      const addressCheckQuery = `
+        SELECT id FROM addresses 
+        WHERE city = $1 AND state_code = $2 AND postal_code = $3
+      `;
+      const addressCheck = await pool.query(addressCheckQuery, [
+        base_location.city, 
+        base_location.state, 
+        base_location.zip || null
+      ]);
+      
+      if (addressCheck.rows.length > 0) {
+        addressId = addressCheck.rows[0].id;
+        console.log(`Using existing address ID: ${addressId}`);
+      } else {
+        // Create new address record
+        const addressQuery = `
+          INSERT INTO addresses (line1, city, state_code, postal_code) 
+          VALUES ($1, $2, $3, $4) 
+          RETURNING id
+        `;
+        const addressResult = await pool.query(addressQuery, [
+          `${base_location.city}, ${base_location.state}`, // Format line1 as "City, State"
+          base_location.city, 
+          base_location.state, 
+          base_location.zip || null
+        ]);
+        addressId = addressResult.rows[0].id;
+        console.log(`Created new address ID: ${addressId}`);
+      }
+    } catch (addressErr) {
+      console.error('Error handling address:', addressErr);
+      return res.status(500).json({ 
+        error: 'Failed to process location information. Please try again.' 
+      });
+    }
+
     // Insert new affiliate application
-    const query = `
+    // Insert into affiliates table with base_address_id
+    const affiliateQuery = `
       INSERT INTO affiliates (
         slug, business_name, owner, phone, sms_phone, email, 
-        base_location, services, website_url, gbp_url, 
+        base_address_id, website_url, gbp_url, 
         facebook_url, instagram_url, youtube_url, tiktok_url,
-        has_insurance, source, notes, uploads, application_status
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
+        has_insurance, source, notes, application_status
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
       RETURNING id, slug, business_name, application_status
     `;
 
-    const values = [
-      slug,
+    const affiliateValues = [
+      tempSlug,
       legal_name,
       primary_contact,
       formattedPhone,
       smsPhone,
       email,
-      base_location,
-      services,
+      addressId, // Use the address ID instead of JSONB
       website_url || null,
       gbp_url || null,
       facebook_url || null,
@@ -111,21 +132,101 @@ router.post('/apply', async (req, res) => {
       has_insurance,
       source || null,
       notes || null,
-      sanitizedUploads,
       'pending'
     ];
 
-    const result = await pool.query(query, values);
+    const result = await pool.query(affiliateQuery, affiliateValues);
+    
+    // Insert service areas for the affiliate
+    if (result.rows[0] && base_location.city && base_location.state) {
+      try {
+        // First, find or create the city record
+        let cityId;
+        const cityCheckQuery = `
+          SELECT id FROM cities 
+          WHERE name = $1 AND state_code = $2
+        `;
+        const cityCheck = await pool.query(cityCheckQuery, [
+          base_location.city, 
+          base_location.state
+        ]);
+        
+        if (cityCheck.rows.length > 0) {
+          cityId = cityCheck.rows[0].id;
+          console.log(`Using existing city ID: ${cityId}`);
+        } else {
+          // Create new city record
+          const cityQuery = `
+            INSERT INTO cities (name, city_slug, state_code) 
+            VALUES ($1, $2, $3) 
+            RETURNING id
+          `;
+          const citySlug = base_location.city.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+          const cityResult = await pool.query(cityQuery, [
+            base_location.city, 
+            citySlug, 
+            base_location.state
+          ]);
+          cityId = cityResult.rows[0].id;
+          console.log(`Created new city ID: ${cityId}`);
+        }
+        
+                 // Now insert into affiliate_service_areas using city_id
+         // Handle empty zip by using a default value since zip column is NOT NULL
+         const zipValue = base_location.zip && base_location.zip.trim() !== '' ? base_location.zip.trim() : 'N/A';
+         
+         await pool.query(
+           'INSERT INTO affiliate_service_areas (affiliate_id, city_id, zip, priority) VALUES ($1, $2, $3, $4)',
+           [result.rows[0].id, cityId, zipValue, 0]
+         );
+        console.log(`Created service area for affiliate ${result.rows[0].id}`);
+      } catch (serviceAreaErr) {
+        console.warn('Failed to insert service area, but affiliate was created:', serviceAreaErr);
+      }
+    }
     
     res.status(201).json({
       success: true,
       message: 'Application submitted successfully',
-      affiliate: result.rows[0]
+      affiliate: result.rows[0],
+      note: 'A temporary slug has been assigned. This will be updated to a permanent slug once the application is approved.'
     });
 
   } catch (err) {
     console.error('Error submitting affiliate application:', err);
-    res.status(500).json({ error: 'Failed to submit application. Please try again.' });
+    console.error('Error details:', {
+      message: err.message,
+      stack: err.stack,
+      code: err.code
+    });
+    res.status(500).json({ 
+      error: 'Failed to submit application. Please try again.',
+      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+  }
+});
+
+// Test endpoint to verify server and database are working
+router.get('/test', async (req, res) => {
+  try {
+    // Test database connection
+    const result = await pool.query('SELECT NOW() as current_time, version() as db_version');
+    res.json({ 
+      status: 'ok', 
+      message: 'Affiliates route is working',
+      database: {
+        connected: true,
+        current_time: result.rows[0].current_time,
+        version: result.rows[0].db_version
+      }
+    });
+  } catch (err) {
+    console.error('Test endpoint error:', err);
+    res.status(500).json({ 
+      status: 'error', 
+      message: 'Database connection failed',
+      error: err.message 
+    });
   }
 });
 

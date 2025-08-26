@@ -1,204 +1,450 @@
 const express = require('express');
 const router = express.Router();
-const pool = require('../database/connection');
-const { authenticateToken, requireAdmin } = require('../middleware/auth');
 
-// Admin Dashboard Routes
-router.get('/', authenticateToken, requireAdmin, (req, res) => {
-  res.send(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>Database Admin Dashboard</title>
-      <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
-        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        textarea { width: 100%; height: 100px; font-family: monospace; margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
-        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 10px 5px; }
-        button:hover { background: #0056b3; }
-        .result { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; padding: 15px; margin: 10px 0; white-space: pre-wrap; font-family: monospace; }
-        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
-        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
-        .tables { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin: 20px 0; }
-        .table-btn { background: #28a745; }
-        .table-btn:hover { background: #1e7e34; }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <h1>Database Admin Dashboard</h1>
-        
-        <h3>Quick Actions</h3>
-        <div class="tables">
-          <button class="table-btn" onclick="showTables()">Show All Tables</button>
-          <button class="table-btn" onclick="showUsers()">Show Users</button>
-          <button class="table-btn" onclick="showMDHConfig()">Show MDH Config</button>
-          <button class="table-btn" onclick="showServiceAreas()">Show Service Areas</button>
-          <button class="table-btn" onclick="showAffiliates()">Show Affiliates</button>
-          <button class="table-btn" onclick="showPendingSlugs()">Pending Slugs</button>
-        </div>
-
-        <h3>Custom SQL Query</h3>
-        <textarea id="sqlQuery" placeholder="Enter your SQL query here...">SELECT * FROM users LIMIT 5;</textarea>
-        <button onclick="runQuery()">Run Query</button>
-        <button onclick="clearResult()">Clear Result</button>
-        
-        <div id="result"></div>
-      </div>
-
-      <script>
-        async function runQuery() {
-          const query = document.getElementById('sqlQuery').value;
-          const resultDiv = document.getElementById('result');
-          
-          try {
-            const response = await fetch('/admin/query', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ query })
-            });
-            
-            const data = await response.json();
-            
-            if (response.ok) {
-              resultDiv.className = 'result success';
-              resultDiv.textContent = JSON.stringify(data, null, 2);
-            } else {
-              resultDiv.className = 'result error';
-              resultDiv.textContent = 'Error: ' + data.error;
-            }
-          } catch (error) {
-            resultDiv.className = 'result error';
-            resultDiv.textContent = 'Error: ' + error.message;
-          }
-        }
-
-        async function showTables() {
-          document.getElementById('sqlQuery').value = "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';";
-          runQuery();
-        }
-
-        async function showUsers() {
-          document.getElementById('sqlQuery').value = "SELECT id, email, name, phone, created_at FROM users;";
-          runQuery();
-        }
-
-        async function showMDHConfig() {
-          document.getElementById('sqlQuery').value = "SELECT * FROM mdh_config;";
-          runQuery();
-        }
-
-        async function showServiceAreas() {
-          document.getElementById('sqlQuery').value = "SELECT * FROM service_areas;";
-          runQuery();
-        }
-
-        async function showAffiliates() {
-          document.getElementById('sqlQuery').value = "SELECT * FROM affiliates;";
-          runQuery();
-        }
-
-        async function showPendingSlugs() {
-          document.getElementById('sqlQuery').value = "SELECT id, business_name, owner, email, application_status, created_at FROM affiliates WHERE slug IS NULL ORDER BY created_at DESC;";
-          runQuery();
-        }
-
-        function clearResult() {
-          document.getElementById('result').textContent = '';
-        }
-      </script>
-    </body>
-    </html>
-  `);
+// Simple test endpoint without any middleware
+router.get('/ping', (req, res) => {
+  res.json({ message: 'Admin routes are working!', timestamp: new Date().toISOString() });
 });
 
-// Admin query endpoint
-router.post('/query', authenticateToken, requireAdmin, async (req, res) => {
-  const { query } = req.body;
-  
-  if (!query) {
-    return res.status(400).json({ error: 'Query is required' });
-  }
-
+// Test endpoint for debugging (remove in production)
+router.get('/test-users', async (req, res) => {
   try {
-    const result = await pool.query(query);
+    // Simple response without database for now
     res.json({
       success: true,
-      rowCount: result.rowCount,
-      rows: result.rows,
-      fields: result.fields?.map(f => f.name) || []
+      users: [],
+      count: 0,
+      message: 'Test endpoint - no authentication required'
     });
   } catch (err) {
-    console.error('Admin query error:', err);
-    res.status(500).json({ error: err.message });
+    console.error('Error in test-users:', err);
+    res.status(500).json({ error: 'Test endpoint error' });
   }
 });
 
-// Get affiliates without slugs for admin review
-router.get('/affiliates/pending-slugs', authenticateToken, requireAdmin, async (req, res) => {
-  try {
-    const result = await pool.query(`
-      SELECT id, business_name, owner, email, application_status, created_at 
-      FROM affiliates 
-      WHERE slug IS NULL 
-      ORDER BY created_at DESC
-    `);
-    
-    res.json({
-      success: true,
-      affiliates: result.rows
-    });
-    
-  } catch (err) {
-    console.error('Error fetching affiliates without slugs:', err);
-    res.status(500).json({ error: 'Failed to fetch affiliates' });
-  }
+// Test DELETE endpoint for debugging
+router.delete('/test-delete', (req, res) => {
+  console.log('[ADMIN] DELETE /test-delete called');
+  res.json({ message: 'DELETE method is working!', timestamp: new Date().toISOString() });
 });
 
-// Admin endpoint to set affiliate slug
-router.put('/affiliates/:id/slug', authenticateToken, requireAdmin, async (req, res) => {
+// Delete affiliate and associated data
+router.delete('/affiliates/:id', async (req, res) => {
+  console.log('[ADMIN] DELETE /affiliates/:id called with id:', req.params.id);
   try {
+    const pool = require('../database/connection');
     const { id } = req.params;
-    const { slug } = req.body;
     
-    if (!slug) {
-      return res.status(400).json({ error: 'Slug is required' });
+    // Start a transaction to ensure data consistency
+    const client = await pool.connect();
+    
+    try {
+      await client.query('BEGIN');
+      
+      // First, try to find the affiliate by ID
+      let findAffiliateQuery = 'SELECT email, business_name, slug FROM affiliates WHERE id = $1';
+      let affiliateResult = await client.query(findAffiliateQuery, [id]);
+      
+      // If not found in affiliates table, try to find by user ID
+      if (affiliateResult.rowCount === 0) {
+        console.log(`Affiliate ID ${id} not found in affiliates table, checking users table...`);
+        const findUserQuery = 'SELECT email, name FROM users WHERE id = $1 AND role = $2';
+        const userResult = await client.query(findUserQuery, [id, 'affiliate']);
+        
+        if (userResult.rowCount === 0) {
+          await client.query('ROLLBACK');
+          return res.status(404).json({ 
+            success: false, 
+            error: 'Affiliate not found in either affiliates or users table' 
+          });
+        }
+        
+        // User exists but no affiliate record - just delete the user
+        const user = userResult.rows[0];
+        const deleteUserQuery = 'DELETE FROM users WHERE id = $1';
+        await client.query(deleteUserQuery, [id]);
+        console.log(`Deleted user record ${id} (${user.name})`);
+        
+        await client.query('COMMIT');
+        
+        res.json({
+          success: true,
+          message: `User "${user.name}" has been deleted successfully`,
+          deletedUser: {
+            id: parseInt(id),
+            name: user.name,
+            email: user.email
+          }
+        });
+        return;
+      }
+      
+      // Affiliate found - proceed with full deletion
+      const affiliate = affiliateResult.rows[0];
+      
+      // Delete associated service areas
+      const deleteServiceAreasQuery = 'DELETE FROM affiliate_service_areas WHERE affiliate_id = $1';
+      const serviceAreasResult = await client.query(deleteServiceAreasQuery, [id]);
+      console.log(`Deleted ${serviceAreasResult.rowCount} service areas for affiliate ${id}`);
+      
+      // Delete the affiliate record
+      const deleteAffiliateQuery = 'DELETE FROM affiliates WHERE id = $1';
+      await client.query(deleteAffiliateQuery, [id]);
+      console.log(`Deleted affiliate record ${id}`);
+      
+      // Delete the corresponding user record
+      const deleteUserQuery = 'DELETE FROM users WHERE email = $1 AND role = $2';
+      const userResult = await client.query(deleteUserQuery, [affiliate.email, 'affiliate']);
+      console.log(`Deleted ${userResult.rowCount} user record(s) for email: ${affiliate.email}`);
+      
+      // Commit the transaction
+      await client.query('COMMIT');
+      
+      console.log(`Successfully deleted affiliate: ${affiliate.business_name} (${affiliate.slug})`);
+      
+      res.json({
+        success: true,
+        message: `Affiliate "${affiliate.business_name}" has been deleted successfully`,
+        deletedAffiliate: {
+          id: parseInt(id),
+          business_name: affiliate.business_name,
+          slug: affiliate.slug,
+          email: affiliate.email
+        }
+      });
+      
+    } catch (transactionError) {
+      await client.query('ROLLBACK');
+      throw transactionError;
+    } finally {
+      client.release();
     }
     
-    // Validate slug format (alphanumeric and hyphens only)
-    if (!/^[a-z0-9-]+$/.test(slug)) {
-      return res.status(400).json({ error: 'Slug must contain only lowercase letters, numbers, and hyphens' });
+  } catch (err) {
+    console.error('Error deleting affiliate:', err);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to delete affiliate',
+      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+  }
+});
+
+// Users endpoint (temporarily without authentication for testing)
+router.get('/users', async (req, res) => {
+  try {
+    const pool = require('../database/connection');
+    const { status } = req.query;
+    
+    if (status === 'affiliates') {
+      // For affiliates, query the affiliates table directly
+      try {
+        // Check if there are any affiliates
+        const countCheck = await pool.query('SELECT COUNT(*) FROM affiliates');
+        const affiliateCount = parseInt(countCheck.rows[0].count);
+        
+        if (affiliateCount === 0) {
+          res.json({
+            success: true,
+            users: [],
+            count: 0,
+            message: 'No affiliates found'
+          });
+          return;
+        }
+        
+        const query = `
+          SELECT 
+            a.id, a.owner as name, a.email, 'affiliate' as role, a.created_at,
+            a.business_name, a.application_status, a.slug
+          FROM affiliates a
+          ORDER BY a.created_at DESC
+        `;
+        
+        const result = await pool.query(query);
+        
+        res.json({
+          success: true,
+          users: result.rows,
+          count: result.rowCount,
+          message: `Found ${result.rowCount} affiliates in database`
+        });
+        return;
+             } catch (affiliateErr) {
+         console.error('Error in affiliates query:', affiliateErr);
+         throw affiliateErr;
+       }
     }
     
-    // Check if slug already exists
-    const existingSlug = await pool.query(
-      'SELECT id FROM affiliates WHERE slug = $1 AND id != $2',
-      [slug, id]
+    let query = 'SELECT id, name, email, role, created_at FROM users';
+    let params = [];
+    
+    if (status && status !== 'all-users') {
+      // Map frontend status to database fields
+      const statusMap = {
+        'admin': 'role = $1',
+        'clients': 'role = $1'
+      };
+      
+      if (statusMap[status]) {
+        query += ` WHERE ${statusMap[status]}`;
+        params.push(status);
+      }
+    }
+    
+    query += ' ORDER BY created_at DESC';
+    
+    const result = await pool.query(query, params);
+    
+    res.json({
+      success: true,
+      users: result.rows,
+      count: result.rowCount,
+      message: `Found ${result.rowCount} users in database`
+    });
+  } catch (err) {
+    console.error('Error fetching users:', err);
+    res.status(500).json({ error: 'Failed to fetch users' });
+  }
+});
+
+// Pending affiliate applications endpoint
+router.get('/pending-applications', async (req, res) => {
+  try {
+    const pool = require('../database/connection');
+    
+          const query = `
+        SELECT 
+          a.id, a.slug, a.business_name, a.owner, a.phone, a.email, 
+          a.has_insurance, a.source, a.notes, a.application_date, a.created_at,
+          addr.city, addr.state_code, addr.postal_code
+        FROM affiliates a
+        LEFT JOIN addresses addr ON a.base_address_id = addr.id
+        WHERE a.application_status = 'pending' 
+        ORDER BY a.application_date DESC
+      `;
+    
+    const result = await pool.query(query);
+    
+    res.json({
+      success: true,
+      applications: result.rows,
+      count: result.rowCount,
+      message: `Found ${result.rowCount} pending applications`
+    });
+  } catch (err) {
+    console.error('Error fetching pending applications:', err);
+    res.status(500).json({ error: 'Failed to fetch pending applications' });
+  }
+});
+
+// Approve affiliate application endpoint
+router.post('/approve-application/:id', async (req, res) => {
+  try {
+    const pool = require('../database/connection');
+    const { id } = req.params;
+    const { approved_slug, admin_notes } = req.body;
+    
+    // Validate admin notes length
+    if (admin_notes && admin_notes.length > 1000) {
+      return res.status(400).json({ 
+        error: 'Admin notes must be less than 1000 characters long' 
+      });
+    }
+    
+    // Validate slug format and length
+    if (!approved_slug || approved_slug.length < 3 || approved_slug.length > 50) {
+      return res.status(400).json({ 
+        error: 'Slug must be between 3 and 50 characters long' 
+      });
+    }
+    
+    if (!/^[a-z0-9-]+$/.test(approved_slug)) {
+      return res.status(400).json({ 
+        error: 'Slug must contain only lowercase letters, numbers, and hyphens' 
+      });
+    }
+    
+    if (approved_slug.startsWith('-') || approved_slug.endsWith('-')) {
+      return res.status(400).json({ 
+        error: 'Slug cannot start or end with a hyphen' 
+      });
+    }
+    
+    if (approved_slug.includes('--')) {
+      return res.status(400).json({ 
+        error: 'Slug cannot contain consecutive hyphens' 
+      });
+    }
+    
+    // Check if slug is already taken
+    const slugCheckQuery = 'SELECT id FROM affiliates WHERE slug = $1 AND id != $2';
+    const slugCheck = await pool.query(slugCheckQuery, [approved_slug, id]);
+    
+    if (slugCheck.rowCount > 0) {
+      return res.status(400).json({ 
+        error: 'Slug is already taken by another affiliate' 
+      });
+    }
+    
+    // Check if application is still pending before updating
+    const statusCheckQuery = 'SELECT application_status FROM affiliates WHERE id = $1';
+    const statusCheck = await pool.query(statusCheckQuery, [id]);
+    
+    if (statusCheck.rowCount === 0) {
+      return res.status(404).json({ 
+        error: 'Application not found' 
+      });
+    }
+    
+    if (statusCheck.rows[0].application_status !== 'pending') {
+      return res.status(400).json({ 
+        error: 'Application has already been processed' 
+      });
+    }
+    
+    // Update affiliate status to approved
+    const updateQuery = `
+      UPDATE affiliates 
+      SET 
+        application_status = 'approved',
+        slug = $1,
+        approved_date = NOW(),
+        notes = CASE 
+          WHEN notes IS NULL THEN $2
+          ELSE notes || E'\n\nAdmin Approval Notes: ' || $2
+        END
+      WHERE id = $3 AND application_status = 'pending'
+      RETURNING *
+    `;
+    
+    const result = await pool.query(updateQuery, [approved_slug, admin_notes, id]);
+    
+    if (result.rowCount === 0) {
+      return res.status(409).json({ 
+        error: 'Application was modified by another admin. Please refresh and try again.' 
+      });
+    }
+    
+    const affiliate = result.rows[0];
+    
+    // Create user account for approved affiliate
+    const userQuery = `
+      INSERT INTO users (email, password_hash, name, phone, role, created_at)
+      VALUES ($1, $2, $3, $4, $5, NOW())
+      RETURNING id
+    `;
+    
+    // Generate a temporary password (affiliate will reset this)
+    const tempPassword = Math.random().toString(36).substring(2, 15);
+    const bcrypt = require('bcryptjs');
+    const hashedPassword = await bcrypt.hash(tempPassword, 10);
+    
+    const userResult = await pool.query(userQuery, [
+      affiliate.email,
+      hashedPassword,
+      affiliate.owner,
+      affiliate.phone,
+      'affiliate'
+    ]);
+    
+    const userId = userResult.rows[0].id;
+    
+    // Link user account to affiliate using the junction table
+    await pool.query(
+      'INSERT INTO affiliate_users (affiliate_id, user_id, role) VALUES ($1, $2, $3)',
+      [id, userId, 'owner']
     );
     
-    if (existingSlug.rows.length > 0) {
-      return res.status(400).json({ error: 'Slug already exists' });
+    res.json({
+      success: true,
+      message: 'Application approved successfully',
+      affiliate: {
+        ...affiliate,
+        user_id: userId,
+        temp_password: tempPassword
+      },
+      note: 'User account created with temporary password. Affiliate should reset password on first login.'
+    });
+    
+  } catch (err) {
+    console.error('Error approving application:', err);
+    res.status(500).json({ error: 'Failed to approve application' });
+  }
+});
+
+// Reject affiliate application endpoint
+router.post('/reject-application/:id', async (req, res) => {
+  try {
+    const pool = require('../database/connection');
+    const { id } = req.params;
+    const { rejection_reason, admin_notes } = req.body;
+    
+    // Validate admin notes length
+    if (admin_notes && admin_notes.length > 1000) {
+      return res.status(400).json({ 
+        error: 'Admin notes must be less than 1000 characters long' 
+      });
     }
     
-    // Update the affiliate with the new slug
-    const result = await pool.query(
-      'UPDATE affiliates SET slug = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING id, slug, business_name',
-      [slug, id]
-    );
+    // Validate rejection reason
+    if (!rejection_reason || rejection_reason.trim().length < 10) {
+      return res.status(400).json({ 
+        error: 'Rejection reason must be at least 10 characters long' 
+      });
+    }
     
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Affiliate not found' });
+    if (rejection_reason.trim().length > 500) {
+      return res.status(400).json({ 
+        error: 'Rejection reason must be less than 500 characters long' 
+      });
+    }
+    
+    // Check if application is still pending before updating
+    const statusCheckQuery = 'SELECT application_status FROM affiliates WHERE id = $1';
+    const statusCheck = await pool.query(statusCheckQuery, [id]);
+    
+    if (statusCheck.rowCount === 0) {
+      return res.status(404).json({ 
+        error: 'Application not found' 
+      });
+    }
+    
+    if (statusCheck.rows[0].application_status !== 'pending') {
+      return res.status(400).json({ 
+        error: 'Application has already been processed' 
+      });
+    }
+    
+    const updateQuery = `
+      UPDATE affiliates 
+      SET 
+        application_status = 'rejected',
+        notes = CASE 
+          WHEN notes IS NULL THEN $1
+          ELSE notes || E'\n\nRejection Reason: ' || $1 || E'\nAdmin Notes: ' || $2
+        END
+      WHERE id = $3 AND application_status = 'pending'
+      RETURNING *
+    `;
+    
+    const result = await pool.query(updateQuery, [rejection_reason, admin_notes, id]);
+    
+    if (result.rowCount === 0) {
+      return res.status(409).json({ 
+        error: 'Application was modified by another admin. Please refresh and try again.' 
+      });
     }
     
     res.json({
       success: true,
-      message: 'Slug updated successfully',
+      message: 'Application rejected successfully',
       affiliate: result.rows[0]
     });
     
   } catch (err) {
-    console.error('Error updating affiliate slug:', err);
-    res.status(500).json({ error: 'Failed to update slug' });
+    console.error('Error rejecting application:', err);
+    res.status(500).json({ error: 'Failed to reject application' });
   }
 });
 

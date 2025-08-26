@@ -44,6 +44,9 @@ CREATE TABLE affiliates (
   rating DECIMAL(3,2),
   review_count INTEGER DEFAULT 0,
   
+  -- User account link (added after approval)
+  user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  
   -- Timestamps:
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

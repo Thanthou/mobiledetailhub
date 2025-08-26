@@ -5,19 +5,38 @@ import { config } from '../config/environment';
 interface AffiliateData {
   id: number;
   slug: string;
-  name: string;
+  business_name: string;
+  owner: string;
   email: string;
   phone: string;
   sms_phone: string;
-  address: string;
-  logo_url: string;
-  website: string;
-  description: string;
-  service_areas: string[];
-  state_cities: string[];
-  is_active: boolean;
+  base_location: any;
+  services: any;
+  website_url: string;
+  gbp_url: string;
+  facebook_url: string;
+  instagram_url: string;
+  youtube_url: string;
+  tiktok_url: string;
+  application_status: string;
+  has_insurance: boolean;
+  source: string;
+  notes: string;
+  uploads: any;
+  business_license: string;
+  insurance_provider: string;
+  insurance_expiry: string;
+  service_radius_miles: number;
+  operating_hours: any;
+  emergency_contact: any;
+  total_jobs: number;
+  rating: number;
+  review_count: number;
   created_at: string;
   updated_at: string;
+  application_date: string;
+  approved_date: string;
+  last_activity: string;
 }
 
 interface AffiliateContextType {

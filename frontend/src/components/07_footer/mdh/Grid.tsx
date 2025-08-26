@@ -5,9 +5,15 @@ import { MapPin } from 'lucide-react';
 import { config } from '../../../config/environment';
 
 interface ServiceArea {
-  state: string;
-  city: string;
-  zip?: string;
+  state_code: string;
+  name: string;
+}
+
+interface City {
+  id: number;
+  name: string;
+  city_slug: string;
+  state_code: string;
 }
 
 interface FooterGridProps {
@@ -17,6 +23,7 @@ interface FooterGridProps {
 
 const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig }) => {
   const [serviceAreas, setServiceAreas] = useState<ServiceArea[]>([]);
+  const [cities, setCities] = useState<City[]>([]);
   const [selectedState, setSelectedState] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -54,29 +61,27 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig }) => {
     fetchServiceAreas();
   }, []);
 
-  const selectState = (state: string) => {
-    setSelectedState(state);
+  const selectState = async (stateCode: string) => {
+    try {
+      const response = await fetch(`${config.apiUrl}/api/service_areas/${stateCode}`);
+      if (response.ok) {
+        const data = await response.json();
+        setCities(Array.isArray(data) ? data : []);
+        setSelectedState(stateCode);
+      }
+    } catch (err) {
+      console.error('Failed to fetch cities for state:', err);
+      setCities([]);
+    }
   };
 
   const goBackToStates = () => {
     setSelectedState(null);
+    setCities([]);
   };
 
-  // Group cities by state - ensure serviceAreas is always an array
-  const citiesByState = (Array.isArray(serviceAreas) ? serviceAreas : []).reduce((acc, area) => {
-    if (!acc[area.state]) {
-      acc[area.state] = [];
-    }
-    acc[area.state].push(area.city);
-    return acc;
-  }, {} as Record<string, string[]>);
-
-  // Get unique states and sort them
-  const states = Object.keys(citiesByState).sort();
-  
-  // Fallback states if none available
-  const fallbackStates = ['California', 'Texas', 'Florida'];
-  const displayStates = states.length > 0 ? states : fallbackStates;
+  // Get unique states and sort them by name
+  const states = serviceAreas.sort((a, b) => a.name.localeCompare(b.name));
 
   return (
     <>
@@ -109,35 +114,33 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig }) => {
           ) : error ? (
             <div className="text-gray-400 md:text-right">
               <div className="text-sm mb-2">{error}</div>
-              <div className="text-xs">Default areas: California, Texas, Florida</div>
             </div>
           ) : serviceAreas.length === 0 ? (
             <div className="text-gray-400 md:text-right">
               <div className="text-sm mb-2">No service areas available</div>
-              <div className="text-xs">Default areas: California, Texas, Florida</div>
             </div>
           ) : (
             <div className="space-y-2">
               {selectedState === null ? (
                 // Show all states
-                displayStates.map(state => (
+                states.map(state => (
                   <button
-                    key={state}
-                    onClick={() => selectState(state)}
+                    key={state.state_code}
+                    onClick={() => selectState(state.state_code)}
                     className="block w-full text-white hover:text-gray-300 text-lg font-medium cursor-pointer transition-colors text-center md:text-right"
                   >
-                    {state}
+                    {state.name}
                   </button>
                 ))
               ) : (
                 // Show cities for selected state
                 <div className="space-y-1">
-                  {citiesByState[selectedState].map((city, index) => (
+                  {cities.map((city, index) => (
                     <div
-                      key={`${selectedState}-${city}-${index}`}
+                      key={`${city.state_code}-${city.name}-${index}`}
                       className="text-orange-400 text-sm text-center md:text-right"
                     >
-                      {city}
+                      {city.name}
                     </div>
                   ))}
                   <button

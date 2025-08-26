@@ -1,0 +1,49 @@
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
+const pool = require('../database/connection');
+
+async function checkServiceAreasTable() {
+  try {
+    console.log('🔍 Checking affiliate_service_areas table structure...');
+    
+    // Test connection
+    await pool.query('SELECT 1');
+    console.log('✅ Database connection successful');
+    
+    // Get table structure
+    const structureQuery = `
+      SELECT column_name, data_type, is_nullable, column_default
+      FROM information_schema.columns 
+      WHERE table_name = 'affiliate_service_areas' 
+      ORDER BY ordinal_position
+    `;
+    
+    const structureResult = await pool.query(structureQuery);
+    console.log('\n📋 affiliate_service_areas table structure:');
+    console.log('Column Name | Data Type | Nullable | Default');
+    console.log('------------|------------|----------|---------');
+    
+    structureResult.rows.forEach(row => {
+      console.log(`${row.column_name.padEnd(12)} | ${row.data_type.padEnd(10)} | ${row.is_nullable.padEnd(8)} | ${row.column_default || 'NULL'}`);
+    });
+    
+    // Check sample data
+    const sampleQuery = 'SELECT * FROM affiliate_service_areas LIMIT 1';
+    const sampleResult = await pool.query(sampleQuery);
+    
+    if (sampleResult.rows.length > 0) {
+      console.log('\n📊 Sample service area record:');
+      const sample = sampleResult.rows[0];
+      Object.keys(sample).forEach(key => {
+        console.log(`  ${key}: ${sample[key]}`);
+      });
+    }
+    
+  } catch (err) {
+    console.error('💥 Error checking table:', err);
+  } finally {
+    await pool.end();
+  }
+}
+
+checkServiceAreasTable();

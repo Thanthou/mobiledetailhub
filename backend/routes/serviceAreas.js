@@ -2,57 +2,42 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../database/connection');
 
-// Get all service areas
+// Get all service areas (states that have coverage)
 router.get('/', async (req, res) => {
   try {
-    // First check if the table exists
-    const tableCheck = await pool.query(`
-      SELECT EXISTS (
-        SELECT FROM information_schema.tables 
-        WHERE table_schema = 'public' 
-        AND table_name = 'service_areas'
-      );
+    const result = await pool.query(`
+      SELECT DISTINCT s.state_code, s.name
+      FROM states s
+      JOIN affiliate_service_areas asa ON asa.city_id IN (
+        SELECT id FROM cities WHERE state_code = s.state_code
+      )
+      ORDER BY s.name
     `);
-    
-    if (!tableCheck.rows[0].exists) {
-      await pool.query(`
-        CREATE TABLE IF NOT EXISTS service_areas (
-          id SERIAL PRIMARY KEY,
-          state VARCHAR(50),
-          city VARCHAR(100),
-          zip VARCHAR(20),
-          created_at TIMESTAMP DEFAULT NOW()
-        );
-      `);
-    }
-    
-    const result = await pool.query('SELECT state, city, zip FROM service_areas');
-    
-    // If no data in table, return some default service areas
-    if (result.rows.length === 0) {
-      const defaultServiceAreas = [
-        { state: 'California', city: 'Los Angeles', zip: '90210' },
-        { state: 'California', city: 'San Francisco', zip: '94102' },
-        { state: 'Texas', city: 'Austin', zip: '73301' },
-        { state: 'Texas', city: 'Dallas', zip: '75201' },
-        { state: 'Florida', city: 'Miami', zip: '33101' },
-        { state: 'Florida', city: 'Orlando', zip: '32801' },
-        { state: 'New York', city: 'New York', zip: '10001' },
-        { state: 'New York', city: 'Buffalo', zip: '14201' }
-      ];
-      return res.json(defaultServiceAreas);
-    }
     
     res.json(result.rows);
   } catch (err) {
     console.error('Error fetching service areas:', err);
-    // Return default data on error to prevent frontend crashes
-    const defaultServiceAreas = [
-      { state: 'California', city: 'Los Angeles', zip: '90210' },
-      { state: 'Texas', city: 'Austin', zip: '73301' },
-      { state: 'Florida', city: 'Miami', zip: '33101' }
-    ];
-    res.json(defaultServiceAreas);
+    res.status(500).json([]);
+  }
+});
+
+// Get cities for a specific state
+router.get('/:state_code', async (req, res) => {
+  try {
+    const { state_code } = req.params;
+    
+    const result = await pool.query(`
+      SELECT DISTINCT c.name as city, c.state_code, asa.zip
+      FROM affiliate_service_areas asa
+      JOIN cities c ON asa.city_id = c.id
+      WHERE c.state_code = $1
+      ORDER BY c.name
+    `, [state_code]);
+    
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching cities for state:', err);
+    res.status(500).json([]);
   }
 });
 
