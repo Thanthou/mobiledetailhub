@@ -15,7 +15,7 @@ export interface QueryHistory {
 
 export type AdminTab = 'database' | 'users' | 'analytics' | 'settings';
 
-export type UserSubTab = 'all-users' | 'admin' | 'affiliates' | 'clients' | 'pending';
+export type UserSubTab = 'all-users' | 'admin' | 'affiliates' | 'customers' | 'pending';
 
 export interface AdminData {
   isLiveDatabase: boolean;

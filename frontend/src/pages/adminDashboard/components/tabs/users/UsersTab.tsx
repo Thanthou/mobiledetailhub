@@ -55,7 +55,7 @@ export const UsersTab: React.FC = () => {
     { id: 'all-users' as UserSubTab, label: 'All Users', icon: Users },
     { id: 'admin' as UserSubTab, label: 'Admin', icon: UserCog },
     { id: 'affiliates' as UserSubTab, label: 'Affiliates', icon: UserCheck },
-    { id: 'clients' as UserSubTab, label: 'Clients', icon: UserX },
+    { id: 'customers' as UserSubTab, label: 'Customers', icon: UserX },
     { id: 'pending' as UserSubTab, label: 'Pending', icon: UserPlus },
   ];
 
