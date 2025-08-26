@@ -186,9 +186,15 @@ router.get('/users', async (req, res) => {
         'clients': 'role = $1'
       };
       
+      // Map frontend status to actual database role values
+      const roleMap = {
+        'admin': 'admin',
+        'clients': 'customer'
+      };
+      
       if (statusMap[status]) {
         query += ` WHERE ${statusMap[status]}`;
-        params.push(status);
+        params.push(roleMap[status]);
       }
     }
     
