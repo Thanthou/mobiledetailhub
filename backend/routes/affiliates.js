@@ -108,12 +108,35 @@ router.post('/apply', async (req, res) => {
     const affiliateQuery = `
       INSERT INTO affiliates (
         slug, business_name, owner, phone, sms_phone, email, 
-        base_address_id, website_url, gbp_url, 
+        base_address_id, services, website_url, gbp_url, 
         facebook_url, instagram_url, youtube_url, tiktok_url,
         has_insurance, source, notes, application_status
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
       RETURNING id, slug, business_name, application_status
     `;
+
+    // Convert categories array to services JSONB format
+    // Map frontend category names to backend service keys
+    const categoryMapping = {
+      'Auto Detailing': 'auto',
+      'Boat Detailing': 'boat',
+      'RV Detailing': 'rv',
+      'PPF Installation': 'ppf',
+      'Ceramic Coating': 'ceramic',
+      'Paint Correction': 'paint_correction'
+    };
+    
+    const servicesJson = {
+      rv: categories.includes('RV Detailing'),
+      ppf: categories.includes('PPF Installation'),
+      auto: categories.includes('Auto Detailing'),
+      boat: categories.includes('Boat Detailing'),
+      ceramic: categories.includes('Ceramic Coating'),
+      paint_correction: categories.includes('Paint Correction')
+    };
+    
+    console.log('Categories received:', categories);
+    console.log('Services JSON created:', servicesJson);
 
     const affiliateValues = [
       tempSlug,
@@ -123,6 +146,7 @@ router.post('/apply', async (req, res) => {
       smsPhone,
       email,
       addressId, // Use the address ID instead of JSONB
+      JSON.stringify(servicesJson), // services column
       website_url || null,
       gbp_url || null,
       facebook_url || null,
@@ -136,57 +160,28 @@ router.post('/apply', async (req, res) => {
     ];
 
     const result = await pool.query(affiliateQuery, affiliateValues);
+    console.log('Affiliate created successfully:', result.rows[0]);
     
     // Insert service areas for the affiliate
     if (result.rows[0] && base_location.city && base_location.state) {
       try {
-        // First, find or create the city record
-        let cityId;
-        const cityCheckQuery = `
-          SELECT id FROM cities 
-          WHERE name = $1 AND state_code = $2
-        `;
-        const cityCheck = await pool.query(cityCheckQuery, [
-          base_location.city, 
-          base_location.state
-        ]);
+        // Insert directly into affiliate_service_areas using city name and state
+        // Handle empty zip by using null since zip column is nullable
+        const zipValue = base_location.zip && base_location.zip.trim() !== '' ? base_location.zip.trim() : null;
         
-        if (cityCheck.rows.length > 0) {
-          cityId = cityCheck.rows[0].id;
-          console.log(`Using existing city ID: ${cityId}`);
-        } else {
-          // Create new city record
-          const cityQuery = `
-            INSERT INTO cities (name, city_slug, state_code) 
-            VALUES ($1, $2, $3) 
-            RETURNING id
-          `;
-          const citySlug = base_location.city.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-          const cityResult = await pool.query(cityQuery, [
-            base_location.city, 
-            citySlug, 
-            base_location.state
-          ]);
-          cityId = cityResult.rows[0].id;
-          console.log(`Created new city ID: ${cityId}`);
-        }
-        
-                 // Now insert into affiliate_service_areas using city_id
-         // Handle empty zip by using a default value since zip column is NOT NULL
-         const zipValue = base_location.zip && base_location.zip.trim() !== '' ? base_location.zip.trim() : 'N/A';
-         
-         await pool.query(
-           'INSERT INTO affiliate_service_areas (affiliate_id, city_id, zip, priority) VALUES ($1, $2, $3, $4)',
-           [result.rows[0].id, cityId, zipValue, 0]
-         );
+        await pool.query(
+          'INSERT INTO affiliate_service_areas (affiliate_id, city, state_code, zip) VALUES ($1, $2, $3, $4)',
+          [result.rows[0].id, base_location.city, base_location.state, zipValue]
+        );
         console.log(`Created service area for affiliate ${result.rows[0].id}`);
       } catch (serviceAreaErr) {
         console.warn('Failed to insert service area, but affiliate was created:', serviceAreaErr);
       }
     }
     
+    console.log('Sending success response');
     res.status(201).json({
-      success: true,
+      ok: true,
       message: 'Application submitted successfully',
       affiliate: result.rows[0],
       note: 'A temporary slug has been assigned. This will be updated to a permanent slug once the application is approved.'
@@ -230,15 +225,14 @@ router.get('/test', async (req, res) => {
   }
 });
 
-// Get all affiliate slugs for dev mode dropdown
+// Get all APPROVED affiliate slugs for public use
 router.get('/slugs', async (req, res) => {
   try {
-    const result = await pool.query('SELECT slug, business_name, application_status FROM affiliates ORDER BY business_name');
+    const result = await pool.query('SELECT slug, business_name FROM affiliates WHERE application_status = \'approved\' ORDER BY business_name');
     
     const affiliates = result.rows.map(row => ({
       slug: row.slug,
-      name: row.business_name || row.slug,
-      status: row.application_status
+      name: row.business_name || row.slug
     }));
     
     res.json(affiliates);
@@ -257,13 +251,14 @@ router.get('/lookup', async (req, res) => {
   }
   
   try {
-    // Query using the new structure: affiliate_service_areas.city_id -> cities.name/state_code
+    // Query using the current structure: affiliate_service_areas.city/state_code
+    // Only return APPROVED affiliates (not pending or rejected)
     let query = `
       SELECT DISTINCT a.slug 
       FROM affiliates a 
       JOIN affiliate_service_areas asa ON a.id = asa.affiliate_id 
-      JOIN cities c ON c.id = asa.city_id 
-      WHERE LOWER(c.name) = LOWER($1) AND LOWER(c.state_code) = LOWER($2)
+      WHERE LOWER(asa.city) = LOWER($1) AND LOWER(asa.state_code) = LOWER($2)
+        AND a.application_status = 'approved'
     `;
     const params = [city, state];
     
@@ -278,11 +273,10 @@ router.get('/lookup', async (req, res) => {
     if (result.rows.length === 0) {
       // Check what's actually in the database for debugging
       const debugQuery = `
-        SELECT c.name as city, c.state_code, asa.zip, a.slug 
+        SELECT asa.city, asa.state_code, asa.zip, a.slug 
         FROM affiliate_service_areas asa 
         JOIN affiliates a ON a.id = asa.affiliate_id 
-        JOIN cities c ON c.id = asa.city_id 
-        WHERE c.name ILIKE $1 OR c.state_code ILIKE $2 
+        WHERE asa.city ILIKE $1 OR asa.state_code ILIKE $2 
         LIMIT 5
       `;
       const debugResult = await pool.query(debugQuery, [`%${city}%`, `%${state}%`]);
@@ -315,15 +309,13 @@ router.post('/update-zip', async (req, res) => {
   }
   
   try {
-    // Update zip codes using the new structure
+    // Update zip codes using the current structure
     const updateQuery = `
       UPDATE affiliate_service_areas 
       SET zip = $1 
-      FROM cities c
-      WHERE affiliate_service_areas.city_id = c.id 
-        AND LOWER(c.name) = LOWER($2) 
-        AND LOWER(c.state_code) = LOWER($3) 
-        AND affiliate_service_areas.zip IS NULL
+      WHERE LOWER(city) = LOWER($2) 
+        AND LOWER(state_code) = LOWER($3) 
+        AND zip IS NULL
     `;
     
     const updateResult = await pool.query(updateQuery, [zip, city, state]);
@@ -345,6 +337,7 @@ router.get('/:slug', async (req, res) => {
   const { slug } = req.params;
   try {
     // Get affiliate data with base location in a single query
+    // Only return APPROVED affiliates (not pending or rejected)
     const result = await pool.query(`
       SELECT 
         a.*,
@@ -357,7 +350,7 @@ router.get('/:slug', async (req, res) => {
       FROM affiliates a
       LEFT JOIN addresses addr ON addr.id = a.base_address_id
       LEFT JOIN states s ON s.state_code = addr.state_code
-      WHERE a.slug = $1
+      WHERE a.slug = $1 AND a.application_status = 'approved'
     `, [slug]);
     
     if (result.rows.length === 0) {
@@ -404,7 +397,7 @@ router.get('/:slug/field/:field', async (req, res) => {
     return res.status(400).json({ error: 'Invalid field' });
   }
   try {
-    const result = await pool.query(`SELECT ${field} FROM affiliates WHERE slug = $1`, [slug]);
+    const result = await pool.query(`SELECT ${field} FROM affiliates WHERE slug = $1 AND application_status = 'approved'`, [slug]);
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Affiliate not found' });
     }
@@ -433,7 +426,7 @@ router.get('/:slug/base_location', async (req, res) => {
       FROM affiliates a
       LEFT JOIN addresses addr ON addr.id = a.base_address_id
       LEFT JOIN states s ON s.state_code = addr.state_code
-      WHERE a.slug = $1
+      WHERE a.slug = $1 AND a.application_status = 'approved'
     `, [slug]);
     
     if (result.rows.length === 0) {
@@ -471,7 +464,7 @@ router.get('/:slug/service_areas', async (req, res) => {
   const { slug } = req.params;
   try {
     const result = await pool.query(
-      'SELECT services, base_location FROM affiliates WHERE slug = $1',
+      'SELECT services, base_location FROM affiliates WHERE slug = $1 AND application_status = \'approved\'',
       [slug]
     );
     
@@ -491,35 +484,7 @@ router.get('/:slug/service_areas', async (req, res) => {
   }
 });
 
-// Helper function to ensure a city exists in the cities table
-async function ensureCity(cityName, stateCode) {
-  try {
-    // Check if city already exists
-    const cityCheckQuery = `
-      SELECT id FROM cities 
-      WHERE name = $1 AND state_code = $2
-    `;
-    const cityCheck = await pool.query(cityCheckQuery, [cityName, stateCode]);
-    
-    if (cityCheck.rows.length > 0) {
-      return cityCheck.rows[0].id;
-    }
-    
-    // Create new city record
-    const citySlug = cityName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-    const cityQuery = `
-      INSERT INTO cities (name, city_slug, state_code) 
-      VALUES ($1, $2, $3) 
-      RETURNING id
-    `;
-    const cityResult = await pool.query(cityQuery, [cityName, citySlug, stateCode]);
-    
-    return cityResult.rows[0].id;
-  } catch (error) {
-    console.error('Error ensuring city exists:', error);
-    throw error;
-  }
-}
+
 
 
 

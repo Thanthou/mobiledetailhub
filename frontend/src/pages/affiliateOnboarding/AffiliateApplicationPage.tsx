@@ -98,27 +98,86 @@ const AffiliateApplicationPage: React.FC = () => {
     };
   }, []); // Empty dependency array - only run once
 
+  // Debug form submission events
+  useEffect(() => {
+    const form = document.getElementById('affiliate-form');
+    if (form) {
+      const handleFormSubmit = (e: Event) => {
+        console.log('Form submit event detected:', e);
+        console.log('Event target:', e.target);
+        console.log('Event currentTarget:', e.currentTarget);
+        console.log('Event type:', e.type);
+      };
+      
+      form.addEventListener('submit', handleFormSubmit);
+      
+      return () => {
+        form.removeEventListener('submit', handleFormSubmit);
+      };
+    }
+  }, []);
+
+  // Monitor state changes
+  useEffect(() => {
+    console.log('State changed - isSuccess:', isSuccess, 'isSubmitting:', isSubmitting);
+  }, [isSuccess, isSubmitting]);
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Form submission triggered');
+    console.log('Form data:', formData);
+    
+    // Validate required fields
+    const requiredFieldsCheck = {
+      legal_name: !!formData.legal_name,
+      primary_contact: !!formData.primary_contact,
+      phone: !!formData.phone,
+      email: !!formData.email,
+      base_location: !!formData.base_location && !!formData.base_location.city && !!formData.base_location.state,
+      accept_terms: formData.accept_terms,
+      consent_notifications: formData.consent_notifications
+    };
+    
+    console.log('Required fields check:', requiredFieldsCheck);
+    
+    // Check if all required fields are filled
+    const missingFields = Object.entries(requiredFieldsCheck)
+      .filter(([key, value]) => !value)
+      .map(([key]) => key);
+    
+    if (missingFields.length > 0) {
+      console.log('Missing required fields:', missingFields);
+      setSubmitError(`Please fill in all required fields: ${missingFields.join(', ')}`);
+      return;
+    }
+    
     setIsSubmitting(true);
     setSubmitError(null);
 
     try {
       const result = await postApplication(formData);
+      console.log('API result:', result);
       if (result.ok) {
+        console.log('Setting success state');
         setIsSuccess(true);
         clearDraft();
       } else {
+        console.log('Setting error state:', result.message);
         setSubmitError(result.message || 'Application submission failed');
       }
     } catch (error) {
+      console.error('Submission error:', error);
       setSubmitError('Network error. Please try again.');
     } finally {
+      console.log('Setting submitting to false');
       setIsSubmitting(false);
     }
   };
 
+  console.log('Current state - isSuccess:', isSuccess, 'isSubmitting:', isSubmitting);
+  
   if (isSuccess) {
+    console.log('Rendering SuccessPage');
     return <SuccessPage formData={formData} />;
   }
 
@@ -127,7 +186,22 @@ const AffiliateApplicationPage: React.FC = () => {
       <ApplicationHeader />
       
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
-        <form onSubmit={onSubmit} className="space-y-8">
+        <form onSubmit={onSubmit} className="space-y-8" id="affiliate-form">
+          {/* Debug button - remove after testing */}
+          <div className="bg-red-900/20 border border-red-500 rounded-lg p-4 mb-4">
+            <button
+              type="button"
+              onClick={() => {
+                console.log('Debug: Setting isSuccess to true');
+                setIsSuccess(true);
+              }}
+              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
+            >
+              Debug: Force Success State
+            </button>
+            <p className="text-red-400 text-sm mt-2">Current isSuccess: {isSuccess.toString()}</p>
+          </div>
+          
           <IdentityContactSection 
             formData={formData} 
             handleInputChange={handleInputChange} 

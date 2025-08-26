@@ -1,23 +1,47 @@
 Database Schema: MobileDetailHub
-Exported: 2025-08-25T20:56:55.226Z
-Total Tables: 19
+Exported: 2025-08-26T15:39:50.783Z
+Total Tables: 21
+
+=== ADDRESSES ===
+Rows: 0
+
+Columns:
+  id: integer NOT NULL DEFAULT nextval('addresses_id_seq'::regclass)
+  line1: character varying(255) NULL
+  city: character varying(100) NOT NULL
+  state_code: character(2) NOT NULL
+  postal_code: character varying(20) NULL
+  lat: double precision NULL
+  lng: double precision NULL
+  created_at: timestamp with time zone NOT NULL DEFAULT now()
+  updated_at: timestamp with time zone NOT NULL DEFAULT now()
+
+Primary Key: id
+
+Foreign Keys:
+  state_code -> states.state_code
+
 
 === AFFILIATE_SERVICE_AREAS ===
 Rows: 0
 
 Columns:
   id: integer NOT NULL DEFAULT nextval('affiliate_service_areas_id_seq'::regclass)
-  affiliate_id: integer NULL
-  state: character varying(50) NOT NULL
+  affiliate_id: integer NOT NULL
   city: character varying(100) NOT NULL
+  state_code: character(2) NOT NULL
   zip: character varying(20) NULL
-  created_at: timestamp without time zone NULL DEFAULT now()
+  created_at: timestamp with time zone NULL DEFAULT now()
 
 Primary Key: id
 
+Foreign Keys:
+  affiliate_id -> affiliates.id
+  state_code -> states.state_code
+
 
 === AFFILIATES ===
-Rows: 2
+Rows: 0
 
 Columns:
   id: integer NOT NULL DEFAULT nextval('affiliates_id_seq'::regclass)
@@ -27,7 +51,7 @@ Columns:
   phone: character varying(20) NOT NULL
   sms_phone: character varying(20) NULL
   email: character varying(255) NOT NULL
-  base_location: jsonb NOT NULL DEFAULT '{"zip": "", "city": "", "state": ""}'::jsonb
+  base_address_id: integer NULL
   services: jsonb NOT NULL DEFAULT '{"rv": false, "ppf": false, "auto": false, "boat": false, "ceramic": false, "paint_correction": false}'::jsonb
   website_url: character varying(500) NULL
   gbp_url: character varying(500) NULL
@@ -49,17 +73,16 @@ Columns:
   total_jobs: integer NULL DEFAULT 0
   rating: numeric NULL
   review_count: integer NULL DEFAULT 0
-  created_at: timestamp without time zone NULL DEFAULT CURRENT_TIMESTAMP
-  updated_at: timestamp without time zone NULL DEFAULT CURRENT_TIMESTAMP
-  application_date: timestamp without time zone NULL DEFAULT CURRENT_TIMESTAMP
-  approved_date: timestamp without time zone NULL
-  last_activity: timestamp without time zone NULL DEFAULT CURRENT_TIMESTAMP
+  created_at: timestamp with time zone NOT NULL DEFAULT now()
+  updated_at: timestamp with time zone NOT NULL DEFAULT now()
+  application_date: timestamp with time zone NOT NULL DEFAULT now()
+  approved_date: timestamp with time zone NULL
+  last_activity: timestamp with time zone NOT NULL DEFAULT now()
 
 Primary Key: id
 
-Sample Data:
-  Row 1: {"id":4,"slug":"jps-mobile-detailing-ceramic-coating","business_name":"JP's Mobile Detailing & Ceramic Coating","owner":"Jess Brister","phone":"7024203151","sms_phone":"+17024203151","email":"jpsmobiledetailing@hotmail.com","base_location":{"zip":"86442","city":"Bullhead City","state":"AZ"},"services":{"rv":true,"ppf":false,"auto":true,"boat":true,"ceramic":true,"paint_correction":true},"website_url":null,"gbp_url":"https://share.google/n5LFRsfL1Z46tVETr","facebook_url":null,"instagram_url":null,"youtube_url":null,"tiktok_url":null,"application_status":"pending","has_insurance":false,"source":"Referral","notes":null,"uploads":null,"business_license":null,"insurance_provider":null,"insurance_expiry":null,"service_radius_miles":25,"operating_hours":null,"emergency_contact":null,"total_jobs":0,"rating":null,"review_count":0,"created_at":"2025-08-23T02:36:12.779Z","updated_at":"2025-08-23T02:36:12.779Z","application_date":"2025-08-23T02:36:12.779Z","approved_date":null,"last_activity":"2025-08-23T02:36:12.779Z"}
-  Row 2: {"id":10,"slug":"temp-1756061068969-zet561gly","business_name":"JP's Mobile Detailing & Ceramic Coatings","owner":"Jess Brister","phone":"5551231234","sms_phone":"+15551231234","email":"jpsmobiledetailing@hotmail.com","base_location":{"zip":"86442","city":"Bullhead City","state":"AZ"},"services":{"rv":true,"ppf":false,"auto":true,"boat":true,"ceramic":true,"paint_correction":true},"website_url":null,"gbp_url":"https://share.google/mPqBEkONXkntNxtlz","facebook_url":null,"instagram_url":null,"youtube_url":null,"tiktok_url":null,"application_status":"pending","has_insurance":false,"source":"Referral","notes":null,"uploads":["rv.png|2556518|image/png"],"business_license":null,"insurance_provider":null,"insurance_expiry":null,"service_radius_miles":25,"operating_hours":null,"emergency_contact":null,"total_jobs":0,"rating":null,"review_count":0,"created_at":"2025-08-24T18:44:28.971Z","updated_at":"2025-08-24T18:44:28.971Z","application_date":"2025-08-24T18:44:28.971Z","approved_date":null,"last_activity":"2025-08-24T18:44:28.971Z"}
+Foreign Keys:
+  base_address_id -> addresses.id
 
 
 === AVAILABILITY ===
@@ -75,6 +98,9 @@ Columns:
 
 Primary Key: id
 
+Foreign Keys:
+  affiliate_id -> affiliates.id
+
 
 === BOOKINGS ===
 Rows: 0
@@ -88,7 +114,7 @@ Columns:
   appointment_start: timestamp with time zone NOT NULL
   appointment_end: timestamp with time zone NOT NULL
   address_json: jsonb NOT NULL DEFAULT '{}'::jsonb
-  status: character varying(20) NOT NULL DEFAULT 'pending'::character varying
+  status: USER-DEFINED NOT NULL DEFAULT 'pending'::booking_status
   total_cents: integer NOT NULL DEFAULT 0
   stripe_payment_intent_id: text NULL
   created_at: timestamp with time zone NOT NULL DEFAULT now()
@@ -97,30 +123,14 @@ Columns:
 Primary Key: id
 
 Foreign Keys:
-  customer_id -> clients.id
+  affiliate_id -> affiliates.id
+  customer_id -> customers.id
   service_id -> services.id
   tier_id -> service_tiers.id
 
 
-=== BUSINESS_AREA ===
-Rows: 2
-
-Columns:
-  id: integer NOT NULL DEFAULT nextval('business_area_id_seq'::regclass)
-  slug: character varying NOT NULL
-  city: character varying(100) NOT NULL
-  state: character varying(2) NOT NULL
-  zip: character varying(10) NULL
-
-Primary Key: id
-
-Sample Data:
-  Row 1: {"id":1,"slug":"jps","city":"Bullhead City","state":"AZ","zip":"86442"}
-  Row 2: {"id":2,"slug":"jps","city":"Laughlin","state":"NV","zip":"89029"}
-
-
 === CITIES ===
-Rows: 1
+Rows: 0
 
 Columns:
   id: bigint NOT NULL DEFAULT nextval('cities_id_seq'::regclass)
@@ -135,20 +145,20 @@ Primary Key: id
 Foreign Keys:
   state_code -> states.state_code
 
-Sample Data:
-  Row 1: {"id":"1","name":"Phoenix","city_slug":"phoenix","state_code":"AZ","lat":null,"lng":null}
 
-
-=== CLIENTS ===
+=== CUSTOMERS ===
 Rows: 0
 
 Columns:
-  id: integer NOT NULL DEFAULT nextval('clients_id_seq'::regclass)
-  user_id: integer NOT NULL
+  id: integer NOT NULL DEFAULT nextval('customers_id_seq'::regclass)
+  user_id: integer NULL
+  name: character varying(255) NOT NULL
+  email: character varying(255) NULL
+  phone: character varying(50) NULL
   address: character varying(255) NULL
   preferences: jsonb NULL
-  created_at: timestamp without time zone NULL DEFAULT CURRENT_TIMESTAMP
-  updated_at: timestamp without time zone NULL DEFAULT CURRENT_TIMESTAMP
+  created_at: timestamp with time zone NOT NULL DEFAULT now()
+  updated_at: timestamp with time zone NOT NULL DEFAULT now()
 
 Primary Key: id
 
@@ -162,14 +172,17 @@ Rows: 0
 Columns:
   location_id: bigint NOT NULL DEFAULT nextval('location_location_id_seq'::regclass)
   affiliate_id: bigint NULL
-  source_platform: text NOT NULL
+  source_platform: USER-DEFINED NOT NULL
   source_account_id: text NOT NULL
   source_location_id: text NOT NULL
   display_name: text NULL
   timezone: text NULL
-  created_at: timestamp with time zone NULL DEFAULT now()
+  created_at: timestamp with time zone NOT NULL DEFAULT now()
 
 Primary Key: location_id
+
+Foreign Keys:
+  affiliate_id -> affiliates.id
 
 
 === MDH_CONFIG ===
@@ -186,18 +199,18 @@ Columns:
   instagram: character varying(255) NULL
   tiktok: character varying(255) NULL
   youtube: character varying(255) NULL
-  created_at: timestamp without time zone NULL DEFAULT CURRENT_TIMESTAMP
-  updated_at: timestamp without time zone NULL DEFAULT CURRENT_TIMESTAMP
   header_display: character varying(255) NULL
   location: character varying(255) NULL
   name: character varying(255) NULL
   tagline: text NULL
-  services_description: text NULL DEFAULT 'auto detailing, boat & RV detailing, ceramic coating, and PPF'::text
+  services_description: text NULL DEFAULT 'Auto, boat & RV detailing, paint correction, ceramic coating, and PPF'::text
+  created_at: timestamp with time zone NOT NULL DEFAULT now()
+  updated_at: timestamp with time zone NOT NULL DEFAULT now()
 
 Primary Key: id
 
 Sample Data:
-  Row 1: {"id":1,"email":"service@mobiledetailhub.com","phone":"(888) 555-1234","sms_phone":"+17024206066","logo_url":"/assets/logo.webp","favicon_url":"/assets/favicon.ico","facebook":"https://facebook.com/mobiledetailhub","instagram":"https://instagram.com/mobiledetailhub","tiktok":"https://tiktok.com/@mobiledetailhub","youtube":"https://youtube.com/mobiledetailhub","created_at":"2025-08-18T20:48:31.675Z","updated_at":"2025-08-18T20:48:31.675Z","header_display":"Mobile Detail Hub","location":"Anywhere, USA","name":"Mobile Detail Hub","tagline":null,"services_description":"auto detailing, boat & RV detailing, ceramic coating, and PPF"}
+  Row 1: {"id":1,"email":"service@mobiledetailhub.com","phone":"(888) 555-1234","sms_phone":"+17024206066","logo_url":"/assets/logo.webp","favicon_url":"/assets/favicon.ico","facebook":"https://facebook.com/mobiledetailhub","instagram":"https://instagram.com/mobiledetailhub","tiktok":"https://tiktok.com/@mobiledetailhub","youtube":"https://youtube.com/mobiledetailhub","header_display":"Mobile Detail Hub","location":"Anywhere, USA","name":"Mobile Detail Hub","tagline":null,"services_description":"Auto, boat & RV detailing, paint correction, ceramic coating, and PPF","created_at":"2025-08-26T15:39:02.956Z","updated_at":"2025-08-26T15:39:02.956Z"}
 
 
 === QUOTES ===
@@ -207,7 +220,9 @@ Columns:
   id: integer NOT NULL DEFAULT nextval('quotes_id_seq'::regclass)
   affiliate_id: integer NOT NULL
   customer_id: integer NULL
-  status: character varying(20) NOT NULL DEFAULT 'new'::character varying
+  address_json: jsonb NOT NULL DEFAULT '{}'::jsonb
+  requested_start: timestamp with time zone NULL
+  status: USER-DEFINED NOT NULL DEFAULT 'new'::quote_status
   details_json: jsonb NOT NULL DEFAULT '{}'::jsonb
   estimated_total_cents: integer NULL
   created_at: timestamp with time zone NOT NULL DEFAULT now()
@@ -216,45 +231,23 @@ Columns:
 Primary Key: id
 
 Foreign Keys:
-  customer_id -> clients.id
-
-
-=== REVIEW ===
-Rows: 0
-
-Columns:
-  review_pk: bigint NOT NULL DEFAULT nextval('review_review_pk_seq'::regclass)
-  review_id: text NOT NULL
-  location_id: bigint NULL
-  rating: smallint NULL
-  comment: text NULL
-  reviewer_name: text NULL
-  reviewer_profile: text NULL
-  create_time: timestamp with time zone NULL
-  update_time: timestamp with time zone NULL
-  is_deleted: boolean NULL DEFAULT false
-  source_platform: text NOT NULL
-  raw: jsonb NULL
-
-Primary Key: review_pk
-
-Foreign Keys:
-  location_id -> location.location_id
+  affiliate_id -> affiliates.id
+  customer_id -> customers.id
 
 
 === REVIEW_REPLY ===
 Rows: 0
 
 Columns:
-  reply_pk: bigint NOT NULL DEFAULT nextval('review_reply_reply_pk_seq'::regclass)
-  review_pk: bigint NULL
-  reply_text: text NULL
+  id: bigint NOT NULL DEFAULT nextval('review_reply_id_seq'::regclass)
+  review_id: bigint NOT NULL
+  text: text NULL
   reply_update_time: timestamp with time zone NULL
 
-Primary Key: reply_pk
+Primary Key: id
 
 Foreign Keys:
-  review_pk -> review.review_pk
+  review_id -> reviews.id
 
 
 === REVIEW_SYNC_STATE ===
@@ -274,32 +267,42 @@ Foreign Keys:
 Rows: 0
 
 Columns:
-  id: integer NOT NULL DEFAULT nextval('reviews_id_seq'::regclass)
+  id: bigint NOT NULL DEFAULT nextval('reviews_id_seq'::regclass)
+  external_id: text NULL
   affiliate_id: integer NOT NULL
-  source: character varying(30) NOT NULL DEFAULT 'manual'::character varying
-  rating: integer NULL
+  location_id: bigint NULL
+  rating: smallint NULL
   text: text NULL
   author_name: text NULL
-  created_at: timestamp with time zone NOT NULL DEFAULT now()
+  author_profile_url: text NULL
+  create_time: timestamp with time zone NULL
+  update_time: timestamp with time zone NULL
+  is_deleted: boolean NOT NULL DEFAULT false
+  source_platform: USER-DEFINED NOT NULL
+  raw: jsonb NULL
 
 Primary Key: id
 
+Foreign Keys:
+  affiliate_id -> affiliates.id
+  location_id -> location.location_id
 
-=== SERVICE_AREAS ===
-Rows: 8
+
+=== SERVICE_AREA_SLUGS ===
+Rows: 0
 
 Columns:
-  id: integer NOT NULL DEFAULT nextval('service_areas_id_seq'::regclass)
-  state: character varying(50) NULL
-  city: character varying(100) NULL
+  id: integer NOT NULL DEFAULT nextval('service_area_slugs_id_seq'::regclass)
+  slug: character varying(255) NOT NULL
+  city: character varying(100) NOT NULL
+  state_code: character(2) NOT NULL
   zip: character varying(20) NULL
-  created_at: timestamp without time zone NULL DEFAULT now()
+  created_at: timestamp with time zone NULL DEFAULT now()
 
 Primary Key: id
 
-Sample Data:
-  Row 1: {"id":1,"state":"California","city":"Los Angeles","zip":"90210","created_at":"2025-08-22T01:59:48.137Z"}
-  Row 2: {"id":2,"state":"California","city":"San Francisco","zip":"94102","created_at":"2025-08-22T01:59:48.138Z"}
+Foreign Keys:
+  state_code -> states.state_code
 
 
 === SERVICE_TIERS ===
@@ -308,7 +311,7 @@ Rows: 0
 Columns:
   id: integer NOT NULL DEFAULT nextval('service_tiers_id_seq'::regclass)
   service_id: integer NOT NULL
-  tier_name: character varying(100) NOT NULL
+  name: character varying(100) NOT NULL
   price_delta_cents: integer NOT NULL DEFAULT 0
   description: text NULL
 
@@ -324,19 +327,22 @@ Rows: 0
 Columns:
   id: integer NOT NULL DEFAULT nextval('services_id_seq'::regclass)
   affiliate_id: integer NULL
-  category: character varying(50) NOT NULL
+  category: USER-DEFINED NOT NULL
   name: character varying(200) NOT NULL
   description: text NULL
   base_price_cents: integer NOT NULL DEFAULT 0
-  pricing_unit: character varying(20) NOT NULL DEFAULT 'flat'::character varying
+  pricing_unit: USER-DEFINED NOT NULL DEFAULT 'flat'::pricing_unit
   min_duration_min: integer NOT NULL DEFAULT 60
   active: boolean NOT NULL DEFAULT true
 
 Primary Key: id
 
+Foreign Keys:
+  affiliate_id -> affiliates.id
+
 
 === STATES ===
-Rows: 3
+Rows: 56
 
 Columns:
   state_code: character(2) NOT NULL
@@ -346,8 +352,8 @@ Columns:
 Primary Key: state_code
 
 Sample Data:
-  Row 1: {"state_code":"AZ","name":"Arizona","country_code":"US"}
-  Row 2: {"state_code":"NV","name":"Nevada","country_code":"US"}
+  Row 1: {"state_code":"AL","name":"Alabama","country_code":"US"}
+  Row 2: {"state_code":"AK","name":"Alaska","country_code":"US"}
 
 
 === USERS ===
@@ -355,18 +361,47 @@ Rows: 1
 
 Columns:
   id: integer NOT NULL DEFAULT nextval('users_id_seq'::regclass)
-  email: character varying(255) NOT NULL
+  email: USER-DEFINED NOT NULL
   name: character varying(255) NULL
-  role: character varying(50) NOT NULL
-  created_at: timestamp without time zone NULL DEFAULT CURRENT_TIMESTAMP
-  updated_at: timestamp without time zone NULL DEFAULT CURRENT_TIMESTAMP
+  role: USER-DEFINED NOT NULL
   is_admin: boolean NULL DEFAULT false
   password_hash: character varying(255) NULL
   phone: character varying(50) NULL
+  created_at: timestamp with time zone NOT NULL DEFAULT now()
+  updated_at: timestamp with time zone NOT NULL DEFAULT now()
 
 Primary Key: id
 
 Sample Data:
-  Row 1: {"id":4,"email":"admin@mobiledetailhub.com","name":"Brandan Coleman","role":"admin","created_at":"2025-08-21T16:13:43.692Z","updated_at":"2025-08-21T16:13:43.692Z","is_admin":true,"password_hash":"$2a$10$EAY3D9OdVXpYgby.ATOmheJwqrlTZ423Yg2a.qLzN1Ku1/oj2/LzS","phone":""}
+  Row 1: {"id":1,"email":"admin@mobiledetailhub.com","name":"Brandan Coleman","role":"admin","is_admin":true,"password_hash":"$2a$10$EAY3D9OdVXpYgby.ATOmheJwqrlTZ423Yg2a.qLzN1Ku1/oj2/LzS","phone":"","created_at":"2025-08-26T15:39:02.956Z","updated_at":"2025-08-26T15:39:02.956Z"}
+
+
+=== V_AFFILIATE_BASE_LOCATION ===
+Rows: 0
+
+Columns:
+  affiliate_id: integer NULL
+  slug: character varying(100) NULL
+  business_name: character varying(255) NULL
+  city: character varying(100) NULL
+  state_code: character(2) NULL
+  zip: character varying(20) NULL
+
+
+=== V_SERVED_CITIES ===
+Rows: 0
+
+Columns:
+  state_code: character(2) NULL
+  city: character varying(100) NULL
+  affiliates: bigint NULL
+
+
+=== V_SERVED_STATES ===
+Rows: 0
+
+Columns:
+  state_code: character(2) NULL
+  name: text NULL
 
 

@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { authenticateToken, requireAdmin } = require('../middleware/auth');
 
 // Simple test endpoint without any middleware
 router.get('/ping', (req, res) => {
@@ -29,7 +30,7 @@ router.delete('/test-delete', (req, res) => {
 });
 
 // Delete affiliate and associated data
-router.delete('/affiliates/:id', async (req, res) => {
+router.delete('/affiliates/:id', authenticateToken, requireAdmin, async (req, res) => {
   console.log('[ADMIN] DELETE /affiliates/:id called with id:', req.params.id);
   try {
     const pool = require('../database/connection');
@@ -130,8 +131,8 @@ router.delete('/affiliates/:id', async (req, res) => {
   }
 });
 
-// Users endpoint (temporarily without authentication for testing)
-router.get('/users', async (req, res) => {
+// Users endpoint
+router.get('/users', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const pool = require('../database/connection');
     const { status } = req.query;
@@ -158,16 +159,20 @@ router.get('/users', async (req, res) => {
             a.id, a.owner as name, a.email, 'affiliate' as role, a.created_at,
             a.business_name, a.application_status, a.slug
           FROM affiliates a
+          WHERE a.application_status = 'approved'
           ORDER BY a.created_at DESC
         `;
         
         const result = await pool.query(query);
         
+        console.log(`[ADMIN] Affiliates query returned ${result.rowCount} approved affiliates`);
+        console.log(`[ADMIN] Affiliate names:`, result.rows.map(r => r.business_name));
+        
         res.json({
           success: true,
           users: result.rows,
           count: result.rowCount,
-          message: `Found ${result.rowCount} affiliates in database`
+          message: `Found ${result.rowCount} approved affiliates in database`
         });
         return;
              } catch (affiliateErr) {
@@ -215,7 +220,7 @@ router.get('/users', async (req, res) => {
 });
 
 // Pending affiliate applications endpoint
-router.get('/pending-applications', async (req, res) => {
+router.get('/pending-applications', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const pool = require('../database/connection');
     
@@ -245,7 +250,7 @@ router.get('/pending-applications', async (req, res) => {
 });
 
 // Approve affiliate application endpoint
-router.post('/approve-application/:id', async (req, res) => {
+router.post('/approve-application/:id', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const pool = require('../database/connection');
     const { id } = req.params;
@@ -356,11 +361,8 @@ router.post('/approve-application/:id', async (req, res) => {
     
     const userId = userResult.rows[0].id;
     
-    // Link user account to affiliate using the junction table
-    await pool.query(
-      'INSERT INTO affiliate_users (affiliate_id, user_id, role) VALUES ($1, $2, $3)',
-      [id, userId, 'owner']
-    );
+    // User account is already linked to affiliate via the role field
+    // No need for additional junction table
     
     res.json({
       success: true,
@@ -380,7 +382,7 @@ router.post('/approve-application/:id', async (req, res) => {
 });
 
 // Reject affiliate application endpoint
-router.post('/reject-application/:id', async (req, res) => {
+router.post('/reject-application/:id', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const pool = require('../database/connection');
     const { id } = req.params;

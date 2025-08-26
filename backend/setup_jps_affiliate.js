@@ -109,17 +109,17 @@ async function setupJPSAffiliate() {
       // Check if service area already exists
       const serviceAreaCheck = await pool.query(`
         SELECT * FROM affiliate_service_areas 
-        WHERE affiliate_id = $1 AND city_id = $2
-      `, [affiliate.id, cityId]);
+        WHERE affiliate_id = $1 AND city = $2
+      `, [affiliate.id, 'New York']);
       
       if (serviceAreaCheck.rows.length === 0) {
         console.log('📍 Creating service area for JPS affiliate...');
         
         // Insert service area
         await pool.query(`
-          INSERT INTO affiliate_service_areas (affiliate_id, city_id, zip, priority) 
+          INSERT INTO affiliate_service_areas (affiliate_id, city, state_code, zip) 
           VALUES ($1, $2, $3, $4)
-        `, [affiliate.id, cityId, '10001', 0]);
+        `, [affiliate.id, 'New York', 'NY', '10001']);
         
         console.log('✅ Service area created');
       } else {

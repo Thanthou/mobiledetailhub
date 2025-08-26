@@ -8,9 +8,7 @@ router.get('/', async (req, res) => {
     const result = await pool.query(`
       SELECT DISTINCT s.state_code, s.name
       FROM states s
-      JOIN affiliate_service_areas asa ON asa.city_id IN (
-        SELECT id FROM cities WHERE state_code = s.state_code
-      )
+      JOIN affiliate_service_areas asa ON asa.state_code = s.state_code
       ORDER BY s.name
     `);
     
@@ -27,11 +25,10 @@ router.get('/:state_code', async (req, res) => {
     const { state_code } = req.params;
     
     const result = await pool.query(`
-      SELECT DISTINCT c.name as city, c.state_code, asa.zip
+      SELECT DISTINCT asa.city, asa.state_code, asa.zip
       FROM affiliate_service_areas asa
-      JOIN cities c ON asa.city_id = c.id
-      WHERE c.state_code = $1
-      ORDER BY c.name
+      WHERE asa.state_code = $1
+      ORDER BY asa.city
     `, [state_code]);
     
     res.json(result.rows);

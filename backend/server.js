@@ -30,7 +30,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/affiliates', affiliatesRoutes);
 app.use('/api/mdh-config', mdhConfigRoutes);
 app.use('/api/customers', customersRoutes);
-app.use('/admin', adminRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Start server
 app.listen(PORT, async () => {

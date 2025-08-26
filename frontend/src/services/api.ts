@@ -57,18 +57,55 @@ class ApiService {
     return this.makeRequest('/api/health');
   }
 
+  async login(email: string, password: string): Promise<ApiResponse> {
+    const url = `${config.apiUrls.local}/api/auth/login`;
+    
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Login failed');
+      }
+      
+      // Store the token in localStorage
+      if (data.token) {
+        localStorage.setItem('authToken', data.token);
+      }
+      
+      return data;
+      
+    } catch (error) {
+      console.error('Login failed:', error);
+      throw new Error(error instanceof Error ? error.message : 'Login failed');
+    }
+  }
+
   async getUsers(status?: string): Promise<ApiResponse> {
     const endpoint = status && status !== 'all-users' 
-      ? `/admin/users?status=${status}`
-      : '/admin/users';
+      ? `/api/admin/users?status=${status}`
+      : '/api/admin/users';
     
-    // For admin routes, we need to use the full URL since they're not under /api
     const url = `${config.apiUrls.local}${endpoint}`;
+    
+    // Get token from localStorage
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      throw new Error('Authentication token required');
+    }
     
     try {
       const response = await fetch(url, {
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
       });
       
@@ -87,12 +124,19 @@ class ApiService {
   }
 
   async getPendingApplications(): Promise<ApiResponse> {
-    const url = `${config.apiUrls.local}/admin/pending-applications`;
+    const url = `${config.apiUrls.local}/api/admin/pending-applications`;
+    
+    // Get token from localStorage
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      throw new Error('Authentication token required');
+    }
     
     try {
       const response = await fetch(url, {
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
       });
       
@@ -111,13 +155,20 @@ class ApiService {
   }
 
   async approveApplication(applicationId: number, approvedSlug: string, adminNotes: string): Promise<ApiResponse> {
-    const url = `${config.apiUrls.local}/admin/approve-application/${applicationId}`;
+    const url = `${config.apiUrls.local}/api/admin/approve-application/${applicationId}`;
+    
+    // Get token from localStorage
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      throw new Error('Authentication token required');
+    }
     
     try {
       const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
           approved_slug: approvedSlug,
@@ -140,13 +191,20 @@ class ApiService {
   }
 
   async rejectApplication(applicationId: number, rejectionReason: string, adminNotes: string): Promise<ApiResponse> {
-    const url = `${config.apiUrls.local}/admin/reject-application/${applicationId}`;
+    const url = `${config.apiUrls.local}/api/admin/reject-application/${applicationId}`;
+    
+    // Get token from localStorage
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      throw new Error('Authentication token required');
+    }
     
     try {
       const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
           rejection_reason: rejectionReason,
@@ -169,13 +227,20 @@ class ApiService {
   }
 
   async deleteAffiliate(affiliateId: number): Promise<ApiResponse> {
-    const url = `${config.apiUrls.local}/admin/affiliates/${affiliateId}`;
+    const url = `${config.apiUrls.local}/api/admin/affiliates/${affiliateId}`;
+    
+    // Get token from localStorage
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      throw new Error('Authentication token required');
+    }
     
     try {
       const response = await fetch(url, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
       });
       
