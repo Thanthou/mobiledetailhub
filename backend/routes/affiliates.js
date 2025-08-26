@@ -252,30 +252,40 @@ router.get('/slugs', async (req, res) => {
 router.get('/lookup', async (req, res) => {
   const { city, state, zip } = req.query;
   
-
+  if (!city || !state) {
+    return res.status(400).json({ error: 'city and state are required' });
+  }
   
   try {
-    // More flexible query: prioritize city+state match, zip is optional
-    let query = 'SELECT DISTINCT a.slug FROM affiliates a JOIN affiliate_service_areas asa ON a.id = asa.affiliate_id WHERE LOWER(asa.city) = LOWER($1) AND LOWER(asa.state) = LOWER($2)';
+    // Query using the new structure: affiliate_service_areas.city_id -> cities.name/state_code
+    let query = `
+      SELECT DISTINCT a.slug 
+      FROM affiliates a 
+      JOIN affiliate_service_areas asa ON a.id = asa.affiliate_id 
+      JOIN cities c ON c.id = asa.city_id 
+      WHERE LOWER(c.name) = LOWER($1) AND LOWER(c.state_code) = LOWER($2)
+    `;
     const params = [city, state];
     
-    // Only add zip constraint if zip is provided AND the database has a zip for this location
+    // Only add zip constraint if zip is provided
     if (zip) {
       query += ` AND (asa.zip = $3 OR asa.zip IS NULL)`;
       params.push(zip);
     }
     
-
-    
     const result = await pool.query(query, params);
     
-
-    
     if (result.rows.length === 0) {
-      // Let's also check what's actually in the database for debugging
-      const debugQuery = 'SELECT asa.city, asa.state, asa.zip, a.slug FROM affiliate_service_areas asa JOIN affiliates a ON asa.affiliate_id = a.id WHERE asa.city ILIKE $1 OR asa.state ILIKE $2 LIMIT 5';
+      // Check what's actually in the database for debugging
+      const debugQuery = `
+        SELECT c.name as city, c.state_code, asa.zip, a.slug 
+        FROM affiliate_service_areas asa 
+        JOIN affiliates a ON a.id = asa.affiliate_id 
+        JOIN cities c ON c.id = asa.city_id 
+        WHERE c.name ILIKE $1 OR c.state_code ILIKE $2 
+        LIMIT 5
+      `;
       const debugResult = await pool.query(debugQuery, [`%${city}%`, `%${state}%`]);
-
       
       return res.status(404).json({ 
         error: 'No affiliates found for this location',
@@ -284,15 +294,6 @@ router.get('/lookup', async (req, res) => {
           similarResults: debugResult.rows
         }
       });
-    }
-    
-    // If we have a zip code and found results, try to update any missing zip codes
-    if (zip && result.rows.length > 0) {
-      try {
-        await updateMissingZipCodes(city, state, zip);
-      } catch (updateError) {
-        // Zip code update failed (non-critical)
-      }
     }
     
     // Return array of affiliate slugs
@@ -314,12 +315,23 @@ router.post('/update-zip', async (req, res) => {
   }
   
   try {
-    const updateResult = await updateMissingZipCodes(city, state, zip);
+    // Update zip codes using the new structure
+    const updateQuery = `
+      UPDATE affiliate_service_areas 
+      SET zip = $1 
+      FROM cities c
+      WHERE affiliate_service_areas.city_id = c.id 
+        AND LOWER(c.name) = LOWER($2) 
+        AND LOWER(c.state_code) = LOWER($3) 
+        AND affiliate_service_areas.zip IS NULL
+    `;
+    
+    const updateResult = await pool.query(updateQuery, [zip, city, state]);
     
     res.json({ 
       success: true, 
-      message: `Updated ${updateResult} zip code(s) for ${city}, ${state} to ${zip}`,
-      updatedCount: updateResult
+      message: `Updated ${updateResult.rowCount} zip code(s) for ${city}, ${state} to ${zip}`,
+      updatedCount: updateResult.rowCount
     });
     
   } catch (error) {
@@ -332,11 +344,50 @@ router.post('/update-zip', async (req, res) => {
 router.get('/:slug', async (req, res) => {
   const { slug } = req.params;
   try {
-    const result = await pool.query('SELECT * FROM affiliates WHERE slug = $1', [slug]);
+    // Get affiliate data with base location in a single query
+    const result = await pool.query(`
+      SELECT 
+        a.*,
+        addr.city,
+        addr.state_code,
+        s.name AS state_name,
+        addr.postal_code AS zip,
+        addr.lat,
+        addr.lng
+      FROM affiliates a
+      LEFT JOIN addresses addr ON addr.id = a.base_address_id
+      LEFT JOIN states s ON s.state_code = addr.state_code
+      WHERE a.slug = $1
+    `, [slug]);
+    
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Affiliate not found' });
     }
-    res.json(result.rows[0]);
+    
+    const affiliate = result.rows[0];
+    
+    // Format the response to include base location
+    const response = {
+      ...affiliate,
+      base_location: {
+        city: affiliate.city,
+        state_code: affiliate.state_code,
+        state_name: affiliate.state_name,
+        zip: affiliate.zip,
+        lat: affiliate.lat,
+        lng: affiliate.lng
+      }
+    };
+    
+    // Remove the individual fields to avoid duplication
+    delete response.city;
+    delete response.state_code;
+    delete response.state_name;
+    delete response.zip;
+    delete response.lat;
+    delete response.lng;
+    
+    res.json(response);
   } catch (err) {
     console.error('Error fetching affiliate by slug:', err);
     res.status(500).json({ error: 'Internal server error' });
@@ -360,6 +411,57 @@ router.get('/:slug/field/:field', async (req, res) => {
     res.json({ [field]: result.rows[0][field] });
   } catch (err) {
     console.error('Error fetching affiliate field by slug:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get affiliate base location by slug
+router.get('/:slug/base_location', async (req, res) => {
+  const { slug } = req.params;
+  try {
+    const result = await pool.query(`
+      SELECT 
+        a.id AS affiliate_id,
+        a.slug,
+        a.business_name,
+        addr.city,
+        addr.state_code,
+        s.name AS state_name,
+        addr.postal_code AS zip,
+        addr.lat,
+        addr.lng
+      FROM affiliates a
+      LEFT JOIN addresses addr ON addr.id = a.base_address_id
+      LEFT JOIN states s ON s.state_code = addr.state_code
+      WHERE a.slug = $1
+    `, [slug]);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Affiliate not found' });
+    }
+    
+    const affiliate = result.rows[0];
+    
+    if (!affiliate.city || !affiliate.state_code) {
+      return res.status(404).json({ 
+        error: 'AFFILIATE_BASE_ADDRESS_INCOMPLETE',
+        message: 'Affiliate base address is missing city or state information'
+      });
+    }
+    
+    res.json({
+      affiliate_id: affiliate.affiliate_id,
+      slug: affiliate.slug,
+      business_name: affiliate.business_name,
+      city: affiliate.city,
+      state_code: affiliate.state_code,
+      state_name: affiliate.state_name,
+      zip: affiliate.zip,
+      lat: affiliate.lat,
+      lng: affiliate.lng
+    });
+  } catch (err) {
+    console.error('Error fetching affiliate base location:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -389,29 +491,36 @@ router.get('/:slug/service_areas', async (req, res) => {
   }
 });
 
-// Helper function to update missing zip codes
-async function updateMissingZipCodes(city, state, zip) {
+// Helper function to ensure a city exists in the cities table
+async function ensureCity(cityName, stateCode) {
   try {
-    // Update any affiliate_service_areas records that have the same city/state but null zip
-    const updateQuery = `
-      UPDATE affiliate_service_areas 
-      SET zip = $1 
-      WHERE LOWER(city) = LOWER($2) 
-        AND LOWER(state) = LOWER($3) 
-        AND zip IS NULL
+    // Check if city already exists
+    const cityCheckQuery = `
+      SELECT id FROM cities 
+      WHERE name = $1 AND state_code = $2
     `;
+    const cityCheck = await pool.query(cityCheckQuery, [cityName, stateCode]);
     
-    const updateResult = await pool.query(updateQuery, [zip, city, state]);
-    
-    if (updateResult.rowCount > 0) {
-      // Zip codes updated successfully
+    if (cityCheck.rows.length > 0) {
+      return cityCheck.rows[0].id;
     }
     
-    return updateResult.rowCount;
+    // Create new city record
+    const citySlug = cityName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const cityQuery = `
+      INSERT INTO cities (name, city_slug, state_code) 
+      VALUES ($1, $2, $3) 
+      RETURNING id
+    `;
+    const cityResult = await pool.query(cityQuery, [cityName, citySlug, stateCode]);
+    
+    return cityResult.rows[0].id;
   } catch (error) {
-    console.error('Error updating zip codes:', error);
+    console.error('Error ensuring city exists:', error);
     throw error;
   }
 }
+
+
 
 module.exports = router;

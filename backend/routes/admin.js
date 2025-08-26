@@ -183,13 +183,13 @@ router.get('/users', async (req, res) => {
       // Map frontend status to database fields
       const statusMap = {
         'admin': 'role = $1',
-        'clients': 'role = $1'
+        'customers': 'role = $1'
       };
       
       // Map frontend status to actual database role values
       const roleMap = {
         'admin': 'admin',
-        'clients': 'customer'
+        'customers': 'customer'
       };
       
       if (statusMap[status]) {

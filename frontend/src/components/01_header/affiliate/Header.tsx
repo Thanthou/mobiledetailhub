@@ -23,6 +23,8 @@ const HeaderAffiliate: React.FC = () => {
   const isLoading = affiliateLoading || mdhLoading;
   const hasError = affiliateError || mdhError;
 
+
+
   if (isLoading) {
     return (
       <header className="fixed top-0 z-50 bg-black/20 backdrop-blur-sm w-full">
@@ -71,15 +73,22 @@ const HeaderAffiliate: React.FC = () => {
               <div className="text-white text-sm md:text-base font-semibold">
                 <div className="flex items-center space-x-2">
                   {affiliateData.phone && <span>{formatPhoneNumber(affiliateData.phone)}</span>}
-                  {affiliateData.phone && selectedLocation && <span className="text-orange-400">•</span>}
-                  {selectedLocation && (
+                  {affiliateData.phone && (affiliateData.base_location?.city || selectedLocation) && <span className="text-orange-400">•</span>}
+                  {affiliateData.base_location?.city && affiliateData.base_location?.state_name ? (
                     <LocationEditModal
                       placeholder="Enter new location"
                       buttonClassName="text-white hover:text-orange-400 text-sm md:text-base font-semibold hover:underline cursor-pointer"
-                      fallbackText={selectedLocation.fullLocation}
+                      displayText={`${affiliateData.base_location.city}, ${affiliateData.base_location.state_name}`}
                       showIcon={false}
                     />
-                  )}
+                  ) : selectedLocation ? (
+                    <LocationEditModal
+                      placeholder="Enter new location"
+                      buttonClassName="text-white hover:text-orange-400 text-sm md:text-base font-semibold hover:underline cursor-pointer"
+                      displayText={selectedLocation.fullLocation}
+                      showIcon={false}
+                    />
+                  ) : null}
                 </div>
               </div>
             </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { MapPin } from 'lucide-react';
 import { useLocation } from '../../contexts/LocationContext';
+import { useSiteContext } from '../../hooks/useSiteContext';
 import GetStarted from './LocationSearchBar';
 
 interface LocationEditModalProps {
@@ -10,7 +11,7 @@ interface LocationEditModalProps {
   buttonClassName?: string;
   modalTitle?: string;
   onLocationChange?: (location: string, zipCode?: string, city?: string, state?: string) => void;
-  fallbackText?: string;
+  displayText?: string;
   showIcon?: boolean;
   gapClassName?: string;
 }
@@ -21,17 +22,26 @@ const LocationEditModal: React.FC<LocationEditModalProps> = ({
   buttonClassName = '',
   modalTitle = 'Update your location',
   onLocationChange,
-  fallbackText = 'Set Location',
+  displayText = 'Set Location',
   showIcon = true,
   gapClassName = 'space-x-6',
 }) => {
   const { selectedLocation, hasValidLocation } = useLocation();
+  const { isAffiliate } = useSiteContext();
   const [showModal, setShowModal] = useState(false);
 
-  let buttonText = fallbackText;
-  if (hasValidLocation()) {
+  let buttonText = displayText;
+  // On affiliate pages, always show the affiliate's location (displayText)
+  // On MDH pages, use selectedLocation if available and displayText is default
+  if (isAffiliate) {
+    // Always use displayText on affiliate pages to show the affiliate's location
+    buttonText = displayText;
+  } else if (hasValidLocation() && (displayText === 'Set Location' || displayText === 'Select Location')) {
+    // On MDH pages, use selectedLocation if displayText is default
     buttonText = `${selectedLocation!.city}, ${selectedLocation!.state}`;
   }
+
+
 
   return (
     <>

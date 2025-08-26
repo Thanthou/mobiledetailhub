@@ -9,7 +9,7 @@ const serviceAreasRoutes = require('./routes/serviceAreas');
 const authRoutes = require('./routes/auth');
 const affiliatesRoutes = require('./routes/affiliates');
 const mdhConfigRoutes = require('./routes/mdhConfig');
-const clientsRoutes = require('./routes/clients');
+const customersRoutes = require('./routes/customers');
 const adminRoutes = require('./routes/admin');
 
 // Import database utilities
@@ -29,7 +29,7 @@ app.use('/api/service_areas', serviceAreasRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/affiliates', affiliatesRoutes);
 app.use('/api/mdh-config', mdhConfigRoutes);
-app.use('/api/clients', clientsRoutes);
+app.use('/api/customers', customersRoutes);
 app.use('/admin', adminRoutes);
 
 // Start server

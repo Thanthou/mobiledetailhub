@@ -32,11 +32,15 @@ const AffiliateFooter: React.FC<AffiliateFooterProps> = ({ onRequestQuote, onBoo
   // Combine affiliate data with MDH social media config
   const combinedConfig = {
     ...affiliateData,
+    base_location: affiliateData?.base_location, // Ensure base_location is passed through
+    email: mdhConfig?.email, // Use MDH email instead of affiliate email
     facebook: mdhConfig?.facebook,
     instagram: mdhConfig?.instagram,
     tiktok: mdhConfig?.tiktok,
     youtube: mdhConfig?.youtube,
   };
+
+
 
   if (isLoading) return <FooterLoadingState />;
   if (hasError || !affiliateData || !mdhConfig) return <FooterErrorState />;

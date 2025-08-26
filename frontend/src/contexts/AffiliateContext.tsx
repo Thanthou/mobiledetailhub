@@ -10,7 +10,14 @@ interface AffiliateData {
   email: string;
   phone: string;
   sms_phone: string;
-  base_location: any;
+  base_location: {
+    city: string | null;
+    state_code: string | null;
+    state_name: string | null;
+    zip: string | null;
+    lat: number | null;
+    lng: number | null;
+  } | null;
   services: any;
   website_url: string;
   gbp_url: string;

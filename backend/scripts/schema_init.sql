@@ -424,4 +424,69 @@ VALUES ('admin@mobiledetailhub.com', 'Brandan Coleman', 'admin', TRUE,
         '$2a$10$EAY3D9OdVXpYgby.ATOmheJwqrlTZ423Yg2a.qLzN1Ku1/oj2/LzS', '')
 ON CONFLICT (email) DO NOTHING;
 
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Views for common queries
+-- ─────────────────────────────────────────────────────────────────────────────
+
+-- View for affiliate base location information
+CREATE OR REPLACE VIEW v_affiliate_base_location AS
+SELECT
+  f.id AS affiliate_id,
+  f.slug,
+  f.business_name,
+  a.city,
+  a.state_code,
+  s.name AS state_name,
+  a.postal_code AS zip,
+  a.lat,
+  a.lng
+FROM affiliates f
+LEFT JOIN addresses a ON a.id = f.base_address_id
+LEFT JOIN states s ON s.state_code = a.state_code;
+
+-- Function to seed affiliate service areas when approved
+CREATE OR REPLACE FUNCTION seed_affiliate_service_areas()
+RETURNS TRIGGER LANGUAGE plpgsql AS $$
+DECLARE
+  city_id BIGINT;
+  zip_value TEXT;
+BEGIN
+  -- Only proceed if status changed to 'approved'
+  IF NEW.application_status = 'approved' AND (OLD.application_status != 'approved' OR OLD.application_status IS NULL) THEN
+    
+    -- Get base address information
+    SELECT 
+      c.id,
+      a.postal_code
+    INTO city_id, zip_value
+    FROM affiliates f
+    JOIN addresses a ON a.id = f.base_address_id
+    LEFT JOIN cities c ON c.name = a.city AND c.state_code = a.state_code
+    WHERE f.id = NEW.id;
+    
+    -- If we have a city, seed the service area
+    IF city_id IS NOT NULL THEN
+      -- Insert city-wide coverage
+      INSERT INTO affiliate_service_areas (affiliate_id, city_id, zip, priority)
+      VALUES (NEW.id, city_id, NULL, 0)
+      ON CONFLICT (affiliate_id, city_id, zip) DO NOTHING;
+      
+      -- Insert zip-specific coverage if available
+      IF zip_value IS NOT NULL AND zip_value != '' THEN
+        INSERT INTO affiliate_service_areas (affiliate_id, city_id, zip, priority)
+        VALUES (NEW.id, city_id, zip_value, 0)
+        ON CONFLICT (affiliate_id, city_id, zip) DO NOTHING;
+      END IF;
+    END IF;
+  END IF;
+  
+  RETURN NEW;
+END$$;
+
+-- Trigger to automatically seed service areas when affiliate is approved
+CREATE TRIGGER trg_affiliate_approved
+  AFTER UPDATE ON affiliates
+  FOR EACH ROW
+  EXECUTE FUNCTION seed_affiliate_service_areas();
+
 COMMIT;

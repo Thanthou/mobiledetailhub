@@ -4,6 +4,7 @@ import { Phone, Mail, MapPin, Facebook, Instagram, Youtube } from 'lucide-react'
 import TikTokIcon from '../icons/TikTokIcon';
 import { useLocation } from '../../../contexts/LocationContext';
 import LocationEditModal from '../../shared/LocationEditModal';
+import { formatPhoneNumber } from '../../../utils/phoneFormatter';
 
 interface ServiceArea {
   city: string;
@@ -40,26 +41,35 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig, businessSlug, ser
                 href={`tel:${parentConfig?.phone || '+18885551234'}`}
                 className="text-lg hover:text-orange-400 transition-colors duration-200"
               >
-                {parentConfig?.phone || '(888) 555-1234'}
+                {parentConfig?.phone ? formatPhoneNumber(parentConfig.phone) : '(888) 555-1234'}
               </a>
             </div>
             <div className="flex items-center justify-center md:justify-start space-x-3">
               <Mail className="h-5 w-5 flex-shrink-0 text-orange-400" />
-              <a 
-                href={`mailto:${parentConfig?.email || 'service@mobiledetailhub.com'}`}
-                className="text-lg hover:text-orange-400 transition-colors duration-200"
+              <button 
+                onClick={onRequestQuote}
+                className="text-lg hover:text-orange-400 transition-colors duration-200 bg-transparent border-none p-0 font-inherit cursor-pointer text-left"
               >
                 {parentConfig?.email || 'service@mobiledetailhub.com'}
-              </a>
+              </button>
             </div>
             <div className="flex items-center justify-center md:justify-start space-x-3">
               <MapPin className="h-5 w-5 flex-shrink-0 text-orange-400" />
-              <LocationEditModal
-                fallbackText="Select Location"
-                buttonClassName="text-lg hover:text-orange-400 transition-colors duration-200 bg-transparent border-none p-0 font-inherit cursor-pointer text-left"
-                showIcon={false}
-                gapClassName="space-x-0"
-              />
+              {parentConfig?.base_location?.city && parentConfig?.base_location?.state_name ? (
+                <LocationEditModal
+                  displayText={`${parentConfig.base_location.city}, ${parentConfig.base_location.state_name}`}
+                  buttonClassName="text-lg hover:text-orange-400 transition-colors duration-200 bg-transparent border-none p-0 font-inherit cursor-pointer text-left"
+                  showIcon={false}
+                  gapClassName="space-x-0"
+                />
+              ) : (
+                <LocationEditModal
+                  displayText="Select Location"
+                  buttonClassName="text-lg hover:text-orange-400 transition-colors duration-200 bg-transparent border-none p-0 font-inherit cursor-pointer text-left"
+                  showIcon={false}
+                  gapClassName="space-x-0"
+                />
+              )}
             </div>
           </div>
         </div>
@@ -118,7 +128,29 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig, businessSlug, ser
         {/* Column C: Service Areas */}
         <div className="text-center md:text-right">
           <h3 className="font-bold text-orange-400 text-xl mb-6">Service Areas</h3>
-          {serviceAreas.length > 0 ? (
+          {parentConfig?.base_location?.city && parentConfig?.base_location?.state_name ? (
+            <div className="space-y-1">
+              {/* Show affiliate's base location first */}
+              <div className="text-lg text-orange-400 font-semibold">
+                {parentConfig.base_location.city}, {parentConfig.base_location.state_name}
+              </div>
+              {/* Show additional service areas if any */}
+              {serviceAreas.length > 0 && (
+                <>
+                  {serviceAreas.slice(0, 2).map((area, index) => (
+                    <div key={index} className="text-lg text-white">
+                      {area.city}, {area.state}
+                    </div>
+                  ))}
+                  {serviceAreas.length > 2 && (
+                    <div className="text-sm text-gray-300">
+                      +{serviceAreas.length - 2} more areas
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          ) : serviceAreas.length > 0 ? (
             <div className="space-y-1">
               {serviceAreas.slice(0, 3).map((area, index) => (
                 <div key={index} className="text-lg text-white">
