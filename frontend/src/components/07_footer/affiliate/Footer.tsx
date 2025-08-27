@@ -10,9 +10,10 @@ import { useMDHConfig } from '../../../contexts/MDHConfigContext';
 interface AffiliateFooterProps {
   onRequestQuote: () => void;
   onBookNow?: () => void;
+  onQuoteHover?: () => void;
 }
 
-const AffiliateFooter: React.FC<AffiliateFooterProps> = ({ onRequestQuote, onBookNow }) => {
+const AffiliateFooter: React.FC<AffiliateFooterProps> = ({ onRequestQuote, onBookNow, onQuoteHover }) => {
   const { businessSlug } = useSiteContext();
   const { affiliateData, isLoading: affiliateLoading, error: affiliateError } = useAffiliate();
   const { mdhConfig, isLoading: mdhLoading, error: mdhError } = useMDHConfig();
@@ -54,6 +55,7 @@ const AffiliateFooter: React.FC<AffiliateFooterProps> = ({ onRequestQuote, onBoo
           serviceAreas={serviceAreas}
           onRequestQuote={onRequestQuote}
           onBookNow={onBookNow}
+          onQuoteHover={onQuoteHover}
         />
         <FooterBottom businessInfo={{ name: affiliateData.name || 'Your Business' }} />
       </div>

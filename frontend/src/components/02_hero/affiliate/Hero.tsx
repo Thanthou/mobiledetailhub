@@ -4,11 +4,13 @@ import CTAButtonsContainer from '../../Book_Quote/CTAButtonsContainer';
 interface BusinessHeroContentProps {
   onBookNow?: () => void;
   onRequestQuote?: () => void;
+  onQuoteHover?: () => void;
 }
 
 const BusinessHeroContent: React.FC<BusinessHeroContentProps> = ({ 
   onBookNow, 
-  onRequestQuote 
+  onRequestQuote,
+  onQuoteHover
 }) => {
   return (
     <div className="flex flex-col items-center w-full">
@@ -18,6 +20,7 @@ const BusinessHeroContent: React.FC<BusinessHeroContentProps> = ({
       <CTAButtonsContainer
         onBookNow={onBookNow}
         onRequestQuote={onRequestQuote}
+        onQuoteHover={onQuoteHover}
         variant="side-by-side"
         className="max-w-md mx-auto [&>*]:w-48 [&>*]:justify-center"
       />

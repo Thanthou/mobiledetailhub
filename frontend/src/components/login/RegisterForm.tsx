@@ -1,0 +1,154 @@
+import React, { useState } from 'react';
+import { Eye, EyeOff, Mail, Lock, User, Phone } from 'lucide-react';
+import FormField from './FormField';
+
+interface RegisterFormProps {
+  onSubmit: (email: string, password: string, name: string, phone: string) => Promise<void>;
+  loading: boolean;
+  error?: string;
+}
+
+const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, error }) => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    name: '',
+    phone: ''
+  });
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFieldErrors({});
+
+    // Basic validation
+    const errors: Record<string, string[]> = {};
+    
+    if (!formData.name) {
+      errors.name = ['Name is required'];
+    } else if (formData.name.trim().length < 2) {
+      errors.name = ['Name must be at least 2 characters'];
+    }
+    
+    if (!formData.email) {
+      errors.email = ['Email is required'];
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      errors.email = ['Please enter a valid email'];
+    }
+    
+    if (!formData.password) {
+      errors.password = ['Password is required'];
+    } else if (formData.password.length < 6) {
+      errors.password = ['Password must be at least 6 characters'];
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      return;
+    }
+
+    await onSubmit(formData.email, formData.password, formData.name, formData.phone);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const getFieldError = (fieldName: string): string | undefined => {
+    return fieldErrors[fieldName]?.[0];
+  };
+
+  const passwordRightElement = (
+    <button
+      type="button"
+      onClick={() => setShowPassword(!showPassword)}
+      className="text-gray-500 hover:text-gray-300 transition-colors duration-200"
+    >
+      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+    </button>
+  );
+
+  return (
+    <form onSubmit={handleSubmit} className="px-8 pb-8">
+      <div className="space-y-6">
+        {/* Name Field */}
+        <FormField
+          id="name"
+          name="name"
+          label="Full Name"
+          type="text"
+          value={formData.name}
+          onChange={handleInputChange}
+          placeholder="Enter your full name"
+          icon={User}
+          error={getFieldError('name')}
+          required
+        />
+
+        {/* Phone Field */}
+        <FormField
+          id="phone"
+          name="phone"
+          label="Phone (optional)"
+          type="tel"
+          value={formData.phone}
+          onChange={handleInputChange}
+          placeholder="Enter your phone number"
+          icon={Phone}
+          error={getFieldError('phone')}
+        />
+
+        {/* Email Field */}
+        <FormField
+          id="email"
+          name="email"
+          label="Email address"
+          type="email"
+          value={formData.email}
+          onChange={handleInputChange}
+          placeholder="Enter your email"
+          icon={Mail}
+          error={getFieldError('email')}
+          required
+        />
+
+        {/* Password Field */}
+        <FormField
+          id="password"
+          name="password"
+          label="Password"
+          type={showPassword ? 'text' : 'password'}
+          value={formData.password}
+          onChange={handleInputChange}
+          placeholder="Enter your password"
+          icon={Lock}
+          error={getFieldError('password')}
+          required
+          rightElement={passwordRightElement}
+        />
+
+        {/* Submit Button */}
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-stone-900 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100"
+        >
+          {loading ? (
+            <div className="flex items-center justify-center">
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+              Creating account...
+            </div>
+          ) : (
+            'Create account'
+          )}
+        </button>
+      </div>
+    </form>
+  );
+};
+
+export default RegisterForm;

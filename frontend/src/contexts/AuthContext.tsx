@@ -47,6 +47,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const mappedUser = mapBackendUserToFrontend(userData);
         setUser(mappedUser);
         setLoading(false);
+        
+        // Verify token is still valid on mount
+        fetchUserData(token);
       } catch (error) {
         console.error('Error parsing saved user data:', error);
         // If parsing fails, fetch fresh data
@@ -59,6 +62,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(false);
     }
   }, []);
+
+  // Periodic token validation (every 5 minutes)
+  useEffect(() => {
+    if (!user) return;
+    
+    const interval = setInterval(() => {
+      const token = localStorage.getItem('token');
+      if (token && user) {
+        // Silently check if token is still valid
+        fetch(`${config.apiUrl}/api/auth/me`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }).then(response => {
+          if (response.status === 401) {
+            console.log('Token expired during periodic check, logging out user');
+            logout();
+          }
+        }).catch(error => {
+          console.error('Error during periodic token check:', error);
+        });
+      }
+    }, 5 * 60 * 1000); // Check every 5 minutes
+
+    return () => clearInterval(interval);
+  }, [user]);
 
   const fetchUserData = async (token: string) => {
     try {
@@ -74,15 +103,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(mappedUser);
         // Update localStorage with properly mapped user data
         localStorage.setItem('user', JSON.stringify(mappedUser));
+      } else if (response.status === 401) {
+        // Token is expired or invalid, logout user
+        console.log('Token expired, logging out user');
+        logout();
       } else {
-        // Token is invalid, remove it
+        // Other error, remove tokens
         localStorage.removeItem('token');
         localStorage.removeItem('user');
+        setUser(null);
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      // Network error, logout user to be safe
+      logout();
     } finally {
       setLoading(false);
     }
@@ -103,11 +137,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (response.ok) {
         const mappedUser = mapBackendUserToFrontend(data.user);
         setUser(mappedUser);
-        localStorage.setItem('token', data.token);
+        localStorage.setItem('token', data.accessToken);
         localStorage.setItem('user', JSON.stringify(mappedUser));
         return { success: true };
       } else {
-        return { success: false, error: data.error };
+        return { success: false, error: data.error || data.message || 'Login failed' };
       }
     } catch (error) {
       return { success: false, error: 'Network error occurred' };
@@ -129,11 +163,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (response.ok) {
         const mappedUser = mapBackendUserToFrontend(data.user);
         setUser(mappedUser);
-        localStorage.setItem('token', data.token);
+        localStorage.setItem('token', data.accessToken);
         localStorage.setItem('user', JSON.stringify(mappedUser));
         return { success: true };
       } else {
-        return { success: false, error: data.error };
+        return { success: false, error: data.error || data.message || 'Registration failed' };
       }
     } catch (error) {
       return { success: false, error: 'Network error occurred' };

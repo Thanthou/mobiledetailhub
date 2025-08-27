@@ -24,6 +24,9 @@ const UserMenu: React.FC = () => {
   if (!user) return null;
 
   const handleLogout = () => {
+    // Clear any stored tokens
+    localStorage.removeItem('token');
+    localStorage.removeItem('authToken'); // Remove old key if it exists
     logout();
     setIsOpen(false);
   };
@@ -31,26 +34,17 @@ const UserMenu: React.FC = () => {
   const handleAccountClick = () => {
     setIsOpen(false);
     
-
-    
-    // Check if user email suggests admin status (temporary workaround)
-    const isAdminByEmail = user?.email?.toLowerCase().includes('admin') || 
-                           user?.email?.toLowerCase().includes('cole') ||
-                           user?.name?.toLowerCase().includes('admin');
-    
-
-    
-    // Route based on user role or email check
-    if (user?.role === 'admin' || isAdminByEmail) {
+    // Route based on user role (less restrictive for development)
+    if (user?.role === 'admin') {
       navigate('/admin-dashboard');
     } else if (user?.role === 'affiliate') {
       navigate('/affiliate-dashboard');
     } else if (user?.role === 'user') {
-      navigate('/client-dashboard');
+      // For now, redirect customers to home page since client dashboard is not implemented
+      navigate('/');
     } else {
-      // Fallback to client dashboard for unknown roles
-  
-      navigate('/client-dashboard');
+      // Fallback to home page for unknown roles
+      navigate('/');
     }
   };
 
@@ -67,6 +61,7 @@ const UserMenu: React.FC = () => {
     <div className="relative" ref={menuRef}>
       {/* User Button */}
       <button
+        id="user-menu-button"
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center space-x-2 text-white hover:text-orange-400 transition-colors duration-200 font-medium"
         aria-expanded={isOpen}
@@ -78,7 +73,12 @@ const UserMenu: React.FC = () => {
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+        <div 
+          className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50"
+          role="menu"
+          aria-orientation="vertical"
+          aria-labelledby="user-menu-button"
+        >
           <div className="px-4 py-2 border-b border-gray-100">
             <p className="text-sm font-medium text-gray-900">{user.name}</p>
             <p className="text-xs text-gray-500">{user.email}</p>
@@ -86,7 +86,14 @@ const UserMenu: React.FC = () => {
           
           <button
             onClick={handleAccountClick}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleAccountClick();
+              }
+            }}
             className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+            role="menuitem"
           >
             <User className="h-4 w-4 mr-3" />
             Account
@@ -94,7 +101,14 @@ const UserMenu: React.FC = () => {
           
           <button
             onClick={() => setIsOpen(false)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setIsOpen(false);
+              }
+            }}
             className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+            role="menuitem"
           >
             <Settings className="h-4 w-4 mr-3" />
             Settings
@@ -104,7 +118,14 @@ const UserMenu: React.FC = () => {
           
           <button
             onClick={handleLogout}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleLogout();
+              }
+            }}
             className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
+            role="menuitem"
           >
             <LogOut className="h-4 w-4 mr-3" />
             Logout

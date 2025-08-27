@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { Pool } = require('pg');
-require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') });
 
 async function runSchemaInit() {
   const pool = new Pool({
@@ -9,15 +9,15 @@ async function runSchemaInit() {
   });
 
   try {
-    console.log('Reading schema_init.sql...');
-    const sqlFile = path.join(__dirname, 'schema_init.sql');
+    console.log('Reading init_schema.sql...');
+    const sqlFile = path.join(__dirname, 'init_schema.sql');
     const sql = fs.readFileSync(sqlFile, 'utf8');
 
     console.log('Executing schema initialization...');
     await pool.query(sql);
     
-    console.log('✅ Schema initialization completed successfully!');
-    console.log('All tables have been dropped and recreated.');
+    console.log('✅ Schema v3 initialization completed successfully!');
+    console.log('All tables have been dropped and recreated with normalized structure.');
     
   } catch (error) {
     console.error('❌ Error running schema initialization:', error);

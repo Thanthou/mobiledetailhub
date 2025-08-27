@@ -16,4 +16,5 @@ backend/dist/
 .DS_Store
 Thumbs.db
 
-src/components/DevModeDropdown.tsx
+# Test files
+backend/tests/

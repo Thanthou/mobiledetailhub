@@ -12,16 +12,92 @@ export interface QuoteFormData {
   preferredDate?: string;
 }
 
-export interface ApiResponse {
+// User interface for admin operations
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+  role: 'admin' | 'affiliate' | 'customer';
+  created_at: string;
+  business_name?: string;
+  application_status?: string;
+  slug?: string;
+}
+
+// Affiliate application interface
+export interface AffiliateApplication {
+  id: number;
+  slug: string;
+  business_name: string;
+  owner: string;
+  phone: string;
+  email: string;
+  has_insurance: boolean;
+  source: string;
+  notes?: string;
+  application_date: string;
+  created_at: string;
+  city?: string;
+  state_code?: string;
+  postal_code?: string;
+}
+
+// Generic API response interface
+export interface ApiResponse<T = unknown> {
   success: boolean;
   message?: string;
-  users?: any[];
-  applications?: any[];
-  count?: number;
+  data?: T;
+}
+
+// Specific response interfaces
+export interface UsersResponse extends ApiResponse {
+  users: User[];
+  count: number;
+}
+
+export interface ApplicationsResponse extends ApiResponse {
+  applications: AffiliateApplication[];
+  count: number;
+}
+
+export interface LoginResponse extends ApiResponse {
+  token: string;
+  user: {
+    id: number;
+    email: string;
+    role: string;
+    name: string;
+  };
+}
+
+export interface AffiliateApprovalResponse extends ApiResponse {
+  affiliate: AffiliateApplication & {
+    user_id: number;
+    temp_password: string;
+  };
+  note: string;
+}
+
+export interface AffiliateRejectionResponse extends ApiResponse {
+  affiliate: AffiliateApplication;
+}
+
+export interface AffiliateDeletionResponse extends ApiResponse {
+  deletedAffiliate?: {
+    id: number;
+    business_name: string;
+    slug: string;
+    email: string;
+  };
+  deletedUser?: {
+    id: number;
+    name: string;
+    email: string;
+  };
 }
 
 class ApiService {
-  private async makeRequest(endpoint: string, options: RequestInit = {}): Promise<ApiResponse> {
+  private async makeRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
     
     const defaultOptions: RequestInit = {
@@ -47,17 +123,17 @@ class ApiService {
   }
 
   async submitQuoteRequest(data: QuoteFormData): Promise<ApiResponse> {
-    return this.makeRequest('/api/quote', {
+    return this.makeRequest<ApiResponse>('/api/quote', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
   async checkHealth(): Promise<ApiResponse> {
-    return this.makeRequest('/api/health');
+    return this.makeRequest<ApiResponse>('/api/health');
   }
 
-  async login(email: string, password: string): Promise<ApiResponse> {
+  async login(email: string, password: string): Promise<LoginResponse> {
     const url = `${config.apiUrls.local}/api/auth/login`;
     
     try {
@@ -77,7 +153,7 @@ class ApiService {
       
       // Store the token in localStorage
       if (data.token) {
-        localStorage.setItem('authToken', data.token);
+        localStorage.setItem('token', data.token);
       }
       
       return data;
@@ -88,7 +164,7 @@ class ApiService {
     }
   }
 
-  async getUsers(status?: string): Promise<ApiResponse> {
+  async getUsers(status?: string): Promise<UsersResponse> {
     const endpoint = status && status !== 'all-users' 
       ? `/api/admin/users?status=${status}`
       : '/api/admin/users';
@@ -96,7 +172,7 @@ class ApiService {
     const url = `${config.apiUrls.local}${endpoint}`;
     
     // Get token from localStorage
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('token');
     if (!token) {
       throw new Error('Authentication token required');
     }
@@ -123,11 +199,11 @@ class ApiService {
     }
   }
 
-  async getPendingApplications(): Promise<ApiResponse> {
+  async getPendingApplications(): Promise<ApplicationsResponse> {
     const url = `${config.apiUrls.local}/api/admin/pending-applications`;
     
     // Get token from localStorage
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('token');
     if (!token) {
       throw new Error('Authentication token required');
     }
@@ -154,11 +230,11 @@ class ApiService {
     }
   }
 
-  async approveApplication(applicationId: number, approvedSlug: string, adminNotes: string): Promise<ApiResponse> {
+  async approveApplication(applicationId: number, approvedSlug: string, adminNotes: string): Promise<AffiliateApprovalResponse> {
     const url = `${config.apiUrls.local}/api/admin/approve-application/${applicationId}`;
     
     // Get token from localStorage
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('token');
     if (!token) {
       throw new Error('Authentication token required');
     }
@@ -190,11 +266,11 @@ class ApiService {
     }
   }
 
-  async rejectApplication(applicationId: number, rejectionReason: string, adminNotes: string): Promise<ApiResponse> {
+  async rejectApplication(applicationId: number, rejectionReason: string, adminNotes: string): Promise<AffiliateRejectionResponse> {
     const url = `${config.apiUrls.local}/api/admin/reject-application/${applicationId}`;
     
     // Get token from localStorage
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('token');
     if (!token) {
       throw new Error('Authentication token required');
     }
@@ -226,11 +302,11 @@ class ApiService {
     }
   }
 
-  async deleteAffiliate(affiliateId: number): Promise<ApiResponse> {
+  async deleteAffiliate(affiliateId: number): Promise<AffiliateDeletionResponse> {
     const url = `${config.apiUrls.local}/api/admin/affiliates/${affiliateId}`;
     
     // Get token from localStorage
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('token');
     if (!token) {
       throw new Error('Authentication token required');
     }

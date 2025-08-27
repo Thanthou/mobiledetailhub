@@ -10,7 +10,7 @@ const Logo: React.FC<LogoProps> = ({ businessName, isMDH }) => {
     <div className="flex items-center space-x-3">
       {isMDH && (
         <img 
-          src="/assets/logo.png" 
+          src="/assets/favicon.webp" 
           alt="Mobile Detail Hub Logo" 
           className="h-8 w-8 md:h-10 md:w-10"
         />

@@ -1,4 +1,4 @@
-import React from 'react';
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from './components/HomePage';
 import { LocationProvider } from './contexts/LocationContext';
@@ -10,21 +10,25 @@ import { DashboardPage as AdminDashboard } from './pages/adminDashboard';
 import { AffiliateApplicationPage } from './pages/affiliateOnboarding';
 import Header from './components/01_header';
 import ErrorBoundary from './components/shared/ErrorBoundary';
-import DevModeDropdown from './components/DevModeDropdown';
-
-// Custom error boundary for lazy-loaded components
-const LazyComponentErrorBoundary: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <ErrorBoundary
-    fallback={
-      <div className="p-2 text-xs text-gray-500">
-        Component failed to load
-      </div>
-    }
-  >
-    {children}
-  </ErrorBoundary>
-);
+import NotFoundPage from './components/shared/NotFoundPage';
+import DevNavigation from './components/shared/DevNavigation';
 import { useScrollToTop } from './hooks/useScrollToTop';
+import { scrollRestoration } from './utils/scrollRestoration';
+import ProtectedRoute from './components/shared/ProtectedRoute';
+import { preloadCriticalModals } from './utils/modalCodeSplitting';
+
+// Custom error boundary for lazy-loaded components (removed unused component)
+// const LazyComponentErrorBoundary: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+//   <ErrorBoundary
+//     fallback={
+//       <div className="p-2 text-xs text-gray-500">
+//         Component failed to load
+//       </div>
+//     }
+//   >
+//     {children}
+//   </ErrorBoundary>
+// );
 
 // Component to handle scroll-to-top functionality
 const ScrollToTop = () => {
@@ -34,63 +38,81 @@ const ScrollToTop = () => {
 
 // Simple login page component
 const LoginPage = () => {
-  const [isOpen, setIsOpen] = React.useState(true);
-  const handleClose = () => setIsOpen(false);
-  
   return (
     <div className="min-h-screen bg-gray-900 flex items-center justify-center">
       <div className="text-center">
         <h1 className="text-white text-2xl mb-4">Login Required</h1>
-        <p className="text-gray-300 mb-6">Please log in to access the admin dashboard.</p>
-        <button 
-          onClick={() => window.location.href = '/admin-dashboard'}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-        >
-          Go to Admin Dashboard
-        </button>
+        <p className="text-gray-300 mb-6">Please log in to access protected areas.</p>
+        <p className="text-gray-400 text-sm">Use the login button in the header to authenticate.</p>
       </div>
     </div>
   );
 };
 
 function App() {
+  // Global scroll restoration effect
+  useEffect(() => {
+    // Disable browser's default scroll restoration
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+
+    // Cleanup scroll positions on app unmount
+    return () => {
+      scrollRestoration.clearScrollPositions();
+    };
+  }, []);
+
+  // Preload critical modals for better performance
+  useEffect(() => {
+    // Start preloading after app initializes
+    const timer = setTimeout(() => {
+      preloadCriticalModals().catch(error => {
+        console.debug('Modal preloading failed:', error);
+      });
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <ErrorBoundary>
       <AuthProvider>
         <LocationProvider>
           <Router>
             <ScrollToTop />
+            <DevNavigation />
             <div>
-            {import.meta.env.DEV && (
-              <DevModeDropdown />
-            )}
               <Routes>
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/admin-dashboard" element={<AdminDashboard />} />
-              <Route path="/affiliate-dashboard" element={<DashboardPage />} />
-              <Route path="/affiliate-onboarding" element={<AffiliateApplicationPage />} />
-              <Route path="/client-dashboard" element={<div className="min-h-screen bg-gray-900 flex items-center justify-center"><h1 className="text-white text-2xl">Client Dashboard Coming Soon</h1></div>} />
-              <Route path="/:businessSlug" element={
-                <MDHConfigProvider>
-                  <AffiliateProvider>
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/admin-dashboard" element={
+                  <ProtectedRoute requiredRole="admin" fallbackPath="/">
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/affiliate-dashboard" element={
+                  <ProtectedRoute requiredRole="affiliate" fallbackPath="/">
+                    <DashboardPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/affiliate-onboarding" element={<AffiliateApplicationPage />} />
+
+                <Route path="/:businessSlug" element={
+                  <MDHConfigProvider>
+                    <AffiliateProvider>
+                      <Header />
+                      <HomePage />
+                    </AffiliateProvider>
+                  </MDHConfigProvider>
+                } />
+                <Route path="/" element={
+                  <MDHConfigProvider>
                     <Header />
                     <HomePage />
-                  </AffiliateProvider>
-                </MDHConfigProvider>
-              } />
-              <Route path="/" element={
-                <MDHConfigProvider>
-                  <Header />
-                  <HomePage />
-                </MDHConfigProvider>
-              } />
-              <Route path="*" element={
-                <MDHConfigProvider>
-                  <Header />
-                  <HomePage />
-                </MDHConfigProvider>
-              } />
-            </Routes>
+                  </MDHConfigProvider>
+                } />
+                <Route path="*" element={<NotFoundPage />} />
+              </Routes>
             </div>
           </Router>
         </LocationProvider>

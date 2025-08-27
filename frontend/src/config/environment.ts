@@ -3,7 +3,7 @@ export const config = {
   // API URL - will be set based on environment
   apiUrl: import.meta.env.VITE_API_URL || 
     (import.meta.env.PROD 
-      ? 'https://mobiledetailhub.onrender.com'  // Render backend URL
+      ? import.meta.env.VITE_API_URL_LIVE || 'https://mobiledetailhub.onrender.com'
       : ''  // Empty string for development to use relative URLs with Vite proxy
     ),
   

@@ -21,11 +21,12 @@ import FooterAffiliate from './affiliate/Footer';
 interface FooterProps {
   onRequestQuote: () => void;
   onBookNow?: () => void;
+  onQuoteHover?: () => void;
 }
 
-const Footer: React.FC<FooterProps> = ({ onRequestQuote, onBookNow }) => {
+const Footer: React.FC<FooterProps> = ({ onRequestQuote, onBookNow, onQuoteHover }) => {
   const { isMDH } = useSiteContext();
-  return isMDH ? <FooterMDH /> : <FooterAffiliate onRequestQuote={onRequestQuote} onBookNow={onBookNow} />;
+  return isMDH ? <FooterMDH /> : <FooterAffiliate onRequestQuote={onRequestQuote} onBookNow={onBookNow} onQuoteHover={onQuoteHover} />;
 };
 
 export default Footer;

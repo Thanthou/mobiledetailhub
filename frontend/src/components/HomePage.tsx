@@ -4,7 +4,7 @@ import Services from './03_services/Services';
 import * as Reviews from './04_reviews';
 import FAQ from './05_faq';
 import Footer from './07_footer';
-import { QuoteModal, BookingModal } from './Book_Quote';
+import { LazyQuoteModal, prefetchQuoteModal, BookingModal } from './Book_Quote';
 import { useSiteContext } from '../hooks/useSiteContext';
 
 const HomePage = () => {
@@ -14,7 +14,7 @@ const HomePage = () => {
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   
-  // Centralized modal handlers
+  // Centralized modal handlers with prefetching
   const handleOpenQuoteModal = () => {
     setIsQuoteModalOpen(true);
   };
@@ -30,12 +30,21 @@ const HomePage = () => {
   const handleCloseBookingModal = () => {
     setIsBookingModalOpen(false);
   };
+
+  // Prefetch handlers for better performance
+  const handleQuoteModalPrefetch = () => {
+    prefetchQuoteModal();
+  };
   
   return (
     <div>
       <div id="top"></div>
       <section id="hero">
-        <Hero onRequestQuote={handleOpenQuoteModal} onBookNow={handleOpenBookingModal} />
+        <Hero 
+          onRequestQuote={handleOpenQuoteModal} 
+          onBookNow={handleOpenBookingModal}
+          onQuoteHover={handleQuoteModalPrefetch}
+        />
       </section>
       <section id="services">
         <Services />
@@ -47,14 +56,19 @@ const HomePage = () => {
         <FAQ />
       </section>
       <section id="footer">
-        <Footer onRequestQuote={handleOpenQuoteModal} onBookNow={handleOpenBookingModal} />
+        <Footer 
+          onRequestQuote={handleOpenQuoteModal} 
+          onBookNow={handleOpenBookingModal}
+          onQuoteHover={handleQuoteModalPrefetch}
+        />
       </section>
       
-      {/* Centralized Modals */}
-      <QuoteModal 
+      {/* Centralized Modals - Now using lazy loading */}
+      <LazyQuoteModal 
         isOpen={isQuoteModalOpen} 
         onClose={handleCloseQuoteModal} 
       />
+      {/* Note: BookingModal remains eager loaded for now - can be made lazy if needed */}
       <BookingModal 
         isOpen={isBookingModalOpen} 
         onClose={handleCloseBookingModal} 

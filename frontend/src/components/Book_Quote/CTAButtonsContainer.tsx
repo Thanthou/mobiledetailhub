@@ -4,6 +4,7 @@ import CTAButton from './CTAButton';
 interface CTAButtonsContainerProps {
   onBookNow?: () => void;
   onRequestQuote?: () => void;
+  onQuoteHover?: () => void;
   className?: string;
   variant?: 'stacked' | 'side-by-side';
 }
@@ -11,6 +12,7 @@ interface CTAButtonsContainerProps {
 const CTAButtonsContainer: React.FC<CTAButtonsContainerProps> = ({
   onBookNow,
   onRequestQuote,
+  onQuoteHover,
   className = '',
   variant = 'side-by-side'
 }) => {
@@ -31,6 +33,8 @@ const CTAButtonsContainer: React.FC<CTAButtonsContainerProps> = ({
         <CTAButton 
           type="quote" 
           onClick={onRequestQuote}
+          onMouseEnter={onQuoteHover}
+          onFocus={onQuoteHover}
           variant="outlined"
           className="w-full sm:w-auto"
         />

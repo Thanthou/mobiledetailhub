@@ -54,9 +54,14 @@ const LocationEditModal: React.FC<LocationEditModalProps> = ({
         <span>{buttonText}</span>
       </button>
       {showModal && createPortal(
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999]" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="location-modal-title"
+        >
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold mb-4">{modalTitle}</h3>
+            <h3 id="location-modal-title" className="text-lg font-semibold mb-4">{modalTitle}</h3>
             <GetStarted
               onLocationSubmit={(location, zipCode, city, state) => {
                 setShowModal(false);
@@ -71,6 +76,7 @@ const LocationEditModal: React.FC<LocationEditModalProps> = ({
               onClick={() => setShowModal(false)}
               className="text-xs text-gray-500 hover:text-gray-700 mt-2"
               type="button"
+              aria-label="Cancel location update"
             >
               Cancel
             </button>

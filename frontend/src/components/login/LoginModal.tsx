@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { X, Eye, EyeOff, Mail, Lock, LogIn, User, Phone } from 'lucide-react';
 import { 
   validateEmail, 
   validatePassword, 
@@ -9,6 +8,11 @@ import {
   validatePhone,
   sanitizeText 
 } from '../../utils/validation';
+import ModalHeader from './ModalHeader';
+import LoginForm from './LoginForm';
+import RegisterForm from './RegisterForm';
+import SocialLogin from './SocialLogin';
+import ToggleMode from './ToggleMode';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -18,73 +22,39 @@ interface LoginModalProps {
 const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
   const { login, register } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
-  const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    name: '',
-    phone: ''
-  });
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  
+  // Refs for focus management
+  const modalRef = useRef<HTMLDivElement>(null);
+  const firstFocusableRef = useRef<HTMLButtonElement>(null);
+  const lastFocusableRef = useRef<HTMLButtonElement>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async (email: string, password: string) => {
     setError('');
-    setFieldErrors({});
-
-    // Validate fields based on mode
-    const validations: Record<string, any> = {
-      email: validateEmail(formData.email),
-      password: validatePassword(formData.password, isLogin)
-    };
-
-    // Add registration-specific validations
-    if (!isLogin) {
-      validations.name = validateName(formData.name);
-      validations.phone = validatePhone(formData.phone);
-    }
-
-    // Check if any validation failed
-    const hasErrors = Object.values(validations).some((result: any) => !result.isValid);
-    
-    if (hasErrors) {
-      // Set field errors for display
-      const errors: Record<string, string[]> = {};
-      Object.entries(validations).forEach(([field, result]) => {
-        if (!result.isValid) {
-          errors[field] = result.errors;
-        }
-      });
-      setFieldErrors(errors);
-      return;
-    }
-
     setLoading(true);
 
     try {
-      let result;
-      if (isLogin) {
-        result = await login(
-          validations.email.sanitizedValue!, 
-          formData.password
-        );
-      } else {
-        result = await register(
-          validations.email.sanitizedValue!, 
-          formData.password,
-          validations.name.sanitizedValue!,
-          validations.phone.sanitizedValue!
-        );
+      // Validate email
+      const emailValidation = validateEmail(email);
+      if (!emailValidation.isValid) {
+        setError(emailValidation.errors[0]);
+        return;
       }
+
+      // Validate password
+      const passwordValidation = validatePassword(password, true);
+      if (!passwordValidation.isValid) {
+        setError(passwordValidation.errors[0]);
+        return;
+      }
+
+      const result = await login(emailValidation.sanitizedValue!, password);
 
       if (result.success) {
         onClose();
-        setFormData({ email: '', password: '', name: '', phone: '' });
-        setFieldErrors({});
       } else {
-        setError(result.error || 'An error occurred');
+        setError(result.error || 'Login failed');
       }
     } catch (err) {
       setError('An unexpected error occurred');
@@ -93,29 +63,121 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+  const handleRegister = async (email: string, password: string, name: string, phone: string) => {
+    setError('');
+    setLoading(true);
+
+    try {
+      // Validate all fields
+      const validations = {
+        email: validateEmail(email),
+        password: validatePassword(password, false),
+        name: validateName(name),
+        phone: validatePhone(phone)
+      };
+
+      // Check if any validation failed
+      const hasErrors = Object.values(validations).some((result: any) => !result.isValid);
+      
+      if (hasErrors) {
+        const firstError = Object.values(validations).find((result: any) => !result.isValid);
+        setError(firstError?.errors[0] || 'Validation failed');
+        return;
+      }
+
+      const result = await register(
+        validations.email.sanitizedValue!,
+        password,
+        validations.name.sanitizedValue!,
+        validations.phone.sanitizedValue!
+      );
+
+      if (result.success) {
+        onClose();
+      } else {
+        setError(result.error || 'Registration failed');
+      }
+    } catch (err) {
+      setError('An unexpected error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleToggleMode = () => {
+    setIsLogin(!isLogin);
+    setError('');
   };
 
   const handleClose = () => {
     setError('');
-    setFormData({ email: '', password: '', name: '', phone: '' });
-    setFieldErrors({});
     onClose();
   };
 
-  // Helper function to display field errors
-  const getFieldError = (fieldName: string): string | undefined => {
-    return fieldErrors[fieldName]?.[0];
-  };
+  // Handle keyboard navigation and focus trapping
+  const handleKeyDown = useCallback((event: React.KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      handleClose();
+    }
+    
+    // Focus trapping: Tab key navigation
+    if (event.key === 'Tab') {
+      if (!modalRef.current) return;
+      
+      const focusableElements = modalRef.current.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      
+      if (focusableElements.length === 0) return;
+      
+      const firstElement = focusableElements[0] as HTMLElement;
+      const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+      
+      if (event.shiftKey) {
+        // Shift + Tab: move backwards
+        if (document.activeElement === firstElement) {
+          event.preventDefault();
+          lastElement.focus();
+        }
+      } else {
+        // Tab: move forwards
+        if (document.activeElement === lastElement) {
+          event.preventDefault();
+          firstElement.focus();
+        }
+      }
+    }
+  }, []);
 
-  // Helper function to check if field has error
-  const hasFieldError = (fieldName: string): boolean => {
-    return !!fieldErrors[fieldName]?.length;
-  };
+  // Focus management
+  useEffect(() => {
+    if (isOpen) {
+      // Focus the first focusable element when modal opens
+      setTimeout(() => {
+        if (firstFocusableRef.current) {
+          firstFocusableRef.current.focus();
+        }
+      }, 100);
+      
+      // Prevent body scroll when modal is open
+      document.body.style.overflow = 'hidden';
+      
+      // Add event listeners for accessibility
+      const handleEscape = (event: KeyboardEvent) => {
+        if (event.key === 'Escape') {
+          handleClose();
+        }
+      };
+      
+      document.addEventListener('keydown', handleEscape);
+      
+      return () => {
+        document.removeEventListener('keydown', handleEscape);
+        document.body.style.overflow = 'unset';
+      };
+    }
+  }, [isOpen, handleClose]);
 
   const [mounted, setMounted] = useState(false);
 
@@ -126,261 +188,82 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
 
   if (!isOpen || !mounted) return null;
 
-  // Use portal to render at document body level
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="login-modal-title"
+      aria-describedby="login-modal-description"
+    >
       {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity duration-300"
         onClick={handleClose}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') {
+            handleClose();
+          }
+        }}
+        role="button"
+        tabIndex={0}
+        aria-label="Close modal"
       />
       
       {/* Modal */}
-      <div className="relative w-full max-w-md transform transition-all duration-300 scale-100">
-        <div className="bg-stone-900 rounded-2xl shadow-2xl border border-stone-700 overflow-hidden">
+      <div 
+        ref={modalRef}
+        className="relative w-full max-w-md transform transition-all duration-300 scale-100"
+        onKeyDown={handleKeyDown}
+        tabIndex={-1}
+      >
+        <div 
+          className="bg-stone-900 rounded-2xl shadow-2xl border border-stone-700 overflow-hidden"
+          role="document"
+        >
           {/* Header */}
-          <div className="relative px-8 pt-8 pb-2">
-            <button
-              onClick={handleClose}
-              className="absolute top-4 right-4 p-2 text-gray-400 hover:text-white hover:bg-stone-800 rounded-lg transition-colors duration-200"
-            >
-              <X size={20} />
-            </button>
-            
-            <div className="text-center mb-2">
-              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center">
-                <LogIn size={28} className="text-white" />
-              </div>
-              <h2 className="text-2xl font-bold text-white mb-1">
-                {isLogin ? 'Welcome back' : 'Create account'}
-              </h2>
-              <p className="text-gray-400 text-sm">
-                {isLogin ? 'Sign in to your account to continue' : 'Sign up to get started'}
-              </p>
-            </div>
-          </div>
+          <ModalHeader 
+            isLogin={isLogin} 
+            onClose={handleClose}
+            ref={firstFocusableRef}
+          />
 
           {/* Error Display */}
           {error && (
-            <div className="mx-8 mb-4 bg-red-900/50 border border-red-700 text-red-300 px-4 py-3 rounded-xl text-sm">
+            <div 
+              className="mx-8 mb-4 bg-red-900/50 border border-red-700 text-red-300 px-4 py-3 rounded-xl text-sm"
+              role="alert"
+              aria-live="polite"
+              id="login-error-message"
+            >
               {error}
             </div>
           )}
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="px-8 pb-8">
-            <div className="space-y-6">
-                                {/* Name Field (Register only) */}
-              {!isLogin && (
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
-                    Full Name
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <User size={18} className="text-gray-500" />
-                    </div>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      className={`w-full pl-10 pr-4 py-3 border rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 [color-scheme:dark] ${
-                        hasFieldError('name') 
-                          ? 'border-red-500 bg-red-950/20' 
-                          : 'border-stone-600 bg-stone-950'
-                      }`}
-                      placeholder="Enter your full name"
-                      required
-                    />
-                  </div>
-                  {hasFieldError('name') && (
-                    <p className="text-sm text-red-400 mt-1">
-                      {getFieldError('name')}
-                    </p>
-                  )}
-                </div>
-              )}
+          {isLogin ? (
+            <LoginForm 
+              onSubmit={handleLogin}
+              loading={loading}
+              error={error}
+            />
+          ) : (
+            <RegisterForm 
+              onSubmit={handleRegister}
+              loading={loading}
+              error={error}
+            />
+          )}
 
-              {/* Phone Field (Register only) */}
-              {!isLogin && (
-                <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-300 mb-2">
-                    Phone (optional)
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Phone size={18} className="text-gray-500" />
-                    </div>
-                    <input
-                      type="tel"
-                      id="phone"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleInputChange}
-                      className={`w-full pl-10 pr-4 py-3 border rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 [color-scheme:dark] ${
-                        hasFieldError('phone') 
-                          ? 'border-red-500 bg-red-950/20' 
-                          : 'border-stone-600 bg-stone-950'
-                      }`}
-                      placeholder="Enter your phone number"
-                    />
-                  </div>
-                  {hasFieldError('phone') && (
-                    <p className="text-sm text-red-400 mt-1">
-                      {getFieldError('phone')}
-                    </p>
-                  )}
-                </div>
-              )}
+          {/* Social Login */}
+          <SocialLogin />
 
-              {/* Email Field */}
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
-                  Email address
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail size={18} className="text-gray-500" />
-                  </div>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 [color-scheme:dark] ${
-                      hasFieldError('email') 
-                        ? 'border-red-500 bg-red-950/20' 
-                        : 'border-stone-600 bg-stone-950'
-                    }`}
-                    placeholder="Enter your email"
-                    required
-                  />
-                </div>
-                {hasFieldError('email') && (
-                  <p className="text-sm text-red-400 mt-1">
-                    {getFieldError('email')}
-                  </p>
-                )}
-              </div>
-
-              {/* Password Field */}
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
-                  Password
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock size={18} className="text-gray-500" />
-                  </div>
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    id="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    className={`w-full pl-10 pr-12 py-3 border rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 [color-scheme:dark] ${
-                      hasFieldError('password') 
-                        ? 'border-red-500 bg-red-950/20' 
-                        : 'border-stone-600 bg-stone-950'
-                    }`}
-                    placeholder="Enter your password"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-300 transition-colors duration-200"
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-                {hasFieldError('password') && (
-                  <p className="text-sm text-red-400 mt-1">
-                    {getFieldError('password')}
-                  </p>
-                )}
-              </div>
-
-              {/* Remember & Forgot (Login only) */}
-              {isLogin && (
-                <div className="flex items-center justify-between">
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      className="w-4 h-4 text-orange-500 bg-stone-950 border-stone-600 rounded focus:ring-orange-500 focus:ring-2"
-                    />
-                    <span className="ml-2 text-sm text-gray-300">Remember me</span>
-                  </label>
-                  <button
-                    type="button"
-                    className="text-sm text-orange-400 hover:text-orange-300 transition-colors duration-200"
-                  >
-                    Forgot password?
-                  </button>
-                </div>
-              )}
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-stone-900 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100"
-              >
-                {loading ? (
-                  <div className="flex items-center justify-center">
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                    {isLogin ? 'Signing in...' : 'Creating account...'}
-                  </div>
-                ) : (
-                  isLogin ? 'Sign in' : 'Create account'
-                )}
-              </button>
-            </div>
-
-            {/* Divider */}
-            <div className="my-6 flex items-center">
-              <div className="flex-1 border-t border-stone-600"></div>
-              <div className="px-4 text-sm text-gray-500">or</div>
-              <div className="flex-1 border-t border-stone-600"></div>
-            </div>
-
-            {/* Social Login */}
-            <div className="space-y-3">
-              <button
-                type="button"
-                className="w-full bg-stone-800 hover:bg-stone-700 text-white font-medium py-3 px-4 rounded-xl border border-stone-600 transition-all duration-200 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-orange-500"
-              >
-                Continue with Google
-              </button>
-              <button
-                type="button"
-                className="w-full bg-stone-800 hover:bg-stone-700 text-white font-medium py-3 px-4 rounded-xl border border-stone-600 transition-all duration-200 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-orange-500"
-              >
-                Continue with GitHub
-              </button>
-            </div>
-
-            {/* Toggle Login/Register */}
-            <div className="mt-6 text-center">
-              <p className="text-gray-400 text-sm">
-                {isLogin ? "Don't have an account?" : 'Already have an account?'}{' '}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsLogin(!isLogin);
-                    setError('');
-                    setFormData({ email: '', password: '', name: '', phone: '' });
-                  }}
-                  className="text-orange-400 hover:text-orange-300 font-medium transition-colors duration-200"
-                >
-                  {isLogin ? 'Create account' : 'Sign in'}
-                </button>
-              </p>
-            </div>
-          </form>
+          {/* Toggle Mode */}
+          <ToggleMode 
+            isLogin={isLogin} 
+            onToggle={handleToggleMode}
+            ref={lastFocusableRef}
+          />
         </div>
       </div>
     </div>,

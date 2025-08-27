@@ -1,23 +1,29 @@
 const express = require('express');
 const router = express.Router();
-const pool = require('../database/connection');
+const { getPool } = require('../database/connection');
+const { asyncHandler } = require('../middleware/errorHandler');
+const logger = require('../utils/logger');
 
 // Get MDH config
-router.get('/', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT * FROM mdh_config LIMIT 1');
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'MDH config not found' });
-    }
-    res.json(result.rows[0]);
-  } catch (err) {
-    console.error('Error fetching MDH config:', err);
-    res.status(500).json({ error: 'Internal server error' });
+router.get('/', asyncHandler(async (req, res) => {
+  const pool = await getPool();
+  if (!pool) {
+    const error = new Error('Database connection not available');
+    error.statusCode = 500;
+    throw error;
   }
-});
+  
+  const result = await pool.query('SELECT * FROM mdh_config LIMIT 1');
+  if (result.rows.length === 0) {
+    const error = new Error('MDH config not found');
+    error.statusCode = 404;
+    throw error;
+  }
+  res.json(result.rows[0]);
+}));
 
 // Get MDH config field
-router.get('/field/:field', async (req, res) => {
+router.get('/field/:field', asyncHandler(async (req, res) => {
   const { field } = req.params;
   // Whitelist allowed fields
   const allowedFields = [
@@ -26,18 +32,50 @@ router.get('/field/:field', async (req, res) => {
     'facebook', 'instagram', 'tiktok', 'youtube', 'created_at', 'updated_at'
   ];
   if (!allowedFields.includes(field)) {
-    return res.status(400).json({ error: 'Invalid field' });
+    const error = new Error('Invalid field');
+    error.statusCode = 400;
+    throw error;
   }
-  try {
-    const result = await pool.query(`SELECT ${field} FROM mdh_config LIMIT 1`);
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Config not found' });
-    }
-    res.json({ [field]: result.rows[0][field] });
-  } catch (err) {
-    console.error('Error fetching config by field:', err);
-    res.status(500).json({ error: 'Internal server error' });
+  
+  const pool = await getPool();
+  if (!pool) {
+    const error = new Error('Database connection not available');
+    error.statusCode = 500;
+    throw error;
   }
-});
+  
+  // Use a safer approach with explicit field selection
+  const fieldMap = {
+    'email': 'email',
+    'phone': 'phone',
+    'sms_phone': 'sms_phone',
+    'logo_url': 'logo_url',
+    'favicon_url': 'favicon_url',
+    'header_display': 'header_display',
+    'tagline': 'tagline',
+    'services_description': 'services_description',
+    'facebook': 'facebook',
+    'instagram': 'instagram',
+    'tiktok': 'tiktok',
+    'youtube': 'youtube',
+    'created_at': 'created_at',
+    'updated_at': 'updated_at'
+  };
+  
+  const safeField = fieldMap[field];
+  if (!safeField) {
+    const error = new Error('Invalid field');
+    error.statusCode = 400;
+    throw error;
+  }
+  
+  const result = await pool.query(`SELECT ${safeField} FROM mdh_config LIMIT 1`);
+  if (result.rows.length === 0) {
+    const error = new Error('Config not found');
+    error.statusCode = 404;
+    throw error;
+  }
+  res.json({ [field]: result.rows[0][safeField] });
+}));
 
 module.exports = router;

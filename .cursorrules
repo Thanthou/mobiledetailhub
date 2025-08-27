@@ -1,0 +1,61 @@
+# Cursor Rules for Mobile Detail Hub Project
+
+## Environment Context
+- OS: Windows 10/11 (PowerShell environment)
+- Package manager: npm
+- Database: PostgreSQL with pgAdmin
+- Use node scripts for database operations, not psql CLI
+- Shell: PowerShell (C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe)
+
+## Code Style & Preferences
+- Keep responses concise and to the point
+- Respect existing codebase modularity
+- Use ✅ for success, ❌ for errors in console output
+- Maintain separate login logic folder structure
+- Centralize social media links and phone numbers in config
+- Phone numbers: Pull from config.js, not hard-coded
+- Location input: Use modal/center approach across header, contact, and footer
+
+## Terminal Commands
+- Use PowerShell syntax (; not &&)
+- Don't auto-run commands - user prefers to run them
+- Append | cat to pager commands (git, less, head, tail, more)
+- Prefer node scripts over direct database CLI
+
+## Project Structure
+- Backend: Node.js + Express + PostgreSQL
+- Frontend: React + TypeScript + Vite + Tailwind
+- Scripts: backend/scripts/ for database operations
+- Keep documentation in .md files
+- Backend: `backend/` directory
+- Frontend: `frontend/` directory
+- Documentation: Various `.md` files documenting fixes and improvements
+
+## Recent Improvements Made
+- ✅ **TypeScript strict mode**: Enhanced with additional strict checks
+- ✅ **Database retry logic**: Simplified using established retry library
+- ✅ **Environment validation**: Already properly implemented
+- ✅ **Logging system**: Upgraded to Winston for production logging
+
+## Common Commands
+```powershell
+# Install dependencies
+npm install
+
+# Run backend
+cd backend; npm start
+
+# Run database scripts
+cd backend; node scripts/script-name.js
+
+# Frontend development
+cd frontend; npm run dev
+```
+
+## AI Assistant Behavior
+- Check this file for full context before making recommendations
+- Provide concise code solutions
+- Respect user's preference for concise explanations
+- Maintain backward compatibility when possible
+- Use established libraries over custom implementations
+- Always respect the user's preference for concise responses

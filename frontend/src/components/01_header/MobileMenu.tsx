@@ -51,6 +51,11 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ navLinks, socialMedia }) => {
           <div 
             className="fixed inset-0 bg-black/50 z-30 md:hidden"
             onClick={closeMenu}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                closeMenu();
+              }
+            }}
             aria-hidden="true"
           />
           
@@ -62,6 +67,12 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ navLinks, socialMedia }) => {
                 <span className="text-white font-semibold">Menu</span>
                 <button
                   onClick={closeMenu}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      closeMenu();
+                    }
+                  }}
                   className="text-white hover:text-orange-400 transition-colors duration-200"
                   aria-label="Close menu"
                 >

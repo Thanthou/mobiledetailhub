@@ -1,17 +1,26 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { scrollToTop } from '../utils/scrollToTop';
+import { scrollRestoration } from '../utils/scrollRestoration';
 
 /**
- * Custom hook that automatically scrolls to the top of the page
- * whenever the route changes. This ensures users land at the top
- * after navigation, including Google search routing.
+ * Enhanced scroll restoration hook that handles both scroll-to-top
+ * and scroll position restoration for better user experience.
+ * Uses the advanced ScrollRestorationManager for better control.
  */
 export const useScrollToTop = (): void => {
   const { pathname } = useLocation();
+  const prevPathRef = useRef<string>('');
 
   useEffect(() => {
-    // Scroll to top whenever the pathname changes
-    scrollToTop();
+    // Save current scroll position before navigation
+    if (prevPathRef.current) {
+      scrollRestoration.saveScrollPosition(prevPathRef.current);
+    }
+
+    // Restore scroll position or scroll to top
+    scrollRestoration.restoreScrollPosition(pathname);
+
+    // Update previous path
+    prevPathRef.current = pathname;
   }, [pathname]);
 };

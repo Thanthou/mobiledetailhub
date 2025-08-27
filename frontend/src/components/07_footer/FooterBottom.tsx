@@ -16,15 +16,20 @@ const FooterBottom: React.FC<FooterBottomProps> = ({ businessInfo }) => {
           </p>
         </div>
         <div className="text-center md:text-right">
-          <p className="text-gray-300 text-base">
-            Powered by -{' '}
+          <p className="text-gray-300 text-base flex items-center justify-center md:justify-end">
+            Powered by -
             <a 
               href="https://mobiledetailhub.com" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-orange-400 hover:text-orange-300 transition-colors duration-200"
+              className="text-orange-400 hover:text-orange-300 transition-colors duration-200 flex items-center gap-2 ml-1"
             >
               Mobile Detail Hub
+              <img 
+                src="/assets/favicon.webp" 
+                alt="Mobile Detail Hub Logo" 
+                className="h-16 w-16"
+              />
             </a>
           </p>
         </div>

@@ -91,6 +91,13 @@ const LazyVideo: React.FC<LazyVideoProps> = ({
         preload="metadata"
       >
         <source src={src} type="video/mp4" />
+        <track 
+          kind="captions" 
+          src="" 
+          label="English" 
+          default 
+          srcLang="en"
+        />
         Your browser does not support the video tag.
       </video>
 
@@ -99,7 +106,14 @@ const LazyVideo: React.FC<LazyVideoProps> = ({
         <div className="absolute inset-0 flex items-center justify-center">
           <button
             onClick={togglePlay}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                togglePlay();
+              }
+            }}
             className="bg-black bg-opacity-50 text-white p-4 rounded-full hover:bg-opacity-75 transition-all"
+            aria-label={isPlaying ? 'Pause video' : 'Play video'}
           >
             {isPlaying ? <Pause className="h-8 w-8" /> : <Play className="h-8 w-8" />}
           </button>
@@ -109,7 +123,14 @@ const LazyVideo: React.FC<LazyVideoProps> = ({
       {/* Mute toggle */}
       <button
         onClick={toggleMute}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleMute();
+          }
+        }}
         className="absolute bottom-4 right-4 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-all"
+        aria-label={isMuted ? 'Unmute video' : 'Mute video'}
       >
         {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
       </button>

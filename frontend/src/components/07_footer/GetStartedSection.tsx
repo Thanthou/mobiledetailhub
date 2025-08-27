@@ -1,5 +1,5 @@
 import React from 'react';
-import GetStarted from '../shared/LocationSearchBar';
+import GetStarted from 'shared/LocationSearchBar';
 
 const GetStartedSection: React.FC = () => {
   return (

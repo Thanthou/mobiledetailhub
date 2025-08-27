@@ -6,6 +6,14 @@ interface OptimizedImageProps {
   alt: string;
   className?: string;
   fallbackText?: string;
+  webpSrc?: string;
+  avifSrc?: string;
+  srcSet?: string;
+  sizes?: string;
+  width?: number;
+  height?: number;
+  loading?: 'lazy' | 'eager';
+  fetchpriority?: 'high' | 'low' | 'auto';
   onError?: (src: string) => void;
 }
 
@@ -14,6 +22,14 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
   alt,
   className = '',
   fallbackText = 'Image not available',
+  webpSrc,
+  avifSrc,
+  srcSet,
+  sizes,
+  width,
+  height,
+  loading = 'lazy',
+  fetchpriority = 'auto',
   onError
 }) => {
   const [hasError, setHasError] = useState(false);
@@ -48,14 +64,43 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
           <div className="text-gray-400">Loading...</div>
         </div>
       )}
-      <img
-        src={src}
-        alt={alt}
-        className={`w-full h-full object-cover ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-200`}
-        onError={handleError}
-        onLoad={handleLoad}
-        loading="lazy"
-      />
+      
+      {/* Use picture element for modern image formats when available */}
+      {(avifSrc || webpSrc) ? (
+        <picture>
+          {avifSrc && <source srcSet={avifSrc} type="image/avif" />}
+          {webpSrc && <source srcSet={webpSrc} type="image/webp" />}
+          <img
+            src={src}
+            srcSet={srcSet}
+            sizes={sizes}
+            alt={alt}
+            className={`w-full h-full object-cover ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-200`}
+            onError={handleError}
+            onLoad={handleLoad}
+            loading={loading}
+            width={width}
+            height={height}
+            decoding="async"
+            fetchpriority={fetchpriority}
+          />
+        </picture>
+      ) : (
+        <img
+          src={src}
+          srcSet={srcSet}
+          sizes={sizes}
+          alt={alt}
+          className={`w-full h-full object-cover ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-200`}
+          onError={handleError}
+          onLoad={handleLoad}
+          loading={loading}
+          width={width}
+          height={height}
+          decoding="async"
+          fetchPriority={fetchPriority}
+        />
+      )}
     </div>
   );
 };

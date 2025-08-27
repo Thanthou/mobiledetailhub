@@ -71,14 +71,24 @@ export const ServiceTierCards: React.FC<ServiceTierCardsProps> = ({
         const TierIcon = getTierIcon(tier.name);
 
         return (
-          <div
+          <button
             key={tier.id}
-            className={`bg-stone-800 rounded-lg border p-6 relative transition-all cursor-pointer hover:border-stone-600 ${
+            className={`bg-stone-800 rounded-lg border p-6 relative transition-all cursor-pointer hover:border-stone-600 text-left w-full ${
               isEditing(tier.id) 
                 ? 'border-orange-500 shadow-lg' 
                 : 'border-stone-700'
             }`}
             onClick={() => !isEditing(tier.id) && startEditing(tier)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                if (!isEditing(tier.id)) {
+                  startEditing(tier);
+                }
+              }
+            }}
+            aria-label={`Edit ${tier.name} tier`}
+            disabled={isEditing(tier.id)}
           >
             {tier.popular && (
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
@@ -242,7 +252,7 @@ export const ServiceTierCards: React.FC<ServiceTierCardsProps> = ({
                 <Edit3 className="h-4 w-4 text-gray-500" />
               </div>
             )}
-          </div>
+          </button>
         );
       })}
     </div>

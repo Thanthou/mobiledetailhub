@@ -1,5 +1,5 @@
 import React from 'react';
-import { GetStarted } from '../../shared';
+import { GetStarted } from 'shared';
 
 interface MDHHeroContentProps {
   onBookNow?: () => void;

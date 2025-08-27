@@ -3,11 +3,20 @@ import React from 'react';
 interface CTAButtonProps {
   type: 'book' | 'quote';
   onClick?: () => void;
+  onMouseEnter?: () => void;
+  onFocus?: () => void;
   className?: string;
   variant?: 'filled' | 'outlined';
 }
 
-const CTAButton: React.FC<CTAButtonProps> = ({ type, onClick, className = '', variant }) => {
+const CTAButton: React.FC<CTAButtonProps> = ({ 
+  type, 
+  onClick, 
+  onMouseEnter, 
+  onFocus, 
+  className = '', 
+  variant 
+}) => {
   const isBookNow = type === 'book';
   // Default to outlined for quote, filled for book
   const isOutlined = variant === 'outlined' || (!isBookNow && !variant);
@@ -22,6 +31,8 @@ const CTAButton: React.FC<CTAButtonProps> = ({ type, onClick, className = '', va
   return (
     <button
       onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onFocus={onFocus}
       className={buttonClasses}
     >
       {isBookNow ? 'Book Now' : 'Request a Quote'}

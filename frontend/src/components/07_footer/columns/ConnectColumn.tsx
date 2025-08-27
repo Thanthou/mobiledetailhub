@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Phone, Mail, UserPlus, LogIn } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
-import { LoginModal } from '../../login';
+import { LazyLoginModal, prefetchLoginModal } from '../../login';
 import UserMenu from '../../01_header/UserMenu';
 
 const ConnectColumn: React.FC = () => {
@@ -64,17 +64,22 @@ const ConnectColumn: React.FC = () => {
             <LogIn className="h-5 w-5 flex-shrink-0 text-orange-400" />
             <button
               onClick={() => setShowLoginModal(true)}
+              onMouseEnter={prefetchLoginModal}
+              onFocus={prefetchLoginModal}
               className="text-lg hover:text-orange-400 transition-colors duration-200 bg-transparent border-none p-0 font-inherit cursor-pointer"
             >
               Login
             </button>
           </div>
         ) : (
-          <UserMenu />
+          <div className="flex items-center justify-center md:justify-start space-x-3">
+            <LogIn className="h-5 w-5 flex-shrink-0 text-orange-400" />
+            <UserMenu />
+          </div>
         )}
       </div>
       
-      <LoginModal 
+      <LazyLoginModal 
         isOpen={showLoginModal} 
         onClose={() => setShowLoginModal(false)} 
       />

@@ -3,7 +3,7 @@ import FooterGrid from './Grid';
 import FooterBottom from '../FooterBottom';
 import FooterLoadingState from '../FooterLoadingState';
 import FooterErrorState from '../FooterErrorState';
-import { GetStarted } from '../../shared';
+import { GetStarted } from 'shared';
 import { useMDHConfig } from '../../../contexts/MDHConfigContext';
 
 const MDHFooter: React.FC = () => {

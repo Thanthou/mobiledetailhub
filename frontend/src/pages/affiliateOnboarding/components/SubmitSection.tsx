@@ -1,5 +1,5 @@
 import React from 'react';
-import { Save, Send } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { AffiliateApplication } from '../types';
 
 interface SubmitSectionProps {
@@ -7,7 +7,6 @@ interface SubmitSectionProps {
   submitError: string | null;
   formData: AffiliateApplication;
   onSubmit: (e: React.FormEvent) => void;
-  saveDraft: (data: AffiliateApplication) => void;
   emergencyCleanup?: () => void;
 }
 
@@ -16,7 +15,6 @@ const SubmitSection: React.FC<SubmitSectionProps> = ({
   submitError,
   formData,
   onSubmit,
-  saveDraft,
   emergencyCleanup
 }) => {
   return (
@@ -25,7 +23,7 @@ const SubmitSection: React.FC<SubmitSectionProps> = ({
         <button
           type="submit"
           disabled={isSubmitting}
-          className="flex-1 bg-orange-500 hover:bg-orange-600 disabled:bg-orange-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center"
+          className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-orange-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center"
         >
           {isSubmitting ? (
             <>
@@ -38,15 +36,6 @@ const SubmitSection: React.FC<SubmitSectionProps> = ({
               Submit Application
             </>
           )}
-        </button>
-        
-        <button
-          type="button"
-          onClick={() => saveDraft(formData)}
-          className="flex-1 border border-stone-600 text-gray-300 hover:bg-stone-700 font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center"
-        >
-          <Save className="w-4 h-4 mr-2" />
-          Save Draft
         </button>
       </div>
 

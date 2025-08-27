@@ -3,7 +3,7 @@ import CTAButtonsContainer from '../../Book_Quote/CTAButtonsContainer';
 import { Phone, Mail, MapPin, Facebook, Instagram, Youtube } from 'lucide-react';
 import TikTokIcon from '../icons/TikTokIcon';
 import { useLocation } from '../../../contexts/LocationContext';
-import LocationEditModal from '../../shared/LocationEditModal';
+import LocationEditModal from 'shared/LocationEditModal';
 import { formatPhoneNumber } from '../../../utils/phoneFormatter';
 
 interface ServiceArea {
@@ -17,9 +17,10 @@ interface FooterGridProps {
   serviceAreas: ServiceArea[];
   onRequestQuote: () => void;
   onBookNow?: () => void;
+  onQuoteHover?: () => void;
 }
 
-const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig, businessSlug, serviceAreas, onRequestQuote, onBookNow }) => {
+const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig, businessSlug, serviceAreas, onRequestQuote, onBookNow, onQuoteHover }) => {
   const { selectedLocation } = useLocation();
   const handleBookNow = () => {
     if (onBookNow) {
@@ -48,6 +49,8 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig, businessSlug, ser
               <Mail className="h-5 w-5 flex-shrink-0 text-orange-400" />
               <button 
                 onClick={onRequestQuote}
+                onMouseEnter={onQuoteHover}
+                onFocus={onQuoteHover}
                 className="text-lg hover:text-orange-400 transition-colors duration-200 bg-transparent border-none p-0 font-inherit cursor-pointer text-left"
               >
                 {parentConfig?.email || 'service@mobiledetailhub.com'}
@@ -181,6 +184,7 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig, businessSlug, ser
           variant="side-by-side"
           onBookNow={handleBookNow}
           onRequestQuote={onRequestQuote}
+          onQuoteHover={onQuoteHover}
         />
       </div>
     </>

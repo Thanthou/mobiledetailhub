@@ -8,9 +8,6 @@ interface ApiResponse {
 
 export const postApplication = async (data: AffiliateApplication): Promise<ApiResponse> => {
   try {
-    console.log('Submitting application to:', 'http://localhost:3001/api/affiliates/apply');
-    console.log('Application data:', data);
-    
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
     
@@ -25,11 +22,7 @@ export const postApplication = async (data: AffiliateApplication): Promise<ApiRe
     
     clearTimeout(timeoutId);
 
-    console.log('Response status:', response.status);
-    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-
     const result = await response.json();
-    console.log('Response body:', result);
 
     if (!response.ok) {
       return {
@@ -45,8 +38,6 @@ export const postApplication = async (data: AffiliateApplication): Promise<ApiRe
     };
 
   } catch (error) {
-    console.error('API Error:', error);
-    
     if (error instanceof Error) {
       if (error.name === 'AbortError') {
         return {

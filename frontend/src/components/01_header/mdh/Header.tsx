@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import SocialMediaIcons from '../SocialMediaIcons';
 import { NAV_LINKS } from '../constants';
 import LoginButton from '../LoginButton';
@@ -6,10 +7,12 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useMDHConfig } from '../../../contexts/MDHConfigContext';
 import UserMenu from '../UserMenu';
 import { scrollToTop } from '../../../utils/scrollToTop';
+import { formatPhoneNumber } from '../../../utils/phoneFormatter';
 
 const HeaderMDH: React.FC = () => {
   const { user } = useAuth();
   const { mdhConfig, isLoading, error } = useMDHConfig();
+  const navigate = useNavigate();
 
   if (isLoading) {
     return (
@@ -30,7 +33,9 @@ const HeaderMDH: React.FC = () => {
           <div className="max-w-7xl mx-auto flex items-center px-4">
             {/* Fallback content when database is empty */}
             <div className="flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity duration-200">
-              <h1 className="text-2xl md:text-3xl font-bold text-white">Mobile Detail Hub</h1>
+                           <div>
+               <h1 className="text-2xl md:text-3xl font-bold text-white">Mobile Detail Hub</h1>
+             </div>
             </div>
             
             {/* Fallback navigation */}
@@ -52,6 +57,7 @@ const HeaderMDH: React.FC = () => {
             <div className="ml-6">
               {user ? <UserMenu /> : <LoginButton />}
             </div>
+
           </div>
         </div>
       </header>
@@ -63,15 +69,24 @@ const HeaderMDH: React.FC = () => {
       <div className="w-full py-4">
         <div className="max-w-7xl mx-auto flex items-center px-4">
           {/* 1. Logo/Business Name */}
-          <div 
-            className="flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity duration-200"
+          <button 
+            className="flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity duration-200 bg-transparent border-none p-0"
             onClick={scrollToTop}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                scrollToTop();
+              }
+            }}
+            aria-label="Go to top of page"
           >
             {mdhConfig.logo_url && (
               <img src={mdhConfig.logo_url} alt="Logo" className="h-8 w-8 md:h-10 md:w-10" />
             )}
-            <h1 className="text-2xl md:text-3xl font-bold text-white">{mdhConfig.header_display}</h1>
-          </div>
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold text-white">{mdhConfig.header_display}</h1>
+            </div>
+          </button>
 
           {/* 2. Links/Social Media */}
           <div className="flex items-center space-x-4 ml-auto">
@@ -100,6 +115,7 @@ const HeaderMDH: React.FC = () => {
           <div className="ml-6">
             {user ? <UserMenu /> : <LoginButton />}
           </div>
+
         </div>
       </div>
     </header>

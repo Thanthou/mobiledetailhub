@@ -8,6 +8,12 @@
     <!-- Favicon / PWA basics -->
     <link rel="icon" type="image/webp" href="https://mobiledetailhub.com/assets/favicon.webp" />
     <link rel="apple-touch-icon" href="https://mobiledetailhub.com/assets/favicon.webp" />
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    
+    <!-- PWA Icons -->
+    <link rel="icon" type="image/webp" sizes="64x64" href="/assets/favicon.webp" />
 
     <!-- Canonical + Robots -->
     <link rel="canonical" href="https://mobiledetailhub.com/" id="canonical-link" />
@@ -25,9 +31,9 @@
     <meta property="og:url" content="https://mobiledetailhub.com/" id="og-url" />
     <meta property="og:title" content="Mobile Detail Hub — Mobile Car, Boat & RV Detailing Near You" id="og-title" />
     <meta property="og:description" content="Find trusted mobile detailers for cars, boats, and RVs with Mobile Detail Hub. Compare services, read reviews, and book online with verified pros in your area." id="og-desc" />
-    <meta property="og:image" content="https://mobiledetailhub.com/hero/image1.png" id="og-image" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
+    <meta property="og:image" content="https://mobiledetailhub.com/hero/image1-lg.webp" id="og-image" />
+    <meta property="og:image:width" content="1920" />
+    <meta property="og:image:height" content="1080" />
     <meta property="og:site_name" content="Mobile Detail Hub" id="og-site-name" />
     <meta property="og:locale" content="en_US" />
 
@@ -36,7 +42,7 @@
     <meta property="twitter:url" content="https://mobiledetailhub.com/" id="tw-url" />
     <meta property="twitter:title" content="Mobile Detail Hub — Mobile Car, Boat & RV Detailing Near You" id="tw-title" />
     <meta property="twitter:description" content="Find trusted mobile detailers for cars, boats, and RVs with Mobile Detail Hub. Compare services, read reviews, and book online with verified pros in your area." id="tw-desc" />
-    <meta property="twitter:image" content="https://mobiledetailhub.com/hero/image1.png" id="tw-image" />
+    <meta property="twitter:image" content="https://mobiledetailhub.com/hero/image1-lg.webp" id="tw-image" />
     <meta name="twitter:site" content="@mobiledetailhub" />
 
     <!-- JSON-LD placeholders (filled below) -->
@@ -45,77 +51,10 @@
     <script type="application/ld+json" id="directory-jsonld">{}</script>
 
     <!-- MDH brand context (static) -->
-    <script>
-      window.__MDH__ = {
-        name: "Mobile Detail Hub",
-        url: "https://mobiledetailhub.com/",
-        logo: "/logo.png",
-        phone: "+1-702-420-6066",          // optional; remove if you prefer funnel-only
-        email: "service@mobiledetailhub.com", // optional; remove if you prefer funnel-only
-        socials: {
-          facebook: "https://www.facebook.com/mobiledetailhub",
-          instagram: "https://www.instagram.com/mobiledetailhub",
-          youtube: "https://www.youtube.com/@mobiledetailhub",
-          tiktok: "https://www.tiktok.com/@mobiledetailhub"
-        },
-        ogImage: "/hero/image1.png"
-      };
-    </script>
+    <script src="/js/mdh-config.js" defer></script>
 
-    <!-- Inject Organization + WebSite JSON-LD (brand-level only) -->
-    <script>
-      (function () {
-        const d = document; const b = window.__MDH__;
-        const org = {
-          "@context": "https://schema.org",
-          "@type": "Organization",
-          "@id": b.url + "#org",
-          "name": b.name,
-          "url": b.url,
-          "logo": b.logo,
-          "contactPoint": b.phone ? { "@type": "ContactPoint", "telephone": b.phone, "contactType": "customer service", "availableLanguage": "English" } : undefined,
-          "sameAs": Object.values(b.socials || {}).filter(Boolean)
-        };
-        d.getElementById("org-jsonld").textContent = JSON.stringify(org);
-
-        const website = {
-          "@context": "https://schema.org",
-          "@type": "WebSite",
-          "@id": b.url + "#website",
-          "name": b.name,
-          "url": b.url,
-          "publisher": { "@type": "Organization", "@id": b.url + "#org" }
-        };
-        d.getElementById("website-jsonld").textContent = JSON.stringify(website);
-      })();
-    </script>
-
-    <!-- Optional: ItemList of detailers for discovery (non-blocking) -->
-    <script>
-      (function () {
-        // If you produce /detailers.json at build-time, we emit an ItemList for search engines
-        fetch('/detailers.json', { credentials: 'omit' })
-          .then(r => r.ok ? r.json() : [])
-          .then(list => {
-            if (!Array.isArray(list) || !list.length) return;
-            const itemList = {
-              "@context": "https://schema.org",
-              "@type": "ItemList",
-              "name": "Mobile Detail Hub Directory",
-              "itemListOrder": "https://schema.org/ItemListOrderAscending",
-              "numberOfItems": list.length,
-              "itemListElement": list.map((d, i) => ({
-                "@type": "ListItem",
-                "position": i + 1,
-                "url": d.url,
-                "name": d.name
-              }))
-            };
-            document.getElementById('directory-jsonld').textContent = JSON.stringify(itemList);
-          })
-          .catch(() => {});
-      })();
-    </script>
+    <!-- JSON-LD Loader -->
+    <script src="/js/jsonld-loader.js" defer></script>
   </head>
   <body>
     <noscript>This site requires JavaScript to render content.</noscript>

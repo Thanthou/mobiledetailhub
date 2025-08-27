@@ -25,11 +25,17 @@ const HeroBackground: React.FC<HeroBackgroundProps & React.HTMLAttributes<HTMLDi
         <img
           key={`hero-${idx}`}
           src={src}
-          alt={`Hero background ${idx + 1}`}
+          alt={`Professional mobile detailing service ${idx + 1}`}
           className="absolute inset-0 w-full h-full object-cover transition-opacity duration-[2000ms] ease-in-out"
           style={{
             opacity: idx === currentImageIndex ? 1 : 0,
+            aspectRatio: HERO_CONSTANTS.IMAGE_DIMENSIONS.aspectRatio,
           }}
+          width={HERO_CONSTANTS.IMAGE_DIMENSIONS.width}
+          height={HERO_CONSTANTS.IMAGE_DIMENSIONS.height}
+          loading={idx === 0 ? "eager" : "lazy"}
+          decoding="async"
+          fetchpriority={idx === 0 ? "high" : "low"}
         />
       ))}
     </div>

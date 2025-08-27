@@ -1,0 +1,78 @@
+ROOT LEVEL FILES CONTENT
+==================================================
+
+FILE: package.json
+------------------------------
+{
+  "name": "mobiledetailhub",
+  "version": "1.0.0",
+  "description": "Mobile Detail Hub - Multi-business detailing services platform",
+  "private": true,
+  "scripts": {
+    "build": "cd frontend && npm run build",
+    "dev": "concurrently \"npm run dev --workspace=frontend\" \"npm run dev --workspace=backend\"",
+    "install:all": "npm install && npm install --workspace=frontend && npm install --workspace=backend",
+    "overview": "node scripts/generate-codebase-overview.js"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
+
+
+==================================================
+
+FILE: README.md
+------------------------------
+# Mobile Detail Hub (MDH)
+
+## Development Environment
+- **OS**: Windows 10/11 (PowerShell environment)
+- **Package Manager**: npm
+- **Database**: PostgreSQL with pgAdmin
+- **Node.js**: Available for backend operations
+
+## Project Structure
+- **Frontend**: React + TypeScript + Vite + Tailwind CSS
+- **Backend**: Node.js + Express + PostgreSQL
+- **Scripts**: `backend/scripts/` for database operations
+
+## Quick Start
+```powershell
+# Install dependencies
+npm install
+
+# Backend
+cd backend; npm start
+
+# Frontend  
+cd frontend; npm run dev
+
+# Database scripts
+cd backend; node scripts/script-name.js
+```
+
+## Key Preferences
+- Use PowerShell syntax (; not &&)
+- Prefer node scripts over direct database CLI
+- Keep responses concise
+- Respect existing codebase modularity
+
+## Documentation
+- **Context**: `cursor-context.md` - Full development context
+- **Rules**: `.cursorrules` - Cursor-specific guidelines
+- **Backend Docs**: `backend/docs/` - Backend documentation
+- **Scripts**: `backend/scripts/README.md` - Database scripts
+
+## Recent Improvements
+- ✅ Enhanced TypeScript strict mode
+- ✅ Simplified database retry logic with Winston
+- ✅ Production-ready logging system
+- ✅ Comprehensive environment validation
+
+
+==================================================
+

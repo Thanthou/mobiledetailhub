@@ -3,7 +3,7 @@ import SocialMediaIcons from '../SocialMediaIcons';
 import { NAV_LINKS } from '../constants';
 import { useSiteContext } from '../../../hooks/useSiteContext';
 import { useLocation } from '../../../contexts/LocationContext';
-import LocationEditModal from '../../shared/LocationEditModal';
+import LocationEditModal from 'shared/LocationEditModal';
 import { scrollToTop } from '../../../utils/scrollToTop';
 import LoginButton from '../LoginButton';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -42,7 +42,7 @@ const HeaderAffiliate: React.FC = () => {
       <header className="fixed top-0 z-50 bg-black/20 backdrop-blur-sm w-full">
         <div className="w-full py-4">
           <div className="max-w-7xl mx-auto px-4">
-            <div className="text-white text-center">Header placeholder</div>
+                         <div className="text-white text-center">Header placeholder</div>
           </div>
         </div>
       </header>
@@ -70,27 +70,33 @@ const HeaderAffiliate: React.FC = () => {
               >
                 <h1 className="text-2xl md:text-3xl font-bold text-white">{affiliateData.business_name}</h1>
               </button>
-              <div className="text-white text-sm md:text-base font-semibold">
-                <div className="flex items-center space-x-2">
-                  {affiliateData.phone && <span>{formatPhoneNumber(affiliateData.phone)}</span>}
-                  {affiliateData.phone && (affiliateData.base_location?.city || selectedLocation) && <span className="text-orange-400">•</span>}
-                  {affiliateData.base_location?.city && affiliateData.base_location?.state_name ? (
-                    <LocationEditModal
-                      placeholder="Enter new location"
-                      buttonClassName="text-white hover:text-orange-400 text-sm md:text-base font-semibold hover:underline cursor-pointer"
-                      displayText={`${affiliateData.base_location.city}, ${affiliateData.base_location.state_name}`}
-                      showIcon={false}
-                    />
-                  ) : selectedLocation ? (
-                    <LocationEditModal
-                      placeholder="Enter new location"
-                      buttonClassName="text-white hover:text-orange-400 text-sm md:text-base font-semibold hover:underline cursor-pointer"
-                      displayText={selectedLocation.fullLocation}
-                      showIcon={false}
-                    />
-                  ) : null}
-                </div>
-              </div>
+                             <div className="text-white text-sm md:text-base font-semibold">
+                 <div className="flex items-center space-x-2">
+                   {/* Display phone number from database with consistent formatting */}
+                   {affiliateData.phone && (
+                     <span>{formatPhoneNumber(affiliateData.phone)}</span>
+                   )}
+                   {/* Show separator if we have both phone and location */}
+                   {affiliateData.phone && (affiliateData.base_location?.city || selectedLocation) && (
+                     <span className="text-orange-400">•</span>
+                   )}
+                   {affiliateData.base_location?.city && affiliateData.base_location?.state_name ? (
+                     <LocationEditModal
+                       placeholder="Enter new location"
+                       buttonClassName="text-white hover:text-orange-400 text-sm md:text-base font-semibold hover:underline cursor-pointer"
+                       displayText={`${affiliateData.base_location.city}, ${affiliateData.base_location.state_name}`}
+                       showIcon={false}
+                     />
+                   ) : selectedLocation ? (
+                     <LocationEditModal
+                       placeholder="Enter new location"
+                       buttonClassName="text-white hover:text-orange-400 text-sm md:text-base font-semibold hover:underline cursor-pointer"
+                       displayText={selectedLocation.fullLocation}
+                       showIcon={false}
+                     />
+                   ) : null}
+                 </div>
+               </div>
             </div>
           </div>
 
