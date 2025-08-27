@@ -3,7 +3,7 @@
  * Handles database operations for refresh tokens
  */
 
-const { getPool } = require('../database/connection');
+const pool = require('../database/pool');
 const crypto = require('crypto');
 const logger = require('../utils/logger');
 
@@ -30,7 +30,7 @@ const generateDeviceId = (userAgent, ipAddress) => {
  */
 const storeRefreshToken = async (userId, tokenHash, expiresAt, ipAddress, userAgent, deviceId) => {
   try {
-    const pool = await getPool();
+
     if (!pool) {
       throw new Error('Database connection not available');
     }
@@ -80,7 +80,7 @@ const storeRefreshToken = async (userId, tokenHash, expiresAt, ipAddress, userAg
  */
 const validateRefreshToken = async (tokenHash) => {
   try {
-    const pool = await getPool();
+
     if (!pool) {
       throw new Error('Database connection not available');
     }
@@ -113,7 +113,7 @@ const validateRefreshToken = async (tokenHash) => {
  */
 const revokeRefreshToken = async (tokenHash) => {
   try {
-    const pool = await getPool();
+
     if (!pool) {
       throw new Error('Database connection not available');
     }
@@ -145,7 +145,7 @@ const revokeRefreshToken = async (tokenHash) => {
  */
 const revokeAllUserTokens = async (userId) => {
   try {
-    const pool = await getPool();
+
     if (!pool) {
       throw new Error('Database connection not available');
     }
@@ -178,7 +178,7 @@ const revokeAllUserTokens = async (userId) => {
  */
 const revokeDeviceToken = async (userId, deviceId) => {
   try {
-    const pool = await getPool();
+
     if (!pool) {
       throw new Error('Database connection not available');
     }
@@ -210,7 +210,7 @@ const revokeDeviceToken = async (userId, deviceId) => {
  */
 const getUserTokens = async (userId) => {
   try {
-    const pool = await getPool();
+
     if (!pool) {
       throw new Error('Database connection not available');
     }
@@ -236,7 +236,7 @@ const getUserTokens = async (userId) => {
  */
 const cleanupExpiredTokens = async () => {
   try {
-    const pool = await getPool();
+
     if (!pool) {
       throw new Error('Database connection not available');
     }
@@ -263,7 +263,7 @@ const cleanupExpiredTokens = async () => {
  */
 const getTokenStats = async () => {
   try {
-    const pool = await getPool();
+
     if (!pool) {
       throw new Error('Database connection not available');
     }

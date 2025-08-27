@@ -1,10 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { getConnectionStatus, isConnected, executeQuery } = require('../utils/dbHelper');
 const { asyncHandler } = require('../middleware/errorHandler');
 const logger = require('../utils/logger');
-const { getConnectionHealth } = require('../database/connection');
-const { migrationTracker } = require('../utils/migrationTracker');
+const pool = require('../database/pool');
 
 // Get shutdown status from server.js (will be set by server)
 let shutdownStatus = {
@@ -36,52 +34,32 @@ router.get('/live', (req, res) => {
 });
 
 // Readiness endpoint - checks if service is ready to receive traffic
-// Includes database connectivity and migration version checks
 router.get('/ready', asyncHandler(async (req, res) => {
-  const connectionHealth = getConnectionHealth();
-  
-  // Check database connectivity
   let dbReady = false;
   let dbError = null;
-  let migrationStatus = null;
   
   try {
-    if (connectionHealth.connected && connectionHealth.circuitBreaker.state !== 'OPEN') {
-      // Test actual database query
-      const result = await executeQuery('SELECT NOW() as current_time');
-      dbReady = true;
-      
-      // Get migration status using the tracker
-      try {
-        await migrationTracker.initialize();
-        migrationStatus = await migrationTracker.getStatus();
-      } catch (migrationError) {
-        logger.warn('Failed to get migration status:', { error: migrationError.message });
-        migrationStatus = { currentVersion: 'unknown', isHealthy: false };
-      }
-    }
+    // Quick database ping with 250ms timeout
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Database readiness timeout')), 250)
+    );
+    
+    await Promise.race([
+      pool.query('SELECT 1'),
+      timeoutPromise
+    ]);
+    
+    dbReady = true;
   } catch (error) {
     dbError = error.message;
-    logger.error('Database readiness check failed:', { error: error.message });
   }
   
-  // Service is ready if database is connected and responsive
-  const isReady = dbReady && connectionHealth.circuitBreaker.state !== 'OPEN';
-  
-  if (isReady) {
+  if (dbReady) {
     res.status(200).json({
       status: 'ready',
       timestamp: new Date().toISOString(),
       database: {
-        connected: true,
-        circuitBreaker: connectionHealth.circuitBreaker.state,
-        isReady: true,
-        migrationVersion: migrationStatus?.currentVersion || 'unknown',
-        migrationStatus: migrationStatus
-      },
-      service: {
-        uptime: process.uptime(),
-        memory: Math.round(process.memoryUsage().heapUsed / 1024 / 1024)
+        connected: true
       }
     });
   } else {
@@ -89,16 +67,8 @@ router.get('/ready', asyncHandler(async (req, res) => {
       status: 'not_ready',
       timestamp: new Date().toISOString(),
       database: {
-        connected: connectionHealth.connected,
-        circuitBreaker: connectionHealth.circuitBreaker.state,
-        isReady: false,
-        error: dbError || (connectionHealth.circuitBreaker.state === 'OPEN' ? 'Circuit breaker open' : 'Not connected'),
-        migrationVersion: migrationStatus?.currentVersion || 'unknown',
-        migrationStatus: migrationStatus
-      },
-      service: {
-        uptime: process.uptime(),
-        memory: Math.round(process.memoryUsage().heapUsed / 1024 / 1024)
+        connected: false,
+        error: dbError
       }
     });
   }
@@ -106,17 +76,22 @@ router.get('/ready', asyncHandler(async (req, res) => {
 
 // Health check route (comprehensive health information)
 router.get('/', asyncHandler(async (req, res) => {
-  // Get comprehensive health information including circuit breaker status
-  const dbConnected = await isConnected();
-  const connectionStatus = await getConnectionStatus();
-  const connectionHealth = getConnectionHealth();
+  // Test database connection and performance
+  let dbConnected = false;
+  let queryTime = null;
+  let dbTime = null;
   
-  if (dbConnected && connectionHealth.isReady) {
-    // Test database query performance
+  try {
     const startTime = Date.now();
-    const dbResult = await executeQuery('SELECT NOW()');
-    const queryTime = Date.now() - startTime;
-    
+    const result = await pool.query('SELECT NOW()');
+    queryTime = Date.now() - startTime;
+    dbTime = result.rows[0].now;
+    dbConnected = true;
+  } catch (error) {
+    logger.error('Health check database query failed:', { error: error.message });
+  }
+  
+  if (dbConnected) {
     res.json({ 
       status: 'OK', 
       timestamp: new Date().toISOString(),
@@ -124,9 +99,7 @@ router.get('/', asyncHandler(async (req, res) => {
         connected: true,
         status: 'Connected',
         queryTime: `${queryTime}ms`,
-        dbTime: dbResult.rows[0].now,
-        pool: connectionStatus,
-        circuitBreaker: connectionHealth.circuitBreaker
+        dbTime: dbTime
       },
       uptime: process.uptime(),
       memory: process.memoryUsage()
@@ -145,40 +118,30 @@ router.get('/test', (req, res) => {
 
 // Test DB connection route
 router.get('/test-db', asyncHandler(async (req, res) => {
-  const result = await executeQuery('SELECT NOW()');
+  const result = await pool.query('SELECT NOW()');
   res.json(result.rows[0]);
 }));
 
 // Database connection status route
 router.get('/db-status', asyncHandler(async (req, res) => {
-  const status = await getConnectionStatus();
+  let connected = false;
+  try {
+    await pool.query('SELECT 1');
+    connected = true;
+  } catch (error) {
+    connected = false;
+  }
+  
   res.json({
     timestamp: new Date().toISOString(),
-    ...status
+    connected,
+    totalCount: pool.totalCount,
+    idleCount: pool.idleCount,
+    waitingCount: pool.waitingCount
   });
 }));
 
-// Migration status route
-router.get('/migrations', asyncHandler(async (req, res) => {
-  try {
-    await migrationTracker.initialize();
-    const status = await migrationTracker.getStatus();
-    const history = await migrationTracker.getMigrationHistory(20);
-    
-    res.json({
-      timestamp: new Date().toISOString(),
-      status,
-      history
-    });
-  } catch (error) {
-    logger.error('Failed to get migration status:', { error: error.message });
-    res.status(500).json({
-      error: 'Failed to get migration status',
-      message: error.message,
-      timestamp: new Date().toISOString()
-    });
-  }
-}));
+
 
 // Shutdown status endpoint
 router.get('/shutdown-status', (req, res) => {

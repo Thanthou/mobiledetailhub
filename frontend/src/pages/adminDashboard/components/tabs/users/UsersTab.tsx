@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Users, UserPlus, UserCheck, UserX, UserCog, Loader2, Trash2 } from 'lucide-react';
 import type { UserSubTab } from '../../../types';
 import { apiService } from '../../../../../services/api';
@@ -51,6 +51,10 @@ export const UsersTab: React.FC = () => {
   } | null>(null);
   const [deletingAffiliate, setDeletingAffiliate] = useState<number | null>(null);
 
+  // Add debouncing to prevent rapid API calls
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
+  const lastFetchRef = useRef<{ status: UserSubTab; timestamp: number } | null>(null);
+
   const subTabs = [
     { id: 'all-users' as UserSubTab, label: 'All Users', icon: Users },
     { id: 'admin' as UserSubTab, label: 'Admin', icon: UserCog },
@@ -59,37 +63,65 @@ export const UsersTab: React.FC = () => {
     { id: 'pending' as UserSubTab, label: 'Pending', icon: UserPlus },
   ];
 
-  const fetchUsers = async (status: UserSubTab) => {
-    setLoading(true);
-    setError(null);
-    try {
-      if (status === 'pending') {
-        // Fetch pending affiliate applications
-        const response = await apiService.getPendingApplications();
-        if (response.success) {
-          setPendingApplications(response.applications || []);
-        } else {
-          setError('Failed to fetch pending applications');
-        }
-      } else {
-        // Fetch regular users
-        const response = await apiService.getUsers(status);
-        if (response.success) {
-          setUsers(response.users || []);
-        } else {
-          setError('Failed to fetch users');
-        }
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setLoading(false);
+  const fetchUsers = useCallback(async (status: UserSubTab, force = false) => {
+    // Debouncing: prevent rapid successive calls for the same status
+    const now = Date.now();
+    const lastFetch = lastFetchRef.current;
+    
+    if (!force && lastFetch && lastFetch.status === status && now - lastFetch.timestamp < 1000) {
+      // Skip if the same request was made within the last second
+      return;
     }
-  };
+    
+    // Clear any existing debounce timer
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+    }
+    
+    // Set a debounce timer for rapid successive calls
+    debounceTimer.current = setTimeout(async () => {
+      setLoading(true);
+      setError(null);
+      lastFetchRef.current = { status, timestamp: now };
+      
+      try {
+        if (status === 'pending') {
+          // Fetch pending affiliate applications
+          const response = await apiService.getPendingApplications();
+          if (response.success) {
+            setPendingApplications(response.applications || []);
+          } else {
+            setError('Failed to fetch pending applications');
+          }
+        } else {
+          // Fetch regular users
+          const response = await apiService.getUsers(status);
+          if (response.success) {
+            setUsers(response.users || []);
+          } else {
+            setError('Failed to fetch users');
+          }
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    }, 200); // 200ms debounce delay
+  }, []);
 
   useEffect(() => {
     fetchUsers(activeSubTab);
-  }, [activeSubTab]);
+  }, [activeSubTab, fetchUsers]);
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+    };
+  }, []);
 
   const handleSubTabChange = (subTab: UserSubTab) => {
     setActiveSubTab(subTab);
@@ -160,7 +192,7 @@ export const UsersTab: React.FC = () => {
       }
       
       // Refresh the pending applications list
-      await fetchUsers('pending');
+      await fetchUsers('pending', true);
       
       // Close modal
       setModalState(null);
@@ -212,7 +244,7 @@ export const UsersTab: React.FC = () => {
           type: 'success',
           isVisible: true
         });
-        await fetchUsers('affiliates'); // Refresh affiliates list
+        await fetchUsers('affiliates', true); // Refresh affiliates list
       } else {
         throw new Error(response.message || 'Failed to delete affiliate');
       }
@@ -267,7 +299,7 @@ export const UsersTab: React.FC = () => {
           <h3 className="text-lg font-semibold mb-2 text-red-400">Error</h3>
           <p className="text-red-300">{error}</p>
           <button 
-            onClick={() => fetchUsers(subTab)}
+            onClick={() => fetchUsers(subTab, true)}
             className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
           >
             Retry
@@ -284,7 +316,7 @@ export const UsersTab: React.FC = () => {
               <h3 className="text-lg font-semibold mb-2">No Pending Applications</h3>
               <p>All affiliate applications have been processed.</p>
               <button 
-                onClick={() => fetchUsers('pending')}
+                onClick={() => fetchUsers('pending', true)}
                 className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
               >
                 Refresh
@@ -300,7 +332,7 @@ export const UsersTab: React.FC = () => {
                 Showing {pendingApplications.length} pending application{pendingApplications.length !== 1 ? 's' : ''}
               </span>
               <button 
-                onClick={() => fetchUsers('pending')}
+                onClick={() => fetchUsers('pending', true)}
                 className="px-3 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-700 transition-colors"
               >
                 Refresh

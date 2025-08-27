@@ -1,11 +1,11 @@
-const { getPool } = require('../database/connection');
+const pool = require('../database/pool');
 const bcrypt = require('bcryptjs');
 const logger = require('./logger');
 
 // Initialize database with sample data
 async function initializeSampleData() {
   try {
-    const pool = await getPool();
+
     if (!pool) {
       logger.error('Cannot initialize sample data: no database connection available');
       return;
@@ -79,7 +79,7 @@ async function initializeSampleData() {
 // Setup basic database tables
 async function setupDatabase() {
   try {
-    const pool = await getPool();
+
     if (!pool) {
       logger.error('Cannot setup database: no database connection available');
       return;
@@ -442,7 +442,7 @@ async function setupDatabase() {
 // Create trigger functions
 async function createTriggerFunctions() {
   try {
-    const pool = await getPool();
+
     if (!pool) {
       logger.error('Cannot create trigger functions: no database connection available');
       return;
@@ -510,7 +510,7 @@ async function createTriggerFunctions() {
 // Add missing columns to existing tables safely
 async function addMissingColumns() {
   try {
-    const pool = await getPool();
+
     if (!pool) {
       logger.error('Cannot add missing columns: no database connection available');
       return;
@@ -555,7 +555,7 @@ async function addMissingColumns() {
 // Setup affiliates table indexes and triggers
 async function setupAffiliatesTable() {
   try {
-    const pool = await getPool();
+
     if (!pool) {
       logger.error('Cannot setup affiliates table: no database connection available');
       return;
@@ -701,7 +701,7 @@ async function setupAffiliatesTable() {
 // Create views for common queries
 async function createViews() {
   try {
-    const pool = await getPool();
+
     if (!pool) {
       logger.error('Cannot create views: no database connection available');
       return;
@@ -747,7 +747,7 @@ async function createViews() {
 // Insert basic data safely
 async function insertBasicData() {
   try {
-    const pool = await getPool();
+
     if (!pool) {
       logger.error('Cannot insert basic data: no database connection available');
       return;

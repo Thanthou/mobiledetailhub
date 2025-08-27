@@ -1,4 +1,4 @@
-const { getPool } = require('../database/connection');
+const pool = require('../database/pool');
 
 async function addTestServiceAreas() {
   const pool = await getPool();

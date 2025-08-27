@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getPool } = require('../database/connection');
+const pool = require('../database/pool');
 const { validateBody, validateParams, sanitize } = require('../middleware/validation');
 const { affiliateSchemas, sanitizationSchemas } = require('../utils/validationSchemas');
 const { asyncHandler } = require('../middleware/errorHandler');
@@ -8,11 +8,19 @@ const logger = require('../utils/logger');
 
 // POST endpoint for affiliate applications
 router.post('/apply', 
+  (req, res, next) => {
+    logger.debug('Raw request body received:', JSON.stringify(req.body, null, 2));
+    next();
+  },
   sanitize(sanitizationSchemas.affiliate),
+  (req, res, next) => {
+    logger.debug('After sanitization:', JSON.stringify(req.body, null, 2));
+    next();
+  },
   validateBody(affiliateSchemas.apply),
   asyncHandler(async (req, res) => {
     // Test database connection first
-    const pool = await getPool();
+
     if (!pool) {
       const error = new Error('Database connection not available');
       error.statusCode = 500;
@@ -212,7 +220,7 @@ router.post('/apply',
 // Test endpoint to verify server and database are working
   router.get('/test', asyncHandler(async (req, res) => {
     try {
-      const pool = await getPool();
+  
       if (!pool) {
         return res.status(500).json({ error: 'Database connection not available' });
       }
@@ -352,7 +360,7 @@ router.post('/update-zip', asyncHandler(async (req, res) => {
 router.get('/:slug', asyncHandler(async (req, res) => {
   const { slug } = req.params;
   try {
-    const pool = await getPool();
+
     if (!pool) {
       return res.status(500).json({ error: 'Database connection not available' });
     }
@@ -417,7 +425,7 @@ router.get('/:slug/field/:field', asyncHandler(async (req, res) => {
     return res.status(400).json({ error: 'Invalid field' });
   }
   try {
-    const pool = await getPool();
+
     if (!pool) {
       return res.status(500).json({ error: 'Database connection not available' });
     }
@@ -480,7 +488,7 @@ router.get('/:slug/field/:field', asyncHandler(async (req, res) => {
 router.get('/:slug/base_location', asyncHandler(async (req, res) => {
   const { slug } = req.params;
   try {
-    const pool = await getPool();
+
     if (!pool) {
       return res.status(500).json({ error: 'Database connection not available' });
     }
@@ -535,7 +543,7 @@ router.get('/:slug/base_location', asyncHandler(async (req, res) => {
 router.get('/:slug/service_areas', asyncHandler(async (req, res) => {
   const { slug } = req.params;
   try {
-    const pool = await getPool();
+
     if (!pool) {
       return res.status(500).json({ error: 'Database connection not available' });
     }

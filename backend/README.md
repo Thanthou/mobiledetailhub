@@ -37,10 +37,10 @@ npm start    # for production
 ### Health & Status
 - `GET /api/health` - Comprehensive health check with database status
 - `GET /api/health/live` - Liveness check (process responsive, always 200 if event loop working)
-- `GET /api/health/ready` - Readiness check (database connectivity + migration status)
+- `GET /api/health/ready` - Readiness check (database connectivity)
 - `GET /api/health/db-status` - Database connection status only
 - `GET /api/health/test-db` - Simple database connection test
-- `GET /api/health/migrations` - Migration status and history
+
 
 ### Core Services
 - `GET /api/service_areas` - Get service areas (with fallback data)
@@ -48,20 +48,20 @@ npm start    # for production
 
 ## Database Connection Features
 
-### ✅ **Improved Error Handling**
-- **No more crashes**: Database connection failures no longer cause `process.exit(-1)`
-- **Automatic retry**: Built-in retry logic with exponential backoff
-- **Graceful degradation**: Application continues running even when database is unavailable
+### ✅ **Simple & Reliable**
+- **Single pool**: Global PostgreSQL pool configured from `DATABASE_URL`
+- **Fast boot**: 1-second database ping on startup, fails fast if unavailable
+- **Direct queries**: Simple `pool.query()` calls throughout the application
 
-### ✅ **Connection Management**
-- **Health monitoring**: Real-time connection pool status
-- **Auto-reconnection**: Automatic reconnection on connection failures
-- **Graceful shutdown**: Proper cleanup on application termination
+### ✅ **Built-in PostgreSQL Management** 
+- **Auto-reconnection**: PostgreSQL driver handles connection recovery
+- **Pool management**: Automatic connection pooling with configurable limits
+- **Graceful shutdown**: Clean pool closure with `pool.end()`
 
 ### ✅ **Developer Tools**
-- **Helper utilities**: `executeQuery()`, `executeTransaction()`, `isConnected()`
-- **Connection status**: Detailed pool metrics and health information
-- **Migration guide**: Complete guide for updating existing code
+- **Timeout helper**: `query()` function with per-call timeout (default 5s)
+- **Health endpoints**: Fast readiness checks with 250ms timeout
+- **Environment validation**: DATABASE_URL format and SSL validation
 
 ## Troubleshooting
 
@@ -85,7 +85,7 @@ The application now provides proper separation of liveness and readiness checks 
 - **Purpose**: Check if service is ready to receive traffic
 - **Response**: 200 if ready, 503 if not ready
 - **Use case**: Kubernetes readiness probes, load balancer health checks
-- **Checks**: Database connectivity, circuit breaker status, migration version
+- **Checks**: Database connectivity with 250ms timeout
 
 #### Usage Examples
 ```bash
@@ -98,37 +98,56 @@ curl http://localhost:3001/api/health/ready
 # Comprehensive health check
 curl http://localhost:3001/api/health
 
-# Migration status
-curl http://localhost:3001/api/health/migrations
+# Database status  
+curl http://localhost:3001/api/health/db-status
 ```
 
-### Migration Tracking
 
-The system now tracks database schema versions:
-- Automatic creation of `schema_migrations` table
-- Version history tracking with timestamps
-- Integration with readiness checks
-- Utility script for recording migrations: `node scripts/record_migration.js <version> <description>`
 
-### Connection Retry Logic
-The system automatically retries failed connections:
-- **Initial delay**: 1 second
-- **Maximum retries**: 5 attempts
-- **Backoff strategy**: Exponential (1s, 2s, 4s, 8s, 16s)
-- **Maximum delay cap**: 30 seconds
+### Database Configuration
+Simple pool configuration using PostgreSQL's built-in connection management:
+- **Connection string**: Single `DATABASE_URL` environment variable
+- **Pool limits**: 20 max connections, 30s idle timeout, 10s connection timeout
+- **SSL support**: Automatic SSL enablement in production environments
+- **Error handling**: Simple logging via `pool.on('error')` event
 
-## Migration Guide
+## Database Usage
 
-If you're updating existing code to use the new database connection pattern, see:
-- [`docs/DATABASE_CONNECTION_MIGRATION.md`](docs/DATABASE_CONNECTION_MIGRATION.md) - Complete migration guide
-- [`utils/dbHelper.js`](utils/dbHelper.js) - Helper utility functions
-- [`database/connection.js`](database/connection.js) - New connection management
+### Direct Pool Usage (Recommended)
+```javascript
+const pool = require('./database/pool');
+
+// Simple query
+const result = await pool.query('SELECT * FROM users WHERE id = $1', [userId]);
+
+// With transaction
+const client = await pool.connect();
+try {
+  await client.query('BEGIN');
+  await client.query('INSERT INTO users (name) VALUES ($1)', [name]);
+  await client.query('COMMIT');
+} finally {
+  client.release();
+}
+```
+
+### With Timeout Helper
+```javascript
+const { query } = require('./utils/db');
+
+// Query with 3-second timeout
+const result = await query('SELECT * FROM users', [], { timeoutMs: 3000 });
+```
+
+### Migration Guide
+- [`docs/DATABASE_CONNECTION_MIGRATION.md`](docs/DATABASE_CONNECTION_MIGRATION.md) - Migration from complex connection manager
+- [`utils/dbHelper.js`](utils/dbHelper.js) - Legacy helper utilities (still supported)
+- [`database/pool.js`](database/pool.js) - Simple pool configuration
 
 ## Performance Monitoring
 
-The health endpoints provide real-time metrics:
-- Database connection status
-- Query response times
-- Connection pool utilization
-- Memory usage
-- Application uptime
+The health endpoints provide simple, fast metrics:
+- **Live endpoint**: Process responsiveness (always 200 if running)
+- **Ready endpoint**: Database ping with 250ms timeout (200/503)
+- **Health endpoint**: Query timing and basic pool metrics
+- **Pool status**: Connection counts (total, idle, waiting)

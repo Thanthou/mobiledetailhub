@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
-const { getPool } = require('../database/connection');
+const pool = require('../database/pool');
 const { authenticateToken } = require('../middleware/auth');
 const { validateBody, sanitize } = require('../middleware/validation');
 const { authSchemas, sanitizationSchemas } = require('../utils/validationSchemas');
@@ -27,7 +27,7 @@ router.post('/register',
   asyncHandler(async (req, res) => {
     const { email, password, name, phone } = req.body;
 
-    const pool = await getPool();
+
     if (!pool) {
       const error = new Error('Database connection not available');
       error.statusCode = 500;
@@ -107,7 +107,7 @@ router.post('/login',
   asyncHandler(async (req, res) => {
     const { email, password } = req.body;
 
-    const pool = await getPool();
+
     if (!pool) {
       const error = new Error('Database connection not available');
       error.statusCode = 500;
@@ -185,7 +185,7 @@ router.post('/login',
 
 // Get Current User (Protected Route)
 router.get('/me', authenticateToken, asyncHandler(async (req, res) => {
-  const pool = await getPool();
+
   if (!pool) {
     const error = new Error('Database connection not available');
     error.statusCode = 500;
@@ -328,7 +328,7 @@ router.get('/sessions', authenticateToken, asyncHandler(async (req, res) => {
 
 // Admin promotion endpoint (for development)
 router.post('/promote-admin', authLimiter, asyncHandler(async (req, res) => {
-  const pool = await getPool();
+
   if (!pool) {
     const error = new Error('Database connection not available');
     error.statusCode = 500;

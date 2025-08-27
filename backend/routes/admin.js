@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getPool } = require('../database/connection');
+const pool = require('../database/pool');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 const { validateBody, validateParams, sanitize } = require('../middleware/validation');
 const { adminSchemas, sanitizationSchemas } = require('../utils/validationSchemas');
@@ -12,7 +12,7 @@ const { adminLimiter, criticalAdminLimiter } = require('../middleware/rateLimite
 router.delete('/affiliates/:id', criticalAdminLimiter, authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
   logger.info('[ADMIN] DELETE /affiliates/:id called with id:', { id: req.params.id });
   
-  const pool = await getPool();
+
   if (!pool) {
     const error = new Error('Database connection not available');
     error.statusCode = 500;
@@ -129,7 +129,7 @@ router.delete('/affiliates/:id', criticalAdminLimiter, authenticateToken, requir
 
 // Users endpoint
 router.get('/users', adminLimiter, authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
-  const pool = await getPool();
+
   if (!pool) {
     const error = new Error('Database connection not available');
     error.statusCode = 500;
@@ -226,7 +226,7 @@ router.get('/users', adminLimiter, authenticateToken, requireAdmin, asyncHandler
 
 // Pending affiliate applications endpoint
 router.get('/pending-applications', adminLimiter, authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
-  const pool = await getPool();
+
   if (!pool) {
     const error = new Error('Database connection not available');
     error.statusCode = 500;
@@ -265,7 +265,7 @@ router.get('/pending-applications', adminLimiter, authenticateToken, requireAdmi
 
 // Approve affiliate application endpoint
 router.post('/approve-application/:id', adminLimiter, authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
-  const pool = await getPool();
+
   if (!pool) {
     const error = new Error('Database connection not available');
     error.statusCode = 500;
@@ -412,7 +412,7 @@ router.post('/approve-application/:id', adminLimiter, authenticateToken, require
 
 // Reject affiliate application endpoint
 router.post('/reject-application/:id', adminLimiter, authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
-  const pool = await getPool();
+
   if (!pool) {
     const error = new Error('Database connection not available');
     error.statusCode = 500;

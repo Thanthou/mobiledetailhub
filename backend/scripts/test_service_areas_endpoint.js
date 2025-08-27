@@ -1,4 +1,4 @@
-const { getPool } = require('../database/connection');
+const pool = require('../database/pool');
 
 async function testServiceAreasEndpoint() {
   console.log('🔍 Testing service areas endpoint logic...');

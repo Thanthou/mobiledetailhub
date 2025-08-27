@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import { X, LogIn } from 'lucide-react';
+import { X } from 'lucide-react';
 
 interface ModalHeaderProps {
   isLogin: boolean;
@@ -28,10 +28,18 @@ const ModalHeader = forwardRef<HTMLButtonElement, ModalHeaderProps>(
         
         <div className="text-center mb-2">
           <div 
-            className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center"
+            className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center p-2"
             aria-hidden="true"
           >
-            <LogIn size={28} className="text-white" />
+            <img 
+              src="/assets/favicon.webp" 
+              alt="Mobile Detail Hub Logo" 
+              className="w-full h-full object-contain"
+              onError={(e) => {
+                console.error('Logo failed to load:', e);
+                e.currentTarget.style.display = 'none';
+              }}
+            />
           </div>
           <h2 
             id="login-modal-title"

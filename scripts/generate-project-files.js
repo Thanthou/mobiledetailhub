@@ -1,4 +1,5 @@
 const fs = require('fs');
+const fsPromises = require('fs').promises;
 const path = require('path');
 
 // Directories and file types to ignore
@@ -260,6 +261,66 @@ function generateRootFile() {
     return rootContent;
 }
 
+async function generateDatabaseSchema() {
+    console.log('🗄️  Generating database schema...');
+    
+    try {
+        // Import the existing schema export script
+        const { exportSchema } = require(path.join(__dirname, '..', 'backend', 'scripts', 'export_schema.js'));
+        
+        // Check if we can connect to the database
+        console.log('   Attempting to export database schema...');
+        await exportSchema();
+        
+        // Read the generated schema files
+        const schemaDir = path.join(__dirname, '..', 'backend', 'schema_export');
+        const jsonPath = path.join(schemaDir, 'database_schema.json');
+        const txtPath = path.join(schemaDir, 'database_schema.txt');
+        
+        let schemaContent = 'DATABASE SCHEMA\n';
+        schemaContent += '='.repeat(50) + '\n\n';
+        
+        if (fs.existsSync(txtPath)) {
+            const schemaText = await fsPromises.readFile(txtPath, 'utf8');
+            schemaContent += 'TEXT FORMAT:\n';
+            schemaContent += '-'.repeat(30) + '\n';
+            schemaContent += schemaText;
+            schemaContent += '\n\n' + '='.repeat(50) + '\n\n';
+        }
+        
+        if (fs.existsSync(jsonPath)) {
+            const schemaJson = await fsPromises.readFile(jsonPath, 'utf8');
+            schemaContent += 'JSON FORMAT:\n';
+            schemaContent += '-'.repeat(30) + '\n';
+            schemaContent += schemaJson;
+            schemaContent += '\n\n' + '='.repeat(50) + '\n\n';
+        }
+        
+        console.log('✅ Database schema generated successfully');
+        return schemaContent;
+        
+    } catch (error) {
+        console.log(`⚠️  Could not generate database schema: ${error.message}`);
+        console.log('   This is usually due to database connection issues or missing .env file');
+        
+        // Return a placeholder content explaining the issue
+        let schemaContent = 'DATABASE SCHEMA\n';
+        schemaContent += '='.repeat(50) + '\n\n';
+        schemaContent += '❌ DATABASE SCHEMA EXPORT FAILED\n';
+        schemaContent += '-'.repeat(30) + '\n';
+        schemaContent += `Error: ${error.message}\n\n`;
+        schemaContent += 'Common solutions:\n';
+        schemaContent += '1. Ensure PostgreSQL is running\n';
+        schemaContent += '2. Check .env file has correct database credentials\n';
+        schemaContent += '3. Verify database connection settings\n\n';
+        schemaContent += 'To generate schema manually, run:\n';
+        schemaContent += 'cd backend && node scripts/export_schema.js\n\n';
+        schemaContent += '='.repeat(50) + '\n\n';
+        
+        return schemaContent;
+    }
+}
+
 function generateCodebaseOverview() {
     console.log('📊 Generating codebase overview...');
     const rootPath = path.join(__dirname, '..');
@@ -310,7 +371,7 @@ function generateCodebaseOverview() {
 }
 
 function cleanupOldFiles(chatgptDir) {
-    const oldFiles = ['backend.txt', 'frontend.txt', 'filestructure.json', 'rootfile.txt'];
+    const oldFiles = ['backend.txt', 'frontend.txt', 'filestructure.json', 'rootfile.txt', 'database_schema.txt'];
     for (const file of oldFiles) {
         const filePath = path.join(chatgptDir, file);
         if (fs.existsSync(filePath)) {
@@ -324,7 +385,7 @@ function cleanupOldFiles(chatgptDir) {
     }
 }
 
-function main() {
+async function main() {
     console.log('🚀 Starting project file generation...');
     console.log(`📏 Maximum file size: ${(MAX_FILE_SIZE / 1024).toFixed(0)}KB`);
     console.log(`📁 Allowed extensions: ${ALLOWED_EXTENSIONS.join(', ')}`);
@@ -369,6 +430,12 @@ function main() {
         fs.writeFileSync(path.join(chatgptDir, 'rootfile.txt'), rootContent);
         console.log(`✅ rootfile.txt generated successfully (${(rootContent.length / 1024).toFixed(1)}KB)`);
         
+        // Generate database schema
+        console.log('📝 Generating database_schema.txt...');
+        const schemaContent = await generateDatabaseSchema();
+        fs.writeFileSync(path.join(chatgptDir, 'database_schema.txt'), schemaContent);
+        console.log(`✅ database_schema.txt generated successfully (${(schemaContent.length / 1024).toFixed(1)}KB)`);
+        
         // Generate codebase_overview.json
         console.log('📊 Generating codebase_overview.json...');
         const codebaseOverview = generateCodebaseOverview();
@@ -384,7 +451,7 @@ function main() {
 }
 
 if (require.main === module) {
-    main();
+    main().catch(console.error);
 }
 
 module.exports = {
@@ -392,6 +459,7 @@ module.exports = {
     generateFrontendFile,
     generateFileStructure,
     generateRootFile,
+    generateDatabaseSchema,
     generateCodebaseOverview,
     cleanupOldFiles
 };

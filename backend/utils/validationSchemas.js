@@ -65,9 +65,17 @@ const affiliateSchemas = {
       validators.email,
       validators.length(undefined, 255)
     ],
-    base_location: [
+    'base_location.city': [
       validators.required,
-      validators.object
+      validators.alphabetic,
+      validators.length(2, 100)
+    ],
+    'base_location.state': [
+      validators.required,
+      validators.stateCode
+    ],
+    'base_location.zip': [
+      validators.zipCode
     ],
     categories: [
       validators.array
@@ -91,6 +99,14 @@ const affiliateSchemas = {
       validators.url
     ],
     has_insurance: [
+      validators.boolean
+    ],
+    accept_terms: [
+      validators.required,
+      validators.boolean
+    ],
+    consent_notifications: [
+      validators.required,
       validators.boolean
     ],
     source: [

@@ -6,7 +6,7 @@
  */
 
 require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
-const { getPool, waitForConnection } = require('../database/connection');
+const pool = require('../database/pool');
 const fs = require('fs').promises;
 const path = require('path');
 const logger = require('../utils/logger');
@@ -74,12 +74,9 @@ async function runMigration() {
   console.log('🚀 Starting Refresh Tokens Migration...\n');
   
   try {
-    // Wait for database connection to be established
-    console.log('🔌 Waiting for database connection...');
-    const pool = await waitForConnection(30000); // Wait up to 30 seconds
-    if (!pool) {
-      throw new Error('❌ Database connection not available');
-    }
+    // Test database connection
+    console.log('🔌 Testing database connection...');
+    await pool.query('SELECT 1');
     
     console.log('✅ Database connection established');
     

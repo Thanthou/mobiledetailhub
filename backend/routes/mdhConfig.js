@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const { getPool } = require('../database/connection');
+const pool = require('../database/pool');
 const { asyncHandler } = require('../middleware/errorHandler');
 const logger = require('../utils/logger');
 
 // Get MDH config
 router.get('/', asyncHandler(async (req, res) => {
-  const pool = await getPool();
+
   if (!pool) {
     const error = new Error('Database connection not available');
     error.statusCode = 500;
@@ -37,7 +37,7 @@ router.get('/field/:field', asyncHandler(async (req, res) => {
     throw error;
   }
   
-  const pool = await getPool();
+
   if (!pool) {
     const error = new Error('Database connection not available');
     error.statusCode = 500;

@@ -172,6 +172,53 @@ function validateEnvironment() {
   const criticalErrors = [];
   const isProduction = process.env.NODE_ENV === 'production';
 
+  // Validate DATABASE_URL presence and format
+  const databaseUrl = process.env.DATABASE_URL;
+  const hasIndividualDbVars = process.env.DB_HOST && process.env.DB_USER && process.env.DB_PASSWORD && process.env.DB_NAME;
+  
+  if (!databaseUrl && !hasIndividualDbVars) {
+    missingVars.push('DATABASE_URL: Either DATABASE_URL or all individual DB_* variables must be set');
+  } else if (databaseUrl) {
+    // Validate DATABASE_URL format
+    try {
+      const url = new URL(databaseUrl);
+      if (url.protocol !== 'postgresql:' && url.protocol !== 'postgres:') {
+        criticalErrors.push('❌ DATABASE_URL must use postgresql:// or postgres:// protocol');
+      }
+      if (!url.hostname) {
+        criticalErrors.push('❌ DATABASE_URL must include a hostname');
+      }
+      if (!url.pathname || url.pathname === '/') {
+        criticalErrors.push('❌ DATABASE_URL must include a database name');
+      }
+    } catch (error) {
+      criticalErrors.push(`❌ DATABASE_URL format is invalid: ${error.message}`);
+    }
+  }
+
+  // Validate PORT
+  const port = process.env.PORT || '3001';
+  const portNum = parseInt(port, 10);
+  if (isNaN(portNum) || portNum < 1 || portNum > 65535) {
+    criticalErrors.push(`❌ PORT must be a valid number between 1-65535, got: ${port}`);
+  }
+
+  // Production SSL validation
+  if (isProduction && databaseUrl) {
+    try {
+      const url = new URL(databaseUrl);
+      if (url.searchParams.get('sslmode') === 'disable') {
+        criticalErrors.push('❌ Production environment should not disable SSL (sslmode=disable found in DATABASE_URL)');
+      }
+      // Check if SSL is explicitly required but missing proper config
+      if (url.protocol === 'postgres:' && !url.searchParams.has('sslmode')) {
+        warnings.push('Warning: Production DATABASE_URL should specify sslmode parameter for explicit SSL configuration');
+      }
+    } catch (error) {
+      // URL already validated above, this shouldn't happen
+    }
+  }
+
   // Check required variables
   for (const [varName, description] of Object.entries(requiredEnvVars)) {
     if (!process.env[varName]) {
@@ -181,9 +228,13 @@ function validateEnvironment() {
         continue;
       }
       
-      // Skip DATABASE_URL if individual DB_* vars are present
-      if (varName === 'DATABASE_URL' && 
-          process.env.DB_HOST && process.env.DB_USER && process.env.DB_PASSWORD && process.env.DB_NAME) {
+      // Skip DATABASE_URL if already validated above
+      if (varName === 'DATABASE_URL') {
+        continue;
+      }
+      
+      // Skip individual DB vars if DATABASE_URL is present
+      if (['DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER', 'DB_PASSWORD'].includes(varName) && databaseUrl) {
         continue;
       }
       

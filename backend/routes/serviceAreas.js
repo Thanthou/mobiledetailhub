@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getPool } = require('../database/connection');
+const pool = require('../database/pool');
 const { validateParams } = require('../middleware/validation');
 const { serviceAreaSchemas } = require('../utils/validationSchemas');
 const { asyncHandler } = require('../middleware/errorHandler');
@@ -11,7 +11,7 @@ router.get('/', asyncHandler(async (req, res) => {
   try {
     logger.info('Service areas endpoint called');
     
-    const pool = await getPool();
+
     if (!pool) {
       logger.error('Database connection not available');
       const error = new Error('Database connection not available');
@@ -42,7 +42,7 @@ router.get('/', asyncHandler(async (req, res) => {
 router.get('/:state_code', 
   validateParams(serviceAreaSchemas.getCities),
   asyncHandler(async (req, res) => {
-    const pool = await getPool();
+
     if (!pool) {
       const error = new Error('Database connection not available');
       error.statusCode = 500;

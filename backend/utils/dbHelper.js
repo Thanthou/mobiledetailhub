@@ -1,4 +1,4 @@
-const { getPool } = require('../database/connection');
+const pool = require('../database/pool');
 const logger = require('./logger');
 
 /**
@@ -8,7 +8,7 @@ const logger = require('./logger');
 // Helper function to execute database queries with automatic connection management
 async function executeQuery(queryText, params = []) {
   try {
-    const pool = await getPool();
+
     if (!pool) {
       throw new Error('No database connection available');
     }
@@ -26,7 +26,7 @@ async function executeTransaction(queries) {
   let client = null;
   
   try {
-    const pool = await getPool();
+
     if (!pool) {
       throw new Error('No database connection available');
     }
@@ -61,7 +61,7 @@ async function executeTransaction(queries) {
 // Helper function to check if database is connected
 async function isConnected() {
   try {
-    const pool = await getPool();
+
     if (!pool) {
       return false;
     }
@@ -76,7 +76,7 @@ async function isConnected() {
 // Helper function to get connection status
 async function getConnectionStatus() {
   try {
-    const pool = await getPool();
+
     if (!pool) {
       return {
         connected: false,
@@ -112,8 +112,7 @@ async function getConnectionStatus() {
 // Helper function to safely close database connections
 async function closeConnections() {
   try {
-    const { closePool } = require('../database/connection');
-    await closePool();
+    await pool.end();
     logger.info('Database connections closed successfully');
   } catch (error) {
     logger.error('Error closing database connections:', { error: error.message });

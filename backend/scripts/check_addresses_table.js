@@ -1,6 +1,6 @@
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
-const pool = require('../database/connection');
+const pool = require('../database/pool');
 
 async function checkAddressesTable() {
   try {

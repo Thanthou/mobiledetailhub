@@ -49,7 +49,17 @@ const validateBody = (schema) => {
     const errors = [];
     
     for (const [field, rules] of Object.entries(schema)) {
-      const value = req.body[field];
+      // Handle nested object validation (e.g., 'base_location.city')
+      let value;
+      if (field.includes('.')) {
+        const keys = field.split('.');
+        value = req.body;
+        for (const key of keys) {
+          value = value && value[key];
+        }
+      } else {
+        value = req.body[field];
+      }
       
       try {
         // Apply each validation rule

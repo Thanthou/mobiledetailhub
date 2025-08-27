@@ -27,7 +27,7 @@ const { requestLogger } = require('./middleware/requestLogger');
 
 // Import database utilities
 const { setupDatabase } = require('./utils/databaseInit');
-const { waitForConnection, closePool } = require('./database/connection');
+const pool = require('./database/pool');
 
 // Import upload validation utilities
 const { validateUploadRequest } = require('./utils/uploadValidator');
@@ -123,9 +123,11 @@ const corsOptions = {
       allowedOrigins.push(
         'http://localhost:3000',
         'http://localhost:5173',
+        'http://localhost:5174',
         'http://localhost:4173',
         'http://127.0.0.1:3000',
         'http://127.0.0.1:5173',
+        'http://127.0.0.1:5174',
         'http://127.0.0.1:4173'
       );
     }
@@ -288,25 +290,45 @@ app.use('/api/upload', apiLimiter, uploadRoutes); // Apply upload rate limiting
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-// Start server
-server = app.listen(PORT, async () => {
-  // Check if we're already shutting down
-  if (isShuttingDown) {
-    logger.warn('Server startup cancelled - shutdown in progress');
-    return;
-  }
-  
-  logger.startup(`Server running on port ${PORT}`);
-  
-  // Wait for database connection to be established
-  logger.info('Waiting for database connection...');
+// Quick database connectivity check before starting server
+async function startServer() {
+  logger.info('Testing database connection...');
   try {
-    const pool = await waitForConnection();
-    logger.info('Database connection ready, setting up database...');
+    // Quick ping with 1 second timeout
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Database ping timeout')), 1000)
+    );
     
-    // Setup database and initialize sample data
+    await Promise.race([
+      pool.query('SELECT 1'),
+      timeoutPromise
+    ]);
+    
+    logger.info('✅ Database ping successful');
+  } catch (error) {
+    logger.error('❌ Database ping failed:', { error: error.message });
+    process.exit(1);
+  }
+
+  // Setup database after successful ping
+  logger.info('Setting up database...');
+  try {
     await setupDatabase();
-    logger.info('Database setup completed successfully');
+    logger.info('✅ Database setup completed successfully');
+  } catch (error) {
+    logger.error('❌ Database setup failed:', { error: error.message });
+    process.exit(1);
+  }
+
+  // Start server after successful database setup
+  server = app.listen(PORT, () => {
+    // Check if we're already shutting down
+    if (isShuttingDown) {
+      logger.warn('Server startup cancelled - shutdown in progress');
+      return;
+    }
+    
+    logger.startup(`Server running on port ${PORT}`);
     logger.startup('Server is fully ready and operational!');
     
     // Start periodic shutdown status updates
@@ -316,10 +338,11 @@ server = app.listen(PORT, async () => {
         activeRequests: activeRequests.size
       });
     }, 1000); // Update every second
-  } catch (err) {
-    logger.error('Failed to setup database:', { error: err.message });
-  }
-});
+  });
+}
+
+// Start the server
+startServer();
 
 // Graceful shutdown function
 async function gracefulShutdown(signal) {
@@ -368,7 +391,7 @@ async function gracefulShutdown(signal) {
   
   // Close database pool
   try {
-    await closePool();
+    await pool.end();
     logger.info('Database pool closed');
   } catch (error) {
     logger.error('Error closing database pool:', { error: error.message });

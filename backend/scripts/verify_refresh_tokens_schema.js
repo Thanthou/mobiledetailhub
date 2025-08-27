@@ -5,20 +5,16 @@
  */
 
 require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
-const { getPool, waitForConnection } = require('../database/connection');
+const pool = require('../database/pool');
 const logger = require('../utils/logger');
 
 async function verifyRefreshTokensSchema() {
   console.log('🔍 Verifying Refresh Tokens Schema...\n');
 
   try {
-    // Wait for database connection
-    console.log('🔌 Connecting to database...');
-    const pool = await waitForConnection(30000);
-    if (!pool) {
-      throw new Error('❌ Database connection not available');
-    }
-    
+    // Test database connection
+    console.log('🔌 Testing database connection...');
+    await pool.query('SELECT 1');
     console.log('✅ Database connection established\n');
 
     // Check if refresh_tokens table exists

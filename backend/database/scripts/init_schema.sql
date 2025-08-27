@@ -1,4 +1,4 @@
--- Mobile Detail Hub schema v3.0 (normalized cities + service areas + improved constraints)
+-- Mobile Detail Hub schema v3.1 (normalized cities + service areas + brand affiliate + tightened indexes)
 -- Postgres 14+ recommended
 
 BEGIN;
@@ -17,31 +17,26 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;     -- token hashing helpers
 DO $$
 DECLARE r RECORD;
 BEGIN
-  -- Drop all views first
-  FOR r IN (
-    SELECT viewname FROM pg_views WHERE schemaname='public'
-  ) LOOP
+  -- Drop views first
+  FOR r IN (SELECT viewname FROM pg_views WHERE schemaname='public') LOOP
     EXECUTE format('DROP VIEW IF EXISTS %I CASCADE;', r.viewname);
   END LOOP;
 
-  -- Drop all tables in public schema
-  FOR r IN (
-    SELECT tablename FROM pg_tables WHERE schemaname='public'
-  ) LOOP
+  -- Drop tables
+  FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname='public') LOOP
     EXECUTE format('DROP TABLE IF EXISTS %I CASCADE;', r.tablename);
   END LOOP;
 
-  -- Drop enums we'll recreate
+  -- Drop enums
   FOR r IN (
     SELECT t.typname
-    FROM pg_type t
-    JOIN pg_namespace n ON n.oid = t.typnamespace
+    FROM pg_type t JOIN pg_namespace n ON n.oid = t.typnamespace
     WHERE n.nspname='public' AND t.typtype='e'
   ) LOOP
     EXECUTE format('DROP TYPE IF EXISTS %I CASCADE;', r.typname);
   END LOOP;
 
-  -- Drop functions we'll recreate
+  -- Drop functions
   DROP FUNCTION IF EXISTS set_updated_at() CASCADE;
   DROP FUNCTION IF EXISTS slugify(text) CASCADE;
   DROP FUNCTION IF EXISTS ensure_city_slug() CASCADE;
@@ -51,16 +46,16 @@ END$$;
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Enums
 -- ─────────────────────────────────────────────────────────────────────────────
-CREATE TYPE user_role                 AS ENUM ('admin','affiliate','customer','staff');
-CREATE TYPE affiliate_user_role       AS ENUM ('owner','manager','tech','viewer');
-CREATE TYPE service_category          AS ENUM ('auto','boat','rv','ppf','ceramic','paint_correction');
-CREATE TYPE pricing_unit              AS ENUM ('flat','hour');
-CREATE TYPE vehicle_type              AS ENUM ('auto','boat','rv');
-CREATE TYPE size_bucket               AS ENUM ('xs','s','m','l','xl');
-CREATE TYPE booking_status            AS ENUM ('pending','confirmed','in_progress','completed','canceled','no_show');
-CREATE TYPE quote_status              AS ENUM ('new','contacted','priced','accepted','rejected','expired');
-CREATE TYPE source_platform           AS ENUM ('gbp','facebook','yelp','instagram','manual');
-CREATE TYPE affiliate_status          AS ENUM ('pending','approved','rejected','suspended');
+CREATE TYPE user_role           AS ENUM ('admin','affiliate','customer','staff');
+CREATE TYPE affiliate_user_role AS ENUM ('owner','manager','tech','viewer');
+CREATE TYPE service_category    AS ENUM ('auto','boat','rv','ppf','ceramic','paint_correction');
+CREATE TYPE pricing_unit        AS ENUM ('flat','hour');
+CREATE TYPE vehicle_type        AS ENUM ('auto','boat','rv');
+CREATE TYPE size_bucket         AS ENUM ('xs','s','m','l','xl');
+CREATE TYPE booking_status      AS ENUM ('pending','confirmed','in_progress','completed','canceled','no_show');
+CREATE TYPE quote_status        AS ENUM ('new','contacted','priced','accepted','rejected','expired');
+CREATE TYPE source_platform     AS ENUM ('gbp','facebook','yelp','instagram','manual');
+CREATE TYPE affiliate_status    AS ENUM ('pending','approved','rejected','suspended');
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Utility functions & triggers
@@ -97,12 +92,8 @@ END$$;
 CREATE OR REPLACE FUNCTION validate_booking_tier()
 RETURNS TRIGGER LANGUAGE plpgsql AS $$
 BEGIN
-  -- If tier_id is set, ensure it belongs to the same service
   IF NEW.tier_id IS NOT NULL AND NEW.service_id IS NOT NULL THEN
-    IF NOT EXISTS (
-      SELECT 1 FROM service_tiers 
-      WHERE id = NEW.tier_id AND service_id = NEW.service_id
-    ) THEN
+    IF NOT EXISTS (SELECT 1 FROM service_tiers WHERE id = NEW.tier_id AND service_id = NEW.service_id) THEN
       RAISE EXCEPTION 'tier_id % does not belong to service_id %', NEW.tier_id, NEW.service_id;
     END IF;
   END IF;
@@ -131,13 +122,8 @@ CREATE TABLE cities (
   CONSTRAINT uq_cities_slug_state UNIQUE (city_slug, state_code)
 );
 
-CREATE TRIGGER trg_cities_slug
-BEFORE INSERT OR UPDATE ON cities
-FOR EACH ROW EXECUTE FUNCTION ensure_city_slug();
-
-CREATE TRIGGER trg_cities_updated 
-BEFORE UPDATE ON cities
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+CREATE TRIGGER trg_cities_slug   BEFORE INSERT OR UPDATE ON cities FOR EACH ROW EXECUTE FUNCTION ensure_city_slug();
+CREATE TRIGGER trg_cities_updated BEFORE UPDATE ON cities FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Identities & users
@@ -149,26 +135,24 @@ CREATE TABLE users (
   role          user_role NOT NULL,
   is_admin      BOOLEAN DEFAULT FALSE,
   password_hash VARCHAR(255),
-  phone         VARCHAR(50) CHECK (phone IS NULL OR phone ~ '^[0-9+\\-\\s\\(\\)]{7,20}$'),
+  phone         VARCHAR(50) CHECK (phone IS NULL OR phone ~ '^[0-9+\-\s\(\)]{7,20}$'),
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-CREATE TRIGGER trg_users_updated BEFORE UPDATE ON users
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+CREATE TRIGGER trg_users_updated BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 CREATE TABLE customers (
-  id                 INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  user_id            INT REFERENCES users(id) ON DELETE SET NULL,
-  name               VARCHAR(255) NOT NULL,
-  email              CITEXT,
-  phone              VARCHAR(50),
-  address            VARCHAR(255),
-  preferences        JSONB,
-  created_at         TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at         TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  id          INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  user_id     INT REFERENCES users(id) ON DELETE SET NULL,
+  name        VARCHAR(255) NOT NULL,
+  email       CITEXT,
+  phone       VARCHAR(50),
+  address     VARCHAR(255),
+  preferences JSONB,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-CREATE TRIGGER trg_customers_updated BEFORE UPDATE ON customers
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+CREATE TRIGGER trg_customers_updated BEFORE UPDATE ON customers FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Addresses (normalized with city_id)
@@ -177,7 +161,7 @@ CREATE TABLE addresses (
   id           INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   line1        VARCHAR(255),
   city_id      INT REFERENCES cities(id) ON DELETE SET NULL,
-  city         VARCHAR(100), -- to be dropped later (transitional)
+  city         VARCHAR(100), -- DEPRECATED: transition only; drop later
   state_code   CHAR(2) NOT NULL REFERENCES states(state_code),
   postal_code  VARCHAR(20),
   lat          DOUBLE PRECISION,
@@ -185,12 +169,12 @@ CREATE TABLE addresses (
   created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-CREATE TRIGGER trg_addresses_updated BEFORE UPDATE ON addresses
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+CREATE TRIGGER trg_addresses_updated BEFORE UPDATE ON addresses FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 CREATE INDEX idx_addresses_location ON addresses (state_code, city, postal_code);
--- Dedupe addresses by normalized location
 CREATE UNIQUE INDEX uq_addresses_normalized ON addresses (lower(line1), city_id, postal_code) WHERE line1 IS NOT NULL;
+
+COMMENT ON COLUMN addresses.city IS 'DEPRECATED: Use city_id for normalized city reference. This field will be dropped in a future schema version.';
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Affiliates & membership
@@ -200,7 +184,7 @@ CREATE TABLE affiliates (
   slug                 VARCHAR(100) NOT NULL UNIQUE CHECK (slug = slugify(slug)),
   business_name        VARCHAR(255) NOT NULL,
   owner                VARCHAR(255) NOT NULL,
-  phone                VARCHAR(20) NOT NULL CHECK (phone ~ '^[0-9+\\-\\s\\(\\)]{7,20}$'),
+  phone                VARCHAR(20) NOT NULL CHECK (phone ~ '^[0-9+\-\s\(\)]{7,20}$'),
   sms_phone            VARCHAR(20),
   email                CITEXT NOT NULL,
   base_address_id      INT REFERENCES addresses(id) ON DELETE SET NULL,
@@ -224,14 +208,17 @@ CREATE TABLE affiliates (
   total_jobs           INT DEFAULT 0,
   rating               NUMERIC CHECK (rating IS NULL OR (rating >= 0 AND rating <= 5)),
   review_count         INT DEFAULT 0 CHECK (review_count >= 0),
+  is_brand             BOOLEAN NOT NULL DEFAULT FALSE,
   created_at           TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at           TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   application_date     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   approved_date        TIMESTAMPTZ,
   last_activity        TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-CREATE TRIGGER trg_affiliates_updated BEFORE UPDATE ON affiliates
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+CREATE TRIGGER trg_affiliates_updated BEFORE UPDATE ON affiliates FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+-- Enforce a single brand affiliate row
+CREATE UNIQUE INDEX uq_affiliates_brand_one ON affiliates (is_brand) WHERE is_brand;
 
 CREATE TABLE affiliate_users (
   id           INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -242,8 +229,9 @@ CREATE TABLE affiliate_users (
   updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   CONSTRAINT uq_affiliate_users UNIQUE (affiliate_id, user_id)
 );
-CREATE TRIGGER trg_affiliate_users_updated BEFORE UPDATE ON affiliate_users
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+CREATE TRIGGER trg_affiliate_users_updated BEFORE UPDATE ON affiliate_users FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+CREATE INDEX idx_affiliate_users_user_id ON affiliate_users (user_id);
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Services & tiers
@@ -262,8 +250,7 @@ CREATE TABLE services (
   updated_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   CONSTRAINT uq_services_affiliate_name UNIQUE (affiliate_id, name)
 );
-CREATE TRIGGER trg_services_updated BEFORE UPDATE ON services
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+CREATE TRIGGER trg_services_updated BEFORE UPDATE ON services FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 CREATE TABLE service_tiers (
   id                INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -275,11 +262,10 @@ CREATE TABLE service_tiers (
   updated_at        TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   CONSTRAINT uq_service_tiers_service_name UNIQUE (service_id, name)
 );
-CREATE TRIGGER trg_service_tiers_updated BEFORE UPDATE ON service_tiers
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+CREATE TRIGGER trg_service_tiers_updated BEFORE UPDATE ON service_tiers FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 CREATE INDEX idx_services_affiliate_category ON services (affiliate_id, category);
-CREATE INDEX idx_service_tiers_service_id ON service_tiers (service_id);
+CREATE INDEX idx_service_tiers_service_id   ON service_tiers (service_id);
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Availability (time ranges with exclusion constraints)
@@ -291,31 +277,27 @@ CREATE TABLE availability (
   capacity     INT NOT NULL DEFAULT 1 CHECK (capacity > 0),
   created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  -- Prevent overlapping availability windows for same affiliate
   EXCLUDE USING gist (affiliate_id WITH =, time_window WITH &&)
 );
-CREATE TRIGGER trg_availability_updated BEFORE UPDATE ON availability
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-
+CREATE TRIGGER trg_availability_updated BEFORE UPDATE ON availability FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE INDEX idx_availability_window ON availability USING gist (time_window);
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Quotes & bookings (data integrity)
 -- ─────────────────────────────────────────────────────────────────────────────
 CREATE TABLE quotes (
-  id                     INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  affiliate_id           INT NOT NULL REFERENCES affiliates(id) ON DELETE CASCADE,
-  customer_id            INT REFERENCES customers(id) ON DELETE SET NULL,
-  address_json           JSONB NOT NULL DEFAULT '{}'::jsonb,
-  requested_start        TIMESTAMPTZ,
-  status                 quote_status NOT NULL DEFAULT 'new',
-  details_json           JSONB NOT NULL DEFAULT '{}'::jsonb,
-  estimated_total_cents  INT CHECK (estimated_total_cents IS NULL OR estimated_total_cents >= 0),
-  created_at             TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at             TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  id                    INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  affiliate_id          INT NOT NULL REFERENCES affiliates(id) ON DELETE CASCADE,
+  customer_id           INT REFERENCES customers(id) ON DELETE SET NULL,
+  address_json          JSONB NOT NULL DEFAULT '{}'::jsonb,
+  requested_start       TIMESTAMPTZ,
+  status                quote_status NOT NULL DEFAULT 'new',
+  details_json          JSONB NOT NULL DEFAULT '{}'::jsonb,
+  estimated_total_cents INT CHECK (estimated_total_cents IS NULL OR estimated_total_cents >= 0),
+  created_at            TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at            TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-CREATE TRIGGER trg_quotes_updated BEFORE UPDATE ON quotes
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+CREATE TRIGGER trg_quotes_updated BEFORE UPDATE ON quotes FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 CREATE TABLE bookings (
   id                       INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -332,18 +314,14 @@ CREATE TABLE bookings (
   created_at               TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at               TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   CHECK (appointment_end > appointment_start),
-  -- Prevent affiliate double-bookings
   EXCLUDE USING gist (affiliate_id WITH =, tstzrange(appointment_start, appointment_end, '[)') WITH &&)
 );
-CREATE TRIGGER trg_bookings_updated BEFORE UPDATE ON bookings
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-
-CREATE TRIGGER trg_bookings_tier_validation BEFORE INSERT OR UPDATE ON bookings
-FOR EACH ROW EXECUTE FUNCTION validate_booking_tier();
+CREATE TRIGGER trg_bookings_updated           BEFORE UPDATE ON bookings FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+CREATE TRIGGER trg_bookings_tier_validation   BEFORE INSERT OR UPDATE ON bookings FOR EACH ROW EXECUTE FUNCTION validate_booking_tier();
 
 CREATE INDEX idx_bookings_affiliate_start ON bookings (affiliate_id, appointment_start);
-CREATE INDEX idx_quotes_affiliate_status   ON quotes (affiliate_id, status);
-CREATE INDEX idx_quotes_created_at         ON quotes (created_at DESC);
+CREATE INDEX idx_quotes_affiliate_status  ON quotes (affiliate_id, status);
+CREATE INDEX idx_quotes_created_at        ON quotes (created_at DESC);
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Service areas (normalized with city_id)
@@ -356,9 +334,7 @@ CREATE TABLE affiliate_service_areas (
   created_at   TIMESTAMPTZ DEFAULT NOW(),
   updated_at   TIMESTAMPTZ DEFAULT NOW()
 );
--- UNIQUE constraints handled by partial indexes below
-CREATE TRIGGER trg_affiliate_service_areas_updated BEFORE UPDATE ON affiliate_service_areas
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+CREATE TRIGGER trg_affiliate_service_areas_updated BEFORE UPDATE ON affiliate_service_areas FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 CREATE TABLE service_area_slugs (
   id         INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -368,18 +344,15 @@ CREATE TABLE service_area_slugs (
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
-CREATE TRIGGER trg_service_area_slugs_updated BEFORE UPDATE ON service_area_slugs
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+CREATE TRIGGER trg_service_area_slugs_updated BEFORE UPDATE ON service_area_slugs FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
-CREATE INDEX idx_aff_sa_city_id     ON affiliate_service_areas (city_id);
-CREATE INDEX idx_aff_sa_affiliate   ON affiliate_service_areas (affiliate_id);
-
--- Index for slug lookups by city
+CREATE INDEX idx_aff_sa_city_id       ON affiliate_service_areas (city_id);
+CREATE INDEX idx_aff_sa_affiliate     ON affiliate_service_areas (affiliate_id);
 CREATE INDEX idx_service_area_slugs_city ON service_area_slugs (city_id);
 
 -- Partial unique indexes to handle optional zip values
-CREATE UNIQUE INDEX uq_aff_sa_no_zip ON affiliate_service_areas (affiliate_id, city_id) WHERE zip IS NULL;
-CREATE UNIQUE INDEX uq_aff_sa_with_zip ON affiliate_service_areas (affiliate_id, city_id, zip) WHERE zip IS NOT NULL;
+CREATE UNIQUE INDEX uq_aff_sa_no_zip    ON affiliate_service_areas (affiliate_id, city_id) WHERE zip IS NULL;
+CREATE UNIQUE INDEX uq_aff_sa_with_zip  ON affiliate_service_areas (affiliate_id, city_id, zip) WHERE zip IS NOT NULL;
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Reviews & locations
@@ -394,11 +367,9 @@ CREATE TABLE location (
   timezone           TEXT,
   created_at         TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at         TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  -- Prevent duplicate external locations
   CONSTRAINT uq_location_external UNIQUE (source_platform, source_location_id)
 );
-CREATE TRIGGER trg_location_updated BEFORE UPDATE ON location
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+CREATE TRIGGER trg_location_updated BEFORE UPDATE ON location FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 CREATE TABLE reviews (
   id                 BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -418,8 +389,7 @@ CREATE TABLE reviews (
   updated_at         TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   CONSTRAINT uq_reviews_ext UNIQUE (external_id, source_platform)
 );
-CREATE TRIGGER trg_reviews_updated BEFORE UPDATE ON reviews
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+CREATE TRIGGER trg_reviews_updated BEFORE UPDATE ON reviews FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 CREATE TABLE review_reply (
   id                BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -429,8 +399,7 @@ CREATE TABLE review_reply (
   created_at        TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-CREATE TRIGGER trg_review_reply_updated BEFORE UPDATE ON review_reply
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+CREATE TRIGGER trg_review_reply_updated BEFORE UPDATE ON review_reply FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 CREATE TABLE review_sync_state (
   location_id      BIGINT PRIMARY KEY REFERENCES location(location_id) ON DELETE CASCADE,
@@ -438,11 +407,12 @@ CREATE TABLE review_sync_state (
   created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-CREATE TRIGGER trg_review_sync_state_updated BEFORE UPDATE ON review_sync_state
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+CREATE TRIGGER trg_review_sync_state_updated BEFORE UPDATE ON review_sync_state FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
-CREATE INDEX idx_location_affiliate ON location (affiliate_id);
+CREATE INDEX idx_location_affiliate     ON location (affiliate_id);
 CREATE INDEX idx_reviews_affiliate_time ON reviews (affiliate_id, create_time);
+CREATE INDEX idx_reviews_location_time  ON reviews (location_id, create_time);
+CREATE INDEX idx_reviews_active_time    ON reviews (affiliate_id, create_time) WHERE is_deleted = false;
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Site config (singleton)
@@ -464,13 +434,10 @@ CREATE TABLE mdh_config (
   tagline               TEXT,
   services_description  TEXT DEFAULT 'Auto, boat & RV detailing, paint correction, ceramic coating, and PPF',
   created_at            TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at            TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  updated_at            TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT chk_singleton CHECK (id = 1)
 );
-CREATE TRIGGER trg_mdh_config_updated BEFORE UPDATE ON mdh_config
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-
--- Enforce singleton pattern for mdh_config
-ALTER TABLE mdh_config ADD CONSTRAINT chk_singleton CHECK (id = 1);
+CREATE TRIGGER trg_mdh_config_updated BEFORE UPDATE ON mdh_config FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Auth/storage helpers
@@ -487,20 +454,10 @@ CREATE TABLE refresh_tokens (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-CREATE TRIGGER trg_refresh_tokens_updated BEFORE UPDATE ON refresh_tokens
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+CREATE TRIGGER trg_refresh_tokens_updated BEFORE UPDATE ON refresh_tokens FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 CREATE INDEX idx_refresh_tokens_user_id ON refresh_tokens (user_id);
-CREATE INDEX idx_refresh_tokens_active ON refresh_tokens (user_id) WHERE revoked_at IS NULL;
-
--- JSONB indexes for heavy querying (add when needed)
--- CREATE INDEX idx_quotes_details_gin ON quotes USING gin (details_json);
--- CREATE INDEX idx_bookings_address_gin ON bookings USING gin (address_json);
-
--- ─────────────────────────────────────────────────────────────────────────────
--- Column comments for transitional fields
--- ─────────────────────────────────────────────────────────────────────────────
-COMMENT ON COLUMN addresses.city IS 'DEPRECATED: Use city_id for normalized city reference. This field will be dropped in future schema version.';
+CREATE INDEX idx_refresh_tokens_active  ON refresh_tokens (user_id) WHERE revoked_at IS NULL;
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Schema versioning
@@ -514,65 +471,22 @@ CREATE TABLE schema_migrations (
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Initial data
 -- ─────────────────────────────────────────────────────────────────────────────
-
--- Insert US states + DC + territories
 INSERT INTO states (state_code, name, country_code) VALUES
-('AL', 'Alabama', 'US'),
-('AK', 'Alaska', 'US'),
-('AZ', 'Arizona', 'US'),
-('AR', 'Arkansas', 'US'),
-('CA', 'California', 'US'),
-('CO', 'Colorado', 'US'),
-('CT', 'Connecticut', 'US'),
-('DE', 'Delaware', 'US'),
-('FL', 'Florida', 'US'),
-('GA', 'Georgia', 'US'),
-('HI', 'Hawaii', 'US'),
-('ID', 'Idaho', 'US'),
-('IL', 'Illinois', 'US'),
-('IN', 'Indiana', 'US'),
-('IA', 'Iowa', 'US'),
-('KS', 'Kansas', 'US'),
-('KY', 'Kentucky', 'US'),
-('LA', 'Louisiana', 'US'),
-('ME', 'Maine', 'US'),
-('MD', 'Maryland', 'US'),
-('MA', 'Massachusetts', 'US'),
-('MI', 'Michigan', 'US'),
-('MN', 'Minnesota', 'US'),
-('MS', 'Mississippi', 'US'),
-('MO', 'Missouri', 'US'),
-('MT', 'Montana', 'US'),
-('NE', 'Nebraska', 'US'),
-('NV', 'Nevada', 'US'),
-('NH', 'New Hampshire', 'US'),
-('NJ', 'New Jersey', 'US'),
-('NM', 'New Mexico', 'US'),
-('NY', 'New York', 'US'),
-('NC', 'North Carolina', 'US'),
-('ND', 'North Dakota', 'US'),
-('OH', 'Ohio', 'US'),
-('OK', 'Oklahoma', 'US'),
-('OR', 'Oregon', 'US'),
-('PA', 'Pennsylvania', 'US'),
-('RI', 'Rhode Island', 'US'),
-('SC', 'South Carolina', 'US'),
-('SD', 'South Dakota', 'US'),
-('TN', 'Tennessee', 'US'),
-('TX', 'Texas', 'US'),
-('UT', 'Utah', 'US'),
-('VT', 'Vermont', 'US'),
-('VA', 'Virginia', 'US'),
-('WA', 'Washington', 'US'),
-('WV', 'West Virginia', 'US'),
-('WI', 'Wisconsin', 'US'),
-('WY', 'Wyoming', 'US'),
-('DC', 'District of Columbia', 'US'),
-('PR', 'Puerto Rico', 'US'),
-('GU', 'Guam', 'US'),
-('VI', 'U.S. Virgin Islands', 'US'),
-('AS', 'American Samoa', 'US'),
-('MP', 'Northern Mariana Islands', 'US')
+('AL','Alabama','US'),('AK','Alaska','US'),('AZ','Arizona','US'),('AR','Arkansas','US'),
+('CA','California','US'),('CO','Colorado','US'),('CT','Connecticut','US'),('DE','Delaware','US'),
+('FL','Florida','US'),('GA','Georgia','US'),('HI','Hawaii','US'),('ID','Idaho','US'),
+('IL','Illinois','US'),('IN','Indiana','US'),('IA','Iowa','US'),('KS','Kansas','US'),
+('KY','Kentucky','US'),('LA','Louisiana','US'),('ME','Maine','US'),('MD','Maryland','US'),
+('MA','Massachusetts','US'),('MI','Michigan','US'),('MN','Minnesota','US'),('MS','Mississippi','US'),
+('MO','Missouri','US'),('MT','Montana','US'),('NE','Nebraska','US'),('NV','Nevada','US'),
+('NH','New Hampshire','US'),('NJ','New Jersey','US'),('NM','New Mexico','US'),('NY','New York','US'),
+('NC','North Carolina','US'),('ND','North Dakota','US'),('OH','Ohio','US'),('OK','Oklahoma','US'),
+('OR','Oregon','US'),('PA','Pennsylvania','US'),('RI','Rhode Island','US'),('SC','South Carolina','US'),
+('SD','South Dakota','US'),('TN','Tennessee','US'),('TX','Texas','US'),('UT','Utah','US'),
+('VT','Vermont','US'),('VA','Virginia','US'),('WA','Washington','US'),('WV','West Virginia','US'),
+('WI','Wisconsin','US'),('WY','Wyoming','US'),('DC','District of Columbia','US'),
+('PR','Puerto Rico','US'),('GU','Guam','US'),('VI','U.S. Virgin Islands','US'),
+('AS','American Samoa','US'),('MP','Northern Mariana Islands','US')
 ON CONFLICT (state_code) DO NOTHING;
 
 -- Singleton config row
@@ -588,32 +502,36 @@ VALUES ('admin@mobiledetailhub.com', 'Brandan Coleman', 'admin', TRUE,
         '$2a$10$EAY3D9OdVXpYgby.ATOmheJwqrlTZ423Yg2a.qLzN1Ku1/oj2/LzS', NULL)
 ON CONFLICT (email) DO NOTHING;
 
+-- Seed single brand affiliate for MDH-wide reviews
+INSERT INTO affiliates
+  (slug, business_name, owner, phone, email, application_status, is_brand, approved_date)
+VALUES
+  ('mdh', 'Mobile Detail Hub', 'Mobile Detail Hub', '(888) 555-1234', 'service@mobiledetailhub.com', 'approved', TRUE, NOW())
+ON CONFLICT (slug) DO NOTHING;
+
 -- Schema version record
 INSERT INTO schema_migrations (version, description)
-VALUES ('v3', 'Initial normalized schema with city_id and availability ranges')
+VALUES ('v3.1', 'Normalized schema + brand affiliate + tightened indexes')
 ON CONFLICT (version) DO NOTHING;
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Views for common queries & site menus
 -- ─────────────────────────────────────────────────────────────────────────────
-
--- View for affiliate base location information (joins base address)
 CREATE OR REPLACE VIEW v_affiliate_base_location AS
 SELECT
   f.id AS affiliate_id,
   f.slug,
   f.business_name,
-  COALESCE(c.name, addr.city) AS city, -- prefer normalized city name
+  COALESCE(c.name, addr.city) AS city, -- prefer normalized city
   addr.state_code,
   addr.postal_code AS zip,
   c.name AS city_name,
   c.city_slug,
-  addr.city AS legacy_city -- transitional field
+  addr.city AS legacy_city
 FROM affiliates f
 LEFT JOIN addresses addr ON addr.id = f.base_address_id
 LEFT JOIN cities c ON c.id = addr.city_id;
 
--- States with at least one affiliate coverage row
 CREATE OR REPLACE VIEW v_served_states AS
 SELECT DISTINCT s.state_code, s.name
 FROM states s
@@ -621,7 +539,6 @@ JOIN cities c ON c.state_code = s.state_code
 JOIN affiliate_service_areas a ON a.city_id = c.id
 ORDER BY s.name;
 
--- Cities per state with affiliate counts
 CREATE OR REPLACE VIEW v_served_cities AS
 SELECT 
   c.state_code, 
