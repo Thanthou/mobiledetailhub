@@ -443,21 +443,27 @@ CREATE TRIGGER trg_mdh_config_updated BEFORE UPDATE ON mdh_config FOR EACH ROW E
 -- Auth/storage helpers
 -- ─────────────────────────────────────────────────────────────────────────────
 CREATE TABLE refresh_tokens (
-  id         INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  user_id    INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  token_hash TEXT NOT NULL UNIQUE,
-  user_agent TEXT,
-  ip         INET,
-  device_id  TEXT,
-  expires_at TIMESTAMPTZ,
-  revoked_at TIMESTAMPTZ,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  id          INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  user_id     INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  token_hash  TEXT NOT NULL UNIQUE,
+  user_agent  TEXT,
+  ip_address  INET,              -- unified name
+  device_id   TEXT,
+  expires_at  TIMESTAMPTZ,
+  revoked_at  TIMESTAMPTZ,       -- canonical source of truth
+  is_revoked  BOOLEAN GENERATED ALWAYS AS (revoked_at IS NOT NULL) STORED,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-CREATE TRIGGER trg_refresh_tokens_updated BEFORE UPDATE ON refresh_tokens FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+CREATE TRIGGER trg_refresh_tokens_updated
+BEFORE UPDATE ON refresh_tokens
+FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 CREATE INDEX idx_refresh_tokens_user_id ON refresh_tokens (user_id);
 CREATE INDEX idx_refresh_tokens_active  ON refresh_tokens (user_id) WHERE revoked_at IS NULL;
+
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Schema versioning
