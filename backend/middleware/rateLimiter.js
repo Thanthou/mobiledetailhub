@@ -1,8 +1,15 @@
 const rateLimit = require('express-rate-limit');
 const logger = require('../utils/logger');
 
+// ⚠️  DEVELOPMENT MODE: Rate limiting is DISABLED
+// All limits set to 10,000 requests per window to prevent development issues
+// Change max values back to production limits when deploying
+
 /**
  * Rate limiting configurations for different route types
+ * 
+ * ⚠️  DEVELOPMENT MODE: Rate limiting is DISABLED
+ * All rate limits set to 10,000 requests per window to prevent development issues.
  * 
  * IMPORTANT: Read-only endpoints (GET /api/mdh-config, GET /api/affiliates) 
  * are NOT rate-limited to prevent slow header/footer performance.
@@ -11,16 +18,24 @@ const logger = require('../utils/logger');
  * - Heavy endpoints (uploads, admin operations)
  * - Authentication endpoints (security)
  * 
- * AUTH RATE LIMITING STRATEGY:
- * - General auth: 20 requests/15min (allows refresh tokens + multiple tabs)
- * - Sensitive auth: 3 requests/5min (login, password reset, registration)
- * - Refresh tokens: 50 requests/15min (allows app recovery)
+ * AUTH RATE LIMITING STRATEGY (DISABLED):
+ * - General auth: 10,000 requests/15min (effectively disabled)
+ * - Sensitive auth: 10,000 requests/5min (effectively disabled)
+ * - Refresh tokens: 10,000 requests/15min (effectively disabled)
+ * 
+ * TODO: Re-enable rate limiting for production by changing max values back to:
+ * - General auth: 20 requests/15min
+ * - Sensitive auth: 3 requests/5min  
+ * - Refresh tokens: 50 requests/15min
+ * - Admin: 50 requests/15min
+ * - Critical admin: 2 requests/5min
+ * - API: 100 requests/15min
  */
 
-// Auth routes rate limiting - balanced approach for security vs usability
+// Auth routes rate limiting - DISABLED for development
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 20, // Increased from 5 to allow refresh tokens and multiple tabs
+  max: 10000, // Extremely high limit - effectively disabled
   skipSuccessfulRequests: true, // Don't count successful requests against limit
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
@@ -45,10 +60,10 @@ const authLimiter = rateLimit({
   }
 });
 
-// Stricter rate limiting for sensitive auth endpoints (login, password reset)
+// Stricter rate limiting for sensitive auth endpoints - DISABLED for development
 const sensitiveAuthLimiter = rateLimit({
   windowMs: 5 * 60 * 1000, // 5 minutes
-  max: 3, // limit each IP to 3 requests per 5 minutes for sensitive operations
+  max: 10000, // Extremely high limit - effectively disabled
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res) => {
@@ -72,10 +87,10 @@ const sensitiveAuthLimiter = rateLimit({
   }
 });
 
-// Lenient rate limiting for refresh tokens - allows app recovery
+// Lenient rate limiting for refresh tokens - DISABLED for development
 const refreshTokenLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 50, // Higher limit for refresh tokens to allow app recovery
+  max: 10000, // Extremely high limit - effectively disabled
   skipSuccessfulRequests: true, // Don't count successful refreshes
   standardHeaders: true,
   legacyHeaders: false,
@@ -100,10 +115,10 @@ const refreshTokenLimiter = rateLimit({
   }
 });
 
-// Admin routes rate limiting - reasonable limits for admin dashboard usage
+// Admin routes rate limiting - DISABLED for development
 const adminLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 50, // limit each IP to 50 requests per windowMs for admin endpoints
+  max: 10000, // Extremely high limit - effectively disabled
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res) => {
@@ -128,10 +143,10 @@ const adminLimiter = rateLimit({
   }
 });
 
-// Stricter rate limiting for critical admin operations (deletions, role changes)
+// Stricter rate limiting for critical admin operations - DISABLED for development
 const criticalAdminLimiter = rateLimit({
   windowMs: 5 * 60 * 1000, // 5 minutes
-  max: 2, // limit each IP to 2 requests per 5 minutes for critical operations
+  max: 10000, // Extremely high limit - effectively disabled
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res) => {
@@ -156,10 +171,10 @@ const criticalAdminLimiter = rateLimit({
   }
 });
 
-// General API rate limiting for other routes
+// General API rate limiting for other routes - DISABLED for development
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: 10000, // Extremely high limit - effectively disabled
   skipSuccessfulRequests: true, // Don't count successful requests against rate limit
   standardHeaders: true,
   legacyHeaders: false,

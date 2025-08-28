@@ -6,14 +6,16 @@ interface LocationInputProps {
   onLocationSubmit: (location: string, zipCode?: string, city?: string, state?: string) => void;
   placeholder?: string;
   className?: string;
+  value?: string; // Add value prop to receive form data
 }
 
 const LocationInput: React.FC<LocationInputProps> = ({
   onLocationSubmit,
   placeholder = 'Enter your city, state, or ZIP code',
   className = '',
+  value = '', // Default to empty string
 }) => {
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState(value);
   const [predictions, setPredictions] = useState<Array<any>>([]);
   const [showPredictions, setShowPredictions] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -23,6 +25,13 @@ const LocationInput: React.FC<LocationInputProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const predictionsRef = useRef<HTMLDivElement>(null);
   const sessionTokenRef = useRef<any | null>(null);
+
+  // Update internal state when value prop changes (for test data population)
+  useEffect(() => {
+    if (value && value !== inputValue) {
+      setInputValue(value);
+    }
+  }, [value, inputValue]);
 
   // Load Google Places API
   useEffect(() => {

@@ -332,19 +332,17 @@ async function setupDatabase() {
       CREATE TABLE IF NOT EXISTS affiliate_service_areas (
         id           SERIAL PRIMARY KEY,
         affiliate_id INT NOT NULL REFERENCES affiliates(id) ON DELETE CASCADE,
-        city         VARCHAR(100) NOT NULL,
-        state_code   CHAR(2) NOT NULL REFERENCES states(state_code),
+        city_id      INT NOT NULL REFERENCES cities(id) ON DELETE CASCADE,
         zip          VARCHAR(20),
         created_at   TIMESTAMPTZ DEFAULT NOW(),
-        CONSTRAINT uq_aff_sa UNIQUE (affiliate_id, city, state_code, zip)
+        CONSTRAINT uq_aff_sa UNIQUE (affiliate_id, city_id, zip)
       );
 
       -- Create service_area_slugs table
       CREATE TABLE IF NOT EXISTS service_area_slugs (
         id         SERIAL PRIMARY KEY,
-        city       VARCHAR(100) NOT NULL,
-        state_code CHAR(2) NOT NULL REFERENCES states(state_code),
-        zip        VARCHAR(20),
+        slug       VARCHAR(255) NOT NULL UNIQUE,
+        city_id    INT NOT NULL REFERENCES cities(id) ON DELETE CASCADE,
         created_at TIMESTAMPTZ DEFAULT NOW()
       );
 

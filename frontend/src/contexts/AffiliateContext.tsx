@@ -90,7 +90,12 @@ export const AffiliateProvider: React.FC<AffiliateProviderProps> = ({ children }
         }
         
         const data = await response.json();
-        setAffiliateData(data);
+        
+        if (data.success && data.affiliate) {
+          setAffiliateData(data.affiliate);
+        } else {
+          throw new Error('Invalid affiliate data structure');
+        }
       } catch (err) {
         console.error('Error fetching affiliate data:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch affiliate data');

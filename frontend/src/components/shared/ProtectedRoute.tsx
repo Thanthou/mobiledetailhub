@@ -15,11 +15,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 }) => {
   const { user, loading } = useAuth();
   
-  // In development mode, bypass all authentication checks
-  if (import.meta.env.DEV) {
-    return <>{children}</>;
-  }
-  
   // Show loading while checking authentication
   if (loading) {
     return (

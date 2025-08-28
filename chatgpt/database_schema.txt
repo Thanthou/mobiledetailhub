@@ -5,7 +5,7 @@ TEXT FORMAT:
 ------------------------------
 Database Schema Export
 Database: MobileDetailHub
-Exported: 2025-08-28T00:57:52.548Z
+Exported: 2025-08-28T18:10:47.389Z
 Total Tables: 24
 
 === TABLE: addresses ===
@@ -464,7 +464,7 @@ Indexes:
   - refresh_tokens_token_hash_key: token_hash (UNIQUE)
 
 Sample Data (1 rows):
-  Row 1: {"id":3,"user_id":1,"token_hash":"178f803514cc904a3dabdef1f2cdbb45c3ae4d1cf5c32c76f9d4a47ff096ed10","user_agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36","ip_address":"::1","device_id":"d0775dd38d37a7c8","expires_at":"2025-09-04T00:53:49.500Z","revoked_at":null,"is_revoked":false,"created_at":"2025-08-28T00:53:49.503Z","updated_at":"2025-08-28T00:53:49.503Z"}
+  Row 1: {"id":3,"user_id":1,"token_hash":"c653aa607b64d2fa036c8b992c2ff4099eed285e6a8f27da1cee24f050809886","user_agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36","ip_address":"::1","device_id":"d0775dd38d37a7c8","expires_at":"2025-09-04T18:08:30.653Z","revoked_at":null,"is_revoked":false,"created_at":"2025-08-28T18:08:30.656Z","updated_at":"2025-08-28T18:08:30.656Z"}
 
 
 === TABLE: review_reply ===
@@ -791,7 +791,7 @@ JSON FORMAT:
 ------------------------------
 {
   "database": "MobileDetailHub",
-  "exported_at": "2025-08-28T00:57:52.548Z",
+  "exported_at": "2025-08-28T18:10:47.389Z",
   "tables": [
     {
       "table_name": "addresses",
@@ -3841,10 +3841,10 @@ JSON FORMAT:
       ],
       "statistics": {
         "inserts": "3",
-        "updates": "4",
+        "updates": "12",
         "deletes": "2",
         "live_tuples": "1",
-        "dead_tuples": "6",
+        "dead_tuples": "14",
         "last_vacuum": null,
         "last_autovacuum": null,
         "last_analyze": null,
@@ -3854,15 +3854,15 @@ JSON FORMAT:
         {
           "id": 3,
           "user_id": 1,
-          "token_hash": "178f803514cc904a3dabdef1f2cdbb45c3ae4d1cf5c32c76f9d4a47ff096ed10",
+          "token_hash": "c653aa607b64d2fa036c8b992c2ff4099eed285e6a8f27da1cee24f050809886",
           "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
           "ip_address": "::1",
           "device_id": "d0775dd38d37a7c8",
-          "expires_at": "2025-09-04T00:53:49.500Z",
+          "expires_at": "2025-09-04T18:08:30.653Z",
           "revoked_at": null,
           "is_revoked": false,
-          "created_at": "2025-08-28T00:53:49.503Z",
-          "updated_at": "2025-08-28T00:53:49.503Z"
+          "created_at": "2025-08-28T18:08:30.656Z",
+          "updated_at": "2025-08-28T18:08:30.656Z"
         }
       ],
       "row_count": "1"

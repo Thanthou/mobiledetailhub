@@ -5,7 +5,7 @@ window.__MDH__ = {
   name: "Mobile Detail Hub",
   url: "https://mobiledetailhub.com/",
   logo: "/assets/logo.webp",
-  phone: "+1-702-420-6066",
+  phone: "(888) 555-1234",
   email: "service@mobiledetailhub.com",
   
   // Social media links

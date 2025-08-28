@@ -268,59 +268,72 @@ router.post('/apply',
         }
       }
       
-      // Insert service areas for the affiliate
+      // Insert service areas for the affiliate using the new simplified JSONB approach
       console.log('🗺️ [BACKEND] Starting service area creation...');
       if (result.rows[0] && base_location.city && base_location.state) {
         try {
-          // Reuse existing pool connection
-          if (!pool) {
-            console.log('❌ [BACKEND] Pool check failed during service area creation');
-            return res.status(500).json({ error: 'Database connection not available' });
-          }
+          // Create service areas in the new JSONB format
+          const serviceAreas = [{
+            city: base_location.city,
+            state: base_location.state.toUpperCase(),
+            zip: base_location.zip && base_location.zip.trim() !== '' ? base_location.zip.trim() : null,
+            slug: tempSlug // Use temp slug for now, will be updated on approval
+          }];
           
-          // Handle empty zip by using null since zip column is nullable
-          const zipValue = base_location.zip && base_location.zip.trim() !== '' ? base_location.zip.trim() : null;
+          // Update the affiliate with service areas
+          await pool.query(
+            'UPDATE affiliates SET service_areas = $1 WHERE id = $2',
+            [JSON.stringify(serviceAreas), result.rows[0].id]
+          );
           
-          // Use the new normalized structure with city_id
+          console.log('✅ [BACKEND] Service areas created successfully in JSONB format');
+          logger.info(`Created service areas for affiliate ${result.rows[0].id}:`, serviceAreas);
+          
+          // Extract location from service areas and update city, state, zip columns
           try {
-            // First, ensure the city exists in the cities table
-            console.log('🏙️ [BACKEND] Checking/creating city record...');
-            let cityResult = await pool.query(
-              'SELECT id FROM cities WHERE name = $1 AND state_code = $2',
-              [base_location.city, base_location.state]
-            );
+            console.log('🔍 [DEBUG] Service areas data:', JSON.stringify(serviceAreas, null, 2));
+            console.log('🔍 [DEBUG] First service area:', JSON.stringify(serviceAreas[0], null, 2));
             
-            let cityId;
-            if (cityResult.rows.length === 0) {
-              // Create the city if it doesn't exist
-              console.log('🏗️ [BACKEND] Creating new city record...');
-              cityResult = await pool.query(
-                'INSERT INTO cities (name, city_slug, state_code) VALUES ($1, slugify($1), $2) RETURNING id',
-                [base_location.city, base_location.state]
-              );
-              cityId = cityResult.rows[0].id;
-              console.log('✅ [BACKEND] New city created with ID:', cityId);
-              logger.info(`Created new city: ${base_location.city}, ${base_location.state}`);
-            } else {
-              cityId = cityResult.rows[0].id;
-              console.log('✅ [BACKEND] Using existing city ID:', cityId);
-            }
+            const primaryLocation = serviceAreas[0];
+            console.log('🔍 [DEBUG] Primary location object:', primaryLocation);
+            console.log('🔍 [DEBUG] Available properties:', Object.keys(primaryLocation));
+            console.log('🔍 [DEBUG] City value:', primaryLocation.city);
+            console.log('🔍 [DEBUG] State value:', primaryLocation.state);
+            console.log('🔍 [DEBUG] Zip value:', primaryLocation.zip);
             
-            // Insert service area using city_id
-            console.log('🗺️ [BACKEND] Inserting service area...');
-            await pool.query(
-              'INSERT INTO affiliate_service_areas (affiliate_id, city_id, zip) VALUES ($1, $2, $3) ON CONFLICT (affiliate_id, city_id) DO NOTHING',
-              [result.rows[0].id, cityId, zipValue]
-            );
-            console.log('✅ [BACKEND] Service area created successfully');
-            logger.info(`Created service area for affiliate ${result.rows[0].id} in city ${cityId}`);
-          } catch (serviceAreaErr) {
-            console.log('⚠️ [BACKEND] Service area creation failed:', serviceAreaErr.message);
-            logger.warn('Failed to insert service area, but affiliate was created:', { error: serviceAreaErr.message });
+            // Update affiliate with the location data from service areas
+            const locationUpdateQuery = `
+              UPDATE affiliates 
+              SET city = $1, state = $2, zip = $3
+              WHERE id = $4
+              RETURNING *
+            `;
+            
+            await pool.query(locationUpdateQuery, [
+              primaryLocation.city,
+              primaryLocation.state, 
+              primaryLocation.zip,
+              result.rows[0].id
+            ]);
+            
+            console.log('✅ [BACKEND] Location columns updated for affiliate:', {
+              city: primaryLocation.city,
+              state: primaryLocation.state,
+              zip: primaryLocation.zip
+            });
+            logger.info(`Location columns updated for affiliate ${result.rows[0].id}:`, {
+              city: primaryLocation.city,
+              state: primaryLocation.state,
+              zip: primaryLocation.zip
+            });
+          } catch (locationError) {
+            console.log('⚠️ [BACKEND] Location update failed:', locationError.message);
+            console.log('⚠️ [BACKEND] Location update error stack:', locationError.stack);
+            logger.warn('Location update failed, but affiliate was created:', { error: locationError.message });
           }
         } catch (error) {
-          console.log('⚠️ [BACKEND] Service area processing failed:', error.message);
-          logger.warn('Failed to process service areas, but affiliate was created:', { error: error.message });
+          console.log('⚠️ [BACKEND] Service area creation failed:', error.message);
+          logger.warn('Failed to create service areas, but affiliate was created:', { error: error.message });
         }
       }
       
@@ -458,58 +471,64 @@ router.post('/update-zip', asyncHandler(async (req, res) => {
 router.get('/:slug', asyncHandler(async (req, res) => {
   const { slug } = req.params;
   try {
+    logger.info(`Fetching affiliate with slug: ${slug}`);
 
     if (!pool) {
+      logger.error('Database pool not available');
       return res.status(500).json({ error: 'Database connection not available' });
     }
-    // Get affiliate data with base location in a single query
-    // Only return APPROVED affiliates (not pending or rejected)
+    
+    // Simple test query first
+    logger.info('Testing basic query...');
+    const testResult = await pool.query('SELECT COUNT(*) FROM affiliates');
+    logger.info(`Total affiliates in database: ${testResult.rows[0].count}`);
+    
+    // Get affiliate data with phone and base location
+    logger.info('Executing affiliate query...');
     const result = await pool.query(`
       SELECT 
-        a.*,
-        addr.city,
-        addr.state_code,
-        s.name AS state_name,
-        addr.postal_code AS zip,
-        addr.lat,
-        addr.lng
-      FROM affiliates a
-      LEFT JOIN addresses addr ON addr.id = a.base_address_id
-      LEFT JOIN states s ON s.state_code = addr.state_code
-      WHERE a.slug = $1 AND a.application_status = 'approved'
+        slug, 
+        business_name, 
+        application_status,
+        phone,
+        sms_phone,
+        city,
+        state,
+        zip
+      FROM affiliates 
+      WHERE slug = $1
     `, [slug]);
     
+    logger.info(`Query result: ${result.rowCount} rows found`);
+    
     if (result.rows.length === 0) {
+      logger.info(`No affiliate found with slug: ${slug}`);
       return res.status(404).json({ error: 'Affiliate not found' });
     }
     
     const affiliate = result.rows[0];
-    
-    // Format the response to include base location
-    const response = {
-      ...affiliate,
-      base_location: {
+    logger.info(`Found affiliate: ${affiliate.business_name}`);
+    // Format the response to match frontend expectations
+    const formattedAffiliate = {
+      slug: affiliate.slug,
+      business_name: affiliate.business_name,
+      application_status: affiliate.application_status,
+      phone: affiliate.phone || affiliate.sms_phone, // Try phone first, fallback to sms_phone
+      base_location: affiliate.city && affiliate.state ? {
         city: affiliate.city,
-        state_code: affiliate.state_code,
-        state_name: affiliate.state_name,
-        zip: affiliate.zip,
-        lat: affiliate.lat,
-        lng: affiliate.lng
-      }
+        state_name: affiliate.state,
+        zip: affiliate.zip
+      } : null
     };
     
-    // Remove the individual fields to avoid duplication
-    delete response.city;
-    delete response.state_code;
-    delete response.state_name;
-    delete response.zip;
-    delete response.lat;
-    delete response.lng;
+    res.json({
+      success: true,
+      affiliate: formattedAffiliate
+    });
     
-    res.json(response);
   } catch (err) {
-    logger.error('Error fetching affiliate by slug:', { error: err.message });
-    res.status(500).json({ error: 'Internal server error' });
+    logger.error('Error fetching affiliate by slug:', { error: err.message, stack: err.stack });
+    res.status(500).json({ error: 'Internal server error', details: err.message });
   }
 }));
 
@@ -597,13 +616,11 @@ router.get('/:slug/base_location', asyncHandler(async (req, res) => {
         a.business_name,
         addr.city,
         addr.state_code,
-        s.name AS state_name,
         addr.postal_code AS zip,
         addr.lat,
         addr.lng
       FROM affiliates a
       LEFT JOIN addresses addr ON addr.id = a.base_address_id
-      LEFT JOIN states s ON s.state_code = addr.state_code
       WHERE a.slug = $1 AND a.application_status = 'approved'
     `, [slug]);
     
@@ -626,7 +643,6 @@ router.get('/:slug/base_location', asyncHandler(async (req, res) => {
       business_name: affiliate.business_name,
       city: affiliate.city,
       state_code: affiliate.state_code,
-      state_name: affiliate.state_name,
       zip: affiliate.zip,
       lat: affiliate.lat,
       lng: affiliate.lng

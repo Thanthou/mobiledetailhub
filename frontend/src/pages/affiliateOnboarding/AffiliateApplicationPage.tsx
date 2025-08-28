@@ -28,6 +28,45 @@ const AffiliateApplicationPage: React.FC = () => {
   const { handleInputChange, handleArrayChange } = useFormHandlers(setFormData);
   const { uploadedFiles, handleFileUpload, removeFile } = useFileUpload(handleInputChange);
 
+  // Test data for auto-filling the form
+  const testData: AffiliateApplication = {
+    legal_name: 'Test Mobile Detail Pro LLC',
+    primary_contact: 'John Smith',
+    phone: '(555) 123-4567',
+    email: 'john@testmobiledetailpro.com',
+    base_location: {
+      city: 'Bullhead City',
+      state: 'AZ',
+      zip: '86442'
+    },
+    categories: ['Auto Detailing', 'Ceramic Coating', 'Paint Correction'],
+    gbp_url: 'https://g.page/test-mobile-detail-pro',
+    instagram_url: 'https://instagram.com/testmobiledetailpro',
+    tiktok_url: 'https://tiktok.com/@testmobiledetailpro',
+    facebook_url: 'https://facebook.com/testmobiledetailpro',
+    youtube_url: 'https://youtube.com/@testmobiledetailpro',
+    website_url: 'https://testmobiledetailpro.com',
+    uploads: [],
+    has_insurance: true,
+    accept_terms: true,
+    consent_notifications: true,
+    source: 'Google Search',
+    notes: 'Test application for development and testing purposes. This is a sample affiliate application.'
+  };
+
+  // Function to auto-fill form with test data
+  const handleTestFill = () => {
+    setFormData(testData);
+    // Save to draft so it persists
+    saveDraft(testData);
+  };
+
+  // Function to clear form and reset to defaults
+  const handleClearForm = () => {
+    setFormData(defaultValues);
+    clearDraft();
+  };
+
   // Load draft on mount (only once)
   useEffect(() => {
     if (!hasLoadedDraft.current) {
@@ -137,6 +176,42 @@ const AffiliateApplicationPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-stone-900 text-white" style={{ margin: 0, padding: 0 }}>
       <ApplicationHeader />
+      
+      {/* Test Controls */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 pt-24">
+        <div className="bg-amber-900/50 border border-amber-600 rounded-lg p-4 mb-6">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-lg font-semibold text-amber-200">🧪 Development Testing</h3>
+            <span className="text-sm text-amber-300">Click to auto-fill form for testing</span>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={handleTestFill}
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md transition-colors duration-200 flex items-center gap-2"
+            >
+              📝 Auto-Fill Test Data
+            </button>
+            <button
+              type="button"
+              onClick={handleClearForm}
+              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-md transition-colors duration-200 flex items-center gap-2"
+            >
+              🗑️ Clear Form
+            </button>
+            <button
+              type="button"
+              onClick={() => console.log('Current form data:', formData)}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors duration-200 flex items-center gap-2"
+            >
+              📊 Log Form Data
+            </button>
+          </div>
+          <p className="text-sm text-amber-200 mt-2">
+            Use these buttons to quickly test the form functionality. Test data includes realistic values for all required fields.
+          </p>
+        </div>
+      </div>
       
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
         <form onSubmit={onSubmit} className="space-y-8" id="affiliate-form">

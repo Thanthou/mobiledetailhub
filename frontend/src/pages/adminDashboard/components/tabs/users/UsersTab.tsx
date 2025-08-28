@@ -3,6 +3,7 @@ import { Users, UserPlus, UserCheck, UserX, UserCog, Loader2, Trash2 } from 'luc
 import type { UserSubTab } from '../../../types';
 import { apiService } from '../../../../../services/api';
 import { ApplicationModal, Toast } from '../../shared';
+import { affiliateEventManager } from '../../../../../utils/affiliateEvents';
 
 interface User {
   id: number;
@@ -194,6 +195,9 @@ export const UsersTab: React.FC = () => {
       // Refresh the pending applications list
       await fetchUsers('pending', true);
       
+      // Notify other components that an affiliate was updated
+      affiliateEventManager.notify();
+      
       // Close modal
       setModalState(null);
       
@@ -245,6 +249,9 @@ export const UsersTab: React.FC = () => {
           isVisible: true
         });
         await fetchUsers('affiliates', true); // Refresh affiliates list
+        
+        // Notify other components that an affiliate was deleted
+        affiliateEventManager.notify();
       } else {
         throw new Error(response.message || 'Failed to delete affiliate');
       }

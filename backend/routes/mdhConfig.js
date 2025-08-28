@@ -157,6 +157,90 @@ router.get('/field/:field', asyncHandler(async (req, res) => {
   }
 }));
 
+// Get aggregated service areas for footer (states and cities where MDH has affiliates)
+router.get('/service-areas', asyncHandler(async (req, res) => {
+  if (!pool) {
+    const error = new Error('Database connection not available');
+    error.statusCode = 500;
+    throw error;
+  }
+
+  try {
+    // Get all approved affiliates with service areas
+    const query = `
+      SELECT service_areas
+      FROM affiliates
+      WHERE application_status = 'approved'
+        AND service_areas IS NOT NULL
+        AND jsonb_array_length(service_areas) > 0
+    `;
+    
+    const result = await pool.query(query);
+    
+    if (result.rowCount === 0) {
+      res.json({
+        success: true,
+        service_areas: {},
+        count: 0,
+        message: 'No service areas found'
+      });
+      return;
+    }
+
+    // Aggregate service areas by state and city
+    const stateCities = {};
+    
+    result.rows.forEach(row => {
+      row.service_areas.forEach(area => {
+        const { state, city, slug, zip } = area;
+        
+        if (!state || !city) return;
+        
+        if (!stateCities[state]) {
+          stateCities[state] = {};
+        }
+        
+        if (!stateCities[state][city]) {
+          stateCities[state][city] = [];
+        }
+        
+        // Add affiliate info for this city
+        stateCities[state][city].push({
+          slug,
+          zip: zip || null
+        });
+      });
+    });
+
+    // Sort states and cities alphabetically
+    const sortedStateCities = {};
+    Object.keys(stateCities)
+      .sort()
+      .forEach(state => {
+        sortedStateCities[state] = {};
+        Object.keys(stateCities[state])
+          .sort()
+          .forEach(city => {
+            sortedStateCities[state][city] = stateCities[state][city];
+          });
+      });
+
+    res.json({
+      success: true,
+      service_areas: sortedStateCities,
+      count: Object.keys(sortedStateCities).length,
+      message: `Found service areas in ${Object.keys(sortedStateCities).length} states`
+    });
+
+  } catch (error) {
+    logger.error('Error fetching service areas:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch service areas'
+    });
+  }
+}));
+
 // Admin endpoint to invalidate cache (protected by admin middleware)
 router.post('/invalidate-cache', asyncHandler(async (req, res) => {
   invalidateCache();

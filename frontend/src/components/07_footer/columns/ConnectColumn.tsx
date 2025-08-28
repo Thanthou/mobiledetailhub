@@ -3,6 +3,7 @@ import { Phone, Mail, UserPlus, LogIn } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { LazyLoginModal, prefetchLoginModal } from '../../login';
 import UserMenu from '../../01_header/UserMenu';
+import { formatPhoneNumber } from '../../../utils/phoneFormatter';
 
 interface ConnectColumnProps {
   config?: {
@@ -16,13 +17,13 @@ const ConnectColumn: React.FC<ConnectColumnProps> = ({ config }) => {
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   // Use config values or fall back to defaults
-  const phone = config?.phone || '(888) 555-1234';
+  const phone = config?.phone || '+18885551234';
   const email = config?.email || 'service@mobiledetailhub.com';
 
   const connectItems = [
     {
       icon: Phone,
-      content: phone,
+      content: formatPhoneNumber(phone),
       href: `tel:${phone.replace(/[^\d+]/g, '')}`
     },
     {

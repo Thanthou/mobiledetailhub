@@ -314,7 +314,7 @@ class ApiService {
     }
   }
 
-  async approveApplication(applicationId: number, approvedSlug: string, adminNotes: string): Promise<AffiliateApprovalResponse> {
+  async approveApplication(applicationId: number, approvedSlug: string, adminNotes: string, serviceAreas?: Array<{city: string, state: string, zip?: string}>): Promise<AffiliateApprovalResponse> {
     // Use relative URL to leverage Vite proxy
     const url = `/api/admin/approve-application/${applicationId}`;
     
@@ -333,7 +333,8 @@ class ApiService {
         },
         body: JSON.stringify({
           approved_slug: approvedSlug,
-          admin_notes: adminNotes
+          admin_notes: adminNotes,
+          ...(serviceAreas && serviceAreas.length > 0 && { service_areas: serviceAreas })
         }),
       });
       

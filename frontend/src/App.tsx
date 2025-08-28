@@ -11,7 +11,7 @@ import { AffiliateApplicationPage } from './pages/affiliateOnboarding';
 import Header from './components/01_header';
 import ErrorBoundary from './components/shared/ErrorBoundary';
 import NotFoundPage from './components/shared/NotFoundPage';
-import DevNavigation from './components/shared/DevNavigation';
+import AdminNavigationContainer from './components/shared/AdminNavigationContainer';
 import { useScrollToTop } from './hooks/useScrollToTop';
 import { scrollRestoration } from './utils/scrollRestoration';
 import ProtectedRoute from './components/shared/ProtectedRoute';
@@ -82,7 +82,7 @@ function App() {
           <MDHConfigProvider>
             <Router>
               <ScrollToTop />
-              <DevNavigation />
+              <AdminNavigationContainer />
               <div>
                 <Routes>
                   <Route path="/login" element={<LoginPage />} />

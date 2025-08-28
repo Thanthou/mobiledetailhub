@@ -20,6 +20,8 @@ const HeaderAffiliate: React.FC = () => {
   const { mdhConfig, isLoading: mdhLoading, error: mdhError } = useMDHConfig();
   
 
+  
+
   const isLoading = affiliateLoading || mdhLoading;
   const hasError = affiliateError || mdhError;
 
@@ -73,9 +75,11 @@ const HeaderAffiliate: React.FC = () => {
                              <div className="text-white text-sm md:text-base font-semibold">
                  <div className="flex items-center space-x-2">
                    {/* Display phone number from database with consistent formatting */}
-                   {affiliateData.phone && (
-                     <span>{formatPhoneNumber(affiliateData.phone)}</span>
-                   )}
+                                       {affiliateData.phone ? (
+                      <span>{formatPhoneNumber(affiliateData.phone)}</span>
+                    ) : (
+                      <span className="text-red-400">No phone data</span>
+                    )}
                    {/* Show separator if we have both phone and location */}
                    {affiliateData.phone && (affiliateData.base_location?.city || selectedLocation) && (
                      <span className="text-orange-400">•</span>

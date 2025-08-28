@@ -153,6 +153,10 @@ const IdentityContactSection: React.FC<IdentityContactSectionProps> = ({
               onLocationSubmit={handleLocationSubmit}
               placeholder="Enter your city, state, or ZIP code"
               className="w-full"
+              value={formData.base_location.city && formData.base_location.state ? 
+                `${formData.base_location.city}, ${formData.base_location.state}` : 
+                formData.base_location.zip || ''
+              }
             />
           </div>
         </div>

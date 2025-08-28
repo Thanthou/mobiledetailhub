@@ -34,7 +34,7 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig }) => {
         setLoading(true);
         setError(null);
         
-        const response = await fetch(`${config.apiUrl}/api/service_areas`);
+        const response = await fetch(`${config.apiUrl}/api/service_areas/footer`);
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -42,11 +42,21 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig }) => {
         
         const data = await response.json();
         
-        // Ensure data is always an array
-        if (Array.isArray(data)) {
-          setServiceAreas(data);
+        // Handle the new nested structure: { state: { city: [slugs] } }
+        if (data.success && data.service_areas) {
+          console.log('Raw API data:', data.service_areas);
+          
+          // Convert the nested structure to a flat array for backward compatibility
+          const statesArray = Object.keys(data.service_areas).map(stateCode => ({
+            state_code: stateCode,
+            name: stateCode,
+            cities: data.service_areas[stateCode]
+          }));
+          console.log('Processed statesArray:', statesArray);
+          
+          setServiceAreas(statesArray);
         } else {
-          console.warn('Service areas API returned non-array data:', data);
+          console.warn('Footer service areas API returned unexpected data:', data);
           setServiceAreas([]);
         }
       } catch (err) {
@@ -61,17 +71,26 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig }) => {
     fetchServiceAreas();
   }, []);
 
-  const selectState = async (stateCode: string) => {
-    try {
-      const response = await fetch(`${config.apiUrl}/api/service_areas/${stateCode}`);
-      if (response.ok) {
-        const data = await response.json();
-        setCities(Array.isArray(data) ? data : []);
-        setSelectedState(stateCode);
-      }
-    } catch (err) {
-      console.error('Failed to fetch cities for state:', err);
-      setCities([]);
+  const selectState = (stateCode: string) => {
+    console.log('selectState called with:', stateCode);
+    console.log('serviceAreas:', serviceAreas);
+    
+    const selectedStateData = serviceAreas.find(state => state.state_code === stateCode);
+    console.log('selectedStateData:', selectedStateData);
+    
+    if (selectedStateData && selectedStateData.cities) {
+      // Convert cities object to array format for display
+      const citiesArray = Object.keys(selectedStateData.cities).map(cityName => ({
+        city: cityName,
+        state_code: stateCode,
+        slugs: selectedStateData.cities[cityName]
+      }));
+      console.log('citiesArray:', citiesArray);
+      
+      setCities(citiesArray);
+      setSelectedState(stateCode);
+    } else {
+      console.log('No cities found for state:', stateCode);
     }
   };
 
@@ -97,10 +116,10 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig }) => {
           <div className="inline-flex flex-col space-y-3 items-start">
             <SocialMediaColumn
               socialMedia={{
-                facebook: parentConfig?.facebook,
-                instagram: parentConfig?.instagram,
-                tiktok: parentConfig?.tiktok,
-                youtube: parentConfig?.youtube,
+                facebook: parentConfig?.socials?.facebook || parentConfig?.facebook,
+                instagram: parentConfig?.socials?.instagram || parentConfig?.instagram,
+                tiktok: parentConfig?.socials?.tiktok || parentConfig?.tiktok,
+                youtube: parentConfig?.socials?.youtube || parentConfig?.youtube,
               }}
             />
           </div>
@@ -135,14 +154,15 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig }) => {
               ) : (
                 // Show cities for selected state
                 <div className="space-y-1">
-                  {cities.map((city, index) => (
-                    <div
-                      key={`${city.state_code}-${city.name}-${index}`}
-                      className="text-orange-400 text-sm text-center md:text-right"
-                    >
-                      {city.name}
-                    </div>
-                  ))}
+                                  {cities.map((city, index) => (
+                  <button
+                    key={`${city.state_code}-${city.city}-${index}`}
+                    onClick={() => window.location.href = `/${city.slugs[0]}`}
+                    className="text-orange-400 hover:text-orange-300 text-sm text-center md:text-right cursor-pointer transition-colors block w-full"
+                  >
+                    {city.city}
+                  </button>
+                ))}
                   <button
                     onClick={goBackToStates}
                     className="text-gray-400 hover:text-gray-300 text-xs cursor-pointer transition-colors mt-2 text-center md:text-right block w-full"

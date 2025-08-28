@@ -82,10 +82,7 @@ router.delete('/affiliates/:id', criticalAdminLimiter, authenticateToken, requir
       email: affiliate.email
     };
     
-    // Delete associated service areas
-    const deleteServiceAreasQuery = 'DELETE FROM affiliate_service_areas WHERE affiliate_id = $1';
-    const serviceAreasResult = await client.query(deleteServiceAreasQuery, [id]);
-    logger.info(`Deleted ${serviceAreasResult.rowCount} service areas for affiliate ${id}`);
+         // Service areas are stored in affiliates.service_areas JSONB column, no cleanup needed
     
     // Delete the affiliate record
     const deleteAffiliateQuery = 'DELETE FROM affiliates WHERE id = $1';
@@ -95,7 +92,7 @@ router.delete('/affiliates/:id', criticalAdminLimiter, authenticateToken, requir
     // Delete the corresponding user record
     const deleteUserQuery = 'DELETE FROM users WHERE email = $1 AND role = $2';
     const userResult = await client.query(deleteUserQuery, [affiliate.email, 'affiliate']);
-    logger.info(`Deleted ${userResult.rowCount} user record(s) for email: ${user.email}`);
+    logger.info(`Deleted ${userResult.rowCount} user record(s) for email: ${affiliate.email}`);
     
     // Audit log the affiliate deletion
     logger.audit('DELETE_AFFILIATE', 'affiliates', affiliateBeforeState, null, {
@@ -306,6 +303,8 @@ router.post('/approve-application/:id', adminLimiter, authenticateToken, require
     throw error;
   }
   
+
+  
   // Check if slug is already taken
   const slugCheckQuery = 'SELECT id FROM affiliates WHERE slug = $1 AND id != $2';
   const slugCheck = await pool.query(slugCheckQuery, [approved_slug, id]);
@@ -398,6 +397,61 @@ router.post('/approve-application/:id', adminLimiter, authenticateToken, require
   // User account is already linked to affiliate via the role field
   // No need for additional junction table
   
+        // Process service areas if provided
+      let serviceAreaResult = null;
+
+      // Use existing service areas from the affiliate record
+      let serviceAreasToProcess = affiliate.service_areas || [];
+      if (!serviceAreasToProcess || !Array.isArray(serviceAreasToProcess) || serviceAreasToProcess.length === 0) {
+        logger.warn(`No service areas found for affiliate ${affiliate.id}`);
+        serviceAreasToProcess = [];
+      }
+
+      if (serviceAreasToProcess && Array.isArray(serviceAreasToProcess) && serviceAreasToProcess.length > 0) {
+        try {
+          // SIMPLE APPROACH: Direct database inserts with slug included
+          logger.info(`Processing ${serviceAreasToProcess.length} service areas for affiliate ${affiliate.id}`);
+          
+          let processed = 0;
+          const serviceAreasWithSlugs = [];
+          
+          for (const area of serviceAreasToProcess) {
+            const { city, state, zip } = area;
+            
+            if (!city || !state) {
+              logger.warn(`Skipping service area with missing city or state: ${JSON.stringify(area)}`);
+              continue;
+            }
+
+            // Create service area with affiliate slug for routing
+            const serviceAreaWithSlug = {
+              city: city,
+              state: state.toUpperCase(),
+              zip: zip || null,
+              slug: affiliate.slug // Include affiliate slug for routing
+            };
+            
+            serviceAreasWithSlugs.push(serviceAreaWithSlug);
+            processed++;
+            logger.debug(`Prepared service area: ${city}, ${state} with slug: ${affiliate.slug}`);
+          }
+          
+          // Update affiliate with service areas (including slugs)
+          await pool.query(
+            'UPDATE affiliates SET service_areas = $1 WHERE id = $2',
+            [JSON.stringify(serviceAreasWithSlugs), affiliate.id]
+          );
+          
+          serviceAreaResult = { processed, errors: [], total: serviceAreasToProcess.length, serviceAreas: serviceAreasWithSlugs };
+          logger.info(`✅ Successfully processed ${processed} service areas for affiliate ${affiliate.id} with slugs`);
+          
+        } catch (serviceAreaError) {
+          logger.error(`Failed to process service areas for affiliate ${affiliate.id}:`, serviceAreaError);
+          // Don't fail the approval if service area processing fails
+          serviceAreaResult = { error: serviceAreaError.message };
+        }
+      }
+  
   res.json({
     success: true,
     message: 'Application approved successfully',
@@ -406,6 +460,7 @@ router.post('/approve-application/:id', adminLimiter, authenticateToken, require
       user_id: userId,
       temp_password: tempPassword
     },
+    service_areas: serviceAreaResult,
     note: 'User account created with temporary password. Affiliate should reset password on first login.'
   });
 }));
@@ -495,6 +550,32 @@ router.post('/reject-application/:id', adminLimiter, authenticateToken, requireA
     message: 'Application rejected successfully',
     affiliate: result.rows[0]
   });
+}));
+
+// Get MDH service areas (all cities/states where approved affiliates serve)
+router.get('/mdh-service-areas', adminLimiter, authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
+  if (!pool) {
+    const error = new Error('Database connection not available');
+    error.statusCode = 500;
+    throw error;
+  }
+
+  try {
+    const { getMDHServiceAreas } = require('../utils/serviceAreaProcessor');
+    const serviceAreas = await getMDHServiceAreas();
+    
+    res.json({
+      success: true,
+      service_areas: serviceAreas,
+      count: serviceAreas.length
+    });
+  } catch (error) {
+    logger.error('Error fetching MDH service areas:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch service areas'
+    });
+  }
 }));
 
 module.exports = router;
