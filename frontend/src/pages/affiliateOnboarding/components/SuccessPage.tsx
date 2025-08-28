@@ -48,13 +48,8 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ formData }) => {
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4">
-          <Link to="/affiliate-dashboard" className="flex-1">
-            <button className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
-              Go to Affiliate Dashboard
-            </button>
-          </Link>
-          <Link to="/" className="flex-1">
+        <div className="flex justify-center">
+          <Link to="/" className="w-full max-w-xs">
             <button className="w-full border border-stone-600 text-gray-300 hover:bg-stone-700 font-semibold py-2 px-4 rounded-lg transition-colors">
               Back to Home
             </button>

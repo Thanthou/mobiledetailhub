@@ -5,7 +5,7 @@
  */
 
 require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
-const pool = require('../database/pool');
+const { pool } = require('../database/pool');
 const logger = require('../utils/logger');
 
 async function verifyRefreshTokensSchema() {

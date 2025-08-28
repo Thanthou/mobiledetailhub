@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
-const pool = require('../database/pool');
+const { pool } = require('../database/pool');
 const { authenticateToken } = require('../middleware/auth');
 const { validateBody, sanitize } = require('../middleware/validation');
 const { authSchemas, sanitizationSchemas } = require('../utils/validationSchemas');
@@ -17,7 +17,7 @@ const {
 } = require('../services/refreshTokenService');
 const { asyncHandler } = require('../middleware/errorHandler');
 const logger = require('../utils/logger');
-const { authLimiter, sensitiveAuthLimiter } = require('../middleware/rateLimiter');
+const { authLimiter, sensitiveAuthLimiter, refreshTokenLimiter } = require('../middleware/rateLimiter');
 
 // User Registration
 router.post('/register', 
@@ -101,12 +101,11 @@ router.post('/register',
 
 // User Login
 router.post('/login', 
-  sensitiveAuthLimiter,
+  sensitiveAuthLimiter, // Apply sensitive auth rate limiting
   sanitize(sanitizationSchemas.auth),
   validateBody(authSchemas.login),
   asyncHandler(async (req, res) => {
     const { email, password } = req.body;
-
 
     if (!pool) {
       const error = new Error('Database connection not available');
@@ -118,8 +117,9 @@ router.post('/login',
     const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     
     if (result.rows.length === 0) {
-      const error = new Error('Invalid credentials');
+      const error = new Error('Email or password is incorrect');
       error.statusCode = 401;
+      error.code = 'INVALID_CREDENTIALS';
       throw error;
     }
 
@@ -129,8 +129,9 @@ router.post('/login',
     const validPassword = await bcrypt.compare(password, user.password_hash);
     
     if (!validPassword) {
-      const error = new Error('Invalid credentials');
+      const error = new Error('Email or password is incorrect');
       error.statusCode = 401;
+      error.code = 'INVALID_CREDENTIALS';
       throw error;
     }
 
@@ -217,12 +218,22 @@ router.get('/me', authenticateToken, asyncHandler(async (req, res) => {
   });
 }));
 
-// Refresh token endpoint
-router.post('/refresh', sensitiveAuthLimiter, asyncHandler(async (req, res) => {
-  const { refreshToken } = req.body;
+/**
+ * Refresh token endpoint
+ * 
+ * Accepts refresh token from:
+ * - Request body: { "refreshToken": "..." }
+ * - Cookie: refreshToken=...
+ * 
+ * Returns new access token + optional refresh token
+ * No Authorization header required (uses refresh token for authentication)
+ */
+router.post('/refresh', refreshTokenLimiter, asyncHandler(async (req, res) => {
+  // Accept refresh token from body or cookie (flexible input)
+  let refreshToken = req.body.refreshToken || req.cookies?.refreshToken;
   
   if (!refreshToken) {
-    const error = new Error('Refresh token is required');
+    const error = new Error('Refresh token is required in body or cookie');
     error.statusCode = 400;
     throw error;
   }
@@ -263,8 +274,14 @@ router.post('/refresh', sensitiveAuthLimiter, asyncHandler(async (req, res) => {
   // Revoke old refresh token
   await revokeRefreshToken(tokenHash);
 
+  // Consistent response format matching login endpoint
   res.json({
     success: true,
+    user: {
+      id: tokenRecord.user_id,
+      email: tokenRecord.email,
+      is_admin: tokenRecord.is_admin
+    },
     accessToken: tokens.accessToken,
     refreshToken: tokens.refreshToken,
     expiresIn: tokens.expiresIn,

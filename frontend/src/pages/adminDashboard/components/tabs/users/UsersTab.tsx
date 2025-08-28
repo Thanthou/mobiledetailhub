@@ -108,11 +108,11 @@ export const UsersTab: React.FC = () => {
         setLoading(false);
       }
     }, 200); // 200ms debounce delay
-  }, []);
+  }, []); // Empty dependency array is correct here
 
   useEffect(() => {
     fetchUsers(activeSubTab);
-  }, [activeSubTab, fetchUsers]);
+  }, [activeSubTab]); // Remove fetchUsers from dependencies to prevent infinite loop
 
   // Cleanup timer on unmount
   useEffect(() => {

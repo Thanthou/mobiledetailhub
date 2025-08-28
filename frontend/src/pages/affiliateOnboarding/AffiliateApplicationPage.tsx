@@ -116,6 +116,7 @@ const AffiliateApplicationPage: React.FC = () => {
 
     try {
       const result = await postApplication(formData);
+      
       if (result.ok) {
         setIsSuccess(true);
         clearDraft();

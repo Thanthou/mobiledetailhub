@@ -3,7 +3,7 @@
  * Handles database operations for refresh tokens
  */
 
-const pool = require('../database/pool');
+const { pool } = require('../database/pool');
 const crypto = require('crypto');
 const logger = require('../utils/logger');
 
@@ -45,7 +45,7 @@ const storeRefreshToken = async (userId, tokenHash, expiresAt, ipAddress, userAg
       // Update existing token
       const result = await pool.query(
         `UPDATE refresh_tokens 
-         SET token_hash = $1, expires_at = $2, is_revoked = FALSE, 
+         SET token_hash = $1, expires_at = $2, 
              revoked_at = NULL, ip_address = $3, user_agent = $4, created_at = NOW()
          WHERE user_id = $5 AND device_id = $6
          RETURNING *`,
@@ -91,7 +91,7 @@ const validateRefreshToken = async (tokenHash) => {
        JOIN users u ON rt.user_id = u.id
        WHERE rt.token_hash = $1 
          AND rt.expires_at > NOW() 
-         AND rt.is_revoked = FALSE`,
+         AND rt.revoked_at IS NULL`,
       [tokenHash]
     );
 
@@ -120,8 +120,8 @@ const revokeRefreshToken = async (tokenHash) => {
 
     const result = await pool.query(
       `UPDATE refresh_tokens 
-       SET is_revoked = TRUE, revoked_at = NOW()
-       WHERE token_hash = $1 AND is_revoked = FALSE
+       SET revoked_at = NOW()
+       WHERE token_hash = $1 AND revoked_at IS NULL
        RETURNING id`,
       [tokenHash]
     );
@@ -152,8 +152,8 @@ const revokeAllUserTokens = async (userId) => {
 
     const result = await pool.query(
       `UPDATE refresh_tokens 
-       SET is_revoked = TRUE, revoked_at = NOW()
-       WHERE user_id = $1 AND is_revoked = FALSE
+       SET revoked_at = NOW()
+       WHERE user_id = $1 AND revoked_at IS NULL
        RETURNING id`,
       [userId]
     );
@@ -185,8 +185,8 @@ const revokeDeviceToken = async (userId, deviceId) => {
 
     const result = await pool.query(
       `UPDATE refresh_tokens 
-       SET is_revoked = TRUE, revoked_at = NOW()
-       WHERE user_id = $1 AND device_id = $2 AND is_revoked = FALSE
+       SET revoked_at = NOW()
+       WHERE user_id = $1 AND device_id = $2 AND revoked_at IS NULL
        RETURNING id`,
       [userId, deviceId]
     );
@@ -218,7 +218,7 @@ const getUserTokens = async (userId) => {
     const result = await pool.query(
       `SELECT id, device_id, created_at, expires_at, ip_address, user_agent
        FROM refresh_tokens 
-       WHERE user_id = $1 AND expires_at > NOW() AND is_revoked = FALSE
+       WHERE user_id = $1 AND expires_at > NOW() AND revoked_at IS NULL
        ORDER BY created_at DESC`,
       [userId]
     );
@@ -242,7 +242,7 @@ const cleanupExpiredTokens = async () => {
     }
 
     const result = await pool.query(
-      'DELETE FROM refresh_tokens WHERE expires_at < NOW() OR is_revoked = TRUE'
+      'DELETE FROM refresh_tokens WHERE expires_at < NOW() OR revoked_at IS NOT NULL'
     );
 
     const deletedCount = result.rowCount;
@@ -271,9 +271,9 @@ const getTokenStats = async () => {
     const result = await pool.query(`
       SELECT 
         COUNT(*) as total_tokens,
-        COUNT(CASE WHEN expires_at > NOW() AND is_revoked = FALSE THEN 1 END) as active_tokens,
+        COUNT(CASE WHEN expires_at > NOW() AND revoked_at IS NULL THEN 1 END) as active_tokens,
         COUNT(CASE WHEN expires_at <= NOW() THEN 1 END) as expired_tokens,
-        COUNT(CASE WHEN is_revoked = TRUE THEN 1 END) as revoked_tokens
+        COUNT(CASE WHEN revoked_at IS NOT NULL THEN 1 END) as revoked_tokens
       FROM refresh_tokens
     `);
 

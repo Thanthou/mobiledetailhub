@@ -1,10 +1,73 @@
 const express = require('express');
 const router = express.Router();
-const pool = require('../database/pool');
+const { pool } = require('../database/pool');
 const { validateBody, validateParams, sanitize } = require('../middleware/validation');
 const { affiliateSchemas, sanitizationSchemas } = require('../utils/validationSchemas');
 const { asyncHandler } = require('../middleware/errorHandler');
 const logger = require('../utils/logger');
+
+// Test endpoint to verify server and database are working
+router.get('/test', (req, res) => {
+  try {
+    if (!pool) {
+      return res.status(500).json({ error: 'Database connection not available' });
+    }
+    
+    // Test database connection synchronously
+    pool.query('SELECT NOW() as current_time, version() as db_version')
+      .then(result => {
+        res.json({ 
+          status: 'ok', 
+          message: 'Affiliates route is working',
+          database: {
+            connected: true,
+            current_time: result.rows[0].current_time,
+            version: result.rows[0].db_version
+          }
+        });
+      })
+      .catch(error => {
+        res.status(500).json({ error: 'Database test failed', details: error.message });
+      });
+      
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error', details: error.message });
+  }
+});
+
+// Simple test endpoint without validation or sanitization
+router.post('/test-simple', asyncHandler(async (req, res) => {
+  try {
+    logger.info('Testing simple POST endpoint...');
+    logger.debug('Request body:', req.body);
+    
+    res.json({ 
+      status: 'ok', 
+      message: 'Simple POST endpoint working',
+      received: req.body
+    });
+  } catch (error) {
+    logger.error('Simple test endpoint error:', { error: error.message });
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}));
+
+// Simple test endpoint without validation or sanitization
+router.post('/test-simple', asyncHandler(async (req, res) => {
+  try {
+    logger.info('Testing simple POST endpoint...');
+    logger.debug('Request body:', req.body);
+    
+    res.json({ 
+      status: 'ok', 
+      message: 'Simple POST endpoint working',
+      received: req.body
+    });
+  } catch (error) {
+    logger.error('Simple test endpoint error:', { error: error.message });
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}));
 
 // POST endpoint for affiliate applications
 router.post('/apply', 
@@ -19,231 +82,268 @@ router.post('/apply',
   },
   validateBody(affiliateSchemas.apply),
   asyncHandler(async (req, res) => {
-    // Test database connection first
+    try {
+      // Test database connection first
+      if (!pool) {
+        const error = new Error('Database connection not available');
+        error.statusCode = 500;
+        throw error;
+      }
+      
+      await pool.query('SELECT 1');
 
-    if (!pool) {
-      const error = new Error('Database connection not available');
-      error.statusCode = 500;
-      throw error;
-    }
-    await pool.query('SELECT 1');
+      const {
+        legal_name,
+        primary_contact,
+        phone,
+        email,
+        base_location,
+        categories,
+        gbp_url,
+        instagram_url,
+        tiktok_url,
+        facebook_url,
+        youtube_url,
+        website_url,
+        has_insurance,
+        source,
+        notes
+      } = req.body;
 
-    const {
-      legal_name,
-      primary_contact,
-      phone,
-      email,
-      base_location,
-      categories,
-      gbp_url,
-      instagram_url,
-      tiktok_url,
-      facebook_url,
-      youtube_url,
-      website_url,
-      has_insurance,
-      source,
-      notes
-    } = req.body;
+      // Debug logging
+      logger.debug('Received application data:', {
+        legal_name,
+        primary_contact,
+        phone,
+        email,
+        base_location,
+        categories
+      });
 
-    // Debug logging
-    logger.debug('Received application data:', {
-      legal_name,
-      primary_contact,
-      phone,
-      email,
-      base_location,
-      categories
-    });
+      // Generate a temporary slug for new applications
+      console.log('🏷️ [BACKEND] Generating temporary slug...');
+      const tempSlug = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      console.log('✅ [BACKEND] Temporary slug generated:', tempSlug);
 
-    // Generate a temporary slug for new applications
-    // This satisfies the NOT NULL constraint and can be updated later by admin
-    const tempSlug = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      // Format phone numbers
+      console.log('📞 [BACKEND] Formatting phone numbers...');
+      const formattedPhone = phone.replace(/\D/g, '');
+      const smsPhone = formattedPhone.length === 10 ? `+1${formattedPhone}` : null;
+      console.log('✅ [BACKEND] Phone formatted:', { original: phone, formatted: formattedPhone, sms: smsPhone });
 
-    // Format phone numbers
-    const formattedPhone = phone.replace(/\D/g, '');
-    const smsPhone = formattedPhone.length === 10 ? `+1${formattedPhone}` : null;
-
-    // First, create or find the address record
-    let addressId;
-    // Check if address already exists
-    const addressCheckQuery = `
-      SELECT id FROM addresses 
-      WHERE city = $1 AND state_code = $2 AND postal_code = $3
-    `;
-    const addressCheck = await pool.query(addressCheckQuery, [
-      base_location.city, 
-      base_location.state, 
-      base_location.zip || null
-    ]);
-    
-    if (addressCheck.rows.length > 0) {
-      addressId = addressCheck.rows[0].id;
-      logger.debug(`Using existing address ID: ${addressId}`);
-    } else {
-      // Create new address record
-      const addressQuery = `
-        INSERT INTO addresses (line1, city, state_code, postal_code) 
-        VALUES ($1, $2, $3, $4) 
-        RETURNING id
+      // First, create or find the address record
+      console.log('🏠 [BACKEND] Starting address processing...');
+      let addressId;
+      // Check if address already exists
+      const addressCheckQuery = `
+        SELECT id FROM addresses 
+        WHERE city = $1 AND state_code = $2 AND postal_code = $3
       `;
-      const addressResult = await pool.query(addressQuery, [
-        `${base_location.city}, ${base_location.state}`, // Format line1 as "City, State"
+      console.log('🔍 [BACKEND] Checking for existing address...');
+      const addressCheck = await pool.query(addressCheckQuery, [
         base_location.city, 
         base_location.state, 
         base_location.zip || null
       ]);
-      addressId = addressResult.rows[0].id;
-      logger.debug(`Created new address ID: ${addressId}`);
-    }
+      console.log('✅ [BACKEND] Address check completed, rows found:', addressCheck.rows.length);
+      
+      if (addressCheck.rows.length > 0) {
+        addressId = addressCheck.rows[0].id;
+        console.log('✅ [BACKEND] Using existing address ID:', addressId);
+        logger.debug(`Using existing address ID: ${addressId}`);
+      } else {
+        // Create new address record
+        console.log('🏗️ [BACKEND] Creating new address record...');
+        const addressQuery = `
+          INSERT INTO addresses (line1, city, state_code, postal_code) 
+          VALUES ($1, $2, $3, $4) 
+          RETURNING id
+        `;
+        const addressResult = await pool.query(addressQuery, [
+          `${base_location.city}, ${base_location.state}`, // Format line1 as "City, State"
+          base_location.city, 
+          base_location.state, 
+          base_location.zip || null
+        ]);
+        addressId = addressResult.rows[0].id;
+        console.log('✅ [BACKEND] New address created with ID:', addressId);
+        logger.debug(`Created new address ID: ${addressId}`);
+      }
 
-          // Insert new affiliate application
+      // Insert new affiliate application
+      console.log('👤 [BACKEND] Starting affiliate creation...');
       // Insert into affiliates table with base_address_id
       // Reuse existing pool connection
       if (!pool) {
+        console.log('❌ [BACKEND] Pool check failed during affiliate creation');
         return res.status(500).json({ error: 'Database connection not available' });
       }
       const affiliateQuery = `
       INSERT INTO affiliates (
         slug, business_name, owner, phone, sms_phone, email, 
-        base_address_id, services, website_url, gbp_url, 
+        base_address_id, website_url, gbp_url, 
         facebook_url, instagram_url, youtube_url, tiktok_url,
         has_insurance, source, notes, application_status
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
       RETURNING id, slug, business_name, application_status
     `;
 
-    // Convert categories array to services JSONB format
-    // Map frontend category names to backend service keys
-    const categoryMapping = {
-      'Auto Detailing': 'auto',
-      'Boat Detailing': 'boat',
-      'RV Detailing': 'rv',
-      'PPF Installation': 'ppf',
-      'Ceramic Coating': 'ceramic',
-      'Paint Correction': 'paint_correction'
-    };
-    
-    const servicesJson = {
-      rv: categories.includes('RV Detailing'),
-      ppf: categories.includes('PPF Installation'),
-      auto: categories.includes('Auto Detailing'),
-      boat: categories.includes('Boat Detailing'),
-      ceramic: categories.includes('Ceramic Coating'),
-      paint_correction: categories.includes('Paint Correction')
-    };
-    
-    logger.debug('Categories received:', { categories });
-    logger.debug('Services JSON created:', { servicesJson });
+      // Convert categories array to services JSONB format
+      console.log('🏷️ [BACKEND] Processing categories...');
+      // Map frontend category names to backend service keys
+      const categoryMapping = {
+        'Auto Detailing': 'auto',
+        'Boat Detailing': 'boat',
+        'RV Detailing': 'rv',
+        'PPF Installation': 'ppf',
+        'Ceramic Coating': 'ceramic',
+        'Paint Correction': 'paint_correction'
+      };
+      
+      const servicesJson = {
+        rv: categories.includes('RV Detailing'),
+        ppf: categories.includes('PPF Installation'),
+        auto: categories.includes('Auto Detailing'),
+        boat: categories.includes('Boat Detailing'),
+        ceramic: categories.includes('Ceramic Coating'),
+        paint_correction: categories.includes('Paint Correction')
+      };
+      
+      console.log('✅ [BACKEND] Categories processed:', { categories, servicesJson });
+      logger.debug('Categories received:', { categories });
+      logger.debug('Services JSON created:', { servicesJson });
 
-    const affiliateValues = [
-      tempSlug,
-      legal_name,
-      primary_contact,
-      formattedPhone,
-      smsPhone,
-      email,
-      addressId, // Use the address ID instead of JSONB
-      JSON.stringify(servicesJson), // services column
-      website_url || null,
-      gbp_url || null,
-      facebook_url || null,
-      instagram_url || null,
-      youtube_url || null,
-      tiktok_url || null,
-      has_insurance,
-      source || null,
-      notes || null,
-      'pending'
-    ];
+      const affiliateValues = [
+        tempSlug,
+        legal_name,
+        primary_contact,
+        formattedPhone,
+        smsPhone,
+        email,
+        addressId, // Use the address ID instead of JSONB
+        website_url || null,
+        gbp_url || null,
+        facebook_url || null,
+        instagram_url || null,
+        youtube_url || null,
+        tiktok_url || null,
+        has_insurance,
+        source || null,
+        notes || null,
+        'pending'
+      ];
 
-    const result = await pool.query(affiliateQuery, affiliateValues);
-    logger.info('Affiliate created successfully:', { affiliate: result.rows[0] });
-    
-    // Insert service areas for the affiliate
-    if (result.rows[0] && base_location.city && base_location.state) {
-      try {
-        // Reuse existing pool connection
-        if (!pool) {
-          return res.status(500).json({ error: 'Database connection not available' });
-        }
-        
-        // Handle empty zip by using null since zip column is nullable
-        const zipValue = base_location.zip && base_location.zip.trim() !== '' ? base_location.zip.trim() : null;
-        
-        // Use the new normalized structure with city_id
+      console.log('📝 [BACKEND] About to insert affiliate with values:', affiliateValues);
+      const result = await pool.query(affiliateQuery, affiliateValues);
+      console.log('✅ [BACKEND] Affiliate created successfully:', result.rows[0]);
+      logger.info('Affiliate created successfully:', { affiliate: result.rows[0] });
+      
+      // Insert services for the affiliate based on selected categories
+      console.log('🔧 [BACKEND] Starting service creation...');
+      const affiliateId = result.rows[0].id;
+      if (categories && categories.length > 0) {
         try {
-          // First, ensure the city exists in the cities table
-          let cityResult = await pool.query(
-            'SELECT id FROM cities WHERE name = $1 AND state_code = $2',
-            [base_location.city, base_location.state]
-          );
-          
-          let cityId;
-          if (cityResult.rows.length === 0) {
-            // Create the city if it doesn't exist
-            cityResult = await pool.query(
-              'INSERT INTO cities (name, city_slug, state_code) VALUES ($1, slugify($1), $2) RETURNING id',
-              [base_location.city, base_location.state]
-            );
-            cityId = cityResult.rows[0].id;
-            logger.info(`Created new city: ${base_location.city}, ${base_location.state}`);
-          } else {
-            cityId = cityResult.rows[0].id;
+          for (const category of categories) {
+            console.log(`🔧 [BACKEND] Creating service for category: ${category}`);
+            const categoryKey = categoryMapping[category];
+            if (categoryKey) {
+              await pool.query(
+                'INSERT INTO services (affiliate_id, category, name, description) VALUES ($1, $2, $3, $4)',
+                [affiliateId, categoryKey, category, `${category} service offered by ${legal_name}`]
+              );
+              console.log(`✅ [BACKEND] Service created for ${category}`);
+              logger.debug('Service created:', { affiliateId, category: categoryKey, name: category });
+            }
+          }
+          console.log('✅ [BACKEND] All services created successfully');
+          logger.info('Services created successfully for affiliate:', { affiliateId, categories });
+        } catch (serviceError) {
+          console.log('⚠️ [BACKEND] Error creating services:', serviceError.message);
+          logger.error('Error creating services for affiliate:', { 
+            error: serviceError.message, 
+            affiliateId, 
+            categories 
+          });
+          // Don't fail the whole request for service creation errors
+        }
+      }
+      
+      // Insert service areas for the affiliate
+      console.log('🗺️ [BACKEND] Starting service area creation...');
+      if (result.rows[0] && base_location.city && base_location.state) {
+        try {
+          // Reuse existing pool connection
+          if (!pool) {
+            console.log('❌ [BACKEND] Pool check failed during service area creation');
+            return res.status(500).json({ error: 'Database connection not available' });
           }
           
-          // Insert service area using city_id
-          await pool.query(
-            'INSERT INTO affiliate_service_areas (affiliate_id, city_id, zip) VALUES ($1, $2, $3) ON CONFLICT (affiliate_id, city_id) DO NOTHING',
-            [result.rows[0].id, cityId, zipValue]
-          );
-          logger.info(`Created service area for affiliate ${result.rows[0].id} in city ${cityId}`);
-        } catch (serviceAreaErr) {
-          logger.warn('Failed to insert service area, but affiliate was created:', { error: serviceAreaErr.message });
+          // Handle empty zip by using null since zip column is nullable
+          const zipValue = base_location.zip && base_location.zip.trim() !== '' ? base_location.zip.trim() : null;
+          
+          // Use the new normalized structure with city_id
+          try {
+            // First, ensure the city exists in the cities table
+            console.log('🏙️ [BACKEND] Checking/creating city record...');
+            let cityResult = await pool.query(
+              'SELECT id FROM cities WHERE name = $1 AND state_code = $2',
+              [base_location.city, base_location.state]
+            );
+            
+            let cityId;
+            if (cityResult.rows.length === 0) {
+              // Create the city if it doesn't exist
+              console.log('🏗️ [BACKEND] Creating new city record...');
+              cityResult = await pool.query(
+                'INSERT INTO cities (name, city_slug, state_code) VALUES ($1, slugify($1), $2) RETURNING id',
+                [base_location.city, base_location.state]
+              );
+              cityId = cityResult.rows[0].id;
+              console.log('✅ [BACKEND] New city created with ID:', cityId);
+              logger.info(`Created new city: ${base_location.city}, ${base_location.state}`);
+            } else {
+              cityId = cityResult.rows[0].id;
+              console.log('✅ [BACKEND] Using existing city ID:', cityId);
+            }
+            
+            // Insert service area using city_id
+            console.log('🗺️ [BACKEND] Inserting service area...');
+            await pool.query(
+              'INSERT INTO affiliate_service_areas (affiliate_id, city_id, zip) VALUES ($1, $2, $3) ON CONFLICT (affiliate_id, city_id) DO NOTHING',
+              [result.rows[0].id, cityId, zipValue]
+            );
+            console.log('✅ [BACKEND] Service area created successfully');
+            logger.info(`Created service area for affiliate ${result.rows[0].id} in city ${cityId}`);
+          } catch (serviceAreaErr) {
+            console.log('⚠️ [BACKEND] Service area creation failed:', serviceAreaErr.message);
+            logger.warn('Failed to insert service area, but affiliate was created:', { error: serviceAreaErr.message });
+          }
+        } catch (error) {
+          console.log('⚠️ [BACKEND] Service area processing failed:', error.message);
+          logger.warn('Failed to process service areas, but affiliate was created:', { error: error.message });
         }
-      } catch (error) {
-        logger.warn('Failed to process service areas, but affiliate was created:', { error: error.message });
       }
-    }
-    
-    logger.debug('Sending success response');
-    res.status(201).json({
-      ok: true,
-      message: 'Application submitted successfully',
-      affiliate: result.rows[0],
-      note: 'A temporary slug has been assigned. This will be updated to a permanent slug once the application is approved.'
-    });
+      
+      console.log('📤 [BACKEND] Sending success response...');
+      logger.debug('Sending success response');
+      res.status(201).json({
+        ok: true,
+        message: 'Application submitted successfully',
+        affiliate: result.rows[0],
+        note: 'A temporary slug has been assigned. This will be updated to a permanent slug once the application is approved.'
+      });
+      console.log('✅ [BACKEND] Success response sent');
 
+    } catch (error) {
+      console.error('🚨 [BACKEND] Error in main route handler:', error);
+      console.error('🚨 [BACKEND] Error stack:', error.stack);
+      throw error;
+    }
   })
 );
 
-// Test endpoint to verify server and database are working
-  router.get('/test', asyncHandler(async (req, res) => {
-    try {
-  
-      if (!pool) {
-        return res.status(500).json({ error: 'Database connection not available' });
-      }
-      // Test database connection
-      const result = await pool.query('SELECT NOW() as current_time, version() as db_version');
-      res.json({ 
-        status: 'ok', 
-        message: 'Affiliates route is working',
-        database: {
-          connected: true,
-          current_time: result.rows[0].current_time,
-          version: result.rows[0].db_version
-        }
-      });
-    } catch (error) {
-      logger.error('Test endpoint error:', { error: error.message });
-      res.status(500).json({ error: 'Internal server error' });
-    }
-  }));
-
 // Get all APPROVED affiliate slugs for public use
 router.get('/slugs', asyncHandler(async (req, res) => {
-  const pool = await getPool();
   if (!pool) {
     const error = new Error('Database connection not available');
     error.statusCode = 500;
@@ -270,7 +370,6 @@ router.get('/lookup', asyncHandler(async (req, res) => {
     throw error;
   }
   
-  const pool = await getPool();
   if (!pool) {
     const error = new Error('Database connection not available');
     error.statusCode = 500;
@@ -331,7 +430,6 @@ router.post('/update-zip', asyncHandler(async (req, res) => {
     throw error;
   }
   
-  const pool = await getPool();
   if (!pool) {
     const error = new Error('Database connection not available');
     error.statusCode = 500;

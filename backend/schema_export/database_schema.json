@@ -1,6 +1,6 @@
 {
   "database": "MobileDetailHub",
-  "exported_at": "2025-08-27T22:51:12.878Z",
+  "exported_at": "2025-08-28T00:57:52.548Z",
   "tables": [
     {
       "table_name": "addresses",
@@ -41,7 +41,7 @@
           "nullable": true,
           "default_value": null,
           "position": 4,
-          "comment": "DEPRECATED: Use city_id for normalized city reference. This field will be dropped in future schema version."
+          "comment": "DEPRECATED: Use city_id for normalized city reference. This field will be dropped in a future schema version."
         },
         {
           "name": "state_code",
@@ -100,7 +100,7 @@
       ],
       "constraints": [
         {
-          "name": "2200_44016_10_not_null",
+          "name": "2200_46972_10_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -109,7 +109,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44016_1_not_null",
+          "name": "2200_46972_1_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -118,7 +118,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44016_5_not_null",
+          "name": "2200_46972_5_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -127,7 +127,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44016_9_not_null",
+          "name": "2200_46972_9_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -202,31 +202,18 @@
         }
       ],
       "statistics": {
-        "inserts": "1",
+        "inserts": "0",
         "updates": "0",
         "deletes": "0",
-        "live_tuples": "1",
+        "live_tuples": "0",
         "dead_tuples": "0",
         "last_vacuum": null,
         "last_autovacuum": null,
         "last_analyze": null,
         "last_autoanalyze": null
       },
-      "sample_data": [
-        {
-          "id": 1,
-          "line1": "Bullhead City, AZ",
-          "city_id": null,
-          "city": "Bullhead City",
-          "state_code": "AZ",
-          "postal_code": null,
-          "lat": null,
-          "lng": null,
-          "created_at": "2025-08-27T22:17:07.004Z",
-          "updated_at": "2025-08-27T22:17:07.004Z"
-        }
-      ],
-      "row_count": "1"
+      "sample_data": [],
+      "row_count": "0"
     },
     {
       "table_name": "affiliate_service_areas",
@@ -290,7 +277,7 @@
       ],
       "constraints": [
         {
-          "name": "2200_44222_1_not_null",
+          "name": "2200_47181_1_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -299,7 +286,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44222_2_not_null",
+          "name": "2200_47181_2_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -308,7 +295,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44222_3_not_null",
+          "name": "2200_47181_3_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -470,7 +457,7 @@
       ],
       "constraints": [
         {
-          "name": "2200_44066_1_not_null",
+          "name": "2200_47024_1_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -479,7 +466,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44066_2_not_null",
+          "name": "2200_47024_2_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -488,7 +475,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44066_3_not_null",
+          "name": "2200_47024_3_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -497,7 +484,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44066_4_not_null",
+          "name": "2200_47024_4_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -506,7 +493,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44066_5_not_null",
+          "name": "2200_47024_5_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -515,7 +502,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44066_6_not_null",
+          "name": "2200_47024_6_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -593,6 +580,12 @@
           "column": "id",
           "unique": true,
           "primary": true
+        },
+        {
+          "name": "idx_affiliate_users_user_id",
+          "column": "user_id",
+          "unique": false,
+          "primary": false
         },
         {
           "name": "uq_affiliate_users",
@@ -879,16 +872,16 @@
           "comment": null
         },
         {
-          "name": "created_at",
-          "type": "timestamp with time zone",
+          "name": "is_brand",
+          "type": "boolean",
           "max_length": null,
           "nullable": false,
-          "default_value": "now()",
+          "default_value": "false",
           "position": 29,
           "comment": null
         },
         {
-          "name": "updated_at",
+          "name": "created_at",
           "type": "timestamp with time zone",
           "max_length": null,
           "nullable": false,
@@ -897,7 +890,7 @@
           "comment": null
         },
         {
-          "name": "application_date",
+          "name": "updated_at",
           "type": "timestamp with time zone",
           "max_length": null,
           "nullable": false,
@@ -906,12 +899,21 @@
           "comment": null
         },
         {
+          "name": "application_date",
+          "type": "timestamp with time zone",
+          "max_length": null,
+          "nullable": false,
+          "default_value": "now()",
+          "position": 32,
+          "comment": null
+        },
+        {
           "name": "approved_date",
           "type": "timestamp with time zone",
           "max_length": null,
           "nullable": true,
           "default_value": null,
-          "position": 32,
+          "position": 33,
           "comment": null
         },
         {
@@ -920,22 +922,13 @@
           "max_length": null,
           "nullable": false,
           "default_value": "now()",
-          "position": 33,
-          "comment": null
-        },
-        {
-          "name": "user_id",
-          "type": "integer",
-          "max_length": null,
-          "nullable": true,
-          "default_value": null,
           "position": 34,
           "comment": null
         }
       ],
       "constraints": [
         {
-          "name": "2200_44037_15_not_null",
+          "name": "2200_46993_15_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -944,7 +937,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44037_1_not_null",
+          "name": "2200_46993_1_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -953,7 +946,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44037_29_not_null",
+          "name": "2200_46993_29_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -962,7 +955,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44037_2_not_null",
+          "name": "2200_46993_2_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -971,7 +964,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44037_30_not_null",
+          "name": "2200_46993_30_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -980,7 +973,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44037_31_not_null",
+          "name": "2200_46993_31_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -989,7 +982,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44037_33_not_null",
+          "name": "2200_46993_32_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -998,7 +991,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44037_3_not_null",
+          "name": "2200_46993_34_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -1007,7 +1000,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44037_4_not_null",
+          "name": "2200_46993_3_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -1016,7 +1009,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44037_5_not_null",
+          "name": "2200_46993_4_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -1025,7 +1018,16 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44037_7_not_null",
+          "name": "2200_46993_5_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_46993_7_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -1095,15 +1097,6 @@
           "foreign_column": "slug",
           "update_rule": null,
           "delete_rule": null
-        },
-        {
-          "name": "affiliates_user_id_fkey",
-          "type": "FOREIGN KEY",
-          "column": "user_id",
-          "foreign_table": "users",
-          "foreign_column": "id",
-          "update_rule": "NO ACTION",
-          "delete_rule": "SET NULL"
         }
       ],
       "indexes": [
@@ -1120,43 +1113,62 @@
           "primary": false
         },
         {
-          "name": "application_date_idx",
-          "column": "application_date",
-          "unique": false,
-          "primary": false
-        },
-        {
-          "name": "application_status_idx",
-          "column": "application_status",
-          "unique": false,
-          "primary": false
-        },
-        {
-          "name": "approved_date_idx",
-          "column": "approved_date",
-          "unique": false,
-          "primary": false
-        },
-        {
-          "name": "last_activity_idx",
-          "column": "last_activity",
-          "unique": false,
+          "name": "uq_affiliates_brand_one",
+          "column": "is_brand",
+          "unique": true,
           "primary": false
         }
       ],
       "statistics": {
-        "inserts": "0",
+        "inserts": "1",
         "updates": "0",
         "deletes": "0",
-        "live_tuples": "0",
+        "live_tuples": "1",
         "dead_tuples": "0",
         "last_vacuum": null,
         "last_autovacuum": null,
         "last_analyze": null,
         "last_autoanalyze": null
       },
-      "sample_data": [],
-      "row_count": "0"
+      "sample_data": [
+        {
+          "id": 1,
+          "slug": "mdh",
+          "business_name": "Mobile Detail Hub",
+          "owner": "Mobile Detail Hub",
+          "phone": "(888) 555-1234",
+          "sms_phone": null,
+          "email": "service@mobiledetailhub.com",
+          "base_address_id": null,
+          "website_url": null,
+          "gbp_url": null,
+          "facebook_url": null,
+          "instagram_url": null,
+          "youtube_url": null,
+          "tiktok_url": null,
+          "application_status": "approved",
+          "has_insurance": false,
+          "source": null,
+          "notes": null,
+          "uploads": null,
+          "business_license": null,
+          "insurance_provider": null,
+          "insurance_expiry": null,
+          "service_radius_miles": 25,
+          "operating_hours": null,
+          "emergency_contact": null,
+          "total_jobs": 0,
+          "rating": null,
+          "review_count": 0,
+          "is_brand": true,
+          "created_at": "2025-08-28T00:21:12.246Z",
+          "updated_at": "2025-08-28T00:21:12.246Z",
+          "application_date": "2025-08-28T00:21:12.246Z",
+          "approved_date": "2025-08-28T00:21:12.246Z",
+          "last_activity": "2025-08-28T00:21:12.246Z"
+        }
+      ],
+      "row_count": "1"
     },
     {
       "table_name": "availability",
@@ -1220,7 +1232,7 @@
       ],
       "constraints": [
         {
-          "name": "2200_44132_1_not_null",
+          "name": "2200_47091_1_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -1229,7 +1241,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44132_2_not_null",
+          "name": "2200_47091_2_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -1238,7 +1250,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44132_3_not_null",
+          "name": "2200_47091_3_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -1247,7 +1259,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44132_4_not_null",
+          "name": "2200_47091_4_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -1256,7 +1268,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44132_5_not_null",
+          "name": "2200_47091_5_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -1265,7 +1277,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44132_6_not_null",
+          "name": "2200_47091_6_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -1466,7 +1478,7 @@
       ],
       "constraints": [
         {
-          "name": "2200_44178_10_not_null",
+          "name": "2200_47137_10_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -1475,7 +1487,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44178_12_not_null",
+          "name": "2200_47137_12_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -1484,7 +1496,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44178_13_not_null",
+          "name": "2200_47137_13_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -1493,7 +1505,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44178_1_not_null",
+          "name": "2200_47137_1_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -1502,7 +1514,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44178_2_not_null",
+          "name": "2200_47137_2_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -1511,7 +1523,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44178_6_not_null",
+          "name": "2200_47137_6_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -1520,7 +1532,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44178_7_not_null",
+          "name": "2200_47137_7_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -1529,7 +1541,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44178_8_not_null",
+          "name": "2200_47137_8_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -1538,7 +1550,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44178_9_not_null",
+          "name": "2200_47137_9_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -1560,7 +1572,7 @@
           "type": "CHECK",
           "column": null,
           "foreign_table": "bookings",
-          "foreign_column": "appointment_start",
+          "foreign_column": "appointment_end",
           "update_rule": null,
           "delete_rule": null
         },
@@ -1569,7 +1581,7 @@
           "type": "CHECK",
           "column": null,
           "foreign_table": "bookings",
-          "foreign_column": "appointment_end",
+          "foreign_column": "appointment_start",
           "update_rule": null,
           "delete_rule": null
         },
@@ -1754,7 +1766,7 @@
       ],
       "constraints": [
         {
-          "name": "2200_43964_1_not_null",
+          "name": "2200_46920_1_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -1763,7 +1775,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_43964_2_not_null",
+          "name": "2200_46920_2_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -1772,7 +1784,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_43964_3_not_null",
+          "name": "2200_46920_3_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -1781,7 +1793,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_43964_4_not_null",
+          "name": "2200_46920_4_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -1790,7 +1802,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_43964_7_not_null",
+          "name": "2200_46920_7_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -1799,7 +1811,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_43964_8_not_null",
+          "name": "2200_46920_8_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -1830,7 +1842,7 @@
           "type": "UNIQUE",
           "column": "name",
           "foreign_table": "cities",
-          "foreign_column": "state_code",
+          "foreign_column": "name",
           "update_rule": null,
           "delete_rule": null
         },
@@ -1839,7 +1851,7 @@
           "type": "UNIQUE",
           "column": "state_code",
           "foreign_table": "cities",
-          "foreign_column": "state_code",
+          "foreign_column": "name",
           "update_rule": null,
           "delete_rule": null
         },
@@ -1848,7 +1860,7 @@
           "type": "UNIQUE",
           "column": "name",
           "foreign_table": "cities",
-          "foreign_column": "name",
+          "foreign_column": "state_code",
           "update_rule": null,
           "delete_rule": null
         },
@@ -1857,25 +1869,7 @@
           "type": "UNIQUE",
           "column": "state_code",
           "foreign_table": "cities",
-          "foreign_column": "name",
-          "update_rule": null,
-          "delete_rule": null
-        },
-        {
-          "name": "uq_cities_slug_state",
-          "type": "UNIQUE",
-          "column": "city_slug",
-          "foreign_table": "cities",
-          "foreign_column": "city_slug",
-          "update_rule": null,
-          "delete_rule": null
-        },
-        {
-          "name": "uq_cities_slug_state",
-          "type": "UNIQUE",
-          "column": "state_code",
-          "foreign_table": "cities",
-          "foreign_column": "city_slug",
+          "foreign_column": "state_code",
           "update_rule": null,
           "delete_rule": null
         },
@@ -1894,6 +1888,24 @@
           "column": "state_code",
           "foreign_table": "cities",
           "foreign_column": "state_code",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "uq_cities_slug_state",
+          "type": "UNIQUE",
+          "column": "city_slug",
+          "foreign_table": "cities",
+          "foreign_column": "city_slug",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "uq_cities_slug_state",
+          "type": "UNIQUE",
+          "column": "state_code",
+          "foreign_table": "cities",
+          "foreign_column": "city_slug",
           "update_rule": null,
           "delete_rule": null
         }
@@ -2033,7 +2045,7 @@
       ],
       "constraints": [
         {
-          "name": "2200_44000_1_not_null",
+          "name": "2200_46956_1_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -2042,7 +2054,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44000_3_not_null",
+          "name": "2200_46956_3_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -2051,7 +2063,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44000_8_not_null",
+          "name": "2200_46956_8_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -2060,7 +2072,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44000_9_not_null",
+          "name": "2200_46956_9_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -2198,7 +2210,7 @@
       ],
       "constraints": [
         {
-          "name": "2200_44263_1_not_null",
+          "name": "2200_47222_1_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -2207,7 +2219,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44263_3_not_null",
+          "name": "2200_47222_3_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -2216,7 +2228,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44263_4_not_null",
+          "name": "2200_47222_4_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -2225,7 +2237,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44263_5_not_null",
+          "name": "2200_47222_5_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -2234,7 +2246,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44263_8_not_null",
+          "name": "2200_47222_8_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -2243,7 +2255,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44263_9_not_null",
+          "name": "2200_47222_9_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -2507,7 +2519,7 @@
       ],
       "constraints": [
         {
-          "name": "2200_44337_16_not_null",
+          "name": "2200_47298_16_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -2516,7 +2528,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44337_17_not_null",
+          "name": "2200_47298_17_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -2525,7 +2537,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44337_1_not_null",
+          "name": "2200_47298_1_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -2588,8 +2600,8 @@
           "name": "Mobile Detail Hub",
           "tagline": null,
           "services_description": "Auto, boat & RV detailing, paint correction, ceramic coating, and PPF",
-          "created_at": "2025-08-27T20:17:05.242Z",
-          "updated_at": "2025-08-27T20:17:05.242Z"
+          "created_at": "2025-08-28T00:21:12.246Z",
+          "updated_at": "2025-08-28T00:21:12.246Z"
         }
       ],
       "row_count": "1"
@@ -2692,7 +2704,7 @@
       ],
       "constraints": [
         {
-          "name": "2200_44153_10_not_null",
+          "name": "2200_47112_10_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -2701,7 +2713,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44153_1_not_null",
+          "name": "2200_47112_1_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -2710,7 +2722,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44153_2_not_null",
+          "name": "2200_47112_2_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -2719,7 +2731,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44153_4_not_null",
+          "name": "2200_47112_4_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -2728,7 +2740,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44153_6_not_null",
+          "name": "2200_47112_6_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -2737,7 +2749,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44153_7_not_null",
+          "name": "2200_47112_7_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -2746,7 +2758,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44153_9_not_null",
+          "name": "2200_47112_9_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -2873,7 +2885,7 @@
           "comment": null
         },
         {
-          "name": "ip",
+          "name": "ip_address",
           "type": "inet",
           "max_length": null,
           "nullable": true,
@@ -2882,8 +2894,8 @@
           "comment": null
         },
         {
-          "name": "expires_at",
-          "type": "timestamp with time zone",
+          "name": "device_id",
+          "type": "text",
           "max_length": null,
           "nullable": true,
           "default_value": null,
@@ -2891,7 +2903,7 @@
           "comment": null
         },
         {
-          "name": "revoked_at",
+          "name": "expires_at",
           "type": "timestamp with time zone",
           "max_length": null,
           "nullable": true,
@@ -2900,12 +2912,30 @@
           "comment": null
         },
         {
+          "name": "revoked_at",
+          "type": "timestamp with time zone",
+          "max_length": null,
+          "nullable": true,
+          "default_value": null,
+          "position": 8,
+          "comment": null
+        },
+        {
+          "name": "is_revoked",
+          "type": "boolean",
+          "max_length": null,
+          "nullable": true,
+          "default_value": null,
+          "position": 9,
+          "comment": null
+        },
+        {
           "name": "created_at",
           "type": "timestamp with time zone",
           "max_length": null,
           "nullable": false,
           "default_value": "now()",
-          "position": 8,
+          "position": 10,
           "comment": null
         },
         {
@@ -2914,40 +2944,13 @@
           "max_length": null,
           "nullable": false,
           "default_value": "now()",
-          "position": 9,
-          "comment": null
-        },
-        {
-          "name": "device_id",
-          "type": "text",
-          "max_length": null,
-          "nullable": true,
-          "default_value": null,
-          "position": 10,
-          "comment": null
-        },
-        {
-          "name": "ip_address",
-          "type": "inet",
-          "max_length": null,
-          "nullable": true,
-          "default_value": null,
           "position": 11,
-          "comment": null
-        },
-        {
-          "name": "is_revoked",
-          "type": "boolean",
-          "max_length": null,
-          "nullable": true,
-          "default_value": "false",
-          "position": 12,
           "comment": null
         }
       ],
       "constraints": [
         {
-          "name": "2200_44350_1_not_null",
+          "name": "2200_47311_10_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -2956,7 +2959,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44350_2_not_null",
+          "name": "2200_47311_11_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -2965,7 +2968,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44350_3_not_null",
+          "name": "2200_47311_1_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -2974,7 +2977,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44350_8_not_null",
+          "name": "2200_47311_2_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -2983,7 +2986,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44350_9_not_null",
+          "name": "2200_47311_3_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -3046,11 +3049,11 @@
         }
       ],
       "statistics": {
-        "inserts": "1",
-        "updates": "3",
-        "deletes": "0",
+        "inserts": "3",
+        "updates": "4",
+        "deletes": "2",
         "live_tuples": "1",
-        "dead_tuples": "3",
+        "dead_tuples": "6",
         "last_vacuum": null,
         "last_autovacuum": null,
         "last_analyze": null,
@@ -3058,18 +3061,17 @@
       },
       "sample_data": [
         {
-          "id": 1,
+          "id": 3,
           "user_id": 1,
-          "token_hash": "c7e0e9bca1acea9ee12fb5dcf0960595f5a6eba9a0cfb53140bc23e02977bab3",
+          "token_hash": "178f803514cc904a3dabdef1f2cdbb45c3ae4d1cf5c32c76f9d4a47ff096ed10",
           "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
-          "ip": null,
-          "expires_at": "2025-09-03T21:25:24.764Z",
-          "revoked_at": null,
-          "created_at": "2025-08-27T21:25:24.767Z",
-          "updated_at": "2025-08-27T21:25:24.767Z",
-          "device_id": "d0775dd38d37a7c8",
           "ip_address": "::1",
-          "is_revoked": false
+          "device_id": "d0775dd38d37a7c8",
+          "expires_at": "2025-09-04T00:53:49.500Z",
+          "revoked_at": null,
+          "is_revoked": false,
+          "created_at": "2025-08-28T00:53:49.503Z",
+          "updated_at": "2025-08-28T00:53:49.503Z"
         }
       ],
       "row_count": "1"
@@ -3136,7 +3138,7 @@
       ],
       "constraints": [
         {
-          "name": "2200_44306_1_not_null",
+          "name": "2200_47265_1_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -3145,7 +3147,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44306_2_not_null",
+          "name": "2200_47265_2_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -3154,7 +3156,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44306_5_not_null",
+          "name": "2200_47265_5_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -3163,7 +3165,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44306_6_not_null",
+          "name": "2200_47265_6_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -3256,7 +3258,7 @@
       ],
       "constraints": [
         {
-          "name": "2200_44321_1_not_null",
+          "name": "2200_47280_1_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -3265,7 +3267,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44321_3_not_null",
+          "name": "2200_47280_3_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -3274,7 +3276,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44321_4_not_null",
+          "name": "2200_47280_4_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -3466,7 +3468,7 @@
       ],
       "constraints": [
         {
-          "name": "2200_44281_11_not_null",
+          "name": "2200_47240_11_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -3475,7 +3477,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44281_12_not_null",
+          "name": "2200_47240_12_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -3484,7 +3486,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44281_14_not_null",
+          "name": "2200_47240_14_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -3493,7 +3495,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44281_15_not_null",
+          "name": "2200_47240_15_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -3502,7 +3504,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44281_1_not_null",
+          "name": "2200_47240_1_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -3511,7 +3513,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44281_3_not_null",
+          "name": "2200_47240_3_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -3560,7 +3562,7 @@
           "type": "UNIQUE",
           "column": "external_id",
           "foreign_table": "reviews",
-          "foreign_column": "source_platform",
+          "foreign_column": "external_id",
           "update_rule": null,
           "delete_rule": null
         },
@@ -3569,7 +3571,7 @@
           "type": "UNIQUE",
           "column": "source_platform",
           "foreign_table": "reviews",
-          "foreign_column": "source_platform",
+          "foreign_column": "external_id",
           "update_rule": null,
           "delete_rule": null
         },
@@ -3578,7 +3580,7 @@
           "type": "UNIQUE",
           "column": "external_id",
           "foreign_table": "reviews",
-          "foreign_column": "external_id",
+          "foreign_column": "source_platform",
           "update_rule": null,
           "delete_rule": null
         },
@@ -3587,12 +3589,24 @@
           "type": "UNIQUE",
           "column": "source_platform",
           "foreign_table": "reviews",
-          "foreign_column": "external_id",
+          "foreign_column": "source_platform",
           "update_rule": null,
           "delete_rule": null
         }
       ],
       "indexes": [
+        {
+          "name": "idx_reviews_active_time",
+          "column": "affiliate_id",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "idx_reviews_active_time",
+          "column": "create_time",
+          "unique": false,
+          "primary": false
+        },
         {
           "name": "idx_reviews_affiliate_time",
           "column": "affiliate_id",
@@ -3601,6 +3615,18 @@
         },
         {
           "name": "idx_reviews_affiliate_time",
+          "column": "create_time",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "idx_reviews_location_time",
+          "column": "location_id",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "idx_reviews_location_time",
           "column": "create_time",
           "unique": false,
           "primary": false
@@ -3673,7 +3699,7 @@
       ],
       "constraints": [
         {
-          "name": "2200_44369_1_not_null",
+          "name": "2200_47331_1_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -3712,9 +3738,9 @@
       },
       "sample_data": [
         {
-          "version": "v3",
-          "applied_at": "2025-08-27T20:17:05.242Z",
-          "description": "Initial normalized schema with city_id and availability ranges"
+          "version": "v3.1",
+          "applied_at": "2025-08-28T00:21:12.246Z",
+          "description": "Normalized schema + brand affiliate + tightened indexes"
         }
       ],
       "row_count": "1"
@@ -3781,7 +3807,7 @@
       ],
       "constraints": [
         {
-          "name": "2200_44241_1_not_null",
+          "name": "2200_47200_1_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -3790,7 +3816,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44241_2_not_null",
+          "name": "2200_47200_2_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -3799,7 +3825,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44241_3_not_null",
+          "name": "2200_47200_3_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -3949,7 +3975,7 @@
       ],
       "constraints": [
         {
-          "name": "2200_44111_1_not_null",
+          "name": "2200_47070_1_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -3958,7 +3984,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44111_2_not_null",
+          "name": "2200_47070_2_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -3967,7 +3993,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44111_3_not_null",
+          "name": "2200_47070_3_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -3976,7 +4002,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44111_4_not_null",
+          "name": "2200_47070_4_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -3985,7 +4011,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44111_6_not_null",
+          "name": "2200_47070_6_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -3994,7 +4020,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44111_7_not_null",
+          "name": "2200_47070_7_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -4204,7 +4230,7 @@
       ],
       "constraints": [
         {
-          "name": "2200_44087_10_not_null",
+          "name": "2200_47046_10_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -4213,7 +4239,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44087_11_not_null",
+          "name": "2200_47046_11_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -4222,7 +4248,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44087_1_not_null",
+          "name": "2200_47046_1_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -4231,7 +4257,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44087_2_not_null",
+          "name": "2200_47046_2_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -4240,7 +4266,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44087_3_not_null",
+          "name": "2200_47046_3_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -4249,7 +4275,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44087_4_not_null",
+          "name": "2200_47046_4_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -4258,7 +4284,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44087_6_not_null",
+          "name": "2200_47046_6_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -4267,7 +4293,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44087_7_not_null",
+          "name": "2200_47046_7_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -4276,7 +4302,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44087_8_not_null",
+          "name": "2200_47046_8_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -4285,7 +4311,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_44087_9_not_null",
+          "name": "2200_47046_9_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -4334,7 +4360,7 @@
           "type": "UNIQUE",
           "column": "affiliate_id",
           "foreign_table": "services",
-          "foreign_column": "affiliate_id",
+          "foreign_column": "name",
           "update_rule": null,
           "delete_rule": null
         },
@@ -4343,7 +4369,7 @@
           "type": "UNIQUE",
           "column": "name",
           "foreign_table": "services",
-          "foreign_column": "affiliate_id",
+          "foreign_column": "name",
           "update_rule": null,
           "delete_rule": null
         },
@@ -4352,7 +4378,7 @@
           "type": "UNIQUE",
           "column": "affiliate_id",
           "foreign_table": "services",
-          "foreign_column": "name",
+          "foreign_column": "affiliate_id",
           "update_rule": null,
           "delete_rule": null
         },
@@ -4361,7 +4387,7 @@
           "type": "UNIQUE",
           "column": "name",
           "foreign_table": "services",
-          "foreign_column": "name",
+          "foreign_column": "affiliate_id",
           "update_rule": null,
           "delete_rule": null
         }
@@ -4447,7 +4473,7 @@
       ],
       "constraints": [
         {
-          "name": "2200_43955_1_not_null",
+          "name": "2200_46911_1_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -4456,7 +4482,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_43955_2_not_null",
+          "name": "2200_46911_2_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -4465,7 +4491,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_43955_3_not_null",
+          "name": "2200_46911_3_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -4500,7 +4526,7 @@
         "last_vacuum": null,
         "last_autovacuum": null,
         "last_analyze": null,
-        "last_autoanalyze": "2025-08-27T20:17:12.019Z"
+        "last_autoanalyze": "2025-08-28T00:21:17.126Z"
       },
       "sample_data": [
         {
@@ -4610,7 +4636,7 @@
       ],
       "constraints": [
         {
-          "name": "2200_43985_1_not_null",
+          "name": "2200_46941_1_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -4619,7 +4645,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_43985_2_not_null",
+          "name": "2200_46941_2_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -4628,7 +4654,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_43985_4_not_null",
+          "name": "2200_46941_4_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -4637,7 +4663,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_43985_8_not_null",
+          "name": "2200_46941_8_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -4646,7 +4672,7 @@
           "delete_rule": null
         },
         {
-          "name": "2200_43985_9_not_null",
+          "name": "2200_46941_9_not_null",
           "type": "CHECK",
           "column": null,
           "foreign_table": null,
@@ -4716,8 +4742,8 @@
           "is_admin": true,
           "password_hash": "$2a$10$EAY3D9OdVXpYgby.ATOmheJwqrlTZ423Yg2a.qLzN1Ku1/oj2/LzS",
           "phone": null,
-          "created_at": "2025-08-27T20:17:05.242Z",
-          "updated_at": "2025-08-27T20:17:05.242Z"
+          "created_at": "2025-08-28T00:21:12.246Z",
+          "updated_at": "2025-08-28T00:21:12.246Z"
         }
       ],
       "row_count": "1"
@@ -4812,7 +4838,19 @@
       "constraints": [],
       "indexes": [],
       "statistics": null,
-      "sample_data": [],
+      "sample_data": [
+        {
+          "affiliate_id": 1,
+          "slug": "mdh",
+          "business_name": "Mobile Detail Hub",
+          "city": null,
+          "state_code": null,
+          "zip": null,
+          "city_name": null,
+          "city_slug": null,
+          "legacy_city": null
+        }
+      ],
       "row_count": 0
     },
     {

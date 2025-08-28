@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const pool = require('../database/pool');
+const { pool } = require('../database/pool');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 const { validateBody, validateParams, sanitize } = require('../middleware/validation');
 const { adminSchemas, sanitizationSchemas } = require('../utils/validationSchemas');

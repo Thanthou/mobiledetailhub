@@ -89,7 +89,7 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig }) => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
         {/* Column 1: Connect */}
         <div className="text-center md:text-left">
-          <ConnectColumn />
+          <ConnectColumn config={parentConfig} />
         </div>
 
         {/* Column 2: Follow Us */}

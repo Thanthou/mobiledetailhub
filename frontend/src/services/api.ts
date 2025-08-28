@@ -1,5 +1,13 @@
 import { config } from '../config/environment';
 
+// Extend Error interface for custom error codes
+interface CustomError extends Error {
+  code?: string;
+  retryAfterSeconds?: number;
+  remainingAttempts?: number;
+  resetTime?: number;
+}
+
 const API_BASE_URL = config.apiUrl;
 
 export interface QuoteFormData {
@@ -61,12 +69,15 @@ export interface ApplicationsResponse extends ApiResponse {
 }
 
 export interface LoginResponse extends ApiResponse {
-  token: string;
+  accessToken: string;
+  refreshToken: string;
   user: {
     id: number;
     email: string;
     role: string;
     name: string;
+    phone?: string;
+    is_admin?: boolean;
   };
 }
 
@@ -134,7 +145,8 @@ class ApiService {
   }
 
   async login(email: string, password: string): Promise<LoginResponse> {
-    const url = `${config.apiUrls.local}/api/auth/login`;
+    // Use relative URL to leverage Vite proxy
+    const url = '/api/auth/login';
     
     try {
       const response = await fetch(url, {
@@ -148,19 +160,89 @@ class ApiService {
       const data = await response.json();
       
       if (!response.ok) {
-        throw new Error(data.error || 'Login failed');
-      }
-      
-      // Store the token in localStorage
-      if (data.token) {
-        localStorage.setItem('token', data.token);
+        // Handle rate limiting specifically
+        if (response.status === 429) {
+          const error: CustomError = new Error(data.error || 'Rate limited');
+          error.code = 'RATE_LIMITED';
+          error.retryAfterSeconds = data.retryAfterSeconds;
+          error.remainingAttempts = data.remainingAttempts;
+          error.resetTime = data.resetTime;
+          throw error;
+        }
+        
+        // Handle other error codes
+        if (response.status === 401) {
+          const error: CustomError = new Error(data.error || 'Invalid credentials');
+          error.code = 'INVALID_CREDENTIALS';
+          throw error;
+        }
+        
+        if (response.status === 403) {
+          const error: CustomError = new Error(data.error || 'Access denied');
+          error.code = 'FORBIDDEN';
+          throw error;
+        }
+        
+        throw new Error(data.message || data.error || 'Login failed');
       }
       
       return data;
       
     } catch (error) {
       console.error('Login failed:', error);
+      // Re-throw with additional context if it's not already an Error
+      if (error instanceof Error) {
+        throw error;
+      }
       throw new Error(error instanceof Error ? error.message : 'Login failed');
+    }
+  }
+
+  async register(email: string, password: string, name: string, phone?: string): Promise<LoginResponse> {
+    // Use relative URL to leverage Vite proxy
+    const url = '/api/auth/register';
+    
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password, name, phone }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        // Handle rate limiting specifically
+        if (response.status === 429) {
+          const error: CustomError = new Error(data.error || 'Rate limited');
+          error.code = 'RATE_LIMITED';
+          error.retryAfterSeconds = data.retryAfterSeconds;
+          error.remainingAttempts = data.remainingAttempts;
+          error.resetTime = data.resetTime;
+          throw error;
+        }
+        
+        // Handle other error codes
+        if (response.status === 400) {
+          const error: CustomError = new Error(data.message || data.error || 'Registration failed');
+          error.code = 'VALIDATION_ERROR';
+          throw error;
+        }
+        
+        throw new Error(data.message || data.error || 'Registration failed');
+      }
+      
+      return data;
+      
+    } catch (error) {
+      console.error('Registration failed:', error);
+      // Re-throw with additional context if it's not already an Error
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error(error instanceof Error ? error.message : 'Registration failed');
     }
   }
 
@@ -169,7 +251,8 @@ class ApiService {
       ? `/api/admin/users?status=${status}`
       : '/api/admin/users';
     
-    const url = `${config.apiUrls.local}${endpoint}`;
+    // Use relative URL to leverage Vite proxy
+    const url = endpoint;
     
     // Get token from localStorage
     const token = localStorage.getItem('token');
@@ -200,7 +283,8 @@ class ApiService {
   }
 
   async getPendingApplications(): Promise<ApplicationsResponse> {
-    const url = `${config.apiUrls.local}/api/admin/pending-applications`;
+    // Use relative URL to leverage Vite proxy
+    const url = '/api/admin/pending-applications';
     
     // Get token from localStorage
     const token = localStorage.getItem('token');
@@ -231,7 +315,8 @@ class ApiService {
   }
 
   async approveApplication(applicationId: number, approvedSlug: string, adminNotes: string): Promise<AffiliateApprovalResponse> {
-    const url = `${config.apiUrls.local}/api/admin/approve-application/${applicationId}`;
+    // Use relative URL to leverage Vite proxy
+    const url = `/api/admin/approve-application/${applicationId}`;
     
     // Get token from localStorage
     const token = localStorage.getItem('token');
@@ -267,7 +352,8 @@ class ApiService {
   }
 
   async rejectApplication(applicationId: number, rejectionReason: string, adminNotes: string): Promise<AffiliateRejectionResponse> {
-    const url = `${config.apiUrls.local}/api/admin/reject-application/${applicationId}`;
+    // Use relative URL to leverage Vite proxy
+    const url = `/api/admin/reject-application/${applicationId}`;
     
     // Get token from localStorage
     const token = localStorage.getItem('token');
@@ -303,7 +389,8 @@ class ApiService {
   }
 
   async deleteAffiliate(affiliateId: number): Promise<AffiliateDeletionResponse> {
-    const url = `${config.apiUrls.local}/api/admin/affiliates/${affiliateId}`;
+    // Use relative URL to leverage Vite proxy
+    const url = `/api/admin/affiliates/${affiliateId}`;
     
     // Get token from localStorage
     const token = localStorage.getItem('token');

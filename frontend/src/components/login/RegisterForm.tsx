@@ -6,9 +6,10 @@ interface RegisterFormProps {
   onSubmit: (email: string, password: string, name: string, phone: string) => Promise<void>;
   loading: boolean;
   error?: string;
+  disabled?: boolean;
 }
 
-const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, error }) => {
+const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, error, disabled = false }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -20,6 +21,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, error })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (disabled) return;
+    
     setFieldErrors({});
 
     // Basic validation
@@ -52,6 +55,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, error })
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (disabled) return;
+    
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
@@ -67,6 +72,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, error })
       type="button"
       onClick={() => setShowPassword(!showPassword)}
       className="text-gray-500 hover:text-gray-300 transition-colors duration-200"
+      disabled={disabled}
     >
       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
     </button>
@@ -87,6 +93,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, error })
           icon={User}
           error={getFieldError('name')}
           required
+          disabled={disabled}
         />
 
         {/* Phone Field */}
@@ -100,6 +107,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, error })
           placeholder="Enter your phone number"
           icon={Phone}
           error={getFieldError('phone')}
+          disabled={disabled}
         />
 
         {/* Email Field */}
@@ -114,6 +122,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, error })
           icon={Mail}
           error={getFieldError('email')}
           required
+          disabled={disabled}
         />
 
         {/* Password Field */}
@@ -129,12 +138,13 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, error })
           error={getFieldError('password')}
           required
           rightElement={passwordRightElement}
+          disabled={disabled}
         />
 
         {/* Submit Button */}
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || disabled}
           className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-stone-900 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100"
         >
           {loading ? (
@@ -142,6 +152,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, error })
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
               Creating account...
             </div>
+          ) : disabled ? (
+            'Rate limited'
           ) : (
             'Create account'
           )}

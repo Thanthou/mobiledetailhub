@@ -19,20 +19,42 @@ interface LoginModalProps {
   onClose: () => void;
 }
 
+interface RateLimitInfo {
+  retryAfterSeconds: number;
+  remainingAttempts: number;
+  resetTime: number;
+}
+
 const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
   const { login, register } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [rateLimitInfo, setRateLimitInfo] = useState<RateLimitInfo | null>(null);
+  const [countdown, setCountdown] = useState<number>(0);
   
   // Refs for focus management
   const modalRef = useRef<HTMLDivElement>(null);
   const firstFocusableRef = useRef<HTMLButtonElement>(null);
   const lastFocusableRef = useRef<HTMLButtonElement>(null);
 
+  // Countdown timer effect
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setTimeout(() => {
+        setCountdown(countdown - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else if (countdown === 0 && rateLimitInfo) {
+      setRateLimitInfo(null);
+      setError('');
+    }
+  }, [countdown, rateLimitInfo]);
+
   const handleLogin = async (email: string, password: string) => {
     setError('');
     setLoading(true);
+    setRateLimitInfo(null);
 
     try {
       // Validate email
@@ -54,10 +76,42 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
       if (result.success) {
         onClose();
       } else {
-        setError(result.error || 'Login failed');
+        // Handle specific error types from AuthContext
+        if (result.error?.includes('Rate limited')) {
+          // Extract retry info from error message or use default
+          const retryMatch = result.error.match(/(\d+)/);
+          const retrySeconds = retryMatch ? parseInt(retryMatch[1]) : 300; // Default 5 minutes
+          
+          setRateLimitInfo({
+            retryAfterSeconds: retrySeconds,
+            remainingAttempts: 0,
+            resetTime: Date.now() + (retrySeconds * 1000)
+          });
+          setCountdown(retrySeconds);
+          setError(`Too many login attempts. Please try again in ${retrySeconds} seconds.`);
+        } else {
+          setError(result.error || 'Login failed');
+        }
       }
-    } catch (err) {
-      setError('An unexpected error occurred');
+    } catch (err: any) {
+      // Handle rate limiting specifically
+      if (err.code === 'RATE_LIMITED' && err.retryAfterSeconds) {
+        setRateLimitInfo({
+          retryAfterSeconds: err.retryAfterSeconds,
+          remainingAttempts: err.remainingAttempts || 0,
+          resetTime: err.resetTime || Date.now() + (err.retryAfterSeconds * 1000)
+        });
+        setCountdown(err.retryAfterSeconds);
+        setError(`Too many login attempts. Please try again in ${err.retryAfterSeconds} seconds.`);
+      } else if (err.code === 'INVALID_CREDENTIALS') {
+        setError('Email or password is incorrect.');
+      } else if (err.code === 'FORBIDDEN') {
+        setError('Access denied. Please contact support.');
+      } else if (err.message?.includes('Network') || err.message?.includes('fetch')) {
+        setError('Network error. Please check your connection and try again.');
+      } else {
+        setError(err.message || 'An unexpected error occurred');
+      }
     } finally {
       setLoading(false);
     }
@@ -66,6 +120,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
   const handleRegister = async (email: string, password: string, name: string, phone: string) => {
     setError('');
     setLoading(true);
+    setRateLimitInfo(null);
 
     try {
       // Validate all fields
@@ -95,10 +150,38 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
       if (result.success) {
         onClose();
       } else {
-        setError(result.error || 'Registration failed');
+        // Handle specific error types from AuthContext
+        if (result.error?.includes('Rate limited')) {
+          // Extract retry info from error message or use default
+          const retryMatch = result.error.match(/(\d+)/);
+          const retrySeconds = retryMatch ? parseInt(retryMatch[1]) : 300; // Default 5 minutes
+          
+          setRateLimitInfo({
+            retryAfterSeconds: retrySeconds,
+            remainingAttempts: 0,
+            resetTime: Date.now() + (retrySeconds * 1000)
+          });
+          setCountdown(retrySeconds);
+          setError(`Too many registration attempts. Please try again in ${retrySeconds} seconds.`);
+        } else {
+          setError(result.error || 'Registration failed');
+        }
       }
-    } catch (err) {
-      setError('An unexpected error occurred');
+    } catch (err: any) {
+      // Handle rate limiting specifically
+      if (err.code === 'RATE_LIMITED' && err.retryAfterSeconds) {
+        setRateLimitInfo({
+          retryAfterSeconds: err.retryAfterSeconds,
+          remainingAttempts: err.remainingAttempts || 0,
+          resetTime: err.resetTime || Date.now() + (err.retryAfterSeconds * 1000)
+        });
+        setCountdown(err.retryAfterSeconds);
+        setError(`Too many registration attempts. Please try again in ${err.retryAfterSeconds} seconds.`);
+      } else if (err.message?.includes('Network') || err.message?.includes('fetch')) {
+        setError('Network error. Please check your connection and try again.');
+      } else {
+        setError(err.message || 'An unexpected error occurred');
+      }
     } finally {
       setLoading(false);
     }
@@ -107,10 +190,14 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
   const handleToggleMode = () => {
     setIsLogin(!isLogin);
     setError('');
+    setRateLimitInfo(null);
+    setCountdown(0);
   };
 
   const handleClose = () => {
     setError('');
+    setRateLimitInfo(null);
+    setCountdown(0);
     onClose();
   };
 
@@ -188,6 +275,13 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
 
   if (!isOpen || !mounted) return null;
 
+  // Format countdown display
+  const formatCountdown = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
   return createPortal(
     <div 
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -237,6 +331,16 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
               id="login-error-message"
             >
               {error}
+              {rateLimitInfo && countdown > 0 && (
+                <div className="mt-2 text-center">
+                  <div className="text-lg font-mono font-bold text-orange-400">
+                    {formatCountdown(countdown)}
+                  </div>
+                  <div className="text-xs text-red-200">
+                    Try again in {countdown} seconds
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -246,12 +350,14 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
               onSubmit={handleLogin}
               loading={loading}
               error={error}
+              disabled={rateLimitInfo !== null && countdown > 0}
             />
           ) : (
             <RegisterForm 
               onSubmit={handleRegister}
               loading={loading}
               error={error}
+              disabled={rateLimitInfo !== null && countdown > 0}
             />
           )}
 

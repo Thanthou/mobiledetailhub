@@ -1,21 +1,24 @@
 import React from 'react';
 import FooterGrid from './Grid';
 import FooterBottom from '../FooterBottom';
-import FooterLoadingState from '../FooterLoadingState';
 import FooterErrorState from '../FooterErrorState';
 import { GetStarted } from 'shared';
 import { useMDHConfig } from '../../../contexts/MDHConfigContext';
 
 const MDHFooter: React.FC = () => {
-  const { mdhConfig, isLoading, error } = useMDHConfig();
+  const { mdhConfig, isLoading } = useMDHConfig();
 
-  if (isLoading) return <FooterLoadingState />;
-  if (error || !mdhConfig) return <FooterErrorState />;
-
+  // Get static config immediately (available from mdh-config.js)
+  const staticConfig = typeof window !== 'undefined' ? window.__MDH__ : null;
+  
+  // Use dynamic config if available, otherwise fall back to static config
+  const config = mdhConfig || staticConfig;
+  
+  // Always render footer immediately - never wait for network
   return (
     <footer className="bg-stone-800 text-white py-16">
       <div className="max-w-6xl mx-auto px-4">
-        <FooterGrid parentConfig={mdhConfig} />
+        <FooterGrid parentConfig={config} />
         
         {/* Get Started Section - Centered Below Columns */}
         <div className="text-center mb-12">
@@ -30,7 +33,7 @@ const MDHFooter: React.FC = () => {
           </div>
         </div>
         
-        <FooterBottom businessInfo={{ name: mdhConfig.header_display || 'Mobile Detail Hub' }} />
+        <FooterBottom businessInfo={{ name: config?.header_display || 'Mobile Detail Hub' }} />
       </div>
     </footer>
   );

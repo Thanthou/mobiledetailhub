@@ -150,17 +150,19 @@ const validators = {
   /**
    * Check if value length is within range
    */
-  length: (value, fieldName, min, max) => {
-    if (value) {
-      const len = value.toString().length;
-      if (min !== undefined && len < min) {
-        throw new ValidationError(`${fieldName} must be at least ${min} characters long`, fieldName, value);
+  length: (min, max) => {
+    return (value, fieldName) => {
+      if (value) {
+        const len = value.toString().length;
+        if (min !== undefined && len < min) {
+          throw new ValidationError(`${fieldName} must be at least ${min} characters long`, fieldName, value);
+        }
+        if (max !== undefined && len > max) {
+          throw new ValidationError(`${fieldName} must be no more than ${max} characters long`, fieldName, value);
+        }
       }
-      if (max !== undefined && len > max) {
-        throw new ValidationError(`${fieldName} must be no more than ${max} characters long`, fieldName, value);
-      }
-    }
-    return true;
+      return true;
+    };
   },
 
   /**

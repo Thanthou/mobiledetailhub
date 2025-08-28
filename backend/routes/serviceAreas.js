@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const pool = require('../database/pool');
+const { pool } = require('../database/pool');
 const { validateParams } = require('../middleware/validation');
 const { serviceAreaSchemas } = require('../utils/validationSchemas');
 const { asyncHandler } = require('../middleware/errorHandler');

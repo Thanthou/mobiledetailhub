@@ -18,6 +18,7 @@ FILE: backend\package.json
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.11.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
@@ -27,7 +28,6 @@ FILE: backend\package.json
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.2",
     "pg": "^8.16.3",
-
     "uuid": "^11.1.0",
     "winston": "^3.15.0"
   },
@@ -229,7 +229,7 @@ const { requestLogger } = require('./middleware/requestLogger');
 
 // Import database utilities
 const { setupDatabase } = require('./utils/databaseInit');
-const pool = require('./database/pool');
+const { pool } = require('./database/pool');
 
 // Import upload validation utilities
 const { validateUploadRequest } = require('./utils/uploadValidator');
@@ -255,8 +255,49 @@ try {
   process.exit(1);
 }
 
+/**
+ * Single source of truth for CORS allowed origins
+ * 
+ * This ensures consistency across all environments and prevents
+ * CORS issues when switching between different dev ports.
+ * 
+ * Development ports covered:
+ * - 3000: React dev server (default)
+ * - 5173: Vite dev server (default) 
+ * - 5174: Vite dev server (alternate)
+ * - 4173: Vite preview server
+ * - 127.0.0.1 variants for all ports
+ */
+const ALLOWED_ORIGINS = {
+  development: [
+    'http://localhost:3000',    // React dev server (default)
+    'http://localhost:5173',    // Vite dev server (default)
+    'http://localhost:5174',    // Vite dev server (alternate)
+    'http://localhost:4173',    // Vite preview server
+    'http://127.0.0.1:3000',   // React dev server (IP variant)
+    'http://127.0.0.1:5173',   // Vite dev server (IP variant)
+    'http://127.0.0.1:5174',   // Vite dev server (IP variant, alternate)
+    'http://127.0.0.1:4173'    // Vite preview server (IP variant)
+  ],
+  staging: [
+    // Staging domains from environment + localhost for testing
+    ...(process.env.ALLOWED_ORIGINS?.split(',').filter(origin => origin.trim()) || []),
+    'http://localhost:3000',
+    'http://localhost:5173'
+  ],
+  production: process.env.ALLOWED_ORIGINS?.split(',').filter(origin => origin.trim()) || []
+};
+
 // Validate CORS configuration
 validateCorsConfig();
+
+// Log CORS configuration for current environment
+const currentEnv = process.env.NODE_ENV || 'development';
+const currentOrigins = ALLOWED_ORIGINS[currentEnv] || ALLOWED_ORIGINS.development;
+logger.info(`CORS configured for ${currentEnv} environment with ${currentOrigins.length} allowed origins`);
+if (currentEnv === 'development') {
+  logger.info('Development origins:', currentOrigins);
+}
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -310,34 +351,16 @@ const corsOptions = {
     // Allow requests with no origin (like mobile apps or Postman)
     if (!origin) return callback(null, true);
     
-    const allowedOrigins = [];
-    
-    if (process.env.NODE_ENV === 'production') {
-      // Production: Only allow specific production domains
-      const prodDomains = process.env.ALLOWED_ORIGINS?.split(',').filter(origin => origin.trim()) || [];
-      allowedOrigins.push(...prodDomains);
-    } else if (process.env.NODE_ENV === 'staging') {
-      // Staging: Allow staging domains + localhost
-      const stagingDomains = process.env.ALLOWED_ORIGINS?.split(',').filter(origin => origin.trim()) || [];
-      allowedOrigins.push(...stagingDomains, 'http://localhost:3000', 'http://localhost:5173');
-    } else {
-      // Development: Allow localhost and common dev ports
-      allowedOrigins.push(
-        'http://localhost:3000',
-        'http://localhost:5173',
-        'http://localhost:5174',
-        'http://localhost:4173',
-        'http://127.0.0.1:3000',
-        'http://127.0.0.1:5173',
-        'http://127.0.0.1:5174',
-        'http://127.0.0.1:4173'
-      );
-    }
+    const environment = process.env.NODE_ENV || 'development';
+    const allowedOrigins = ALLOWED_ORIGINS[environment] || ALLOWED_ORIGINS.development;
     
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      logger.warn(`CORS blocked request from unauthorized origin: ${origin}`);
+      logger.warn(`CORS blocked request from unauthorized origin: ${origin}`, {
+        environment,
+        allowedOrigins: allowedOrigins.length
+      });
       // Return proper CORS headers even when denying
       callback(new Error('Not allowed by CORS'));
     }
@@ -394,6 +417,19 @@ app.use(helmet({
 }));
 app.use(express.json({ limit: '1mb' })); // Limit request body size
 app.use(express.urlencoded({ extended: true, limit: '1mb' })); // Limit URL-encoded body size
+
+// Serve static files with caching
+// Note: mdh-config.js is cached for 24 hours to ensure instant header/footer loading
+app.use('/js/mdh-config.js', (req, res, next) => {
+  // Set long-term cache headers for the static config file
+  res.set({
+    'Cache-Control': 'public, max-age=86400, s-maxage=86400', // 24 hours
+    'ETag': '"mdh-config-static"',
+    'Vary': 'Accept-Encoding'
+  });
+  next();
+});
+app.use('/js', express.static('frontend/public/js'));
 
 // Enhanced request validation middleware
 const requestValidationMiddleware = (req, res, next) => {
@@ -470,13 +506,18 @@ const requestValidationMiddleware = (req, res, next) => {
 app.use(requestValidationMiddleware);
 app.use(requestTracker); // Apply request tracking middleware
 
-// Apply rate limiting to specific route groups
-// Note: Auth and admin routes have their own stricter limiters
-app.use('/api/health', apiLimiter);
-app.use('/api/service_areas', apiLimiter);
-app.use('/api/affiliates', apiLimiter);
-app.use('/api/mdh-config', apiLimiter);
-app.use('/api/customers', apiLimiter);
+// NOTE: Global API limiter removed.
+// Apply per-route limiters ONLY on sensitive endpoints (auth/admin/uploads).
+// Example elsewhere:
+// router.post('/login', authLimiter, asyncHandler(loginHandler));
+// router.post('/refresh', refreshLimiter, asyncHandler(refreshHandler));
+
+// Read-only endpoints are NOT rate-limited to prevent slow header/footer performance
+// app.use('/api/health', apiLimiter); // REMOVED - read-only endpoint
+// app.use('/api/service_areas', apiLimiter); // REMOVED - read-only endpoint
+// app.use('/api/affiliates', apiLimiter); // DISABLED - read-only endpoint
+// app.use('/api/mdh-config', apiLimiter); // DISABLED - read-only endpoint
+// app.use('/api/customers', apiLimiter); // REMOVED - read-only endpoint
 
 // Routes
 app.use('/api/health', healthRoutes);

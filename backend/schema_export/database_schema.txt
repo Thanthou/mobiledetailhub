@@ -1,17 +1,17 @@
 Database Schema Export
 Database: MobileDetailHub
-Exported: 2025-08-27T22:51:12.878Z
+Exported: 2025-08-28T00:57:52.548Z
 Total Tables: 24
 
 === TABLE: addresses ===
 Type: BASE TABLE
-Row Count: 1
+Row Count: 0
 
 Columns:
   - id: integer NOT NULL
   - line1: character varying(255) NULL
   - city_id: integer NULL
-  - city: character varying(100) NULL // DEPRECATED: Use city_id for normalized city reference. This field will be dropped in future schema version.
+  - city: character varying(100) NULL // DEPRECATED: Use city_id for normalized city reference. This field will be dropped in a future schema version.
   - state_code: character(2) NOT NULL
   - postal_code: character varying(20) NULL
   - lat: double precision NULL
@@ -20,10 +20,10 @@ Columns:
   - updated_at: timestamp with time zone NOT NULL DEFAULT now()
 
 Constraints:
-  - 2200_44016_10_not_null: CHECK
-  - 2200_44016_1_not_null: CHECK
-  - 2200_44016_5_not_null: CHECK
-  - 2200_44016_9_not_null: CHECK
+  - 2200_46972_10_not_null: CHECK
+  - 2200_46972_1_not_null: CHECK
+  - 2200_46972_5_not_null: CHECK
+  - 2200_46972_9_not_null: CHECK
   - addresses_city_id_fkey: FOREIGN KEY on city_id -> cities.id
   - addresses_pkey: PRIMARY KEY on id -> addresses.id
   - addresses_state_code_fkey: FOREIGN KEY on state_code -> states.state_code
@@ -35,9 +35,6 @@ Indexes:
   - idx_addresses_location: postal_code
   - uq_addresses_normalized: city_id (UNIQUE)
   - uq_addresses_normalized: postal_code (UNIQUE)
-
-Sample Data (1 rows):
-  Row 1: {"id":1,"line1":"Bullhead City, AZ","city_id":null,"city":"Bullhead City","state_code":"AZ","postal_code":null,"lat":null,"lng":null,"created_at":"2025-08-27T22:17:07.004Z","updated_at":"2025-08-27T22:17:07.004Z"}
 
 
 === TABLE: affiliate_service_areas ===
@@ -53,9 +50,9 @@ Columns:
   - updated_at: timestamp with time zone NULL DEFAULT now()
 
 Constraints:
-  - 2200_44222_1_not_null: CHECK
-  - 2200_44222_2_not_null: CHECK
-  - 2200_44222_3_not_null: CHECK
+  - 2200_47181_1_not_null: CHECK
+  - 2200_47181_2_not_null: CHECK
+  - 2200_47181_3_not_null: CHECK
   - affiliate_service_areas_affiliate_id_fkey: FOREIGN KEY on affiliate_id -> affiliates.id
   - affiliate_service_areas_city_id_fkey: FOREIGN KEY on city_id -> cities.id
   - affiliate_service_areas_pkey: PRIMARY KEY on id -> affiliate_service_areas.id
@@ -84,12 +81,12 @@ Columns:
   - updated_at: timestamp with time zone NOT NULL DEFAULT now()
 
 Constraints:
-  - 2200_44066_1_not_null: CHECK
-  - 2200_44066_2_not_null: CHECK
-  - 2200_44066_3_not_null: CHECK
-  - 2200_44066_4_not_null: CHECK
-  - 2200_44066_5_not_null: CHECK
-  - 2200_44066_6_not_null: CHECK
+  - 2200_47024_1_not_null: CHECK
+  - 2200_47024_2_not_null: CHECK
+  - 2200_47024_3_not_null: CHECK
+  - 2200_47024_4_not_null: CHECK
+  - 2200_47024_5_not_null: CHECK
+  - 2200_47024_6_not_null: CHECK
   - affiliate_users_affiliate_id_fkey: FOREIGN KEY on affiliate_id -> affiliates.id
   - affiliate_users_pkey: PRIMARY KEY on id -> affiliate_users.id
   - affiliate_users_user_id_fkey: FOREIGN KEY on user_id -> users.id
@@ -100,13 +97,14 @@ Constraints:
 
 Indexes:
   - affiliate_users_pkey: id (UNIQUE) (PRIMARY)
+  - idx_affiliate_users_user_id: user_id
   - uq_affiliate_users: affiliate_id (UNIQUE)
   - uq_affiliate_users: user_id (UNIQUE)
 
 
 === TABLE: affiliates ===
 Type: BASE TABLE
-Row Count: 0
+Row Count: 1
 
 Columns:
   - id: integer NOT NULL
@@ -137,25 +135,26 @@ Columns:
   - total_jobs: integer NULL DEFAULT 0
   - rating: numeric NULL
   - review_count: integer NULL DEFAULT 0
+  - is_brand: boolean NOT NULL DEFAULT false
   - created_at: timestamp with time zone NOT NULL DEFAULT now()
   - updated_at: timestamp with time zone NOT NULL DEFAULT now()
   - application_date: timestamp with time zone NOT NULL DEFAULT now()
   - approved_date: timestamp with time zone NULL
   - last_activity: timestamp with time zone NOT NULL DEFAULT now()
-  - user_id: integer NULL
 
 Constraints:
-  - 2200_44037_15_not_null: CHECK
-  - 2200_44037_1_not_null: CHECK
-  - 2200_44037_29_not_null: CHECK
-  - 2200_44037_2_not_null: CHECK
-  - 2200_44037_30_not_null: CHECK
-  - 2200_44037_31_not_null: CHECK
-  - 2200_44037_33_not_null: CHECK
-  - 2200_44037_3_not_null: CHECK
-  - 2200_44037_4_not_null: CHECK
-  - 2200_44037_5_not_null: CHECK
-  - 2200_44037_7_not_null: CHECK
+  - 2200_46993_15_not_null: CHECK
+  - 2200_46993_1_not_null: CHECK
+  - 2200_46993_29_not_null: CHECK
+  - 2200_46993_2_not_null: CHECK
+  - 2200_46993_30_not_null: CHECK
+  - 2200_46993_31_not_null: CHECK
+  - 2200_46993_32_not_null: CHECK
+  - 2200_46993_34_not_null: CHECK
+  - 2200_46993_3_not_null: CHECK
+  - 2200_46993_4_not_null: CHECK
+  - 2200_46993_5_not_null: CHECK
+  - 2200_46993_7_not_null: CHECK
   - affiliates_base_address_id_fkey: FOREIGN KEY on base_address_id -> addresses.id
   - affiliates_phone_check: CHECK -> affiliates.phone
   - affiliates_pkey: PRIMARY KEY on id -> affiliates.id
@@ -163,15 +162,14 @@ Constraints:
   - affiliates_review_count_check: CHECK -> affiliates.review_count
   - affiliates_slug_check: CHECK -> affiliates.slug
   - affiliates_slug_key: UNIQUE on slug -> affiliates.slug
-  - affiliates_user_id_fkey: FOREIGN KEY on user_id -> users.id
 
 Indexes:
   - affiliates_pkey: id (UNIQUE) (PRIMARY)
   - affiliates_slug_key: slug (UNIQUE)
-  - application_date_idx: application_date
-  - application_status_idx: application_status
-  - approved_date_idx: approved_date
-  - last_activity_idx: last_activity
+  - uq_affiliates_brand_one: is_brand (UNIQUE)
+
+Sample Data (1 rows):
+  Row 1: {"id":1,"slug":"mdh","business_name":"Mobile Detail Hub","owner":"Mobile Detail Hub","phone":"(888) 555-1234","sms_phone":null,"email":"service@mobiledetailhub.com","base_address_id":null,"website_url":null,"gbp_url":null,"facebook_url":null,"instagram_url":null,"youtube_url":null,"tiktok_url":null,"application_status":"approved","has_insurance":false,"source":null,"notes":null,"uploads":null,"business_license":null,"insurance_provider":null,"insurance_expiry":null,"service_radius_miles":25,"operating_hours":null,"emergency_contact":null,"total_jobs":0,"rating":null,"review_count":0,"is_brand":true,"created_at":"2025-08-28T00:21:12.246Z","updated_at":"2025-08-28T00:21:12.246Z","application_date":"2025-08-28T00:21:12.246Z","approved_date":"2025-08-28T00:21:12.246Z","last_activity":"2025-08-28T00:21:12.246Z"}
 
 
 === TABLE: availability ===
@@ -187,12 +185,12 @@ Columns:
   - updated_at: timestamp with time zone NOT NULL DEFAULT now()
 
 Constraints:
-  - 2200_44132_1_not_null: CHECK
-  - 2200_44132_2_not_null: CHECK
-  - 2200_44132_3_not_null: CHECK
-  - 2200_44132_4_not_null: CHECK
-  - 2200_44132_5_not_null: CHECK
-  - 2200_44132_6_not_null: CHECK
+  - 2200_47091_1_not_null: CHECK
+  - 2200_47091_2_not_null: CHECK
+  - 2200_47091_3_not_null: CHECK
+  - 2200_47091_4_not_null: CHECK
+  - 2200_47091_5_not_null: CHECK
+  - 2200_47091_6_not_null: CHECK
   - availability_affiliate_id_fkey: FOREIGN KEY on affiliate_id -> affiliates.id
   - availability_capacity_check: CHECK -> availability.capacity
   - availability_pkey: PRIMARY KEY on id -> availability.id
@@ -224,18 +222,18 @@ Columns:
   - updated_at: timestamp with time zone NOT NULL DEFAULT now()
 
 Constraints:
-  - 2200_44178_10_not_null: CHECK
-  - 2200_44178_12_not_null: CHECK
-  - 2200_44178_13_not_null: CHECK
-  - 2200_44178_1_not_null: CHECK
-  - 2200_44178_2_not_null: CHECK
-  - 2200_44178_6_not_null: CHECK
-  - 2200_44178_7_not_null: CHECK
-  - 2200_44178_8_not_null: CHECK
-  - 2200_44178_9_not_null: CHECK
+  - 2200_47137_10_not_null: CHECK
+  - 2200_47137_12_not_null: CHECK
+  - 2200_47137_13_not_null: CHECK
+  - 2200_47137_1_not_null: CHECK
+  - 2200_47137_2_not_null: CHECK
+  - 2200_47137_6_not_null: CHECK
+  - 2200_47137_7_not_null: CHECK
+  - 2200_47137_8_not_null: CHECK
+  - 2200_47137_9_not_null: CHECK
   - bookings_affiliate_id_fkey: FOREIGN KEY on affiliate_id -> affiliates.id
-  - bookings_check: CHECK -> bookings.appointment_start
   - bookings_check: CHECK -> bookings.appointment_end
+  - bookings_check: CHECK -> bookings.appointment_start
   - bookings_customer_id_fkey: FOREIGN KEY on customer_id -> customers.id
   - bookings_pkey: PRIMARY KEY on id -> bookings.id
   - bookings_service_id_fkey: FOREIGN KEY on service_id -> services.id
@@ -266,22 +264,22 @@ Columns:
   - updated_at: timestamp with time zone NOT NULL DEFAULT now()
 
 Constraints:
-  - 2200_43964_1_not_null: CHECK
-  - 2200_43964_2_not_null: CHECK
-  - 2200_43964_3_not_null: CHECK
-  - 2200_43964_4_not_null: CHECK
-  - 2200_43964_7_not_null: CHECK
-  - 2200_43964_8_not_null: CHECK
+  - 2200_46920_1_not_null: CHECK
+  - 2200_46920_2_not_null: CHECK
+  - 2200_46920_3_not_null: CHECK
+  - 2200_46920_4_not_null: CHECK
+  - 2200_46920_7_not_null: CHECK
+  - 2200_46920_8_not_null: CHECK
   - cities_pkey: PRIMARY KEY on id -> cities.id
   - cities_state_code_fkey: FOREIGN KEY on state_code -> states.state_code
-  - uq_cities_name_state: UNIQUE on name -> cities.state_code
-  - uq_cities_name_state: UNIQUE on state_code -> cities.state_code
   - uq_cities_name_state: UNIQUE on name -> cities.name
   - uq_cities_name_state: UNIQUE on state_code -> cities.name
-  - uq_cities_slug_state: UNIQUE on city_slug -> cities.city_slug
-  - uq_cities_slug_state: UNIQUE on state_code -> cities.city_slug
+  - uq_cities_name_state: UNIQUE on name -> cities.state_code
+  - uq_cities_name_state: UNIQUE on state_code -> cities.state_code
   - uq_cities_slug_state: UNIQUE on city_slug -> cities.state_code
   - uq_cities_slug_state: UNIQUE on state_code -> cities.state_code
+  - uq_cities_slug_state: UNIQUE on city_slug -> cities.city_slug
+  - uq_cities_slug_state: UNIQUE on state_code -> cities.city_slug
 
 Indexes:
   - cities_pkey: id (UNIQUE) (PRIMARY)
@@ -307,10 +305,10 @@ Columns:
   - updated_at: timestamp with time zone NOT NULL DEFAULT now()
 
 Constraints:
-  - 2200_44000_1_not_null: CHECK
-  - 2200_44000_3_not_null: CHECK
-  - 2200_44000_8_not_null: CHECK
-  - 2200_44000_9_not_null: CHECK
+  - 2200_46956_1_not_null: CHECK
+  - 2200_46956_3_not_null: CHECK
+  - 2200_46956_8_not_null: CHECK
+  - 2200_46956_9_not_null: CHECK
   - customers_pkey: PRIMARY KEY on id -> customers.id
   - customers_user_id_fkey: FOREIGN KEY on user_id -> users.id
 
@@ -334,12 +332,12 @@ Columns:
   - updated_at: timestamp with time zone NOT NULL DEFAULT now()
 
 Constraints:
-  - 2200_44263_1_not_null: CHECK
-  - 2200_44263_3_not_null: CHECK
-  - 2200_44263_4_not_null: CHECK
-  - 2200_44263_5_not_null: CHECK
-  - 2200_44263_8_not_null: CHECK
-  - 2200_44263_9_not_null: CHECK
+  - 2200_47222_1_not_null: CHECK
+  - 2200_47222_3_not_null: CHECK
+  - 2200_47222_4_not_null: CHECK
+  - 2200_47222_5_not_null: CHECK
+  - 2200_47222_8_not_null: CHECK
+  - 2200_47222_9_not_null: CHECK
   - location_affiliate_id_fkey: FOREIGN KEY on affiliate_id -> affiliates.id
   - location_pkey: PRIMARY KEY on location_id -> location.location_id
   - uq_location_external: UNIQUE on source_platform -> location.source_platform
@@ -378,9 +376,9 @@ Columns:
   - updated_at: timestamp with time zone NOT NULL DEFAULT now()
 
 Constraints:
-  - 2200_44337_16_not_null: CHECK
-  - 2200_44337_17_not_null: CHECK
-  - 2200_44337_1_not_null: CHECK
+  - 2200_47298_16_not_null: CHECK
+  - 2200_47298_17_not_null: CHECK
+  - 2200_47298_1_not_null: CHECK
   - chk_singleton: CHECK -> mdh_config.id
   - mdh_config_pkey: PRIMARY KEY on id -> mdh_config.id
 
@@ -388,7 +386,7 @@ Indexes:
   - mdh_config_pkey: id (UNIQUE) (PRIMARY)
 
 Sample Data (1 rows):
-  Row 1: {"id":1,"email":"service@mobiledetailhub.com","phone":"(888) 555-1234","sms_phone":"+17024206066","logo_url":"/assets/logo.webp","favicon_url":"/assets/favicon.ico","facebook":"https://facebook.com/mobiledetailhub","instagram":"https://instagram.com/mobiledetailhub","tiktok":"https://tiktok.com/@mobiledetailhub","youtube":"https://youtube.com/mobiledetailhub","header_display":"Mobile Detail Hub","location":"Anywhere, USA","name":"Mobile Detail Hub","tagline":null,"services_description":"Auto, boat & RV detailing, paint correction, ceramic coating, and PPF","created_at":"2025-08-27T20:17:05.242Z","updated_at":"2025-08-27T20:17:05.242Z"}
+  Row 1: {"id":1,"email":"service@mobiledetailhub.com","phone":"(888) 555-1234","sms_phone":"+17024206066","logo_url":"/assets/logo.webp","favicon_url":"/assets/favicon.ico","facebook":"https://facebook.com/mobiledetailhub","instagram":"https://instagram.com/mobiledetailhub","tiktok":"https://tiktok.com/@mobiledetailhub","youtube":"https://youtube.com/mobiledetailhub","header_display":"Mobile Detail Hub","location":"Anywhere, USA","name":"Mobile Detail Hub","tagline":null,"services_description":"Auto, boat & RV detailing, paint correction, ceramic coating, and PPF","created_at":"2025-08-28T00:21:12.246Z","updated_at":"2025-08-28T00:21:12.246Z"}
 
 
 === TABLE: quotes ===
@@ -408,13 +406,13 @@ Columns:
   - updated_at: timestamp with time zone NOT NULL DEFAULT now()
 
 Constraints:
-  - 2200_44153_10_not_null: CHECK
-  - 2200_44153_1_not_null: CHECK
-  - 2200_44153_2_not_null: CHECK
-  - 2200_44153_4_not_null: CHECK
-  - 2200_44153_6_not_null: CHECK
-  - 2200_44153_7_not_null: CHECK
-  - 2200_44153_9_not_null: CHECK
+  - 2200_47112_10_not_null: CHECK
+  - 2200_47112_1_not_null: CHECK
+  - 2200_47112_2_not_null: CHECK
+  - 2200_47112_4_not_null: CHECK
+  - 2200_47112_6_not_null: CHECK
+  - 2200_47112_7_not_null: CHECK
+  - 2200_47112_9_not_null: CHECK
   - quotes_affiliate_id_fkey: FOREIGN KEY on affiliate_id -> affiliates.id
   - quotes_customer_id_fkey: FOREIGN KEY on customer_id -> customers.id
   - quotes_estimated_total_cents_check: CHECK -> quotes.estimated_total_cents
@@ -436,21 +434,20 @@ Columns:
   - user_id: integer NOT NULL
   - token_hash: text NOT NULL
   - user_agent: text NULL
-  - ip: inet NULL
+  - ip_address: inet NULL
+  - device_id: text NULL
   - expires_at: timestamp with time zone NULL
   - revoked_at: timestamp with time zone NULL
+  - is_revoked: boolean NULL
   - created_at: timestamp with time zone NOT NULL DEFAULT now()
   - updated_at: timestamp with time zone NOT NULL DEFAULT now()
-  - device_id: text NULL
-  - ip_address: inet NULL
-  - is_revoked: boolean NULL DEFAULT false
 
 Constraints:
-  - 2200_44350_1_not_null: CHECK
-  - 2200_44350_2_not_null: CHECK
-  - 2200_44350_3_not_null: CHECK
-  - 2200_44350_8_not_null: CHECK
-  - 2200_44350_9_not_null: CHECK
+  - 2200_47311_10_not_null: CHECK
+  - 2200_47311_11_not_null: CHECK
+  - 2200_47311_1_not_null: CHECK
+  - 2200_47311_2_not_null: CHECK
+  - 2200_47311_3_not_null: CHECK
   - refresh_tokens_pkey: PRIMARY KEY on id -> refresh_tokens.id
   - refresh_tokens_token_hash_key: UNIQUE on token_hash -> refresh_tokens.token_hash
   - refresh_tokens_user_id_fkey: FOREIGN KEY on user_id -> users.id
@@ -462,7 +459,7 @@ Indexes:
   - refresh_tokens_token_hash_key: token_hash (UNIQUE)
 
 Sample Data (1 rows):
-  Row 1: {"id":1,"user_id":1,"token_hash":"c7e0e9bca1acea9ee12fb5dcf0960595f5a6eba9a0cfb53140bc23e02977bab3","user_agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36","ip":null,"expires_at":"2025-09-03T21:25:24.764Z","revoked_at":null,"created_at":"2025-08-27T21:25:24.767Z","updated_at":"2025-08-27T21:25:24.767Z","device_id":"d0775dd38d37a7c8","ip_address":"::1","is_revoked":false}
+  Row 1: {"id":3,"user_id":1,"token_hash":"178f803514cc904a3dabdef1f2cdbb45c3ae4d1cf5c32c76f9d4a47ff096ed10","user_agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36","ip_address":"::1","device_id":"d0775dd38d37a7c8","expires_at":"2025-09-04T00:53:49.500Z","revoked_at":null,"is_revoked":false,"created_at":"2025-08-28T00:53:49.503Z","updated_at":"2025-08-28T00:53:49.503Z"}
 
 
 === TABLE: review_reply ===
@@ -478,10 +475,10 @@ Columns:
   - updated_at: timestamp with time zone NOT NULL DEFAULT now()
 
 Constraints:
-  - 2200_44306_1_not_null: CHECK
-  - 2200_44306_2_not_null: CHECK
-  - 2200_44306_5_not_null: CHECK
-  - 2200_44306_6_not_null: CHECK
+  - 2200_47265_1_not_null: CHECK
+  - 2200_47265_2_not_null: CHECK
+  - 2200_47265_5_not_null: CHECK
+  - 2200_47265_6_not_null: CHECK
   - review_reply_pkey: PRIMARY KEY on id -> review_reply.id
   - review_reply_review_id_fkey: FOREIGN KEY on review_id -> reviews.id
 
@@ -500,9 +497,9 @@ Columns:
   - updated_at: timestamp with time zone NOT NULL DEFAULT now()
 
 Constraints:
-  - 2200_44321_1_not_null: CHECK
-  - 2200_44321_3_not_null: CHECK
-  - 2200_44321_4_not_null: CHECK
+  - 2200_47280_1_not_null: CHECK
+  - 2200_47280_3_not_null: CHECK
+  - 2200_47280_4_not_null: CHECK
   - review_sync_state_location_id_fkey: FOREIGN KEY on location_id -> location.location_id
   - review_sync_state_pkey: PRIMARY KEY on location_id -> review_sync_state.location_id
 
@@ -532,24 +529,28 @@ Columns:
   - updated_at: timestamp with time zone NOT NULL DEFAULT now()
 
 Constraints:
-  - 2200_44281_11_not_null: CHECK
-  - 2200_44281_12_not_null: CHECK
-  - 2200_44281_14_not_null: CHECK
-  - 2200_44281_15_not_null: CHECK
-  - 2200_44281_1_not_null: CHECK
-  - 2200_44281_3_not_null: CHECK
+  - 2200_47240_11_not_null: CHECK
+  - 2200_47240_12_not_null: CHECK
+  - 2200_47240_14_not_null: CHECK
+  - 2200_47240_15_not_null: CHECK
+  - 2200_47240_1_not_null: CHECK
+  - 2200_47240_3_not_null: CHECK
   - reviews_affiliate_id_fkey: FOREIGN KEY on affiliate_id -> affiliates.id
   - reviews_location_id_fkey: FOREIGN KEY on location_id -> location.location_id
   - reviews_pkey: PRIMARY KEY on id -> reviews.id
   - reviews_rating_check: CHECK -> reviews.rating
-  - uq_reviews_ext: UNIQUE on external_id -> reviews.source_platform
-  - uq_reviews_ext: UNIQUE on source_platform -> reviews.source_platform
   - uq_reviews_ext: UNIQUE on external_id -> reviews.external_id
   - uq_reviews_ext: UNIQUE on source_platform -> reviews.external_id
+  - uq_reviews_ext: UNIQUE on external_id -> reviews.source_platform
+  - uq_reviews_ext: UNIQUE on source_platform -> reviews.source_platform
 
 Indexes:
+  - idx_reviews_active_time: affiliate_id
+  - idx_reviews_active_time: create_time
   - idx_reviews_affiliate_time: affiliate_id
   - idx_reviews_affiliate_time: create_time
+  - idx_reviews_location_time: location_id
+  - idx_reviews_location_time: create_time
   - reviews_pkey: id (UNIQUE) (PRIMARY)
   - uq_reviews_ext: external_id (UNIQUE)
   - uq_reviews_ext: source_platform (UNIQUE)
@@ -565,14 +566,14 @@ Columns:
   - description: text NULL
 
 Constraints:
-  - 2200_44369_1_not_null: CHECK
+  - 2200_47331_1_not_null: CHECK
   - schema_migrations_pkey: PRIMARY KEY on version -> schema_migrations.version
 
 Indexes:
   - schema_migrations_pkey: version (UNIQUE) (PRIMARY)
 
 Sample Data (1 rows):
-  Row 1: {"version":"v3","applied_at":"2025-08-27T20:17:05.242Z","description":"Initial normalized schema with city_id and availability ranges"}
+  Row 1: {"version":"v3.1","applied_at":"2025-08-28T00:21:12.246Z","description":"Normalized schema + brand affiliate + tightened indexes"}
 
 
 === TABLE: service_area_slugs ===
@@ -588,9 +589,9 @@ Columns:
   - updated_at: timestamp with time zone NULL DEFAULT now()
 
 Constraints:
-  - 2200_44241_1_not_null: CHECK
-  - 2200_44241_2_not_null: CHECK
-  - 2200_44241_3_not_null: CHECK
+  - 2200_47200_1_not_null: CHECK
+  - 2200_47200_2_not_null: CHECK
+  - 2200_47200_3_not_null: CHECK
   - service_area_slugs_city_id_fkey: FOREIGN KEY on city_id -> cities.id
   - service_area_slugs_pkey: PRIMARY KEY on id -> service_area_slugs.id
   - service_area_slugs_slug_check: CHECK -> service_area_slugs.slug
@@ -616,12 +617,12 @@ Columns:
   - updated_at: timestamp with time zone NOT NULL DEFAULT now()
 
 Constraints:
-  - 2200_44111_1_not_null: CHECK
-  - 2200_44111_2_not_null: CHECK
-  - 2200_44111_3_not_null: CHECK
-  - 2200_44111_4_not_null: CHECK
-  - 2200_44111_6_not_null: CHECK
-  - 2200_44111_7_not_null: CHECK
+  - 2200_47070_1_not_null: CHECK
+  - 2200_47070_2_not_null: CHECK
+  - 2200_47070_3_not_null: CHECK
+  - 2200_47070_4_not_null: CHECK
+  - 2200_47070_6_not_null: CHECK
+  - 2200_47070_7_not_null: CHECK
   - service_tiers_pkey: PRIMARY KEY on id -> service_tiers.id
   - service_tiers_service_id_fkey: FOREIGN KEY on service_id -> services.id
   - uq_service_tiers_service_name: UNIQUE on service_id -> service_tiers.service_id
@@ -654,24 +655,24 @@ Columns:
   - updated_at: timestamp with time zone NOT NULL DEFAULT now()
 
 Constraints:
-  - 2200_44087_10_not_null: CHECK
-  - 2200_44087_11_not_null: CHECK
-  - 2200_44087_1_not_null: CHECK
-  - 2200_44087_2_not_null: CHECK
-  - 2200_44087_3_not_null: CHECK
-  - 2200_44087_4_not_null: CHECK
-  - 2200_44087_6_not_null: CHECK
-  - 2200_44087_7_not_null: CHECK
-  - 2200_44087_8_not_null: CHECK
-  - 2200_44087_9_not_null: CHECK
+  - 2200_47046_10_not_null: CHECK
+  - 2200_47046_11_not_null: CHECK
+  - 2200_47046_1_not_null: CHECK
+  - 2200_47046_2_not_null: CHECK
+  - 2200_47046_3_not_null: CHECK
+  - 2200_47046_4_not_null: CHECK
+  - 2200_47046_6_not_null: CHECK
+  - 2200_47046_7_not_null: CHECK
+  - 2200_47046_8_not_null: CHECK
+  - 2200_47046_9_not_null: CHECK
   - services_affiliate_id_fkey: FOREIGN KEY on affiliate_id -> affiliates.id
   - services_base_price_cents_check: CHECK -> services.base_price_cents
   - services_min_duration_min_check: CHECK -> services.min_duration_min
   - services_pkey: PRIMARY KEY on id -> services.id
-  - uq_services_affiliate_name: UNIQUE on affiliate_id -> services.affiliate_id
-  - uq_services_affiliate_name: UNIQUE on name -> services.affiliate_id
   - uq_services_affiliate_name: UNIQUE on affiliate_id -> services.name
   - uq_services_affiliate_name: UNIQUE on name -> services.name
+  - uq_services_affiliate_name: UNIQUE on affiliate_id -> services.affiliate_id
+  - uq_services_affiliate_name: UNIQUE on name -> services.affiliate_id
 
 Indexes:
   - idx_services_affiliate_category: affiliate_id
@@ -691,9 +692,9 @@ Columns:
   - country_code: character(2) NOT NULL DEFAULT 'US'::bpchar
 
 Constraints:
-  - 2200_43955_1_not_null: CHECK
-  - 2200_43955_2_not_null: CHECK
-  - 2200_43955_3_not_null: CHECK
+  - 2200_46911_1_not_null: CHECK
+  - 2200_46911_2_not_null: CHECK
+  - 2200_46911_3_not_null: CHECK
   - states_pkey: PRIMARY KEY on state_code -> states.state_code
 
 Indexes:
@@ -721,11 +722,11 @@ Columns:
   - updated_at: timestamp with time zone NOT NULL DEFAULT now()
 
 Constraints:
-  - 2200_43985_1_not_null: CHECK
-  - 2200_43985_2_not_null: CHECK
-  - 2200_43985_4_not_null: CHECK
-  - 2200_43985_8_not_null: CHECK
-  - 2200_43985_9_not_null: CHECK
+  - 2200_46941_1_not_null: CHECK
+  - 2200_46941_2_not_null: CHECK
+  - 2200_46941_4_not_null: CHECK
+  - 2200_46941_8_not_null: CHECK
+  - 2200_46941_9_not_null: CHECK
   - users_email_key: UNIQUE on email -> users.email
   - users_phone_check: CHECK -> users.phone
   - users_pkey: PRIMARY KEY on id -> users.id
@@ -735,7 +736,7 @@ Indexes:
   - users_pkey: id (UNIQUE) (PRIMARY)
 
 Sample Data (1 rows):
-  Row 1: {"id":1,"email":"admin@mobiledetailhub.com","name":"Brandan Coleman","role":"admin","is_admin":true,"password_hash":"$2a$10$EAY3D9OdVXpYgby.ATOmheJwqrlTZ423Yg2a.qLzN1Ku1/oj2/LzS","phone":null,"created_at":"2025-08-27T20:17:05.242Z","updated_at":"2025-08-27T20:17:05.242Z"}
+  Row 1: {"id":1,"email":"admin@mobiledetailhub.com","name":"Brandan Coleman","role":"admin","is_admin":true,"password_hash":"$2a$10$EAY3D9OdVXpYgby.ATOmheJwqrlTZ423Yg2a.qLzN1Ku1/oj2/LzS","phone":null,"created_at":"2025-08-28T00:21:12.246Z","updated_at":"2025-08-28T00:21:12.246Z"}
 
 
 === TABLE: v_affiliate_base_location ===
@@ -752,6 +753,9 @@ Columns:
   - city_name: text NULL
   - city_slug: text NULL
   - legacy_city: character varying(100) NULL
+
+Sample Data (1 rows):
+  Row 1: {"affiliate_id":1,"slug":"mdh","business_name":"Mobile Detail Hub","city":null,"state_code":null,"zip":null,"city_name":null,"city_slug":null,"legacy_city":null}
 
 
 === TABLE: v_served_cities ===

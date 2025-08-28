@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { asyncHandler } = require('../middleware/errorHandler');
 const logger = require('../utils/logger');
-const pool = require('../database/pool');
+const { pool } = require('../database/pool');
 
 // Get shutdown status from server.js (will be set by server)
 let shutdownStatus = {

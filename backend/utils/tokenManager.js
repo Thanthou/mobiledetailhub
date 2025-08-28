@@ -47,11 +47,13 @@ const generateAccessToken = (payload) => {
  * @returns {string} JWT refresh token
  */
 const generateRefreshToken = (payload) => {
-  if (!process.env.JWT_REFRESH_SECRET) {
-    throw new Error('JWT_REFRESH_SECRET environment variable not configured');
+  // Use JWT_SECRET if JWT_REFRESH_SECRET is not available
+  const secret = process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET environment variable not configured');
   }
 
-  return jwt.sign(payload, process.env.JWT_REFRESH_SECRET, {
+  return jwt.sign(payload, secret, {
     expiresIn: TOKEN_CONFIG.REFRESH_TOKEN.expiresIn,
     algorithm: TOKEN_CONFIG.REFRESH_TOKEN.algorithm,
     issuer: 'mdh-backend',
@@ -112,12 +114,14 @@ const verifyAccessToken = (token) => {
  * @returns {Object} Decoded token payload
  */
 const verifyRefreshToken = (token) => {
-  if (!process.env.JWT_REFRESH_SECRET) {
-    throw new Error('JWT_REFRESH_SECRET environment variable not configured');
+  // Use JWT_SECRET if JWT_REFRESH_SECRET is not available
+  const secret = process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET environment variable not configured');
   }
 
   try {
-    return jwt.verify(token, process.env.JWT_REFRESH_SECRET, {
+    return jwt.verify(token, secret, {
       algorithms: [TOKEN_CONFIG.REFRESH_TOKEN.algorithm],
       issuer: 'mdh-backend',
       audience: 'mdh-users'

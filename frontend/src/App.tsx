@@ -79,42 +79,42 @@ function App() {
     <ErrorBoundary>
       <AuthProvider>
         <LocationProvider>
-          <Router>
-            <ScrollToTop />
-            <DevNavigation />
-            <div>
-              <Routes>
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/admin-dashboard" element={
-                  <ProtectedRoute requiredRole="admin" fallbackPath="/">
-                    <AdminDashboard />
-                  </ProtectedRoute>
-                } />
-                <Route path="/affiliate-dashboard" element={
-                  <ProtectedRoute requiredRole="affiliate" fallbackPath="/">
-                    <DashboardPage />
-                  </ProtectedRoute>
-                } />
-                <Route path="/affiliate-onboarding" element={<AffiliateApplicationPage />} />
+          <MDHConfigProvider>
+            <Router>
+              <ScrollToTop />
+              <DevNavigation />
+              <div>
+                <Routes>
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/admin-dashboard" element={
+                    <ProtectedRoute requiredRole="admin" fallbackPath="/">
+                      <AdminDashboard />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/affiliate-dashboard" element={
+                    <ProtectedRoute requiredRole="affiliate" fallbackPath="/">
+                      <DashboardPage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/affiliate-onboarding" element={<AffiliateApplicationPage />} />
 
-                <Route path="/:businessSlug" element={
-                  <MDHConfigProvider>
+                  <Route path="/:businessSlug" element={
                     <AffiliateProvider>
                       <Header />
                       <HomePage />
                     </AffiliateProvider>
-                  </MDHConfigProvider>
-                } />
-                <Route path="/" element={
-                  <MDHConfigProvider>
-                    <Header />
-                    <HomePage />
-                  </MDHConfigProvider>
-                } />
-                <Route path="*" element={<NotFoundPage />} />
-              </Routes>
-            </div>
-          </Router>
+                  } />
+                  <Route path="/" element={
+                    <>
+                      <Header />
+                      <HomePage />
+                    </>
+                  } />
+                  <Route path="*" element={<NotFoundPage />} />
+                </Routes>
+              </div>
+            </Router>
+          </MDHConfigProvider>
         </LocationProvider>
       </AuthProvider>
     </ErrorBoundary>

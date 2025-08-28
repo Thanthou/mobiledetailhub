@@ -4,20 +4,31 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { LazyLoginModal, prefetchLoginModal } from '../../login';
 import UserMenu from '../../01_header/UserMenu';
 
-const ConnectColumn: React.FC = () => {
+interface ConnectColumnProps {
+  config?: {
+    phone?: string;
+    email?: string;
+  };
+}
+
+const ConnectColumn: React.FC<ConnectColumnProps> = ({ config }) => {
   const { isLoggedIn } = useAuth();
   const [showLoginModal, setShowLoginModal] = useState(false);
+
+  // Use config values or fall back to defaults
+  const phone = config?.phone || '(888) 555-1234';
+  const email = config?.email || 'service@mobiledetailhub.com';
 
   const connectItems = [
     {
       icon: Phone,
-      content: '(888) 555-1234',
-      href: 'tel:+18885551234'
+      content: phone,
+      href: `tel:${phone.replace(/[^\d+]/g, '')}`
     },
     {
       icon: Mail,
-      content: 'service@mobiledetailhub.com',
-      href: 'mailto:service@mobiledetailhub.com'
+      content: email,
+      href: `mailto:${email}`
     },
     {
       icon: UserPlus,

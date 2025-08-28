@@ -6,9 +6,10 @@ interface LoginFormProps {
   onSubmit: (email: string, password: string) => Promise<void>;
   loading: boolean;
   error?: string;
+  disabled?: boolean;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading, error }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading, error, disabled = false }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -18,6 +19,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading, error }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (disabled) return;
+    
     setFieldErrors({});
 
     // Basic validation
@@ -42,6 +45,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading, error }) => {
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (disabled) return;
+    
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
@@ -57,6 +62,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading, error }) => {
       type="button"
       onClick={() => setShowPassword(!showPassword)}
       className="text-gray-500 hover:text-gray-300 transition-colors duration-200"
+      disabled={disabled}
     >
       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
     </button>
@@ -77,6 +83,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading, error }) => {
           icon={Mail}
           error={getFieldError('email')}
           required
+          disabled={disabled}
         />
 
         {/* Password Field */}
@@ -92,6 +99,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading, error }) => {
           error={getFieldError('password')}
           required
           rightElement={passwordRightElement}
+          disabled={disabled}
         />
 
         {/* Remember & Forgot */}
@@ -100,12 +108,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading, error }) => {
             <input
               type="checkbox"
               className="w-4 h-4 text-orange-500 bg-stone-950 border-stone-600 rounded focus:ring-orange-500 focus:ring-2"
+              disabled={disabled}
             />
-            <span className="ml-2 text-sm text-gray-300">Remember me</span>
+            <span className="text-sm text-gray-300">Remember me</span>
           </label>
           <button
             type="button"
-            className="text-sm text-orange-400 hover:text-orange-300 transition-colors duration-200"
+            className="text-sm text-orange-400 hover:text-orange-300 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={disabled}
           >
             Forgot password?
           </button>
@@ -114,7 +124,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading, error }) => {
         {/* Submit Button */}
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || disabled}
           className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-stone-900 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100"
         >
           {loading ? (
@@ -122,6 +132,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading, error }) => {
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
               Signing in...
             </div>
+          ) : disabled ? (
+            'Rate limited'
           ) : (
             'Sign in'
           )}
