@@ -1,55 +1,62 @@
 const { pool } = require('../database/pool');
 
 async function testAffiliateSlug() {
-  if (!pool) {
-    console.error('❌ Database connection not available');
-    process.exit(1);
-  }
-
   try {
-    console.log('🔍 Testing affiliate slug query...');
+    console.log('🔍 Testing affiliate slug filtering...');
     
-    const result = await pool.query(`
-      SELECT slug, business_name, application_status, base_address_id
+    // Test 1: Get all affiliates
+    console.log('\n📋 All affiliates:');
+    const allAffiliates = await pool.query(`
+      SELECT id, slug, business_name, owner, email, application_status
+      FROM affiliates 
+      ORDER BY id
+    `);
+    
+    allAffiliates.rows.forEach(row => {
+      console.log(`  ID: ${row.id}, Slug: ${row.slug}, Business: ${row.business_name}, Owner: ${row.owner}`);
+    });
+    
+    // Test 2: Test slug filtering for 'qwe'
+    console.log('\n🔍 Testing slug filter for "qwe":');
+    const qweAffiliate = await pool.query(`
+      SELECT id, slug, business_name, owner, email, application_status
       FROM affiliates 
       WHERE slug = $1
-    `, ['abc']);
+    `, ['qwe']);
     
-    console.log(`✅ Query successful, found ${result.rowCount} affiliates`);
-    console.log('Affiliate data:', result.rows);
+    if (qweAffiliate.rowCount > 0) {
+      console.log('✅ Found affiliate with slug "qwe":');
+      qweAffiliate.rows.forEach(row => {
+        console.log(`  ID: ${row.id}, Slug: ${row.slug}, Business: ${row.business_name}, Owner: ${row.owner}`);
+      });
+    } else {
+      console.log('❌ No affiliate found with slug "qwe"');
+    }
     
-    if (result.rowCount > 0) {
-      const affiliate = result.rows[0];
-      console.log(`\n📋 Affiliate Details:`);
-      console.log(`  Slug: ${affiliate.slug}`);
-      console.log(`  Business: ${affiliate.business_name}`);
-      console.log(`  Status: ${affiliate.application_status}`);
-      console.log(`  Address ID: ${affiliate.base_address_id}`);
-      
-      // Check if address exists
-      if (affiliate.base_address_id) {
-        const addrResult = await pool.query(`
-          SELECT city, state_code, postal_code, lat, lng
-          FROM addresses 
-          WHERE id = $1
-        `, [affiliate.base_address_id]);
-        
-        if (addrResult.rowCount > 0) {
-          console.log(`  Address: ${addrResult.rows[0].city}, ${addrResult.rows[0].state_code}`);
-        } else {
-          console.log(`  ❌ No address found for ID ${affiliate.base_address_id}`);
-        }
-      } else {
-        console.log(`  ❌ No base_address_id set`);
-      }
+    // Test 3: Test the exact query from the admin endpoint
+    console.log('\n🔍 Testing exact admin endpoint query:');
+    const adminQuery = `
+      SELECT 
+        a.id, a.owner as name, a.email, 'affiliate' as role, a.created_at,
+        a.business_name, a.application_status, a.slug, a.phone, a.service_areas
+      FROM affiliates a
+      WHERE a.application_status = 'approved' AND a.slug = $1
+      ORDER BY a.created_at DESC
+    `;
+    
+    const adminResult = await pool.query(adminQuery, ['qwe']);
+    console.log(`Query returned ${adminResult.rowCount} rows`);
+    if (adminResult.rowCount > 0) {
+      console.log('✅ Admin query result:');
+      adminResult.rows.forEach(row => {
+        console.log(`  Business: ${row.business_name}, Slug: ${row.slug}, Owner: ${row.name}`);
+      });
     }
     
   } catch (error) {
     console.error('❌ Error testing affiliate slug:', error);
   } finally {
-    if (pool) {
-      await pool.end();
-    }
+    await pool.end();
   }
 }
 

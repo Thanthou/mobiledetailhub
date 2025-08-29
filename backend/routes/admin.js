@@ -160,19 +160,32 @@ router.get('/users', adminLimiter, authenticateToken, requireAdmin, asyncHandler
         return;
       }
       
-      const query = `
+      let query = `
         SELECT 
           a.id, a.owner as name, a.email, 'affiliate' as role, a.created_at,
-          a.business_name, a.application_status, a.slug
+          a.business_name, a.application_status, a.slug, a.phone, a.service_areas
         FROM affiliates a
         WHERE a.application_status = 'approved'
-        ORDER BY a.created_at DESC
       `;
       
-      const result = await pool.query(query);
+      let params = [];
+      let paramIndex = 1;
+      
+      // Add slug filter if provided
+      if (req.query.slug) {
+        query += ` AND a.slug = $${paramIndex}`;
+        params.push(req.query.slug);
+        paramIndex++;
+        logger.debug(`[ADMIN] Adding slug filter: ${req.query.slug}`);
+      }
+      
+      query += ' ORDER BY a.created_at DESC';
+      
+      const result = await pool.query(query, params);
       
       logger.debug(`[ADMIN] Affiliates query returned ${result.rowCount} approved affiliates`);
       logger.debug(`[ADMIN] Affiliate names:`, { names: result.rows.map(r => r.business_name) });
+      logger.debug(`[ADMIN] Query executed:`, { query, params, rowCount: result.rowCount });
       
       res.json({
         success: true,
@@ -181,10 +194,10 @@ router.get('/users', adminLimiter, authenticateToken, requireAdmin, asyncHandler
         message: `Found ${result.rowCount} approved affiliates in database`
       });
       return;
-           } catch (affiliateErr) {
-       logger.error('Error in affiliates query:', { error: affiliateErr.message });
-       throw affiliateErr;
-     }
+    } catch (affiliateErr) {
+      logger.error('Error in affiliates query:', { error: affiliateErr.message });
+      throw affiliateErr;
+    }
   }
   
   let query = 'SELECT id, name, email, role, created_at FROM users';

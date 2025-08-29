@@ -40,6 +40,11 @@ const IdentityContactSection: React.FC<IdentityContactSectionProps> = ({
       if (zipCode) {
         handleInputChange('base_location.zip', zipCode);
       }
+    } else if (!location && !city && !state) {
+      // Handle clearing the location
+      handleInputChange('base_location.city', '');
+      handleInputChange('base_location.state', '');
+      handleInputChange('base_location.zip', '');
     }
   };
 

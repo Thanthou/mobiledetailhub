@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { MapPin, Search } from 'lucide-react';
+import { MapPin, Search, X } from 'lucide-react';
 
 interface LocationInputProps {
   onLocationSubmit: (location: string, zipCode?: string, city?: string, state?: string) => void;
@@ -221,6 +221,20 @@ const LocationInput: React.FC<LocationInputProps> = ({
     }
   };
 
+  // Handle clear button click
+  const handleClear = () => {
+    setInputValue('');
+    setPredictions([]);
+    setShowPredictions(false);
+    sessionTokenRef.current = null;
+    // Clear the form data by calling onLocationSubmit with empty values
+    onLocationSubmit('', '', '', '');
+    // Focus the input after clearing
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
+
   // Close predictions when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -273,12 +287,25 @@ const LocationInput: React.FC<LocationInputProps> = ({
             }
           }}
           placeholder={apiLoaded ? placeholder : 'Loading…'}
-          className={`w-full pl-12 pr-16 py-4 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-white placeholder:text-gray-400 text-lg ${
+          className={`w-full pl-12 pr-20 py-4 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-white placeholder:text-gray-400 text-lg ${
             apiLoaded ? 'bg-stone-700 border-stone-600' : 'bg-stone-600 border-stone-500'
           }`}
           autoComplete="off"
           disabled={!apiLoaded}
         />
+        
+        {/* Clear button - only show when there's input */}
+        {inputValue && (
+          <button
+            type="button"
+            onClick={handleClear}
+            className="absolute inset-y-0 right-16 px-3 flex items-center text-gray-400 hover:text-white transition-colors duration-200"
+            title="Clear location"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        )}
+        
         <button
           type="button"
           onClick={(e) => handleSubmit(e as any)}

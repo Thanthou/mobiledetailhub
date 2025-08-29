@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredRole?: 'admin' | 'affiliate' | 'user';
+  requiredRole?: 'admin' | 'affiliate' | 'user' | ('admin' | 'affiliate' | 'user')[];
   fallbackPath?: string;
 }
 
@@ -32,16 +32,22 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
   
   // Check if user has required role
-  if (requiredRole === 'admin' && user.role !== 'admin') {
-    return <Navigate to={fallbackPath} replace />;
-  }
-  
-  if (requiredRole === 'affiliate' && user.role !== 'affiliate') {
-    return <Navigate to={fallbackPath} replace />;
+  if (Array.isArray(requiredRole)) {
+    if (!requiredRole.includes(user.role)) {
+      return <Navigate to={fallbackPath} replace />;
+    }
+  } else {
+    if (requiredRole === 'admin' && user.role !== 'admin') {
+      return <Navigate to={fallbackPath} replace />;
+    }
+    
+    if (requiredRole === 'affiliate' && user.role !== 'affiliate') {
+      return <Navigate to={fallbackPath} replace />;
+    }
   }
   
   // Check if user has valid token for admin access
-  if (requiredRole === 'admin') {
+  if (Array.isArray(requiredRole) ? requiredRole.includes('admin') : requiredRole === 'admin') {
     const token = localStorage.getItem('token');
     if (!token) {
       return <Navigate to={fallbackPath} replace />;

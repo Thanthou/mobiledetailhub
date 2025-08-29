@@ -1,10 +1,10 @@
 import React from 'react';
-import { OverviewTab } from '../tabs/overview';
-import { ScheduleTab } from '../tabs/schedule';
-import { CustomersTab } from '../tabs/customers';
-import { PerformanceTab } from '../tabs/performance';
-import { ServicesTab } from '../tabs/services';
-import { ProfileTab } from '../tabs/profile';
+import OverviewTab from '../tabs/overview/OverviewTab';
+import ScheduleTab from '../tabs/schedule/ScheduleTab';
+import CustomersTab from '../tabs/customers/CustomersTab';
+import PerformanceTab from '../tabs/performance/PerformanceTab';
+import ServicesTab from '../tabs/services/ServicesTab';
+import ProfileTab from '../tabs/profile/ProfileTab';
 import type { DashboardTab, DetailerData } from '../types';
 
 interface TabContentProps {
