@@ -355,6 +355,34 @@ router.post('/apply',
   })
 );
 
+// GET /api/affiliates - List all affiliates
+router.get('/', asyncHandler(async (req, res) => {
+  try {
+    const query = `
+      SELECT id, business_name, email, phone, application_status, created_at, updated_at
+      FROM affiliates 
+      WHERE application_status = 'approved'
+      ORDER BY business_name
+    `;
+    
+    const result = await pool.query(query);
+    
+    res.json({
+      success: true,
+      data: result.rows,
+      count: result.rows.length
+    });
+    
+  } catch (error) {
+    logger.error('Error fetching affiliates:', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch affiliates',
+      message: error.message
+    });
+  }
+}));
+
 // Get all APPROVED affiliate slugs for public use
 router.get('/slugs', asyncHandler(async (req, res) => {
   if (!pool) {
@@ -487,6 +515,7 @@ router.get('/:slug', asyncHandler(async (req, res) => {
     logger.info('Executing affiliate query...');
     const result = await pool.query(`
       SELECT 
+        id,
         slug, 
         business_name, 
         application_status,
@@ -510,6 +539,7 @@ router.get('/:slug', asyncHandler(async (req, res) => {
     logger.info(`Found affiliate: ${affiliate.business_name}`);
     // Format the response to match frontend expectations
     const formattedAffiliate = {
+      id: affiliate.id,
       slug: affiliate.slug,
       business_name: affiliate.business_name,
       application_status: affiliate.application_status,

@@ -16,27 +16,27 @@ const STATIC_CACHE_URLS = [
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
-  console.log('✅ Service Worker installing...');
+      // Service Worker installing
   
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('📦 Caching static assets');
+        // Caching static assets
         return cache.addAll(STATIC_CACHE_URLS);
       })
       .then(() => {
-        console.log('✅ Static assets cached successfully');
+                  // Static assets cached successfully
         return self.skipWaiting();
       })
       .catch((error) => {
-        console.error('❌ Failed to cache static assets:', error);
+        // Failed to cache static assets
       })
   );
 });
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log('✅ Service Worker activating...');
+      // Service Worker activating
   
   event.waitUntil(
     caches.keys()
@@ -44,14 +44,14 @@ self.addEventListener('activate', (event) => {
         return Promise.all(
           cacheNames.map((cacheName) => {
             if (cacheName !== CACHE_NAME) {
-              console.log('🗑️ Deleting old cache:', cacheName);
+              // Deleting old cache
               return caches.delete(cacheName);
             }
           })
         );
       })
       .then(() => {
-        console.log('✅ Service Worker activated');
+        // Service Worker activated
         return self.clients.claim();
       })
   );

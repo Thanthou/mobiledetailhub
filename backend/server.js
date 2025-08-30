@@ -16,6 +16,7 @@ const mdhConfigRoutes = require('./routes/mdhConfig');
 const customersRoutes = require('./routes/customers');
 const adminRoutes = require('./routes/admin');
 const uploadRoutes = require('./routes/upload');
+const servicesRoutes = require('./routes/services');
 
 // Get the update function from health routes
 const { updateShutdownStatus } = healthRoutes;
@@ -326,6 +327,7 @@ app.use('/api/mdh-config', mdhConfigRoutes);
 app.use('/api/customers', customersRoutes);
 app.use('/api/admin', adminLimiter, adminRoutes); // Apply admin rate limiting
 app.use('/api/upload', apiLimiter, uploadRoutes); // Apply upload rate limiting
+app.use('/api/services', servicesRoutes);
 
 // Error handling middleware (must be last)
 app.use(notFoundHandler);

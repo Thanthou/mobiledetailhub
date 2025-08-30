@@ -44,17 +44,17 @@ async function ensureDirectoryExists(dirPath) {
     await fs.access(dirPath);
   } catch {
     await fs.mkdir(dirPath, { recursive: true });
-    console.log(`✅ Created directory: ${dirPath}`);
+    // Created directory
   }
 }
 
 async function convertHeroImages() {
-  console.log('🖼️  Converting hero images...');
+  // Converting hero images
   
   const heroInputDir = path.join(INPUT_DIR, 'hero');
   const heroOutputDir = path.join(OUTPUT_DIR, 'hero');
   
-  console.log(`   Looking in: ${heroInputDir}`);
+      // Looking in hero directory
   
   await ensureDirectoryExists(heroOutputDir);
   
@@ -62,10 +62,10 @@ async function convertHeroImages() {
     const files = await fs.readdir(heroInputDir);
     const pngFiles = files.filter(file => file.endsWith('.png'));
     
-    console.log(`   Found ${pngFiles.length} PNG files: ${pngFiles.join(', ')}`);
+    // Found PNG files
     
     if (pngFiles.length === 0) {
-      console.log('   ⚠️  No PNG files found in hero directory');
+              // No PNG files found in hero directory
       return;
     }
     
@@ -73,7 +73,7 @@ async function convertHeroImages() {
       const inputPath = path.join(heroInputDir, file);
       const baseName = path.parse(file).name;
       
-      console.log(`  Converting ${file}...`);
+      // Converting file
       
       // Generate responsive sizes
       for (const size of HERO_SIZES) {
@@ -87,7 +87,7 @@ async function convertHeroImages() {
           .webp({ quality: 85, effort: 6 })
           .toFile(outputPath);
           
-        console.log(`    ✅ ${baseName}${size.suffix}.webp`);
+                  // Generated webp file
       }
       
       // Generate AVIF for modern browsers (optional)
@@ -100,11 +100,11 @@ async function convertHeroImages() {
         .avif({ quality: 75, effort: 6 })
         .toFile(avifPath);
         
-      console.log(`    ✅ ${baseName}.avif`);
+              // Generated avif file
     }
   } catch (error) {
     if (error.code === 'ENOENT') {
-      console.log('   ⚠️  Hero directory not found - skipping hero image conversion');
+      // Hero directory not found - skipping hero image conversion
     } else {
       console.error(`❌ Error processing hero images: ${error.message}`);
     }
@@ -112,7 +112,7 @@ async function convertHeroImages() {
 }
 
 async function generatePWAIcons() {
-  console.log('📱 Generating PWA icons...');
+  // Generating PWA icons
   
   const logoInputPath = path.join(INPUT_DIR, 'assets', 'logo.webp');
   const assetsOutputDir = path.join(OUTPUT_DIR, 'assets');
@@ -134,12 +134,12 @@ async function generatePWAIcons() {
         .webp({ quality: 90 })
         .toFile(outputPath);
         
-      console.log(`  ✅ Generated ${iconConfig.name}`);
+              // Generated icon
     }
   } catch (error) {
     if (error.code === 'ENOENT') {
-      console.log('   ⚠️  Logo file not found - skipping PWA icon generation');
-      console.log('   💡 Expected: dist/assets/logo.webp');
+              // Logo file not found - skipping PWA icon generation
+              // Expected: dist/assets/logo.webp
     } else {
       console.error(`❌ Error generating PWA icons: ${error.message}`);
     }
@@ -147,12 +147,12 @@ async function generatePWAIcons() {
 }
 
 async function optimizeAssetImages() {
-  console.log('🎨 Optimizing asset images...');
+  // Optimizing asset images
   
   const assetsInputDir = path.join(INPUT_DIR, 'assets');
   const assetsOutputDir = path.join(OUTPUT_DIR, 'assets');
   
-  console.log(`   Looking in: ${assetsInputDir}`);
+      // Looking in assets directory
   
   await ensureDirectoryExists(assetsOutputDir);
   
@@ -162,10 +162,10 @@ async function optimizeAssetImages() {
       file.endsWith('.png') && !file.includes('logo')
     );
     
-    console.log(`   Found ${imageFiles.length} PNG files: ${imageFiles.join(', ')}`);
+    // Found PNG files
     
     if (imageFiles.length === 0) {
-      console.log('   ⚠️  No PNG files found in assets directory');
+              // No PNG files found in assets directory
       return;
     }
     
@@ -178,11 +178,11 @@ async function optimizeAssetImages() {
         .webp({ quality: 85, effort: 6 })
         .toFile(outputPath);
         
-      console.log(`  ✅ Converted ${file} → ${baseName}.webp`);
+              // Converted file to webp
     }
   } catch (error) {
     if (error.code === 'ENOENT') {
-      console.log('   ⚠️  Assets directory not found - skipping asset optimization');
+              // Assets directory not found - skipping asset optimization
     } else {
       console.error(`❌ Error optimizing asset images: ${error.message}`);
     }
@@ -190,20 +190,20 @@ async function optimizeAssetImages() {
 }
 
 async function main() {
-  console.log('🚀 Starting image optimization...\n');
-  console.log(`📁 Looking for images in: ${INPUT_DIR}`);
-  console.log(`📁 Output directory: ${OUTPUT_DIR}\n`);
+  // Starting image optimization
+      // Looking for images in input directory
+      // Output directory
   
   try {
     await convertHeroImages();
     await generatePWAIcons();
     await optimizeAssetImages();
     
-    console.log('\n✅ Image optimization complete!');
-    console.log('\n📋 Next steps:');
-    console.log('   1. Update image references in components');
-    console.log('   2. Add manifest link to index.html');
-    console.log('   3. Test PWA installability');
+    // Image optimization complete
+    // Next steps:
+    // 1. Update image references in components
+    // 2. Add manifest link to index.html
+    // 3. Test PWA installability
     
   } catch (error) {
     console.error(`❌ Fatal error: ${error.message}`);

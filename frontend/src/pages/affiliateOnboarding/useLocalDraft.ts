@@ -67,10 +67,10 @@ export const useLocalDraft = () => {
       
       keysToRemove.forEach(key => {
         localStorage.removeItem(key);
-        console.log('Removed potentially corrupted key:', key);
+        // Removed potentially corrupted key
       });
       
-      console.log('Emergency cleanup completed');
+              // Emergency cleanup completed
       
       // Force a page reload to ensure clean state
       window.location.reload();

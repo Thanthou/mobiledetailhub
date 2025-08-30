@@ -9,6 +9,7 @@ interface User {
   email: string;
   phone?: string;
   role: 'user' | 'affiliate' | 'admin';
+  affiliate_id?: number;
 }
 
 interface AuthContextType {
@@ -29,7 +30,8 @@ const mapBackendUserToFrontend = (backendUser: any): User => {
     name: backendUser.name,
     email: backendUser.email,
     phone: backendUser.phone,
-    role: backendUser.is_admin ? 'admin' : 'user'
+    role: backendUser.is_admin ? 'admin' : 'user',
+    affiliate_id: backendUser.affiliate_id
   };
 };
 

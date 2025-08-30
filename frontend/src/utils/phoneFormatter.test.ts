@@ -32,7 +32,7 @@ export const testExamples = [
 // Function to run all tests
 export function runPhoneFormatterTests() {
   if (import.meta.env.DEV) {
-    console.log('🧪 Running Phone Formatter Tests...\n');
+    // Running Phone Formatter Tests
   }
   
   testExamples.forEach(({ input, expected }, index) => {
@@ -41,18 +41,12 @@ export function runPhoneFormatterTests() {
     const digits = getPhoneDigits(input);
     
     if (import.meta.env.DEV) {
-      console.log(`Test ${index + 1}:`);
-      console.log(`  Input: "${input}"`);
-      console.log(`  Formatted: "${result}"`);
-      console.log(`  Expected: "${expected}"`);
-      console.log(`  Is Complete: ${isComplete}`);
-      console.log(`  Digits Only: "${digits}"`);
-      console.log(`  ✅ ${result === expected ? 'PASS' : 'FAIL'}\n`);
+      // Test results logged
     }
   });
   
   if (import.meta.env.DEV) {
-    console.log('🎯 Test Complete!');
+    // Test Complete
   }
 }
 

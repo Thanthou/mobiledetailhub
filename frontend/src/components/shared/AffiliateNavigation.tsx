@@ -35,7 +35,7 @@ const AffiliateNavigation: React.FC = () => {
   // Listen for affiliate events (deleted, approved, etc.) and refresh data
   useEffect(() => {
     const unsubscribe = affiliateEventManager.subscribe(() => {
-      console.log('Affiliate Navigation: Received affiliate update event, refreshing data...');
+      // Affiliate Navigation: Received affiliate update event, refreshing data
       setAffiliates([]); // Clear cache
       setLastFetched(null); // Reset timestamp
       if (isOpen) {
@@ -63,17 +63,17 @@ const AffiliateNavigation: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         if (data.success && data.users) {
-          console.log('Affiliate Navigation: Fetched affiliates:', data.users);
+          // Affiliate Navigation: Fetched affiliates
           setAffiliates(data.users);
           setLastFetched(new Date());
         } else {
-          console.log('Affiliate Navigation: No users data in response:', data);
+          // Affiliate Navigation: No users data in response
         }
       } else {
-        console.log(`Affiliate Navigation: Could not fetch affiliates (${response.status})`);
+        // Affiliate Navigation: Could not fetch affiliates
       }
     } catch (error) {
-      console.log('Affiliate Navigation: Could not fetch affiliates (backend may be down)');
+              // Affiliate Navigation: Could not fetch affiliates (backend may be down)
     } finally {
       setLoading(false);
     }
@@ -85,7 +85,7 @@ const AffiliateNavigation: React.FC = () => {
   }
 
   const handleNavigation = (path: string) => {
-    console.log(`Affiliate Navigation: Going to ${path}`);
+    // Affiliate Navigation: Going to path
     setIsOpen(false);
     navigate(path);
   };

@@ -46,7 +46,7 @@ class PerformanceMonitor {
 
     // Log performance data in development
     if (process.env.NODE_ENV === 'development') {
-      console.log(`🚀 ${componentName} ${type}: ${duration.toFixed(2)}ms`);
+      // Performance measurement logged
     }
   }
 

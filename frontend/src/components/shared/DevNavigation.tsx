@@ -29,7 +29,7 @@ const DevNavigation: React.FC = () => {
   }
 
   const handleNavigation = (path: string) => {
-    console.log(`DEV Navigation: Going to ${path}`);
+    // DEV Navigation: Going to path
     setIsOpen(false);
     navigate(path);
   };

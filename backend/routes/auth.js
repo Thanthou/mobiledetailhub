@@ -212,9 +212,22 @@ router.get('/me', authenticateToken, asyncHandler(async (req, res) => {
     isAdmin = true;
   }
   
+  // Check if user is an affiliate and get affiliate ID
+  let affiliateId = null;
+  if (!isAdmin) {
+    const affiliateResult = await pool.query(
+      'SELECT affiliate_id FROM affiliate_users WHERE user_id = $1 LIMIT 1',
+      [user.id]
+    );
+    if (affiliateResult.rows.length > 0) {
+      affiliateId = affiliateResult.rows[0].affiliate_id;
+    }
+  }
+  
   res.json({
     ...user,
-    is_admin: isAdmin
+    is_admin: isAdmin,
+    affiliate_id: affiliateId
   });
 }));
 

@@ -201,7 +201,7 @@ const AffiliateApplicationPage: React.FC = () => {
             </button>
             <button
               type="button"
-              onClick={() => console.log('Current form data:', formData)}
+              onClick={() => {/* Form data logging removed */}}
               className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors duration-200 flex items-center gap-2"
             >
               📊 Log Form Data

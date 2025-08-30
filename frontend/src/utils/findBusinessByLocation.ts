@@ -10,7 +10,7 @@ export async function findBusinessByLocation(zipCode?: string, city?: string, st
   const url = `${config.apiUrl}/api/affiliates/lookup?${params.toString()}`;
   
   if (import.meta.env.DEV) {
-    console.log('findBusinessByLocation: Making request to:', url);
+    // Making request to find business by location
   }
   
   const res = await fetch(url);
@@ -24,7 +24,7 @@ export async function findBusinessByLocation(zipCode?: string, city?: string, st
   const data = await res.json();
   
   if (import.meta.env.DEV) {
-    console.log('findBusinessByLocation: Response:', data);
+    // Response received
   }
   
   // Return the first affiliate slug found (assuming only 1 for now as mentioned)

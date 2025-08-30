@@ -68,7 +68,7 @@ function App() {
     // Start preloading after app initializes
     const timer = setTimeout(() => {
       preloadCriticalModals().catch(error => {
-        console.debug('Modal preloading failed:', error);
+        // Modal preloading failed
       });
     }, 1000);
 

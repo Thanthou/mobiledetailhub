@@ -24,6 +24,6 @@ export interface Category {
 export interface Vehicle {
   id: string;
   name: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ComponentType<{ className?: string }> | any;
   categories: Category[];
 }

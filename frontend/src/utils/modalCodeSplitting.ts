@@ -101,7 +101,7 @@ class ModalPrefetchManager {
         importPromise = import('../components/login/LoginModal');
         break;
       default:
-        console.warn(`Unknown modal type: ${modalType}`);
+        // Unknown modal type
         return;
     }
 
@@ -109,7 +109,7 @@ class ModalPrefetchManager {
 
     try {
       await importPromise;
-      console.debug(`✅ Prefetched ${modalType} modal`);
+              // Modal prefetched successfully
     } catch (error) {
       console.error(`❌ Failed to prefetch ${modalType} modal:`, error);
       // Remove failed prefetch so it can be retried

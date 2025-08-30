@@ -28,16 +28,8 @@ export const ServiceTierCards: React.FC<ServiceTierCardsProps> = ({
   const [editData, setEditData] = useState<Partial<ServiceTier>>({});
 
   const getTierIcon = (tierName: string) => {
-    switch (tierName.toLowerCase()) {
-      case 'basic':
-        return Star;
-      case 'premium':
-        return Crown;
-      case 'luxury':
-        return Diamond;
-      default:
-        return Star;
-    }
+    // Use a more generic approach - could be enhanced with tier metadata later
+    return Star;
   };
 
   const startEditing = (tier: ServiceTier) => {
@@ -71,7 +63,7 @@ export const ServiceTierCards: React.FC<ServiceTierCardsProps> = ({
         const TierIcon = getTierIcon(tier.name);
 
         return (
-          <button
+          <div
             key={tier.id}
             className={`bg-stone-800 rounded-lg border p-6 relative transition-all cursor-pointer hover:border-stone-600 text-left w-full ${
               isEditing(tier.id) 
@@ -87,8 +79,9 @@ export const ServiceTierCards: React.FC<ServiceTierCardsProps> = ({
                 }
               }
             }}
+            role="button"
+            tabIndex={0}
             aria-label={`Edit ${tier.name} tier`}
-            disabled={isEditing(tier.id)}
           >
             {tier.popular && (
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
@@ -252,7 +245,7 @@ export const ServiceTierCards: React.FC<ServiceTierCardsProps> = ({
                 <Edit3 className="h-4 w-4 text-gray-500" />
               </div>
             )}
-          </button>
+          </div>
         );
       })}
     </div>
