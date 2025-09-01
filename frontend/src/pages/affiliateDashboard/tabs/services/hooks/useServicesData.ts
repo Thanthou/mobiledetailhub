@@ -15,13 +15,12 @@ const VEHICLE_ID_MAP: Record<string, number> = {
 
 const CATEGORY_ID_MAP: Record<string, number> = {
   'interior': 1,
-  'exterior': 2,
+  'exterior': 2, 
   'service-packages': 3,
   'addons': 7,
   'ceramic-coating': 4,
   'paint-correction': 5,
   'paint-protection-film': 6
-
 };
 
 // New hook for fetching services data from database
@@ -71,7 +70,7 @@ export const useServicesAPI = (affiliateId?: string) => {
     }
   }, [affiliateId, isFetching]);
 
-  const createService = useCallback(async (vehicleId: string, categoryId: string, serviceTitle: string) => {
+  const createService = useCallback(async (vehicleId: string, categoryId: string, serviceTitle: string, tiers?: any[]) => {
     // Validate affiliate ID is provided
     if (!affiliateId || affiliateId === '') {
       // Don't set error for missing affiliate ID - just return early
@@ -90,19 +89,26 @@ export const useServicesAPI = (affiliateId?: string) => {
         throw new Error('Invalid vehicle or category ID');
       }
       
+      const requestBody: any = {
+        affiliate_id: parseInt(affiliateId),
+        vehicle_id: dbVehicleId,
+        service_category_id: dbCategoryId,
+        base_price_cents: 0, // Default base price, can be updated later
+        name: serviceTitle,
+        description: `${serviceTitle} service for ${vehicleId} ${categoryId}`
+      };
+      
+      // Add tiers if provided
+      if (tiers && tiers.length > 0) {
+        requestBody.tiers = tiers;
+      }
+      
       const response = await fetch('/api/services', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          affiliate_id: parseInt(affiliateId),
-          vehicle_id: dbVehicleId,
-          service_category_id: dbCategoryId,
-          base_price_cents: 0, // Default base price, can be updated later
-          name: serviceTitle,
-          description: `${serviceTitle} service for ${vehicleId} ${categoryId}`
-        }),
+        body: JSON.stringify(requestBody),
       });
       
       if (!response.ok) {
@@ -146,10 +152,76 @@ export const useServicesAPI = (affiliateId?: string) => {
     }
   }, [affiliateId]);
 
+  const updateService = useCallback(async (serviceId: string, serviceData: any) => {
+    // Validate affiliate ID is provided
+    if (!affiliateId || affiliateId === '') {
+      return null;
+    }
+    
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await fetch(`/api/services/${serviceId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(serviceData),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update service');
+      }
+      
+      const data = await response.json();
+      return data.data;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update service');
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }, [affiliateId]);
+
+  const deleteService = useCallback(async (serviceId: string) => {
+    // Validate affiliate ID is provided
+    if (!affiliateId || affiliateId === '') {
+      return false;
+    }
+    
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await fetch(`/api/services/${serviceId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to delete service');
+      }
+      
+      return true;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete service');
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }, [affiliateId]);
+
   return {
     fetchServices,
     fetchServiceById,
     createService,
+    updateService,
+    deleteService,
     loading,
     error
   };
@@ -163,18 +235,6 @@ export const useServicesData = () => {
       icon: Car,
       categories: [
         {
-          id: 'interior',
-          name: 'Interior',
-          color: 'bg-gray-600',
-          services: []
-        },
-        {
-          id: 'exterior',
-          name: 'Exterior',
-          color: 'bg-blue-600',
-          services: []
-        },
-        {
           id: 'service-packages',
           name: 'Service Packages',
           color: 'bg-green-600',
@@ -184,24 +244,6 @@ export const useServicesData = () => {
           id: 'addons',
           name: 'Addons',
           color: 'bg-indigo-600',
-          services: []
-        },
-        {
-          id: 'ceramic-coating',
-          name: 'Ceramic Coating',
-          color: 'bg-purple-600',
-          services: []
-        },
-        {
-          id: 'paint-correction',
-          name: 'Paint Correction',
-          color: 'bg-orange-600',
-          services: []
-        },
-        {
-          id: 'paint-protection-film',
-          name: 'Paint Protection Film',
-          color: 'bg-red-600',
           services: []
         }
       ]
@@ -212,18 +254,6 @@ export const useServicesData = () => {
       icon: Truck,
       categories: [
         {
-          id: 'interior',
-          name: 'Interior',
-          color: 'bg-gray-600',
-          services: []
-        },
-        {
-          id: 'exterior',
-          name: 'Exterior',
-          color: 'bg-blue-600',
-          services: []
-        },
-        {
           id: 'service-packages',
           name: 'Service Packages',
           color: 'bg-green-600',
@@ -233,24 +263,6 @@ export const useServicesData = () => {
           id: 'addons',
           name: 'Addons',
           color: 'bg-indigo-600',
-          services: []
-        },
-        {
-          id: 'ceramic-coating',
-          name: 'Ceramic Coating',
-          color: 'bg-purple-600',
-          services: []
-        },
-        {
-          id: 'paint-correction',
-          name: 'Paint Correction',
-          color: 'bg-orange-600',
-          services: []
-        },
-        {
-          id: 'paint-protection-film',
-          name: 'Paint Protection Film',
-          color: 'bg-red-600',
           services: []
         }
       ]
@@ -261,18 +273,6 @@ export const useServicesData = () => {
       icon: Home,
       categories: [
         {
-          id: 'interior',
-          name: 'Interior',
-          color: 'bg-gray-600',
-          services: []
-        },
-        {
-          id: 'exterior',
-          name: 'Exterior',
-          color: 'bg-blue-600',
-          services: []
-        },
-        {
           id: 'service-packages',
           name: 'Service Packages',
           color: 'bg-green-600',
@@ -282,24 +282,6 @@ export const useServicesData = () => {
           id: 'addons',
           name: 'Addons',
           color: 'bg-indigo-600',
-          services: []
-        },
-        {
-          id: 'ceramic-coating',
-          name: 'Ceramic Coating',
-          color: 'bg-purple-600',
-          services: []
-        },
-        {
-          id: 'paint-correction',
-          name: 'Paint Correction',
-          color: 'bg-orange-600',
-          services: []
-        },
-        {
-          id: 'paint-protection-film',
-          name: 'Paint Protection Film',
-          color: 'bg-red-600',
           services: []
         }
       ]
@@ -310,18 +292,6 @@ export const useServicesData = () => {
       icon: Boat,
       categories: [
         {
-          id: 'interior',
-          name: 'Interior',
-          color: 'bg-gray-600',
-          services: []
-        },
-        {
-          id: 'exterior',
-          name: 'Exterior',
-          color: 'bg-blue-600',
-          services: []
-        },
-        {
           id: 'service-packages',
           name: 'Service Packages',
           color: 'bg-green-600',
@@ -331,24 +301,6 @@ export const useServicesData = () => {
           id: 'addons',
           name: 'Addons',
           color: 'bg-indigo-600',
-          services: []
-        },
-        {
-          id: 'ceramic-coating',
-          name: 'Ceramic Coating',
-          color: 'bg-purple-600',
-          services: []
-        },
-        {
-          id: 'paint-correction',
-          name: 'Paint Correction',
-          color: 'bg-orange-600',
-          services: []
-        },
-        {
-          id: 'paint-protection-film',
-          name: 'Paint Protection Film',
-          color: 'bg-red-600',
           services: []
         }
       ]
@@ -359,18 +311,6 @@ export const useServicesData = () => {
       icon: Bike,
       categories: [
         {
-          id: 'interior',
-          name: 'Interior',
-          color: 'bg-gray-600',
-          services: []
-        },
-        {
-          id: 'exterior',
-          name: 'Exterior',
-          color: 'bg-blue-600',
-          services: []
-        },
-        {
           id: 'service-packages',
           name: 'Service Packages',
           color: 'bg-green-600',
@@ -380,24 +320,6 @@ export const useServicesData = () => {
           id: 'addons',
           name: 'Addons',
           color: 'bg-indigo-600',
-          services: []
-        },
-        {
-          id: 'ceramic-coating',
-          name: 'Ceramic Coating',
-          color: 'bg-purple-600',
-          services: []
-        },
-        {
-          id: 'paint-correction',
-          name: 'Paint Correction',
-          color: 'bg-orange-600',
-          services: []
-        },
-        {
-          id: 'paint-protection-film',
-          name: 'Paint Protection Film',
-          color: 'bg-red-600',
           services: []
         }
       ]
@@ -408,18 +330,6 @@ export const useServicesData = () => {
       icon: Mountain,
       categories: [
         {
-          id: 'interior',
-          name: 'Interior',
-          color: 'bg-gray-600',
-          services: []
-        },
-        {
-          id: 'exterior',
-          name: 'Exterior',
-          color: 'bg-blue-600',
-          services: []
-        },
-        {
           id: 'service-packages',
           name: 'Service Packages',
           color: 'bg-green-600',
@@ -429,24 +339,6 @@ export const useServicesData = () => {
           id: 'addons',
           name: 'Addons',
           color: 'bg-indigo-600',
-          services: []
-        },
-        {
-          id: 'ceramic-coating',
-          name: 'Ceramic Coating',
-          color: 'bg-purple-600',
-          services: []
-        },
-        {
-          id: 'paint-correction',
-          name: 'Paint Correction',
-          color: 'bg-orange-600',
-          services: []
-        },
-        {
-          id: 'paint-protection-film',
-          name: 'Paint Protection Film',
-          color: 'bg-red-600',
           services: []
         }
       ]
@@ -457,18 +349,6 @@ export const useServicesData = () => {
       icon: HelpCircle,
       categories: [
         {
-          id: 'interior',
-          name: 'Interior',
-          color: 'bg-gray-600',
-          services: []
-        },
-        {
-          id: 'exterior',
-          name: 'Exterior',
-          color: 'bg-blue-600',
-          services: []
-        },
-        {
           id: 'service-packages',
           name: 'Service Packages',
           color: 'bg-green-600',
@@ -478,24 +358,6 @@ export const useServicesData = () => {
           id: 'addons',
           name: 'Addons',
           color: 'bg-indigo-600',
-          services: []
-        },
-        {
-          id: 'ceramic-coating',
-          name: 'Ceramic Coating',
-          color: 'bg-purple-600',
-          services: []
-        },
-        {
-          id: 'paint-correction',
-          name: 'Paint Correction',
-          color: 'bg-orange-600',
-          services: []
-        },
-        {
-          id: 'paint-protection-film',
-          name: 'Paint Protection Film',
-          color: 'bg-red-600',
           services: []
         }
       ]

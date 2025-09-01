@@ -24,12 +24,10 @@ const DashboardPage: React.FC = () => {
         return;
       }
 
-      console.log('🔍 DashboardPage: Fetching data for slug:', businessSlug);
       try {
         setLoading(true);
         const token = localStorage.getItem('token');
         const url = `/api/admin/users?status=affiliates&slug=${businessSlug}`;
-        console.log('🔍 DashboardPage: Fetching from URL:', url);
         const response = await fetch(url, {
           headers: {
             'Content-Type': 'application/json',
@@ -39,10 +37,8 @@ const DashboardPage: React.FC = () => {
 
         if (response.ok) {
           const data = await response.json();
-          console.log('🔍 DashboardPage: Raw API response:', data);
           if (data.success && data.users && data.users.length > 0) {
             const affiliate = data.users[0];
-            console.log('🔍 DashboardPage: Affiliate data:', affiliate);
             // Transform affiliate data to DetailerData format
             const transformedData: DetailerData = {
               business_name: affiliate.business_name || 'Unknown Business',
@@ -58,7 +54,6 @@ const DashboardPage: React.FC = () => {
                 : ['Mobile Detailing'],
               memberSince: affiliate.created_at ? new Date(affiliate.created_at).getFullYear().toString() : 'Unknown'
             };
-            console.log('🔍 DashboardPage: Transformed data:', transformedData);
             setDetailerData(transformedData);
           } else {
             setError('Affiliate not found');
@@ -67,7 +62,6 @@ const DashboardPage: React.FC = () => {
           setError('Failed to fetch affiliate data');
         }
       } catch (error) {
-        console.error('Error fetching affiliate data:', error);
         setError('Failed to fetch affiliate data');
       } finally {
         setLoading(false);

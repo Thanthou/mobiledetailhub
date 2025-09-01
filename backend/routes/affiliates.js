@@ -277,7 +277,9 @@ router.post('/apply',
             city: base_location.city,
             state: base_location.state.toUpperCase(),
             zip: base_location.zip && base_location.zip.trim() !== '' ? base_location.zip.trim() : null,
-            slug: tempSlug // Use temp slug for now, will be updated on approval
+            primary: true,
+            minimum: 0,
+            multiplier: 1
           }];
           
           // Update the affiliate with service areas
@@ -495,6 +497,77 @@ router.post('/update-zip', asyncHandler(async (req, res) => {
   });
 }));
 
+// Update affiliate data
+router.put('/:slug', asyncHandler(async (req, res) => {
+  const { slug } = req.params;
+  const { zip, minimum, multiplier } = req.body;
+  
+  try {
+    if (!pool) {
+      return res.status(500).json({ error: 'Database connection not available' });
+    }
+
+    // Get current affiliate
+    const affiliateResult = await pool.query(
+      'SELECT id FROM affiliates WHERE slug = $1 AND application_status = \'approved\'',
+      [slug]
+    );
+    
+    if (affiliateResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Affiliate not found' });
+    }
+
+    const affiliateId = affiliateResult.rows[0].id;
+
+    // Update affiliate data
+    const updateFields = [];
+    const updateValues = [];
+    let paramCount = 1;
+
+    if (zip !== undefined) {
+      updateFields.push(`zip = $${paramCount}`);
+      updateValues.push(zip);
+      paramCount++;
+    }
+
+    if (minimum !== undefined) {
+      updateFields.push(`minimum = $${paramCount}`);
+      updateValues.push(minimum);
+      paramCount++;
+    }
+
+    if (multiplier !== undefined) {
+      updateFields.push(`multiplier = $${paramCount}`);
+      updateValues.push(multiplier);
+      paramCount++;
+    }
+
+    if (updateFields.length === 0) {
+      return res.status(400).json({ error: 'No fields to update' });
+    }
+
+    updateValues.push(affiliateId);
+    const updateQuery = `
+      UPDATE affiliates 
+      SET ${updateFields.join(', ')}, updated_at = NOW()
+      WHERE id = $${paramCount}
+      RETURNING id, slug, city, state, zip, minimum, multiplier
+    `;
+
+    const result = await pool.query(updateQuery, updateValues);
+
+    res.json({
+      success: true,
+      affiliate: result.rows[0],
+      message: 'Affiliate data updated successfully'
+    });
+
+  } catch (err) {
+    logger.error('Error updating affiliate data:', { error: err.message });
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}));
+
 // Get affiliate by slug
 router.get('/:slug', asyncHandler(async (req, res) => {
   const { slug } = req.params;
@@ -523,7 +596,8 @@ router.get('/:slug', asyncHandler(async (req, res) => {
         sms_phone,
         city,
         state,
-        zip
+        zip,
+        service_areas
       FROM affiliates 
       WHERE slug = $1
     `, [slug]);
@@ -537,6 +611,33 @@ router.get('/:slug', asyncHandler(async (req, res) => {
     
     const affiliate = result.rows[0];
     logger.info(`Found affiliate: ${affiliate.business_name}`);
+    logger.info(`Service areas type: ${typeof affiliate.service_areas}`);
+    logger.info(`Service areas value:`, affiliate.service_areas);
+    
+    // Extract primary service area data from service_areas JSON
+    let primaryServiceArea = null;
+    let minimum = 0;
+    let multiplier = 1.0;
+    
+    // Handle service_areas - it might be a string or already parsed
+    let serviceAreas = affiliate.service_areas;
+    if (typeof serviceAreas === 'string') {
+      try {
+        serviceAreas = JSON.parse(serviceAreas);
+      } catch (e) {
+        logger.error('Error parsing service_areas JSON:', e);
+        serviceAreas = null;
+      }
+    }
+    
+    if (serviceAreas && Array.isArray(serviceAreas)) {
+      primaryServiceArea = serviceAreas.find(area => area.primary === true);
+      if (primaryServiceArea) {
+        minimum = primaryServiceArea.minimum || 0;
+        multiplier = primaryServiceArea.multiplier || 1.0;
+      }
+    }
+    
     // Format the response to match frontend expectations
     const formattedAffiliate = {
       id: affiliate.id,
@@ -544,6 +645,11 @@ router.get('/:slug', asyncHandler(async (req, res) => {
       business_name: affiliate.business_name,
       application_status: affiliate.application_status,
       phone: affiliate.phone || affiliate.sms_phone, // Try phone first, fallback to sms_phone
+      city: affiliate.city,
+      state: affiliate.state,
+      zip: affiliate.zip,
+      minimum: minimum,
+      multiplier: multiplier,
       base_location: affiliate.city && affiliate.state ? {
         city: affiliate.city,
         state_name: affiliate.state,
@@ -692,7 +798,7 @@ router.get('/:slug/service_areas', asyncHandler(async (req, res) => {
       return res.status(500).json({ error: 'Database connection not available' });
     }
     const result = await pool.query(
-      'SELECT services, base_location FROM affiliates WHERE slug = $1 AND application_status = \'approved\'',
+      'SELECT service_areas FROM affiliates WHERE slug = $1 AND application_status = \'approved\'',
       [slug]
     );
     
@@ -700,11 +806,10 @@ router.get('/:slug/service_areas', asyncHandler(async (req, res) => {
       return res.status(404).json({ error: 'Affiliate not found' });
     }
     
-    // Return the services JSONB and base_location
+    // Return the service_areas JSONB
     const affiliate = result.rows[0];
     res.json({
-      services: affiliate.services || {},
-      base_location: affiliate.base_location || {}
+      service_areas: affiliate.service_areas || []
     });
   } catch (err) {
     logger.error('Error fetching affiliate service areas:', { error: err.message });
@@ -712,8 +817,199 @@ router.get('/:slug/service_areas', asyncHandler(async (req, res) => {
   }
 }));
 
+// Add service area to affiliate
+router.post('/:slug/service_areas', asyncHandler(async (req, res) => {
+  const { slug } = req.params;
+  const { city, state, zip, minimum, multiplier } = req.body;
+  
+  try {
+    if (!pool) {
+      return res.status(500).json({ error: 'Database connection not available' });
+    }
+
+    // Validate required fields
+    if (!city || !state) {
+      return res.status(400).json({ error: 'City and state are required' });
+    }
+
+    // Get current affiliate and service areas
+    const affiliateResult = await pool.query(
+      'SELECT id, service_areas FROM affiliates WHERE slug = $1 AND application_status = \'approved\'',
+      [slug]
+    );
+    
+    if (affiliateResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Affiliate not found' });
+    }
+
+    const affiliate = affiliateResult.rows[0];
+    const currentServiceAreas = affiliate.service_areas || [];
+
+    // Check if location already exists
+    const locationExists = currentServiceAreas.some(area => 
+      area.city.toLowerCase() === city.toLowerCase() && 
+      area.state.toUpperCase() === state.toUpperCase()
+    );
+
+    if (locationExists) {
+      return res.status(400).json({ error: 'This location already exists in your service areas' });
+    }
+
+    // Add new service area with clean structure
+    const newServiceArea = {
+      city: city.trim(),
+      state: state.toUpperCase().trim(),
+      zip: zip ? parseInt(zip.trim()) : null,
+      primary: false, // Additional service areas are not primary
+      minimum: minimum || 0,
+      multiplier: multiplier || 1.0
+    };
+
+    const updatedServiceAreas = [...currentServiceAreas, newServiceArea];
+
+    // Update affiliate with new service areas
+    await pool.query(
+      'UPDATE affiliates SET service_areas = $1 WHERE id = $2',
+      [JSON.stringify(updatedServiceAreas), affiliate.id]
+    );
+
+    res.status(201).json({
+      success: true,
+      service_area: newServiceArea,
+      message: 'Service area added successfully'
+    });
+
+  } catch (err) {
+    logger.error('Error adding service area:', { error: err.message });
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}));
+
+// Remove service area from affiliate
+router.delete('/:slug/service_areas/:areaId', asyncHandler(async (req, res) => {
+  const { slug, areaId } = req.params;
+  
+  try {
+    if (!pool) {
+      return res.status(500).json({ error: 'Database connection not available' });
+    }
+
+    // Get current affiliate and service areas
+    const affiliateResult = await pool.query(
+      'SELECT id, service_areas FROM affiliates WHERE slug = $1 AND application_status = \'approved\'',
+      [slug]
+    );
+    
+    if (affiliateResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Affiliate not found' });
+    }
+
+    const affiliate = affiliateResult.rows[0];
+    const currentServiceAreas = affiliate.service_areas || [];
+
+    // Find and remove the service area
+    const areaIndex = currentServiceAreas.findIndex(area => 
+      `${area.city}-${area.state}` === areaId
+    );
+
+    if (areaIndex === -1) {
+      return res.status(404).json({ error: 'Service area not found' });
+    }
+
+    const removedArea = currentServiceAreas[areaIndex];
+    const updatedServiceAreas = currentServiceAreas.filter((_, index) => index !== areaIndex);
+
+    // Update affiliate with updated service areas
+    await pool.query(
+      'UPDATE affiliates SET service_areas = $1 WHERE id = $2',
+      [JSON.stringify(updatedServiceAreas), affiliate.id]
+    );
+
+    res.json({
+      success: true,
+      removed_area: removedArea,
+      message: 'Service area removed successfully'
+    });
+
+  } catch (err) {
+    logger.error('Error removing service area:', { error: err.message });
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}));
 
 
 
+
+
+// Update primary service area
+router.put('/:slug/service_areas/primary', asyncHandler(async (req, res) => {
+  const { slug } = req.params;
+  const { city, state, zip, minimum, multiplier } = req.body;
+  
+  try {
+    if (!pool) {
+      return res.status(500).json({ error: 'Database connection not available' });
+    }
+
+    // Validate required fields
+    if (!city || !state) {
+      return res.status(400).json({ error: 'City and state are required' });
+    }
+
+    // Get current affiliate and service areas
+    const affiliateResult = await pool.query(
+      'SELECT id, service_areas FROM affiliates WHERE slug = $1 AND application_status = \'approved\'',
+      [slug]
+    );
+    
+    if (affiliateResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Affiliate not found' });
+    }
+
+    const affiliate = affiliateResult.rows[0];
+    const currentServiceAreas = affiliate.service_areas || [];
+
+    // Find the primary service area (where primary: true)
+    const primaryIndex = currentServiceAreas.findIndex(area => area.primary === true);
+    
+    if (primaryIndex === -1) {
+      return res.status(404).json({ error: 'Primary service area not found' });
+    }
+
+    // Ensure only one primary service area exists (defensive programming)
+    const primaryCount = currentServiceAreas.filter(area => area.primary === true).length;
+    if (primaryCount > 1) {
+      logger.warn(`Multiple primary service areas found for affiliate ${slug}, using first one`);
+    }
+
+    // Update the primary service area
+    const updatedServiceAreas = [...currentServiceAreas];
+    updatedServiceAreas[primaryIndex] = {
+      ...updatedServiceAreas[primaryIndex],
+      city: city.trim(),
+      state: state.toUpperCase().trim(),
+      zip: zip ? parseInt(zip.trim()) : null,
+      minimum: minimum || 0,
+      multiplier: multiplier || 1.0,
+      primary: true // Ensure it remains primary
+    };
+
+    // Update affiliate with updated service areas
+    await pool.query(
+      'UPDATE affiliates SET service_areas = $1 WHERE id = $2',
+      [JSON.stringify(updatedServiceAreas), affiliate.id]
+    );
+
+    res.json({
+      success: true,
+      service_area: updatedServiceAreas[primaryIndex],
+      message: 'Primary service area updated successfully'
+    });
+
+  } catch (err) {
+    logger.error('Error updating primary service area:', { error: err.message });
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}));
 
 module.exports = router;

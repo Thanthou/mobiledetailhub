@@ -3,5 +3,7 @@ export * from './components/VehicleSelector';
 export * from './components/CategorySelector';
 export * from './components/ServiceSelector';
 export * from './components/ServiceTierCards';
+export * from './components/DeleteServiceModal';
+export * from './components/MultiTierPricingModal';
 export * from './hooks/useServicesData';
 export * from './types';

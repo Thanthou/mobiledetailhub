@@ -44,23 +44,18 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig }) => {
         
         // Handle the new nested structure: { state: { city: [slugs] } }
         if (data.success && data.service_areas) {
-          console.log('Raw API data:', data.service_areas);
-          
           // Convert the nested structure to a flat array for backward compatibility
           const statesArray = Object.keys(data.service_areas).map(stateCode => ({
             state_code: stateCode,
             name: stateCode,
             cities: data.service_areas[stateCode]
           }));
-          console.log('Processed statesArray:', statesArray);
           
           setServiceAreas(statesArray);
         } else {
-          console.warn('Footer service areas API returned unexpected data:', data);
           setServiceAreas([]);
         }
       } catch (err) {
-        console.error('Failed to fetch service areas:', err);
         setError('Failed to load service areas');
         setServiceAreas([]);
       } finally {
@@ -72,11 +67,7 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig }) => {
   }, []);
 
   const selectState = (stateCode: string) => {
-    console.log('selectState called with:', stateCode);
-    console.log('serviceAreas:', serviceAreas);
-    
     const selectedStateData = serviceAreas.find(state => state.state_code === stateCode);
-    console.log('selectedStateData:', selectedStateData);
     
     if (selectedStateData && selectedStateData.cities) {
       // Convert cities object to array format for display
@@ -85,12 +76,9 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig }) => {
         state_code: stateCode,
         slugs: selectedStateData.cities[cityName]
       }));
-      console.log('citiesArray:', citiesArray);
       
       setCities(citiesArray);
       setSelectedState(stateCode);
-    } else {
-      console.log('No cities found for state:', stateCode);
     }
   };
 

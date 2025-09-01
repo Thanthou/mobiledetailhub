@@ -1,4 +1,4 @@
-import { Home, Calendar, Users, Car, BarChart3, User } from 'lucide-react';
+import { Home, Calendar, Users, Car, BarChart3, MapPin, User } from 'lucide-react';
 import type { TabConfig } from '../types';
 
 export const DASHBOARD_TABS: TabConfig[] = [
@@ -7,6 +7,7 @@ export const DASHBOARD_TABS: TabConfig[] = [
   { id: 'customers', name: 'Customers', icon: Users },
   { id: 'performance', name: 'Performance', icon: BarChart3 },
   { id: 'services', name: 'Services', icon: Car },
+  { id: 'locations', name: 'Locations', icon: MapPin },
   { id: 'profile', name: 'Profile', icon: User },
 ];
 

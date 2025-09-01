@@ -41,12 +41,14 @@ async function testSimplifiedServiceAreas() {
       RETURNING id, business_name, email, service_areas
     `;
     
-    // Create service areas with slugs (simulating what admin approval would do)
+    // Create service areas with correct structure (no slugs)
     const serviceAreasWithSlugs = testServiceAreas.map(area => ({
       city: area.city,
       state: area.state.toUpperCase(),
       zip: area.zip,
-      slug: 'simple-test-detail-pro' // affiliate slug
+      primary: true,
+      minimum: 0,
+      multiplier: 1
     }));
     
     const affiliateResult = await client.query(createAffiliateQuery, [

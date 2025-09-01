@@ -4,6 +4,15 @@ export interface BaseLocation {
   zip: string;
 }
 
+export interface ServiceArea {
+  city: string;
+  state: string;
+  zip: number | null;
+  primary: boolean;
+  minimum: number;
+  multiplier: number;
+}
+
 
 
 export interface UploadFile {

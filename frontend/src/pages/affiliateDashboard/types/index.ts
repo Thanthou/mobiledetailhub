@@ -1,4 +1,4 @@
-export type DashboardTab = 'overview' | 'schedule' | 'customers' | 'performance' | 'services' | 'profile';
+export type DashboardTab = 'overview' | 'schedule' | 'customers' | 'performance' | 'services' | 'locations' | 'profile';
 
 export interface DetailerData {
   business_name: string;

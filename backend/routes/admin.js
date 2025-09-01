@@ -422,11 +422,11 @@ router.post('/approve-application/:id', adminLimiter, authenticateToken, require
 
       if (serviceAreasToProcess && Array.isArray(serviceAreasToProcess) && serviceAreasToProcess.length > 0) {
         try {
-          // SIMPLE APPROACH: Direct database inserts with slug included
+          // CLEAN APPROACH: Direct database inserts with proper service area structure
           logger.info(`Processing ${serviceAreasToProcess.length} service areas for affiliate ${affiliate.id}`);
           
           let processed = 0;
-          const serviceAreasWithSlugs = [];
+          const cleanServiceAreas = [];
           
           for (const area of serviceAreasToProcess) {
             const { city, state, zip } = area;
@@ -436,27 +436,29 @@ router.post('/approve-application/:id', adminLimiter, authenticateToken, require
               continue;
             }
 
-            // Create service area with affiliate slug for routing
-            const serviceAreaWithSlug = {
+            // Create clean service area without slug (Option 1: Clean Separation)
+            const serviceArea = {
               city: city,
               state: state.toUpperCase(),
-              zip: zip || null,
-              slug: affiliate.slug // Include affiliate slug for routing
+              zip: zip ? parseInt(zip) : null,
+              primary: true, // Base location is always primary
+              minimum: 0, // Default minimum
+              multiplier: 1.0 // Default multiplier
             };
             
-            serviceAreasWithSlugs.push(serviceAreaWithSlug);
+            cleanServiceAreas.push(serviceArea);
             processed++;
-            logger.debug(`Prepared service area: ${city}, ${state} with slug: ${affiliate.slug}`);
+            logger.debug(`Prepared service area: ${city}, ${state} (clean structure, no slug)`);
           }
           
-          // Update affiliate with service areas (including slugs)
+          // Update affiliate with clean service areas (no slugs)
           await pool.query(
             'UPDATE affiliates SET service_areas = $1 WHERE id = $2',
-            [JSON.stringify(serviceAreasWithSlugs), affiliate.id]
+            [JSON.stringify(cleanServiceAreas), affiliate.id]
           );
           
-          serviceAreaResult = { processed, errors: [], total: serviceAreasToProcess.length, serviceAreas: serviceAreasWithSlugs };
-          logger.info(`✅ Successfully processed ${processed} service areas for affiliate ${affiliate.id} with slugs`);
+          serviceAreaResult = { processed, errors: [], total: serviceAreasToProcess.length, serviceAreas: cleanServiceAreas };
+          logger.info(`✅ Successfully processed ${processed} service areas for affiliate ${affiliate.id} with clean structure`);
           
         } catch (serviceAreaError) {
           logger.error(`Failed to process service areas for affiliate ${affiliate.id}:`, serviceAreaError);

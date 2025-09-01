@@ -83,7 +83,9 @@ async function testDataFlow() {
       city: testApplication.base_location.city,
       state: testApplication.base_location.state.toUpperCase(),
       zip: testApplication.base_location.zip,
-      slug: tempSlug // Use temp slug for now
+      primary: true,
+      minimum: 0,
+      multiplier: 1
     }];
     
     await client.query(
@@ -112,10 +114,14 @@ async function testDataFlow() {
     const approveResult = await client.query(approveQuery, [approvedSlug, affiliateId]);
     logger.info(`✅ Affiliate approved with slug: ${approvedSlug}`);
 
-    // Update service areas with approved slug
+    // Update service areas with correct structure (no slugs)
     const updatedServiceAreas = serviceAreas.map(area => ({
-      ...area,
-      slug: approvedSlug // Update to approved slug
+      city: area.city,
+      state: area.state,
+      zip: area.zip,
+      primary: true,
+      minimum: 0,
+      multiplier: 1
     }));
     
     await client.query(
