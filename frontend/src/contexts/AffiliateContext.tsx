@@ -2,6 +2,15 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { useParams } from 'react-router-dom';
 import { config } from '../config/environment';
 
+interface ServiceArea {
+  city: string;
+  state: string;
+  zip?: number | null;
+  primary: boolean;
+  minimum: number;
+  multiplier: number;
+}
+
 interface AffiliateData {
   id: number;
   slug: string;
@@ -18,6 +27,7 @@ interface AffiliateData {
     lat: number | null;
     lng: number | null;
   } | null;
+  service_areas: ServiceArea[] | string | null;
   services: any;
   website_url: string;
   gbp_url: string;

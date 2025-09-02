@@ -19,8 +19,26 @@ const HeaderAffiliate: React.FC = () => {
   const { affiliateData, isLoading: affiliateLoading, error: affiliateError } = useAffiliate();
   const { mdhConfig, isLoading: mdhLoading, error: mdhError } = useMDHConfig();
   
-
-  
+  // Extract primary service area from service_areas JSON
+  const primaryServiceArea = React.useMemo(() => {
+    if (!affiliateData?.service_areas) return null;
+    
+    let serviceAreas = affiliateData.service_areas;
+    if (typeof serviceAreas === 'string') {
+      try {
+        serviceAreas = JSON.parse(serviceAreas);
+      } catch (e) {
+        console.error('Error parsing service_areas JSON:', e);
+        return null;
+      }
+    }
+    
+    if (Array.isArray(serviceAreas)) {
+      return serviceAreas.find(area => area.primary === true) || null;
+    }
+    
+    return null;
+  }, [affiliateData?.service_areas]);
 
   const isLoading = affiliateLoading || mdhLoading;
   const hasError = affiliateError || mdhError;
@@ -81,21 +99,21 @@ const HeaderAffiliate: React.FC = () => {
                       <span className="text-red-400">No phone data</span>
                     )}
                    {/* Show separator if we have both phone and location */}
-                   {affiliateData.phone && (affiliateData.base_location?.city || selectedLocation) && (
+                   {affiliateData.phone && (primaryServiceArea?.city || selectedLocation) && (
                      <span className="text-orange-400">•</span>
                    )}
-                   {affiliateData.base_location?.city && affiliateData.base_location?.state_name ? (
-                     <LocationEditModal
-                       placeholder="Enter new location"
-                       buttonClassName="text-white hover:text-orange-400 text-sm md:text-base font-semibold hover:underline cursor-pointer"
-                       displayText={`${affiliateData.base_location.city}, ${affiliateData.base_location.state_name}`}
-                       showIcon={false}
-                     />
-                   ) : selectedLocation ? (
+                   {selectedLocation ? (
                      <LocationEditModal
                        placeholder="Enter new location"
                        buttonClassName="text-white hover:text-orange-400 text-sm md:text-base font-semibold hover:underline cursor-pointer"
                        displayText={selectedLocation.fullLocation}
+                       showIcon={false}
+                     />
+                   ) : primaryServiceArea?.city && primaryServiceArea?.state ? (
+                     <LocationEditModal
+                       placeholder="Enter new location"
+                       buttonClassName="text-white hover:text-orange-400 text-sm md:text-base font-semibold hover:underline cursor-pointer"
+                       displayText={`${primaryServiceArea.city}, ${primaryServiceArea.state}`}
                        showIcon={false}
                      />
                    ) : null}

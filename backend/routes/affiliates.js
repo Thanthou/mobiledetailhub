@@ -419,32 +419,42 @@ router.get('/lookup', asyncHandler(async (req, res) => {
     throw error;
   }
   
-  // Query using the current structure: affiliate_service_areas.city/state_code
+  // Query using the service_areas JSONB field in affiliates table
   // Only return APPROVED affiliates (not pending or rejected)
   let query = `
-    SELECT DISTINCT a.slug 
-    FROM affiliates a 
-    JOIN affiliate_service_areas asa ON a.id = asa.affiliate_id 
-    WHERE LOWER(asa.city) = LOWER($1) AND LOWER(asa.state_code) = LOWER($2)
-      AND a.application_status = 'approved'
+    SELECT DISTINCT slug 
+    FROM affiliates 
+    WHERE application_status = 'approved'
+      AND service_areas IS NOT NULL
+      AND EXISTS (
+        SELECT 1 
+        FROM jsonb_array_elements(service_areas) AS area
+        WHERE LOWER(area->>'city') = LOWER($1) 
+          AND LOWER(area->>'state') = LOWER($2)
   `;
   const params = [city, state];
   
   // Only add zip constraint if zip is provided
   if (zip) {
-    query += ` AND (asa.zip = $3 OR asa.zip IS NULL)`;
+    query += ` AND (area->>'zip' = $3 OR area->>'zip' IS NULL)`;
     params.push(zip);
   }
+  
+  query += `)`;
   
   const result = await pool.query(query, params);
   
   if (result.rows.length === 0) {
     // Check what's actually in the database for debugging
     const debugQuery = `
-      SELECT asa.city, asa.state_code, asa.zip, a.slug 
-      FROM affiliate_service_areas asa 
-      JOIN affiliates a ON a.id = asa.affiliate_id 
-      WHERE asa.city ILIKE $1 OR asa.state_code ILIKE $2 
+      SELECT slug, service_areas 
+      FROM affiliates 
+      WHERE application_status = 'approved'
+        AND service_areas IS NOT NULL
+        AND (
+          service_areas::text ILIKE $1 
+          OR service_areas::text ILIKE $2
+        )
       LIMIT 5
     `;
     const debugResult = await pool.query(debugQuery, [`%${city}%`, `%${state}%`]);
@@ -648,6 +658,7 @@ router.get('/:slug', asyncHandler(async (req, res) => {
       city: affiliate.city,
       state: affiliate.state,
       zip: affiliate.zip,
+      service_areas: affiliate.service_areas, // Include the service_areas JSON field
       minimum: minimum,
       multiplier: multiplier,
       base_location: affiliate.city && affiliate.state ? {

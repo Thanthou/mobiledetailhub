@@ -9,6 +9,7 @@ import { formatPhoneNumber } from '../../../utils/phoneFormatter';
 interface ServiceArea {
   city: string;
   state: string;
+  primary?: boolean;
 }
 
 interface FooterGridProps {
@@ -58,7 +59,14 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig, businessSlug, ser
             </div>
             <div className="flex items-center justify-center md:justify-start space-x-3">
               <MapPin className="h-5 w-5 flex-shrink-0 text-orange-400" />
-              {parentConfig?.base_location?.city && parentConfig?.base_location?.state_name ? (
+              {selectedLocation ? (
+                <LocationEditModal
+                  displayText={selectedLocation.fullLocation}
+                  buttonClassName="text-lg hover:text-orange-400 transition-colors duration-200 bg-transparent border-none p-0 font-inherit cursor-pointer text-left"
+                  showIcon={false}
+                  gapClassName="space-x-0"
+                />
+              ) : parentConfig?.base_location?.city && parentConfig?.base_location?.state_name ? (
                 <LocationEditModal
                   displayText={`${parentConfig.base_location.city}, ${parentConfig.base_location.state_name}`}
                   buttonClassName="text-lg hover:text-orange-400 transition-colors duration-200 bg-transparent border-none p-0 font-inherit cursor-pointer text-left"
@@ -131,40 +139,37 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig, businessSlug, ser
         {/* Column C: Service Areas */}
         <div className="text-center md:text-right">
           <h3 className="font-bold text-orange-400 text-xl mb-6">Service Areas</h3>
-          {parentConfig?.base_location?.city && parentConfig?.base_location?.state_name ? (
+          {serviceAreas.length > 0 ? (
             <div className="space-y-1">
-              {/* Show affiliate's base location first */}
-              <div className="text-lg text-orange-400 font-semibold">
-                {parentConfig.base_location.city}, {parentConfig.base_location.state_name}
-              </div>
-              {/* Show additional service areas if any */}
-              {serviceAreas.length > 0 && (
-                <>
-                  {serviceAreas.slice(0, 2).map((area, index) => (
-                    <div key={index} className="text-lg text-white">
-                      {area.city}, {area.state}
-                    </div>
-                  ))}
-                  {serviceAreas.length > 2 && (
-                    <div className="text-sm text-gray-300">
-                      +{serviceAreas.length - 2} more areas
-                    </div>
-                  )}
-                </>
-              )}
+              {serviceAreas.map((area, index) => {
+                // Check if this area matches the selected location
+                const isSelectedLocation = selectedLocation && 
+                  area.city.toLowerCase() === selectedLocation.city.toLowerCase() && 
+                  area.state.toLowerCase() === selectedLocation.state.toLowerCase();
+                
+                // Determine styling based on selection
+                let className = 'text-lg';
+                if (isSelectedLocation) {
+                  className += ' text-orange-400 font-semibold';
+                } else if (area.primary) {
+                  className += ' text-white font-semibold';
+                } else {
+                  className += ' text-white';
+                }
+                
+                return (
+                  <div 
+                    key={`${area.city}-${area.state}-${index}`} 
+                    className={className}
+                  >
+                    {area.city}, {area.state}
+                  </div>
+                );
+              })}
             </div>
-          ) : serviceAreas.length > 0 ? (
-            <div className="space-y-1">
-              {serviceAreas.slice(0, 3).map((area, index) => (
-                <div key={index} className="text-lg text-white">
-                  {area.city}, {area.state}
-                </div>
-              ))}
-              {serviceAreas.length > 3 && (
-                <div className="text-sm text-gray-300">
-                  +{serviceAreas.length - 3} more areas
-                </div>
-              )}
+          ) : parentConfig?.base_location?.city && parentConfig?.base_location?.state_name ? (
+            <div className="text-lg text-orange-400 font-semibold">
+              {parentConfig.base_location.city}, {parentConfig.base_location.state_name}
             </div>
           ) : (
             <div className="text-lg text-orange-400 font-semibold">
