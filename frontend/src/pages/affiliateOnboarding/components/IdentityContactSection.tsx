@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { User, Info } from 'lucide-react';
 import { AffiliateApplication, US_STATES } from '../types';
-import { formatPhoneNumberAsTyped, isCompletePhoneNumber } from '../../../utils/phoneFormatter';
+import { formatPhoneNumberAsTyped, isCompletePhoneNumber } from '../../../utils/fields/phoneFormatter';
 import LocationInput from './LocationInput';
 
 interface IdentityContactSectionProps {

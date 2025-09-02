@@ -1,0 +1,32 @@
+{
+  "timestamp": "2025-09-02T20:53:40.309Z",
+  "system": {
+    "nodeVersion": "v24.3.0",
+    "environment": "development",
+    "platform": "win32"
+  },
+  "services": {
+    "backend": {
+      "running": "unknown",
+      "port": 3001
+    },
+    "frontend": {
+      "running": "unknown",
+      "port": 3000
+    }
+  },
+  "database": {
+    "connected": false,
+    "error": "SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string"
+  },
+  "project": {
+    "backendExists": false,
+    "frontendExists": false,
+    "packageJsonExists": false
+  },
+  "environment": {
+    "DATABASE_URL": "missing",
+    "JWT_SECRET": "missing",
+    "NODE_ENV": "missing"
+  }
+}

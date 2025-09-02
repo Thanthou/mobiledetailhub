@@ -15,7 +15,7 @@ router.get('/', asyncHandler(async (req, res) => {
     throw error;
   }
   
-  const result = await pool.query('SELECT * FROM customers LIMIT 1');
+  const result = await pool.query('SELECT * FROM customers.customers LIMIT 1');
   if (result.rows.length === 0) {
     const error = new Error('customers not found');
     error.statusCode = 404;
@@ -54,7 +54,7 @@ router.get('/field/:field',
       throw error;
     }
     
-    const result = await pool.query(`SELECT ${safeField} FROM customers LIMIT 1`);
+    const result = await pool.query(`SELECT ${safeField} FROM customers.customers LIMIT 1`);
     if (result.rows.length === 0) {
       const error = new Error('Customer not found');
       error.statusCode = 404;

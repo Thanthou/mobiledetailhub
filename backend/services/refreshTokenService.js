@@ -37,14 +37,14 @@ const storeRefreshToken = async (userId, tokenHash, expiresAt, ipAddress, userAg
 
     // Check if user already has a token for this device
     const existingToken = await pool.query(
-      'SELECT id FROM refresh_tokens WHERE user_id = $1 AND device_id = $2',
+      'SELECT id FROM auth.refresh_tokens WHERE user_id = $1 AND device_id = $2',
       [userId, deviceId]
     );
 
     if (existingToken.rows.length > 0) {
       // Update existing token
       const result = await pool.query(
-        `UPDATE refresh_tokens 
+        `UPDATE auth.refresh_tokens 
          SET token_hash = $1, expires_at = $2, 
              revoked_at = NULL, ip_address = $3, user_agent = $4, created_at = NOW()
          WHERE user_id = $5 AND device_id = $6
@@ -57,7 +57,7 @@ const storeRefreshToken = async (userId, tokenHash, expiresAt, ipAddress, userAg
     } else {
       // Insert new token
       const result = await pool.query(
-        `INSERT INTO refresh_tokens 
+        `INSERT INTO auth.refresh_tokens 
          (user_id, token_hash, expires_at, ip_address, user_agent, device_id)
          VALUES ($1, $2, $3, $4, $5, $6)
          RETURNING *`,
@@ -87,8 +87,8 @@ const validateRefreshToken = async (tokenHash) => {
 
     const result = await pool.query(
       `SELECT rt.*, u.email, u.is_admin, u.role
-       FROM refresh_tokens rt
-       JOIN users u ON rt.user_id = u.id
+       FROM auth.refresh_tokens rt
+       JOIN public.users u ON rt.user_id = u.id
        WHERE rt.token_hash = $1 
          AND rt.expires_at > NOW() 
          AND rt.revoked_at IS NULL`,
@@ -119,7 +119,7 @@ const revokeRefreshToken = async (tokenHash) => {
     }
 
     const result = await pool.query(
-      `UPDATE refresh_tokens 
+      `UPDATE auth.refresh_tokens 
        SET revoked_at = NOW()
        WHERE token_hash = $1 AND revoked_at IS NULL
        RETURNING id`,
@@ -151,7 +151,7 @@ const revokeAllUserTokens = async (userId) => {
     }
 
     const result = await pool.query(
-      `UPDATE refresh_tokens 
+      `UPDATE auth.refresh_tokens 
        SET revoked_at = NOW()
        WHERE user_id = $1 AND revoked_at IS NULL
        RETURNING id`,
@@ -184,7 +184,7 @@ const revokeDeviceToken = async (userId, deviceId) => {
     }
 
     const result = await pool.query(
-      `UPDATE refresh_tokens 
+      `UPDATE auth.refresh_tokens 
        SET revoked_at = NOW()
        WHERE user_id = $1 AND device_id = $2 AND revoked_at IS NULL
        RETURNING id`,
@@ -217,7 +217,7 @@ const getUserTokens = async (userId) => {
 
     const result = await pool.query(
       `SELECT id, device_id, created_at, expires_at, ip_address, user_agent
-       FROM refresh_tokens 
+       FROM auth.refresh_tokens 
        WHERE user_id = $1 AND expires_at > NOW() AND revoked_at IS NULL
        ORDER BY created_at DESC`,
       [userId]
@@ -242,7 +242,7 @@ const cleanupExpiredTokens = async () => {
     }
 
     const result = await pool.query(
-      'DELETE FROM refresh_tokens WHERE expires_at < NOW() OR revoked_at IS NOT NULL'
+      'DELETE FROM auth.refresh_tokens WHERE expires_at < NOW() OR revoked_at IS NOT NULL'
     );
 
     const deletedCount = result.rowCount;
@@ -274,7 +274,7 @@ const getTokenStats = async () => {
         COUNT(CASE WHEN expires_at > NOW() AND revoked_at IS NULL THEN 1 END) as active_tokens,
         COUNT(CASE WHEN expires_at <= NOW() THEN 1 END) as expired_tokens,
         COUNT(CASE WHEN revoked_at IS NOT NULL THEN 1 END) as revoked_tokens
-      FROM refresh_tokens
+      FROM auth.refresh_tokens
     `);
 
     return result.rows[0];

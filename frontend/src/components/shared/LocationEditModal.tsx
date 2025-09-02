@@ -71,6 +71,7 @@ const LocationEditModal: React.FC<LocationEditModalProps> = ({
               }}
               placeholder={placeholder}
               className="w-full"
+              id="location-search-modal"
             />
             <button
               onClick={() => setShowModal(false)}

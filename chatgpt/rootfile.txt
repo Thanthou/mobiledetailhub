@@ -76,3 +76,53 @@ cd backend; node scripts/script-name.js
 
 ==================================================
 
+FILE: test-backend.js
+------------------------------
+const http = require('http');
+
+function testBackend() {
+  const options = {
+    hostname: 'localhost',
+    port: 3001,
+    path: '/api/affiliates/jps',
+    method: 'GET'
+  };
+
+  const req = http.request(options, (res) => {
+    console.log(`✅ Backend server is running on port 3001`);
+    console.log(`Status: ${res.statusCode}`);
+    console.log(`Headers:`, res.headers);
+    
+    let data = '';
+    res.on('data', (chunk) => {
+      data += chunk;
+    });
+    
+    res.on('end', () => {
+      console.log('Response body:', data);
+      if (res.statusCode === 200) {
+        console.log('✅ Endpoint working correctly');
+      } else {
+        console.log('❌ Endpoint returned error status');
+      }
+    });
+  });
+
+  req.on('error', (err) => {
+    console.log('❌ Backend server is NOT running on port 3001');
+    console.log('Error:', err.message);
+  });
+
+  req.setTimeout(5000, () => {
+    console.log('❌ Request timeout - backend server may not be running');
+    req.destroy();
+  });
+
+  req.end();
+}
+
+testBackend();
+
+
+==================================================
+

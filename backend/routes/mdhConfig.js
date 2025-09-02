@@ -38,7 +38,7 @@ const getConfigData = async () => {
   
   // Fetch fresh data from database
   logger.debug('Fetching fresh MDH config from database');
-  const result = await query('SELECT * FROM mdh_config LIMIT 1', [], { 
+  const result = await query('SELECT * FROM system.mdh_config LIMIT 1', [], { 
     retries: 3, 
     timeout: 10000 
   });
@@ -169,7 +169,7 @@ router.get('/service-areas', asyncHandler(async (req, res) => {
     // Get all approved affiliates with service areas
     const query = `
       SELECT service_areas
-      FROM affiliates
+      FROM affiliates.affiliates
       WHERE application_status = 'approved'
         AND service_areas IS NOT NULL
         AND jsonb_array_length(service_areas) > 0

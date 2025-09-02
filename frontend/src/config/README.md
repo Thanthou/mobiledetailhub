@@ -9,7 +9,7 @@ Phone numbers are stored in the database and displayed consistently across compo
 
 #### Basic Usage
 ```typescript
-import { formatPhoneNumber } from '../utils/phoneFormatter';
+import { formatPhoneNumber } from '../utils/fields/phoneFormatter';
 
 // Format phone number from database
 const formattedPhone = formatPhoneNumber(affiliateData.phone);

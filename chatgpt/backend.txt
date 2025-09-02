@@ -1,6 +1,266 @@
 BACKEND FILES CONTENT
 ==================================================
 
+FILE: backend\check-table-locations.js
+------------------------------
+require('dotenv').config();
+const { pool } = require('./database/pool');
+
+async function checkTableLocations() {
+  try {
+    console.log('🔍 Checking refresh_tokens table locations...');
+    
+    // Check all schemas for refresh_tokens table
+    const result = await pool.query(`
+      SELECT table_schema, table_name, 
+             (SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = t.table_schema AND table_name = t.table_name) as column_count
+      FROM information_schema.tables t
+      WHERE table_name = 'refresh_tokens'
+      ORDER BY table_schema
+    `);
+    
+    if (result.rows.length > 0) {
+      console.log('✅ Found refresh_tokens tables:');
+      result.rows.forEach(row => {
+        console.log(`  - ${row.table_schema}.${row.table_name} (${row.column_count} columns)`);
+      });
+    } else {
+      console.log('❌ No refresh_tokens tables found');
+    }
+    
+    // Check if there's a view in public schema
+    const viewResult = await pool.query(`
+      SELECT table_name, table_type
+      FROM information_schema.tables 
+      WHERE table_schema = 'public' AND table_name = 'refresh_tokens'
+    `);
+    
+    if (viewResult.rows.length > 0) {
+      console.log('📋 Public schema has:', viewResult.rows[0].table_type);
+    }
+    
+  } catch (error) {
+    console.log('❌ Error:', error.message);
+  } finally {
+    await pool.end();
+  }
+}
+
+checkTableLocations();
+
+
+==================================================
+
+FILE: backend\checkAffiliates.js
+------------------------------
+const { Pool } = require('pg');
+require('dotenv').config();
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+});
+
+async function checkAffiliates() {
+  try {
+    console.log('🔍 Checking affiliates in database...');
+    const result = await pool.query('SELECT id, business_name, email FROM affiliates ORDER BY id');
+    
+    console.log('✅ Affiliates found:', result.rows.length);
+    result.rows.forEach(row => {
+      console.log(`  ID: ${row.id}, Name: ${row.business_name}, Email: ${row.email}`);
+    });
+    
+    if (result.rows.length === 0) {
+      console.log('⚠️  No affiliates found in database');
+    }
+    
+  } catch (error) {
+    console.error('❌ Error checking affiliates:', error.message);
+  } finally {
+    await pool.end();
+  }
+}
+
+checkAffiliates();
+
+
+==================================================
+
+FILE: backend\createTestAffiliate.js
+------------------------------
+const { Pool } = require('pg');
+require('dotenv').config();
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+});
+
+async function createTestAffiliate() {
+  try {
+    console.log('🔧 Creating test affiliate...');
+    
+    // Check if affiliate already exists
+    const checkQuery = "SELECT id FROM affiliates WHERE email = 'test@example.com'";
+    const existing = await pool.query(checkQuery);
+    
+    if (existing.rows.length > 0) {
+      console.log('✅ Test affiliate already exists with ID:', existing.rows[0].id);
+      return existing.rows[0].id;
+    }
+    
+    // Create test affiliate
+    const insertQuery = `
+      INSERT INTO affiliates (business_name, email, phone, address_json, service_radius_miles, active)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING id
+    `;
+    
+    const testAffiliate = {
+      business_name: 'Test Mobile Detail Pro',
+      email: 'test@example.com',
+      phone: '(555) 123-4567',
+      address_json: { city: 'Test City', state: 'TS' },
+      service_radius_miles: 25,
+      active: true
+    };
+    
+    const result = await pool.query(insertQuery, [
+      testAffiliate.business_name,
+      testAffiliate.email,
+      testAffiliate.phone,
+      JSON.stringify(testAffiliate.address_json),
+      testAffiliate.service_radius_miles,
+      testAffiliate.active
+    ]);
+    
+    const affiliateId = result.rows[0].id;
+    console.log('✅ Test affiliate created with ID:', affiliateId);
+    return affiliateId;
+    
+  } catch (error) {
+    console.error('❌ Error creating test affiliate:', error.message);
+    throw error;
+  } finally {
+    await pool.end();
+  }
+}
+
+createTestAffiliate();
+
+
+==================================================
+
+FILE: backend\fix-auth-schema.js
+------------------------------
+require('dotenv').config();
+const { pool } = require('./database/pool');
+
+async function fixAuthSchema() {
+  try {
+    console.log('🔧 Setting up auth schema and refresh_tokens table...');
+    
+    // Create auth schema if it doesn't exist
+    await pool.query('CREATE SCHEMA IF NOT EXISTS auth');
+    console.log('✅ auth schema created/verified');
+    
+    // Check if refresh_tokens table exists in auth schema
+    const checkTable = await pool.query(`
+      SELECT table_name 
+      FROM information_schema.tables 
+      WHERE table_schema = 'auth' AND table_name = 'refresh_tokens'
+    `);
+    
+    if (checkTable.rows.length === 0) {
+      console.log('🔧 Creating refresh_tokens table in auth schema...');
+      
+      // Create the refresh_tokens table in auth schema
+      await pool.query(`
+        CREATE TABLE auth.refresh_tokens (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER NOT NULL,
+          token_hash VARCHAR(255) NOT NULL UNIQUE,
+          expires_at TIMESTAMPTZ NOT NULL,
+          revoked_at TIMESTAMPTZ NULL,
+          created_at TIMESTAMPTZ DEFAULT NOW(),
+          ip_address INET,
+          user_agent TEXT,
+          device_id VARCHAR(16)
+        )
+      `);
+      
+      console.log('✅ refresh_tokens table created in auth schema');
+      
+      // Add foreign key constraint to users table (assuming it's in public schema)
+      await pool.query(`
+        ALTER TABLE auth.refresh_tokens 
+        ADD CONSTRAINT refresh_tokens_user_id_fkey 
+        FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE
+      `);
+      
+      console.log('✅ Foreign key constraint added');
+      
+      // Create indexes for better performance
+      await pool.query(`
+        CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user_id ON auth.refresh_tokens(user_id)
+      `);
+      
+      await pool.query(`
+        CREATE INDEX IF NOT EXISTS idx_refresh_tokens_token_hash ON auth.refresh_tokens(token_hash)
+      `);
+      
+      await pool.query(`
+        CREATE INDEX IF NOT EXISTS idx_refresh_tokens_expires_at ON auth.refresh_tokens(expires_at)
+      `);
+      
+      await pool.query(`
+        CREATE INDEX IF NOT EXISTS idx_refresh_tokens_device_id ON auth.refresh_tokens(device_id)
+      `);
+      
+      console.log('✅ Indexes created');
+    } else {
+      console.log('✅ refresh_tokens table already exists in auth schema');
+    }
+    
+    // Create a view in public schema for backward compatibility
+    await pool.query(`
+      CREATE OR REPLACE VIEW public.refresh_tokens AS 
+      SELECT * FROM auth.refresh_tokens
+    `);
+    
+    console.log('✅ Public view created for backward compatibility');
+    
+    // Verify the setup
+    const result = await pool.query(`
+      SELECT column_name, data_type, is_nullable
+      FROM information_schema.columns 
+      WHERE table_schema = 'auth' AND table_name = 'refresh_tokens'
+      ORDER BY ordinal_position
+    `);
+    
+    console.log('📋 Table structure:');
+    result.rows.forEach(row => {
+      console.log(`  - ${row.column_name}: ${row.data_type} (${row.is_nullable === 'YES' ? 'nullable' : 'not null'})`);
+    });
+    
+    console.log('✅ Auth schema and refresh_tokens table setup complete!');
+    
+  } catch (error) {
+    console.log('❌ Error:', error.message);
+    if (error.code === '23503') {
+      console.log('💡 This might be because the users table doesn\'t exist yet');
+    }
+  } finally {
+    await pool.end();
+  }
+}
+
+fixAuthSchema();
+
+
+==================================================
+
 FILE: backend\package.json
 ------------------------------
 {
@@ -218,6 +478,7 @@ const mdhConfigRoutes = require('./routes/mdhConfig');
 const customersRoutes = require('./routes/customers');
 const adminRoutes = require('./routes/admin');
 const uploadRoutes = require('./routes/upload');
+const servicesRoutes = require('./routes/services');
 
 // Get the update function from health routes
 const { updateShutdownStatus } = healthRoutes;
@@ -528,6 +789,7 @@ app.use('/api/mdh-config', mdhConfigRoutes);
 app.use('/api/customers', customersRoutes);
 app.use('/api/admin', adminLimiter, adminRoutes); // Apply admin rate limiting
 app.use('/api/upload', apiLimiter, uploadRoutes); // Apply upload rate limiting
+app.use('/api/services', servicesRoutes);
 
 // Error handling middleware (must be last)
 app.use(notFoundHandler);
@@ -673,6 +935,137 @@ process.on('unhandledRejection', (reason, promise) => {
   logger.error('Unhandled Rejection:', { reason: reason?.message || reason, promise });
   gracefulShutdown('unhandledRejection');
 });
+
+==================================================
+
+FILE: backend\testEndpoints.js
+------------------------------
+const axios = require('axios');
+
+const BASE_URL = 'http://localhost:3001/api';
+
+async function testEndpoints() {
+  console.log('🔍 Testing Available API Endpoints...\n');
+
+  const endpoints = [
+    '/health',
+    '/services/master/vehicles',
+    '/services/master/categories',
+    '/affiliates',
+    '/mdh-config',
+    '/service_areas'
+  ];
+
+  for (const endpoint of endpoints) {
+    try {
+      console.log(`Testing ${endpoint}...`);
+      const response = await axios.get(`${BASE_URL}${endpoint}`);
+      console.log(`✅ ${endpoint}: ${response.status} - ${response.data.success ? 'Success' : 'Data'}`);
+      
+      if (response.data.data && Array.isArray(response.data.data)) {
+        console.log(`   Found ${response.data.data.length} items`);
+        if (response.data.data.length > 0) {
+          console.log(`   First item:`, JSON.stringify(response.data.data[0], null, 2));
+        }
+      }
+      
+    } catch (error) {
+      if (error.response) {
+        console.log(`❌ ${endpoint}: ${error.response.status} - ${error.response.statusText}`);
+        if (error.response.data) {
+          console.log(`   Error details:`, JSON.stringify(error.response.data, null, 2));
+        }
+      } else {
+        console.log(`❌ ${endpoint}: ${error.message}`);
+      }
+    }
+    console.log('');
+  }
+}
+
+testEndpoints();
+
+
+==================================================
+
+FILE: backend\testServicesAPI.js
+------------------------------
+const axios = require('axios');
+
+const BASE_URL = 'http://localhost:3001/api';
+
+async function testServicesAPI() {
+  try {
+    console.log('🧪 Testing Services API...\n');
+
+    // Test 1: Get all vehicles
+    console.log('1️⃣ Testing GET /api/services/master/vehicles');
+    const vehiclesResponse = await axios.get(`${BASE_URL}/services/master/vehicles`);
+    console.log('✅ Vehicles:', vehiclesResponse.data.data.length, 'found');
+    console.log('   Sample:', vehiclesResponse.data.data[0]?.name);
+    console.log('');
+
+    // Test 2: Get all categories
+    console.log('2️⃣ Testing GET /api/services/master/categories');
+    const categoriesResponse = await axios.get(`${BASE_URL}/services/master/categories`);
+    console.log('✅ Categories:', categoriesResponse.data.data.length, 'found');
+    console.log('   Sample:', categoriesResponse.data.data[0]?.name);
+    console.log('');
+
+    // Test 3: Check what affiliates exist
+    console.log('3️⃣ Checking existing affiliates...');
+    try {
+      const affiliatesResponse = await axios.get(`${BASE_URL}/affiliates`);
+      console.log('✅ Affiliates found:', affiliatesResponse.data.data?.length || 0);
+      if (affiliatesResponse.data.data && affiliatesResponse.data.data.length > 0) {
+        const firstAffiliate = affiliatesResponse.data.data[0];
+        console.log('   Using affiliate ID:', firstAffiliate.id);
+        
+        // Test 4: Create a test service with real affiliate ID
+        console.log('4️⃣ Testing POST /api/services');
+        const newService = {
+          affiliate_id: firstAffiliate.id,
+          vehicle_id: 1,
+          service_category_id: 1,
+          base_price_cents: 7500
+        };
+        
+        const createResponse = await axios.post(`${BASE_URL}/services`, newService);
+        console.log('✅ Service created:', createResponse.data.message);
+        console.log('   Service ID:', createResponse.data.data.id);
+        console.log('');
+
+        // Test 5: Get affiliate services
+        console.log('5️⃣ Testing GET /api/services/' + firstAffiliate.id);
+        const affiliateServicesResponse = await axios.get(`${BASE_URL}/services/${firstAffiliate.id}`);
+        console.log('✅ Affiliate services:', affiliateServicesResponse.data.count, 'found');
+        console.log('');
+
+        console.log('🎉 All tests passed! Your Services API is working perfectly!');
+      } else {
+        console.log('⚠️  No affiliates found. Create an affiliate first before testing services.');
+      }
+    } catch (affiliateError) {
+      console.log('⚠️  Could not check affiliates:', affiliateError.message);
+      console.log('   You may need to create an affiliate first.');
+    }
+
+  } catch (error) {
+    console.error('❌ Test failed:');
+    console.error('Error message:', error.message);
+    console.error('Error code:', error.code);
+    console.error('Error response:', error.response?.data);
+    
+    if (error.code === 'ECONNREFUSED') {
+      console.log('\n💡 Make sure your backend server is running:');
+      console.log('   cd backend && npm start');
+    }
+  }
+}
+
+// Run the tests
+testServicesAPI();
+
 
 ==================================================
 

@@ -198,7 +198,7 @@ router.get('/affiliate/:affiliateId/vehicle/:vehicleId/category/:categoryId', as
         s.pricing_unit,
         s.min_duration_min,
         s.active
-      FROM services s
+      FROM affiliates.services s
       WHERE s.affiliate_id = $1 
         AND s.vehicle_id = $2 
         AND s.service_category_id = $3
@@ -224,7 +224,7 @@ router.get('/affiliate/:affiliateId/vehicle/:vehicleId/category/:categoryId', as
           st.name as tier_name,
           st.price_delta_cents,
           st.description as tier_description
-        FROM service_tiers st
+        FROM affiliates.service_tiers st
         WHERE st.service_id = $1
         ORDER BY st.price_delta_cents ASC
       `;
@@ -273,14 +273,14 @@ router.delete('/:serviceId', async (req, res) => {
     
     // First, delete all service tiers associated with this service
     const deleteTiersQuery = `
-      DELETE FROM service_tiers 
+      DELETE FROM affiliates.service_tiers 
       WHERE service_id = $1
     `;
     await pool.query(deleteTiersQuery, [serviceId]);
     
     // Then delete the service itself
     const deleteServiceQuery = `
-      DELETE FROM services 
+      DELETE FROM affiliates.services 
       WHERE id = $1
       RETURNING *
     `;
@@ -329,7 +329,7 @@ router.get('/:serviceId', async (req, res) => {
         st.name as tier_name,
         st.price_delta_cents,
         st.description as tier_description
-      FROM services s
+      FROM affiliates.services s
       LEFT JOIN service_tiers st ON st.service_id = s.id
       WHERE s.id = $1
       ORDER BY st.price_delta_cents ASC
@@ -398,7 +398,7 @@ router.get('/:affiliateId', async (req, res) => {
         s.active,
         s.created_at,
         s.updated_at
-      FROM services s
+      FROM affiliates.services s
       WHERE s.affiliate_id = $1
       ORDER BY s.category, s.name
     `;
@@ -617,7 +617,7 @@ router.get('/affiliate/:affiliateId/vehicle/:vehicleId/category/:categoryId', as
         s.pricing_unit,
         s.min_duration_min,
         s.active
-      FROM services s
+      FROM affiliates.services s
       WHERE s.affiliate_id = $1 
         AND s.vehicle_id = $2 
         AND s.service_category_id = $3
@@ -643,7 +643,7 @@ router.get('/affiliate/:affiliateId/vehicle/:vehicleId/category/:categoryId', as
           st.name as tier_name,
           st.price_delta_cents,
           st.description as tier_description
-        FROM service_tiers st
+        FROM affiliates.service_tiers st
         WHERE st.service_id = $1
         ORDER BY st.price_delta_cents ASC
       `;
@@ -704,7 +704,7 @@ router.get('/:serviceId', async (req, res) => {
         st.name as tier_name,
         st.price_delta_cents,
         st.description as tier_description
-      FROM services s
+      FROM affiliates.services s
       LEFT JOIN service_tiers st ON st.service_id = s.id
       WHERE s.id = $1
       ORDER BY st.price_delta_cents ASC
@@ -762,14 +762,14 @@ router.delete('/:serviceId', async (req, res) => {
     
     // First, delete all service tiers associated with this service
     const deleteTiersQuery = `
-      DELETE FROM service_tiers 
+      DELETE FROM affiliates.service_tiers 
       WHERE service_id = $1
     `;
     await pool.query(deleteTiersQuery, [serviceId]);
     
     // Then delete the service itself
     const deleteServiceQuery = `
-      DELETE FROM services 
+      DELETE FROM affiliates.services 
       WHERE id = $1
       RETURNING *
     `;
@@ -839,7 +839,7 @@ router.put('/:serviceId', async (req, res) => {
     }
     
     // Delete existing tiers
-    await pool.query('DELETE FROM service_tiers WHERE service_id = $1', [serviceId]);
+    await pool.query('DELETE FROM affiliates.service_tiers WHERE service_id = $1', [serviceId]);
     
     // Insert new tiers if provided
     if (tiers && Array.isArray(tiers) && tiers.length > 0) {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { CheckCircle } from 'lucide-react';
 import { apiService } from '../../services/api';
-import { formatPhoneNumberAsTyped, isCompletePhoneNumber } from '../../utils/phoneFormatter';
+import { formatPhoneNumberAsTyped, isCompletePhoneNumber } from '../../utils/fields/phoneFormatter';
 import { useVehicleData } from '../../hooks/useVehicleData';
 import { 
   validateName, 

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import HomePage from './components/HomePage';
+import { HomePage } from './pages/home';
 import { LocationProvider } from './contexts/LocationContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { MDHConfigProvider } from './contexts/MDHConfigContext';
@@ -8,7 +8,7 @@ import { AffiliateProvider } from './contexts/AffiliateContext';
 import DashboardPage from './pages/affiliateDashboard/DashboardPage';
 import { DashboardPage as AdminDashboard } from './pages/adminDashboard';
 import { AffiliateApplicationPage } from './pages/affiliateOnboarding';
-import Header from './components/01_header';
+import Header from './pages/home/components/01_header';
 import ErrorBoundary from './components/shared/ErrorBoundary';
 import NotFoundPage from './components/shared/NotFoundPage';
 import AdminNavigationContainer from './components/shared/AdminNavigationContainer';

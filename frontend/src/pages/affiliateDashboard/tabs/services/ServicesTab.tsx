@@ -42,36 +42,36 @@ const ServicesTab: React.FC = () => {
   // For admin users, we'll need to fetch affiliate ID from the business slug
   const [adminAffiliateId, setAdminAffiliateId] = useState<string | null>(null);
   
-  // Always call useEffect to maintain hook order consistency
-  useEffect(() => {
-    // Only fetch if user is admin and we have a business slug
-    if (user?.role === 'admin' && businessSlug && !adminAffiliateId) {
-      const fetchAffiliateId = async () => {
-        try {
-          const response = await fetch(`/api/affiliates/${businessSlug}`);
-          
-          if (response.ok) {
-            const data = await response.json();
-            
-            if (data.success && data.affiliate?.id) {
-              setAdminAffiliateId(data.affiliate.id.toString());
-            }
-          }
-        } catch (error) {
-          // Error handled silently
-        }
-      };
-      fetchAffiliateId();
-    }
-  }, [user?.role, businessSlug, adminAffiliateId]);
+  // Skip affiliate lookup for now - we'll rebuild the services structure
+  // useEffect(() => {
+  //   // Only fetch if user is admin and we have a business slug
+  //   if (user?.role === 'admin' && businessSlug && !adminAffiliateId) {
+  //     const fetchAffiliateId = async () => {
+  //       try {
+  //         const response = await fetch(`/api/affiliates/${businessSlug}`);
+  //         
+  //         if (response.ok) {
+  //           const data = await response.json();
+  //           
+  //           if (data.success && data.affiliate?.id) {
+  //             setAdminAffiliateId(data.affiliate.id.toString());
+  //           }
+  //         }
+  //       } catch (error) {
+  //         // Error handled silently
+  //       }
+  //     };
+  //     fetchAffiliateId();
+  //   }
+  // }, [user?.role, businessSlug, adminAffiliateId]);
   
-  // Use affiliate ID from user context, or fallback to admin-fetched ID
-  const affiliateId = user?.affiliate_id?.toString() || adminAffiliateId || undefined;
+  // Skip affiliate ID for now - we'll rebuild the services structure
+  const affiliateId = undefined; // user?.affiliate_id?.toString() || adminAffiliateId || undefined;
 
   const { vehicles } = useServicesData();
   
-  // Only call useServicesAPI when we have a valid affiliateId
-  const servicesAPI = useServicesAPI(affiliateId);
+  // Skip services API for now - we'll rebuild the services structure
+  const servicesAPI = null; // useServicesAPI(affiliateId);
   const { fetchServices, fetchServiceById, createService, updateService, deleteService, loading, error } = servicesAPI || {};
   
   // Effect to fetch services when vehicle or category changes
@@ -228,30 +228,29 @@ const ServicesTab: React.FC = () => {
     return undefined;
   }, [currentServiceData]);
 
-  // Show loading if admin is fetching affiliate ID
-  if (user?.role === 'admin' && businessSlug && !affiliateId) {
-    return (
-      <div className="text-center py-12">
-        <div className="text-gray-400 mb-4">Loading affiliate data...</div>
-      </div>
-    );
-  }
+  // Skip affiliate ID checks for now - we're rebuilding the services structure
+  // if (user?.role === 'admin' && businessSlug && !affiliateId) {
+  //   return (
+  //     <div className="text-center py-12">
+  //       <div className="text-gray-400 mb-4">Loading affiliate data...</div>
+  //     </div>
+  //   );
+  // }
 
-  // Show error if no affiliate ID is available
-  if (!affiliateId) {
-    return (
-      <div className="text-center py-12">
-        <div className="text-red-400 mb-4">Configuration Error</div>
-        <h3 className="text-lg font-medium text-white mb-2">Affiliate ID not found</h3>
-        <p className="text-gray-400 mb-4">
-          {user?.role === 'admin' 
-            ? 'Unable to load affiliate data. Please check the URL and try again.'
-            : 'Please log in again or contact support'
-          }
-        </p>
-      </div>
-    );
-  }
+  // if (!affiliateId) {
+  //   return (
+  //     <div className="text-center py-12">
+  //       <div className="text-red-400 mb-4">Configuration Error</div>
+  //       <h3 className="text-lg font-medium text-white mb-2">Affiliate ID not found</h3>
+  //       <p className="text-gray-400 mb-4">
+  //         {user?.role === 'admin' 
+  //           ? 'Unable to load affiliate data. Please check the URL and try again.'
+  //           : 'Please log in again or contact support'
+  //         }
+  //       </p>
+  //     </div>
+  //   );
+  // }
 
   const handleVehicleChange = (vehicleId: string) => {
     setSelectedVehicle(vehicleId);
@@ -583,21 +582,16 @@ const ServicesTab: React.FC = () => {
 
 
       {/* Empty State */}
-      {availableServices.length === 0 && !loading && !error && selectedCategoryData && affiliateId && servicesAPI && (
+      {availableServices.length === 0 && !loading && !error && selectedCategoryData && (
         <div className="text-center py-12">
           <div className="text-gray-400 mb-4">
           </div>
-          <h3 className="text-lg font-medium text-white mb-2">No services configured</h3>
-          <p className="text-gray-400 mb-4">Add services to this category to get started</p>
-          <button 
-            className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition-colors"
-            onClick={() => {
-              setIsEditingService(false);
-              setIsMultiTierModalOpen(true);
-            }}
-          >
-            Add Service
-          </button>
+          <h3 className="text-lg font-medium text-white mb-2">Services Structure Rebuild</h3>
+          <p className="text-gray-400 mb-4">We're rebuilding the services database structure. The services section will be available once the new tables are created.</p>
+          <div className="text-sm text-gray-500">
+            <p>Current status: Database schema migration in progress</p>
+            <p>Next steps: Create new services and service_tiers tables</p>
+          </div>
         </div>
       )}
 

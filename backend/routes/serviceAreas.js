@@ -19,38 +19,63 @@ router.get('/footer', asyncHandler(async (req, res) => {
       throw error;
     }
     
+    // First, check if we have any approved affiliates
+    const countResult = await pool.query(`
+      SELECT COUNT(*) as count
+      FROM affiliates.business 
+      WHERE approved_date IS NOT NULL
+    `);
+    
+    const approvedCount = parseInt(countResult.rows[0].count);
+    logger.info(`Found ${approvedCount} approved affiliates`);
+    
+    if (approvedCount === 0) {
+      logger.info('No approved affiliates found, returning empty service areas');
+      return res.json({
+        success: true,
+        service_areas: {},
+        count: 0,
+        message: 'No approved affiliates found'
+      });
+    }
+    
     // Get all approved affiliates with their service areas
     const result = await pool.query(`
       SELECT id, slug, service_areas
-      FROM affiliates 
-      WHERE application_status = 'approved' 
+      FROM affiliates.business 
+      WHERE approved_date IS NOT NULL 
         AND service_areas IS NOT NULL
-        AND JSONB_ARRAY_LENGTH(service_areas) > 0
     `);
+    
+    logger.info(`Found ${result.rows.length} affiliates with service areas data`);
     
     // Process the data to create state -> city -> slug structure
     const serviceAreasMap = {};
     
     result.rows.forEach(affiliate => {
-      if (affiliate.service_areas && Array.isArray(affiliate.service_areas)) {
-        affiliate.service_areas.forEach(area => {
-          const state = area.state?.toUpperCase();
-          const city = area.city;
-          const slug = affiliate.slug;
-          
-          if (state && city && slug) {
-            if (!serviceAreasMap[state]) {
-              serviceAreasMap[state] = {};
+      try {
+        if (affiliate.service_areas && Array.isArray(affiliate.service_areas)) {
+          affiliate.service_areas.forEach(area => {
+            const state = area.state?.toUpperCase();
+            const city = area.city;
+            const slug = affiliate.slug;
+            
+            if (state && city && slug) {
+              if (!serviceAreasMap[state]) {
+                serviceAreasMap[state] = {};
+              }
+              if (!serviceAreasMap[state][city]) {
+                serviceAreasMap[state][city] = [];
+              }
+              // Add slug if not already present
+              if (!serviceAreasMap[state][city].includes(slug)) {
+                serviceAreasMap[state][city].push(slug);
+              }
             }
-            if (!serviceAreasMap[state][city]) {
-              serviceAreasMap[state][city] = [];
-            }
-            // Add slug if not already present
-            if (!serviceAreasMap[state][city].includes(slug)) {
-              serviceAreasMap[state][city].push(slug);
-            }
-          }
-        });
+          });
+        }
+      } catch (areaError) {
+        logger.warn(`Error processing service areas for affiliate ${affiliate.slug}:`, areaError);
       }
     });
     
@@ -87,8 +112,8 @@ router.get('/', asyncHandler(async (req, res) => {
       SELECT DISTINCT 
         JSONB_ARRAY_ELEMENTS(a.service_areas)->>'state' as state_code,
         JSONB_ARRAY_ELEMENTS(a.service_areas)->>'state' as name
-      FROM affiliates a
-      WHERE a.application_status = 'approved' 
+      FROM affiliates.business a
+      WHERE a.approved_date IS NOT NULL 
         AND a.service_areas IS NOT NULL
         AND JSONB_ARRAY_LENGTH(a.service_areas) > 0
       ORDER BY name
@@ -121,8 +146,8 @@ router.get('/:state_code',
         JSONB_ARRAY_ELEMENTS(a.service_areas)->>'city' as city,
         JSONB_ARRAY_ELEMENTS(a.service_areas)->>'state' as state_code,
         JSONB_ARRAY_ELEMENTS(a.service_areas)->>'zip' as zip
-      FROM affiliates a
-      WHERE a.application_status = 'approved' 
+      FROM affiliates.business a
+      WHERE a.approved_date IS NOT NULL 
         AND a.service_areas IS NOT NULL
         AND JSONB_ARRAY_LENGTH(a.service_areas) > 0
         AND JSONB_ARRAY_ELEMENTS(a.service_areas)->>'state' = $1

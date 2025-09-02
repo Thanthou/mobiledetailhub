@@ -43,7 +43,7 @@ async function initializeSampleData() {
     }
 
     // Check if mdh_config table has data
-    const configResult = await pool.query('SELECT COUNT(*) FROM mdh_config');
+    const configResult = await pool.query('SELECT COUNT(*) FROM system.mdh_config');
     if (parseInt(configResult.rows[0].count) === 0) {
       await pool.query(`
         INSERT INTO mdh_config (id, email, phone, sms_phone, logo_url, favicon_url, facebook, instagram, tiktok, youtube, header_display, location, name)
@@ -56,7 +56,7 @@ async function initializeSampleData() {
     }
 
     // Check if admin user exists
-    const userResult = await pool.query('SELECT COUNT(*) FROM users WHERE email = $1', ['admin@mobiledetailhub.com']);
+    const userResult = await pool.query('SELECT COUNT(*) FROM auth.users WHERE email = $1', ['admin@mobiledetailhub.com']);
     if (parseInt(userResult.rows[0].count) === 0) {
       // Get admin password from environment variable or use default
       const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
@@ -728,7 +728,7 @@ async function insertBasicData() {
     }
 
     // Check if mdh_config table has data
-    const result = await pool.query('SELECT COUNT(*) FROM mdh_config');
+    const result = await pool.query('SELECT COUNT(*) FROM system.mdh_config');
     if (parseInt(result.rows[0].count) === 0) {
       await pool.query(`
         INSERT INTO mdh_config (id, email, phone, sms_phone, logo_url, favicon_url, facebook, instagram, tiktok, youtube, header_display, location, name) 

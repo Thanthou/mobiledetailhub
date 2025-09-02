@@ -1,4 +1,5 @@
 {
   "package.json": "package.json",
-  "README.md": "README.md"
+  "README.md": "README.md",
+  "test-backend.js": "test-backend.js"
 }

@@ -9,12 +9,14 @@ interface GetStartedProps {
   onLocationSubmit?: (location: string, zipCode?: string, city?: string, state?: string) => void;
   placeholder?: string;
   className?: string;
+  id?: string;
 }
 
 const GetStarted: React.FC<GetStartedProps> = ({
   onLocationSubmit,
   placeholder = 'Enter your zip code or city',
   className = '',
+  id,
 }) => {
   const [inputValue, setInputValue] = useState('');
   const [predictions, setPredictions] = useState<Array<any>>([]);
@@ -30,6 +32,9 @@ const GetStarted: React.FC<GetStartedProps> = ({
   
   const { setSelectedLocation } = useLocation();
   const navigate = useNavigate();
+  
+  // Generate unique ID if none provided
+  const inputId = id || `location-search-${Math.random().toString(36).substr(2, 9)}`;
 
   // Load Google Places API
   useEffect(() => {
@@ -303,7 +308,7 @@ const GetStarted: React.FC<GetStartedProps> = ({
           <input
             ref={inputRef}
             type="text"
-            id="location-search-shared"
+            id={inputId}
             name="location"
             value={inputValue}
             onChange={(e) => handleInputChange(e.target.value)}

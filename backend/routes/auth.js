@@ -35,7 +35,7 @@ router.post('/register',
     }
     
     // Check if user already exists
-    const existingUser = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
+    const existingUser = await pool.query('SELECT id FROM auth.users WHERE email = $1', [email]);
     if (existingUser.rows.length > 0) {
       const error = new Error('User already exists');
       error.statusCode = 400;
@@ -114,7 +114,7 @@ router.post('/login',
     }
     
     // Find user
-    const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    const result = await pool.query('SELECT * FROM auth.users WHERE email = $1', [email]);
     
     if (result.rows.length === 0) {
       const error = new Error('Email or password is incorrect');
@@ -193,7 +193,7 @@ router.get('/me', authenticateToken, asyncHandler(async (req, res) => {
     throw error;
   }
   
-  const result = await pool.query('SELECT id, email, name, phone, is_admin, created_at FROM users WHERE id = $1', [req.user.userId]);
+  const result = await pool.query('SELECT id, email, name, phone, is_admin, created_at FROM auth.users WHERE id = $1', [req.user.userId]);
   if (result.rows.length === 0) {
     const error = new Error('User not found');
     error.statusCode = 404;
@@ -216,7 +216,7 @@ router.get('/me', authenticateToken, asyncHandler(async (req, res) => {
   let affiliateId = null;
   if (!isAdmin) {
     const affiliateResult = await pool.query(
-      'SELECT affiliate_id FROM affiliate_users WHERE user_id = $1 LIMIT 1',
+      'SELECT affiliate_id FROM auth.affiliate_users WHERE user_id = $1 LIMIT 1',
       [user.id]
     );
     if (affiliateResult.rows.length > 0) {

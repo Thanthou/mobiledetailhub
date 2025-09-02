@@ -28,13 +28,13 @@ router.delete('/affiliates/:id', criticalAdminLimiter, authenticateToken, requir
     await client.query('BEGIN');
     
     // First, try to find the affiliate by ID
-    let findAffiliateQuery = 'SELECT email, business_name, slug FROM affiliates WHERE id = $1';
+    let findAffiliateQuery = 'SELECT email, business_name, slug FROM affiliates.affiliates WHERE id = $1';
     let affiliateResult = await client.query(findAffiliateQuery, [id]);
     
     // If not found in affiliates table, try to find by user ID
     if (affiliateResult.rowCount === 0) {
       logger.debug(`Affiliate ID ${id} not found in affiliates table, checking users table...`);
-      const findUserQuery = 'SELECT email, name FROM users WHERE id = $1 AND role = $2';
+      const findUserQuery = 'SELECT email, name FROM auth.users WHERE id = $1 AND role = $2';
       const userResult = await client.query(findUserQuery, [id, 'affiliate']);
       
       if (userResult.rowCount === 0) {
@@ -46,7 +46,7 @@ router.delete('/affiliates/:id', criticalAdminLimiter, authenticateToken, requir
       
       // User exists but no affiliate record - just delete the user
       const user = userResult.rows[0];
-      const deleteUserQuery = 'DELETE FROM users WHERE id = $1';
+      const deleteUserQuery = 'DELETE FROM auth.users WHERE id = $1';
       await client.query(deleteUserQuery, [id]);
       
       // Audit log the user deletion
@@ -85,12 +85,12 @@ router.delete('/affiliates/:id', criticalAdminLimiter, authenticateToken, requir
          // Service areas are stored in affiliates.service_areas JSONB column, no cleanup needed
     
     // Delete the affiliate record
-    const deleteAffiliateQuery = 'DELETE FROM affiliates WHERE id = $1';
+    const deleteAffiliateQuery = 'DELETE FROM affiliates.affiliates WHERE id = $1';
     await client.query(deleteAffiliateQuery, [id]);
     logger.info(`Deleted affiliate record ${id}`);
     
     // Delete the corresponding user record
-    const deleteUserQuery = 'DELETE FROM users WHERE email = $1 AND role = $2';
+    const deleteUserQuery = 'DELETE FROM auth.users WHERE email = $1 AND role = $2';
     const userResult = await client.query(deleteUserQuery, [affiliate.email, 'affiliate']);
     logger.info(`Deleted ${userResult.rowCount} user record(s) for email: ${affiliate.email}`);
     
@@ -147,7 +147,7 @@ router.get('/users', adminLimiter, authenticateToken, requireAdmin, asyncHandler
     // For affiliates, query the affiliates table directly
     try {
       // Check if there are any affiliates
-      const countCheck = await pool.query('SELECT COUNT(*) FROM affiliates');
+      const countCheck = await pool.query('SELECT COUNT(*) FROM affiliates.affiliates');
       const affiliateCount = parseInt(countCheck.rows[0].count);
       
       if (affiliateCount === 0) {
@@ -164,7 +164,7 @@ router.get('/users', adminLimiter, authenticateToken, requireAdmin, asyncHandler
         SELECT 
           a.id, a.owner as name, a.email, 'affiliate' as role, a.created_at,
           a.business_name, a.application_status, a.slug, a.phone, a.service_areas
-        FROM affiliates a
+        FROM affiliates.affiliates a
         WHERE a.application_status = 'approved'
       `;
       
@@ -200,7 +200,7 @@ router.get('/users', adminLimiter, authenticateToken, requireAdmin, asyncHandler
     }
   }
   
-  let query = 'SELECT id, name, email, role, created_at FROM users';
+  let query = 'SELECT id, name, email, role, created_at FROM auth.users';
   let params = [];
   
   if (status && status !== 'all-users') {
@@ -257,7 +257,7 @@ router.get('/pending-applications', adminLimiter, authenticateToken, requireAdmi
         a.id, a.slug, a.business_name, a.owner, a.phone, a.email, 
         a.has_insurance, a.source, a.notes, a.application_date, a.created_at,
         a.service_areas
-      FROM affiliates a
+      FROM affiliates.affiliates a
       WHERE a.application_status = 'pending' 
       ORDER BY a.application_date DESC
     `;
@@ -318,7 +318,7 @@ router.post('/approve-application/:id', adminLimiter, authenticateToken, require
 
   
   // Check if slug is already taken
-  const slugCheckQuery = 'SELECT id FROM affiliates WHERE slug = $1 AND id != $2';
+  const slugCheckQuery = 'SELECT id FROM affiliates.affiliates WHERE slug = $1 AND id != $2';
   const slugCheck = await pool.query(slugCheckQuery, [approved_slug, id]);
   
   if (slugCheck.rowCount > 0) {
@@ -328,7 +328,7 @@ router.post('/approve-application/:id', adminLimiter, authenticateToken, require
   }
   
   // Check if application is still pending before updating
-  const statusCheckQuery = 'SELECT application_status FROM affiliates WHERE id = $1';
+  const statusCheckQuery = 'SELECT application_status FROM affiliates.affiliates WHERE id = $1';
   const statusCheck = await pool.query(statusCheckQuery, [id]);
   
   if (statusCheck.rowCount === 0) {
@@ -344,13 +344,13 @@ router.post('/approve-application/:id', adminLimiter, authenticateToken, require
   }
   
   // Get the current state for audit logging
-  const currentStateQuery = 'SELECT * FROM affiliates WHERE id = $1';
+  const currentStateQuery = 'SELECT * FROM affiliates.affiliates WHERE id = $1';
   const currentStateResult = await pool.query(currentStateQuery, [id]);
   const beforeState = currentStateResult.rows[0];
   
   // Update affiliate status to approved
   const updateQuery = `
-    UPDATE affiliates 
+    UPDATE affiliates.affiliates 
     SET 
       application_status = 'approved',
       slug = $1,
@@ -452,7 +452,7 @@ router.post('/approve-application/:id', adminLimiter, authenticateToken, require
           
           // Update affiliate with clean service areas (no slugs)
           await pool.query(
-            'UPDATE affiliates SET service_areas = $1 WHERE id = $2',
+            'UPDATE affiliates.affiliates SET service_areas = $1 WHERE id = $2',
             [JSON.stringify(cleanServiceAreas), affiliate.id]
           );
           
@@ -511,7 +511,7 @@ router.post('/reject-application/:id', adminLimiter, authenticateToken, requireA
   }
   
   // Check if application is still pending before updating
-  const statusCheckQuery = 'SELECT application_status FROM affiliates WHERE id = $1';
+  const statusCheckQuery = 'SELECT application_status FROM affiliates.affiliates WHERE id = $1';
   const statusCheck = await pool.query(statusCheckQuery, [id]);
   
   if (statusCheck.rowCount === 0) {
@@ -527,12 +527,12 @@ router.post('/reject-application/:id', adminLimiter, authenticateToken, requireA
   }
   
   // Get the current state for audit logging
-  const currentStateQuery = 'SELECT * FROM affiliates WHERE id = $1';
+  const currentStateQuery = 'SELECT * FROM affiliates.affiliates WHERE id = $1';
   const currentStateResult = await pool.query(currentStateQuery, [id]);
   const beforeState = currentStateResult.rows[0];
   
   const updateQuery = `
-    UPDATE affiliates 
+    UPDATE affiliates.affiliates 
     SET 
       application_status = 'rejected',
       notes = CASE 
