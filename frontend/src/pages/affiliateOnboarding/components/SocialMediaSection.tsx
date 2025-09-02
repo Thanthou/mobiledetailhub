@@ -39,6 +39,7 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
               onChange={(e) => handleInputChange('website_url', e.target.value)}
               className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
               placeholder="https://yourwebsite.com"
+              autoComplete="url"
             />
           </div>
           
@@ -63,6 +64,7 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
               onChange={(e) => handleInputChange('gbp_url', e.target.value)}
               className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
               placeholder="https://business.google.com/..."
+              autoComplete="url"
             />
           </div>
           
@@ -77,6 +79,7 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
                 onChange={(e) => handleInputChange('facebook_url', e.target.value)}
                 className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 placeholder="https://facebook.com/..."
+                autoComplete="url"
               />
             </div>
             <div>
@@ -89,6 +92,7 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
                 onChange={(e) => handleInputChange('instagram_url', e.target.value)}
                 className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 placeholder="https://instagram.com/..."
+                autoComplete="url"
               />
             </div>
           </div>
@@ -104,6 +108,7 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
                 onChange={(e) => handleInputChange('youtube_url', e.target.value)}
                 className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 placeholder="https://youtube.com/@..."
+                autoComplete="url"
               />
             </div>
             <div>
@@ -116,6 +121,7 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
                 onChange={(e) => handleInputChange('tiktok_url', e.target.value)}
                 className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 placeholder="https://tiktok.com/@..."
+                autoComplete="url"
               />
             </div>
           </div>

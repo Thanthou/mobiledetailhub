@@ -6,6 +6,8 @@ import FooterErrorState from '../FooterErrorState';
 import { useSiteContext } from '/src/hooks/useSiteContext';
 import { useAffiliate } from '/src/contexts/AffiliateContext';
 import { useMDHConfig } from '/src/contexts/MDHConfigContext';
+import { getAffiliateDisplayLocation } from '/src/utils/affiliateLocationHelper';
+import { useLocation } from '/src/contexts/LocationContext';
 
 interface AffiliateFooterProps {
   onRequestQuote: () => void;
@@ -17,6 +19,7 @@ const AffiliateFooter: React.FC<AffiliateFooterProps> = ({ onRequestQuote, onBoo
   const { businessSlug } = useSiteContext();
   const { affiliateData, isLoading: affiliateLoading, error: affiliateError } = useAffiliate();
   const { mdhConfig, isLoading: mdhLoading, error: mdhError } = useMDHConfig();
+  const { selectedLocation } = useLocation();
 
   const isLoading = affiliateLoading || mdhLoading;
   const hasError = affiliateError || mdhError;
@@ -61,34 +64,18 @@ const AffiliateFooter: React.FC<AffiliateFooterProps> = ({ onRequestQuote, onBoo
     return [];
   }, [affiliateData?.service_areas]);
 
-  // Extract primary service area for base_location
-  const primaryServiceArea = React.useMemo(() => {
-    if (!affiliateData?.service_areas) return null;
-    
-    let serviceAreasData = affiliateData.service_areas;
-    if (typeof serviceAreasData === 'string') {
-      try {
-        serviceAreasData = JSON.parse(serviceAreasData);
-      } catch (e) {
-        console.error('Error parsing service_areas JSON:', e);
-        return null;
-      }
-    }
-    
-    if (Array.isArray(serviceAreasData)) {
-      return serviceAreasData.find(area => area.primary === true) || null;
-    }
-    
-    return null;
-  }, [affiliateData?.service_areas]);
+  // Get the appropriate location to display (selected location if served, otherwise primary)
+  const displayLocation = React.useMemo(() => {
+    return getAffiliateDisplayLocation(affiliateData?.service_areas, selectedLocation);
+  }, [affiliateData?.service_areas, selectedLocation]);
 
   // Combine affiliate data with MDH social media config
   const combinedConfig = {
     ...affiliateData,
-    base_location: primaryServiceArea ? {
-      city: primaryServiceArea.city,
-      state_name: primaryServiceArea.state,
-      zip: primaryServiceArea.zip
+    base_location: displayLocation ? {
+      city: displayLocation.city,
+      state_name: displayLocation.state,
+      zip: '' // We don't have zip in displayLocation, but it's not critical for footer
     } : affiliateData?.base_location, // Fallback to existing base_location
     email: mdhConfig?.email, // Use MDH email instead of affiliate email
     facebook: mdhConfig?.facebook,
@@ -109,11 +96,12 @@ const AffiliateFooter: React.FC<AffiliateFooterProps> = ({ onRequestQuote, onBoo
           parentConfig={combinedConfig} 
           businessSlug={businessSlug}
           serviceAreas={serviceAreas}
+          serviceAreasData={affiliateData?.service_areas}
           onRequestQuote={onRequestQuote}
           onBookNow={onBookNow}
           onQuoteHover={onQuoteHover}
         />
-        <FooterBottom businessInfo={{ name: affiliateData.name || 'Your Business' }} />
+        <FooterBottom businessInfo={{ name: affiliateData.business_name || 'Your Business' }} />
       </div>
     </footer>
   );

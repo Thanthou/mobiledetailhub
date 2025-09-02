@@ -15,7 +15,7 @@ export interface QuoteFormData {
   email: string;
   phone?: string;
   vehicle: string;
-  service: string;
+  services: string[];
   additionalInfo?: string;
   preferredDate?: string;
 }

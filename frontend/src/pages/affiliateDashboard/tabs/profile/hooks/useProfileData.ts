@@ -105,10 +105,11 @@ export const useProfileData = (): UseProfileDataReturn => {
           first_name: data.first_name || data.owner?.split(' ')[0] || '',
           last_name: data.last_name || data.owner?.split(' ').slice(1).join(' ') || '',
           personal_phone: data.personal_phone || data.phone || '',
-          personal_email: data.personal_email || data.email || '',
+          personal_email: data.personal_email || '',
           business_name: data.business_name || '',
           business_email: data.business_email || data.email || '',
           business_phone: data.business_phone || data.phone || '',
+          twilio_phone: data.twilio_phone || '',
           business_start_date: data.business_start_date || data.created_at || '',
           // URL fields
           website_url: data.website_url || '',
@@ -246,6 +247,10 @@ const validateProfileData = (data: ProfileFormData): ProfileValidationErrors => 
 
   if (data.business_phone?.trim() && !/^[\d\s\-\+\(\)]{10,20}$/.test(data.business_phone)) {
     errors.business_phone = 'Please enter a valid phone number';
+  }
+
+  if (data.twilio_phone?.trim() && !/^[\d\s\-\+\(\)]{10,20}$/.test(data.twilio_phone)) {
+    errors.twilio_phone = 'Please enter a valid phone number';
   }
 
   // URL Validation - only validate format if provided

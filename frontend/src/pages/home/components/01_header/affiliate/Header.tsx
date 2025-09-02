@@ -10,7 +10,9 @@ import { useAuth } from '/src/contexts/AuthContext';
 import UserMenu from '../UserMenu';
 import { useAffiliate } from '/src/contexts/AffiliateContext';
 import { useMDHConfig } from '/src/contexts/MDHConfigContext';
+import { useFAQ } from '/src/contexts/FAQContext';
 import { formatPhoneNumber } from '/src/utils/fields/phoneFormatter';
+import { getAffiliateDisplayLocation } from '/src/utils/affiliateLocationHelper';
 
 const HeaderAffiliate: React.FC = () => {
   const { businessSlug } = useSiteContext();
@@ -18,27 +20,12 @@ const HeaderAffiliate: React.FC = () => {
   const { selectedLocation } = useLocation();
   const { affiliateData, isLoading: affiliateLoading, error: affiliateError } = useAffiliate();
   const { mdhConfig, isLoading: mdhLoading, error: mdhError } = useMDHConfig();
+  const { expandFAQ } = useFAQ();
   
-  // Extract primary service area from service_areas JSON
-  const primaryServiceArea = React.useMemo(() => {
-    if (!affiliateData?.service_areas) return null;
-    
-    let serviceAreas = affiliateData.service_areas;
-    if (typeof serviceAreas === 'string') {
-      try {
-        serviceAreas = JSON.parse(serviceAreas);
-      } catch (e) {
-        console.error('Error parsing service_areas JSON:', e);
-        return null;
-      }
-    }
-    
-    if (Array.isArray(serviceAreas)) {
-      return serviceAreas.find(area => area.primary === true) || null;
-    }
-    
-    return null;
-  }, [affiliateData?.service_areas]);
+  // Get the appropriate location to display (selected location if served, otherwise primary)
+  const displayLocation = React.useMemo(() => {
+    return getAffiliateDisplayLocation(affiliateData?.service_areas, selectedLocation);
+  }, [affiliateData?.service_areas, selectedLocation]);
 
   const isLoading = affiliateLoading || mdhLoading;
   const hasError = affiliateError || mdhError;
@@ -99,24 +86,17 @@ const HeaderAffiliate: React.FC = () => {
                       <span className="text-red-400">No phone data</span>
                     )}
                    {/* Show separator if we have both phone and location */}
-                   {affiliateData.phone && (primaryServiceArea?.city || selectedLocation) && (
+                   {affiliateData.phone && displayLocation && (
                      <span className="text-orange-400">•</span>
                    )}
-                   {selectedLocation ? (
+                   {displayLocation && (
                      <LocationEditModal
                        placeholder="Enter new location"
                        buttonClassName="text-white hover:text-orange-400 text-sm md:text-base font-semibold hover:underline cursor-pointer"
-                       displayText={selectedLocation.fullLocation}
+                       displayText={displayLocation.fullLocation}
                        showIcon={false}
                      />
-                   ) : primaryServiceArea?.city && primaryServiceArea?.state ? (
-                     <LocationEditModal
-                       placeholder="Enter new location"
-                       buttonClassName="text-white hover:text-orange-400 text-sm md:text-base font-semibold hover:underline cursor-pointer"
-                       displayText={`${primaryServiceArea.city}, ${primaryServiceArea.state}`}
-                       showIcon={false}
-                     />
-                   ) : null}
+                   )}
                  </div>
                </div>
             </div>
@@ -126,13 +106,23 @@ const HeaderAffiliate: React.FC = () => {
           <div className="flex items-center space-x-4 ml-auto">
             <nav className="flex space-x-4">
               {NAV_LINKS.map(link => (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  className="text-white hover:text-orange-400 transition-colors duration-200"
-                >
-                  {link.name}
-                </a>
+                link.isFAQ ? (
+                  <button
+                    key={link.name}
+                    onClick={expandFAQ}
+                    className="text-white hover:text-orange-400 transition-colors duration-200 bg-transparent border-none p-0 cursor-pointer"
+                  >
+                    {link.name}
+                  </button>
+                ) : (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    className="text-white hover:text-orange-400 transition-colors duration-200"
+                  >
+                    {link.name}
+                  </a>
+                )
               ))}
             </nav>
             {(mdhConfig.facebook || mdhConfig.instagram || mdhConfig.tiktok || mdhConfig.youtube) && (

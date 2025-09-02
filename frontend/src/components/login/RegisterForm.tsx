@@ -94,6 +94,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, error, d
           error={getFieldError('name')}
           required
           disabled={disabled}
+          autocomplete="name"
         />
 
         {/* Phone Field */}
@@ -108,6 +109,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, error, d
           icon={Phone}
           error={getFieldError('phone')}
           disabled={disabled}
+          autocomplete="tel"
         />
 
         {/* Email Field */}
@@ -123,6 +125,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, error, d
           error={getFieldError('email')}
           required
           disabled={disabled}
+          autocomplete="email"
         />
 
         {/* Password Field */}
@@ -139,6 +142,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, error, d
           required
           rightElement={passwordRightElement}
           disabled={disabled}
+          autocomplete="new-password"
         />
 
         {/* Submit Button */}

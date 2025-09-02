@@ -25,25 +25,33 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
     name: '',
     email: '',
     phone: '',
-    service: '',
+    services: [] as string[],
     vehicleType: '',
     vehicleMake: '',
     vehicleModel: '',
+    vehicleYear: '',
     message: ''
   });
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  
+  // Progressive form state
+  const [completedSections, setCompletedSections] = useState({
+    contact: false,
+    vehicle: false,
+    services: false
+  });
 
   // Available services
   const services = [
-    'Detail',
+    'Interior',
+    'Exterior',
+    'Interior & Exterior',
+    'Paint Correction',
     'Ceramic Coating',
-    'Paint Protection Film',
-    'Interior Detailing',
-    'Exterior Detailing',
-    'Full Service',
+    'Paint Protection Film (PPF)',
     'Other'
   ];
 
@@ -73,6 +81,15 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
     }
   }, [formData.vehicleMake]);
 
+  // Update completed sections when form data changes
+  useEffect(() => {
+    setCompletedSections({
+      contact: isContactSectionComplete(),
+      vehicle: isVehicleSectionComplete(),
+      services: isServicesSectionComplete()
+    });
+  }, [formData]);
+
   // Helper function to display field errors
   const getFieldError = (fieldName: string): string | undefined => {
     return fieldErrors[fieldName]?.[0];
@@ -83,12 +100,86 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
     return !!fieldErrors[fieldName]?.length;
   };
 
+  // Section validation functions
+  const isContactSectionComplete = () => {
+    const nameValid = validateName(formData.name).isValid;
+    const emailValid = validateEmail(formData.email).isValid;
+    const phoneValid = validatePhone(formData.phone).isValid;
+    return nameValid && emailValid && phoneValid;
+  };
+
+  const isVehicleSectionComplete = () => {
+    const vehicleTypeValid = validateVehicleField(formData.vehicleType, 'Vehicle type').isValid;
+    const vehicleMakeValid = validateVehicleField(formData.vehicleMake, 'Vehicle make').isValid;
+    const vehicleModelValid = validateVehicleField(formData.vehicleModel, 'Vehicle model').isValid;
+    const vehicleYearValid = validateVehicleField(formData.vehicleYear, 'Vehicle year').isValid;
+    return vehicleTypeValid && vehicleMakeValid && vehicleModelValid && vehicleYearValid;
+  };
+
+  const isServicesSectionComplete = () => {
+    return formData.services.length > 0;
+  };
+
+  const clearFormData = () => {
+    setFormData({
+      name: '',
+      email: '',
+      phone: '',
+      services: [],
+      vehicleType: '',
+      vehicleMake: '',
+      vehicleModel: '',
+      vehicleYear: '',
+      message: ''
+    });
+    setFieldErrors({});
+    setError('');
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleServiceChange = (service: string, checked: boolean) => {
+    setFormData(prev => {
+      let newServices = [...prev.services];
+      
+      if (checked) {
+        // Add the selected service
+        newServices.push(service);
+        
+        // Handle mutual exclusivity for Interior/Exterior/Interior & Exterior
+        if (service === 'Interior & Exterior') {
+          // If "Interior & Exterior" is selected, remove "Interior" and "Exterior"
+          newServices = newServices.filter(s => s !== 'Interior' && s !== 'Exterior');
+        } else if (service === 'Interior' || service === 'Exterior') {
+          // If "Interior" or "Exterior" is selected, remove "Interior & Exterior"
+          newServices = newServices.filter(s => s !== 'Interior & Exterior');
+          
+          // Check if both "Interior" and "Exterior" are now selected
+          const hasInterior = newServices.includes('Interior');
+          const hasExterior = newServices.includes('Exterior');
+          
+          if (hasInterior && hasExterior) {
+            // Remove both "Interior" and "Exterior" and add "Interior & Exterior"
+            newServices = newServices.filter(s => s !== 'Interior' && s !== 'Exterior');
+            newServices.push('Interior & Exterior');
+          }
+        }
+      } else {
+        // Remove the deselected service
+        newServices = newServices.filter(s => s !== service);
+      }
+      
+      return {
+        ...prev,
+        services: newServices
+      };
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -101,10 +192,13 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
       name: validateName(formData.name),
       email: validateEmail(formData.email),
       phone: validatePhone(formData.phone),
-      service: validateService(formData.service),
+      services: formData.services.length === 0 
+        ? { isValid: false, errors: ['Please select at least one service'], sanitizedValue: [] }
+        : { isValid: true, errors: [], sanitizedValue: formData.services },
       vehicleType: validateVehicleField(formData.vehicleType, 'Vehicle type'),
       vehicleMake: validateVehicleField(formData.vehicleMake, 'Vehicle make'),
       vehicleModel: validateVehicleField(formData.vehicleModel, 'Vehicle model'),
+      vehicleYear: validateVehicleField(formData.vehicleYear, 'Vehicle year'),
       message: validateMessage(formData.message, false) // Message is optional
     };
 
@@ -133,8 +227,8 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
         name: sanitizeText(validations.name.sanitizedValue!),
         email: validations.email.sanitizedValue!,
         phone: formattedPhone,
-        vehicle: `${validations.vehicleMake.sanitizedValue} ${validations.vehicleModel.sanitizedValue}`,
-        service: validations.service.sanitizedValue!,
+        vehicle: `${validations.vehicleYear.sanitizedValue} ${validations.vehicleMake.sanitizedValue} ${validations.vehicleModel.sanitizedValue}`,
+        services: validations.services.sanitizedValue!,
         additionalInfo: formData.message ? sanitizeText(formData.message) : ''
       });
 
@@ -147,10 +241,11 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
           name: '',
           email: '',
           phone: '',
-          service: '',
+          services: [],
           vehicleType: '',
           vehicleMake: '',
           vehicleModel: '',
+          vehicleYear: '',
           message: ''
         });
         setFieldErrors({});
@@ -166,24 +261,54 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-stone-800 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-8">
-            <div>
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-start justify-center p-4 pt-[2vh] pb-[15vh]">
+            <div
+        className="bg-stone-800 rounded-lg shadow-xl max-w-4xl w-full max-h-[95vh] overflow-y-auto scrollbar-hide"
+        style={{
+          transform: 'translateZ(0)',
+          willChange: 'transform'
+        }}
+        onWheel={(e) => {
+          // Allow scrolling with mouse wheel
+          e.currentTarget.scrollTop += e.deltaY;
+        }}
+      >
+        <div className="p-4">
+          <div className="relative mb-4">
+            <div className="text-center">
               <h2 className="text-3xl font-bold text-white">Request a Quote</h2>
-              <p className="text-sm text-gray-300 mt-1">Get a custom quote for your vehicle</p>
             </div>
             <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-white text-2xl font-bold"
+              onClick={() => {
+                clearFormData();
+                onClose();
+              }}
+              className="absolute top-0 right-0 text-gray-400 hover:text-white text-xl font-bold"
             >
               ×
             </button>
           </div>
           
           {!isSubmitted ? (
-            <form onSubmit={handleSubmit} className="space-y-8">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Progress Indicator */}
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-gray-300">Progress</span>
+                  <span className="text-sm text-gray-300">
+                    {[completedSections.contact, completedSections.vehicle, completedSections.services].filter(Boolean).length}/3
+                  </span>
+                </div>
+                <div className="w-full bg-gray-700 rounded-full h-2">
+                  <div 
+                    className="bg-orange-500 h-2 rounded-full transition-all duration-500"
+                    style={{ 
+                      width: `${([completedSections.contact, completedSections.vehicle, completedSections.services].filter(Boolean).length / 3) * 100}%` 
+                    }}
+                  ></div>
+                </div>
+              </div>
+
               {error && (
                 <div className="bg-red-600 text-white p-3 rounded-lg text-sm">
                   {error}
@@ -192,8 +317,11 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
               
               {/* Contact Information Section */}
               <div>
-                <h3 className="text-xl font-semibold text-white mb-4 pb-2 border-b border-gray-600">
+                <h3 className="text-xl font-semibold text-white mb-4 pb-2 border-b border-gray-600 flex items-center gap-2">
                   Contact Information
+                  {completedSections.contact && (
+                    <CheckCircle className="h-5 w-5 text-green-500" />
+                  )}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Name */}
@@ -310,36 +438,102 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
               </div>
 
               {/* Vehicle Information Section */}
-              <div>
-                <h3 className="text-xl font-semibold text-white mb-4 pb-2 border-b border-gray-600">
-                  Vehicle Information
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {completedSections.contact && (
+                <div>
+                  <h3 className="text-xl font-semibold text-white mb-4 pb-2 border-b border-gray-600 flex items-center gap-2">
+                    Vehicle Information
+                    {completedSections.vehicle && (
+                      <CheckCircle className="h-5 w-5 text-green-500" />
+                    )}
+                  </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Vehicle Year */}
+                  <div className="relative">
+                    <label htmlFor="modal-vehicleYear" className="block text-sm font-medium text-white mb-2">
+                      Vehicle Year *
+                    </label>
+                    <div className="relative">
+                      <select
+                        id="modal-vehicleYear"
+                        name="vehicleYear"
+                        required
+                        value={formData.vehicleYear}
+                        onChange={handleInputChange}
+                        autoComplete="vehicle-year"
+
+                        className={`w-full px-4 py-3 pr-10 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 ${
+                          hasFieldError('vehicleYear') 
+                            ? 'border-red-500 bg-red-900/20' 
+                            : 'border-gray-600 bg-stone-700'
+                        } text-white`}
+                        style={{ 
+                          position: 'relative',
+                          zIndex: 20,
+                          WebkitAppearance: 'none',
+                          MozAppearance: 'none',
+                          appearance: 'none'
+                        }}
+                      >
+                        <option value="">Select year</option>
+                        {Array.from({ length: 76 }, (_, i) => 2026 - i).map((year) => (
+                          <option key={year} value={year}>
+                            {year}
+                          </option>
+                        ))}
+                        <option value="before-1950">Before 1950</option>
+                      </select>
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none z-30">
+                        <svg className="w-6 h-6 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    </div>
+                    {hasFieldError('vehicleYear') && (
+                      <p className="text-sm text-red-400 mt-1">
+                        {getFieldError('vehicleYear')}
+                      </p>
+                    )}
+                  </div>
+
                   {/* Vehicle Type */}
-                  <div>
+                  <div className="relative">
                     <label htmlFor="modal-vehicleType" className="block text-sm font-medium text-white mb-2">
                       Vehicle Type *
                     </label>
-                    <select
-                      id="modal-vehicleType"
-                      name="vehicleType"
-                      required
-                      value={formData.vehicleType}
-                      onChange={handleInputChange}
-                      autoComplete="vehicle-type"
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 ${
-                        hasFieldError('vehicleType') 
-                          ? 'border-red-500 bg-red-900/20' 
-                          : 'border-gray-600 bg-stone-700'
-                      } text-white`}
-                    >
-                      <option value="">Select vehicle type</option>
-                      {vehicleTypes.map((type) => (
-                        <option key={type.id} value={type.id}>
-                          {type.name}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <select
+                        id="modal-vehicleType"
+                        name="vehicleType"
+                        required
+                        value={formData.vehicleType}
+                        onChange={handleInputChange}
+                        autoComplete="vehicle-type"
+                        className={`w-full px-4 py-3 pr-10 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 ${
+                          hasFieldError('vehicleType') 
+                            ? 'border-red-500 bg-red-900/20' 
+                            : 'border-gray-600 bg-stone-700'
+                        } text-white`}
+                        style={{ 
+                          position: 'relative',
+                          zIndex: 20,
+                          WebkitAppearance: 'none',
+                          MozAppearance: 'none',
+                          appearance: 'none'
+                        }}
+                      >
+                        <option value="">Select vehicle type</option>
+                        {vehicleTypes.map((type) => (
+                          <option key={type.id} value={type.id}>
+                            {type.name}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none z-30">
+                        <svg className="w-6 h-6 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    </div>
                     {hasFieldError('vehicleType') && (
                       <p className="text-sm text-red-400 mt-1">
                         {getFieldError('vehicleType')}
@@ -348,31 +542,48 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
                   </div>
 
                   {/* Vehicle Make */}
-                  <div>
+                  <div className="relative">
                     <label htmlFor="modal-vehicleMake" className="block text-sm font-medium text-white mb-2">
                       Vehicle Make *
                     </label>
-                    <select
-                      id="modal-vehicleMake"
-                      name="vehicleMake"
-                      required
-                      value={formData.vehicleMake}
-                      onChange={handleInputChange}
-                      disabled={!formData.vehicleType}
-                      autoComplete="vehicle-make"
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
-                        hasFieldError('vehicleMake') 
-                          ? 'border-red-500 bg-red-900/20' 
-                          : 'border-gray-600 bg-stone-700'
-                      } text-white`}
-                    >
-                      <option value="">Select make</option>
-                      {availableMakes.map((make) => (
-                        <option key={make} value={make}>
-                          {make}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <select
+                        id="modal-vehicleMake"
+                        name="vehicleMake"
+                        required
+                        value={formData.vehicleMake}
+                        onChange={handleInputChange}
+                        disabled={!formData.vehicleType}
+                        autoComplete="vehicle-make"
+
+                        className={`w-full px-4 py-3 pr-10 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+                          hasFieldError('vehicleMake') 
+                            ? 'border-red-500 bg-red-900/20' 
+                            : 'border-gray-600 bg-stone-700'
+                        } text-white`}
+                        style={{ 
+                          position: 'relative',
+                          zIndex: 20,
+                          transform: 'translateZ(0)',
+                          backfaceVisibility: 'hidden',
+                          WebkitAppearance: 'none',
+                          MozAppearance: 'none',
+                          appearance: 'none'
+                        }}
+                      >
+                        <option value="">Select make</option>
+                        {availableMakes.map((make) => (
+                          <option key={make} value={make}>
+                            {make}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none z-30">
+                        <svg className="w-6 h-6 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    </div>
                     {hasFieldError('vehicleMake') && (
                       <p className="text-sm text-red-400 mt-1">
                         {getFieldError('vehicleMake')}
@@ -381,31 +592,46 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
                   </div>
 
                   {/* Vehicle Model */}
-                  <div>
+                  <div className="relative">
                     <label htmlFor="modal-vehicleModel" className="block text-sm font-medium text-white mb-2">
                       Vehicle Model *
                     </label>
-                    <select
-                      id="modal-vehicleModel"
-                      name="vehicleModel"
-                      required
-                      value={formData.vehicleModel}
-                      onChange={handleInputChange}
-                      disabled={!formData.vehicleMake}
-                      autoComplete="vehicle-model"
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
-                        hasFieldError('vehicleModel') 
-                          ? 'border-red-500 bg-red-900/20' 
-                          : 'border-gray-600 bg-stone-700'
-                      } text-white`}
-                    >
-                      <option value="">Select model</option>
-                      {availableModels.map((model) => (
-                        <option key={model} value={model}>
-                          {model}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <select
+                        id="modal-vehicleModel"
+                        name="vehicleModel"
+                        required
+                        value={formData.vehicleModel}
+                        onChange={handleInputChange}
+                        disabled={!formData.vehicleMake}
+                        autoComplete="vehicle-model"
+
+                        className={`w-full px-4 py-3 pr-10 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+                          hasFieldError('vehicleModel') 
+                            ? 'border-red-500 bg-red-900/20' 
+                            : 'border-gray-600 bg-stone-700'
+                        } text-white`}
+                        style={{ 
+                          position: 'relative',
+                          zIndex: 20,
+                          WebkitAppearance: 'none',
+                          MozAppearance: 'none',
+                          appearance: 'none'
+                        }}
+                      >
+                        <option value="">Select model</option>
+                        {availableModels.map((model) => (
+                          <option key={model} value={model}>
+                            {model}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none z-30">
+                        <svg className="w-6 h-6 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    </div>
                     {hasFieldError('vehicleModel') && (
                       <p className="text-sm text-red-400 mt-1">
                         {getFieldError('vehicleModel')}
@@ -413,48 +639,55 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
                     )}
                   </div>
                 </div>
-              </div>
+                </div>
+              )}
 
               {/* Service Section */}
-              <div>
-                <h3 className="text-xl font-semibold text-white mb-4 pb-2 border-b border-gray-600">
-                  Service Details
-                </h3>
+              {completedSections.vehicle && (
+                <div>
+                  <h3 className="text-xl font-semibold text-white mb-4 pb-2 border-b border-gray-600 flex items-center gap-2">
+                    Service Details
+                    {completedSections.services && (
+                      <CheckCircle className="h-5 w-5 text-green-500" />
+                    )}
+                  </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Service */}
-                  <div>
-                    <label htmlFor="modal-service" className="block text-sm font-medium text-white mb-2">
-                      Service Needed *
+                  {/* Services */}
+                  <div className="md:col-span-3">
+                    <label className="block text-sm font-medium text-white mb-3">
+                      Services Needed *
                     </label>
-                    <select
-                      id="modal-service"
-                      name="service"
-                      required
-                      value={formData.service}
-                      onChange={handleInputChange}
-                      autoComplete="service"
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 ${
-                        hasFieldError('service') 
-                          ? 'border-red-500 bg-red-900/20' 
-                          : 'border-gray-600 bg-stone-700'
-                      } text-white`}
-                    >
-                      <option value="">Select a service</option>
+                    <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-4 border rounded-lg ${
+                      hasFieldError('services') 
+                        ? 'border-red-500 bg-red-900/20' 
+                        : 'border-gray-600 bg-stone-700'
+                    }`}>
                       {services.map((service) => (
-                        <option key={service} value={service}>
-                          {service}
-                        </option>
+                        <label key={service} className="flex items-center space-x-3 cursor-pointer hover:bg-stone-600/50 p-2 rounded transition-colors">
+                          <input
+                            type="checkbox"
+                            checked={formData.services.includes(service)}
+                            onChange={(e) => handleServiceChange(service, e.target.checked)}
+                            className="w-4 h-4 text-orange-500 bg-stone-700 border-gray-600 rounded focus:ring-orange-500 focus:ring-2"
+                          />
+                          <span className="text-white text-sm font-medium">{service}</span>
+                        </label>
                       ))}
-                    </select>
-                    {hasFieldError('service') && (
-                      <p className="text-sm text-red-400 mt-1">
-                        {getFieldError('service')}
+                    </div>
+                    {hasFieldError('services') && (
+                      <p className="text-sm text-red-400 mt-2">
+                        {getFieldError('services')}
+                      </p>
+                    )}
+                    {formData.services.length > 0 && (
+                      <p className="text-sm text-gray-300 mt-2">
+                        Selected: {formData.services.join(', ')}
                       </p>
                     )}
                   </div>
 
                   {/* Additional Details */}
-                  <div className="md:col-span-2">
+                  <div className="md:col-span-3">
                     <label htmlFor="modal-message" className="block text-sm font-medium text-white mb-2">
                       Additional Details
                     </label>
@@ -479,25 +712,31 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
                     )}
                   </div>
                 </div>
-              </div>
+                </div>
+              )}
 
-              {/* Submit Buttons */}
-              <div className="flex gap-4 pt-6 border-t border-gray-600">
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="flex-1 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-500 disabled:cursor-not-allowed text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg disabled:transform-none disabled:shadow-none"
-                >
-                  {isSubmitting ? 'Sending...' : 'Send Request'}
-                </button>
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="flex-1 bg-transparent border-2 border-gray-600 hover:border-gray-500 text-gray-300 hover:text-white font-bold py-4 px-8 rounded-lg transition-all duration-300"
-                >
-                  Cancel
-                </button>
-              </div>
+              {/* Submit Buttons - Only show when ALL sections are completed */}
+              {completedSections.contact && completedSections.vehicle && completedSections.services && (
+                <div className="flex gap-4 pt-6 border-t border-gray-600">
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="flex-1 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-500 disabled:cursor-not-allowed text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg disabled:transform-none disabled:shadow-none"
+                  >
+                    {isSubmitting ? 'Sending...' : 'Send Request'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      clearFormData();
+                      onClose();
+                    }}
+                    className="flex-1 bg-transparent border-2 border-gray-600 hover:border-gray-500 text-gray-300 hover:text-white font-bold py-4 px-8 rounded-lg transition-all duration-300"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
             </form>
           ) : (
             <div className="text-center py-12">

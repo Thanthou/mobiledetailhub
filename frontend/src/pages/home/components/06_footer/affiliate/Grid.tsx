@@ -5,6 +5,7 @@ import TikTokIcon from '../icons/TikTokIcon';
 import { useLocation } from '/src/contexts/LocationContext';
 import LocationEditModal from 'shared/LocationEditModal';
 import { formatPhoneNumber } from '/src/utils/fields/phoneFormatter';
+import { getAffiliateDisplayLocation, affiliateServesLocation } from '/src/utils/affiliateLocationHelper';
 
 interface ServiceArea {
   city: string;
@@ -16,13 +17,19 @@ interface FooterGridProps {
   parentConfig: any;
   businessSlug?: string;
   serviceAreas: ServiceArea[];
+  serviceAreasData?: any; // Raw service areas data for location checking
   onRequestQuote: () => void;
   onBookNow?: () => void;
   onQuoteHover?: () => void;
 }
 
-const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig, businessSlug, serviceAreas, onRequestQuote, onBookNow, onQuoteHover }) => {
+const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig, businessSlug, serviceAreas, serviceAreasData, onRequestQuote, onBookNow, onQuoteHover }) => {
   const { selectedLocation } = useLocation();
+  
+  // Get the appropriate location to display (selected location if served, otherwise primary)
+  const displayLocation = React.useMemo(() => {
+    return getAffiliateDisplayLocation(serviceAreasData, selectedLocation);
+  }, [serviceAreasData, selectedLocation]);
   const handleBookNow = () => {
     if (onBookNow) {
       onBookNow();
@@ -59,16 +66,9 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig, businessSlug, ser
             </div>
             <div className="flex items-center justify-center md:justify-start space-x-3">
               <MapPin className="h-5 w-5 flex-shrink-0 text-orange-400" />
-              {selectedLocation ? (
+              {displayLocation ? (
                 <LocationEditModal
-                  displayText={selectedLocation.fullLocation}
-                  buttonClassName="text-lg hover:text-orange-400 transition-colors duration-200 bg-transparent border-none p-0 font-inherit cursor-pointer text-left"
-                  showIcon={false}
-                  gapClassName="space-x-0"
-                />
-              ) : parentConfig?.base_location?.city && parentConfig?.base_location?.state_name ? (
-                <LocationEditModal
-                  displayText={`${parentConfig.base_location.city}, ${parentConfig.base_location.state_name}`}
+                  displayText={displayLocation.fullLocation}
                   buttonClassName="text-lg hover:text-orange-400 transition-colors duration-200 bg-transparent border-none p-0 font-inherit cursor-pointer text-left"
                   showIcon={false}
                   gapClassName="space-x-0"
@@ -142,14 +142,14 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig, businessSlug, ser
           {serviceAreas.length > 0 ? (
             <div className="space-y-1">
               {serviceAreas.map((area, index) => {
-                // Check if this area matches the selected location
-                const isSelectedLocation = selectedLocation && 
-                  area.city.toLowerCase() === selectedLocation.city.toLowerCase() && 
-                  area.state.toLowerCase() === selectedLocation.state.toLowerCase();
+                // Check if this area matches the display location (selected if served, otherwise primary)
+                const isDisplayLocation = displayLocation && 
+                  area.city.toLowerCase() === displayLocation.city.toLowerCase() && 
+                  area.state.toLowerCase() === displayLocation.state.toLowerCase();
                 
                 // Determine styling based on selection
                 let className = 'text-lg';
-                if (isSelectedLocation) {
+                if (isDisplayLocation) {
                   className += ' text-orange-400 font-semibold';
                 } else if (area.primary) {
                   className += ' text-white font-semibold';

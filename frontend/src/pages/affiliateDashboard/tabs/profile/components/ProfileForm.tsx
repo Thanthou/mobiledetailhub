@@ -92,6 +92,12 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
             debounce={800}
           />
           <AutoSaveField
+            field="business_start_date"
+            label="Business Start Date"
+            type="date"
+            debounce={1000}
+          />
+          <AutoSaveField
             field="business_phone"
             label="Business Phone"
             type="tel"
@@ -99,9 +105,10 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
             debounce={1000}
           />
           <AutoSaveField
-            field="business_start_date"
-            label="Business Start Date"
-            type="date"
+            field="twilio_phone"
+            label="Twilio Phone (SMS)"
+            type="tel"
+            placeholder="+1 (###) ###-####"
             debounce={1000}
           />
         </div>

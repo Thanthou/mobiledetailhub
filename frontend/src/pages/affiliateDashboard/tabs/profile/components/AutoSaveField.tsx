@@ -32,6 +32,10 @@ export const AutoSaveField: React.FC<AutoSaveFieldProps> = ({
     if (type === 'tel' && (field === 'personal_phone' || field === 'business_phone')) {
       const formatted = formatPhoneNumber(newValue);
       setValue(formatted);
+    } else if (type === 'tel' && field === 'twilio_phone') {
+      // For Twilio phone, we need to import the formatTwilioPhone function
+      // For now, just set the value as-is and let the hook handle formatting
+      setValue(newValue);
     } else {
       setValue(newValue);
     }

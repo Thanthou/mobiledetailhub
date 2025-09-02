@@ -18,42 +18,80 @@ export const vehicleData = {
 // Export vehicle types
 export const vehicleTypes = [
   { id: 'car', name: 'Car', data: carData },
+  { id: 'truck', name: 'Truck', data: [] },
   { id: 'boat', name: 'Boat', data: boatData },
   { id: 'rv', name: 'RV', data: rvData },
   { id: 'motorcycle', name: 'Motorcycle', data: motorcycleData },
+  { id: 'off-road', name: 'Off-Road', data: [] },
+  { id: 'other', name: 'Other', data: [] },
   // Future vehicle types can be added here
-  // { id: 'truck', name: 'Truck', data: truckData },
 ];
 
 // Helper function to get all makes for a vehicle type
 export const getMakesForType = (vehicleType: string) => {
+  let makes: string[] = [];
+  
   switch (vehicleType) {
     case 'car':
-      return carData.map(item => item.brand);
+      makes = carData.map(item => item.brand);
+      break;
+    case 'truck':
+    case 'off-road':
+    case 'other':
+      makes = []; // No predefined makes for these types
+      break;
     case 'boat':
-      return Object.keys(boatData);
+      makes = Object.keys(boatData);
+      break;
     case 'rv':
-      return Object.keys(rvData);
+      makes = Object.keys(rvData);
+      break;
     case 'motorcycle':
-      return Object.keys(motorcycleData);
+      makes = Object.keys(motorcycleData);
+      break;
     default:
-      return [];
+      makes = [];
   }
+  
+  // Always add 'Other' at the end if it's not already there
+  if (!makes.includes('Other')) {
+    makes.push('Other');
+  }
+  
+  return makes;
 };
 
 // Helper function to get models for a specific make and vehicle type
 export const getModelsForMake = (vehicleType: string, make: string) => {
+  let models: string[] = [];
+  
   switch (vehicleType) {
     case 'car':
       const carItem = carData.find(item => item.brand === make);
-      return carItem ? carItem.models : [];
+      models = carItem ? carItem.models : [];
+      break;
+    case 'truck':
+    case 'off-road':
+    case 'other':
+      models = []; // No predefined models for these types
+      break;
     case 'boat':
-      return boatData[make as keyof typeof boatData] || [];
+      models = boatData[make as keyof typeof boatData] || [];
+      break;
     case 'rv':
-      return rvData[make as keyof typeof rvData] || [];
+      models = rvData[make as keyof typeof rvData] || [];
+      break;
     case 'motorcycle':
-      return motorcycleData[make as keyof typeof motorcycleData] || [];
+      models = motorcycleData[make as keyof typeof motorcycleData] || [];
+      break;
     default:
-      return [];
+      models = [];
   }
+  
+  // Always add 'Other' at the end if it's not already there
+  if (!models.includes('Other')) {
+    models.push('Other');
+  }
+  
+  return models;
 };

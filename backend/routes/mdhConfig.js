@@ -32,13 +32,15 @@ const getConfigData = async () => {
   
   // Return cached data if still valid
   if (configCache && now < cacheExpiry) {
+    console.log('✅ [MDHConfig] Returning cached MDH config');
     logger.debug('Returning cached MDH config');
     return configCache;
   }
   
   // Fetch fresh data from database
+  console.log('🔍 [MDHConfig] Fetching fresh MDH config from database');
   logger.debug('Fetching fresh MDH config from database');
-  const result = await query('SELECT * FROM system.mdh_config LIMIT 1', [], { 
+  const result = await query('SELECT * FROM system.system_config WHERE is_public = true', [], { 
     retries: 3, 
     timeout: 10000 
   });
@@ -49,8 +51,28 @@ const getConfigData = async () => {
     throw error;
   }
   
+  // Convert system_config rows to MDH config format
+  const configRows = result.rows;
+  const config = {
+    id: 1,
+    email: configRows.find(r => r.config_key === 'email')?.config_value || '',
+    phone: configRows.find(r => r.config_key === 'phone')?.config_value || '',
+    sms_phone: configRows.find(r => r.config_key === 'sms_phone')?.config_value || '',
+    logo_url: configRows.find(r => r.config_key === 'logo_url')?.config_value || '',
+    favicon_url: configRows.find(r => r.config_key === 'favicon_url')?.config_value || '',
+    header_display: configRows.find(r => r.config_key === 'header_display')?.config_value || 'Mobile Detail Hub',
+    tagline: configRows.find(r => r.config_key === 'tagline')?.config_value || '',
+    services_description: configRows.find(r => r.config_key === 'services_description')?.config_value || '',
+    facebook: configRows.find(r => r.config_key === 'facebook')?.config_value || '',
+    instagram: configRows.find(r => r.config_key === 'instagram')?.config_value || '',
+    tiktok: configRows.find(r => r.config_key === 'tiktok')?.config_value || '',
+    youtube: configRows.find(r => r.config_key === 'youtube')?.config_value || '',
+    created_at: configRows[0]?.created_at || new Date().toISOString(),
+    updated_at: configRows[0]?.updated_at || new Date().toISOString()
+  };
+  
   // Update cache
-  configCache = result.rows[0];
+  configCache = config;
   cacheExpiry = now + CACHE_DURATION;
   
   return configCache;
@@ -59,13 +81,16 @@ const getConfigData = async () => {
 // Get MDH config
 router.get('/', asyncHandler(async (req, res) => {
   try {
+    console.log('🔍 [MDHConfig] GET /api/mdh-config endpoint called');
     const configData = await getConfigData();
+    console.log('✅ [MDHConfig] Config data retrieved:', configData);
     
     // Generate ETag for cache validation
     const etag = `"${Buffer.from(JSON.stringify(configData)).toString('base64').slice(0, 8)}"`;
     
     // Check if client has fresh version
     if (req.headers['if-none-match'] === etag) {
+      console.log('📋 [MDHConfig] Client has fresh version, returning 304');
       return res.status(304).end(); // Not Modified
     }
     
@@ -76,8 +101,10 @@ router.get('/', asyncHandler(async (req, res) => {
       'Vary': 'Accept-Encoding'
     });
     
+    console.log('📤 [MDHConfig] Sending config data to client');
     res.json(configData);
   } catch (error) {
+    console.error('❌ [MDHConfig] Failed to fetch MDH config:', error);
     logger.error('Failed to fetch MDH config:', { error: error.message });
     throw error;
   }
@@ -169,7 +196,7 @@ router.get('/service-areas', asyncHandler(async (req, res) => {
     // Get all approved affiliates with service areas
     const query = `
       SELECT service_areas
-      FROM affiliates.affiliates
+      FROM affiliates.business
       WHERE application_status = 'approved'
         AND service_areas IS NOT NULL
         AND jsonb_array_length(service_areas) > 0

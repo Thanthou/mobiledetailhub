@@ -4,6 +4,7 @@ import { FAQProps, FAQRef } from '../types';
 import { useAffiliateData } from '../hooks/useAffiliateData';
 import { useFAQState } from '../hooks/useFAQState';
 import { useFAQEffects } from '../hooks/useFAQEffects';
+import { useFAQ } from '/src/contexts/FAQContext';
 import FAQExpandButton from '../components/FAQExpandButton';
 import AffiliateHeader from '../components/AffiliateHeader';
 import FAQTabbedInterface from '../components/FAQTabbedInterface';
@@ -11,12 +12,12 @@ import AffiliateFooter from '../components/AffiliateFooter';
 
 const FAQAffiliate = React.forwardRef<FAQRef, FAQProps>(
   ({ autoExpand = false }, ref) => {
-    // Custom hooks for state management
+    // Use global FAQ state for expansion
+    const { isExpanded, setIsExpanded } = useFAQ();
+    
+    // Use local state for individual FAQ items
     const {
-      isExpanded,
-      setIsExpanded,
       openItems,
-      toggleExpanded,
       toggleItem,
       resetState
     } = useFAQState(autoExpand);
@@ -41,12 +42,12 @@ const FAQAffiliate = React.forwardRef<FAQRef, FAQProps>(
       <section className="bg-stone-900 py-16" id="faq" aria-labelledby="faq-heading">
         <div className="max-w-7xl mx-auto px-4">
           {!isExpanded ? (
-            <FAQExpandButton onToggleExpanded={toggleExpanded} />
+            <FAQExpandButton onToggleExpanded={() => setIsExpanded(true)} />
           ) : (
             <div className="space-y-8">
               <AffiliateHeader
                 geoConfig={geoConfig}
-                onToggleExpanded={toggleExpanded}
+                onToggleExpanded={() => setIsExpanded(false)}
               />
 
               <FAQTabbedInterface

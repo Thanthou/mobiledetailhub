@@ -94,15 +94,21 @@ export const MDHConfigProvider: React.FC<MDHConfigProviderProps> = ({ children }
 
   const fetchMDHConfig = async (): Promise<MDHConfig> => {
     try {
+      console.log('🔍 [MDHConfig] Fetching MDH config from:', `${config.apiUrl}/api/mdh-config`);
       const response = await fetch(`${config.apiUrl}/api/mdh-config`);
+      console.log('📡 [MDHConfig] Response status:', response.status, response.statusText);
+      
       if (!response.ok) {
-        throw new Error(`Failed to fetch MDH config: ${response.status}`);
+        const errorText = await response.text();
+        console.error('❌ [MDHConfig] Response not OK:', errorText);
+        throw new Error(`Failed to fetch MDH config: ${response.status} - ${errorText}`);
       }
       
       const data = await response.json();
+      console.log('✅ [MDHConfig] Successfully fetched config:', data);
       return data;
     } catch (err) {
-      console.error('Error fetching MDH config:', err);
+      console.error('❌ [MDHConfig] Error fetching MDH config:', err);
       throw err;
     }
   };

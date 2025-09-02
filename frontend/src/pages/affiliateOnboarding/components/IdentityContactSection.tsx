@@ -74,6 +74,7 @@ const IdentityContactSection: React.FC<IdentityContactSectionProps> = ({
             onChange={(e) => handleInputChange('legal_name', e.target.value)}
             className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
             placeholder="e.g., John's Mobile Detailing LLC"
+            autoComplete="organization"
             required
           />
         </div>
@@ -90,6 +91,7 @@ const IdentityContactSection: React.FC<IdentityContactSectionProps> = ({
             onChange={(e) => handleInputChange('primary_contact', e.target.value)}
             className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
             placeholder="e.g., John Smith"
+            autoComplete="name"
             required
           />
         </div>

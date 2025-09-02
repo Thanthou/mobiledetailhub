@@ -9,6 +9,7 @@ export interface ProfileData {
   business_name: string;
   business_email: string;
   business_phone: string;
+  twilio_phone: string;
   business_start_date: string;
   
   // URLs
@@ -40,6 +41,7 @@ export interface ProfileFormData {
   business_name: string;
   business_email: string;
   business_phone: string;
+  twilio_phone: string;
   business_start_date: string;
   
   // URLs
@@ -65,6 +67,7 @@ export interface ProfileValidationErrors {
   business_name?: string;
   business_email?: string;
   business_phone?: string;
+  twilio_phone?: string;
   business_start_date?: string;
   website_url?: string;
   gbp_url?: string;

@@ -13,6 +13,7 @@ interface FormFieldProps {
   error?: string;
   required?: boolean;
   rightElement?: React.ReactNode;
+  autocomplete?: string;
 }
 
 const FormField: React.FC<FormFieldProps> = ({
@@ -26,7 +27,8 @@ const FormField: React.FC<FormFieldProps> = ({
   icon: Icon,
   error,
   required = false,
-  rightElement
+  rightElement,
+  autocomplete
 }) => {
   const hasError = !!error;
   const errorId = `${id}-error`;
@@ -63,6 +65,7 @@ const FormField: React.FC<FormFieldProps> = ({
           aria-invalid={hasError}
           aria-describedby={hasError ? errorId : undefined}
           aria-required={required}
+          autoComplete={autocomplete}
         />
         {rightElement && (
           <div 

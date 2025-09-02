@@ -105,7 +105,7 @@ router.post('/apply',
         tiktok_url,
         facebook_url,
         youtube_url,
-        website_url,
+
         has_insurance,
         source,
         notes
@@ -142,12 +142,12 @@ router.post('/apply',
         return res.status(500).json({ error: 'Database connection not available' });
       }
       const affiliateQuery = `
-      INSERT INTO affiliates.affiliates (
-        slug, business_name, owner, phone, sms_phone, email, 
-        website_url, gbp_url, 
+      INSERT INTO affiliates.business (
+        slug, business_name, owner, business_phone, sms_phone, business_email, 
+        gbp_url, 
         facebook_url, instagram_url, youtube_url, tiktok_url,
         has_insurance, source, notes, application_status
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
       RETURNING id, slug, business_name, application_status
     `;
 
@@ -183,7 +183,6 @@ router.post('/apply',
         formattedPhone,
         smsPhone,
         email,
-        website_url || null,
         gbp_url || null,
         facebook_url || null,
         instagram_url || null,
@@ -246,7 +245,7 @@ router.post('/apply',
           
           // Update the affiliate with service areas
           await pool.query(
-            'UPDATE affiliates.affiliates SET service_areas = $1 WHERE id = $2',
+            'UPDATE affiliates.business SET service_areas = $1 WHERE id = $2',
             [JSON.stringify(serviceAreas), result.rows[0].id]
           );
           
@@ -267,7 +266,7 @@ router.post('/apply',
             
             // Update affiliate with the location data from service areas
             const locationUpdateQuery = `
-              UPDATE affiliates.affiliates 
+              UPDATE affiliates.business 
               SET city = $1, state = $2, zip = $3
               WHERE id = $4
               RETURNING *
@@ -323,8 +322,8 @@ router.post('/apply',
 router.get('/', asyncHandler(async (req, res) => {
   try {
     const query = `
-      SELECT id, business_name, phone, application_status, created_at, updated_at
-      FROM affiliates.affiliates 
+      SELECT id, business_name, business_phone as phone, application_status, created_at, updated_at
+      FROM affiliates.business 
       WHERE application_status = 'approved'
       ORDER BY business_name
     `;
@@ -355,7 +354,7 @@ router.get('/slugs', asyncHandler(async (req, res) => {
     throw error;
   }
   
-  const result = await pool.query('SELECT slug, business_name FROM affiliates.affiliates WHERE application_status = \'approved\' ORDER BY business_name');
+  const result = await pool.query('SELECT slug, business_name FROM affiliates.business WHERE application_status = \'approved\' ORDER BY business_name');
 
   const affiliates = result.rows.map(row => ({
     slug: row.slug,
@@ -385,7 +384,7 @@ router.get('/lookup', asyncHandler(async (req, res) => {
   // Only return APPROVED affiliates (not pending or rejected)
   let query = `
     SELECT DISTINCT slug 
-    FROM affiliates.affiliates 
+    FROM affiliates.business 
     WHERE application_status = 'approved'
       AND service_areas IS NOT NULL
       AND EXISTS (
@@ -410,7 +409,7 @@ router.get('/lookup', asyncHandler(async (req, res) => {
     // Check what's actually in the database for debugging
     const debugQuery = `
       SELECT slug, service_areas 
-      FROM affiliates.affiliates 
+      FROM affiliates.business 
       WHERE application_status = 'approved'
         AND service_areas IS NOT NULL
         AND (
@@ -475,7 +474,7 @@ router.put('/:slug', asyncHandler(async (req, res) => {
   const { 
     zip, minimum, multiplier,
     first_name, last_name, personal_phone, personal_email,
-    business_name, business_email, business_phone, business_start_date,
+    business_name, business_email, business_phone, twilio_phone, business_start_date,
     gbp_url, facebook_url, youtube_url, tiktok_url, instagram_url
   } = req.body;
   
@@ -491,7 +490,7 @@ router.put('/:slug', asyncHandler(async (req, res) => {
     // Get current affiliate
     console.log(`🔍 Looking for affiliate with slug: ${slug}`);
     const affiliateResult = await pool.query(
-      'SELECT id FROM affiliates.affiliates WHERE slug = $1 AND application_status = \'approved\'',
+      'SELECT id FROM affiliates.business WHERE slug = $1 AND application_status = \'approved\'',
       [slug]
     );
     
@@ -524,6 +523,9 @@ router.put('/:slug', asyncHandler(async (req, res) => {
     }
     if (business_phone?.trim() && !phoneRegex.test(business_phone)) {
       errors.business_phone = 'Invalid phone format';
+    }
+    if (twilio_phone?.trim() && !phoneRegex.test(twilio_phone)) {
+      errors.twilio_phone = 'Invalid phone format';
     }
 
     // URL validation - only validate format if provided
@@ -620,6 +622,12 @@ router.put('/:slug', asyncHandler(async (req, res) => {
       paramCount++;
     }
 
+    if (twilio_phone !== undefined) {
+      updateFields.push(`twilio_phone = $${paramCount}`);
+      updateValues.push(twilio_phone?.trim() || null);
+      paramCount++;
+    }
+
     if (business_start_date !== undefined) {
       updateFields.push(`business_start_date = $${paramCount}`);
       // Convert empty string to NULL for date field
@@ -673,7 +681,7 @@ router.put('/:slug', asyncHandler(async (req, res) => {
     // Update primary phone/email if business fields changed
     if (business_phone !== undefined && business_phone?.trim()) {
       // Only update primary phone if business_phone has a value
-      updateFields.push(`phone = $${paramCount}`);
+      updateFields.push(`business_phone = $${paramCount}`);
       updateValues.push(business_phone.trim());
       paramCount++;
     }
@@ -691,7 +699,7 @@ router.put('/:slug', asyncHandler(async (req, res) => {
 
     updateValues.push(affiliateId);
     const updateQuery = `
-      UPDATE affiliates.affiliates 
+      UPDATE affiliates.business 
       SET ${updateFields.join(', ')}, updated_at = NOW()
       WHERE id = $${paramCount}
       RETURNING *
@@ -724,7 +732,7 @@ router.get('/:slug', asyncHandler(async (req, res) => {
     
     // Simple test query first
     logger.info('Testing basic query...');
-    const testResult = await pool.query('SELECT COUNT(*) FROM affiliates.affiliates');
+    const testResult = await pool.query('SELECT COUNT(*) FROM affiliates.business');
     logger.info(`Total affiliates in database: ${testResult.rows[0].count}`);
     
     // Get affiliate data with phone and service areas
@@ -735,12 +743,18 @@ router.get('/:slug', asyncHandler(async (req, res) => {
         slug, 
         business_name, 
         application_status,
-        phone,
+        business_phone as phone,
         sms_phone,
+        twilio_phone,
         service_areas,
         owner,
         business_email,
-        website_url,
+        personal_email,
+        first_name,
+        last_name,
+        personal_phone,
+        business_start_date,
+        website,
         gbp_url,
         facebook_url,
         youtube_url,
@@ -748,7 +762,7 @@ router.get('/:slug', asyncHandler(async (req, res) => {
         instagram_url,
         created_at,
         updated_at
-      FROM affiliates.affiliates 
+      FROM affiliates.business 
       WHERE slug = $1
     `, [slug]);
     
@@ -808,7 +822,7 @@ router.get('/:slug', asyncHandler(async (req, res) => {
       slug: affiliate.slug,
       business_name: affiliate.business_name,
       application_status: affiliate.application_status,
-      phone: affiliate.phone || affiliate.sms_phone, // Try phone first, fallback to sms_phone
+      phone: affiliate.business_phone || affiliate.sms_phone, // Try business_phone first, fallback to sms_phone
       city: primaryCity,
       state: primaryState,
       zip: primaryZip,
@@ -823,8 +837,17 @@ router.get('/:slug', asyncHandler(async (req, res) => {
       // Basic fields that exist
       owner: affiliate.owner,
       email: affiliate.business_email, // Use business_email as the primary email
-      // URL fields - auto-generate website URL
-      website_url: `http://mobiledetailhub.com/${affiliate.slug}`,
+      // Profile fields
+      first_name: affiliate.first_name,
+      last_name: affiliate.last_name,
+      personal_phone: affiliate.personal_phone,
+      personal_email: affiliate.personal_email,
+      business_email: affiliate.business_email,
+      business_phone: affiliate.business_phone,
+      twilio_phone: affiliate.twilio_phone,
+      business_start_date: affiliate.business_start_date,
+      // URL fields - use the generated website field
+      website_url: affiliate.website,
       gbp_url: affiliate.gbp_url,
       facebook_url: affiliate.facebook_url,
       youtube_url: affiliate.youtube_url,
@@ -849,7 +872,7 @@ router.get('/:slug', asyncHandler(async (req, res) => {
 router.get('/:slug/field/:field', asyncHandler(async (req, res) => {
   const { slug, field } = req.params;
   const allowedFields = [
-    'id', 'slug', 'business_name', 'owner', 'phone', 'sms_phone', 'base_location', 'services', 'website_url', 'gbp_url', 'facebook_url', 'instagram_url', 'youtube_url', 'tiktok_url', 'application_status', 'has_insurance', 'source', 'notes', 'uploads', 'business_license', 'insurance_provider', 'insurance_expiry', 'service_radius_miles', 'operating_hours', 'emergency_contact', 'total_jobs', 'rating', 'review_count', 'created_at', 'updated_at', 'application_date', 'approved_date', 'last_activity'
+    'id', 'slug', 'business_name', 'owner', 'phone', 'sms_phone', 'base_location', 'services', 'website', 'gbp_url', 'facebook_url', 'instagram_url', 'youtube_url', 'tiktok_url', 'application_status', 'has_insurance', 'source', 'notes', 'uploads', 'business_license', 'insurance_provider', 'insurance_expiry', 'service_radius_miles', 'operating_hours', 'emergency_contact', 'total_jobs', 'rating', 'review_count', 'created_at', 'updated_at', 'application_date', 'approved_date', 'last_activity'
   ];
   if (!allowedFields.includes(field)) {
     return res.status(400).json({ error: 'Invalid field' });
@@ -870,7 +893,7 @@ router.get('/:slug/field/:field', asyncHandler(async (req, res) => {
       'sms_phone': 'sms_phone',
       'base_location': 'base_location',
       'services': 'services',
-      'website_url': 'website_url',
+      'website': 'website',
       'gbp_url': 'gbp_url',
       'facebook_url': 'facebook_url',
       'instagram_url': 'instagram_url',
@@ -902,7 +925,7 @@ router.get('/:slug/field/:field', asyncHandler(async (req, res) => {
       return res.status(400).json({ error: 'Invalid field' });
     }
     
-    const result = await pool.query(`SELECT ${safeField} FROM affiliates.affiliates WHERE slug = $1 AND application_status = 'approved'`, [slug]);
+    const result = await pool.query(`SELECT ${safeField} FROM affiliates.business WHERE slug = $1 AND application_status = 'approved'`, [slug]);
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Affiliate not found' });
     }
@@ -927,7 +950,7 @@ router.get('/:slug/base_location', asyncHandler(async (req, res) => {
         a.slug,
         a.business_name,
         a.service_areas
-      FROM affiliates.affiliates a
+      FROM affiliates.business a
       WHERE a.slug = $1 AND a.application_status = 'approved'
     `, [slug]);
     
@@ -973,7 +996,7 @@ router.get('/:slug/service_areas', asyncHandler(async (req, res) => {
       return res.status(500).json({ error: 'Database connection not available' });
     }
     const result = await pool.query(
-      'SELECT service_areas FROM affiliates.affiliates WHERE slug = $1 AND application_status = \'approved\'',
+      'SELECT service_areas FROM affiliates.business WHERE slug = $1 AND application_status = \'approved\'',
       [slug]
     );
     
@@ -1009,7 +1032,7 @@ router.post('/:slug/service_areas', asyncHandler(async (req, res) => {
 
     // Get current affiliate and service areas
     const affiliateResult = await pool.query(
-      'SELECT id, service_areas FROM affiliates.affiliates WHERE slug = $1 AND application_status = \'approved\'',
+      'SELECT id, service_areas FROM affiliates.business WHERE slug = $1 AND application_status = \'approved\'',
       [slug]
     );
     
@@ -1044,7 +1067,7 @@ router.post('/:slug/service_areas', asyncHandler(async (req, res) => {
 
     // Update affiliate with new service areas
     await pool.query(
-      'UPDATE affiliates.affiliates SET service_areas = $1 WHERE id = $2',
+      'UPDATE affiliates.business SET service_areas = $1 WHERE id = $2',
       [JSON.stringify(updatedServiceAreas), affiliate.id]
     );
 
@@ -1071,7 +1094,7 @@ router.delete('/:slug/service_areas/:areaId', asyncHandler(async (req, res) => {
 
     // Get current affiliate and service areas
     const affiliateResult = await pool.query(
-      'SELECT id, service_areas FROM affiliates.affiliates WHERE slug = $1 AND application_status = \'approved\'',
+      'SELECT id, service_areas FROM affiliates.business WHERE slug = $1 AND application_status = \'approved\'',
       [slug]
     );
     
@@ -1096,7 +1119,7 @@ router.delete('/:slug/service_areas/:areaId', asyncHandler(async (req, res) => {
 
     // Update affiliate with updated service areas
     await pool.query(
-      'UPDATE affiliates.affiliates SET service_areas = $1 WHERE id = $2',
+      'UPDATE affiliates.business SET service_areas = $1 WHERE id = $2',
       [JSON.stringify(updatedServiceAreas), affiliate.id]
     );
 
@@ -1128,7 +1151,7 @@ router.put('/:slug/service_areas/:areaId', asyncHandler(async (req, res) => {
 
     // Get current affiliate and service areas
     const affiliateResult = await pool.query(
-      'SELECT id, service_areas FROM affiliates.affiliates WHERE slug = $1 AND application_status = \'approved\'',
+      'SELECT id, service_areas FROM affiliates.business WHERE slug = $1 AND application_status = \'approved\'',
       [slug]
     );
     
@@ -1155,7 +1178,7 @@ router.put('/:slug/service_areas/:areaId', asyncHandler(async (req, res) => {
 
     // Update affiliate with updated service areas
     await pool.query(
-      'UPDATE affiliates.affiliates SET service_areas = $1 WHERE id = $2',
+      'UPDATE affiliates.business SET service_areas = $1 WHERE id = $2',
       [JSON.stringify(updatedServiceAreas), affiliate.id]
     );
 
@@ -1182,7 +1205,7 @@ router.put('/:slug/service_areas/primary', asyncHandler(async (req, res) => {
 
     // Get current affiliate and service areas
     const affiliateResult = await pool.query(
-      'SELECT id, service_areas FROM affiliates.affiliates WHERE slug = $1 AND application_status = \'approved\'',
+      'SELECT id, service_areas FROM affiliates.business WHERE slug = $1 AND application_status = \'approved\'',
       [slug]
     );
     
@@ -1216,7 +1239,7 @@ router.put('/:slug/service_areas/primary', asyncHandler(async (req, res) => {
 
     // Update affiliate with updated service areas
     await pool.query(
-      'UPDATE affiliates.affiliates SET service_areas = $1 WHERE id = $2',
+      'UPDATE affiliates.business SET service_areas = $1 WHERE id = $2',
       [JSON.stringify(updatedServiceAreas), affiliate.id]
     );
 
@@ -1245,7 +1268,7 @@ router.get('/profile', authenticateToken, asyncHandler(async (req, res) => {
 
     // Get affiliate data by user_id, or fall back to first available affiliate for admin users
     let result = await pool.query(
-      'SELECT * FROM affiliates.affiliates WHERE user_id = $1',
+      'SELECT * FROM affiliates.business WHERE user_id = $1',
       [userId]
     );
 
@@ -1257,7 +1280,7 @@ router.get('/profile', authenticateToken, asyncHandler(async (req, res) => {
       // This is a temporary solution to get the profile tab working
       console.log('Using first available affiliate as fallback...');
       result = await pool.query(
-        'SELECT * FROM affiliates.affiliates ORDER BY id LIMIT 1'
+        'SELECT * FROM affiliates.business ORDER BY id LIMIT 1'
       );
       console.log('Found affiliate:', result.rows.length > 0 ? result.rows[0].id : 'none');
     }
@@ -1274,14 +1297,14 @@ router.get('/profile', authenticateToken, asyncHandler(async (req, res) => {
       slug: affiliate.slug,
       business_name: affiliate.business_name,
       owner: affiliate.owner,
-      phone: affiliate.phone,
-      email: affiliate.email,
+      phone: affiliate.business_phone,
+      email: affiliate.business_email,
       first_name: affiliate.first_name || (affiliate.owner ? affiliate.owner.split(' ')[0] : ''),
       last_name: affiliate.last_name || (affiliate.owner ? affiliate.owner.split(' ').slice(1).join(' ') : ''),
-      personal_phone: affiliate.personal_phone || affiliate.phone || '',
-      personal_email: affiliate.personal_email || affiliate.email || '',
-      business_email: affiliate.business_email || affiliate.email || '',
-      business_phone: affiliate.business_phone || affiliate.phone || '',
+      personal_phone: affiliate.personal_phone || affiliate.business_phone || '',
+      personal_email: affiliate.personal_email || affiliate.business_email || '',
+      business_email: affiliate.business_email || affiliate.business_email || '',
+      business_phone: affiliate.business_phone || affiliate.business_phone || '',
       business_start_date: affiliate.business_start_date || affiliate.created_at || '',
       created_at: affiliate.created_at,
       updated_at: affiliate.updated_at
@@ -1343,7 +1366,7 @@ router.put('/profile', authenticateToken, asyncHandler(async (req, res) => {
 
     // Check if affiliate exists, or fall back to first available affiliate for admin users
     let affiliateResult = await pool.query(
-      'SELECT id FROM affiliates.affiliates WHERE user_id = $1',
+      'SELECT id FROM affiliates.business WHERE user_id = $1',
       [userId]
     );
 
@@ -1352,7 +1375,7 @@ router.put('/profile', authenticateToken, asyncHandler(async (req, res) => {
       // For now, let's just use the first available affiliate for any user without a linked affiliate
       // This is a temporary solution to get the profile tab working
       affiliateResult = await pool.query(
-        'SELECT id FROM affiliates.affiliates ORDER BY id LIMIT 1'
+        'SELECT id FROM affiliates.business ORDER BY id LIMIT 1'
       );
     }
 
@@ -1364,20 +1387,18 @@ router.put('/profile', authenticateToken, asyncHandler(async (req, res) => {
 
     // Update affiliate profile with all profile columns
     const updateQuery = `
-      UPDATE affiliates.affiliates SET
+      UPDATE affiliates.business SET
         business_name = $1,
         owner = $2,
-        phone = $3,
-        email = $4,
+        business_phone = $3,
+        business_email = $4,
         first_name = $5,
         last_name = $6,
         personal_phone = $7,
         personal_email = $8,
-        business_email = $9,
-        business_phone = $10,
-        business_start_date = $11,
+        business_start_date = $9,
         updated_at = NOW()
-      WHERE id = $12
+      WHERE id = $10
       RETURNING *
     `;
 
@@ -1390,8 +1411,6 @@ router.put('/profile', authenticateToken, asyncHandler(async (req, res) => {
       last_name,
       personal_phone,
       personal_email,
-      business_email,
-      business_phone,
       business_start_date,
       affiliateId
     ]);
@@ -1405,8 +1424,8 @@ router.put('/profile', authenticateToken, asyncHandler(async (req, res) => {
         slug: updatedAffiliate.slug,
         business_name: updatedAffiliate.business_name,
         owner: updatedAffiliate.owner,
-        phone: updatedAffiliate.phone,
-        email: updatedAffiliate.email,
+        phone: updatedAffiliate.business_phone,
+        email: updatedAffiliate.business_email,
         first_name: first_name,
         last_name: last_name,
         personal_phone: personal_phone,

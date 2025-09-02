@@ -19,6 +19,14 @@ const generateDeviceId = (userAgent, ipAddress) => {
 };
 
 /**
+ * Generate a token family ID for token rotation security
+ * @returns {string} Unique token family identifier
+ */
+const generateTokenFamily = () => {
+  return crypto.randomBytes(16).toString('hex');
+};
+
+/**
  * Store a refresh token in the database
  * @param {number} userId - User ID
  * @param {string} tokenHash - Hashed refresh token
@@ -26,14 +34,18 @@ const generateDeviceId = (userAgent, ipAddress) => {
  * @param {string} ipAddress - IP address where token was created
  * @param {string} userAgent - User agent string
  * @param {string} deviceId - Device identifier
+ * @param {string} tokenFamily - Token family identifier (optional, will generate if not provided)
  * @returns {Promise<Object>} Stored token record
  */
-const storeRefreshToken = async (userId, tokenHash, expiresAt, ipAddress, userAgent, deviceId) => {
+const storeRefreshToken = async (userId, tokenHash, expiresAt, ipAddress, userAgent, deviceId, tokenFamily = null) => {
   try {
 
     if (!pool) {
       throw new Error('Database connection not available');
     }
+
+    // Generate token family if not provided
+    const familyId = tokenFamily || generateTokenFamily();
 
     // Check if user already has a token for this device
     const existingToken = await pool.query(
@@ -45,11 +57,11 @@ const storeRefreshToken = async (userId, tokenHash, expiresAt, ipAddress, userAg
       // Update existing token
       const result = await pool.query(
         `UPDATE auth.refresh_tokens 
-         SET token_hash = $1, expires_at = $2, 
-             revoked_at = NULL, ip_address = $3, user_agent = $4, created_at = NOW()
-         WHERE user_id = $5 AND device_id = $6
+         SET token_hash = $1, expires_at = $2, token_family = $3,
+             revoked_at = NULL, ip_address = $4, user_agent = $5, created_at = NOW()
+         WHERE user_id = $6 AND device_id = $7
          RETURNING *`,
-        [tokenHash, expiresAt, ipAddress, userAgent, userId, deviceId]
+        [tokenHash, expiresAt, familyId, ipAddress, userAgent, userId, deviceId]
       );
       
       logger.info('Updated existing refresh token for device:', { userId, deviceId });
@@ -58,10 +70,10 @@ const storeRefreshToken = async (userId, tokenHash, expiresAt, ipAddress, userAg
       // Insert new token
       const result = await pool.query(
         `INSERT INTO auth.refresh_tokens 
-         (user_id, token_hash, expires_at, ip_address, user_agent, device_id)
-         VALUES ($1, $2, $3, $4, $5, $6)
+         (user_id, token_hash, token_family, expires_at, ip_address, user_agent, device_id)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)
          RETURNING *`,
-        [userId, tokenHash, expiresAt, ipAddress, userAgent, deviceId]
+        [userId, tokenHash, familyId, expiresAt, ipAddress, userAgent, deviceId]
       );
       
       logger.info('Stored new refresh token:', { userId, deviceId });
@@ -88,7 +100,7 @@ const validateRefreshToken = async (tokenHash) => {
     const result = await pool.query(
       `SELECT rt.*, u.email, u.is_admin, u.role
        FROM auth.refresh_tokens rt
-       JOIN public.users u ON rt.user_id = u.id
+       JOIN auth.users u ON rt.user_id = u.id
        WHERE rt.token_hash = $1 
          AND rt.expires_at > NOW() 
          AND rt.revoked_at IS NULL`,
@@ -286,6 +298,7 @@ const getTokenStats = async () => {
 
 module.exports = {
   generateDeviceId,
+  generateTokenFamily,
   storeRefreshToken,
   validateRefreshToken,
   revokeRefreshToken,

@@ -2,18 +2,19 @@ import React from 'react';
 import { useFAQState } from '../hooks/useFAQState';
 import { useFAQData } from '../hooks/useFAQData';
 import { useMDHConfig } from '/src/contexts/MDHConfigContext';
+import { useFAQ } from '/src/contexts/FAQContext';
 import FAQExpandButton from '../components/FAQExpandButton';
 import FAQHeader from '../components/FAQHeader';
 import FAQTabbedInterface from '../components/FAQTabbedInterface';
 import FAQFooter from '../components/FAQFooter';
 
 const FAQMDH: React.FC = () => {
-  // Use FAQ state (expand/collapse)
+  // Use global FAQ state for expansion
+  const { isExpanded, setIsExpanded } = useFAQ();
+  
+  // Use local state for individual FAQ items
   const {
-    isExpanded,
-    setIsExpanded,
     openItems,
-    toggleExpanded,
     toggleItem,
   } = useFAQState(false);
 
@@ -35,7 +36,7 @@ const FAQMDH: React.FC = () => {
             <FAQHeader
               servicesLine={servicesLine}
               nearbyList={nearbyList}
-              onToggleExpanded={toggleExpanded}
+              onToggleExpanded={() => setIsExpanded(false)}
             />
             <FAQTabbedInterface
               groupedFAQs={groupedFAQs}

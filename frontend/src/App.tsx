@@ -5,6 +5,7 @@ import { LocationProvider } from './contexts/LocationContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { MDHConfigProvider } from './contexts/MDHConfigContext';
 import { AffiliateProvider } from './contexts/AffiliateContext';
+import { FAQProvider } from './contexts/FAQContext';
 import DashboardPage from './pages/affiliateDashboard/DashboardPage';
 import { DashboardPage as AdminDashboard } from './pages/adminDashboard';
 import { AffiliateApplicationPage } from './pages/affiliateOnboarding';
@@ -80,45 +81,47 @@ function App() {
       <AuthProvider>
         <LocationProvider>
           <MDHConfigProvider>
-            <Router>
-              <ScrollToTop />
-              <AdminNavigationContainer />
-              <div>
-                <Routes>
-                  <Route path="/login" element={<LoginPage />} />
-                  <Route path="/admin-dashboard" element={
-                    <ProtectedRoute requiredRole="admin" fallbackPath="/">
-                      <AdminDashboard />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/affiliate-dashboard" element={
-                    <ProtectedRoute requiredRole="affiliate" fallbackPath="/">
-                      <DashboardPage />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/affiliate-onboarding" element={<AffiliateApplicationPage />} />
+            <FAQProvider>
+              <Router>
+                <ScrollToTop />
+                <AdminNavigationContainer />
+                <div>
+                  <Routes>
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/admin-dashboard" element={
+                      <ProtectedRoute requiredRole="admin" fallbackPath="/">
+                        <AdminDashboard />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/affiliate-dashboard" element={
+                      <ProtectedRoute requiredRole="affiliate" fallbackPath="/">
+                        <DashboardPage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/affiliate-onboarding" element={<AffiliateApplicationPage />} />
 
-                  <Route path="/:businessSlug" element={
-                    <AffiliateProvider>
-                      <Header />
-                      <HomePage />
-                    </AffiliateProvider>
-                  } />
-                  <Route path="/:businessSlug/dashboard" element={
-                    <ProtectedRoute requiredRole={['admin', 'affiliate']} fallbackPath="/">
-                      <DashboardPage />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/" element={
-                    <>
-                      <Header />
-                      <HomePage />
-                    </>
-                  } />
-                  <Route path="*" element={<NotFoundPage />} />
-                </Routes>
-              </div>
-            </Router>
+                    <Route path="/:businessSlug" element={
+                      <AffiliateProvider>
+                        <Header />
+                        <HomePage />
+                      </AffiliateProvider>
+                    } />
+                    <Route path="/:businessSlug/dashboard" element={
+                      <ProtectedRoute requiredRole={['admin', 'affiliate']} fallbackPath="/">
+                        <DashboardPage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/" element={
+                      <>
+                        <Header />
+                        <HomePage />
+                      </>
+                    } />
+                    <Route path="*" element={<NotFoundPage />} />
+                  </Routes>
+                </div>
+              </Router>
+            </FAQProvider>
           </MDHConfigProvider>
         </LocationProvider>
       </AuthProvider>

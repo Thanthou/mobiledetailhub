@@ -5,6 +5,7 @@ import { NAV_LINKS } from '../constants';
 import LoginButton from '../LoginButton';
 import { useAuth } from '/src/contexts/AuthContext';
 import { useMDHConfig } from '/src/contexts/MDHConfigContext';
+import { useFAQ } from '/src/contexts/FAQContext';
 import UserMenu from '../UserMenu';
 import { scrollToTop } from '/src/utils/scrollToTop';
 import { formatPhoneNumber } from '/src/utils/fields/phoneFormatter';
@@ -12,6 +13,7 @@ import { formatPhoneNumber } from '/src/utils/fields/phoneFormatter';
 const HeaderMDH: React.FC = () => {
   const { user } = useAuth();
   const { mdhConfig, isLoading } = useMDHConfig();
+  const { expandFAQ } = useFAQ();
   const navigate = useNavigate();
 
   // Get static config immediately (available from mdh-config.js)
@@ -51,13 +53,23 @@ const HeaderMDH: React.FC = () => {
           <div className="flex items-center space-x-4 ml-auto">
             <nav className="flex space-x-4">
               {NAV_LINKS.map(link => (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  className="text-white hover:text-orange-400 transition-colors duration-200"
-                >
-                  {link.name}
-                </a>
+                link.isFAQ ? (
+                  <button
+                    key={link.name}
+                    onClick={expandFAQ}
+                    className="text-white hover:text-orange-400 transition-colors duration-200 bg-transparent border-none p-0 cursor-pointer"
+                  >
+                    {link.name}
+                  </button>
+                ) : (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    className="text-white hover:text-orange-400 transition-colors duration-200"
+                  >
+                    {link.name}
+                  </a>
+                )
               ))}
             </nav>
             {/* Social media icons - show if available in either config */}
