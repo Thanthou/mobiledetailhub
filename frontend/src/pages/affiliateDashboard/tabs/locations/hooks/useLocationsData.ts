@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../../../../../contexts/AuthContext';
+import { config } from '../../../../../config/environment';
 import type { ServiceArea, LocationData } from '../types';
 
 export const useLocationsData = () => {
@@ -21,7 +22,7 @@ export const useLocationsData = () => {
       const fetchAffiliateId = async () => {
         try {
           const token = localStorage.getItem('token');
-          const response = await fetch(`/api/admin/users?status=affiliates&slug=${businessSlug}`, {
+          const response = await fetch(`${config.apiUrl}/api/admin/users?status=affiliates&slug=${businessSlug}`, {
             headers: {
               'Authorization': `Bearer ${token}`,
               'Content-Type': 'application/json'
@@ -65,7 +66,7 @@ export const useLocationsData = () => {
         }
 
         // Fetch service areas from the affiliate's data
-        const response = await fetch(`/api/affiliates/${businessSlug}/service_areas`, {
+        const response = await fetch(`${config.apiUrl}/api/affiliates/${businessSlug}/service_areas`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -97,7 +98,7 @@ export const useLocationsData = () => {
   const addLocation = async (locationData: Omit<ServiceArea, 'id'>) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/affiliates/${businessSlug}/service_areas`, {
+      const response = await fetch(`${config.apiUrl}/api/affiliates/${businessSlug}/service_areas`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -124,7 +125,7 @@ export const useLocationsData = () => {
   const removeLocation = async (locationId: string) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/affiliates/${businessSlug}/service_areas/${locationId}`, {
+      const response = await fetch(`${config.apiUrl}/api/affiliates/${businessSlug}/service_areas/${locationId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -145,12 +146,93 @@ export const useLocationsData = () => {
     }
   };
 
+  const updateLocation = async (locationId: string, updates: Partial<ServiceArea>) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${config.apiUrl}/api/affiliates/${businessSlug}/service_areas/${locationId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updates)
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        const updatedLocation = result.service_area;
+        setLocations(prev => prev.map(loc => 
+          `${loc.city}-${loc.state}` === locationId ? { ...loc, ...updatedLocation } : loc
+        ));
+        return { success: true, data: updatedLocation };
+      } else {
+        const errorData = await response.json();
+        return { success: false, error: errorData.error || 'Failed to update location' };
+      }
+    } catch (error) {
+      console.error('Error updating location:', error);
+      return { success: false, error: 'Failed to update location' };
+    }
+  };
+
+  const updateLocationField = async (locationId: string, field: keyof ServiceArea, value: any) => {
+    // Update local state immediately for responsive UI
+    setLocations(prev => prev.map(loc => {
+      if (locationId === 'primary') {
+        return loc.primary ? { ...loc, [field]: value } : loc;
+      } else {
+        return `${loc.city}-${loc.state}` === locationId ? { ...loc, [field]: value } : loc;
+      }
+    }));
+
+    // Persist to database
+    try {
+      const token = localStorage.getItem('token');
+      const location = locations.find(loc => {
+        if (locationId === 'primary') {
+          return loc.primary;
+        } else {
+          return `${loc.city}-${loc.state}` === locationId;
+        }
+      });
+
+      if (!location) {
+        console.error('Location not found for update');
+        return;
+      }
+
+      const updateData = { [field]: value };
+      const endpoint = locationId === 'primary' 
+        ? `${config.apiUrl}/api/affiliates/${businessSlug}/service_areas/primary`
+        : `${config.apiUrl}/api/affiliates/${businessSlug}/service_areas/${locationId}`;
+      
+      const response = await fetch(endpoint, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updateData)
+      });
+
+      if (!response.ok) {
+        console.error('Failed to update location in database');
+        // Optionally revert the local state change here
+      }
+    } catch (error) {
+      console.error('Error updating location in database:', error);
+      // Optionally revert the local state change here
+    }
+  };
+
   return {
     locations,
     loading,
     error,
     addLocation,
     removeLocation,
+    updateLocation,
+    updateLocationField,
     refetch: () => {
       setLoading(true);
       // Trigger re-fetch by updating a dependency

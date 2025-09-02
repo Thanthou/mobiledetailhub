@@ -145,8 +145,8 @@ class ApiService {
   }
 
   async login(email: string, password: string): Promise<LoginResponse> {
-    // Use relative URL to leverage Vite proxy
-    const url = '/api/auth/login';
+    // Use config API URL for proper routing
+    const url = `${API_BASE_URL}/api/auth/login`;
     
     try {
       const response = await fetch(url, {

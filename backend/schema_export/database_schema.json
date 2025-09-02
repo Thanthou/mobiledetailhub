@@ -1,79 +1,178 @@
 {
   "database": "MobileDetailHub",
-  "exported_at": "2025-08-28T20:58:51.160Z",
+  "exported_at": "2025-09-02T03:25:47.949Z",
   "tables": [
     {
       "table_name": "addresses",
+      "table_type": "BASE TABLE",
+      "table_comment": null,
       "columns": [
         {
           "name": "id",
           "type": "integer",
+          "max_length": null,
           "nullable": false,
           "default_value": null,
-          "max_length": null
+          "position": 1,
+          "comment": null
         },
         {
           "name": "line1",
           "type": "character varying",
+          "max_length": 255,
           "nullable": true,
           "default_value": null,
-          "max_length": 255
+          "position": 2,
+          "comment": null
         },
         {
           "name": "city",
           "type": "character varying",
+          "max_length": 100,
           "nullable": true,
           "default_value": null,
-          "max_length": 100
+          "position": 3,
+          "comment": null
         },
         {
           "name": "state_code",
           "type": "character",
+          "max_length": 2,
           "nullable": false,
           "default_value": null,
-          "max_length": 2
+          "position": 4,
+          "comment": null
         },
         {
           "name": "postal_code",
           "type": "character varying",
+          "max_length": 20,
           "nullable": true,
           "default_value": null,
-          "max_length": 20
+          "position": 5,
+          "comment": null
         },
         {
           "name": "lat",
           "type": "double precision",
+          "max_length": null,
           "nullable": true,
           "default_value": null,
-          "max_length": null
+          "position": 6,
+          "comment": null
         },
         {
           "name": "lng",
           "type": "double precision",
+          "max_length": null,
           "nullable": true,
           "default_value": null,
-          "max_length": null
+          "position": 7,
+          "comment": null
         },
         {
           "name": "created_at",
           "type": "timestamp with time zone",
+          "max_length": null,
           "nullable": false,
           "default_value": "now()",
-          "max_length": null
+          "position": 8,
+          "comment": null
         },
         {
           "name": "updated_at",
           "type": "timestamp with time zone",
+          "max_length": null,
           "nullable": false,
           "default_value": "now()",
-          "max_length": null
+          "position": 9,
+          "comment": null
         }
       ],
-      "primary_key": [
-        "id"
+      "constraints": [
+        {
+          "name": "2200_50104_1_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50104_4_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50104_8_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50104_9_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "addresses_pkey",
+          "type": "PRIMARY KEY",
+          "column": "id",
+          "foreign_table": "addresses",
+          "foreign_column": "id",
+          "update_rule": null,
+          "delete_rule": null
+        }
       ],
-      "foreign_keys": [],
-      "row_count": 1,
+      "indexes": [
+        {
+          "name": "addresses_pkey",
+          "column": "id",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "name": "idx_addresses_location",
+          "column": "city",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "idx_addresses_location",
+          "column": "state_code",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "idx_addresses_location",
+          "column": "postal_code",
+          "unique": false,
+          "primary": false
+        }
+      ],
+      "statistics": {
+        "inserts": "7",
+        "updates": "0",
+        "deletes": "0",
+        "live_tuples": "7",
+        "dead_tuples": "0",
+        "last_vacuum": null,
+        "last_autovacuum": null,
+        "last_analyze": null,
+        "last_autoanalyze": null
+      },
       "sample_data": [
         {
           "id": 1,
@@ -83,834 +182,1479 @@
           "postal_code": "86442",
           "lat": null,
           "lng": null,
-          "created_at": "2025-08-28T20:37:28.505Z",
-          "updated_at": "2025-08-28T20:37:28.505Z"
+          "created_at": "2025-08-28T21:11:51.259Z",
+          "updated_at": "2025-08-28T21:11:51.259Z"
+        },
+        {
+          "id": 2,
+          "line1": "Laughlin, NV",
+          "city": "Laughlin",
+          "state_code": "NV",
+          "postal_code": "89029",
+          "lat": null,
+          "lng": null,
+          "created_at": "2025-08-29T01:44:48.180Z",
+          "updated_at": "2025-08-29T01:44:48.180Z"
+        },
+        {
+          "id": 3,
+          "line1": "Los Angeles, CA",
+          "city": "Los Angeles",
+          "state_code": "CA",
+          "postal_code": null,
+          "lat": null,
+          "lng": null,
+          "created_at": "2025-09-01T22:13:04.009Z",
+          "updated_at": "2025-09-01T22:13:04.009Z"
         }
-      ]
+      ],
+      "row_count": "7"
     },
     {
-      "table_name": "affiliate_users",
+      "table_name": "affiliate_service_areas",
+      "table_type": "BASE TABLE",
+      "table_comment": null,
       "columns": [
         {
           "name": "id",
           "type": "integer",
+          "max_length": null,
           "nullable": false,
-          "default_value": null,
-          "max_length": null
+          "default_value": "nextval('affiliate_service_areas_id_seq'::regclass)",
+          "position": 1,
+          "comment": null
         },
         {
           "name": "affiliate_id",
           "type": "integer",
+          "max_length": null,
           "nullable": false,
           "default_value": null,
-          "max_length": null
+          "position": 2,
+          "comment": null
         },
         {
-          "name": "user_id",
+          "name": "city_id",
           "type": "integer",
+          "max_length": null,
           "nullable": false,
           "default_value": null,
-          "max_length": null
+          "position": 3,
+          "comment": null
         },
         {
-          "name": "role",
-          "type": "USER-DEFINED",
-          "nullable": false,
+          "name": "zip",
+          "type": "character varying",
+          "max_length": 20,
+          "nullable": true,
           "default_value": null,
-          "max_length": null
+          "position": 4,
+          "comment": null
         },
         {
           "name": "created_at",
           "type": "timestamp with time zone",
-          "nullable": false,
+          "max_length": null,
+          "nullable": true,
           "default_value": "now()",
-          "max_length": null
-        },
-        {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "nullable": false,
-          "default_value": "now()",
-          "max_length": null
+          "position": 5,
+          "comment": null
         }
       ],
-      "primary_key": [
-        "id"
-      ],
-      "foreign_keys": [
+      "constraints": [
         {
+          "name": "2200_50526_1_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50526_2_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50526_3_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "affiliate_service_areas_affiliate_id_fkey",
+          "type": "FOREIGN KEY",
           "column": "affiliate_id",
-          "references": "affiliates.id"
+          "foreign_table": "affiliates",
+          "foreign_column": "id",
+          "update_rule": "NO ACTION",
+          "delete_rule": "CASCADE"
         },
         {
-          "column": "user_id",
-          "references": "users.id"
+          "name": "affiliate_service_areas_city_id_fkey",
+          "type": "FOREIGN KEY",
+          "column": "city_id",
+          "foreign_table": "cities",
+          "foreign_column": "id",
+          "update_rule": "NO ACTION",
+          "delete_rule": "CASCADE"
+        },
+        {
+          "name": "affiliate_service_areas_pkey",
+          "type": "PRIMARY KEY",
+          "column": "id",
+          "foreign_table": "affiliate_service_areas",
+          "foreign_column": "id",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "uq_aff_sa",
+          "type": "UNIQUE",
+          "column": "affiliate_id",
+          "foreign_table": "affiliate_service_areas",
+          "foreign_column": "affiliate_id",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "uq_aff_sa",
+          "type": "UNIQUE",
+          "column": "city_id",
+          "foreign_table": "affiliate_service_areas",
+          "foreign_column": "affiliate_id",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "uq_aff_sa",
+          "type": "UNIQUE",
+          "column": "zip",
+          "foreign_table": "affiliate_service_areas",
+          "foreign_column": "affiliate_id",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "uq_aff_sa",
+          "type": "UNIQUE",
+          "column": "affiliate_id",
+          "foreign_table": "affiliate_service_areas",
+          "foreign_column": "city_id",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "uq_aff_sa",
+          "type": "UNIQUE",
+          "column": "city_id",
+          "foreign_table": "affiliate_service_areas",
+          "foreign_column": "city_id",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "uq_aff_sa",
+          "type": "UNIQUE",
+          "column": "zip",
+          "foreign_table": "affiliate_service_areas",
+          "foreign_column": "city_id",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "uq_aff_sa",
+          "type": "UNIQUE",
+          "column": "affiliate_id",
+          "foreign_table": "affiliate_service_areas",
+          "foreign_column": "zip",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "uq_aff_sa",
+          "type": "UNIQUE",
+          "column": "city_id",
+          "foreign_table": "affiliate_service_areas",
+          "foreign_column": "zip",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "uq_aff_sa",
+          "type": "UNIQUE",
+          "column": "zip",
+          "foreign_table": "affiliate_service_areas",
+          "foreign_column": "zip",
+          "update_rule": null,
+          "delete_rule": null
         }
       ],
-      "row_count": 0,
-      "sample_data": []
+      "indexes": [
+        {
+          "name": "affiliate_service_areas_pkey",
+          "column": "id",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "name": "uq_aff_sa",
+          "column": "affiliate_id",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "name": "uq_aff_sa",
+          "column": "city_id",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "name": "uq_aff_sa",
+          "column": "zip",
+          "unique": true,
+          "primary": false
+        }
+      ],
+      "statistics": {
+        "inserts": "0",
+        "updates": "0",
+        "deletes": "0",
+        "live_tuples": "0",
+        "dead_tuples": "0",
+        "last_vacuum": null,
+        "last_autovacuum": null,
+        "last_analyze": null,
+        "last_autoanalyze": null
+      },
+      "sample_data": [],
+      "row_count": "0"
     },
     {
       "table_name": "affiliates",
+      "table_type": "BASE TABLE",
+      "table_comment": null,
       "columns": [
         {
           "name": "id",
           "type": "integer",
+          "max_length": null,
           "nullable": false,
           "default_value": null,
-          "max_length": null
+          "position": 1,
+          "comment": null
         },
         {
           "name": "slug",
           "type": "character varying",
+          "max_length": 100,
           "nullable": false,
           "default_value": null,
-          "max_length": 100
+          "position": 2,
+          "comment": null
         },
         {
           "name": "business_name",
           "type": "character varying",
+          "max_length": 255,
           "nullable": false,
           "default_value": null,
-          "max_length": 255
+          "position": 3,
+          "comment": null
         },
         {
           "name": "owner",
           "type": "character varying",
+          "max_length": 255,
           "nullable": false,
           "default_value": null,
-          "max_length": 255
+          "position": 4,
+          "comment": null
         },
         {
           "name": "phone",
           "type": "character varying",
+          "max_length": 20,
           "nullable": false,
           "default_value": null,
-          "max_length": 20
+          "position": 5,
+          "comment": null
         },
         {
           "name": "sms_phone",
           "type": "character varying",
+          "max_length": 20,
           "nullable": true,
           "default_value": null,
-          "max_length": 20
+          "position": 6,
+          "comment": null
         },
         {
           "name": "email",
           "type": "USER-DEFINED",
+          "max_length": null,
           "nullable": false,
           "default_value": null,
-          "max_length": null
+          "position": 7,
+          "comment": null
         },
         {
           "name": "base_address_id",
           "type": "integer",
+          "max_length": null,
           "nullable": true,
           "default_value": null,
-          "max_length": null
+          "position": 8,
+          "comment": null
         },
         {
           "name": "website_url",
           "type": "character varying",
+          "max_length": 500,
           "nullable": true,
           "default_value": null,
-          "max_length": 500
+          "position": 9,
+          "comment": null
         },
         {
           "name": "gbp_url",
           "type": "character varying",
+          "max_length": 500,
           "nullable": true,
           "default_value": null,
-          "max_length": 500
+          "position": 10,
+          "comment": null
         },
         {
           "name": "facebook_url",
           "type": "character varying",
+          "max_length": 500,
           "nullable": true,
           "default_value": null,
-          "max_length": 500
+          "position": 11,
+          "comment": null
         },
         {
           "name": "instagram_url",
           "type": "character varying",
+          "max_length": 500,
           "nullable": true,
           "default_value": null,
-          "max_length": 500
+          "position": 12,
+          "comment": null
         },
         {
           "name": "youtube_url",
           "type": "character varying",
+          "max_length": 500,
           "nullable": true,
           "default_value": null,
-          "max_length": 500
+          "position": 13,
+          "comment": null
         },
         {
           "name": "tiktok_url",
           "type": "character varying",
+          "max_length": 500,
           "nullable": true,
           "default_value": null,
-          "max_length": 500
+          "position": 14,
+          "comment": null
         },
         {
           "name": "application_status",
           "type": "USER-DEFINED",
+          "max_length": null,
           "nullable": false,
           "default_value": "'pending'::affiliate_status",
-          "max_length": null
+          "position": 15,
+          "comment": null
         },
         {
           "name": "has_insurance",
           "type": "boolean",
+          "max_length": null,
           "nullable": true,
           "default_value": "false",
-          "max_length": null
+          "position": 16,
+          "comment": null
         },
         {
           "name": "source",
           "type": "character varying",
+          "max_length": 100,
           "nullable": true,
           "default_value": null,
-          "max_length": 100
+          "position": 17,
+          "comment": null
         },
         {
           "name": "notes",
           "type": "text",
+          "max_length": null,
           "nullable": true,
           "default_value": null,
-          "max_length": null
+          "position": 18,
+          "comment": null
         },
         {
-          "name": "uploads",
-          "type": "ARRAY",
-          "nullable": true,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "business_license",
+          "name": "city",
           "type": "character varying",
+          "max_length": 100,
           "nullable": true,
           "default_value": null,
-          "max_length": 100
+          "position": 23,
+          "comment": null
         },
         {
-          "name": "insurance_provider",
+          "name": "state",
           "type": "character varying",
+          "max_length": 2,
           "nullable": true,
           "default_value": null,
-          "max_length": 255
+          "position": 24,
+          "comment": null
         },
         {
-          "name": "insurance_expiry",
-          "type": "date",
+          "name": "zip",
+          "type": "character varying",
+          "max_length": 10,
           "nullable": true,
           "default_value": null,
-          "max_length": null
+          "position": 25,
+          "comment": null
         },
         {
           "name": "service_radius_miles",
           "type": "integer",
+          "max_length": null,
           "nullable": true,
           "default_value": "25",
-          "max_length": null
-        },
-        {
-          "name": "operating_hours",
-          "type": "jsonb",
-          "nullable": true,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "emergency_contact",
-          "type": "jsonb",
-          "nullable": true,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "total_jobs",
-          "type": "integer",
-          "nullable": true,
-          "default_value": "0",
-          "max_length": null
-        },
-        {
-          "name": "rating",
-          "type": "numeric",
-          "nullable": true,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "review_count",
-          "type": "integer",
-          "nullable": true,
-          "default_value": "0",
-          "max_length": null
+          "position": 26,
+          "comment": null
         },
         {
           "name": "service_areas",
           "type": "jsonb",
+          "max_length": null,
           "nullable": true,
           "default_value": "'[]'::jsonb",
-          "max_length": null
+          "position": 32,
+          "comment": null
         },
         {
           "name": "created_at",
           "type": "timestamp with time zone",
+          "max_length": null,
           "nullable": false,
           "default_value": "now()",
-          "max_length": null
+          "position": 33,
+          "comment": null
         },
         {
           "name": "updated_at",
           "type": "timestamp with time zone",
+          "max_length": null,
           "nullable": false,
           "default_value": "now()",
-          "max_length": null
+          "position": 34,
+          "comment": null
         },
         {
           "name": "application_date",
           "type": "timestamp with time zone",
+          "max_length": null,
           "nullable": false,
           "default_value": "now()",
-          "max_length": null
+          "position": 35,
+          "comment": null
         },
         {
           "name": "approved_date",
           "type": "timestamp with time zone",
+          "max_length": null,
           "nullable": true,
           "default_value": null,
-          "max_length": null
+          "position": 36,
+          "comment": null
         },
         {
           "name": "last_activity",
           "type": "timestamp with time zone",
+          "max_length": null,
           "nullable": false,
           "default_value": "now()",
-          "max_length": null
-        }
-      ],
-      "primary_key": [
-        "id"
-      ],
-      "foreign_keys": [
-        {
-          "column": "base_address_id",
-          "references": "addresses.id"
-        }
-      ],
-      "row_count": 1,
-      "sample_data": [
-        {
-          "id": 2,
-          "slug": "abc",
-          "business_name": "Test Mobile Detail Pro LLC",
-          "owner": "John Smith",
-          "phone": "5551234567",
-          "sms_phone": "+15551234567",
-          "email": "john@testmobiledetailpro.com",
-          "base_address_id": 1,
-          "website_url": "https://testmobiledetailpro.com",
-          "gbp_url": "https://g.page/test-mobile-detail-pro",
-          "facebook_url": "https://facebook.com/testmobiledetailpro",
-          "instagram_url": "https://instagram.com/testmobiledetailpro",
-          "youtube_url": "https://youtube.com/@testmobiledetailpro",
-          "tiktok_url": "https://tiktok.com/@testmobiledetailpro",
-          "application_status": "approved",
-          "has_insurance": true,
-          "source": "Google Search",
-          "notes": "Test application for development and testing purposes. This is a sample affiliate application.\n\nAdmin Approval Notes: ",
-          "uploads": null,
-          "business_license": null,
-          "insurance_provider": null,
-          "insurance_expiry": null,
-          "service_radius_miles": 25,
-          "operating_hours": null,
-          "emergency_contact": null,
-          "total_jobs": 0,
-          "rating": null,
-          "review_count": 0,
-          "service_areas": [
-            {
-              "zip": "86442",
-              "city": "Bullhead City",
-              "slug": "temp-1756414076343-jzmcykfbf",
-              "state": "AZ"
-            }
-          ],
-          "created_at": "2025-08-28T20:47:56.357Z",
-          "updated_at": "2025-08-28T20:48:07.222Z",
-          "application_date": "2025-08-28T20:47:56.357Z",
-          "approved_date": "2025-08-28T20:48:07.222Z",
-          "last_activity": "2025-08-28T20:47:56.357Z"
-        }
-      ]
-    },
-    {
-      "table_name": "availability",
-      "columns": [
-        {
-          "name": "id",
-          "type": "integer",
-          "nullable": false,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "affiliate_id",
-          "type": "integer",
-          "nullable": false,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "time_window",
-          "type": "tstzrange",
-          "nullable": false,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "capacity",
-          "type": "integer",
-          "nullable": false,
-          "default_value": "1",
-          "max_length": null
-        },
-        {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "nullable": false,
-          "default_value": "now()",
-          "max_length": null
-        },
-        {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "nullable": false,
-          "default_value": "now()",
-          "max_length": null
-        }
-      ],
-      "primary_key": [
-        "id"
-      ],
-      "foreign_keys": [
-        {
-          "column": "affiliate_id",
-          "references": "affiliates.id"
-        }
-      ],
-      "row_count": 0,
-      "sample_data": []
-    },
-    {
-      "table_name": "bookings",
-      "columns": [
-        {
-          "name": "id",
-          "type": "integer",
-          "nullable": false,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "affiliate_id",
-          "type": "integer",
-          "nullable": false,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "customer_id",
-          "type": "integer",
-          "nullable": true,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "service_id",
-          "type": "integer",
-          "nullable": true,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "tier_id",
-          "type": "integer",
-          "nullable": true,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "appointment_start",
-          "type": "timestamp with time zone",
-          "nullable": false,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "appointment_end",
-          "type": "timestamp with time zone",
-          "nullable": false,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "address_json",
-          "type": "jsonb",
-          "nullable": false,
-          "default_value": "'{}'::jsonb",
-          "max_length": null
-        },
-        {
-          "name": "status",
-          "type": "USER-DEFINED",
-          "nullable": false,
-          "default_value": "'pending'::booking_status",
-          "max_length": null
-        },
-        {
-          "name": "total_cents",
-          "type": "integer",
-          "nullable": false,
-          "default_value": "0",
-          "max_length": null
-        },
-        {
-          "name": "stripe_payment_intent_id",
-          "type": "text",
-          "nullable": true,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "nullable": false,
-          "default_value": "now()",
-          "max_length": null
-        },
-        {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "nullable": false,
-          "default_value": "now()",
-          "max_length": null
-        }
-      ],
-      "primary_key": [
-        "id"
-      ],
-      "foreign_keys": [
-        {
-          "column": "affiliate_id",
-          "references": "affiliates.id"
-        },
-        {
-          "column": "customer_id",
-          "references": "customers.id"
-        },
-        {
-          "column": "service_id",
-          "references": "services.id"
-        },
-        {
-          "column": "tier_id",
-          "references": "service_tiers.id"
-        }
-      ],
-      "row_count": 0,
-      "sample_data": []
-    },
-    {
-      "table_name": "customers",
-      "columns": [
-        {
-          "name": "id",
-          "type": "integer",
-          "nullable": false,
-          "default_value": null,
-          "max_length": null
+          "position": 37,
+          "comment": null
         },
         {
           "name": "user_id",
           "type": "integer",
+          "max_length": null,
           "nullable": true,
           "default_value": null,
-          "max_length": null
+          "position": 38,
+          "comment": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "2200_50114_15_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50114_1_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50114_2_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50114_33_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50114_34_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50114_35_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50114_37_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50114_3_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50114_4_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50114_5_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50114_7_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "affiliates_base_address_id_fkey",
+          "type": "FOREIGN KEY",
+          "column": "base_address_id",
+          "foreign_table": "addresses",
+          "foreign_column": "id",
+          "update_rule": "NO ACTION",
+          "delete_rule": "SET NULL"
+        },
+        {
+          "name": "affiliates_phone_check",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": "affiliates",
+          "foreign_column": "phone",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "affiliates_pkey",
+          "type": "PRIMARY KEY",
+          "column": "id",
+          "foreign_table": "affiliates",
+          "foreign_column": "id",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "affiliates_slug_check",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": "affiliates",
+          "foreign_column": "slug",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "affiliates_slug_key",
+          "type": "UNIQUE",
+          "column": "slug",
+          "foreign_table": "affiliates",
+          "foreign_column": "slug",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "affiliates_user_id_fkey",
+          "type": "FOREIGN KEY",
+          "column": "user_id",
+          "foreign_table": "users",
+          "foreign_column": "id",
+          "update_rule": "NO ACTION",
+          "delete_rule": "SET NULL"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "affiliates_pkey",
+          "column": "id",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "name": "affiliates_slug_key",
+          "column": "slug",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "name": "application_date_idx",
+          "column": "application_date",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "application_status_idx",
+          "column": "application_status",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "approved_date_idx",
+          "column": "approved_date",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "idx_affiliates_service_areas",
+          "column": "service_areas",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "last_activity_idx",
+          "column": "last_activity",
+          "unique": false,
+          "primary": false
+        }
+      ],
+      "statistics": {
+        "inserts": "14",
+        "updates": "101",
+        "deletes": "13",
+        "live_tuples": "1",
+        "dead_tuples": "47",
+        "last_vacuum": null,
+        "last_autovacuum": "2025-09-01T22:27:25.761Z",
+        "last_analyze": null,
+        "last_autoanalyze": "2025-09-01T23:04:26.630Z"
+      },
+      "sample_data": [
+        {
+          "id": 9,
+          "slug": "jps",
+          "business_name": "JP's Mobile Detailing & Ceramic Coating",
+          "owner": "Jess Brister",
+          "phone": "7024203151",
+          "sms_phone": "+17024203151",
+          "email": "jpsmobiledetailing@hotmail.com",
+          "base_address_id": 2,
+          "website_url": null,
+          "gbp_url": "https://share.google/OdDJWNQm8xNVgrJ65",
+          "facebook_url": null,
+          "instagram_url": null,
+          "youtube_url": null,
+          "tiktok_url": null,
+          "application_status": "approved",
+          "has_insurance": false,
+          "source": "Referral",
+          "notes": "",
+          "city": "Laughlin",
+          "state": "NV",
+          "zip": "89029",
+          "service_radius_miles": 25,
+          "service_areas": [
+            {
+              "zip": 86442,
+              "city": "Bullhead City",
+              "state": "AZ",
+              "minimum": 0,
+              "primary": true,
+              "multiplier": 1
+            },
+            {
+              "zip": null,
+              "city": "Fort Mohave",
+              "state": "AZ",
+              "minimum": 0,
+              "primary": false,
+              "multiplier": 1
+            },
+            {
+              "zip": 86440,
+              "city": "Mohave Valley",
+              "state": "AZ",
+              "minimum": 0,
+              "primary": false,
+              "multiplier": 1
+            },
+            {
+              "zip": null,
+              "city": "Kingman",
+              "state": "AZ",
+              "minimum": 0,
+              "primary": false,
+              "multiplier": 1
+            },
+            {
+              "zip": 89029,
+              "city": "Laughlin",
+              "state": "NV",
+              "minimum": 0,
+              "primary": false,
+              "multiplier": 1
+            },
+            {
+              "zip": null,
+              "city": "Las Vegas",
+              "state": "NV",
+              "minimum": 0,
+              "primary": false,
+              "multiplier": 1
+            },
+            {
+              "zip": 86436,
+              "city": "Topock",
+              "state": "AZ",
+              "minimum": 0,
+              "primary": false,
+              "multiplier": 1
+            },
+            {
+              "zip": 92363,
+              "city": "Needles",
+              "state": "CA",
+              "minimum": 0,
+              "primary": false,
+              "multiplier": 1
+            },
+            {
+              "zip": null,
+              "city": "Henderson",
+              "state": "NV",
+              "minimum": 0,
+              "primary": false,
+              "multiplier": 1
+            },
+            {
+              "zip": 86413,
+              "city": "Golden Valley",
+              "state": "AZ",
+              "minimum": 0,
+              "primary": false,
+              "multiplier": 1
+            }
+          ],
+          "created_at": "2025-08-29T01:44:48.187Z",
+          "updated_at": "2025-09-01T23:40:04.142Z",
+          "application_date": "2025-08-29T01:44:48.187Z",
+          "approved_date": "2025-08-29T01:45:00.873Z",
+          "last_activity": "2025-08-29T01:44:48.187Z",
+          "user_id": null
+        }
+      ],
+      "row_count": "1"
+    },
+    {
+      "table_name": "cities",
+      "table_type": "BASE TABLE",
+      "table_comment": null,
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "max_length": null,
+          "nullable": false,
+          "default_value": "nextval('cities_id_seq'::regclass)",
+          "position": 1,
+          "comment": null
         },
         {
           "name": "name",
-          "type": "character varying",
+          "type": "text",
+          "max_length": null,
           "nullable": false,
           "default_value": null,
-          "max_length": 255
+          "position": 2,
+          "comment": null
         },
         {
-          "name": "email",
-          "type": "USER-DEFINED",
-          "nullable": true,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "phone",
-          "type": "character varying",
-          "nullable": true,
-          "default_value": null,
-          "max_length": 50
-        },
-        {
-          "name": "address",
-          "type": "character varying",
-          "nullable": true,
-          "default_value": null,
-          "max_length": 255
-        },
-        {
-          "name": "preferences",
-          "type": "jsonb",
-          "nullable": true,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "created_at",
-          "type": "timestamp with time zone",
+          "name": "city_slug",
+          "type": "text",
+          "max_length": null,
           "nullable": false,
-          "default_value": "now()",
-          "max_length": null
+          "default_value": null,
+          "position": 3,
+          "comment": null
         },
         {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
+          "name": "state_code",
+          "type": "character",
+          "max_length": 2,
           "nullable": false,
-          "default_value": "now()",
-          "max_length": null
+          "default_value": null,
+          "position": 4,
+          "comment": null
+        },
+        {
+          "name": "lat",
+          "type": "double precision",
+          "max_length": null,
+          "nullable": true,
+          "default_value": null,
+          "position": 5,
+          "comment": null
+        },
+        {
+          "name": "lng",
+          "type": "double precision",
+          "max_length": null,
+          "nullable": true,
+          "default_value": null,
+          "position": 6,
+          "comment": null
         }
       ],
-      "primary_key": [
-        "id"
-      ],
-      "foreign_keys": [
+      "constraints": [
         {
-          "column": "user_id",
-          "references": "users.id"
+          "name": "2200_50508_1_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50508_2_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50508_3_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50508_4_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "cities_pkey",
+          "type": "PRIMARY KEY",
+          "column": "id",
+          "foreign_table": "cities",
+          "foreign_column": "id",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "cities_state_code_fkey",
+          "type": "FOREIGN KEY",
+          "column": "state_code",
+          "foreign_table": "states",
+          "foreign_column": "state_code",
+          "update_rule": "NO ACTION",
+          "delete_rule": "NO ACTION"
+        },
+        {
+          "name": "uq_cities_name_state",
+          "type": "UNIQUE",
+          "column": "name",
+          "foreign_table": "cities",
+          "foreign_column": "name",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "uq_cities_name_state",
+          "type": "UNIQUE",
+          "column": "state_code",
+          "foreign_table": "cities",
+          "foreign_column": "name",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "uq_cities_name_state",
+          "type": "UNIQUE",
+          "column": "name",
+          "foreign_table": "cities",
+          "foreign_column": "state_code",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "uq_cities_name_state",
+          "type": "UNIQUE",
+          "column": "state_code",
+          "foreign_table": "cities",
+          "foreign_column": "state_code",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "uq_cities_slug_state",
+          "type": "UNIQUE",
+          "column": "city_slug",
+          "foreign_table": "cities",
+          "foreign_column": "state_code",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "uq_cities_slug_state",
+          "type": "UNIQUE",
+          "column": "state_code",
+          "foreign_table": "cities",
+          "foreign_column": "state_code",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "uq_cities_slug_state",
+          "type": "UNIQUE",
+          "column": "city_slug",
+          "foreign_table": "cities",
+          "foreign_column": "city_slug",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "uq_cities_slug_state",
+          "type": "UNIQUE",
+          "column": "state_code",
+          "foreign_table": "cities",
+          "foreign_column": "city_slug",
+          "update_rule": null,
+          "delete_rule": null
         }
       ],
-      "row_count": 0,
-      "sample_data": []
+      "indexes": [
+        {
+          "name": "cities_pkey",
+          "column": "id",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "name": "uq_cities_name_state",
+          "column": "name",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "name": "uq_cities_name_state",
+          "column": "state_code",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "name": "uq_cities_slug_state",
+          "column": "city_slug",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "name": "uq_cities_slug_state",
+          "column": "state_code",
+          "unique": true,
+          "primary": false
+        }
+      ],
+      "statistics": {
+        "inserts": "0",
+        "updates": "0",
+        "deletes": "0",
+        "live_tuples": "0",
+        "dead_tuples": "0",
+        "last_vacuum": null,
+        "last_autovacuum": null,
+        "last_analyze": null,
+        "last_autoanalyze": null
+      },
+      "sample_data": [],
+      "row_count": "0"
     },
     {
-      "table_name": "location",
-      "columns": [
-        {
-          "name": "location_id",
-          "type": "bigint",
-          "nullable": false,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "affiliate_id",
-          "type": "integer",
-          "nullable": true,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "source_platform",
-          "type": "USER-DEFINED",
-          "nullable": false,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "source_account_id",
-          "type": "text",
-          "nullable": false,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "source_location_id",
-          "type": "text",
-          "nullable": false,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "display_name",
-          "type": "text",
-          "nullable": true,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "timezone",
-          "type": "text",
-          "nullable": true,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "nullable": false,
-          "default_value": "now()",
-          "max_length": null
-        },
-        {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "nullable": false,
-          "default_value": "now()",
-          "max_length": null
-        }
-      ],
-      "primary_key": [
-        "location_id"
-      ],
-      "foreign_keys": [
-        {
-          "column": "affiliate_id",
-          "references": "affiliates.id"
-        }
-      ],
-      "row_count": 0,
-      "sample_data": []
-    },
-    {
-      "table_name": "mdh_config",
+      "table_name": "customers",
+      "table_type": "BASE TABLE",
+      "table_comment": null,
       "columns": [
         {
           "name": "id",
           "type": "integer",
+          "max_length": null,
           "nullable": false,
           "default_value": null,
-          "max_length": null
+          "position": 1,
+          "comment": null
         },
         {
-          "name": "email",
-          "type": "character varying",
+          "name": "user_id",
+          "type": "integer",
+          "max_length": null,
           "nullable": true,
           "default_value": null,
-          "max_length": 255
-        },
-        {
-          "name": "phone",
-          "type": "character varying",
-          "nullable": true,
-          "default_value": null,
-          "max_length": 50
-        },
-        {
-          "name": "sms_phone",
-          "type": "character varying",
-          "nullable": true,
-          "default_value": null,
-          "max_length": 50
-        },
-        {
-          "name": "logo_url",
-          "type": "character varying",
-          "nullable": true,
-          "default_value": null,
-          "max_length": 255
-        },
-        {
-          "name": "favicon_url",
-          "type": "character varying",
-          "nullable": true,
-          "default_value": null,
-          "max_length": 255
-        },
-        {
-          "name": "facebook",
-          "type": "character varying",
-          "nullable": true,
-          "default_value": null,
-          "max_length": 255
-        },
-        {
-          "name": "instagram",
-          "type": "character varying",
-          "nullable": true,
-          "default_value": null,
-          "max_length": 255
-        },
-        {
-          "name": "tiktok",
-          "type": "character varying",
-          "nullable": true,
-          "default_value": null,
-          "max_length": 255
-        },
-        {
-          "name": "youtube",
-          "type": "character varying",
-          "nullable": true,
-          "default_value": null,
-          "max_length": 255
-        },
-        {
-          "name": "header_display",
-          "type": "character varying",
-          "nullable": true,
-          "default_value": null,
-          "max_length": 255
-        },
-        {
-          "name": "location",
-          "type": "character varying",
-          "nullable": true,
-          "default_value": null,
-          "max_length": 255
+          "position": 2,
+          "comment": null
         },
         {
           "name": "name",
           "type": "character varying",
-          "nullable": true,
+          "max_length": 255,
+          "nullable": false,
           "default_value": null,
-          "max_length": 255
+          "position": 3,
+          "comment": null
         },
         {
-          "name": "tagline",
-          "type": "text",
+          "name": "email",
+          "type": "USER-DEFINED",
+          "max_length": null,
           "nullable": true,
           "default_value": null,
-          "max_length": null
+          "position": 4,
+          "comment": null
         },
         {
-          "name": "services_description",
-          "type": "text",
+          "name": "phone",
+          "type": "character varying",
+          "max_length": 50,
           "nullable": true,
-          "default_value": "'Auto, boat & RV detailing, paint correction, ceramic coating, and PPF'::text",
-          "max_length": null
+          "default_value": null,
+          "position": 5,
+          "comment": null
+        },
+        {
+          "name": "address",
+          "type": "character varying",
+          "max_length": 255,
+          "nullable": true,
+          "default_value": null,
+          "position": 6,
+          "comment": null
+        },
+        {
+          "name": "preferences",
+          "type": "jsonb",
+          "max_length": null,
+          "nullable": true,
+          "default_value": null,
+          "position": 7,
+          "comment": null
         },
         {
           "name": "created_at",
           "type": "timestamp with time zone",
+          "max_length": null,
           "nullable": false,
           "default_value": "now()",
-          "max_length": null
+          "position": 8,
+          "comment": null
         },
         {
           "name": "updated_at",
           "type": "timestamp with time zone",
+          "max_length": null,
           "nullable": false,
           "default_value": "now()",
-          "max_length": null
+          "position": 9,
+          "comment": null
         }
       ],
-      "primary_key": [
-        "id"
+      "constraints": [
+        {
+          "name": "2200_50088_1_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50088_3_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50088_8_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50088_9_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "customers_pkey",
+          "type": "PRIMARY KEY",
+          "column": "id",
+          "foreign_table": "customers",
+          "foreign_column": "id",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "customers_user_id_fkey",
+          "type": "FOREIGN KEY",
+          "column": "user_id",
+          "foreign_table": "users",
+          "foreign_column": "id",
+          "update_rule": "NO ACTION",
+          "delete_rule": "SET NULL"
+        }
       ],
-      "foreign_keys": [],
-      "row_count": 1,
+      "indexes": [
+        {
+          "name": "customers_pkey",
+          "column": "id",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "statistics": {
+        "inserts": "0",
+        "updates": "0",
+        "deletes": "0",
+        "live_tuples": "0",
+        "dead_tuples": "0",
+        "last_vacuum": null,
+        "last_autovacuum": null,
+        "last_analyze": null,
+        "last_autoanalyze": null
+      },
+      "sample_data": [],
+      "row_count": "0"
+    },
+    {
+      "table_name": "mdh_config",
+      "table_type": "BASE TABLE",
+      "table_comment": null,
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "max_length": null,
+          "nullable": false,
+          "default_value": null,
+          "position": 1,
+          "comment": null
+        },
+        {
+          "name": "email",
+          "type": "character varying",
+          "max_length": 255,
+          "nullable": true,
+          "default_value": null,
+          "position": 2,
+          "comment": null
+        },
+        {
+          "name": "phone",
+          "type": "character varying",
+          "max_length": 50,
+          "nullable": true,
+          "default_value": null,
+          "position": 3,
+          "comment": null
+        },
+        {
+          "name": "sms_phone",
+          "type": "character varying",
+          "max_length": 50,
+          "nullable": true,
+          "default_value": null,
+          "position": 4,
+          "comment": null
+        },
+        {
+          "name": "logo_url",
+          "type": "character varying",
+          "max_length": 255,
+          "nullable": true,
+          "default_value": null,
+          "position": 5,
+          "comment": null
+        },
+        {
+          "name": "favicon_url",
+          "type": "character varying",
+          "max_length": 255,
+          "nullable": true,
+          "default_value": null,
+          "position": 6,
+          "comment": null
+        },
+        {
+          "name": "facebook",
+          "type": "character varying",
+          "max_length": 255,
+          "nullable": true,
+          "default_value": null,
+          "position": 7,
+          "comment": null
+        },
+        {
+          "name": "instagram",
+          "type": "character varying",
+          "max_length": 255,
+          "nullable": true,
+          "default_value": null,
+          "position": 8,
+          "comment": null
+        },
+        {
+          "name": "tiktok",
+          "type": "character varying",
+          "max_length": 255,
+          "nullable": true,
+          "default_value": null,
+          "position": 9,
+          "comment": null
+        },
+        {
+          "name": "youtube",
+          "type": "character varying",
+          "max_length": 255,
+          "nullable": true,
+          "default_value": null,
+          "position": 10,
+          "comment": null
+        },
+        {
+          "name": "header_display",
+          "type": "character varying",
+          "max_length": 255,
+          "nullable": true,
+          "default_value": null,
+          "position": 11,
+          "comment": null
+        },
+        {
+          "name": "location",
+          "type": "character varying",
+          "max_length": 255,
+          "nullable": true,
+          "default_value": null,
+          "position": 12,
+          "comment": null
+        },
+        {
+          "name": "name",
+          "type": "character varying",
+          "max_length": 255,
+          "nullable": true,
+          "default_value": null,
+          "position": 13,
+          "comment": null
+        },
+        {
+          "name": "tagline",
+          "type": "text",
+          "max_length": null,
+          "nullable": true,
+          "default_value": null,
+          "position": 14,
+          "comment": null
+        },
+        {
+          "name": "services_description",
+          "type": "text",
+          "max_length": null,
+          "nullable": true,
+          "default_value": "'Auto, boat & RV detailing, paint correction, ceramic coating, and PPF'::text",
+          "position": 15,
+          "comment": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "max_length": null,
+          "nullable": false,
+          "default_value": "now()",
+          "position": 16,
+          "comment": null
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "max_length": null,
+          "nullable": false,
+          "default_value": "now()",
+          "position": 17,
+          "comment": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "2200_50372_16_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50372_17_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50372_1_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "chk_singleton",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": "mdh_config",
+          "foreign_column": "id",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "mdh_config_pkey",
+          "type": "PRIMARY KEY",
+          "column": "id",
+          "foreign_table": "mdh_config",
+          "foreign_column": "id",
+          "update_rule": null,
+          "delete_rule": null
+        }
+      ],
+      "indexes": [
+        {
+          "name": "mdh_config_pkey",
+          "column": "id",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "statistics": {
+        "inserts": "1",
+        "updates": "0",
+        "deletes": "0",
+        "live_tuples": "1",
+        "dead_tuples": "0",
+        "last_vacuum": null,
+        "last_autovacuum": null,
+        "last_analyze": null,
+        "last_autoanalyze": null
+      },
       "sample_data": [
         {
           "id": 1,
@@ -928,730 +1672,1737 @@
           "name": "Mobile Detail Hub",
           "tagline": null,
           "services_description": "Auto, boat & RV detailing, paint correction, ceramic coating, and PPF",
-          "created_at": "2025-08-28T20:29:17.387Z",
-          "updated_at": "2025-08-28T20:29:17.387Z"
-        }
-      ]
-    },
-    {
-      "table_name": "quotes",
-      "columns": [
-        {
-          "name": "id",
-          "type": "integer",
-          "nullable": false,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "affiliate_id",
-          "type": "integer",
-          "nullable": false,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "customer_id",
-          "type": "integer",
-          "nullable": true,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "address_json",
-          "type": "jsonb",
-          "nullable": false,
-          "default_value": "'{}'::jsonb",
-          "max_length": null
-        },
-        {
-          "name": "requested_start",
-          "type": "timestamp with time zone",
-          "nullable": true,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "status",
-          "type": "USER-DEFINED",
-          "nullable": false,
-          "default_value": "'new'::quote_status",
-          "max_length": null
-        },
-        {
-          "name": "details_json",
-          "type": "jsonb",
-          "nullable": false,
-          "default_value": "'{}'::jsonb",
-          "max_length": null
-        },
-        {
-          "name": "estimated_total_cents",
-          "type": "integer",
-          "nullable": true,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "nullable": false,
-          "default_value": "now()",
-          "max_length": null
-        },
-        {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "nullable": false,
-          "default_value": "now()",
-          "max_length": null
+          "created_at": "2025-08-28T21:07:23.320Z",
+          "updated_at": "2025-08-28T21:07:23.320Z"
         }
       ],
-      "primary_key": [
-        "id"
-      ],
-      "foreign_keys": [
-        {
-          "column": "affiliate_id",
-          "references": "affiliates.id"
-        },
-        {
-          "column": "customer_id",
-          "references": "customers.id"
-        }
-      ],
-      "row_count": 0,
-      "sample_data": []
+      "row_count": "1"
     },
     {
       "table_name": "refresh_tokens",
+      "table_type": "BASE TABLE",
+      "table_comment": null,
       "columns": [
         {
           "name": "id",
           "type": "integer",
+          "max_length": null,
           "nullable": false,
           "default_value": null,
-          "max_length": null
+          "position": 1,
+          "comment": null
         },
         {
           "name": "user_id",
           "type": "integer",
+          "max_length": null,
           "nullable": false,
           "default_value": null,
-          "max_length": null
+          "position": 2,
+          "comment": null
         },
         {
           "name": "token_hash",
           "type": "text",
+          "max_length": null,
           "nullable": false,
           "default_value": null,
-          "max_length": null
+          "position": 3,
+          "comment": null
         },
         {
           "name": "user_agent",
           "type": "text",
+          "max_length": null,
           "nullable": true,
           "default_value": null,
-          "max_length": null
+          "position": 4,
+          "comment": null
         },
         {
           "name": "ip_address",
           "type": "inet",
+          "max_length": null,
           "nullable": true,
           "default_value": null,
-          "max_length": null
+          "position": 5,
+          "comment": null
         },
         {
           "name": "device_id",
           "type": "text",
+          "max_length": null,
           "nullable": true,
           "default_value": null,
-          "max_length": null
+          "position": 6,
+          "comment": null
         },
         {
           "name": "expires_at",
           "type": "timestamp with time zone",
+          "max_length": null,
           "nullable": true,
           "default_value": null,
-          "max_length": null
+          "position": 7,
+          "comment": null
         },
         {
           "name": "revoked_at",
           "type": "timestamp with time zone",
+          "max_length": null,
           "nullable": true,
           "default_value": null,
-          "max_length": null
+          "position": 8,
+          "comment": null
         },
         {
           "name": "is_revoked",
           "type": "boolean",
+          "max_length": null,
           "nullable": true,
           "default_value": "false",
-          "max_length": null
+          "position": 9,
+          "comment": null
         },
         {
           "name": "created_at",
           "type": "timestamp with time zone",
+          "max_length": null,
           "nullable": false,
           "default_value": "now()",
-          "max_length": null
+          "position": 10,
+          "comment": null
         },
         {
           "name": "updated_at",
           "type": "timestamp with time zone",
+          "max_length": null,
           "nullable": false,
           "default_value": "now()",
-          "max_length": null
+          "position": 11,
+          "comment": null
         }
       ],
-      "primary_key": [
-        "id"
-      ],
-      "foreign_keys": [
+      "constraints": [
         {
+          "name": "2200_50385_10_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50385_11_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50385_1_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50385_2_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50385_3_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "refresh_tokens_pkey",
+          "type": "PRIMARY KEY",
+          "column": "id",
+          "foreign_table": "refresh_tokens",
+          "foreign_column": "id",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "refresh_tokens_token_hash_key",
+          "type": "UNIQUE",
+          "column": "token_hash",
+          "foreign_table": "refresh_tokens",
+          "foreign_column": "token_hash",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "refresh_tokens_user_id_fkey",
+          "type": "FOREIGN KEY",
           "column": "user_id",
-          "references": "users.id"
+          "foreign_table": "users",
+          "foreign_column": "id",
+          "update_rule": "NO ACTION",
+          "delete_rule": "CASCADE"
         }
       ],
-      "row_count": 1,
+      "indexes": [
+        {
+          "name": "idx_refresh_tokens_active",
+          "column": "user_id",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "idx_refresh_tokens_user_id",
+          "column": "user_id",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "refresh_tokens_pkey",
+          "column": "id",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "name": "refresh_tokens_token_hash_key",
+          "column": "token_hash",
+          "unique": true,
+          "primary": false
+        }
+      ],
+      "statistics": {
+        "inserts": "1",
+        "updates": "79",
+        "deletes": "0",
+        "live_tuples": "1",
+        "dead_tuples": "28",
+        "last_vacuum": null,
+        "last_autovacuum": "2025-09-01T19:30:22.587Z",
+        "last_analyze": null,
+        "last_autoanalyze": "2025-09-01T19:29:22.531Z"
+      },
       "sample_data": [
         {
           "id": 1,
           "user_id": 1,
-          "token_hash": "0cda66e04e4f966ed66b37c0daa8a6081d4f4ce75e7d2c83564094afb5e19f2c",
+          "token_hash": "02cdd4945699c1935aec54b75b3354b40a78da7790079c3244e1d861713a1c93",
           "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
           "ip_address": "::1",
           "device_id": "d0775dd38d37a7c8",
-          "expires_at": "2025-09-04T20:47:35.488Z",
+          "expires_at": "2025-09-09T03:21:43.483Z",
           "revoked_at": null,
           "is_revoked": false,
-          "created_at": "2025-08-28T20:47:35.492Z",
-          "updated_at": "2025-08-28T20:47:35.492Z"
-        }
-      ]
-    },
-    {
-      "table_name": "review_reply",
-      "columns": [
-        {
-          "name": "id",
-          "type": "bigint",
-          "nullable": false,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "review_id",
-          "type": "bigint",
-          "nullable": false,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "text",
-          "type": "text",
-          "nullable": true,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "reply_update_time",
-          "type": "timestamp with time zone",
-          "nullable": true,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "nullable": false,
-          "default_value": "now()",
-          "max_length": null
-        },
-        {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "nullable": false,
-          "default_value": "now()",
-          "max_length": null
+          "created_at": "2025-09-02T03:21:43.486Z",
+          "updated_at": "2025-09-02T03:21:43.486Z"
         }
       ],
-      "primary_key": [
-        "id"
-      ],
-      "foreign_keys": [
-        {
-          "column": "review_id",
-          "references": "reviews.id"
-        }
-      ],
-      "row_count": 0,
-      "sample_data": []
-    },
-    {
-      "table_name": "review_sync_state",
-      "columns": [
-        {
-          "name": "location_id",
-          "type": "bigint",
-          "nullable": false,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "last_seen_update",
-          "type": "timestamp with time zone",
-          "nullable": true,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "nullable": false,
-          "default_value": "now()",
-          "max_length": null
-        },
-        {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "nullable": false,
-          "default_value": "now()",
-          "max_length": null
-        }
-      ],
-      "primary_key": [
-        "location_id"
-      ],
-      "foreign_keys": [
-        {
-          "column": "location_id",
-          "references": "location.location_id"
-        }
-      ],
-      "row_count": 0,
-      "sample_data": []
-    },
-    {
-      "table_name": "reviews",
-      "columns": [
-        {
-          "name": "id",
-          "type": "bigint",
-          "nullable": false,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "external_id",
-          "type": "text",
-          "nullable": true,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "affiliate_id",
-          "type": "integer",
-          "nullable": false,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "location_id",
-          "type": "bigint",
-          "nullable": true,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "rating",
-          "type": "smallint",
-          "nullable": true,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "text",
-          "type": "text",
-          "nullable": true,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "author_name",
-          "type": "text",
-          "nullable": true,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "author_profile_url",
-          "type": "text",
-          "nullable": true,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "create_time",
-          "type": "timestamp with time zone",
-          "nullable": true,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "update_time",
-          "type": "timestamp with time zone",
-          "nullable": true,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "is_deleted",
-          "type": "boolean",
-          "nullable": false,
-          "default_value": "false",
-          "max_length": null
-        },
-        {
-          "name": "source_platform",
-          "type": "USER-DEFINED",
-          "nullable": false,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "raw",
-          "type": "jsonb",
-          "nullable": true,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "nullable": false,
-          "default_value": "now()",
-          "max_length": null
-        },
-        {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "nullable": false,
-          "default_value": "now()",
-          "max_length": null
-        }
-      ],
-      "primary_key": [
-        "id"
-      ],
-      "foreign_keys": [
-        {
-          "column": "affiliate_id",
-          "references": "affiliates.id"
-        },
-        {
-          "column": "location_id",
-          "references": "location.location_id"
-        }
-      ],
-      "row_count": 0,
-      "sample_data": []
+      "row_count": "1"
     },
     {
       "table_name": "schema_migrations",
+      "table_type": "BASE TABLE",
+      "table_comment": null,
       "columns": [
         {
           "name": "version",
           "type": "text",
+          "max_length": null,
           "nullable": false,
           "default_value": null,
-          "max_length": null
+          "position": 1,
+          "comment": null
         },
         {
           "name": "applied_at",
           "type": "timestamp with time zone",
+          "max_length": null,
           "nullable": true,
           "default_value": "now()",
-          "max_length": null
+          "position": 2,
+          "comment": null
         },
         {
           "name": "description",
           "type": "text",
+          "max_length": null,
           "nullable": true,
           "default_value": null,
-          "max_length": null
+          "position": 3,
+          "comment": null
         }
       ],
-      "primary_key": [
-        "version"
+      "constraints": [
+        {
+          "name": "2200_50405_1_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "schema_migrations_pkey",
+          "type": "PRIMARY KEY",
+          "column": "version",
+          "foreign_table": "schema_migrations",
+          "foreign_column": "version",
+          "update_rule": null,
+          "delete_rule": null
+        }
       ],
-      "foreign_keys": [],
-      "row_count": 1,
+      "indexes": [
+        {
+          "name": "schema_migrations_pkey",
+          "column": "version",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "statistics": {
+        "inserts": "1",
+        "updates": "0",
+        "deletes": "0",
+        "live_tuples": "1",
+        "dead_tuples": "0",
+        "last_vacuum": null,
+        "last_autovacuum": null,
+        "last_analyze": null,
+        "last_autoanalyze": null
+      },
       "sample_data": [
         {
           "version": "v4.1",
-          "applied_at": "2025-08-28T20:29:17.387Z",
+          "applied_at": "2025-08-28T21:07:23.320Z",
           "description": "Simplified service areas with JSONB; removed complex geography tables"
         }
-      ]
+      ],
+      "row_count": "1"
     },
     {
-      "table_name": "service_tiers",
+      "table_name": "service_area_slugs",
+      "table_type": "BASE TABLE",
+      "table_comment": null,
       "columns": [
         {
           "name": "id",
           "type": "integer",
+          "max_length": null,
+          "nullable": false,
+          "default_value": "nextval('service_area_slugs_id_seq'::regclass)",
+          "position": 1,
+          "comment": null
+        },
+        {
+          "name": "slug",
+          "type": "character varying",
+          "max_length": 255,
           "nullable": false,
           "default_value": null,
-          "max_length": null
+          "position": 2,
+          "comment": null
+        },
+        {
+          "name": "city_id",
+          "type": "integer",
+          "max_length": null,
+          "nullable": false,
+          "default_value": null,
+          "position": 3,
+          "comment": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "max_length": null,
+          "nullable": true,
+          "default_value": "now()",
+          "position": 4,
+          "comment": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "2200_50546_1_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50546_2_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50546_3_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "service_area_slugs_city_id_fkey",
+          "type": "FOREIGN KEY",
+          "column": "city_id",
+          "foreign_table": "cities",
+          "foreign_column": "id",
+          "update_rule": "NO ACTION",
+          "delete_rule": "CASCADE"
+        },
+        {
+          "name": "service_area_slugs_pkey",
+          "type": "PRIMARY KEY",
+          "column": "id",
+          "foreign_table": "service_area_slugs",
+          "foreign_column": "id",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "service_area_slugs_slug_key",
+          "type": "UNIQUE",
+          "column": "slug",
+          "foreign_table": "service_area_slugs",
+          "foreign_column": "slug",
+          "update_rule": null,
+          "delete_rule": null
+        }
+      ],
+      "indexes": [
+        {
+          "name": "service_area_slugs_pkey",
+          "column": "id",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "name": "service_area_slugs_slug_key",
+          "column": "slug",
+          "unique": true,
+          "primary": false
+        }
+      ],
+      "statistics": {
+        "inserts": "0",
+        "updates": "0",
+        "deletes": "0",
+        "live_tuples": "0",
+        "dead_tuples": "0",
+        "last_vacuum": null,
+        "last_autovacuum": null,
+        "last_analyze": null,
+        "last_autoanalyze": null
+      },
+      "sample_data": [],
+      "row_count": "0"
+    },
+    {
+      "table_name": "service_categories",
+      "table_type": "BASE TABLE",
+      "table_comment": null,
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "max_length": null,
+          "nullable": false,
+          "default_value": "nextval('service_categories_id_seq'::regclass)",
+          "position": 1,
+          "comment": null
+        },
+        {
+          "name": "name",
+          "type": "character varying",
+          "max_length": 100,
+          "nullable": false,
+          "default_value": null,
+          "position": 2,
+          "comment": null
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "max_length": null,
+          "nullable": true,
+          "default_value": null,
+          "position": 3,
+          "comment": null
+        },
+        {
+          "name": "base_duration_min",
+          "type": "integer",
+          "max_length": null,
+          "nullable": true,
+          "default_value": "60",
+          "position": 4,
+          "comment": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "max_length": null,
+          "nullable": true,
+          "default_value": "now()",
+          "position": 5,
+          "comment": null
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "max_length": null,
+          "nullable": true,
+          "default_value": "now()",
+          "position": 6,
+          "comment": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "2200_50427_1_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50427_2_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "service_categories_pkey",
+          "type": "PRIMARY KEY",
+          "column": "id",
+          "foreign_table": "service_categories",
+          "foreign_column": "id",
+          "update_rule": null,
+          "delete_rule": null
+        }
+      ],
+      "indexes": [
+        {
+          "name": "service_categories_pkey",
+          "column": "id",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "statistics": {
+        "inserts": "7",
+        "updates": "0",
+        "deletes": "0",
+        "live_tuples": "7",
+        "dead_tuples": "0",
+        "last_vacuum": null,
+        "last_autovacuum": null,
+        "last_analyze": null,
+        "last_autoanalyze": null
+      },
+      "sample_data": [
+        {
+          "id": 1,
+          "name": "Interior",
+          "description": "Interior cleaning and detailing",
+          "base_duration_min": 90,
+          "created_at": "2025-08-29T16:56:49.795Z",
+          "updated_at": "2025-08-29T16:56:49.795Z"
+        },
+        {
+          "id": 2,
+          "name": "Exterior",
+          "description": "Exterior washing and detailing",
+          "base_duration_min": 60,
+          "created_at": "2025-08-29T16:56:49.795Z",
+          "updated_at": "2025-08-29T16:56:49.795Z"
+        },
+        {
+          "id": 3,
+          "name": "Service Packages",
+          "description": "Combined interior and exterior",
+          "base_duration_min": 150,
+          "created_at": "2025-08-29T16:56:49.795Z",
+          "updated_at": "2025-08-29T16:56:49.795Z"
+        }
+      ],
+      "row_count": "7"
+    },
+    {
+      "table_name": "service_tiers",
+      "table_type": "BASE TABLE",
+      "table_comment": null,
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "max_length": null,
+          "nullable": false,
+          "default_value": null,
+          "position": 1,
+          "comment": null
         },
         {
           "name": "service_id",
           "type": "integer",
+          "max_length": null,
           "nullable": false,
           "default_value": null,
-          "max_length": null
+          "position": 2,
+          "comment": null
         },
         {
           "name": "name",
           "type": "character varying",
+          "max_length": 100,
           "nullable": false,
           "default_value": null,
-          "max_length": 100
+          "position": 3,
+          "comment": null
         },
         {
           "name": "price_delta_cents",
           "type": "integer",
+          "max_length": null,
           "nullable": false,
           "default_value": "0",
-          "max_length": null
+          "position": 4,
+          "comment": null
         },
         {
           "name": "description",
           "type": "text",
+          "max_length": null,
           "nullable": true,
           "default_value": null,
-          "max_length": null
+          "position": 5,
+          "comment": null
         },
         {
           "name": "created_at",
           "type": "timestamp with time zone",
+          "max_length": null,
           "nullable": false,
           "default_value": "now()",
-          "max_length": null
+          "position": 6,
+          "comment": null
         },
         {
           "name": "updated_at",
           "type": "timestamp with time zone",
+          "max_length": null,
           "nullable": false,
           "default_value": "now()",
-          "max_length": null
+          "position": 7,
+          "comment": null
         }
       ],
-      "primary_key": [
-        "id"
-      ],
-      "foreign_keys": [
+      "constraints": [
         {
+          "name": "2200_50191_1_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50191_2_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50191_3_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50191_4_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50191_6_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50191_7_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "service_tiers_pkey",
+          "type": "PRIMARY KEY",
+          "column": "id",
+          "foreign_table": "service_tiers",
+          "foreign_column": "id",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "service_tiers_service_id_fkey",
+          "type": "FOREIGN KEY",
           "column": "service_id",
-          "references": "services.id"
+          "foreign_table": "services",
+          "foreign_column": "id",
+          "update_rule": "NO ACTION",
+          "delete_rule": "CASCADE"
+        },
+        {
+          "name": "uq_service_tiers_service_name",
+          "type": "UNIQUE",
+          "column": "service_id",
+          "foreign_table": "service_tiers",
+          "foreign_column": "name",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "uq_service_tiers_service_name",
+          "type": "UNIQUE",
+          "column": "name",
+          "foreign_table": "service_tiers",
+          "foreign_column": "name",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "uq_service_tiers_service_name",
+          "type": "UNIQUE",
+          "column": "service_id",
+          "foreign_table": "service_tiers",
+          "foreign_column": "service_id",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "uq_service_tiers_service_name",
+          "type": "UNIQUE",
+          "column": "name",
+          "foreign_table": "service_tiers",
+          "foreign_column": "service_id",
+          "update_rule": null,
+          "delete_rule": null
         }
       ],
-      "row_count": 0,
-      "sample_data": []
+      "indexes": [
+        {
+          "name": "idx_service_tiers_service_id",
+          "column": "service_id",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "service_tiers_pkey",
+          "column": "id",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "name": "uq_service_tiers_service_name",
+          "column": "service_id",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "name": "uq_service_tiers_service_name",
+          "column": "name",
+          "unique": true,
+          "primary": false
+        }
+      ],
+      "statistics": {
+        "inserts": "109",
+        "updates": "1",
+        "deletes": "85",
+        "live_tuples": "24",
+        "dead_tuples": "34",
+        "last_vacuum": null,
+        "last_autovacuum": "2025-09-01T19:22:22.496Z",
+        "last_analyze": null,
+        "last_autoanalyze": "2025-09-01T20:02:23.413Z"
+      },
+      "sample_data": [
+        {
+          "id": 83,
+          "service_id": 70,
+          "name": "Single Stage",
+          "price_delta_cents": 10000,
+          "description": "[\"1 Stage Paint Correction\",\"1 Year Ceramic Coating\"]",
+          "created_at": "2025-09-01T20:05:52.963Z",
+          "updated_at": "2025-09-01T20:05:52.963Z"
+        },
+        {
+          "id": 84,
+          "service_id": 70,
+          "name": "Double Stage",
+          "price_delta_cents": 20000,
+          "description": "[\"2 Stage Paint Correction\",\"3-5 Year Ceramic Coating\"]",
+          "created_at": "2025-09-01T20:05:52.964Z",
+          "updated_at": "2025-09-01T20:05:52.964Z"
+        },
+        {
+          "id": 85,
+          "service_id": 70,
+          "name": "Triple Stage",
+          "price_delta_cents": 40000,
+          "description": "[\"3 Stage Paint Correction\",\"8 Year Ceramic Coating\"]",
+          "created_at": "2025-09-01T20:05:52.968Z",
+          "updated_at": "2025-09-01T20:05:52.968Z"
+        }
+      ],
+      "row_count": "24"
     },
     {
       "table_name": "services",
+      "table_type": "BASE TABLE",
+      "table_comment": null,
       "columns": [
         {
           "name": "id",
           "type": "integer",
+          "max_length": null,
           "nullable": false,
           "default_value": null,
-          "max_length": null
+          "position": 1,
+          "comment": null
         },
         {
           "name": "affiliate_id",
           "type": "integer",
+          "max_length": null,
           "nullable": false,
           "default_value": null,
-          "max_length": null
+          "position": 2,
+          "comment": null
         },
         {
           "name": "category",
           "type": "USER-DEFINED",
+          "max_length": null,
           "nullable": false,
           "default_value": null,
-          "max_length": null
+          "position": 3,
+          "comment": null
         },
         {
           "name": "name",
           "type": "character varying",
+          "max_length": 200,
           "nullable": false,
           "default_value": null,
-          "max_length": 200
+          "position": 4,
+          "comment": null
         },
         {
           "name": "description",
           "type": "text",
+          "max_length": null,
           "nullable": true,
           "default_value": null,
-          "max_length": null
+          "position": 5,
+          "comment": null
         },
         {
           "name": "base_price_cents",
           "type": "integer",
+          "max_length": null,
           "nullable": false,
           "default_value": "0",
-          "max_length": null
+          "position": 6,
+          "comment": null
         },
         {
           "name": "pricing_unit",
           "type": "USER-DEFINED",
+          "max_length": null,
           "nullable": false,
           "default_value": "'flat'::pricing_unit",
-          "max_length": null
+          "position": 7,
+          "comment": null
         },
         {
           "name": "min_duration_min",
           "type": "integer",
+          "max_length": null,
           "nullable": false,
           "default_value": "60",
-          "max_length": null
+          "position": 8,
+          "comment": null
         },
         {
           "name": "active",
           "type": "boolean",
+          "max_length": null,
           "nullable": false,
           "default_value": "true",
-          "max_length": null
+          "position": 9,
+          "comment": null
         },
         {
           "name": "created_at",
           "type": "timestamp with time zone",
+          "max_length": null,
           "nullable": false,
           "default_value": "now()",
-          "max_length": null
+          "position": 10,
+          "comment": null
         },
         {
           "name": "updated_at",
           "type": "timestamp with time zone",
+          "max_length": null,
           "nullable": false,
           "default_value": "now()",
-          "max_length": null
-        }
-      ],
-      "primary_key": [
-        "id"
-      ],
-      "foreign_keys": [
-        {
-          "column": "affiliate_id",
-          "references": "affiliates.id"
-        }
-      ],
-      "row_count": 3,
-      "sample_data": [
-        {
-          "id": 4,
-          "affiliate_id": 2,
-          "category": "auto",
-          "name": "Auto Detailing",
-          "description": "Auto Detailing service offered by Test Mobile Detail Pro LLC",
-          "base_price_cents": 0,
-          "pricing_unit": "flat",
-          "min_duration_min": 60,
-          "active": true,
-          "created_at": "2025-08-28T20:47:56.364Z",
-          "updated_at": "2025-08-28T20:47:56.364Z"
+          "position": 11,
+          "comment": null
         },
         {
-          "id": 5,
-          "affiliate_id": 2,
-          "category": "ceramic",
-          "name": "Ceramic Coating",
-          "description": "Ceramic Coating service offered by Test Mobile Detail Pro LLC",
+          "name": "vehicle_id",
+          "type": "integer",
+          "max_length": null,
+          "nullable": true,
+          "default_value": null,
+          "position": 12,
+          "comment": null
+        },
+        {
+          "name": "service_category_id",
+          "type": "integer",
+          "max_length": null,
+          "nullable": true,
+          "default_value": null,
+          "position": 13,
+          "comment": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "2200_50166_10_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50166_11_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50166_1_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50166_2_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50166_3_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50166_4_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50166_6_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50166_7_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50166_8_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50166_9_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "fk_services_service_category",
+          "type": "FOREIGN KEY",
+          "column": "service_category_id",
+          "foreign_table": "service_categories",
+          "foreign_column": "id",
+          "update_rule": "NO ACTION",
+          "delete_rule": "NO ACTION"
+        },
+        {
+          "name": "fk_services_vehicle",
+          "type": "FOREIGN KEY",
+          "column": "vehicle_id",
+          "foreign_table": "vehicles",
+          "foreign_column": "id",
+          "update_rule": "NO ACTION",
+          "delete_rule": "NO ACTION"
+        },
+        {
+          "name": "services_affiliate_id_fkey",
+          "type": "FOREIGN KEY",
+          "column": "affiliate_id",
+          "foreign_table": "affiliates",
+          "foreign_column": "id",
+          "update_rule": "NO ACTION",
+          "delete_rule": "CASCADE"
+        },
+        {
+          "name": "services_base_price_cents_check",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": "services",
+          "foreign_column": "base_price_cents",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "services_min_duration_min_check",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": "services",
+          "foreign_column": "min_duration_min",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "services_pkey",
+          "type": "PRIMARY KEY",
+          "column": "id",
+          "foreign_table": "services",
+          "foreign_column": "id",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "uq_services_affiliate_name",
+          "type": "UNIQUE",
+          "column": "affiliate_id",
+          "foreign_table": "services",
+          "foreign_column": "affiliate_id",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "uq_services_affiliate_name",
+          "type": "UNIQUE",
+          "column": "name",
+          "foreign_table": "services",
+          "foreign_column": "affiliate_id",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "uq_services_affiliate_name",
+          "type": "UNIQUE",
+          "column": "affiliate_id",
+          "foreign_table": "services",
+          "foreign_column": "name",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "uq_services_affiliate_name",
+          "type": "UNIQUE",
+          "column": "name",
+          "foreign_table": "services",
+          "foreign_column": "name",
+          "update_rule": null,
+          "delete_rule": null
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_services_affiliate_category",
+          "column": "affiliate_id",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "idx_services_affiliate_category",
+          "column": "category",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "idx_services_affiliate_vehicle_category",
+          "column": "affiliate_id",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "idx_services_affiliate_vehicle_category",
+          "column": "vehicle_id",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "idx_services_affiliate_vehicle_category",
+          "column": "service_category_id",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "services_pkey",
+          "column": "id",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "name": "uq_services_affiliate_name",
+          "column": "affiliate_id",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "name": "uq_services_affiliate_name",
+          "column": "name",
+          "unique": true,
+          "primary": false
+        }
+      ],
+      "statistics": {
+        "inserts": "91",
+        "updates": "21",
+        "deletes": "79",
+        "live_tuples": "8",
+        "dead_tuples": "43",
+        "last_vacuum": null,
+        "last_autovacuum": "2025-09-01T19:07:21.771Z",
+        "last_analyze": null,
+        "last_autoanalyze": "2025-09-01T20:38:24.213Z"
+      },
+      "sample_data": [
+        {
+          "id": 70,
+          "affiliate_id": 9,
+          "category": "auto",
+          "name": "Tires & Rims",
+          "description": "Tires & Rims service for cars addons",
           "base_price_cents": 0,
           "pricing_unit": "flat",
           "min_duration_min": 60,
           "active": true,
-          "created_at": "2025-08-28T20:47:56.369Z",
-          "updated_at": "2025-08-28T20:47:56.369Z"
+          "created_at": "2025-09-01T20:05:52.961Z",
+          "updated_at": "2025-09-01T20:05:52.961Z",
+          "vehicle_id": 1,
+          "service_category_id": 7
+        },
+        {
+          "id": 71,
+          "affiliate_id": 9,
+          "category": "auto",
+          "name": "Windows",
+          "description": "Windows service",
+          "base_price_cents": 25000,
+          "pricing_unit": "flat",
+          "min_duration_min": 60,
+          "active": true,
+          "created_at": "2025-09-01T20:07:50.364Z",
+          "updated_at": "2025-09-01T20:08:31.140Z",
+          "vehicle_id": 1,
+          "service_category_id": 7
+        },
+        {
+          "id": 72,
+          "affiliate_id": 9,
+          "category": "auto",
+          "name": "Interior Trim Restoration",
+          "description": "Interior Trim Restoration service for cars addons",
+          "base_price_cents": 0,
+          "pricing_unit": "flat",
+          "min_duration_min": 60,
+          "active": true,
+          "created_at": "2025-09-01T20:10:31.309Z",
+          "updated_at": "2025-09-01T20:10:31.309Z",
+          "vehicle_id": 1,
+          "service_category_id": 7
         }
-      ]
+      ],
+      "row_count": "8"
     },
     {
-      "table_name": "users",
+      "table_name": "states",
+      "table_type": "BASE TABLE",
+      "table_comment": null,
+      "columns": [
+        {
+          "name": "state_code",
+          "type": "character",
+          "max_length": 2,
+          "nullable": false,
+          "default_value": null,
+          "position": 1,
+          "comment": null
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "max_length": null,
+          "nullable": false,
+          "default_value": null,
+          "position": 2,
+          "comment": null
+        },
+        {
+          "name": "country_code",
+          "type": "character",
+          "max_length": 2,
+          "nullable": false,
+          "default_value": "'US'::bpchar",
+          "position": 3,
+          "comment": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "2200_50499_1_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50499_2_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50499_3_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "states_pkey",
+          "type": "PRIMARY KEY",
+          "column": "state_code",
+          "foreign_table": "states",
+          "foreign_column": "state_code",
+          "update_rule": null,
+          "delete_rule": null
+        }
+      ],
+      "indexes": [
+        {
+          "name": "states_pkey",
+          "column": "state_code",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "statistics": {
+        "inserts": "56",
+        "updates": "0",
+        "deletes": "0",
+        "live_tuples": "56",
+        "dead_tuples": "0",
+        "last_vacuum": null,
+        "last_autovacuum": null,
+        "last_analyze": null,
+        "last_autoanalyze": "2025-09-02T00:38:27.184Z"
+      },
+      "sample_data": [
+        {
+          "state_code": "AL",
+          "name": "Alabama",
+          "country_code": "US"
+        },
+        {
+          "state_code": "AK",
+          "name": "Alaska",
+          "country_code": "US"
+        },
+        {
+          "state_code": "AZ",
+          "name": "Arizona",
+          "country_code": "US"
+        }
+      ],
+      "row_count": "56"
+    },
+    {
+      "table_name": "tiers",
+      "table_type": "BASE TABLE",
+      "table_comment": null,
       "columns": [
         {
           "name": "id",
           "type": "integer",
+          "max_length": null,
           "nullable": false,
-          "default_value": null,
-          "max_length": null
+          "default_value": "nextval('tiers_id_seq'::regclass)",
+          "position": 1,
+          "comment": null
         },
         {
-          "name": "email",
-          "type": "USER-DEFINED",
-          "nullable": false,
-          "default_value": null,
-          "max_length": null
-        },
-        {
-          "name": "name",
-          "type": "character varying",
+          "name": "vehicle_service_pricing_id",
+          "type": "integer",
+          "max_length": null,
           "nullable": true,
           "default_value": null,
-          "max_length": 255
+          "position": 2,
+          "comment": null
         },
         {
-          "name": "role",
-          "type": "USER-DEFINED",
+          "name": "tier_name",
+          "type": "character varying",
+          "max_length": 50,
           "nullable": false,
           "default_value": null,
-          "max_length": null
+          "position": 3,
+          "comment": null
         },
         {
-          "name": "is_admin",
+          "name": "price_cents",
+          "type": "integer",
+          "max_length": null,
+          "nullable": false,
+          "default_value": null,
+          "position": 4,
+          "comment": null
+        },
+        {
+          "name": "duration_min",
+          "type": "integer",
+          "max_length": null,
+          "nullable": false,
+          "default_value": null,
+          "position": 5,
+          "comment": null
+        },
+        {
+          "name": "description_features",
+          "type": "jsonb",
+          "max_length": null,
+          "nullable": true,
+          "default_value": null,
+          "position": 6,
+          "comment": null
+        },
+        {
+          "name": "enabled",
           "type": "boolean",
+          "max_length": null,
+          "nullable": true,
+          "default_value": "true",
+          "position": 7,
+          "comment": null
+        },
+        {
+          "name": "popular",
+          "type": "boolean",
+          "max_length": null,
           "nullable": true,
           "default_value": "false",
-          "max_length": null
-        },
-        {
-          "name": "password_hash",
-          "type": "character varying",
-          "nullable": true,
-          "default_value": null,
-          "max_length": 255
-        },
-        {
-          "name": "phone",
-          "type": "character varying",
-          "nullable": true,
-          "default_value": null,
-          "max_length": 50
+          "position": 8,
+          "comment": null
         },
         {
           "name": "created_at",
           "type": "timestamp with time zone",
-          "nullable": false,
+          "max_length": null,
+          "nullable": true,
           "default_value": "now()",
-          "max_length": null
+          "position": 9,
+          "comment": null
         },
         {
           "name": "updated_at",
           "type": "timestamp with time zone",
-          "nullable": false,
+          "max_length": null,
+          "nullable": true,
           "default_value": "now()",
-          "max_length": null
+          "position": 10,
+          "comment": null
         }
       ],
-      "primary_key": [
-        "id"
+      "constraints": [
+        {
+          "name": "2200_50468_1_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50468_3_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50468_4_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50468_5_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "tiers_pkey",
+          "type": "PRIMARY KEY",
+          "column": "id",
+          "foreign_table": "tiers",
+          "foreign_column": "id",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "tiers_vehicle_service_pricing_id_fkey",
+          "type": "FOREIGN KEY",
+          "column": "vehicle_service_pricing_id",
+          "foreign_table": "vehicle_service_pricing",
+          "foreign_column": "id",
+          "update_rule": "NO ACTION",
+          "delete_rule": "NO ACTION"
+        }
       ],
-      "foreign_keys": [],
-      "row_count": 2,
+      "indexes": [
+        {
+          "name": "idx_tiers_enabled",
+          "column": "enabled",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "idx_tiers_popular",
+          "column": "popular",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "idx_tiers_service_pricing",
+          "column": "vehicle_service_pricing_id",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "tiers_pkey",
+          "column": "id",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "statistics": {
+        "inserts": "0",
+        "updates": "0",
+        "deletes": "0",
+        "live_tuples": "0",
+        "dead_tuples": "0",
+        "last_vacuum": null,
+        "last_autovacuum": null,
+        "last_analyze": null,
+        "last_autoanalyze": null
+      },
+      "sample_data": [],
+      "row_count": "0"
+    },
+    {
+      "table_name": "users",
+      "table_type": "BASE TABLE",
+      "table_comment": null,
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "max_length": null,
+          "nullable": false,
+          "default_value": null,
+          "position": 1,
+          "comment": null
+        },
+        {
+          "name": "email",
+          "type": "USER-DEFINED",
+          "max_length": null,
+          "nullable": false,
+          "default_value": null,
+          "position": 2,
+          "comment": null
+        },
+        {
+          "name": "name",
+          "type": "character varying",
+          "max_length": 255,
+          "nullable": true,
+          "default_value": null,
+          "position": 3,
+          "comment": null
+        },
+        {
+          "name": "role",
+          "type": "USER-DEFINED",
+          "max_length": null,
+          "nullable": false,
+          "default_value": null,
+          "position": 4,
+          "comment": null
+        },
+        {
+          "name": "is_admin",
+          "type": "boolean",
+          "max_length": null,
+          "nullable": true,
+          "default_value": "false",
+          "position": 5,
+          "comment": null
+        },
+        {
+          "name": "password_hash",
+          "type": "character varying",
+          "max_length": 255,
+          "nullable": true,
+          "default_value": null,
+          "position": 6,
+          "comment": null
+        },
+        {
+          "name": "phone",
+          "type": "character varying",
+          "max_length": 50,
+          "nullable": true,
+          "default_value": null,
+          "position": 7,
+          "comment": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "max_length": null,
+          "nullable": false,
+          "default_value": "now()",
+          "position": 8,
+          "comment": null
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "max_length": null,
+          "nullable": false,
+          "default_value": "now()",
+          "position": 9,
+          "comment": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "2200_50073_1_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50073_2_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50073_4_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50073_8_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50073_9_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "users_email_key",
+          "type": "UNIQUE",
+          "column": "email",
+          "foreign_table": "users",
+          "foreign_column": "email",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "users_phone_check",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": "users",
+          "foreign_column": "phone",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "users_pkey",
+          "type": "PRIMARY KEY",
+          "column": "id",
+          "foreign_table": "users",
+          "foreign_column": "id",
+          "update_rule": null,
+          "delete_rule": null
+        }
+      ],
+      "indexes": [
+        {
+          "name": "users_email_key",
+          "column": "email",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "name": "users_pkey",
+          "column": "id",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "statistics": {
+        "inserts": "14",
+        "updates": "0",
+        "deletes": "12",
+        "live_tuples": "2",
+        "dead_tuples": "12",
+        "last_vacuum": null,
+        "last_autovacuum": null,
+        "last_analyze": null,
+        "last_autoanalyze": null
+      },
       "sample_data": [
         {
           "id": 1,
@@ -1661,21 +3412,540 @@
           "is_admin": true,
           "password_hash": "$2a$10$EAY3D9OdVXpYgby.ATOmheJwqrlTZ423Yg2a.qLzN1Ku1/oj2/LzS",
           "phone": null,
-          "created_at": "2025-08-28T20:29:17.387Z",
-          "updated_at": "2025-08-28T20:29:17.387Z"
+          "created_at": "2025-08-28T21:07:23.320Z",
+          "updated_at": "2025-08-28T21:07:23.320Z"
+        },
+        {
+          "id": 9,
+          "email": "jpsmobiledetailing@hotmail.com",
+          "name": "Jess Brister",
+          "role": "affiliate",
+          "is_admin": false,
+          "password_hash": "$2a$10$0Or.7yyweIikMQYPDF3fN.7EHO8Pd5B3.o4bsffWedlr7CzDQ0kqC",
+          "phone": "7024203151",
+          "created_at": "2025-08-29T01:45:00.933Z",
+          "updated_at": "2025-08-29T01:45:00.933Z"
+        }
+      ],
+      "row_count": "2"
+    },
+    {
+      "table_name": "v_affiliate_base_location",
+      "table_type": "VIEW",
+      "table_comment": null,
+      "columns": [
+        {
+          "name": "affiliate_id",
+          "type": "integer",
+          "max_length": null,
+          "nullable": true,
+          "default_value": null,
+          "position": 1,
+          "comment": null
+        },
+        {
+          "name": "slug",
+          "type": "character varying",
+          "max_length": 100,
+          "nullable": true,
+          "default_value": null,
+          "position": 2,
+          "comment": null
+        },
+        {
+          "name": "business_name",
+          "type": "character varying",
+          "max_length": 255,
+          "nullable": true,
+          "default_value": null,
+          "position": 3,
+          "comment": null
+        },
+        {
+          "name": "city",
+          "type": "character varying",
+          "max_length": 100,
+          "nullable": true,
+          "default_value": null,
+          "position": 4,
+          "comment": null
+        },
+        {
+          "name": "state_code",
+          "type": "character",
+          "max_length": 2,
+          "nullable": true,
+          "default_value": null,
+          "position": 5,
+          "comment": null
+        },
+        {
+          "name": "zip",
+          "type": "character varying",
+          "max_length": 20,
+          "nullable": true,
+          "default_value": null,
+          "position": 6,
+          "comment": null
+        }
+      ],
+      "constraints": [],
+      "indexes": [],
+      "statistics": null,
+      "sample_data": [
+        {
+          "affiliate_id": 9,
+          "slug": "jps",
+          "business_name": "JP's Mobile Detailing & Ceramic Coating",
+          "city": "Laughlin",
+          "state_code": "NV",
+          "zip": "89029"
+        }
+      ],
+      "row_count": 0
+    },
+    {
+      "table_name": "vehicle_service_pricing",
+      "table_type": "BASE TABLE",
+      "table_comment": null,
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "max_length": null,
+          "nullable": false,
+          "default_value": "nextval('vehicle_service_pricing_id_seq'::regclass)",
+          "position": 1,
+          "comment": null
+        },
+        {
+          "name": "affiliate_id",
+          "type": "integer",
+          "max_length": null,
+          "nullable": true,
+          "default_value": null,
+          "position": 2,
+          "comment": null
+        },
+        {
+          "name": "vehicle_id",
+          "type": "integer",
+          "max_length": null,
+          "nullable": true,
+          "default_value": null,
+          "position": 3,
+          "comment": null
+        },
+        {
+          "name": "service_category_id",
+          "type": "integer",
+          "max_length": null,
+          "nullable": true,
+          "default_value": null,
+          "position": 4,
+          "comment": null
+        },
+        {
+          "name": "base_price_cents",
+          "type": "integer",
+          "max_length": null,
+          "nullable": false,
+          "default_value": null,
+          "position": 5,
+          "comment": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "max_length": null,
+          "nullable": true,
+          "default_value": "now()",
+          "position": 6,
+          "comment": null
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "max_length": null,
+          "nullable": true,
+          "default_value": "now()",
+          "position": 7,
+          "comment": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "2200_50439_1_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50439_5_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "vehicle_service_pricing_affiliate_id_fkey",
+          "type": "FOREIGN KEY",
+          "column": "affiliate_id",
+          "foreign_table": "affiliates",
+          "foreign_column": "id",
+          "update_rule": "NO ACTION",
+          "delete_rule": "NO ACTION"
+        },
+        {
+          "name": "vehicle_service_pricing_affiliate_id_vehicle_id_service_cat_key",
+          "type": "UNIQUE",
+          "column": "affiliate_id",
+          "foreign_table": "vehicle_service_pricing",
+          "foreign_column": "affiliate_id",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "vehicle_service_pricing_affiliate_id_vehicle_id_service_cat_key",
+          "type": "UNIQUE",
+          "column": "vehicle_id",
+          "foreign_table": "vehicle_service_pricing",
+          "foreign_column": "affiliate_id",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "vehicle_service_pricing_affiliate_id_vehicle_id_service_cat_key",
+          "type": "UNIQUE",
+          "column": "service_category_id",
+          "foreign_table": "vehicle_service_pricing",
+          "foreign_column": "affiliate_id",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "vehicle_service_pricing_affiliate_id_vehicle_id_service_cat_key",
+          "type": "UNIQUE",
+          "column": "affiliate_id",
+          "foreign_table": "vehicle_service_pricing",
+          "foreign_column": "vehicle_id",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "vehicle_service_pricing_affiliate_id_vehicle_id_service_cat_key",
+          "type": "UNIQUE",
+          "column": "vehicle_id",
+          "foreign_table": "vehicle_service_pricing",
+          "foreign_column": "vehicle_id",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "vehicle_service_pricing_affiliate_id_vehicle_id_service_cat_key",
+          "type": "UNIQUE",
+          "column": "service_category_id",
+          "foreign_table": "vehicle_service_pricing",
+          "foreign_column": "vehicle_id",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "vehicle_service_pricing_affiliate_id_vehicle_id_service_cat_key",
+          "type": "UNIQUE",
+          "column": "affiliate_id",
+          "foreign_table": "vehicle_service_pricing",
+          "foreign_column": "service_category_id",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "vehicle_service_pricing_affiliate_id_vehicle_id_service_cat_key",
+          "type": "UNIQUE",
+          "column": "vehicle_id",
+          "foreign_table": "vehicle_service_pricing",
+          "foreign_column": "service_category_id",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "vehicle_service_pricing_affiliate_id_vehicle_id_service_cat_key",
+          "type": "UNIQUE",
+          "column": "service_category_id",
+          "foreign_table": "vehicle_service_pricing",
+          "foreign_column": "service_category_id",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "vehicle_service_pricing_pkey",
+          "type": "PRIMARY KEY",
+          "column": "id",
+          "foreign_table": "vehicle_service_pricing",
+          "foreign_column": "id",
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "vehicle_service_pricing_service_category_id_fkey",
+          "type": "FOREIGN KEY",
+          "column": "service_category_id",
+          "foreign_table": "service_categories",
+          "foreign_column": "id",
+          "update_rule": "NO ACTION",
+          "delete_rule": "NO ACTION"
+        },
+        {
+          "name": "vehicle_service_pricing_vehicle_id_fkey",
+          "type": "FOREIGN KEY",
+          "column": "vehicle_id",
+          "foreign_table": "vehicles",
+          "foreign_column": "id",
+          "update_rule": "NO ACTION",
+          "delete_rule": "NO ACTION"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_vehicle_service_pricing_affiliate",
+          "column": "affiliate_id",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "idx_vehicle_service_pricing_category",
+          "column": "service_category_id",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "idx_vehicle_service_pricing_vehicle",
+          "column": "vehicle_id",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "vehicle_service_pricing_affiliate_id_vehicle_id_service_cat_key",
+          "column": "affiliate_id",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "name": "vehicle_service_pricing_affiliate_id_vehicle_id_service_cat_key",
+          "column": "vehicle_id",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "name": "vehicle_service_pricing_affiliate_id_vehicle_id_service_cat_key",
+          "column": "service_category_id",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "name": "vehicle_service_pricing_pkey",
+          "column": "id",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "statistics": {
+        "inserts": "5",
+        "updates": "0",
+        "deletes": "0",
+        "live_tuples": "1",
+        "dead_tuples": "4",
+        "last_vacuum": null,
+        "last_autovacuum": null,
+        "last_analyze": null,
+        "last_autoanalyze": null
+      },
+      "sample_data": [
+        {
+          "id": 2,
+          "affiliate_id": 9,
+          "vehicle_id": 1,
+          "service_category_id": 1,
+          "base_price_cents": 7500,
+          "created_at": "2025-08-29T17:09:32.691Z",
+          "updated_at": "2025-08-29T17:09:32.691Z"
+        }
+      ],
+      "row_count": "1"
+    },
+    {
+      "table_name": "vehicles",
+      "table_type": "BASE TABLE",
+      "table_comment": null,
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "max_length": null,
+          "nullable": false,
+          "default_value": "nextval('vehicles_id_seq'::regclass)",
+          "position": 1,
+          "comment": null
+        },
+        {
+          "name": "name",
+          "type": "character varying",
+          "max_length": 100,
+          "nullable": false,
+          "default_value": null,
+          "position": 2,
+          "comment": null
+        },
+        {
+          "name": "type",
+          "type": "character varying",
+          "max_length": 50,
+          "nullable": false,
+          "default_value": null,
+          "position": 3,
+          "comment": null
+        },
+        {
+          "name": "size_category",
+          "type": "character varying",
+          "max_length": 50,
+          "nullable": true,
+          "default_value": null,
+          "position": 4,
+          "comment": null
+        },
+        {
+          "name": "base_multiplier",
+          "type": "numeric",
+          "max_length": null,
+          "nullable": true,
+          "default_value": "1.00",
+          "position": 5,
+          "comment": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "max_length": null,
+          "nullable": true,
+          "default_value": "now()",
+          "position": 6,
+          "comment": null
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "max_length": null,
+          "nullable": true,
+          "default_value": "now()",
+          "position": 7,
+          "comment": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "2200_50415_1_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50415_2_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "2200_50415_3_not_null",
+          "type": "CHECK",
+          "column": null,
+          "foreign_table": null,
+          "foreign_column": null,
+          "update_rule": null,
+          "delete_rule": null
+        },
+        {
+          "name": "vehicles_pkey",
+          "type": "PRIMARY KEY",
+          "column": "id",
+          "foreign_table": "vehicles",
+          "foreign_column": "id",
+          "update_rule": null,
+          "delete_rule": null
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_vehicles_size_category",
+          "column": "size_category",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "idx_vehicles_type",
+          "column": "type",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "vehicles_pkey",
+          "column": "id",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "statistics": {
+        "inserts": "7",
+        "updates": "0",
+        "deletes": "0",
+        "live_tuples": "7",
+        "dead_tuples": "0",
+        "last_vacuum": null,
+        "last_autovacuum": null,
+        "last_analyze": null,
+        "last_autoanalyze": null
+      },
+      "sample_data": [
+        {
+          "id": 1,
+          "name": "Cars",
+          "type": "automotive",
+          "size_category": "standard",
+          "base_multiplier": "1.00",
+          "created_at": "2025-08-29T16:56:49.793Z",
+          "updated_at": "2025-08-29T16:56:49.793Z"
+        },
+        {
+          "id": 2,
+          "name": "Trucks",
+          "type": "automotive",
+          "size_category": "large",
+          "base_multiplier": "1.25",
+          "created_at": "2025-08-29T16:56:49.793Z",
+          "updated_at": "2025-08-29T16:56:49.793Z"
         },
         {
           "id": 3,
-          "email": "john@testmobiledetailpro.com",
-          "name": "John Smith",
-          "role": "affiliate",
-          "is_admin": false,
-          "password_hash": "$2a$10$T.14FwW5DYMRfuL01CVhlugzsPmnAois5SViBsDrg.uo/b5UeU5QG",
-          "phone": "5551234567",
-          "created_at": "2025-08-28T20:48:07.286Z",
-          "updated_at": "2025-08-28T20:48:07.286Z"
+          "name": "RVs",
+          "type": "recreational",
+          "size_category": "extra-large",
+          "base_multiplier": "2.00",
+          "created_at": "2025-08-29T16:56:49.793Z",
+          "updated_at": "2025-08-29T16:56:49.793Z"
         }
-      ]
+      ],
+      "row_count": "7"
     }
   ]
 }

@@ -211,20 +211,9 @@ async function setupDatabase() {
         updated_at         TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
 
-      -- Create addresses table for affiliate base locations
-      CREATE TABLE IF NOT EXISTS addresses (
-        id           SERIAL PRIMARY KEY,
-        line1        VARCHAR(255),
-        city         VARCHAR(100) NOT NULL,
-        state_code   CHAR(2) NOT NULL REFERENCES states(state_code),
-        postal_code  VARCHAR(20),
-        lat          DOUBLE PRECISION,
-        lng          DOUBLE PRECISION,
-        created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
-      );
 
-      -- Create affiliates table with proper base_address_id
+
+      -- Create affiliates table
       CREATE TABLE IF NOT EXISTS affiliates (
         id                   SERIAL PRIMARY KEY,
         slug                 VARCHAR(100) NOT NULL UNIQUE,
@@ -233,7 +222,6 @@ async function setupDatabase() {
         phone                VARCHAR(20) NOT NULL,
         sms_phone            VARCHAR(20),
         email                VARCHAR(255) NOT NULL,
-        base_address_id      INT REFERENCES addresses(id) ON DELETE SET NULL,
         services             JSONB NOT NULL DEFAULT '{"rv": false, "ppf": false, "auto": false, "boat": false, "ceramic": false, "paint_correction": false}'::jsonb,
         website_url          VARCHAR(500),
         gbp_url              VARCHAR(500),
@@ -491,7 +479,7 @@ async function createTriggerFunctions() {
     `);
 
     // Create updated_at triggers for all tables
-    const tables = ['users', 'customers', 'addresses', 'affiliates', 'quotes', 'bookings', 'mdh_config'];
+    const tables = ['users', 'customers', 'affiliates', 'quotes', 'bookings', 'mdh_config'];
     for (const table of tables) {
       await pool.query(`
         DROP TRIGGER IF EXISTS trg_${table}_updated ON ${table};
@@ -705,19 +693,7 @@ async function createViews() {
       return;
     }
 
-    // View for affiliate base location information (joins base address)
-    await pool.query(`
-      CREATE OR REPLACE VIEW v_affiliate_base_location AS
-      SELECT
-        f.id AS affiliate_id,
-        f.slug,
-        f.business_name,
-        addr.city,
-        addr.state_code,
-        addr.postal_code AS zip
-      FROM affiliates f
-      LEFT JOIN addresses addr ON addr.id = f.base_address_id;
-    `);
+
 
     // States with at least one affiliate coverage row
     await pool.query(`

@@ -1,11 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { Plus, MapPin, AlertCircle, Search, X, Trash2 } from 'lucide-react';
+import { Plus, MapPin, AlertCircle, X, Trash2, ChevronDown, ChevronRight } from 'lucide-react';
 import { useLocationsData } from './hooks/useLocationsData';
-import { useAffiliateData } from './hooks/useAffiliateData';
 import { AddLocationModal } from './components/AddLocationModal';
 import { DeleteLocationModal } from './components/DeleteLocationModal';
-import { LocationCard } from './components/LocationCard';
 import type { ServiceArea, LocationFormData } from './types';
 import type { DetailerData } from '../../types';
 
@@ -13,11 +11,14 @@ interface LocationsTabProps {
   detailerData?: DetailerData;
 }
 
-const LocationsTab: React.FC<LocationsTabProps> = ({ detailerData }) => {
+const LocationsTab: React.FC<LocationsTabProps> = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [locationToDelete, setLocationToDelete] = useState<ServiceArea | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  
+  // State organization and collapsible functionality
+  const [expandedStates, setExpandedStates] = useState<Set<string>>(new Set());
   
   // Primary Service Area edit state
   const [isPrimaryEditMode, setIsPrimaryEditMode] = useState(false);
@@ -125,11 +126,71 @@ const LocationsTab: React.FC<LocationsTabProps> = ({ detailerData }) => {
     loading,
     error,
     addLocation,
-    removeLocation
+    removeLocation,
+    updateLocationField
   } = useLocationsData();
 
   // Get primary service area from locations data (where primary: true)
   const primaryServiceArea = locations.find(location => location.primary === true);
+
+  // Group locations by state
+  const locationsByState = React.useMemo(() => {
+    const grouped: Record<string, ServiceArea[]> = {};
+    
+    locations.forEach(location => {
+      if (!location.primary) { // Exclude primary service area from state grouping
+        const state = location.state?.toUpperCase();
+        if (state && !grouped[state]) {
+          grouped[state] = [];
+        }
+        if (state && grouped[state]) {
+          grouped[state].push(location);
+        }
+      }
+    });
+    
+    // Sort locations within each state by city
+    Object.keys(grouped).forEach(state => {
+      if (grouped[state]) {
+        grouped[state].sort((a, b) => a.city.localeCompare(b.city));
+      }
+    });
+    
+    return grouped;
+  }, [locations]);
+
+  // Get sorted state names
+  const stateNames = React.useMemo(() => {
+    return Object.keys(locationsByState).sort();
+  }, [locationsByState]);
+
+  // Toggle state expansion
+  const toggleStateExpansion = (state: string) => {
+    setExpandedStates(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(state)) {
+        newSet.delete(state);
+      } else {
+        newSet.add(state);
+      }
+      return newSet;
+    });
+  };
+
+  // Expand all states
+  const expandAllStates = () => {
+    setExpandedStates(new Set(stateNames));
+  };
+
+  // Collapse all states
+  const collapseAllStates = () => {
+    setExpandedStates(new Set());
+  };
+
+  // Helper function to update primary service area
+  const updatePrimaryServiceAreaField = (field: keyof ServiceArea, value: any) => {
+    updateLocationField('primary', field, value);
+  };
 
   // Handle primary service area location input changes and get predictions
   const handlePrimaryLocationInputChange = async (value: string) => {
@@ -275,16 +336,14 @@ const LocationsTab: React.FC<LocationsTabProps> = ({ detailerData }) => {
 
       // Update primary service area in locations data
       if (primaryServiceArea) {
-        const updatedLocation = {
+        console.log('📍 Primary - Final updated location:', {
           ...primaryServiceArea,
           city: city,
           state: state,
           zip: zipCode,
           minimum: primaryServiceArea.minimum || 0,
           multiplier: primaryServiceArea.multiplier || 1.0
-        };
-        
-        console.log('📍 Primary - Final updated location:', updatedLocation);
+        });
         
         // TODO: Implement updatePrimaryServiceArea function
         // await updatePrimaryServiceArea(updatedLocation);
@@ -317,14 +376,14 @@ const LocationsTab: React.FC<LocationsTabProps> = ({ detailerData }) => {
       }
       // Update primary service area in locations data
       if (primaryServiceArea) {
-        const updatedLocation = {
+        console.log('📍 Primary - Final updated location:', {
           ...primaryServiceArea,
           city: c,
           state: s,
-          zip: zip,
+          zip: zip ? parseInt(zip, 10) : null,
           minimum: primaryServiceArea.minimum || 0,
           multiplier: primaryServiceArea.multiplier || 1.0
-        };
+        });
         
         // TODO: Implement updatePrimaryServiceArea function
         // await updatePrimaryServiceArea(updatedLocation);
@@ -386,10 +445,11 @@ const LocationsTab: React.FC<LocationsTabProps> = ({ detailerData }) => {
       }
 
       // Add location directly with default values
-      const locationData: LocationFormData = {
+      const locationData: Omit<ServiceArea, 'id'> = {
         city: city,
         state: state,
-        zip: zipCode,
+        zip: zipCode ? parseInt(zipCode, 10) : null,
+        primary: false,
         minimum: 0,
         multiplier: 1.0
       };
@@ -424,10 +484,11 @@ const LocationsTab: React.FC<LocationsTabProps> = ({ detailerData }) => {
       }
       
       // Add location directly with default values
-      const locationData: LocationFormData = {
+      const locationData: Omit<ServiceArea, 'id'> = {
         city: c,
         state: s,
-        zip: zip,
+        zip: zip ? parseInt(zip, 10) : null,
+        primary: false,
         minimum: 0,
         multiplier: 1.0
       };
@@ -506,7 +567,7 @@ const LocationsTab: React.FC<LocationsTabProps> = ({ detailerData }) => {
       setEditingLocationPredictions([]);
 
       // First, try to extract ZIP code from the original input
-      const inputZipCode = extractZipFromInput(editingLocationOriginalInput);
+      const inputZipCode = extractZipFromInput(editingLocationOriginalInput || '');
       
       let zipCode = '';
       let city = '';
@@ -536,17 +597,14 @@ const LocationsTab: React.FC<LocationsTabProps> = ({ detailerData }) => {
         zipCode = await attemptZipCodeExtraction(city, state);
       }
 
-      // Update the existing location
-      const locationData: LocationFormData = {
-        city: city,
-        state: state,
-        zip: zipCode,
-        minimum: 0, // Keep existing values, will be updated separately
-        multiplier: 1.0
-      };
-
       // TODO: Implement updateLocation function
-      // const result = await updateLocation(editingLocationId, locationData);
+      // const result = await updateLocation(editingLocationId, {
+      //   city: city,
+      //   state: state,
+      //   zip: zipCode,
+      //   minimum: 0, // Keep existing values, will be updated separately
+      //   multiplier: 1.0
+      // });
       // if (result.success) {
         // Exit edit mode - process is complete
         setEditingLocationId(null);
@@ -559,33 +617,30 @@ const LocationsTab: React.FC<LocationsTabProps> = ({ detailerData }) => {
     } catch (e) {
       const text = suggestion?.placePrediction?.text?.toString?.() ?? '';
       const parts = text.split(', ');
-      let zip = '', c = '', s = '';
+      let c = '', s = '';
       
       // First, try to extract ZIP code from the original input
-      const inputZipCode = extractZipFromInput(editingLocationOriginalInput);
+      const inputZipCode = extractZipFromInput(editingLocationOriginalInput || '');
       
       if (parts.length >= 2) {
         c = parts[0];
         s = parts[1];
         // Use input ZIP code if available, otherwise attempt to get ZIP code for the parsed city,state
         if (inputZipCode) {
-          zip = inputZipCode;
+          // zip = inputZipCode; // Not used in this context
         } else if (c && s) {
-          zip = await attemptZipCodeExtraction(c, s);
+          // zip = await attemptZipCodeExtraction(c, s); // Not used in this context
         }
       }
       
-      // Update the existing location
-      const locationData: LocationFormData = {
-        city: c,
-        state: s,
-        zip: zip,
-        minimum: 0, // Keep existing values, will be updated separately
-        multiplier: 1.0
-      };
-
       // TODO: Implement updateLocation function
-      // const result = await updateLocation(editingLocationId, locationData);
+      // const result = await updateLocation(editingLocationId, {
+      //   city: c,
+      //   state: s,
+      //   zip: zip,
+      //   minimum: 0, // Keep existing values, will be updated separately
+      //   multiplier: 1.0
+      // });
       // if (result.success) {
         // Exit edit mode - process is complete
         setEditingLocationId(null);
@@ -603,7 +658,7 @@ const LocationsTab: React.FC<LocationsTabProps> = ({ detailerData }) => {
   const extractZipFromInput = (input: string): string => {
     // Look for 5-digit ZIP code pattern
     const zipMatch = input.match(/\b(\d{5}(-\d{4})?)\b/);
-    const result = zipMatch ? zipMatch[1] : '';
+    const result = zipMatch?.[1] || '';
     console.log('🔍 extractZipFromInput:', { input, result });
     return result;
   };
@@ -756,7 +811,12 @@ const LocationsTab: React.FC<LocationsTabProps> = ({ detailerData }) => {
   }, [editingLocationId]);
 
   const handleAddLocation = async (locationData: LocationFormData) => {
-    return await addLocation(locationData);
+    const serviceAreaData: Omit<ServiceArea, 'id'> = {
+      ...locationData,
+      zip: locationData.zip ? parseInt(locationData.zip, 10) : null,
+      primary: false
+    };
+    return await addLocation(serviceAreaData);
   };
 
 
@@ -941,8 +1001,10 @@ const LocationsTab: React.FC<LocationsTabProps> = ({ detailerData }) => {
                   type="number"
                   value={primaryServiceArea?.minimum || ''}
                   onChange={(e) => {
-                    // TODO: Implement updatePrimaryServiceAreaMinimum function
-                    // updatePrimaryServiceAreaMinimum(parseFloat(e.target.value) || 0);
+                    const newMinimum = parseFloat(e.target.value) || 0;
+                    updatePrimaryServiceAreaField('minimum', newMinimum);
+                    // TODO: Implement API call to updatePrimaryServiceAreaMinimum
+                    // updatePrimaryServiceAreaMinimum(newMinimum);
                   }}
                   className="w-full px-3 py-2 border border-stone-700 rounded-md bg-stone-700 text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
@@ -954,8 +1016,10 @@ const LocationsTab: React.FC<LocationsTabProps> = ({ detailerData }) => {
                   step="0.01"
                   value={primaryServiceArea?.multiplier || ''}
                   onChange={(e) => {
-                    // TODO: Implement updatePrimaryServiceAreaMultiplier function
-                    // updatePrimaryServiceAreaMultiplier(parseFloat(e.target.value) || 1.0);
+                    const newMultiplier = parseFloat(e.target.value) || 1.0;
+                    updatePrimaryServiceAreaField('multiplier', newMultiplier);
+                    // TODO: Implement API call to updatePrimaryServiceAreaMultiplier
+                    // updatePrimaryServiceAreaMultiplier(newMultiplier);
                   }}
                   className="w-full px-3 py-2 border border-stone-700 rounded-md bg-stone-700 text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
@@ -968,7 +1032,26 @@ const LocationsTab: React.FC<LocationsTabProps> = ({ detailerData }) => {
       {/* Service Areas */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-orange-500">Service Areas</h3>
+          <div className="flex items-center space-x-4">
+            <h3 className="text-lg font-semibold text-orange-500">Service Areas</h3>
+            {stateNames.length > 0 && (
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={expandAllStates}
+                  className="text-xs text-gray-500 hover:text-orange-500 transition-colors"
+                >
+                  Expand All
+                </button>
+                <span className="text-gray-300">|</span>
+                <button
+                  onClick={collapseAllStates}
+                  className="text-xs text-gray-500 hover:text-orange-500 transition-colors"
+                >
+                  Collapse All
+                </button>
+              </div>
+            )}
+          </div>
           {!isServiceAreaEditMode && (
             <button
               onClick={() => setIsServiceAreaEditMode(true)}
@@ -1025,141 +1108,184 @@ const LocationsTab: React.FC<LocationsTabProps> = ({ detailerData }) => {
           </div>
         )}
         
-        {locations.filter(location => !location.primary).length > 0 && (
-          <div className="space-y-4">
-            {locations.filter(location => !location.primary).map((location, index) => {
-              const locationId = `${location.city}-${location.state}`;
-              const isEditingThisLocation = editingLocationId === locationId;
+        {/* State-organized Service Areas */}
+        {stateNames.length > 0 ? (
+          <div className="space-y-3">
+            {stateNames.map((state) => {
+              const stateLocations = locationsByState[state];
+              const isExpanded = expandedStates.has(state);
+              const locationCount = stateLocations?.length || 0;
               
               return (
-                <div key={`${location.city}-${location.state}-${index + 1}`} className="bg-stone-800 border border-stone-700 rounded-lg p-6">
-                  <div className="flex items-center justify-end mb-4">
-                    <button
-                      onClick={() => openDeleteModal(location)}
-                      className="text-gray-400 hover:text-red-500 transition-colors"
-                      title="Delete location"
-                    >
-                      <Trash2 className="h-5 w-5" />
-                    </button>
-                  </div>
-                  
-                  {isEditingThisLocation ? (
-                    // Edit mode - show location search
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <label className="block text-sm font-medium text-gray-300">
-                          Search for a city or ZIP code
-                        </label>
-                        <button
-                          onClick={() => setEditingLocationId(null)}
-                          className="text-gray-400 hover:text-gray-300 transition-colors"
-                          title="Cancel"
-                        >
-                          <X className="h-5 w-5" />
-                        </button>
-                      </div>
-                      <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <MapPin className="h-5 w-5 text-gray-400" />
-                        </div>
-                        <input
-                          ref={editingLocationInputRef}
-                          type="text"
-                          value={editingLocationInput}
-                          onChange={(e) => handleEditingLocationInputChange(e.target.value)}
-                          placeholder={apiLoaded ? "Enter city or ZIP code" : "Loading..."}
-                          style={{ colorScheme: 'dark' }}
-                          className={`w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
-                            apiLoaded ? 'border-stone-700 bg-stone-700 text-white' : 'border-gray-200 bg-gray-50 text-gray-900'
-                          }`}
-                          disabled={!apiLoaded}
-                          autoFocus
-                        />
-                        {isEditingLocationLoading && (
-                          <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-orange-500"></div>
-                          </div>
-                        )}
-                      </div>
-                      {!apiLoaded && (
-                        <p className="mt-1 text-xs text-gray-500">Loading Google Places API...</p>
+                <div key={state} className="bg-stone-800 border border-stone-700 rounded-lg overflow-hidden">
+                  {/* State Header */}
+                  <button
+                    onClick={() => toggleStateExpansion(state)}
+                    className="w-full px-6 py-4 flex items-center justify-between hover:bg-stone-700 transition-colors"
+                  >
+                    <div className="flex items-center space-x-3">
+                      {isExpanded ? (
+                        <ChevronDown className="h-5 w-5 text-orange-500" />
+                      ) : (
+                        <ChevronRight className="h-5 w-5 text-orange-500" />
                       )}
+                      <h4 className="text-lg font-semibold text-white">{state}</h4>
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                        {locationCount} {locationCount === 1 ? 'location' : 'locations'}
+                      </span>
                     </div>
-                  ) : (
-                    // Read-only mode - show current data with clickable location fields
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-1">City</label>
-                        <input
-                          type="text"
-                          value={location.city}
-                          readOnly
-                          onClick={() => {
-                            setEditingLocationId(locationId);
-                            setEditingLocationInput('');
-                          }}
-                          className="w-full px-3 py-2 border border-stone-700 rounded-md bg-stone-700 text-white cursor-pointer hover:bg-stone-600 transition-colors"
-                          title="Click to edit location"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-1">State</label>
-                        <input
-                          type="text"
-                          value={location.state}
-                          readOnly
-                          onClick={() => {
-                            setEditingLocationId(locationId);
-                            setEditingLocationInput('');
-                          }}
-                          className="w-full px-3 py-2 border border-stone-700 rounded-md bg-stone-700 text-white cursor-pointer hover:bg-stone-600 transition-colors"
-                          title="Click to edit location"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-1">Zip</label>
-                        <input
-                          type="text"
-                          value={location.zip || ''}
-                          readOnly
-                          onClick={() => {
-                            setEditingLocationId(locationId);
-                            setEditingLocationInput('');
-                          }}
-                          className="w-full px-3 py-2 border border-stone-700 rounded-md bg-stone-700 text-white cursor-pointer hover:bg-stone-600 transition-colors"
-                          title="Click to edit location"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-1">Minimum</label>
-                        <input
-                          type="number"
-                          value={location.minimum || ''}
-                          onChange={(e) => {
-                            // TODO: Implement updateLocationMinimum function
-                            // updateLocationMinimum(locationId, parseFloat(e.target.value) || 0);
-                          }}
-                          className="w-full px-3 py-2 border border-stone-700 rounded-md bg-stone-700 text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-1">Multiplier</label>
-                        <input
-                          type="number"
-                          step="0.01"
-                          value={location.multiplier || ''}
-                          onChange={(e) => {
-                            // TODO: Implement updateLocationMultiplier function
-                            // updateLocationMultiplier(locationId, parseFloat(e.target.value) || 1.0);
-                          }}
-                          className="w-full px-3 py-2 border border-stone-700 rounded-md bg-stone-700 text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                        />
+                  </button>
+                  
+                  {/* State Locations */}
+                  {isExpanded && stateLocations && (
+                    <div className="border-t border-stone-700">
+                      <div className="p-6 space-y-4">
+                        {stateLocations.map((location, index) => {
+                          const locationId = `${location.city}-${location.state}`;
+                          const isEditingThisLocation = editingLocationId === locationId;
+                          
+                          return (
+                            <div key={`${location.city}-${location.state}-${index + 1}`} className="bg-stone-700 border border-stone-600 rounded-lg p-4">
+                              {isEditingThisLocation ? (
+                                // Edit mode - show location search
+                                <div className="space-y-4">
+                                  <div className="flex items-center justify-between">
+                                    <label className="block text-sm font-medium text-gray-300">
+                                      Search for a city or ZIP code
+                                    </label>
+                                    <button
+                                      onClick={() => setEditingLocationId(null)}
+                                      className="text-gray-400 hover:text-gray-300 transition-colors"
+                                      title="Cancel"
+                                    >
+                                      <X className="h-5 w-5" />
+                                    </button>
+                                  </div>
+                                  <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                      <MapPin className="h-5 w-5 text-gray-400" />
+                                    </div>
+                                    <input
+                                      ref={editingLocationInputRef}
+                                      type="text"
+                                      value={editingLocationInput}
+                                      onChange={(e) => handleEditingLocationInputChange(e.target.value)}
+                                      placeholder={apiLoaded ? "Enter city or ZIP code" : "Loading..."}
+                                      style={{ colorScheme: 'dark' }}
+                                      className={`w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
+                                        apiLoaded ? 'border-stone-600 bg-stone-600 text-white' : 'border-gray-200 bg-gray-50 text-gray-900'
+                                      }`}
+                                      disabled={!apiLoaded}
+                                      autoFocus
+                                    />
+                                    {isEditingLocationLoading && (
+                                      <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-orange-500"></div>
+                                      </div>
+                                    )}
+                                  </div>
+                                  {!apiLoaded && (
+                                    <p className="mt-1 text-xs text-gray-500">Loading Google Places API...</p>
+                                  )}
+                                </div>
+                              ) : (
+                                // Read-only mode - show current data with clickable location fields
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-300 mb-1">City</label>
+                                    <input
+                                      type="text"
+                                      value={location.city}
+                                      readOnly
+                                      onClick={() => {
+                                        setEditingLocationId(locationId);
+                                        setEditingLocationInput('');
+                                      }}
+                                      className="w-full px-3 py-2 border border-stone-600 rounded-md bg-stone-600 text-white cursor-pointer hover:bg-stone-500 transition-colors"
+                                      title="Click to edit location"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-300 mb-1">State</label>
+                                    <input
+                                      type="text"
+                                      value={location.state}
+                                      readOnly
+                                      onClick={() => {
+                                        setEditingLocationId(locationId);
+                                        setEditingLocationInput('');
+                                      }}
+                                      className="w-full px-3 py-2 border border-stone-600 rounded-md bg-stone-600 text-white cursor-pointer hover:bg-stone-500 transition-colors"
+                                      title="Click to edit location"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-300 mb-1">Zip</label>
+                                    <input
+                                      type="text"
+                                      value={location.zip || ''}
+                                      readOnly
+                                      onClick={() => {
+                                        setEditingLocationId(locationId);
+                                        setEditingLocationInput('');
+                                      }}
+                                      className="w-full px-3 py-2 border border-stone-600 rounded-md bg-stone-600 text-white cursor-pointer hover:bg-stone-500 transition-colors"
+                                      title="Click to edit location"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-300 mb-1">Minimum</label>
+                                    <input
+                                      type="number"
+                                      value={location.minimum || ''}
+                                                                              onChange={(e) => {
+                                          const newMinimum = parseFloat(e.target.value) || 0;
+                                          updateLocationField(locationId, 'minimum', newMinimum);
+                                        }}
+                                      className="w-full px-3 py-2 border border-stone-600 rounded-md bg-stone-600 text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-300 mb-1">Multiplier</label>
+                                    <div className="flex items-center gap-1">
+                                      <input
+                                        type="number"
+                                        step="0.01"
+                                        value={location.multiplier || ''}
+                                        onChange={(e) => {
+                                          const newMultiplier = parseFloat(e.target.value) || 1.0;
+                                          updateLocationField(locationId, 'multiplier', newMultiplier);
+                                        }}
+                                        className="w-1/4 px-3 py-2 border border-stone-600 rounded-md bg-stone-600 text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                      />
+                                      <button
+                                        onClick={() => openDeleteModal(location)}
+                                        className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded transition-colors flex-shrink-0 h-8 w-8 flex items-center justify-center"
+                                        title="Delete location"
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   )}
                 </div>
               );
             })}
+          </div>
+        ) : (
+          <div className="bg-stone-800 border border-stone-700 rounded-lg p-6">
+            <div className="text-center text-gray-400">
+              <MapPin className="h-12 w-12 mx-auto mb-4 text-gray-500" />
+              <p className="text-lg font-medium mb-2">No service areas added yet</p>
+              <p className="text-sm">Add your first service area to get started</p>
+            </div>
           </div>
         )}
       </div>

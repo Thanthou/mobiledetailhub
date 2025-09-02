@@ -256,9 +256,8 @@ router.get('/pending-applications', adminLimiter, authenticateToken, requireAdmi
       SELECT 
         a.id, a.slug, a.business_name, a.owner, a.phone, a.email, 
         a.has_insurance, a.source, a.notes, a.application_date, a.created_at,
-        addr.city, addr.state_code, addr.postal_code
+        a.service_areas
       FROM affiliates a
-      LEFT JOIN addresses addr ON a.base_address_id = addr.id
       WHERE a.application_status = 'pending' 
       ORDER BY a.application_date DESC
     `;

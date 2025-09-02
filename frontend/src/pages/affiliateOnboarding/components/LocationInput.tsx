@@ -276,7 +276,7 @@ const LocationInput: React.FC<LocationInputProps> = ({
         <input
           ref={inputRef}
           type="text"
-          id="location-search"
+          id="location-search-onboarding"
           name="location"
           value={inputValue}
           onChange={(e) => handleInputChange(e.target.value)}

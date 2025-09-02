@@ -119,22 +119,7 @@ CREATE TABLE customers (
 );
 CREATE TRIGGER trg_customers_updated BEFORE UPDATE ON customers FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
--- ─────────────────────────────────────────────────────────────────────────────
--- Addresses (simplified - no city normalization)
--- ─────────────────────────────────────────────────────────────────────────────
-CREATE TABLE addresses (
-  id           INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  line1        VARCHAR(255),
-  city         VARCHAR(100),
-  state_code   CHAR(2) NOT NULL,
-  postal_code  VARCHAR(20),
-  lat          DOUBLE PRECISION,
-  lng          DOUBLE PRECISION,
-  created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-CREATE TRIGGER trg_addresses_updated BEFORE UPDATE ON addresses FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-CREATE INDEX idx_addresses_location ON addresses(state_code, city, postal_code);
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Affiliates (operators only; NO brand rows here)
@@ -147,7 +132,7 @@ CREATE TABLE affiliates (
   phone                VARCHAR(20)  NOT NULL CHECK (phone ~ '^[0-9+\-\s\(\)]{7,20}$'),
   sms_phone            VARCHAR(20),
   email                CITEXT NOT NULL,
-  base_address_id      INT REFERENCES addresses(id) ON DELETE SET NULL,
+
   website_url          VARCHAR(500),
   gbp_url              VARCHAR(500),
   facebook_url         VARCHAR(500),

@@ -131,48 +131,10 @@ router.post('/apply',
       const smsPhone = formattedPhone.length === 10 ? `+1${formattedPhone}` : null;
       console.log('✅ [BACKEND] Phone formatted:', { original: phone, formatted: formattedPhone, sms: smsPhone });
 
-      // First, create or find the address record
-      console.log('🏠 [BACKEND] Starting address processing...');
-      let addressId;
-      // Check if address already exists
-      const addressCheckQuery = `
-        SELECT id FROM addresses 
-        WHERE city = $1 AND state_code = $2 AND postal_code = $3
-      `;
-      console.log('🔍 [BACKEND] Checking for existing address...');
-      const addressCheck = await pool.query(addressCheckQuery, [
-        base_location.city, 
-        base_location.state, 
-        base_location.zip || null
-      ]);
-      console.log('✅ [BACKEND] Address check completed, rows found:', addressCheck.rows.length);
-      
-      if (addressCheck.rows.length > 0) {
-        addressId = addressCheck.rows[0].id;
-        console.log('✅ [BACKEND] Using existing address ID:', addressId);
-        logger.debug(`Using existing address ID: ${addressId}`);
-      } else {
-        // Create new address record
-        console.log('🏗️ [BACKEND] Creating new address record...');
-        const addressQuery = `
-          INSERT INTO addresses (line1, city, state_code, postal_code) 
-          VALUES ($1, $2, $3, $4) 
-          RETURNING id
-        `;
-        const addressResult = await pool.query(addressQuery, [
-          `${base_location.city}, ${base_location.state}`, // Format line1 as "City, State"
-          base_location.city, 
-          base_location.state, 
-          base_location.zip || null
-        ]);
-        addressId = addressResult.rows[0].id;
-        console.log('✅ [BACKEND] New address created with ID:', addressId);
-        logger.debug(`Created new address ID: ${addressId}`);
-      }
+
 
       // Insert new affiliate application
       console.log('👤 [BACKEND] Starting affiliate creation...');
-      // Insert into affiliates table with base_address_id
       // Reuse existing pool connection
       if (!pool) {
         console.log('❌ [BACKEND] Pool check failed during affiliate creation');
@@ -181,10 +143,10 @@ router.post('/apply',
       const affiliateQuery = `
       INSERT INTO affiliates (
         slug, business_name, owner, phone, sms_phone, email, 
-        base_address_id, website_url, gbp_url, 
+        website_url, gbp_url, 
         facebook_url, instagram_url, youtube_url, tiktok_url,
         has_insurance, source, notes, application_status
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
       RETURNING id, slug, business_name, application_status
     `;
 
@@ -220,7 +182,6 @@ router.post('/apply',
         formattedPhone,
         smsPhone,
         email,
-        addressId, // Use the address ID instead of JSONB
         website_url || null,
         gbp_url || null,
         facebook_url || null,
@@ -761,13 +722,8 @@ router.get('/:slug/base_location', asyncHandler(async (req, res) => {
         a.id AS affiliate_id,
         a.slug,
         a.business_name,
-        addr.city,
-        addr.state_code,
-        addr.postal_code AS zip,
-        addr.lat,
-        addr.lng
+        a.service_areas
       FROM affiliates a
-      LEFT JOIN addresses addr ON addr.id = a.base_address_id
       WHERE a.slug = $1 AND a.application_status = 'approved'
     `, [slug]);
     
@@ -777,10 +733,14 @@ router.get('/:slug/base_location', asyncHandler(async (req, res) => {
     
     const affiliate = result.rows[0];
     
-    if (!affiliate.city || !affiliate.state_code) {
+    // Extract primary location from service_areas JSONB
+    const serviceAreas = affiliate.service_areas || [];
+    const primaryLocation = serviceAreas.find(area => area.primary === true);
+    
+    if (!primaryLocation || !primaryLocation.city || !primaryLocation.state) {
       return res.status(404).json({ 
         error: 'AFFILIATE_BASE_ADDRESS_INCOMPLETE',
-        message: 'Affiliate base address is missing city or state information'
+        message: 'Affiliate primary location is missing city or state information'
       });
     }
     
@@ -788,11 +748,11 @@ router.get('/:slug/base_location', asyncHandler(async (req, res) => {
       affiliate_id: affiliate.affiliate_id,
       slug: affiliate.slug,
       business_name: affiliate.business_name,
-      city: affiliate.city,
-      state_code: affiliate.state_code,
-      zip: affiliate.zip,
-      lat: affiliate.lat,
-      lng: affiliate.lng
+      city: primaryLocation.city,
+      state_code: primaryLocation.state,
+      zip: primaryLocation.zip,
+      lat: primaryLocation.lat || null,
+      lng: primaryLocation.lng || null
     });
   } catch (err) {
     logger.error('Error fetching affiliate base location:', { error: err.message });
@@ -953,18 +913,67 @@ router.delete('/:slug/service_areas/:areaId', asyncHandler(async (req, res) => {
 
 
 // Update primary service area
-router.put('/:slug/service_areas/primary', asyncHandler(async (req, res) => {
-  const { slug } = req.params;
-  const { city, state, zip, minimum, multiplier } = req.body;
+router.put('/:slug/service_areas/:areaId', asyncHandler(async (req, res) => {
+  const { slug, areaId } = req.params;
+  const updates = req.body;
   
   try {
     if (!pool) {
       return res.status(500).json({ error: 'Database connection not available' });
     }
 
-    // Validate required fields
-    if (!city || !state) {
-      return res.status(400).json({ error: 'City and state are required' });
+    // Get current affiliate and service areas
+    const affiliateResult = await pool.query(
+      'SELECT id, service_areas FROM affiliates WHERE slug = $1 AND application_status = \'approved\'',
+      [slug]
+    );
+    
+    if (affiliateResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Affiliate not found' });
+    }
+
+    const affiliate = affiliateResult.rows[0];
+    const currentServiceAreas = affiliate.service_areas || [];
+
+    // Find the service area to update
+    const areaIndex = currentServiceAreas.findIndex(area => 
+      `${area.city}-${area.state}` === areaId
+    );
+
+    if (areaIndex === -1) {
+      return res.status(404).json({ error: 'Service area not found' });
+    }
+
+    // Update the service area with new values
+    const updatedArea = { ...currentServiceAreas[areaIndex], ...updates };
+    const updatedServiceAreas = [...currentServiceAreas];
+    updatedServiceAreas[areaIndex] = updatedArea;
+
+    // Update affiliate with updated service areas
+    await pool.query(
+      'UPDATE affiliates SET service_areas = $1 WHERE id = $2',
+      [JSON.stringify(updatedServiceAreas), affiliate.id]
+    );
+
+    res.json({
+      success: true,
+      service_area: updatedArea,
+      message: 'Service area updated successfully'
+    });
+
+  } catch (err) {
+    logger.error('Error updating service area:', { error: err.message });
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}));
+
+router.put('/:slug/service_areas/primary', asyncHandler(async (req, res) => {
+  const { slug } = req.params;
+  const updates = req.body;
+  
+  try {
+    if (!pool) {
+      return res.status(500).json({ error: 'Database connection not available' });
     }
 
     // Get current affiliate and service areas
@@ -993,15 +1002,11 @@ router.put('/:slug/service_areas/primary', asyncHandler(async (req, res) => {
       logger.warn(`Multiple primary service areas found for affiliate ${slug}, using first one`);
     }
 
-    // Update the primary service area
+    // Update the primary service area with provided updates
     const updatedServiceAreas = [...currentServiceAreas];
     updatedServiceAreas[primaryIndex] = {
       ...updatedServiceAreas[primaryIndex],
-      city: city.trim(),
-      state: state.toUpperCase().trim(),
-      zip: zip ? parseInt(zip.trim()) : null,
-      minimum: minimum || 0,
-      multiplier: multiplier || 1.0,
+      ...updates,
       primary: true // Ensure it remains primary
     };
 

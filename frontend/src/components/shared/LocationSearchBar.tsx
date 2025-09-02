@@ -303,7 +303,7 @@ const GetStarted: React.FC<GetStartedProps> = ({
           <input
             ref={inputRef}
             type="text"
-            id="location-search"
+            id="location-search-shared"
             name="location"
             value={inputValue}
             onChange={(e) => handleInputChange(e.target.value)}

@@ -35,29 +35,23 @@ async function testDataFlow() {
       notes: 'Test affiliate for data flow verification'
     };
 
-    // Create address first
-    const addressQuery = `
-      INSERT INTO addresses (line1, city, state_code, postal_code) 
-      VALUES ($1, $2, $3, $4) 
-      RETURNING id
-    `;
-    
-    const addressResult = await client.query(addressQuery, [
-      `${testApplication.base_location.city}, ${testApplication.base_location.state}`,
-      testApplication.base_location.city,
-      testApplication.base_location.state,
-      testApplication.base_location.zip
-    ]);
-    
-    const addressId = addressResult.rows[0].id;
-    logger.info(`✅ Created address with ID: ${addressId}`);
-
     // Create affiliate with pending status
     const tempSlug = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Create service areas JSONB with primary location
+    const serviceAreas = [{
+      city: testApplication.base_location.city,
+      state: testApplication.base_location.state,
+      zip: testApplication.base_location.zip,
+      primary: true,
+      minimum: 0,
+      multiplier: 1
+    }];
+    
     const affiliateQuery = `
       INSERT INTO affiliates (
         slug, business_name, owner, phone, email, 
-        base_address_id, has_insurance, source, notes, application_status
+        service_areas, has_insurance, source, notes, application_status
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       RETURNING id, slug, business_name, application_status
     `;
@@ -68,7 +62,7 @@ async function testDataFlow() {
       testApplication.primary_contact,
       testApplication.phone.replace(/\D/g, ''),
       testApplication.email,
-      addressId,
+      JSON.stringify(serviceAreas),
       testApplication.has_insurance,
       testApplication.source,
       testApplication.notes,
@@ -192,7 +186,6 @@ async function testDataFlow() {
     // Clean up test data
     logger.info('🧹 Cleaning up test data...');
     await client.query('DELETE FROM affiliates WHERE id = $1', [affiliateId]);
-    await client.query('DELETE FROM addresses WHERE id = $1', [addressId]);
     
     logger.info('🎉 All tests passed! Data flow is working correctly.');
     logger.info('✅ Application → Pending → Approved → Service Areas populated with slugs');
