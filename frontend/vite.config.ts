@@ -7,7 +7,8 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      'shared': fileURLToPath(new URL('./src/components/shared', import.meta.url))
+      'shared': fileURLToPath(new URL('./src/components/shared', import.meta.url)),
+      '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
   optimizeDeps: {

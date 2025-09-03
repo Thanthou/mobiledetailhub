@@ -16,7 +16,9 @@ export const affiliateServesLocation = (
   serviceAreas: ServiceArea[] | string | null | undefined,
   location: LocationData | null
 ): boolean => {
-  if (!location || !serviceAreas) return false;
+  if (!location || !serviceAreas) {
+    return false;
+  }
 
   let serviceAreasData: ServiceArea[] = [];
   
@@ -30,11 +32,12 @@ export const affiliateServesLocation = (
   } else if (Array.isArray(serviceAreas)) {
     serviceAreasData = serviceAreas;
   }
-
-  return serviceAreasData.some(area => 
-    area.city.toLowerCase() === location.city.toLowerCase() && 
-    area.state.toLowerCase() === location.state.toLowerCase()
-  );
+  
+  return serviceAreasData.some(area => {
+    const cityMatch = area.city.toLowerCase() === location.city.toLowerCase();
+    const stateMatch = area.state.toLowerCase() === location.state.toLowerCase();
+    return cityMatch && stateMatch;
+  });
 };
 
 /**
@@ -80,6 +83,7 @@ export const getAffiliateDisplayLocation = (
 
   // Otherwise, use the primary service area
   const primaryArea = getPrimaryServiceArea(serviceAreas);
+  
   if (primaryArea) {
     return {
       city: primaryArea.city,

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useParams } from 'react-router-dom';
 import { config } from '../config/environment';
+import { useLocation } from './LocationContext';
 
 interface ServiceArea {
   city: string;
@@ -79,6 +80,7 @@ interface AffiliateProviderProps {
 
 export const AffiliateProvider: React.FC<AffiliateProviderProps> = ({ children }) => {
   const { businessSlug } = useParams<{ businessSlug: string }>();
+  const { updateLocationWithState, selectedLocation } = useLocation();
   const [affiliateData, setAffiliateData] = useState<AffiliateData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -116,6 +118,35 @@ export const AffiliateProvider: React.FC<AffiliateProviderProps> = ({ children }
 
     fetchAffiliateData();
   }, [businessSlug]);
+
+  // Update location when affiliate data loads (only if no valid location is currently selected)
+  useEffect(() => {
+    if (affiliateData?.service_areas) {
+      // Only update location if no valid location is currently selected
+      if (!selectedLocation || !selectedLocation.city || !selectedLocation.state) {
+        // Parse service areas to find the primary location
+        let serviceAreasData = affiliateData.service_areas;
+        if (typeof serviceAreasData === 'string') {
+          try {
+            serviceAreasData = JSON.parse(serviceAreasData);
+          } catch (e) {
+            console.error('Error parsing service_areas JSON:', e);
+            return;
+          }
+        }
+        
+        if (Array.isArray(serviceAreasData)) {
+          // Find the primary service area (only elements with primary: true)
+          const primaryArea = serviceAreasData.find(area => area.primary === true);
+          
+          if (primaryArea && primaryArea.city && primaryArea.state) {
+            // Update location with affiliate's primary service area
+            updateLocationWithState(primaryArea.city, primaryArea.state);
+          }
+        }
+      }
+    }
+  }, [affiliateData, updateLocationWithState, selectedLocation]);
 
   const value: AffiliateContextType = {
     affiliateData,

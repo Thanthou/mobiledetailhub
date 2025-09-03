@@ -24,7 +24,7 @@ interface FooterGridProps {
 }
 
 const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig, businessSlug, serviceAreas, serviceAreasData, onRequestQuote, onBookNow, onQuoteHover }) => {
-  const { selectedLocation } = useLocation();
+  const { selectedLocation, setSelectedLocation } = useLocation();
   
   // Get the appropriate location to display (selected location if served, otherwise primary)
   const displayLocation = React.useMemo(() => {
@@ -33,6 +33,17 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig, businessSlug, ser
   const handleBookNow = () => {
     if (onBookNow) {
       onBookNow();
+    }
+  };
+
+  const handleLocationChange = (location: string, zipCode?: string, city?: string, state?: string) => {
+    if (city && state) {
+      setSelectedLocation({
+        city: city,
+        state: state,
+        zipCode: zipCode || '',
+        fullLocation: `${city}, ${state}`
+      });
     }
   };
 
@@ -72,6 +83,7 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig, businessSlug, ser
                   buttonClassName="text-lg hover:text-orange-400 transition-colors duration-200 bg-transparent border-none p-0 font-inherit cursor-pointer text-left"
                   showIcon={false}
                   gapClassName="space-x-0"
+                  onLocationChange={handleLocationChange}
                 />
               ) : (
                 <LocationEditModal
@@ -79,6 +91,7 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig, businessSlug, ser
                   buttonClassName="text-lg hover:text-orange-400 transition-colors duration-200 bg-transparent border-none p-0 font-inherit cursor-pointer text-left"
                   showIcon={false}
                   gapClassName="space-x-0"
+                  onLocationChange={handleLocationChange}
                 />
               )}
             </div>

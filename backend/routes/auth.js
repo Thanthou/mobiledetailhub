@@ -52,8 +52,8 @@ router.post('/register',
 
     // Create user with admin status if applicable
     const result = await pool.query(
-      'INSERT INTO users (email, password_hash, name, phone, is_admin, role, created_at) VALUES ($1, $2, $3, $4, $5, $6, NOW()) RETURNING id, email, name, phone, is_admin, role, created_at',
-      [email, hashedPassword, name, phone, isAdmin, isAdmin ? 'admin' : 'user']
+      'INSERT INTO auth.users (email, password_hash, name, phone, is_admin, created_at) VALUES ($1, $2, $3, $4, $5, NOW()) RETURNING id, email, name, phone, is_admin, created_at',
+      [email, hashedPassword, name, phone, isAdmin]
     );
 
     // Generate token pair (access + refresh)
@@ -141,7 +141,7 @@ router.post('/login',
     
     // Auto-promote to admin if email is in ADMIN_EMAILS list
     if (ADMIN_EMAILS.includes(user.email) && !user.is_admin) {
-      await pool.query('UPDATE users SET is_admin = TRUE, role = \'admin\' WHERE id = $1', [user.id]);
+      await pool.query('UPDATE auth.users SET is_admin = TRUE WHERE id = $1', [user.id]);
       isAdmin = true;
     }
 
@@ -208,7 +208,7 @@ router.get('/me', authenticateToken, asyncHandler(async (req, res) => {
   
   // Auto-promote to admin if email is in ADMIN_EMAILS list
   if (ADMIN_EMAILS.includes(user.email) && !user.is_admin) {
-    await pool.query('UPDATE users SET is_admin = TRUE, role = \'admin\' WHERE id = $1', [user.id]);
+    await pool.query('UPDATE auth.users SET is_admin = TRUE WHERE id = $1', [user.id]);
     isAdmin = true;
   }
   
@@ -375,7 +375,7 @@ router.post('/promote-admin', authLimiter, asyncHandler(async (req, res) => {
   
   // Update all users whose emails are in ADMIN_EMAILS to be admins
   const result = await pool.query(
-    'UPDATE users SET is_admin = TRUE, role = \'admin\' WHERE email = ANY($1) RETURNING id, email, name',
+    'UPDATE auth.users SET is_admin = TRUE WHERE email = ANY($1) RETURNING id, email, name',
     [ADMIN_EMAILS]
   );
   

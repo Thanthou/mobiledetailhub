@@ -27,7 +27,7 @@ const FooterBottom: React.FC<FooterBottomProps> = ({ businessInfo }) => {
             >
               Mobile Detail Hub
               <img 
-                src="/assets/favicon.webp" 
+                src="/icons/favicon.webp" 
                 alt="Mobile Detail Hub Logo" 
                 className="h-16 w-16"
               />

@@ -1,0 +1,1 @@
+export { useServiceData } from './useServiceData';

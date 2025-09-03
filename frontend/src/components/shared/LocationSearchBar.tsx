@@ -226,17 +226,21 @@ const GetStarted: React.FC<GetStartedProps> = ({
 
   // Handle location search and business routing
   const handleLocationSearch = async (location: string, zipCode?: string, city?: string, state?: string) => {
+    console.log('🔍 [LocationSearchBar] handleLocationSearch called with:', { location, zipCode, city, state });
     setSearchingLocation(true);
     
     try {
       // Only set location if we have both city and state
       if (city && state) {
+        console.log('🔍 [LocationSearchBar] Setting selected location to:', city, state);
         setSelectedLocation({
           city: city,
           state: state,
           zipCode: zipCode || '',
           fullLocation: location
         });
+      } else {
+        console.log('🔍 [LocationSearchBar] Missing city or state, not setting location:', { city, state });
       }
       
       onLocationSubmit?.(location, zipCode, city, state);

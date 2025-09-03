@@ -1,8 +1,9 @@
 import React from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import SocialMediaIcons from '../SocialMediaIcons';
 import { NAV_LINKS } from '../constants';
 import { useSiteContext } from '/src/hooks/useSiteContext';
-import { useLocation } from '/src/contexts/LocationContext';
+import { useLocation as useLocationContext } from '/src/contexts/LocationContext';
 import LocationEditModal from 'shared/LocationEditModal';
 import { scrollToTop } from '/src/utils/scrollToTop';
 import LoginButton from '../LoginButton';
@@ -17,10 +18,15 @@ import { getAffiliateDisplayLocation } from '/src/utils/affiliateLocationHelper'
 const HeaderAffiliate: React.FC = () => {
   const { businessSlug } = useSiteContext();
   const { user } = useAuth();
-  const { selectedLocation } = useLocation();
+  const { selectedLocation } = useLocationContext();
   const { affiliateData, isLoading: affiliateLoading, error: affiliateError } = useAffiliate();
   const { mdhConfig, isLoading: mdhLoading, error: mdhError } = useMDHConfig();
   const { expandFAQ } = useFAQ();
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Check if we're on a service page
+  const isServicePage = location.pathname.includes('/service/');
   
   // Get the appropriate location to display (selected location if served, otherwise primary)
   const displayLocation = React.useMemo(() => {
@@ -60,6 +66,28 @@ const HeaderAffiliate: React.FC = () => {
     <header className="fixed top-0 z-50 bg-black/20 backdrop-blur-sm w-full">
       <div className="w-full py-4">
         <div className="max-w-7xl mx-auto flex items-center px-4">
+          {/* Back button for service pages */}
+          {isServicePage && (
+            <button
+              onClick={() => {
+                navigate(`/${businessSlug}`);
+                // Scroll to services section after navigation
+                setTimeout(() => {
+                  const servicesSection = document.getElementById('services');
+                  if (servicesSection) {
+                    servicesSection.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }, 100);
+              }}
+              className="flex items-center text-white hover:text-orange-400 transition-colors duration-200 mr-4"
+            >
+              <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Back
+            </button>
+          )}
+          
           {/* 1. Logo/Business Name/Info */}
           <div className="flex items-center space-x-3">
             {mdhConfig.logo_url && (

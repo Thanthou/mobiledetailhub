@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ConnectColumn from '../columns/ConnectColumn';
 import SocialMediaColumn from '../columns/SocialMediaColumn';
 import { MapPin } from 'lucide-react';
 import { config } from '../../../../../config/environment';
+import { useLocation } from '../../../../../contexts/LocationContext';
 
 interface ServiceArea {
   state_code: string;
@@ -22,6 +24,8 @@ interface FooterGridProps {
 }
 
 const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig }) => {
+  const { setSelectedLocation } = useLocation();
+  const navigate = useNavigate();
   const [serviceAreas, setServiceAreas] = useState<ServiceArea[]>([]);
   const [cities, setCities] = useState<City[]>([]);
   const [selectedState, setSelectedState] = useState<string | null>(null);
@@ -88,6 +92,22 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig }) => {
     setCities([]);
   };
 
+  const handleCityClick = (city: City) => {
+    // Set the location before navigating
+    setSelectedLocation({
+      city: city.city,
+      state: city.state_code,
+      zipCode: '',
+      fullLocation: `${city.city}, ${city.state_code}`
+    });
+    
+    // Use React Router navigation instead of window.location.href
+    // This allows the location to be set before navigation
+    setTimeout(() => {
+      navigate(`/${city.slugs[0]}`);
+    }, 100); // Small delay to ensure location is set
+  };
+
   // Get unique states and sort them by name
   const states = serviceAreas.sort((a, b) => a.name.localeCompare(b.name));
 
@@ -144,7 +164,7 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig }) => {
                                   {cities.map((city, index) => (
                   <button
                     key={`${city.state_code}-${city.city}-${index}`}
-                    onClick={() => window.location.href = `/${city.slugs[0]}`}
+                    onClick={() => handleCityClick(city)}
                     className="text-orange-400 hover:text-orange-300 text-sm text-center md:text-right cursor-pointer transition-colors block w-full"
                   >
                     {city.city}

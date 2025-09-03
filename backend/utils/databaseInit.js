@@ -63,8 +63,8 @@ async function initializeSampleData() {
       const passwordHash = await bcrypt.hash(adminPassword, 10);
       
       await pool.query(`
-        INSERT INTO users (email, name, role, is_admin, password_hash, phone)
-        VALUES ('admin@mobiledetailhub.com', 'Brandan Coleman', 'admin', TRUE,
+        INSERT INTO auth.users (email, name, is_admin, password_hash, phone)
+        VALUES ('admin@mobiledetailhub.com', 'Brandan Coleman', TRUE,
                 $1, '')
         ON CONFLICT (email) DO NOTHING
       `, [passwordHash]);
@@ -190,7 +190,6 @@ async function setupDatabase() {
         id            SERIAL PRIMARY KEY,
         email         CITEXT NOT NULL UNIQUE,
         name          VARCHAR(255),
-        role          user_role NOT NULL,
         is_admin      BOOLEAN DEFAULT FALSE,
         password_hash VARCHAR(255),
         phone         VARCHAR(50),

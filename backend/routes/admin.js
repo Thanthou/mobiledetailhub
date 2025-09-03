@@ -34,8 +34,8 @@ router.delete('/affiliates/:id', criticalAdminLimiter, authenticateToken, requir
     // If not found in affiliates table, try to find by user ID
     if (affiliateResult.rowCount === 0) {
       logger.debug(`Affiliate ID ${id} not found in affiliates table, checking users table...`);
-      const findUserQuery = 'SELECT email, name FROM auth.users WHERE id = $1 AND role = $2';
-      const userResult = await client.query(findUserQuery, [id, 'affiliate']);
+      const findUserQuery = 'SELECT email, name FROM auth.users WHERE id = $1';
+      const userResult = await client.query(findUserQuery, [id]);
       
       if (userResult.rowCount === 0) {
         await client.query('ROLLBACK');
@@ -90,8 +90,8 @@ router.delete('/affiliates/:id', criticalAdminLimiter, authenticateToken, requir
     logger.info(`Deleted affiliate record ${id}`);
     
     // Delete the corresponding user record
-    const deleteUserQuery = 'DELETE FROM auth.users WHERE email = $1 AND role = $2';
-    const userResult = await client.query(deleteUserQuery, [affiliate.business_email, 'affiliate']);
+    const deleteUserQuery = 'DELETE FROM auth.users WHERE email = $1';
+    const userResult = await client.query(deleteUserQuery, [affiliate.business_email]);
     logger.info(`Deleted ${userResult.rowCount} user record(s) for email: ${affiliate.email}`);
     
     // Audit log the affiliate deletion
@@ -162,7 +162,7 @@ router.get('/users', adminLimiter, authenticateToken, requireAdmin, asyncHandler
       
       let query = `
         SELECT 
-          a.id, a.owner as name, a.business_email as email, 'affiliate' as role, a.created_at,
+          a.id, a.owner as name, a.business_email as email, a.created_at,
           a.business_name, a.application_status, a.slug, a.business_phone as phone, a.service_areas
         FROM affiliates.business a
         WHERE a.application_status = 'approved'
@@ -200,25 +200,25 @@ router.get('/users', adminLimiter, authenticateToken, requireAdmin, asyncHandler
     }
   }
   
-  let query = 'SELECT id, name, email, role, created_at FROM auth.users';
+  let query = 'SELECT id, name, email, is_admin, created_at FROM auth.users';
   let params = [];
   
   if (status && status !== 'all-users') {
     // Map frontend status to database fields
     const statusMap = {
-      'admin': 'role = $1',
-      'customers': 'role = $1'
+      'admin': 'is_admin = $1',
+      'customers': 'is_admin = $1'
     };
     
-    // Map frontend status to actual database role values
-    const roleMap = {
-      'admin': 'admin',
-      'customers': 'customer'
+    // Map frontend status to actual database values
+    const valueMap = {
+      'admin': true,
+      'customers': false
     };
     
     if (statusMap[status]) {
       query += ` WHERE ${statusMap[status]}`;
-      params.push(roleMap[status]);
+      params.push(valueMap[status]);
     }
   }
   
@@ -375,7 +375,7 @@ router.post('/approve-application/:id', adminLimiter, authenticateToken, require
   
   // Create user account for approved affiliate
   const userQuery = `
-    INSERT INTO auth.users (email, password_hash, name, phone, role, created_at)
+    INSERT INTO auth.users (email, password_hash, name, phone, is_admin, created_at)
     VALUES ($1, $2, $3, $4, $5, NOW())
     RETURNING id
   `;
@@ -390,7 +390,7 @@ router.post('/approve-application/:id', adminLimiter, authenticateToken, require
     hashedPassword,
     affiliate.owner,
     affiliate.business_phone,
-    'affiliate'
+    false  // is_admin = false for affiliates
   ]);
   
   const userId = userResult.rows[0].id;
@@ -406,7 +406,7 @@ router.post('/approve-application/:id', adminLimiter, authenticateToken, require
     email: req.user.email
   });
   
-  // User account is already linked to affiliate via the role field
+  // User account is created for affiliate access
   // No need for additional junction table
   
         // Process service areas if provided

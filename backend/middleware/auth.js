@@ -44,15 +44,14 @@ const requireAdmin = (req, res, next) => {
     return res.status(401).json({ error: 'Authentication required' });
   }
   
-  // Check both isAdmin boolean and role string for comprehensive admin validation
-  const isAdminUser = req.user.isAdmin === true || req.user.role === 'admin';
+  // Check isAdmin boolean for admin validation
+  const isAdminUser = req.user.isAdmin === true;
   
   if (!isAdminUser) {
     logger.warn('Admin access denied', { 
       userId: req.user.userId, 
       email: req.user.email,
       isAdmin: req.user.isAdmin,
-      role: req.user.role,
       ip: req.ip
     });
     return res.status(403).json({ error: 'Admin access required' });
@@ -61,8 +60,7 @@ const requireAdmin = (req, res, next) => {
   logger.debug('Admin access granted', { 
     userId: req.user.userId, 
     email: req.user.email,
-    isAdmin: req.user.isAdmin,
-    role: req.user.role
+    isAdmin: req.user.isAdmin
   });
   
   next();

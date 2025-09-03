@@ -98,7 +98,7 @@ const validateRefreshToken = async (tokenHash) => {
     }
 
     const result = await pool.query(
-      `SELECT rt.*, u.email, u.is_admin, u.role
+      `SELECT rt.*, u.email, u.is_admin
        FROM auth.refresh_tokens rt
        JOIN auth.users u ON rt.user_id = u.id
        WHERE rt.token_hash = $1 

@@ -32,7 +32,7 @@ const ModalHeader = forwardRef<HTMLButtonElement, ModalHeaderProps>(
             aria-hidden="true"
           >
             <img 
-              src="/assets/favicon.webp" 
+              src="/icons/favicon.webp" 
               alt="Mobile Detail Hub Logo" 
               className="w-full h-full object-contain"
               onError={(e) => {

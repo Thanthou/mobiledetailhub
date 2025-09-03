@@ -1,31 +1,31 @@
 // Hero configuration constants
 export const HERO_CONSTANTS = {
   IMAGES: [
-    '/hero/image1.png',
-    '/hero/image2.png',
+    '/images/hero/hero1.png',
+    '/images/hero/hero2.png',
   ].filter(Boolean),
   
   // Responsive image sources for different screen sizes
   RESPONSIVE_IMAGES: {
     image1: {
-      avif: '/hero/image1.avif',
+      avif: '/images/hero/hero1.avif',
       webp: {
-        sm: '/hero/image1-sm.webp',   // 640w
-        md: '/hero/image1-md.webp',   // 1024w  
-        lg: '/hero/image1-lg.webp',   // 1920w
-        xl: '/hero/image1-xl.webp'    // 2560w
+        sm: '/images/hero/hero1-sm.webp',   // 640w
+        md: '/images/hero/hero1-md.webp',   // 1024w  
+        lg: '/images/hero/hero1-lg.webp',   // 1920w
+        xl: '/images/hero/hero1-xl.webp'    // 2560w
       },
-      fallback: '/hero/image1.png'
+      fallback: '/images/hero/hero1.png'
     },
     image2: {
-      avif: '/hero/image2.avif',
+      avif: '/images/hero/hero2.avif',
       webp: {
-        sm: '/hero/image2-sm.webp',
-        md: '/hero/image2-md.webp',
-        lg: '/hero/image2-lg.webp', 
-        xl: '/hero/image2-xl.webp'
+        sm: '/images/hero/hero2-sm.webp',
+        md: '/images/hero/hero2-md.webp',
+        lg: '/images/hero/hero2-lg.webp', 
+        xl: '/images/hero/hero2-xl.webp'
       },
-      fallback: '/hero/image2.png'
+      fallback: '/images/hero/hero2.png'
     }
   },
   

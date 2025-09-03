@@ -18,7 +18,7 @@ const ApplicationHeader: React.FC<ApplicationHeaderProps> = () => {
               </button>
             </Link>
             <div className="h-6 w-px bg-stone-600"></div>
-            <img src="/assets/logo.webp" alt="Logo" className="h-8 w-8 md:h-10 md:w-10" />
+            <img src="/icons/logo.webp" alt="Logo" className="h-8 w-8 md:h-10 md:w-10" />
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-white">Mobile Detail Hub</h1>
               <p className="text-sm text-gray-400">Affiliate Application</p>

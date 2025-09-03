@@ -1,53 +1,56 @@
-import autoImage from '/src/assets/auto.png';
-import boatImage from '/src/assets/boat.png';
-import rvImage from '/src/assets/rv.png';
-import ceramicImage from '/src/assets/ceramic.png';
-import paintCorrectionImage from '/src/assets/paint_correction.png';
-import ppfImage from '/src/assets/ppf.png';
+import { Link } from 'react-router-dom';
+import { useSiteContext } from '../../../../hooks/useSiteContext';
+const autoImage = '/images/services/thumbnails/auto.png';
+const boatImage = '/images/services/thumbnails/boat.png';
+const rvImage = '/images/services/thumbnails/rv.png';
+const ceramicImage = '/images/services/thumbnails/ceramic.png';
+const paintCorrectionImage = '/images/services/thumbnails/paint.png';
+const ppfImage = '/images/services/thumbnails/ppf.png';
 
 const SERVICES = [
   {
     title: 'Auto Detailing',
     image: autoImage,
-    link: '#',
+    slug: 'auto-detailing',
   },
   {
     title: 'Marine Detailing',
     image: boatImage,
-    link: '#',
+    slug: 'marine-detailing',
   },
   {
     title: 'RV Detailing',
     image: rvImage,
-    link: '#',
+    slug: 'rv-detailing',
   },
-  
   {
     title: 'Ceramic Coating',
     image: ceramicImage,
-    link: '#',
+    slug: 'ceramic-coating',
   },
   {
     title: 'Paint Correction',
     image: paintCorrectionImage,
-    link: '#',
+    slug: 'paint-correction',
   },
   {
     title: 'Paint Protection Film',
     image: ppfImage,
-    link: '#',
+    slug: 'paint-protection-film',
   },
 ];
 
 const ServicesGrid = () => {
+  const { businessSlug } = useSiteContext();
+  
   return (
     <section id="services" className="bg-stone-900 py-16">
       <div className="w-full px-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {SERVICES.map((service) => (
-            <a
+            <Link
               key={service.title}
-              href={service.link}
+              to={businessSlug ? `/${businessSlug}/service/${service.slug}` : `/service/${service.slug}`}
               className="group block rounded-lg overflow-hidden shadow-lg bg-stone-800 hover:shadow-2xl transition"
             >
               <div className="relative w-full overflow-hidden" style={{ paddingBottom: '66.6667%' }}>
@@ -62,7 +65,7 @@ const ServicesGrid = () => {
                   </h3>
                 </div>
               </div>
-            </a>
+            </Link>
           ))}
         </div>
       </div>

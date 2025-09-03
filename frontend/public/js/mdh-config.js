@@ -4,7 +4,7 @@ window.__MDH__ = {
   // Basic business info
   name: "Mobile Detail Hub",
   url: "https://mobiledetailhub.com/",
-  logo: "/assets/logo.webp",
+  logo: "/icons/logo.webp",
   phone: "(888) 555-1234",
   email: "service@mobiledetailhub.com",
   
@@ -22,9 +22,9 @@ window.__MDH__ = {
   services_description: "Find trusted mobile detailers for cars, boats, and RVs with Mobile Detail Hub. Compare services, read reviews, and book online with verified pros in your area.",
   
   // Assets
-  logo: "/assets/logo.webp",
-  logo_url: "/assets/logo.webp",
-  favicon_url: "/assets/favicon.webp",
+  logo: "/icons/logo.webp",
+  logo_url: "/icons/logo.webp",
+  favicon_url: "/icons/favicon.webp",
   ogImage: "/hero/image1.png",
   
   // Timestamps (will be updated by API)

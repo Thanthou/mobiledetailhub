@@ -9,6 +9,7 @@ import { FAQProvider } from './contexts/FAQContext';
 import DashboardPage from './pages/affiliateDashboard/DashboardPage';
 import { DashboardPage as AdminDashboard } from './pages/adminDashboard';
 import { AffiliateApplicationPage } from './pages/affiliateOnboarding';
+import { ServicePage } from './pages/serviceSection';
 import Header from './pages/home/components/01_header';
 import ErrorBoundary from './components/shared/ErrorBoundary';
 import NotFoundPage from './components/shared/NotFoundPage';
@@ -99,6 +100,12 @@ function App() {
                       </ProtectedRoute>
                     } />
                     <Route path="/affiliate-onboarding" element={<AffiliateApplicationPage />} />
+                    <Route path="/service/:serviceType" element={<ServicePage />} />
+                    <Route path="/:businessSlug/service/:serviceType" element={
+                      <AffiliateProvider>
+                        <ServicePage />
+                      </AffiliateProvider>
+                    } />
 
                     <Route path="/:businessSlug" element={
                       <AffiliateProvider>
