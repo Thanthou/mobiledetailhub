@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, Users, TrendingUp } from 'lucide-react';
+import { Star, Users } from 'lucide-react';
 import { Review } from './types';
 
 interface ReviewsHeaderProps {
@@ -42,16 +42,6 @@ export const ReviewsHeader: React.FC<ReviewsHeaderProps> = ({ reviews }) => {
             {reviews.length}+
           </span>
           <span className="text-gray-300">reviews</span>
-        </div>
-        
-        <div className="w-px h-8 bg-stone-600"></div>
-        
-        <div className="flex items-center gap-2">
-          <TrendingUp className="w-5 h-5 text-orange-400" />
-          <span className="text-2xl font-bold text-white">
-            100%
-          </span>
-          <span className="text-gray-300">satisfied</span>
         </div>
       </div>
     </div>

@@ -17,6 +17,7 @@ const customersRoutes = require('./routes/customers');
 const adminRoutes = require('./routes/admin');
 const uploadRoutes = require('./routes/upload');
 const servicesRoutes = require('./routes/services');
+const reviewsRoutes = require('./routes/reviews');
 
 // Get the update function from health routes
 const { updateShutdownStatus } = healthRoutes;
@@ -328,6 +329,7 @@ app.use('/api/customers', customersRoutes);
 app.use('/api/admin', adminLimiter, adminRoutes); // Apply admin rate limiting
 app.use('/api/upload', apiLimiter, uploadRoutes); // Apply upload rate limiting
 app.use('/api/services', servicesRoutes);
+app.use('/api/reviews', reviewsRoutes);
 
 // Error handling middleware (must be last)
 app.use(notFoundHandler);

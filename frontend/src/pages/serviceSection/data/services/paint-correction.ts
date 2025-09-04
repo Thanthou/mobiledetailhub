@@ -6,23 +6,23 @@ import type { ServiceData } from '../types';
 // TODO[hero]: Half-and-half panel (masked line) showing BEFORE (swirls/haze) vs AFTER (deep gloss).
 // Dark color works best to show defects. Soft studio or shaded outdoor light.
 // Optional: short loop video version for hover on desktop.
-const heroImage = '/images/services/paint-correction/hero.png';
+const heroImage = '/images/services/paint-correction/hero.jpg';
 
 // TODO[process-1]: Compounding pass — wool/microfiber pad on a DA polisher,
 // light dusting captured in the air, precise hand placement; shallow DOF macro.
-const processImage = '/images/services/paint-correction/process-1.png';
+const processImage = '/images/services/paint-correction/process-1.jpg';
 
 // TODO[process-2]: Refining polish — yellow/foam pad, tight "rope light" reflections showing clarity.
-const processImage2 = '/images/services/paint-correction/process-2.png';
+const processImage2 = '/images/services/paint-correction/process-2.jpg';
 
 // TODO[process-3]: Inspection — paint depth gauge in frame or cross-polarized light shot,
 // showing a crystal-clear, hologram-free finish.
-const processImage3 = '/images/services/paint-correction/process-3.png';
+const processImage3 = '/images/services/paint-correction/process-3.jpg';
 
 // TODO[results-before/after]: Same angle/lighting for slider. BEFORE: swirls, RIDs, oxidation.
 // AFTER: sharp, mirror reflections. Keep lighting neutral to avoid "lighting trick" skepticism.
-const resultsImage = '/images/services/paint-correction/before.png';
-const resultsImage2 = '/images/services/paint-correction/after.png';
+const resultsImage = '/images/services/paint-correction/before.jpg';
+const resultsImage2 = '/images/services/paint-correction/after.jpg';
 
 // TODO[whatItIs]: Simple graphic: clear coat layers + "defects" vs "leveled finish", or
 // a 1–2 sentence explainer overlay ("Removes swirls/haze to restore true gloss").
@@ -91,7 +91,8 @@ export const paintCorrectionData: ServiceData = {
       "A proper base that lets Ceramic/PPF bond and perform optimally"
     ],
     beforeImage: resultsImage,
-    afterImage: resultsImage2
+    afterImage: resultsImage2,
+    containerSize: 'large'
   },
 
   information: {

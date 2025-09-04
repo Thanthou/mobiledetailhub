@@ -25,6 +25,7 @@ export interface ServiceData {
     description: string[];
     beforeImage: string;
     afterImage: string;
+    containerSize?: 'small' | 'medium' | 'large';
   };
   information: {
     title: string;

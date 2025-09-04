@@ -1,13 +1,13 @@
 // src/services/data/marine-detailing.ts
 import type { ServiceData } from '../types';
 
-const heroImage = '/images/services/marine-detailing/hero.png';
-const processImage = '/images/services/marine-detailing/process-1.png';
+const heroImage = '/images/services/marine-detailing/hero.jpg';
+const processImage = '/images/services/marine-detailing/process-1.jpg';
 const processImage2 = '/images/services/marine-detailing/process-2.png';
 const processImage3 = '/images/services/marine-detailing/process-3.png';
 const resultsImage = '/images/services/marine-detailing/before.png';
-const resultsImage2 = '/images/services/marine-detailing/after.png';
-const whatItIsImage = '/images/services/marine-detailing/what-it-is.png';
+const resultsImage2 = '/images/services/marine-detailing/after.jpg';
+const whatItIsImage = '/images/services/marine-detailing/what-it-is.jpg';
 
 export const marineDetailingData: ServiceData = {
   id: 'marine-detailing',
@@ -68,7 +68,8 @@ export const marineDetailingData: ServiceData = {
   results: {
     description: ["Salt-free, protected hull that maximizes performance and fuel efficiency","UV-protected surfaces that resist fading and cracking","Marine-grade protection that lasts through the boating season"],
     beforeImage: resultsImage,
-    afterImage: resultsImage2
+    afterImage: resultsImage2,
+    containerSize: 'large'
   },
 
   information: {

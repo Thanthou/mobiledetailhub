@@ -3,7 +3,7 @@ import type { ServiceData } from '../types';
 const heroImage = '/images/services/auto-detailing/hero.png';
 const processImage = '/images/services/auto-detailing/process-1.png';
 const processImage2 = '/images/services/auto-detailing/process-2.png';
-const processImage3 = '/images/services/auto-detailing/process-3.png';
+const processImage3 = '/images/services/auto-detailing/process-3.jpg';
 const resultsImage = '/images/services/auto-detailing/before.png';
 const resultsImage2 = '/images/services/auto-detailing/after.png';
 const whatItIsImage = '/images/services/auto-detailing/what-it-is.png';
@@ -67,7 +67,8 @@ export const autoDetailingData: ServiceData = {
   results: {
     description: ["Crisp, glossy finish that restores your vehicle's showroom look","Fresh, hygienic cabin with deep interior cleaning","Contaminant-free surface - maximizes bond of Ceramic Coatings and PPF"],
     beforeImage: resultsImage,
-    afterImage: resultsImage2
+    afterImage: resultsImage2,
+    containerSize: 'large'
   },
 
   information: {

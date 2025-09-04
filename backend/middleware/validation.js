@@ -319,6 +319,13 @@ function parseSize(size) {
   return parseFloat(value) * units[unit];
 }
 
+/**
+ * Review-specific validation middleware
+ */
+const validateReviewSubmission = validateBody(require('../utils/validationSchemas').reviewSchemas.submission);
+const validateReviewUpdate = validateBody(require('../utils/validationSchemas').reviewSchemas.update);
+const validateReviewVote = validateBody(require('../utils/validationSchemas').reviewSchemas.vote);
+
 module.exports = {
   validate,
   validateBody,
@@ -326,5 +333,8 @@ module.exports = {
   validateQuery,
   sanitize,
   rateLimit,
-  limitInputSize
+  limitInputSize,
+  validateReviewSubmission,
+  validateReviewUpdate,
+  validateReviewVote
 };

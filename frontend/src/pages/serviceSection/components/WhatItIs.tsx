@@ -59,23 +59,23 @@ const WhatItIs: React.FC<SectionProps> = ({ id = SECTION_IDS.WHAT, className, se
               <div className={`rounded-2xl bg-stone-700 ring-1 ring-white/10 overflow-hidden ${
                 serviceData.whatItIs.image.endsWith('.mp4') || serviceData.whatItIs.image.endsWith('.webm') || serviceData.whatItIs.image.endsWith('.mov')
                   ? 'w-80 sm:w-[22.4rem] lg:w-[25.6rem] mx-auto' // 2:3 aspect ratio for videos (portrait/shorts) - 20% reduction from previous size
-                  : 'h-56 sm:h-64 lg:h-80' // Original 3:2 aspect ratio for images
+                  : 'w-full max-w-lg mx-auto' // Let image determine height naturally
               }`}>
                 {serviceData.whatItIs.image.endsWith('.mp4') || serviceData.whatItIs.image.endsWith('.webm') || serviceData.whatItIs.image.endsWith('.mov') ? (
                   <video 
                     src={serviceData.whatItIs.image} 
                     className="w-full h-full object-cover"
                     controls
-                    muted
-                    loop
                     playsInline
+                    onEnded={(e) => e.currentTarget.pause()}
+                    onLoadedData={(e) => e.currentTarget.volume = 0.2}
                     style={{ aspectRatio: '2/3' }}
                   />
                 ) : (
                   <img 
                     src={serviceData.whatItIs.image} 
                     alt="Service illustration"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                   />
                 )}
               </div>

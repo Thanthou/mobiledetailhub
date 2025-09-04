@@ -103,7 +103,8 @@ export const ceramicCoatingData: ServiceData = {
       "Durable protection against UV, chemicals, and daily contaminants"
     ],
     beforeImage: resultsImage,
-    afterImage: resultsImage2
+    afterImage: resultsImage2,
+    containerSize: 'large'
   },
 
   information: {

@@ -87,6 +87,7 @@ async function initializeDatabase() {
       DROP SCHEMA IF EXISTS auth CASCADE;
       DROP SCHEMA IF EXISTS affiliates CASCADE;
       DROP SCHEMA IF EXISTS system CASCADE;
+      DROP SCHEMA IF EXISTS reputation CASCADE;
       DROP SCHEMA IF EXISTS customers CASCADE;
       DROP SCHEMA IF EXISTS vehicles CASCADE;
     `);
@@ -100,6 +101,7 @@ async function initializeDatabase() {
       CREATE SCHEMA auth;
       CREATE SCHEMA affiliates;
       CREATE SCHEMA system;
+      CREATE SCHEMA reputation;
     `);
     schemaClient.release();
     console.log('✅ Schemas created');
@@ -149,19 +151,46 @@ async function initializeDatabase() {
       'Creating system_config table'
     );
     
-    // 5. Insert seed data
+    // 5. Create reputation tables
+    console.log('\n⭐ Creating reputation tables...');
+    await executeSqlFile(
+      path.join(__dirname, '../schemas/reputation/reviews.sql'),
+      'Creating reviews table'
+    );
+    await executeSqlFile(
+      path.join(__dirname, '../schemas/reputation/review_replies.sql'),
+      'Creating review_replies table'
+    );
+    await executeSqlFile(
+      path.join(__dirname, '../schemas/reputation/review_votes.sql'),
+      'Creating review_votes table'
+    );
+    
+    // 6. Insert seed data
     console.log('\n🌱 Inserting seed data...');
     await executeSqlFile(
       path.join(__dirname, '../seeds/auth_users.sql'),
       'Inserting initial users'
     );
+    await executeSqlFile(
+      path.join(__dirname, '../seeds/affiliate_businesses.sql'),
+      'Inserting affiliate businesses'
+    );
+    await executeSqlFile(
+      path.join(__dirname, '../seeds/affiliate_services.sql'),
+      'Inserting affiliate services'
+    );
+    await executeSqlFile(
+      path.join(__dirname, '../seeds/reputation_reviews.sql'),
+      'Inserting sample reviews'
+    );
     
-    // 6. Update schema migrations
+    // 7. Update schema migrations
     console.log('\n📝 Updating schema migrations...');
     const migrationClient = await pool.connect();
     await migrationClient.query(`
       INSERT INTO system.schema_migrations (version, description) 
-      VALUES ('v6.0', 'Initialized new schema structure: auth, affiliates, system with enterprise features')
+      VALUES ('v6.0', 'Initialized new schema structure: auth, affiliates, system, reputation with enterprise features')
       ON CONFLICT (version) DO NOTHING;
     `);
     migrationClient.release();
@@ -173,6 +202,7 @@ async function initializeDatabase() {
     console.log('   • Auth Schema: 4 tables (users, refresh_tokens, login_attempts, user_sessions)');
     console.log('   • Affiliates Schema: 3 tables (business, services, service_tiers)');
     console.log('   • System Schema: 2 tables (schema_migrations, system_config)');
+    console.log('   • Reputation Schema: 3 tables (reviews, review_replies, review_votes)');
     console.log('   • Seed Data: Initial users and system configuration');
     console.log('\n⚠️  WARNING: All previous data has been removed!');
     

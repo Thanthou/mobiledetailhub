@@ -325,6 +325,136 @@ const locationSchemas = {
 };
 
 /**
+ * Review validation schemas
+ */
+const reviewSchemas = {
+  submission: {
+    review_type: [
+      validators.required,
+      validators.enum(['affiliate', 'mdh'])
+    ],
+    affiliate_id: [
+      validators.numeric,
+      validators.range(1)
+    ],
+    business_slug: [
+      validators.slug,
+      validators.length(3, 100)
+    ],
+    rating: [
+      validators.required,
+      validators.numeric,
+      validators.range(1, 5)
+    ],
+    title: [
+      validators.alphanumeric,
+      validators.length(undefined, 255)
+    ],
+    content: [
+      validators.required,
+      validators.alphanumeric,
+      validators.length(10, 2000)
+    ],
+    reviewer_name: [
+      validators.required,
+      validators.alphabetic,
+      validators.length(2, 255)
+    ],
+    reviewer_email: [
+      validators.email,
+      validators.length(undefined, 255)
+    ],
+    reviewer_phone: [
+      validators.phone,
+      validators.length(10, 20)
+    ],
+    reviewer_avatar_url: [
+      validators.url,
+      validators.length(undefined, 500)
+    ],
+    review_source: [
+      validators.enum(['website', 'google', 'yelp', 'facebook', 'imported'])
+    ],
+    service_category: [
+      validators.alphanumeric,
+      validators.length(undefined, 100)
+    ],
+    service_date: [
+      validators.date
+    ],
+    booking_id: [
+      validators.numeric,
+      validators.range(1)
+    ]
+  },
+  
+  update: {
+    rating: [
+      validators.numeric,
+      validators.range(1, 5)
+    ],
+    title: [
+      validators.alphanumeric,
+      validators.length(undefined, 255)
+    ],
+    content: [
+      validators.alphanumeric,
+      validators.length(10, 2000)
+    ],
+    reviewer_name: [
+      validators.alphabetic,
+      validators.length(2, 255)
+    ],
+    reviewer_email: [
+      validators.email,
+      validators.length(undefined, 255)
+    ],
+    reviewer_phone: [
+      validators.phone,
+      validators.length(10, 20)
+    ],
+    reviewer_avatar_url: [
+      validators.url,
+      validators.length(undefined, 500)
+    ],
+    status: [
+      validators.enum(['pending', 'approved', 'rejected', 'hidden'])
+    ],
+    moderation_notes: [
+      validators.alphanumeric,
+      validators.length(undefined, 1000)
+    ],
+    is_verified: [
+      validators.boolean
+    ],
+    verification_method: [
+      validators.enum(['email', 'phone', 'booking', 'external'])
+    ],
+    service_category: [
+      validators.alphanumeric,
+      validators.length(undefined, 100)
+    ],
+    service_date: [
+      validators.date
+    ],
+    is_featured: [
+      validators.boolean
+    ]
+  },
+  
+  vote: {
+    vote_type: [
+      validators.required,
+      validators.enum(['helpful', 'not_helpful'])
+    ],
+    user_ip: [
+      validators.required,
+      validators.ip
+    ]
+  }
+};
+
+/**
  * Common parameter validation schemas
  */
 const commonSchemas = {
@@ -409,6 +539,7 @@ module.exports = {
   customerSchemas,
   serviceAreaSchemas,
   locationSchemas,
+  reviewSchemas,
   commonSchemas,
   sanitizationSchemas
 };

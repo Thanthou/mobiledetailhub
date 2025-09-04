@@ -9,7 +9,7 @@ import type { ServiceData } from '../types';
 // TODO[hero]: Use a clean, high-contrast 3/4 front car shot with glossy reflections.
 // Ideally a dark vehicle outdoors at golden hour to show off gloss + clarity.
 // If you offer matte PPF, consider an A/B slider (gloss vs matte) for the hero.
-const heroImage = '/images/services/ppf-installation/hero.png';
+const heroImage = '/images/services/ppf-installation/hero.jpg';
 
 // TODO[process-1]: Tight macro of decon/clay/IPA wipe on a dark panel (satisfying).
 const processImage = '/images/services/ppf-installation/process-1.png';
@@ -92,12 +92,13 @@ export const ppfInstallationData: ServiceData = {
   results: {
     // Keep bullets short and concrete; they should echo hero promises.
     description: [
-      "Invisible barrier that keeps your original paint looking new",
-      "Self-healing top layer that reduces visible swirls over time",
+      "Invisible barrier keeps your original paint looking new",
+      "Self-healing top layer reduces visible swirls over time",
       "Daily-driver toughness against chips, stains, and harsh elements"
     ],
     beforeImage: resultsVideo,
-    afterImage: resultsImage2
+    afterImage: resultsImage2,
+    containerSize: 'medium'
   },
 
   information: {
