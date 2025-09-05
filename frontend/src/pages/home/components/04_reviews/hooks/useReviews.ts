@@ -37,7 +37,6 @@ export const useReviews = (params: ReviewQueryParams = {}) => {
   const fetchReviews = useCallback(async (queryParams: ReviewQueryParams = {}) => {
     // Prevent multiple simultaneous requests
     if (isFetchingRef.current) {
-      console.log('useReviews: Request already in progress, skipping...');
       return;
     }
 
@@ -54,7 +53,6 @@ export const useReviews = (params: ReviewQueryParams = {}) => {
         }
       });
 
-      console.log('useReviews: Fetching reviews with params:', { ...params, ...queryParams });
       const response = await fetch(`/api/reviews?${searchParams.toString()}`);
       
       if (!response.ok) {
@@ -70,7 +68,6 @@ export const useReviews = (params: ReviewQueryParams = {}) => {
       const convertedReviews = data.data.map(convertDatabaseReviewToReview);
       setReviews(convertedReviews);
       setPagination(data.pagination || null);
-      console.log('useReviews: Successfully fetched', convertedReviews.length, 'reviews');
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An error occurred while fetching reviews';
       setError(errorMessage);

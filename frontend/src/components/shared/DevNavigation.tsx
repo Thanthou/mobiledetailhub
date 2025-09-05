@@ -4,7 +4,7 @@ import { ChevronDown, Globe, Settings, Home, UserPlus } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 const DevNavigation: React.FC = () => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -23,8 +23,13 @@ const DevNavigation: React.FC = () => {
 
 
 
-  // Only render in development mode AND when logged in as admin
-  if (!import.meta.env.DEV || !user || user.role !== 'admin') {
+  // Don't render while loading or if not in development mode
+  if (loading || !import.meta.env.DEV) {
+    return null;
+  }
+
+  // Only render when logged in as admin
+  if (!user || user.role !== 'admin') {
     return null;
   }
 

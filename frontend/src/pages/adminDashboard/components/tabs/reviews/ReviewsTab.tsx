@@ -72,9 +72,6 @@ const ReviewsTab: React.FC = () => {
     setSubmitMessage('Sending request...');
 
     try {
-      console.log('Submitting review:', formData);
-      console.log('Form data businessSlug:', formData.businessSlug);
-      console.log('Form data type:', formData.type);
       
       // Add timeout to prevent infinite hanging
       const controller = new AbortController();
@@ -92,9 +89,6 @@ const ReviewsTab: React.FC = () => {
       
       clearTimeout(timeoutId);
 
-      console.log('Response status:', response.status);
-      console.log('Response headers:', response.headers);
-
       if (!response.ok) {
         const errorText = await response.text();
         console.error('Error response:', errorText);
@@ -102,7 +96,6 @@ const ReviewsTab: React.FC = () => {
       }
 
       const result = await response.json();
-      console.log('Success result:', result);
       
       // Log error details if there are any
       if (result.errorDetails && result.errorDetails.length > 0) {
@@ -129,7 +122,6 @@ const ReviewsTab: React.FC = () => {
           
           if (avatarResponse.ok) {
             const avatarResult = await avatarResponse.json();
-            console.log('Avatar uploaded:', avatarResult);
             setSubmitMessage(`Successfully added review with avatar: "${formData.title}"`);
           } else {
             console.warn('Avatar upload failed, but review was created');

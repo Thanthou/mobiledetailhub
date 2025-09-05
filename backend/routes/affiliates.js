@@ -322,7 +322,7 @@ router.post('/apply',
 router.get('/', asyncHandler(async (req, res) => {
   try {
     const query = `
-      SELECT id, business_name, business_phone as phone, application_status, created_at, updated_at
+      SELECT id, slug, business_name, business_phone as phone, application_status, created_at, updated_at
       FROM affiliates.business 
       WHERE application_status = 'approved'
       ORDER BY business_name

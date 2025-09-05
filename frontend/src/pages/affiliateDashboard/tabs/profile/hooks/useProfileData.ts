@@ -33,7 +33,7 @@ export const useProfileData = (): UseProfileDataReturn => {
       const fetchAffiliateId = async () => {
         try {
           const token = localStorage.getItem('token');
-          const response = await fetch(`${config.apiUrl}/api/admin/users?status=affiliates&slug=${businessSlug}`, {
+          const response = await fetch(`${config.apiUrl}/api/affiliates/${businessSlug}`, {
             headers: {
               'Authorization': `Bearer ${token}`,
               'Content-Type': 'application/json'
@@ -42,8 +42,8 @@ export const useProfileData = (): UseProfileDataReturn => {
           
           if (response.ok) {
             const data = await response.json();
-            if (data.success && data.users && data.users.length > 0) {
-              setAdminAffiliateId(data.users[0].id);
+            if (data.success && data.affiliate) {
+              setAdminAffiliateId(data.affiliate.id);
             }
           }
         } catch (error) {

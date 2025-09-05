@@ -149,13 +149,20 @@ class ApiService {
     const url = `${API_BASE_URL}/api/auth/login`;
     
     try {
+      // Create an AbortController for timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
       const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, password }),
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
       
       const data = await response.json();
       
@@ -189,7 +196,21 @@ class ApiService {
       return data;
       
     } catch (error) {
-      console.error('Login failed:', error);
+      
+      // Handle timeout specifically
+      if (error instanceof Error && error.name === 'AbortError') {
+        const timeoutError: CustomError = new Error('Login request timed out. Please check your connection and try again.');
+        timeoutError.code = 'TIMEOUT';
+        throw timeoutError;
+      }
+      
+      // Handle network errors
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        const networkError: CustomError = new Error('Network error. Please check your connection and try again.');
+        networkError.code = 'NETWORK_ERROR';
+        throw networkError;
+      }
+      
       // Re-throw with additional context if it's not already an Error
       if (error instanceof Error) {
         throw error;

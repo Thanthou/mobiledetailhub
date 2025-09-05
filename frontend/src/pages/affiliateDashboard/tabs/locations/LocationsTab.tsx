@@ -300,7 +300,6 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
 
       // First, try to extract ZIP code from the original input
       const inputZipCode = extractZipFromInput(primaryOriginalInput);
-      console.log('📍 Primary prediction select - input ZIP:', inputZipCode, 'from original input:', primaryOriginalInput);
       
       let zipCode = '';
       let city = '';
@@ -322,28 +321,16 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
       city = get('locality')?.longText ?? get('postal_town')?.longText ?? '';
       state = get('administrative_area_level_1')?.shortText ?? '';
 
-      console.log('📍 Primary - Google Places data:', { zipCode, city, state, inputZipCode });
-
       // If we found a ZIP code in the input, use that instead of the one from address components
       if (inputZipCode) {
         zipCode = inputZipCode;
-        console.log('📍 Primary - Using input ZIP code:', zipCode);
       } else if (!zipCode && city && state) {
         // If no ZIP code was found, attempt to extract one for city,state
         zipCode = await attemptZipCodeExtraction(city, state);
-        console.log('📍 Primary - Extracted ZIP code:', zipCode);
       }
 
       // Update primary service area in locations data
       if (primaryServiceArea) {
-        console.log('📍 Primary - Final updated location:', {
-          ...primaryServiceArea,
-          city: city,
-          state: state,
-          zip: zipCode,
-          minimum: primaryServiceArea.minimum || 0,
-          multiplier: primaryServiceArea.multiplier || 1.0
-        });
         
         // TODO: Implement updatePrimaryServiceArea function
         // await updatePrimaryServiceArea(updatedLocation);
@@ -376,14 +363,6 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
       }
       // Update primary service area in locations data
       if (primaryServiceArea) {
-        console.log('📍 Primary - Final updated location:', {
-          ...primaryServiceArea,
-          city: c,
-          state: s,
-          zip: zip ? parseInt(zip, 10) : null,
-          minimum: primaryServiceArea.minimum || 0,
-          multiplier: primaryServiceArea.multiplier || 1.0
-        });
         
         // TODO: Implement updatePrimaryServiceArea function
         // await updatePrimaryServiceArea(updatedLocation);
@@ -410,7 +389,6 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
 
       // First, try to extract ZIP code from the original input
       const inputZipCode = extractZipFromInput(serviceAreaOriginalInput);
-      console.log('📍 Service Area prediction select - input ZIP:', inputZipCode, 'from original input:', serviceAreaOriginalInput);
       
       let zipCode = '';
       let city = '';
@@ -432,16 +410,12 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
       city = get('locality')?.longText ?? get('postal_town')?.longText ?? '';
       state = get('administrative_area_level_1')?.shortText ?? '';
 
-      console.log('📍 Service Area - Google Places data:', { zipCode, city, state, inputZipCode });
-
       // If we found a ZIP code in the input, use that instead of the one from address components
       if (inputZipCode) {
         zipCode = inputZipCode;
-        console.log('📍 Service Area - Using input ZIP code:', zipCode);
       } else if (!zipCode && city && state) {
         // If no ZIP code was found, attempt to extract one for city,state
         zipCode = await attemptZipCodeExtraction(city, state);
-        console.log('📍 Service Area - Extracted ZIP code:', zipCode);
       }
 
       // Add location directly with default values
@@ -659,7 +633,6 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
     // Look for 5-digit ZIP code pattern
     const zipMatch = input.match(/\b(\d{5}(-\d{4})?)\b/);
     const result = zipMatch?.[1] || '';
-    console.log('🔍 extractZipFromInput:', { input, result });
     return result;
   };
 
@@ -706,7 +679,7 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
         }
       }
     } catch (error) {
-      console.log('Could not extract ZIP code for city,state:', error);
+      // Could not extract ZIP code for city,state
     }
     
     return '';

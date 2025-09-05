@@ -61,6 +61,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
       const emailValidation = validateEmail(email);
       if (!emailValidation.isValid) {
         setError(emailValidation.errors[0]);
+        setLoading(false);
         return;
       }
 
@@ -68,6 +69,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
       const passwordValidation = validatePassword(password, true);
       if (!passwordValidation.isValid) {
         setError(passwordValidation.errors[0]);
+        setLoading(false);
         return;
       }
 

@@ -25,12 +25,23 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Helper function to map backend user data to frontend User interface
 const mapBackendUserToFrontend = (backendUser: any): User => {
+  // Handle both backend API response format and saved user format
+  let role: 'user' | 'affiliate' | 'admin' = 'user';
+  
+  if (backendUser.role) {
+    // If role is already set (from saved user data)
+    role = backendUser.role;
+  } else if (backendUser.is_admin) {
+    // If is_admin flag is present (from API response)
+    role = 'admin';
+  }
+  
   return {
     id: backendUser.id,
     name: backendUser.name,
     email: backendUser.email,
     phone: backendUser.phone,
-    role: backendUser.is_admin ? 'admin' : 'user',
+    role: role,
     affiliate_id: backendUser.affiliate_id
   };
 };
@@ -44,6 +55,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const token = localStorage.getItem('token');
     const refreshToken = localStorage.getItem('refreshToken');
     const savedUser = localStorage.getItem('user');
+    
     
     if (token && refreshToken && savedUser) {
       try {
@@ -100,7 +112,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Update localStorage with properly mapped user data
       localStorage.setItem('user', JSON.stringify(mappedUser));
     } catch (error) {
-      console.error('Error fetching user data:', error);
+      console.error('AuthContext: Error fetching user data:', error);
       // If it's an auth error, logout user
       if (error instanceof Error && error.message.includes('Authentication failed')) {
         logout();
@@ -134,6 +146,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       if (error.code === 'FORBIDDEN') {
         return { success: false, error: 'Access denied. Please contact support.' };
+      }
+      if (error.code === 'TIMEOUT') {
+        return { success: false, error: 'Login request timed out. Please check your connection and try again.' };
+      }
+      if (error.code === 'NETWORK_ERROR') {
+        return { success: false, error: 'Network error. Please check your connection and try again.' };
       }
       
       return { success: false, error: error.message || 'Network error occurred' };

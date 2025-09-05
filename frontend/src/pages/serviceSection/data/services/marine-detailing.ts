@@ -1,7 +1,7 @@
 // src/services/data/marine-detailing.ts
 import type { ServiceData } from '../types';
 
-const heroImage = '/images/services/marine-detailing/hero.jpg';
+const heroImage = '/images/services/marine-detailing/hero.png';
 const processImage = '/images/services/marine-detailing/process-1.jpg';
 const processImage2 = '/images/services/marine-detailing/process-2.png';
 const processImage3 = '/images/services/marine-detailing/process-3.png';

@@ -13,7 +13,7 @@ interface ConnectColumnProps {
 }
 
 const ConnectColumn: React.FC<ConnectColumnProps> = ({ config }) => {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, loading: authLoading } = useAuth();
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   // Use config values or fall back to defaults
@@ -70,8 +70,13 @@ const ConnectColumn: React.FC<ConnectColumnProps> = ({ config }) => {
           );
         })}
         
-        {/* Login Button - Only show if not logged in */}
-        {!isLoggedIn ? (
+        {/* Login Button - Show loading state while auth is loading */}
+        {authLoading ? (
+          <div className="flex items-center justify-center md:justify-start space-x-3">
+            <LogIn className="h-5 w-5 flex-shrink-0 text-orange-400" />
+            <span className="text-lg text-gray-400">Loading...</span>
+          </div>
+        ) : !isLoggedIn ? (
           <div className="flex items-center justify-center md:justify-start space-x-3">
             <LogIn className="h-5 w-5 flex-shrink-0 text-orange-400" />
             <button

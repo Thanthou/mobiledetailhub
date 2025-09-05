@@ -81,7 +81,6 @@ export const ReviewSystemExample: React.FC = () => {
         onClose={() => setShowSubmissionModal(false)}
         reviewType="mdh"
         onSuccess={() => {
-          console.log('Review submitted successfully!');
           // You might want to refresh the reviews here
         }}
       />

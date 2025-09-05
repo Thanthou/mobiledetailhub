@@ -27,7 +27,7 @@ const DashboardPage: React.FC = () => {
       try {
         setLoading(true);
         const token = localStorage.getItem('token');
-        const url = `/api/admin/users?status=affiliates&slug=${businessSlug}`;
+        const url = `/api/affiliates/${businessSlug}`;
         const response = await fetch(url, {
           headers: {
             'Content-Type': 'application/json',
@@ -37,19 +37,19 @@ const DashboardPage: React.FC = () => {
 
         if (response.ok) {
           const data = await response.json();
-          if (data.success && data.users && data.users.length > 0) {
-            const affiliate = data.users[0];
+          if (data.success && data.affiliate) {
+            const affiliate = data.affiliate;
             // Transform affiliate data to DetailerData format
             const transformedData: DetailerData = {
               business_name: affiliate.business_name || 'Unknown Business',
-              first_name: affiliate.owner?.split(' ')[0] || 'Unknown',
-              last_name: affiliate.owner?.split(' ').slice(1).join(' ') || 'Unknown',
-              email: affiliate.email || 'No email',
+              first_name: affiliate.first_name || affiliate.owner?.split(' ')[0] || 'Unknown',
+              last_name: affiliate.last_name || affiliate.owner?.split(' ').slice(1).join(' ') || 'Unknown',
+              email: affiliate.business_email || affiliate.personal_email || 'No email',
               phone: affiliate.phone || 'No phone',
-              location: affiliate.service_areas && affiliate.service_areas.length > 0 
+              location: affiliate.service_areas && Array.isArray(affiliate.service_areas) && affiliate.service_areas.length > 0 
                 ? `${affiliate.service_areas[0].city}, ${affiliate.service_areas[0].state}` 
                 : 'No location',
-              services: affiliate.service_areas && affiliate.service_areas.length > 0 
+              services: affiliate.service_areas && Array.isArray(affiliate.service_areas) && affiliate.service_areas.length > 0 
                 ? affiliate.service_areas.map((area: any) => area.city).slice(0, 4)
                 : ['Mobile Detailing'],
               memberSince: affiliate.created_at ? new Date(affiliate.created_at).getFullYear().toString() : 'Unknown'

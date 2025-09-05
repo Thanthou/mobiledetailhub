@@ -8,15 +8,19 @@ interface Affiliate {
   id: number;
   slug: string;
   business_name: string;
-  owner: string;
+  phone: string;
+  application_status: string;
+  created_at: string;
+  updated_at: string;
 }
 
 const AffiliateNavigation: React.FC = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [affiliates, setAffiliates] = useState<Affiliate[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [lastFetched, setLastFetched] = useState<Date | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -51,9 +55,10 @@ const AffiliateNavigation: React.FC = () => {
     if (loading || (!forceRefresh && affiliates.length > 0)) return; // Don't refetch if already loaded unless forced
     
     setLoading(true);
+    setError(null);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/admin/users?status=affiliates', {
+      const response = await fetch('/api/affiliates', {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -62,22 +67,28 @@ const AffiliateNavigation: React.FC = () => {
       
       if (response.ok) {
         const data = await response.json();
-        if (data.success && data.users) {
-          // Affiliate Navigation: Fetched affiliates
-          setAffiliates(data.users);
+        if (data.success && data.data) {
+          setAffiliates(data.data);
           setLastFetched(new Date());
         } else {
-          // Affiliate Navigation: No users data in response
+          setError('No affiliates found');
         }
       } else {
-        // Affiliate Navigation: Could not fetch affiliates
+        const errorText = await response.text();
+        setError(`Failed to fetch affiliates (${response.status})`);
       }
     } catch (error) {
-              // Affiliate Navigation: Could not fetch affiliates (backend may be down)
+      console.error('Affiliate Navigation: Could not fetch affiliates', error);
+      setError('Database connection failed');
     } finally {
       setLoading(false);
     }
   };
+
+  // Don't render while auth is loading
+  if (authLoading) {
+    return null;
+  }
 
   // Only render when logged in as admin
   if (!user || user.role !== 'admin') {
@@ -163,6 +174,16 @@ const AffiliateNavigation: React.FC = () => {
             <div className="px-4 py-4 text-center">
               <p className="text-sm text-gray-500">Loading affiliates...</p>
             </div>
+          ) : error ? (
+            <div className="px-4 py-4 text-center">
+              <p className="text-sm text-red-600 mb-2">{error}</p>
+              <button
+                onClick={handleRefresh}
+                className="text-xs text-blue-600 hover:text-blue-800 underline"
+              >
+                Try again
+              </button>
+            </div>
           ) : affiliates.length === 0 ? (
             <div className="px-4 py-4 text-center">
               <p className="text-sm text-gray-500">No affiliates found</p>
@@ -182,7 +203,7 @@ const AffiliateNavigation: React.FC = () => {
                         title={`Visit ${affiliate.business_name} site`}
                       >
                         <ExternalLink className="h-3 w-3 mr-2" />
-                        {affiliate.slug}
+                        {affiliate.business_name}
                       </button>
                       <button
                         onClick={() => handleNavigation(`/${affiliate.slug}/dashboard`)}
@@ -190,7 +211,7 @@ const AffiliateNavigation: React.FC = () => {
                         title={`Visit ${affiliate.business_name} dashboard`}
                       >
                         <BarChart3 className="h-3 w-3 mr-2" />
-                        {affiliate.slug}
+                        {affiliate.business_name}
                       </button>
                     </div>
                   </div>

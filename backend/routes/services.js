@@ -16,38 +16,62 @@ router.post('/', async (req, res) => {
       });
     }
     
-    // Map the category based on the service_category_id for the existing 'category' column
+    // Map the category based on the service_category_id
     let category = 'auto'; // default
+    let originalCategory = 'service-packages'; // default
+    
     if (service_category_id) {
       const categoryMap = {
-        1: 'auto',      // interior -> auto
-        2: 'auto',      // exterior -> auto  
-        3: 'auto',      // service-packages -> auto
-        4: 'ceramic',   // ceramic-coating -> ceramic
-        5: 'auto',      // paint-correction -> auto
-        6: 'auto'       // paint-protection-film -> auto
+        1: { db: 'auto', original: 'interior' },
+        2: { db: 'auto', original: 'exterior' },
+        3: { db: 'auto', original: 'service-packages' },
+        4: { db: 'ceramic', original: 'ceramic-coating' },
+        5: { db: 'auto', original: 'paint-correction' },
+        6: { db: 'auto', original: 'paint-protection-film' }
       };
-      category = categoryMap[service_category_id] || 'auto';
+      
+      const mapping = categoryMap[service_category_id] || { db: 'auto', original: 'service-packages' };
+      category = mapping.db;
+      originalCategory = mapping.original;
     }
     
-    // Create the service using the new foreign key structure
+    // Create the service using the correct table and column names
     const insertQuery = `
-      INSERT INTO services (affiliate_id, category, name, description, base_price_cents, pricing_unit, min_duration_min, active, vehicle_id, service_category_id)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      INSERT INTO affiliates.services (business_id, service_name, service_description, service_category, vehicle_types, metadata, is_active, is_featured, sort_order)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING *
     `;
     
+    // Map frontend vehicle IDs to database vehicle IDs
+    const vehicleMap = {
+      'cars': 1,
+      'trucks': 2,
+      'rvs': 3,
+      'boats': 4,
+      'motorcycles': 5,
+      'offroad': 6,
+      'other': 7
+    };
+    
+    const dbVehicleId = vehicleMap[vehicle_id] || 1;
+    const vehicleTypes = JSON.stringify([dbVehicleId]);
+    const metadata = JSON.stringify({
+      base_price_cents: base_price_cents || 0,
+      pricing_unit: 'flat',
+      min_duration_min: 60,
+      original_category: originalCategory
+    });
+    
     const result = await pool.query(insertQuery, [
-      affiliate_id, 
-      category, 
-      name, 
-      description || 'Offered by affiliate',
-      base_price_cents || 0,
-      'flat',
-      60,
-      true,
-      vehicle_id,
-      service_category_id
+      affiliate_id,  // business_id
+      name,          // service_name
+      description || 'Offered by affiliate', // service_description
+      category,      // service_category
+      vehicleTypes,  // vehicle_types
+      metadata,      // metadata
+      true,          // is_active
+      false,         // is_featured
+      0              // sort_order
     ]);
     
     const newService = result.rows[0];
@@ -58,13 +82,17 @@ router.post('/', async (req, res) => {
       for (const tier of tiers) {
         if (tier.name && tier.name.trim() !== '') {
           await pool.query(`
-            INSERT INTO service_tiers (service_id, name, price_delta_cents, description)
-            VALUES ($1, $2, $3, $4)
+            INSERT INTO affiliates.service_tiers (service_id, tier_name, price_cents, included_services, duration_minutes, is_active, is_featured, sort_order)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
           `, [
             newService.id,
             tier.name,
-            Math.round((tier.price || 0) * 100) - (base_price_cents || 0), // Convert to price delta
-            tier.features && tier.features.length > 0 ? JSON.stringify(tier.features) : JSON.stringify([`${tier.name} tier`])
+            Math.round((tier.price || 0) * 100), // Price in cents
+            JSON.stringify(tier.features || []), // Features as JSON array
+            tier.duration || 60, // Duration in minutes
+            true, // is_active
+            tier.popular || false, // is_featured
+            0 // sort_order
           ]);
         }
       }
@@ -77,26 +105,30 @@ router.post('/', async (req, res) => {
     } else {
       // Create default service tiers if no custom tiers provided
       const tierNames = ['Basic', 'Premium', 'Luxury'];
-      const tierPriceDeltas = [0, 5000, 15000]; // $0, $50, $150 in cents
+      const tierPrices = [50, 100, 150]; // Default prices in dollars
       
       for (let i = 0; i < tierNames.length; i++) {
         await pool.query(`
-          INSERT INTO service_tiers (service_id, name, price_delta_cents, description)
-          VALUES ($1, $2, $3, $4)
+          INSERT INTO affiliates.service_tiers (service_id, tier_name, price_cents, included_services, duration_minutes, is_active, is_featured, sort_order)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         `, [
           newService.id,
           tierNames[i],
-          tierPriceDeltas[i],
-          `${tierNames[i]} tier for ${name} service`
+          Math.round(tierPrices[i] * 100), // Convert to cents
+          JSON.stringify([`${tierNames[i]} tier features`]), // Features as JSON array
+          60, // Duration in minutes
+          true, // is_active
+          i === 1, // Mark Premium as featured
+          i // sort_order
         ]);
       }
+      
+      res.status(201).json({
+        success: true,
+        data: newService,
+        message: 'Service created successfully with default tiers'
+      });
     }
-    
-    res.status(201).json({
-      success: true,
-      data: newService,
-      message: 'Service created successfully with default tiers'
-    });
     
   } catch (error) {
     console.error('Error creating service:', error);
@@ -108,43 +140,70 @@ router.post('/', async (req, res) => {
   }
 });
 
-// GET /api/services/master/vehicles - Get all vehicle types
-router.get('/master/vehicles', async (req, res) => {
+// DELETE /api/services/:serviceId - Delete a service and its tiers
+router.delete('/:serviceId', async (req, res) => {
   try {
-    const query = 'SELECT * FROM vehicles ORDER BY name';
-    const result = await pool.query(query);
+    const { serviceId } = req.params;
     
-    res.json({
-      success: true,
-      data: result.rows
-    });
+    if (!serviceId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing service ID',
+        message: 'Service ID is required'
+      });
+    }
+    
+    console.log('🗑️ Deleting service:', serviceId);
+    
+    // Start a transaction to ensure both deletions succeed or both fail
+    const client = await pool.connect();
+    
+    try {
+      await client.query('BEGIN');
+      
+      // First, delete all service tiers for this service
+      const deleteTiersQuery = 'DELETE FROM affiliates.service_tiers WHERE service_id = $1';
+      const tiersResult = await client.query(deleteTiersQuery, [serviceId]);
+      console.log('✅ Deleted', tiersResult.rowCount, 'service tiers');
+      
+      // Then, delete the service itself
+      const deleteServiceQuery = 'DELETE FROM affiliates.services WHERE id = $1';
+      const serviceResult = await client.query(deleteServiceQuery, [serviceId]);
+      
+      if (serviceResult.rowCount === 0) {
+        await client.query('ROLLBACK');
+        return res.status(404).json({
+          success: false,
+          error: 'Service not found',
+          message: 'No service found with the provided ID'
+        });
+      }
+      
+      console.log('✅ Deleted service:', serviceId);
+      
+      // Commit the transaction
+      await client.query('COMMIT');
+      
+      res.json({
+        success: true,
+        message: 'Service and all associated tiers deleted successfully',
+        deletedServiceId: serviceId,
+        deletedTiersCount: tiersResult.rowCount
+      });
+      
+    } catch (error) {
+      // Rollback the transaction on error
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
     
   } catch (error) {
-    console.error('Error fetching vehicles:', error);
+    console.error('Error deleting service:', error);
     res.status(500).json({
       success: false,
-      error: 'Failed to fetch vehicles',
-      message: error.message
-    });
-  }
-});
-
-// GET /api/services/master/categories - Get all service categories
-router.get('/master/categories', async (req, res) => {
-  try {
-    const query = 'SELECT * FROM service_categories ORDER BY name';
-    const result = await pool.query(query);
-    
-    res.json({
-      success: true,
-      data: result.rows
-    });
-    
-  } catch (error) {
-    console.error('Error fetching categories:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch categories',
+      error: 'Failed to delete service',
       message: error.message
     });
   }
@@ -155,7 +214,20 @@ router.get('/affiliate/:affiliateId/vehicle/:vehicleId/category/:categoryId', as
   try {
     const { affiliateId, vehicleId, categoryId } = req.params;
     
-    // Map frontend IDs to database IDs
+    // Map frontend IDs to database categories
+    const categoryMap = {
+      'interior': 'auto',
+      'exterior': 'auto', 
+      'service-packages': 'auto',
+      'addons': 'auto',
+      'ceramic-coating': 'ceramic',
+      'paint-correction': 'auto',
+      'paint-protection-film': 'auto'
+    };
+    
+    const dbCategory = categoryMap[categoryId] || 'auto';
+    
+    // Map frontend vehicle IDs to database vehicle IDs
     const vehicleMap = {
       'cars': 1,
       'trucks': 2,
@@ -166,46 +238,30 @@ router.get('/affiliate/:affiliateId/vehicle/:vehicleId/category/:categoryId', as
       'other': 7
     };
     
-    const categoryMap = {
-      'interior': 1,
-      'exterior': 2, 
-      'service-packages': 3,
-      'addons': 7,
-      'ceramic-coating': 4,
-      'paint-correction': 5,
-      'paint-protection-film': 6
-    };
+    const dbVehicleId = vehicleMap[vehicleId] || 1;
     
-    const dbVehicleId = vehicleMap[vehicleId];
-    const dbCategoryId = categoryMap[categoryId];
-    
-    if (!dbVehicleId || !dbCategoryId) {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid vehicle or category ID',
-        message: `Vehicle: ${vehicleId}, Category: ${categoryId}`
-      });
-    }
-    
-    // Clean query using foreign keys - no more string parsing!
+    // Clean query using the correct table structure with original category filtering
     const query = `
       SELECT 
         s.id as service_id,
-        s.name,
-        s.category,
-        s.description,
-        s.base_price_cents,
-        s.pricing_unit,
-        s.min_duration_min,
-        s.active
+        s.service_name as name,
+        s.service_category as category,
+        s.service_description as description,
+        s.metadata->>'base_price_cents' as base_price_cents,
+        s.metadata->>'pricing_unit' as pricing_unit,
+        s.metadata->>'min_duration_min' as min_duration_min,
+        s.is_active as active
       FROM affiliates.services s
-      WHERE s.affiliate_id = $1 
-        AND s.vehicle_id = $2 
-        AND s.service_category_id = $3
-      ORDER BY s.created_at DESC, s.name ASC
+      WHERE s.business_id = $1 
+        AND s.service_category = $2
+        AND s.vehicle_types @> $3::jsonb
+        AND (s.metadata->>'original_category' = $4 OR s.metadata->>'original_category' IS NULL)
+      ORDER BY s.created_at DESC, s.service_name ASC
     `;
     
-    const result = await pool.query(query, [affiliateId, dbVehicleId, dbCategoryId]);
+    console.log('🔍 Fetching services:', { affiliateId, vehicleId, categoryId, dbCategory, dbVehicleId });
+    const result = await pool.query(query, [affiliateId, dbCategory, JSON.stringify([dbVehicleId]), categoryId]);
+    console.log('📊 Query result:', result.rows.length, 'services found');
     
     if (result.rows.length === 0) {
       return res.json({
@@ -221,12 +277,13 @@ router.get('/affiliate/:affiliateId/vehicle/:vehicleId/category/:categoryId', as
       const tiersQuery = `
         SELECT 
           st.id as tier_id,
-          st.name as tier_name,
-          st.price_delta_cents,
-          st.description as tier_description
+          st.tier_name,
+          st.price_cents,
+          st.included_services,
+          st.duration_minutes
         FROM affiliates.service_tiers st
         WHERE st.service_id = $1
-        ORDER BY st.price_delta_cents ASC
+        ORDER BY st.price_cents ASC
       `;
       
       const tiersResult = await pool.query(tiersQuery, [service.service_id]);
@@ -234,15 +291,15 @@ router.get('/affiliate/:affiliateId/vehicle/:vehicleId/category/:categoryId', as
       const serviceData = {
         id: service.service_id,
         name: service.name,
-        basePrice: service.base_price_cents / 100,
+        basePrice: service.base_price_cents ? parseFloat(service.base_price_cents) / 100 : 0,
         category: service.category,
         description: service.description,
         tiers: tiersResult.rows.map(row => ({
           id: row.tier_id,
           name: row.tier_name,
-          price: (service.base_price_cents + row.price_delta_cents) / 100,
-          duration: service.min_duration_min, // Keep duration in minutes
-          features: row.tier_description ? (row.tier_description.startsWith('[') ? JSON.parse(row.tier_description) : [row.tier_description]) : [],
+          price: row.price_cents / 100,
+          duration: row.duration_minutes || 60,
+          features: row.included_services || [],
           enabled: true,
           popular: false
         }))
@@ -261,614 +318,6 @@ router.get('/affiliate/:affiliateId/vehicle/:vehicleId/category/:categoryId', as
     res.status(500).json({
       success: false,
       error: 'Failed to fetch service with tiers',
-      message: error.message
-    });
-  }
-});
-
-// DELETE /api/services/:serviceId - Delete a service and its tiers
-router.delete('/:serviceId', async (req, res) => {
-  try {
-    const { serviceId } = req.params;
-    
-    // First, delete all service tiers associated with this service
-    const deleteTiersQuery = `
-      DELETE FROM affiliates.service_tiers 
-      WHERE service_id = $1
-    `;
-    await pool.query(deleteTiersQuery, [serviceId]);
-    
-    // Then delete the service itself
-    const deleteServiceQuery = `
-      DELETE FROM affiliates.services 
-      WHERE id = $1
-      RETURNING *
-    `;
-    const result = await pool.query(deleteServiceQuery, [serviceId]);
-    
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        error: 'Service not found',
-        message: 'The requested service does not exist'
-      });
-    }
-    
-    res.json({
-      success: true,
-      message: 'Service deleted successfully',
-      data: result.rows[0]
-    });
-    
-  } catch (error) {
-    console.error('Error deleting service:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to delete service',
-      message: error.message
-    });
-  }
-});
-
-// GET /api/services/:serviceId - Get a specific service by ID
-router.get('/:serviceId', async (req, res) => {
-  try {
-    const { serviceId } = req.params;
-    
-    const query = `
-      SELECT 
-        s.id as service_id,
-        s.name,
-        s.category,
-        s.description,
-        s.base_price_cents,
-        s.pricing_unit,
-        s.min_duration_min,
-        s.active,
-        st.id as tier_id,
-        st.name as tier_name,
-        st.price_delta_cents,
-        st.description as tier_description
-      FROM affiliates.services s
-      LEFT JOIN service_tiers st ON st.service_id = s.id
-      WHERE s.id = $1
-      ORDER BY st.price_delta_cents ASC
-    `;
-    
-    const result = await pool.query(query, [serviceId]);
-    
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        error: 'Service not found',
-        message: 'The requested service does not exist'
-      });
-    }
-    
-    // Group the results by service and tiers
-    const serviceData = {
-      id: result.rows[0].service_id,
-      name: result.rows[0].name,
-      basePrice: result.rows[0].base_price_cents / 100,
-        category: result.rows[0].category,
-        description: result.rows[0].description,
-        tiers: result.rows
-          .filter(row => row.tier_id) // Only include rows with tier data
-          .map(row => ({
-            id: row.tier_id,
-            name: row.tier_name,
-            price: (result.rows[0].base_price_cents + row.price_delta_cents) / 100,
-            duration: result.rows[0].min_duration_min, // Keep duration in minutes
-            features: row.tier_description ? (row.tier_description.startsWith('[') ? JSON.parse(row.tier_description) : [row.tier_description]) : [],
-            enabled: true,
-            popular: false
-          }))
-    };
-    
-    res.json({
-      success: true,
-      data: serviceData
-    });
-    
-  } catch (error) {
-    console.error('Error fetching service by ID:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch service',
-      message: error.message
-    });
-  }
-});
-
-// GET /api/services/:affiliateId - Get all services for an affiliate (MUST BE LAST)
-router.get('/:affiliateId', async (req, res) => {
-  try {
-    const { affiliateId } = req.params;
-    
-    const query = `
-      SELECT 
-        s.id,
-        s.affiliate_id,
-        s.category,
-        s.name,
-        s.description,
-        s.base_price_cents,
-        s.pricing_unit,
-        s.min_duration_min,
-        s.active,
-        s.created_at,
-        s.updated_at
-      FROM affiliates.services s
-      WHERE s.affiliate_id = $1
-      ORDER BY s.category, s.name
-    `;
-    
-    const result = await pool.query(query, [affiliateId]);
-    
-    res.json({
-      success: true,
-      data: result.rows,
-      count: result.rows.length
-    });
-    
-  } catch (error) {
-    console.error('Error fetching services:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch services',
-      message: error.message
-    });
-  }
-});
-
-// POST /api/services - Create a new service
-router.post('/', async (req, res) => {
-  try {
-    const { affiliate_id, vehicle_id, service_category_id, base_price_cents, name, description, tiers } = req.body;
-    
-    // Validate required fields
-    if (!affiliate_id || !name || !vehicle_id || !service_category_id) {
-      return res.status(400).json({
-        success: false,
-        error: 'Missing required fields',
-        message: 'affiliate_id, vehicle_id, service_category_id, and name are required'
-      });
-    }
-    
-    // Map the category based on the service_category_id for the existing 'category' column
-    let category = 'auto'; // default
-    if (service_category_id) {
-      const categoryMap = {
-        1: 'auto',      // interior -> auto
-        2: 'auto',      // exterior -> auto  
-        3: 'auto',      // service-packages -> auto
-        4: 'ceramic',   // ceramic-coating -> ceramic
-        5: 'auto',      // paint-correction -> auto
-        6: 'auto'       // paint-protection-film -> auto
-      };
-      category = categoryMap[service_category_id] || 'auto';
-    }
-    
-    // Create the service using the new foreign key structure
-    const insertQuery = `
-      INSERT INTO services (affiliate_id, category, name, description, base_price_cents, pricing_unit, min_duration_min, active, vehicle_id, service_category_id)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-      RETURNING *
-    `;
-    
-    const result = await pool.query(insertQuery, [
-      affiliate_id, 
-      category, 
-      name, 
-      description || 'Offered by affiliate',
-      base_price_cents || 0,
-      'flat',
-      60,
-      true,
-      vehicle_id,
-      service_category_id
-    ]);
-    
-    const newService = result.rows[0];
-    
-    // Create service tiers - use custom tiers if provided, otherwise create default tiers
-    if (tiers && Array.isArray(tiers) && tiers.length > 0) {
-      // Use custom tiers provided by the frontend
-      for (const tier of tiers) {
-        if (tier.name && tier.name.trim() !== '') {
-          await pool.query(`
-            INSERT INTO service_tiers (service_id, name, price_delta_cents, description)
-            VALUES ($1, $2, $3, $4)
-          `, [
-            newService.id,
-            tier.name,
-            Math.round((tier.price || 0) * 100) - (base_price_cents || 0), // Convert to price delta
-            tier.features && tier.features.length > 0 ? JSON.stringify(tier.features) : JSON.stringify([`${tier.name} tier`])
-          ]);
-        }
-      }
-      
-      res.status(201).json({
-        success: true,
-        data: newService,
-        message: 'Service created successfully with custom tiers'
-      });
-    } else {
-      // Create default service tiers if no custom tiers provided
-      const tierNames = ['Basic', 'Premium', 'Luxury'];
-      const tierPriceDeltas = [0, 5000, 15000]; // $0, $50, $150 in cents
-      
-      for (let i = 0; i < tierNames.length; i++) {
-        await pool.query(`
-          INSERT INTO service_tiers (service_id, name, price_delta_cents, description)
-          VALUES ($1, $2, $3, $4)
-        `, [
-          newService.id,
-          tierNames[i],
-          tierPriceDeltas[i],
-          `${tierNames[i]} tier for ${name} service`
-        ]);
-      }
-    }
-    
-    res.status(201).json({
-      success: true,
-      data: newService,
-      message: 'Service created successfully with default tiers'
-    });
-    
-  } catch (error) {
-    console.error('Error creating service:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to create service',
-      message: error.message
-    });
-  }
-});
-
-// GET /api/services/master/vehicles - Get all vehicle types
-router.get('/master/vehicles', async (req, res) => {
-  try {
-    const query = 'SELECT * FROM vehicles ORDER BY name';
-    const result = await pool.query(query);
-    
-    res.json({
-      success: true,
-      data: result.rows
-    });
-    
-  } catch (error) {
-    console.error('Error fetching vehicles:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch vehicles',
-      message: error.message
-    });
-  }
-});
-
-// GET /api/services/master/categories - Get all service categories
-router.get('/master/categories', async (req, res) => {
-  try {
-    const query = 'SELECT * FROM service_categories ORDER BY name';
-    const result = await pool.query(query);
-    
-    res.json({
-      success: true,
-      data: result.rows
-    });
-    
-  } catch (error) {
-    console.error('Error fetching categories:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch categories',
-      message: error.message
-    });
-  }
-});
-
-// GET /api/services/affiliate/:affiliateId/vehicle/:vehicleId/category/:categoryId - Get services with tiers
-router.get('/affiliate/:affiliateId/vehicle/:vehicleId/category/:categoryId', async (req, res) => {
-  try {
-    const { affiliateId, vehicleId, categoryId } = req.params;
-    
-    // Map frontend IDs to database IDs
-    const vehicleMap = {
-      'cars': 1,
-      'trucks': 2,
-      'rvs': 3,
-      'boats': 4,
-      'motorcycles': 5,
-      'offroad': 6,
-      'other': 7
-    };
-    
-    const categoryMap = {
-      'interior': 1,
-      'exterior': 2, 
-      'service-packages': 3,
-      'addons': 7,
-      'ceramic-coating': 4,
-      'paint-correction': 5,
-      'paint-protection-film': 6
-    };
-    
-    const dbVehicleId = vehicleMap[vehicleId];
-    const dbCategoryId = categoryMap[categoryId];
-    
-    if (!dbVehicleId || !dbCategoryId) {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid vehicle or category ID',
-        message: `Vehicle: ${vehicleId}, Category: ${categoryId}`
-      });
-    }
-    
-    // Clean query using foreign keys - no more string parsing!
-    const query = `
-      SELECT 
-        s.id as service_id,
-        s.name,
-        s.category,
-        s.description,
-        s.base_price_cents,
-        s.pricing_unit,
-        s.min_duration_min,
-        s.active
-      FROM affiliates.services s
-      WHERE s.affiliate_id = $1 
-        AND s.vehicle_id = $2 
-        AND s.service_category_id = $3
-      ORDER BY s.created_at DESC, s.name ASC
-    `;
-    
-    const result = await pool.query(query, [affiliateId, dbVehicleId, dbCategoryId]);
-    
-    if (result.rows.length === 0) {
-      return res.json({
-        success: true,
-        data: []
-      });
-    }
-    
-    // For each service, get its tiers
-    const servicesWithTiers = [];
-    
-    for (const service of result.rows) {
-      const tiersQuery = `
-        SELECT 
-          st.id as tier_id,
-          st.name as tier_name,
-          st.price_delta_cents,
-          st.description as tier_description
-        FROM affiliates.service_tiers st
-        WHERE st.service_id = $1
-        ORDER BY st.price_delta_cents ASC
-      `;
-      
-      const tiersResult = await pool.query(tiersQuery, [service.service_id]);
-      
-      const serviceData = {
-        id: service.service_id,
-        name: service.name,
-        basePrice: service.base_price_cents / 100,
-        category: service.category,
-        description: service.description,
-        tiers: tiersResult.rows.map(row => ({
-          id: row.tier_id,
-          name: row.tier_name,
-          price: (service.base_price_cents + row.price_delta_cents) / 100,
-          duration: service.min_duration_min, // Keep duration in minutes
-          features: row.tier_description ? (row.tier_description.startsWith('[') ? JSON.parse(row.tier_description) : [row.tier_description]) : [],
-          enabled: true,
-          popular: false
-        }))
-      };
-      
-      servicesWithTiers.push(serviceData);
-    }
-    
-    res.json({
-      success: true,
-      data: servicesWithTiers
-    });
-    
-  } catch (error) {
-    console.error('Error fetching service with tiers:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch service with tiers',
-      message: error.message
-    });
-  }
-});
-
-// GET /api/services/:serviceId - Get a specific service by ID
-router.get('/:serviceId', async (req, res) => {
-  try {
-    const { serviceId } = req.params;
-    
-    const query = `
-      SELECT 
-        s.id as service_id,
-        s.name,
-        s.category,
-        s.description,
-        s.base_price_cents,
-        s.pricing_unit,
-        s.min_duration_min,
-        s.active,
-        st.id as tier_id,
-        st.name as tier_name,
-        st.price_delta_cents,
-        st.description as tier_description
-      FROM affiliates.services s
-      LEFT JOIN service_tiers st ON st.service_id = s.id
-      WHERE s.id = $1
-      ORDER BY st.price_delta_cents ASC
-    `;
-    
-    const result = await pool.query(query, [serviceId]);
-    
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        error: 'Service not found',
-        message: 'The requested service does not exist'
-      });
-    }
-    
-    // Group the results by service and tiers
-    const serviceData = {
-      id: result.rows[0].service_id,
-      name: result.rows[0].name,
-      basePrice: result.rows[0].base_price_cents / 100,
-      category: result.rows[0].category,
-      description: result.rows[0].description,
-      tiers: result.rows
-        .filter(row => row.tier_id) // Only include rows with tier data
-        .map(row => ({
-          id: row.tier_id,
-          name: row.tier_name,
-          price: (result.rows[0].base_price_cents + row.price_delta_cents) / 100,
-          duration: result.rows[0].min_duration_min / 60, // Convert minutes to hours
-          features: row.tier_description ? (row.tier_description.startsWith('[') ? JSON.parse(row.tier_description) : [row.tier_description]) : [],
-          enabled: true,
-          popular: false
-        }))
-    };
-    
-    res.json({
-      success: true,
-      data: serviceData
-    });
-    
-  } catch (error) {
-    console.error('Error fetching service by ID:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch service',
-      message: error.message
-    });
-  }
-});
-
-// DELETE /api/services/:serviceId - Delete a service and its tiers
-router.delete('/:serviceId', async (req, res) => {
-  try {
-    const { serviceId } = req.params;
-    
-    // First, delete all service tiers associated with this service
-    const deleteTiersQuery = `
-      DELETE FROM affiliates.service_tiers 
-      WHERE service_id = $1
-    `;
-    await pool.query(deleteTiersQuery, [serviceId]);
-    
-    // Then delete the service itself
-    const deleteServiceQuery = `
-      DELETE FROM affiliates.services 
-      WHERE id = $1
-      RETURNING *
-    `;
-    const result = await pool.query(deleteServiceQuery, [serviceId]);
-    
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        error: 'Service not found',
-        message: 'The requested service does not exist'
-      });
-    }
-    
-    res.json({
-      success: true,
-      message: 'Service deleted successfully',
-      data: result.rows[0]
-    });
-    
-  } catch (error) {
-    console.error('Error deleting service:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to delete service',
-      message: error.message
-    });
-  }
-});
-
-// PUT /api/services/:serviceId - Update a service and its tiers
-router.put('/:serviceId', async (req, res) => {
-  try {
-    const { serviceId } = req.params;
-    const { name, description, base_price_cents, min_duration_min, tiers } = req.body;
-    
-    // Validate required fields
-    if (!name) {
-      return res.status(400).json({
-        success: false,
-        error: 'Missing required fields',
-        message: 'name is required'
-      });
-    }
-    
-    // Update the service
-    const updateServiceQuery = `
-      UPDATE services 
-      SET name = $1, description = $2, base_price_cents = $3, min_duration_min = $4, updated_at = NOW()
-      WHERE id = $5
-      RETURNING *
-    `;
-    
-    const serviceResult = await pool.query(updateServiceQuery, [
-      name,
-      description || 'Offered by affiliate',
-      base_price_cents || 0,
-      min_duration_min || 60,
-      serviceId
-    ]);
-    
-    if (serviceResult.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        error: 'Service not found',
-        message: 'The requested service does not exist'
-      });
-    }
-    
-    // Delete existing tiers
-    await pool.query('DELETE FROM affiliates.service_tiers WHERE service_id = $1', [serviceId]);
-    
-    // Insert new tiers if provided
-    if (tiers && Array.isArray(tiers) && tiers.length > 0) {
-      for (const tier of tiers) {
-        if (tier.name && tier.name.trim() !== '') {
-          await pool.query(`
-            INSERT INTO service_tiers (service_id, name, price_delta_cents, description)
-            VALUES ($1, $2, $3, $4)
-          `, [
-            serviceId,
-            tier.name,
-            Math.round((tier.price || 0) * 100) - (base_price_cents || 0), // Convert to price delta
-            tier.features && tier.features.length > 0 ? JSON.stringify(tier.features) : JSON.stringify([`${tier.name} tier`])
-          ]);
-        }
-      }
-    }
-    
-    res.json({
-      success: true,
-      data: serviceResult.rows[0],
-      message: 'Service updated successfully'
-    });
-    
-  } catch (error) {
-    console.error('Error updating service:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to update service',
       message: error.message
     });
   }

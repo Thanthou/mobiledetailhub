@@ -11,7 +11,7 @@ import { scrollToTop } from '/src/utils/scrollToTop';
 import { formatPhoneNumber } from '/src/utils/fields/phoneFormatter';
 
 const HeaderMDH: React.FC = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { mdhConfig, isLoading } = useMDHConfig();
   const { expandFAQ } = useFAQ();
   const navigate = useNavigate();
@@ -100,9 +100,15 @@ const HeaderMDH: React.FC = () => {
             )}
           </div>
 
-          {/* 3. Login/User - Always show immediately */}
+          {/* 3. Login/User - Show loading state while auth is loading */}
           <div className="ml-6">
-            {user ? <UserMenu /> : <LoginButton />}
+            {authLoading ? (
+              <div className="text-white text-sm">Loading...</div>
+            ) : user ? (
+              <UserMenu />
+            ) : (
+              <LoginButton />
+            )}
           </div>
 
         </div>
