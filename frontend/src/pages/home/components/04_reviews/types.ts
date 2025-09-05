@@ -11,6 +11,7 @@ export interface DatabaseReview {
   reviewer_email?: string;
   reviewer_phone?: string;
   reviewer_avatar_url?: string;
+  reviewer_url?: string;
   review_source: 'website' | 'google' | 'yelp' | 'facebook' | 'imported';
   status: 'pending' | 'approved' | 'rejected' | 'hidden';
   moderation_notes?: string;
@@ -48,6 +49,7 @@ export interface Review {
   businessName?: string;
   businessSlug?: string;
   reviewSource?: 'website' | 'google' | 'yelp' | 'facebook' | 'imported';
+  reviewerUrl?: string;
 }
 
 // API response interfaces
@@ -138,6 +140,7 @@ export interface ReviewCardProps {
   review: Review;
   showVoting?: boolean;
   onVote?: (reviewId: string, voteType: 'helpful' | 'not_helpful') => void;
+  onReviewClick?: (review: Review) => void;
 }
 
 export interface StarRatingProps {

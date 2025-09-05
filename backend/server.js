@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const path = require('path');
 
 // Import environment validator
 const { validateEnvironment } = require('./utils/envValidator');
@@ -18,6 +19,7 @@ const adminRoutes = require('./routes/admin');
 const uploadRoutes = require('./routes/upload');
 const servicesRoutes = require('./routes/services');
 const reviewsRoutes = require('./routes/reviews');
+const avatarRoutes = require('./routes/avatar');
 
 // Get the update function from health routes
 const { updateShutdownStatus } = healthRoutes;
@@ -71,10 +73,12 @@ try {
 const ALLOWED_ORIGINS = {
   development: [
     'http://localhost:3000',    // React dev server (default)
+    'http://localhost:3001',    // Backend server (for test pages)
     'http://localhost:5173',    // Vite dev server (default)
     'http://localhost:5174',    // Vite dev server (alternate)
     'http://localhost:4173',    // Vite preview server
     'http://127.0.0.1:3000',   // React dev server (IP variant)
+    'http://127.0.0.1:3001',   // Backend server (IP variant)
     'http://127.0.0.1:5173',   // Vite dev server (IP variant)
     'http://127.0.0.1:5174',   // Vite dev server (IP variant, alternate)
     'http://127.0.0.1:4173'    // Vite preview server (IP variant)
@@ -180,7 +184,7 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
       styleSrc: ["'self'"],
       imgSrc: [
         "'self'",
@@ -230,6 +234,18 @@ app.use('/js/mdh-config.js', (req, res, next) => {
   next();
 });
 app.use('/js', express.static('frontend/public/js'));
+
+// Serve uploaded avatar files
+app.use('/uploads', express.static('uploads', {
+  maxAge: '1d', // Cache avatars for 1 day
+  etag: true,
+  lastModified: true
+}));
+
+// Serve test page for avatar upload testing
+app.get('/test-avatar', (req, res) => {
+  res.sendFile(path.join(__dirname, 'test-avatar.html'));
+});
 
 // Enhanced request validation middleware
 const requestValidationMiddleware = (req, res, next) => {
@@ -330,6 +346,7 @@ app.use('/api/admin', adminLimiter, adminRoutes); // Apply admin rate limiting
 app.use('/api/upload', apiLimiter, uploadRoutes); // Apply upload rate limiting
 app.use('/api/services', servicesRoutes);
 app.use('/api/reviews', reviewsRoutes);
+app.use('/api/avatar', apiLimiter, avatarRoutes); // Apply upload rate limiting
 
 // Error handling middleware (must be last)
 app.use(notFoundHandler);

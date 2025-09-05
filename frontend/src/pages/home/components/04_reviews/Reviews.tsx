@@ -2,7 +2,8 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { ReviewCard } from './ReviewCard';
 import { ReviewsHeader } from './ReviewsHeader';
-import { ReviewsProps } from './types';
+import { ReviewModal } from './ReviewModal';
+import { ReviewsProps, Review } from './types';
 import { useReviews } from './hooks/useReviews';
 
 export const Reviews: React.FC<ReviewsProps> = ({ 
@@ -14,6 +15,8 @@ export const Reviews: React.FC<ReviewsProps> = ({
   verifiedOnly = false
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [selectedReview, setSelectedReview] = useState<Review | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   
   // Memoize the params object to prevent infinite loops
   const reviewParams = useMemo(() => ({
@@ -66,6 +69,16 @@ export const Reviews: React.FC<ReviewsProps> = ({
     if (canGoRight) {
       setCurrentIndex(Math.min(sortedReviews.length - maxReviews, currentIndex + 1));
     }
+  };
+
+  const handleReviewClick = (review: Review) => {
+    setSelectedReview(review);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedReview(null);
   };
   
   // Show loading state
@@ -171,7 +184,10 @@ export const Reviews: React.FC<ReviewsProps> = ({
                   animationDelay: `${index * 100}ms`,
                 }}
               >
-                <ReviewCard review={review} />
+                <ReviewCard 
+                  review={review} 
+                  onReviewClick={handleReviewClick}
+                />
               </div>
             ))}
           </div>
@@ -197,6 +213,15 @@ export const Reviews: React.FC<ReviewsProps> = ({
         </div>
 
       </div>
+
+      {/* Review Modal - Rendered at root level */}
+      {selectedReview && (
+        <ReviewModal
+          review={selectedReview}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+        />
+      )}
     </section>
   );
 };

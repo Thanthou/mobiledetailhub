@@ -1,5 +1,5 @@
 import React from 'react';
-import { Database, Settings, Users, BarChart3 } from 'lucide-react';
+import { Database, Settings, Users, BarChart3, Star } from 'lucide-react';
 import type { AdminTab } from '../types';
 import { ADMIN_TABS } from '../utils/constants';
 
@@ -11,6 +11,7 @@ interface AdminTabsProps {
 const iconMap = {
   Database,
   Users,
+  Star,
   BarChart3,
   Settings,
 };

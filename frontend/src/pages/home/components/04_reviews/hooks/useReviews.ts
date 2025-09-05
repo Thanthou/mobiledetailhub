@@ -9,7 +9,7 @@ const convertDatabaseReviewToReview = (dbReview: DatabaseReview): Review => ({
   rating: dbReview.rating,
   reviewText: dbReview.content,
   title: dbReview.title,
-  date: dbReview.published_at || dbReview.created_at,
+  date: dbReview.service_date || dbReview.published_at || dbReview.created_at,
   isVerified: dbReview.is_verified,
   isFeatured: dbReview.is_featured,
   helpfulVotes: dbReview.helpful_votes,
@@ -17,7 +17,8 @@ const convertDatabaseReviewToReview = (dbReview: DatabaseReview): Review => ({
   serviceCategory: dbReview.service_category,
   businessName: dbReview.business_name,
   businessSlug: dbReview.business_slug,
-  reviewSource: dbReview.review_source
+  reviewSource: dbReview.review_source,
+  reviewerUrl: dbReview.reviewer_url
 });
 
 // Custom hook for fetching reviews

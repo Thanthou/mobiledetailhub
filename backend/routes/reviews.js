@@ -34,6 +34,7 @@ router.get('/', async (req, res) => {
         r.content,
         r.reviewer_name,
         r.reviewer_avatar_url,
+        r.reviewer_url,
         r.review_source,
         r.is_verified,
         r.service_category,

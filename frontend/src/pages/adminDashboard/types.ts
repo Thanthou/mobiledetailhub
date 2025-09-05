@@ -13,7 +13,7 @@ export interface QueryHistory {
   executionTime?: number;
 }
 
-export type AdminTab = 'database' | 'users' | 'analytics' | 'settings';
+export type AdminTab = 'database' | 'users' | 'reviews' | 'analytics' | 'settings';
 
 export type UserSubTab = 'all-users' | 'admin' | 'affiliates' | 'customers' | 'pending';
 

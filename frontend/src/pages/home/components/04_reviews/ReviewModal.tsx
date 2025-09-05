@@ -51,7 +51,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 flex items-center justify-center p-4" style={{ zIndex: 999999 }}>
       {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-black bg-opacity-75 backdrop-blur-sm transition-opacity"
@@ -79,25 +79,59 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
           {/* Reviewer Info */}
           <div className="flex items-start gap-4 mb-6">
             {/* Profile Image */}
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center text-white font-bold text-3xl overflow-hidden">
-              {review.profileImage && !imageError ? (
-                <img 
-                  src={review.profileImage} 
-                  alt={review.customerName}
-                  className="w-full h-full object-cover"
-                  onError={() => setImageError(true)}
-                />
-              ) : (
-                review.customerName.charAt(0).toUpperCase()
-              )}
-            </div>
+            {review.reviewerUrl ? (
+              <a
+                href={review.reviewerUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-16 h-16 rounded-full bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center text-white font-bold text-3xl overflow-hidden hover:from-orange-300 hover:to-orange-400 transition-all duration-200 cursor-pointer group"
+                title={`View ${review.customerName}'s profile`}
+              >
+                {review.profileImage && !imageError ? (
+                  <img 
+                    src={review.profileImage} 
+                    alt={review.customerName}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                    onError={() => setImageError(true)}
+                  />
+                ) : (
+                  review.customerName.charAt(0).toUpperCase()
+                )}
+              </a>
+            ) : (
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center text-white font-bold text-3xl overflow-hidden">
+                {review.profileImage && !imageError ? (
+                  <img 
+                    src={review.profileImage} 
+                    alt={review.customerName}
+                    className="w-full h-full object-cover"
+                    onError={() => setImageError(true)}
+                  />
+                ) : (
+                  review.customerName.charAt(0).toUpperCase()
+                )}
+              </div>
+            )}
 
             {/* Reviewer Details */}
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
-                <h4 className="text-xl font-semibold text-white">
-                  {review.customerName}
-                </h4>
+                {review.reviewerUrl ? (
+                  <a
+                    href={review.reviewerUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xl font-semibold text-white hover:text-orange-400 transition-colors duration-200 cursor-pointer group flex items-center gap-2"
+                    title={`View ${review.customerName}'s profile`}
+                  >
+                    {review.customerName}
+                    <ExternalLink className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                  </a>
+                ) : (
+                  <h4 className="text-xl font-semibold text-white">
+                    {review.customerName}
+                  </h4>
+                )}
                 {review.isVerified && (
                   <span className="text-orange-400 text-sm font-medium bg-orange-400/10 px-2 py-1 rounded">
                     Verified

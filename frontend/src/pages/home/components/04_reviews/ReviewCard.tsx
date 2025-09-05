@@ -1,18 +1,17 @@
 import React, { useState } from 'react';
 import { StarRating } from './StarRating';
 import { ReviewSourceIcon } from './ReviewSourceIcon';
-import { ReviewModal } from './ReviewModal';
-import { ReviewCardProps } from './types';
+import { ReviewCardProps, Review } from './types';
 import { useReviewVote } from './hooks/useReviews';
 
 export const ReviewCard: React.FC<ReviewCardProps> = ({ 
   review, 
   showVoting = false, 
-  onVote 
+  onVote,
+  onReviewClick
 }) => {
   const [hasVoted, setHasVoted] = useState(false);
   const [userVote, setUserVote] = useState<'helpful' | 'not_helpful' | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [imageError, setImageError] = useState(false);
   const { voteOnReview, loading: votingLoading } = useReviewVote();
 
@@ -50,7 +49,7 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({
       }`}
       onClick={(e) => {
         e.stopPropagation();
-        setIsModalOpen(true);
+        onReviewClick?.(review);
       }}
     >
       {/* This Week badge */}
@@ -178,17 +177,6 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({
         </div>
       </div>
 
-      {/* Review Modal */}
-      <ReviewModal
-        review={review}
-        isOpen={isModalOpen}
-        onClose={() => {
-          // Use setTimeout to prevent immediate reopening due to event bubbling
-          setTimeout(() => {
-            setIsModalOpen(false);
-          }, 0);
-        }}
-      />
     </div>
   );
 };

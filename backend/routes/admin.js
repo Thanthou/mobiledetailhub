@@ -592,4 +592,258 @@ router.get('/mdh-service-areas', adminLimiter, authenticateToken, requireAdmin, 
   }
 }));
 
+// Seed reviews endpoint
+router.post('/seed-reviews', adminLimiter, authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
+  console.log('=== SEED REVIEWS ENDPOINT CALLED ===');
+  console.log('Request body:', req.body);
+  console.log('User:', req.user);
+  
+  if (!pool) {
+    const error = new Error('Database connection not available');
+    error.statusCode = 500;
+    throw error;
+  }
+
+  const { reviews } = req.body;
+
+  if (!reviews || !Array.isArray(reviews) || reviews.length === 0) {
+    const error = new Error('Reviews array is required and must not be empty');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  // Validate each review
+  for (const review of reviews) {
+    if (!review.name || !review.title || !review.content || !review.stars || !review.type) {
+      const error = new Error('Each review must have name, title, content, stars, and type');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    if (review.stars < 1 || review.stars > 5) {
+      const error = new Error('Stars must be between 1 and 5');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    if (review.type === 'affiliate' && !review.businessSlug) {
+      const error = new Error('Affiliate reviews must have a businessSlug');
+      error.statusCode = 400;
+      throw error;
+    }
+  }
+
+  const client = await pool.connect();
+  let successCount = 0;
+  let errorCount = 0;
+  const errors = [];
+  let result = { reviewIds: [] };
+
+  try {
+    await client.query('BEGIN');
+
+    for (const review of reviews) {
+      try {
+        let affiliateId = null;
+
+        // Get affiliate_id if this is an affiliate review
+        if (review.type === 'affiliate') {
+          const affiliateQuery = 'SELECT id FROM affiliates.business WHERE slug = $1';
+          const affiliateResult = await client.query(affiliateQuery, [review.businessSlug]);
+          
+          if (affiliateResult.rowCount === 0) {
+            errors.push(`Business slug '${review.businessSlug}' not found`);
+            errorCount++;
+            continue;
+          }
+          
+          // Double-check that we have a valid result before accessing it
+          if (affiliateResult.rows && affiliateResult.rows.length > 0) {
+            affiliateId = affiliateResult.rows[0].id;
+          } else {
+            errors.push(`Business slug '${review.businessSlug}' query returned no results`);
+            errorCount++;
+            continue;
+          }
+        }
+
+        // Generate automatic fields
+        const generateEmail = (name) => {
+          const cleanName = name.toLowerCase()
+            .replace(/[^a-z0-9\s]/g, '')
+            .replace(/\s+/g, '.');
+          return `${cleanName}@email.com`;
+        };
+
+        // Import avatar utilities
+        const { getAvatarUrl, findCustomAvatar } = require('../utils/avatarUtils');
+
+        const getServiceCategory = (content) => {
+          const lowerContent = content.toLowerCase();
+          if (lowerContent.includes('ceramic') || lowerContent.includes('coating')) return 'ceramic';
+          if (lowerContent.includes('paint correction') || lowerContent.includes('paint')) return 'paint_correction';
+          if (lowerContent.includes('boat') || lowerContent.includes('marine')) return 'boat';
+          if (lowerContent.includes('rv') || lowerContent.includes('recreational')) return 'rv';
+          if (lowerContent.includes('ppf') || lowerContent.includes('film')) return 'ppf';
+          return 'auto';
+        };
+
+        const generateServiceDate = (daysAgo, weeksAgo) => {
+          const now = new Date();
+          let reviewDate;
+          
+          if (daysAgo > 0) {
+            // Use days ago (0-6 days)
+            reviewDate = new Date(now.getTime() - (daysAgo * 24 * 60 * 60 * 1000));
+          } else if (weeksAgo > 0) {
+            // Use weeks ago (1+ weeks)
+            reviewDate = new Date(now.getTime() - (weeksAgo * 7 * 24 * 60 * 60 * 1000));
+          } else {
+            // Default to random date within last 6 months
+            const sixMonthsAgo = new Date(now.getTime() - (6 * 30 * 24 * 60 * 60 * 1000));
+            const randomTime = sixMonthsAgo.getTime() + Math.random() * (now.getTime() - sixMonthsAgo.getTime());
+            reviewDate = new Date(randomTime);
+          }
+          
+          return reviewDate.toISOString().split('T')[0];
+        };
+
+        const shouldBeFeatured = (stars, content) => {
+          return stars === 5 && content.length > 100;
+        };
+
+        const email = generateEmail(review.name);
+        const avatarUrl = getAvatarUrl(review.name, null, review.source); // reviewId will be null for new reviews
+        
+        // Use service category from form selection
+        let serviceCategory = null;
+        if (review.serviceCategory && review.serviceCategory !== 'none') {
+          serviceCategory = review.serviceCategory;
+        }
+        
+        const isFeatured = shouldBeFeatured(review.stars, review.content);
+        
+        // Calculate service_date based on days/weeks ago or specific date
+        const now = new Date();
+        let serviceDate;
+        if (review.specificDate) {
+          // Use specific date if provided
+          serviceDate = new Date(review.specificDate).toISOString();
+        } else if (review.daysAgo > 0) {
+          serviceDate = new Date(now.getTime() - (review.daysAgo * 24 * 60 * 60 * 1000)).toISOString();
+        } else if (review.weeksAgo > 0) {
+          serviceDate = new Date(now.getTime() - (review.weeksAgo * 7 * 24 * 60 * 60 * 1000)).toISOString();
+        } else {
+          serviceDate = new Date().toISOString();
+        }
+
+        // Insert review
+        const insertQuery = `
+          INSERT INTO reputation.reviews (
+            review_type,
+            affiliate_id,
+            business_slug,
+            rating,
+            title,
+            content,
+            reviewer_name,
+            reviewer_email,
+            reviewer_avatar_url,
+            reviewer_url,
+            review_source,
+            status,
+            is_verified,
+            service_category,
+            service_date,
+            is_featured,
+            published_at
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+          RETURNING id
+        `;
+
+        const values = [
+          review.type,
+          affiliateId,
+          review.businessSlug,
+          review.stars,
+          review.title,
+          review.content,
+          review.name,
+          email,
+          avatarUrl,
+          review.reviewerUrl || null,
+          review.source || 'website',
+          'approved',
+          true,
+          serviceCategory,
+          serviceDate,
+          isFeatured,
+          serviceDate // Use serviceDate for published_at as well
+        ];
+        
+
+        console.log('Executing query:', insertQuery);
+        console.log('With values:', values);
+        const insertResult = await client.query(insertQuery, values);
+        console.log('Query result:', insertResult);
+        
+        // Check if the insert was successful
+        if (!insertResult.rows || insertResult.rows.length === 0) {
+          errors.push(`Failed to insert review "${review.title}" - no result returned`);
+          errorCount++;
+          continue;
+        }
+        
+        const reviewId = insertResult.rows[0].id;
+        successCount++;
+        
+        // Store review ID for avatar upload
+        result.reviewIds.push(reviewId);
+        
+        // Check if there's a custom avatar for this review and update the database
+        const customAvatar = findCustomAvatar(review.name, reviewId);
+        if (customAvatar) {
+          await client.query(
+            'UPDATE reputation.reviews SET reviewer_avatar_url = $1 WHERE id = $2',
+            [customAvatar, reviewId]
+          );
+          console.log(`Updated review ${reviewId} with custom avatar: ${customAvatar}`);
+        }
+
+      } catch (reviewError) {
+        errors.push(`Error adding review "${review.title}": ${reviewError.message}`);
+        errorCount++;
+      }
+    }
+
+    await client.query('COMMIT');
+
+    // Audit log the review seeding
+    logger.audit('SEED_REVIEWS', 'reviews', { 
+      totalSubmitted: reviews.length,
+      successCount,
+      errorCount,
+      errors: errors.slice(0, 5) // Log first 5 errors
+    }, null, {
+      userId: req.user.userId,
+      email: req.user.email
+    });
+
+    res.json({
+      success: true,
+      message: `Successfully seeded ${successCount} reviews`,
+      count: successCount,
+      errors: errorCount,
+      errorDetails: errors,
+      reviewIds: result.reviewIds
+    });
+
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
+}));
+
 module.exports = router;
