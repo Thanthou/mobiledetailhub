@@ -1,4 +1,4 @@
-import { LocationData } from '../contexts/LocationContext';
+import type { LocationData } from '../contexts/LocationContext';
 
 interface ServiceArea {
   city: string;
@@ -24,7 +24,7 @@ export const affiliateServesLocation = (
   
   if (typeof serviceAreas === 'string') {
     try {
-      serviceAreasData = JSON.parse(serviceAreas);
+      serviceAreasData = JSON.parse(serviceAreas) as ServiceArea[];
     } catch (e) {
       console.error('Error parsing service_areas JSON:', e);
       return false;
@@ -52,7 +52,7 @@ export const getPrimaryServiceArea = (
   
   if (typeof serviceAreas === 'string') {
     try {
-      serviceAreasData = JSON.parse(serviceAreas);
+      serviceAreasData = JSON.parse(serviceAreas) as ServiceArea[];
     } catch (e) {
       console.error('Error parsing service_areas JSON:', e);
       return null;

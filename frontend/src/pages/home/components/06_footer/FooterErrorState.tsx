@@ -6,7 +6,7 @@ const FooterErrorState: React.FC = () => {
       <div className="max-w-6xl mx-auto px-4">
         <div className="text-center">
           <p className="text-orange-400 mb-2 text-xl font-semibold">Under Construction</p>
-          <p className="text-gray-400 text-sm">We're working on something awesome</p>
+          <p className="text-gray-400 text-sm">We&rsquo;re working on something awesome</p>
         </div>
       </div>
     </footer>

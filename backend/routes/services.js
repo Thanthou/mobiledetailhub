@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { pool } = require('../database/pool');
 
+
 // POST /api/services - Create a new service
 router.post('/', async (req, res) => {
   try {
@@ -27,7 +28,8 @@ router.post('/', async (req, res) => {
         3: { db: 'auto', original: 'service-packages' },
         4: { db: 'ceramic', original: 'ceramic-coating' },
         5: { db: 'auto', original: 'paint-correction' },
-        6: { db: 'auto', original: 'paint-protection-film' }
+        6: { db: 'auto', original: 'paint-protection-film' },
+        7: { db: 'auto', original: 'addons' }
       };
       
       const mapping = categoryMap[service_category_id] || { db: 'auto', original: 'service-packages' };
@@ -153,8 +155,6 @@ router.delete('/:serviceId', async (req, res) => {
       });
     }
     
-    console.log('🗑️ Deleting service:', serviceId);
-    
     // Start a transaction to ensure both deletions succeed or both fail
     const client = await pool.connect();
     
@@ -164,7 +164,6 @@ router.delete('/:serviceId', async (req, res) => {
       // First, delete all service tiers for this service
       const deleteTiersQuery = 'DELETE FROM affiliates.service_tiers WHERE service_id = $1';
       const tiersResult = await client.query(deleteTiersQuery, [serviceId]);
-      console.log('✅ Deleted', tiersResult.rowCount, 'service tiers');
       
       // Then, delete the service itself
       const deleteServiceQuery = 'DELETE FROM affiliates.services WHERE id = $1';
@@ -178,8 +177,6 @@ router.delete('/:serviceId', async (req, res) => {
           message: 'No service found with the provided ID'
         });
       }
-      
-      console.log('✅ Deleted service:', serviceId);
       
       // Commit the transaction
       await client.query('COMMIT');
@@ -259,9 +256,7 @@ router.get('/affiliate/:affiliateId/vehicle/:vehicleId/category/:categoryId', as
       ORDER BY s.created_at DESC, s.service_name ASC
     `;
     
-    console.log('🔍 Fetching services:', { affiliateId, vehicleId, categoryId, dbCategory, dbVehicleId });
     const result = await pool.query(query, [affiliateId, dbCategory, JSON.stringify([dbVehicleId]), categoryId]);
-    console.log('📊 Query result:', result.rows.length, 'services found');
     
     if (result.rows.length === 0) {
       return res.json({

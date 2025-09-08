@@ -36,7 +36,7 @@ router.post('/single',
         originalName: req.file.originalname,
         size: req.file.size,
         mimetype: req.file.mimetype,
-        path: req.file.path
+        url: `/uploads/${req.file.filename}`
       }
     });
   })
@@ -68,7 +68,7 @@ router.post('/multiple',
       originalName: file.originalname,
       size: file.size,
       mimetype: file.mimetype,
-      path: file.path
+      url: `/uploads/${file.filename}`
     }));
 
     logger.info('Multiple files uploaded successfully', {

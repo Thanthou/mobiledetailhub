@@ -1,5 +1,6 @@
-import React, { forwardRef } from 'react';
+/* eslint-disable react/prop-types */
 import { X } from 'lucide-react';
+import React, { forwardRef } from 'react';
 
 interface ModalHeaderProps {
   isLogin: boolean;

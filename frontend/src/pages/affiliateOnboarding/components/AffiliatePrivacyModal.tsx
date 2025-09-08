@@ -1,5 +1,5 @@
-import React from 'react';
 import { X } from 'lucide-react';
+import React from 'react';
 
 interface AffiliatePrivacyModalProps {
   isOpen: boolean;
@@ -29,7 +29,7 @@ const AffiliatePrivacyModal: React.FC<AffiliatePrivacyModalProps> = ({ isOpen, o
           
           <div className="space-y-4">
             <p className="leading-relaxed">
-              Mobile Detail Hub ("MDH", "we", "our") respects your privacy. This Privacy Policy explains how we collect, use, and protect your personal information as an affiliate.
+              Mobile Detail Hub (&quot;MDH&quot;, &quot;we&quot;, &quot;our&quot;) respects your privacy. This Privacy Policy explains how we collect, use, and protect your personal information as an affiliate.
             </p>
             
             <div>

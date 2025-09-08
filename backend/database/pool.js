@@ -1,10 +1,11 @@
 const { Pool } = require('pg');
 const logger = require('../utils/logger');
+const { env } = require('../src/shared/env');
 
 // Create a single global pool instance with improved configuration
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  connectionString: env.DATABASE_URL,
+  ssl: env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
   
   // Connection pool settings
   max: 25,                    // Increased from 20 to handle more concurrent requests

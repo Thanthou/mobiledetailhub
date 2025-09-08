@@ -1,4 +1,6 @@
-import React, { Suspense, lazy, useState, useCallback, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import React, { lazy, Suspense, useCallback, useEffect, useState } from 'react';
+
 import { usePerformanceMonitor } from '../../hooks/usePerformanceMonitor';
 
 // Lazy load the QuoteModal component
@@ -90,6 +92,11 @@ class ModalErrorBoundary extends React.Component<
   }
 }
 
+ModalErrorBoundary.propTypes = {
+  children: PropTypes.node.isRequired,
+  fallback: PropTypes.node.isRequired,
+};
+
 const LazyQuoteModal: React.FC<LazyQuoteModalProps> = ({ isOpen, onClose }) => {
   const [isPreloading, setIsPreloading] = useState(false);
   const [isPreloaded, setIsPreloaded] = useState(false);
@@ -102,7 +109,7 @@ const LazyQuoteModal: React.FC<LazyQuoteModalProps> = ({ isOpen, onClose }) => {
       try {
         await import('./QuoteModal');
         setIsPreloaded(true);
-      } catch (error) {
+      } catch (error: unknown) {
         console.error('Failed to prefetch QuoteModal:', error);
       } finally {
         setIsPreloading(false);
@@ -113,10 +120,10 @@ const LazyQuoteModal: React.FC<LazyQuoteModalProps> = ({ isOpen, onClose }) => {
   // Auto-prefetch after a delay to improve perceived performance
   useEffect(() => {
     const timer = setTimeout(() => {
-      handlePrefetch();
+      void handlePrefetch();
     }, 2000); // Prefetch after 2 seconds of page load
     
-    return () => clearTimeout(timer);
+    return () => { clearTimeout(timer); };
   }, [handlePrefetch]);
 
   // Monitor component loading performance
@@ -126,7 +133,7 @@ const LazyQuoteModal: React.FC<LazyQuoteModalProps> = ({ isOpen, onClose }) => {
       const timer = setTimeout(() => {
         endLoad();
       }, 100);
-      return () => clearTimeout(timer);
+      return () => { clearTimeout(timer); };
     }
   }, [isOpen, startLoad, endLoad]);
 
@@ -147,8 +154,9 @@ const LazyQuoteModal: React.FC<LazyQuoteModalProps> = ({ isOpen, onClose }) => {
 export default LazyQuoteModal;
 
 // Enhanced prefetch function with better error handling and caching
+// eslint-disable-next-line react-refresh/only-export-components
 export const prefetchQuoteModal = (() => {
-  let prefetchPromise: Promise<any> | null = null;
+  let prefetchPromise: Promise<unknown> | null = null;
   
   return () => {
     if (!prefetchPromise) {
@@ -157,7 +165,7 @@ export const prefetchQuoteModal = (() => {
           // Pre-warm any dependencies or prepare the component
           return module;
         })
-        .catch(error => {
+        .catch((error: unknown) => {
           console.error('Failed to prefetch QuoteModal:', error);
           // Reset promise on error so retry is possible
           prefetchPromise = null;
@@ -169,6 +177,7 @@ export const prefetchQuoteModal = (() => {
 })();
 
 // Export hook for component prefetching
+// eslint-disable-next-line react-refresh/only-export-components
 export const useQuoteModalPrefetch = () => {
   const [isPrefetched, setIsPrefetched] = useState(false);
   
@@ -177,7 +186,7 @@ export const useQuoteModalPrefetch = () => {
       try {
         await prefetchQuoteModal();
         setIsPrefetched(true);
-      } catch (error) {
+      } catch (error: unknown) {
         console.error('Prefetch failed:', error);
       }
     }

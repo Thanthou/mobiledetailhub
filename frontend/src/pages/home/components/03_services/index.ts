@@ -7,10 +7,45 @@ export interface ServiceDetails {
   videos?: string[];
 }
 
-// Import service data
-import { autoDetailingService } from './AutoDetailing';
-import { marineDetailingService } from './MarineDetailing';
-import { rvDetailingService } from './RVDetailing';
+// Service data definitions
+const autoDetailingService: ServiceDetails = {
+  title: 'Auto Detailing',
+  description: [
+    'Complete interior and exterior detailing',
+    'Paint correction and protection',
+    'Leather and fabric care',
+    'Engine bay cleaning'
+  ],
+  pricing: ['Starting at $150'],
+  images: ['/images/services/thumbnails/auto.png'],
+  videos: []
+};
+
+const marineDetailingService: ServiceDetails = {
+  title: 'Marine Detailing',
+  description: [
+    'Hull cleaning and waxing',
+    'Interior upholstery care',
+    'Canvas and vinyl protection',
+    'Metal polishing'
+  ],
+  pricing: ['Starting at $200'],
+  images: ['/images/services/thumbnails/boat.png'],
+  videos: []
+};
+
+const rvDetailingService: ServiceDetails = {
+  title: 'RV Detailing',
+  description: [
+    'Exterior wash and wax',
+    'Interior deep cleaning',
+    'Awning and canvas care',
+    'Tire and wheel cleaning'
+  ],
+  pricing: ['Starting at $300'],
+  images: ['/images/services/thumbnails/rv.png'],
+  videos: []
+};
 
 // All services mapping
 export const allServices: Record<string, ServiceDetails> = {
@@ -20,7 +55,5 @@ export const allServices: Record<string, ServiceDetails> = {
   // Add more services here as we create them
 };
 
-// Modal components
-export { default as AutoDetailingModal } from './AutoDetailing';
-export { default as MarineDetailingModal } from './MarineDetailing';
-export { default as RVDetailingModal } from './RVDetailing'; 
+// Export the main Services component
+export { default as Services } from './Services'; 

@@ -1,7 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { BarChart3,ChevronDown, ExternalLink, Globe } from 'lucide-react';
+import React, { useCallback, useEffect,useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronDown, Globe, ExternalLink, BarChart3 } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
+
+import { useAuth } from '../../hooks/useAuth';
 import { affiliateEventManager } from '../../utils/affiliateEvents';
 
 interface Affiliate {
@@ -24,34 +25,8 @@ const AffiliateNavigation: React.FC = () => {
   const [lastFetched, setLastFetched] = useState<Date | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Close menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  // Listen for affiliate events (deleted, approved, etc.) and refresh data
-  useEffect(() => {
-    const unsubscribe = affiliateEventManager.subscribe(() => {
-      // Affiliate Navigation: Received affiliate update event, refreshing data
-      setAffiliates([]); // Clear cache
-      setLastFetched(null); // Reset timestamp
-      if (isOpen) {
-        fetchAffiliates(true); // Force refresh if menu is open
-      }
-    });
-
-    return unsubscribe;
-  }, [isOpen]);
-
   // Fetch affiliates when menu opens
-  const fetchAffiliates = async (forceRefresh = false) => {
+  const fetchAffiliates = useCallback(async (forceRefresh = false) => {
     if (loading || (!forceRefresh && affiliates.length > 0)) return; // Don't refetch if already loaded unless forced
     
     setLoading(true);
@@ -61,12 +36,12 @@ const AffiliateNavigation: React.FC = () => {
       const response = await fetch('/api/affiliates', {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token ?? ''}`
         }
       });
       
       if (response.ok) {
-        const data = await response.json();
+        const data = await response.json() as { success: boolean; data?: Affiliate[] };
         if (data.success && data.data) {
           setAffiliates(data.data);
           setLastFetched(new Date());
@@ -74,8 +49,7 @@ const AffiliateNavigation: React.FC = () => {
           setError('No affiliates found');
         }
       } else {
-        const errorText = await response.text();
-        setError(`Failed to fetch affiliates (${response.status})`);
+        setError(`Failed to fetch affiliates (${String(response.status)})`);
       }
     } catch (error) {
       console.error('Affiliate Navigation: Could not fetch affiliates', error);
@@ -83,7 +57,33 @@ const AffiliateNavigation: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [loading, affiliates.length]);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => { document.removeEventListener('mousedown', handleClickOutside); };
+  }, []);
+
+  // Listen for affiliate events (deleted, approved, etc.) and refresh data
+  useEffect(() => {
+    const unsubscribe = affiliateEventManager.subscribe(() => {
+      // Affiliate Navigation: Received affiliate update event, refreshing data
+      setAffiliates([]); // Clear cache
+      setLastFetched(null); // Reset timestamp
+      if (isOpen) {
+        void fetchAffiliates(true); // Force refresh if menu is open
+      }
+    });
+
+    return unsubscribe;
+  }, [isOpen, fetchAffiliates]); // Include fetchAffiliates in dependencies
 
   // Don't render while auth is loading
   if (authLoading) {
@@ -98,23 +98,23 @@ const AffiliateNavigation: React.FC = () => {
   const handleNavigation = (path: string) => {
     // Affiliate Navigation: Going to path
     setIsOpen(false);
-    navigate(path);
+    void navigate(path);
   };
 
   const handleMenuToggle = () => {
     if (!isOpen) {
-      fetchAffiliates(); // Fetch affiliates when opening menu
+      void fetchAffiliates(); // Fetch affiliates when opening menu
     }
     setIsOpen(!isOpen);
   };
 
   const handleRefresh = () => {
     setAffiliates([]); // Clear cache
-    fetchAffiliates(true); // Force refresh
+    void fetchAffiliates(true); // Force refresh
   };
 
   // Group affiliates by first 3 letters of slug
-  const groupedAffiliates = affiliates.reduce((groups, affiliate) => {
+  const groupedAffiliates = affiliates.reduce<Record<string, Affiliate[]>>((groups, affiliate) => {
     // Skip affiliates with invalid slugs
     if (!affiliate.slug || typeof affiliate.slug !== 'string' || affiliate.slug.length < 3) {
       return groups;
@@ -126,7 +126,7 @@ const AffiliateNavigation: React.FC = () => {
     }
     groups[prefix].push(affiliate);
     return groups;
-  }, {} as Record<string, Affiliate[]>);
+  }, {});
 
   // Sort groups alphabetically
   const sortedGroups = Object.keys(groupedAffiliates).sort();
@@ -198,7 +198,7 @@ const AffiliateNavigation: React.FC = () => {
                   <div key={affiliate.id} className="px-4 py-1">
                     <div className="flex flex-col space-y-1">
                       <button
-                        onClick={() => handleNavigation(`/${affiliate.slug}`)}
+                        onClick={() => { handleNavigation(`/${affiliate.slug}`); }}
                         className="flex items-center text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2 py-1 rounded transition-colors duration-200"
                         title={`Visit ${affiliate.business_name} site`}
                       >
@@ -206,7 +206,7 @@ const AffiliateNavigation: React.FC = () => {
                         {affiliate.business_name}
                       </button>
                       <button
-                        onClick={() => handleNavigation(`/${affiliate.slug}/dashboard`)}
+                        onClick={() => { handleNavigation(`/${affiliate.slug}/dashboard`); }}
                         className="flex items-center text-xs text-green-600 hover:text-green-800 hover:bg-green-50 px-2 py-1 rounded transition-colors duration-200"
                         title={`Visit ${affiliate.business_name} dashboard`}
                       >

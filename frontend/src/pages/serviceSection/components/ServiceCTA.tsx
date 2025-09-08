@@ -1,4 +1,4 @@
-import { ServicePageProps } from '../types';
+import type { ServicePageProps } from '../types';
 
 export const ServiceCTA = ({ serviceData }: ServicePageProps) => {
   return (

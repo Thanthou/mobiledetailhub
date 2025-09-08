@@ -1,6 +1,7 @@
-import React from 'react';
 import { Send } from 'lucide-react';
-import { AffiliateApplication } from '../types';
+import React from 'react';
+
+import type { AffiliateApplication } from '../types';
 
 interface SubmitSectionProps {
   isSubmitting: boolean;
@@ -13,8 +14,6 @@ interface SubmitSectionProps {
 const SubmitSection: React.FC<SubmitSectionProps> = ({
   isSubmitting,
   submitError,
-  formData,
-  onSubmit,
   emergencyCleanup
 }) => {
   return (

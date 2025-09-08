@@ -1,5 +1,5 @@
+import { Check, Clipboard, ExternalLink, Share2,X } from 'lucide-react';
 import React, { useState } from 'react';
-import { X, ExternalLink, Clipboard, Check, Share2 } from 'lucide-react';
 
 interface GoogleBusinessProfileModalProps {
   isOpen: boolean;
@@ -38,7 +38,7 @@ const GoogleBusinessProfileModal: React.FC<GoogleBusinessProfileModalProps> = ({
       const text = await navigator.clipboard.readText();
       setCopiedUrl(text);
       setIsPasted(true);
-      setTimeout(() => setIsPasted(false), 2000);
+      setTimeout(() => { setIsPasted(false); }, 2000);
     } catch (error) {
       console.error('Failed to read clipboard:', error);
     }
@@ -87,7 +87,7 @@ const GoogleBusinessProfileModal: React.FC<GoogleBusinessProfileModalProps> = ({
                     className="mt-2 inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
                   >
                     <ExternalLink className="w-4 h-4 mr-2" />
-                    Search Google for "{businessName}"
+                    Search Google for &quot;{businessName}&quot;
                   </button>
                 </div>
               </div>
@@ -120,7 +120,7 @@ const GoogleBusinessProfileModal: React.FC<GoogleBusinessProfileModalProps> = ({
                 </div>
                 <div>
                   <p className="text-gray-300 text-sm">
-                    Click "Copy link" to copy your business profile URL
+                    Click &quot;Copy link&quot; to copy your business profile URL
                   </p>
                 </div>
               </div>
@@ -131,7 +131,7 @@ const GoogleBusinessProfileModal: React.FC<GoogleBusinessProfileModalProps> = ({
                 </div>
                 <div>
                   <p className="text-gray-300 text-sm">
-                    Click the paste button below to paste the copied URL, then click "Add URL"
+                    Click the paste button below to paste the copied URL, then click &quot;Add URL&quot;
                   </p>
                 </div>
               </div>
@@ -148,12 +148,12 @@ const GoogleBusinessProfileModal: React.FC<GoogleBusinessProfileModalProps> = ({
                 id="gbp_url_input"
                 type="url"
                 value={copiedUrl}
-                onChange={(e) => setCopiedUrl(e.target.value)}
+                onChange={(e) => { setCopiedUrl(e.target.value); }}
                 placeholder="https://share.google/..."
                 className="flex-1 bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
               />
               <button
-                onClick={handlePaste}
+                onClick={() => { void handlePaste(); }}
                 className="px-3 py-2 bg-stone-600 hover:bg-stone-500 text-white rounded-lg transition-colors flex items-center"
                 title="Paste URL from clipboard"
               >

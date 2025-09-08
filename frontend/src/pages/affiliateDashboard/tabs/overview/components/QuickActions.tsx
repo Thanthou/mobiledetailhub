@@ -1,5 +1,5 @@
+import { Car, Package,Plus, Users } from 'lucide-react';
 import React from 'react';
-import { Plus, Users, Car, Package } from 'lucide-react';
 
 export const QuickActions: React.FC = () => (
   <div className="bg-stone-800 rounded-xl border border-stone-700 p-6">

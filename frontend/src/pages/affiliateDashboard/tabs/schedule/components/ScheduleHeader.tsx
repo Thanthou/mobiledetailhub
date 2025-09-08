@@ -1,5 +1,5 @@
+import { Calendar, Plus } from 'lucide-react';
 import React from 'react';
-import { Calendar, Plus, Filter, Search } from 'lucide-react';
 
 interface ScheduleHeaderProps {
   selectedDate: string;
@@ -28,7 +28,7 @@ export const ScheduleHeader: React.FC<ScheduleHeaderProps> = ({
             {(['day', 'week', 'month'] as const).map((mode) => (
               <button
                 key={mode}
-                onClick={() => setViewMode(mode)}
+                onClick={() => { setViewMode(mode); }}
                 className={`px-3 py-1 rounded-md text-sm font-medium transition-colors capitalize ${
                   viewMode === mode
                     ? 'bg-orange-500 text-white'
@@ -46,7 +46,7 @@ export const ScheduleHeader: React.FC<ScheduleHeaderProps> = ({
             id="schedule-date"
             name="selectedDate"
             value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
+            onChange={(e) => { setSelectedDate(e.target.value); }}
             className="bg-stone-700 border border-stone-600 text-white rounded-lg px-3 py-2 text-sm"
           />
           

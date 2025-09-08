@@ -1,11 +1,11 @@
 // Import vehicle data
 import boatData from './BoatMakeModel.json';
 import carData from './CarMakeModel.json';
-import rvData from './RvMakeModel.json';
 import motorcycleData from './MotorcycleMakeModel.json';
+import rvData from './RvMakeModel.json';
 
 // Export individual data sets
-export { boatData, carData, rvData, motorcycleData };
+export { boatData, carData, motorcycleData, rvData };
 
 // Export combined data
 export const vehicleData = {
@@ -32,25 +32,31 @@ export const getMakesForType = (vehicleType: string) => {
   let makes: string[] = [];
   
   switch (vehicleType) {
-    case 'car':
+    case 'car': {
       makes = carData.map(item => item.brand);
       break;
+    }
     case 'truck':
     case 'off-road':
-    case 'other':
+    case 'other': {
       makes = []; // No predefined makes for these types
       break;
-    case 'boat':
+    }
+    case 'boat': {
       makes = Object.keys(boatData);
       break;
-    case 'rv':
+    }
+    case 'rv': {
       makes = Object.keys(rvData);
       break;
-    case 'motorcycle':
+    }
+    case 'motorcycle': {
       makes = Object.keys(motorcycleData);
       break;
-    default:
+    }
+    default: {
       makes = [];
+    }
   }
   
   // Always add 'Other' at the end if it's not already there
@@ -66,26 +72,44 @@ export const getModelsForMake = (vehicleType: string, make: string) => {
   let models: string[] = [];
   
   switch (vehicleType) {
-    case 'car':
+    case 'car': {
       const carItem = carData.find(item => item.brand === make);
       models = carItem ? carItem.models : [];
       break;
+    }
     case 'truck':
     case 'off-road':
-    case 'other':
+    case 'other': {
       models = []; // No predefined models for these types
       break;
-    case 'boat':
-      models = boatData[make as keyof typeof boatData] || [];
+    }
+    case 'boat': {
+      if (make in boatData) {
+        models = boatData[make as keyof typeof boatData];
+      } else {
+        models = [];
+      }
       break;
-    case 'rv':
-      models = rvData[make as keyof typeof rvData] || [];
+    }
+    case 'rv': {
+      if (make in rvData) {
+        models = rvData[make as keyof typeof rvData];
+      } else {
+        models = [];
+      }
       break;
-    case 'motorcycle':
-      models = motorcycleData[make as keyof typeof motorcycleData] || [];
+    }
+    case 'motorcycle': {
+      if (make in motorcycleData) {
+        models = motorcycleData[make as keyof typeof motorcycleData];
+      } else {
+        models = [];
+      }
       break;
-    default:
+    }
+    default: {
       models = [];
+    }
   }
   
   // Always add 'Other' at the end if it's not already there

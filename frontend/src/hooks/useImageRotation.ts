@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect,useState } from 'react';
 
 interface UseImageRotationProps {
   images: string[];
@@ -15,7 +15,7 @@ export const useImageRotation = ({ images, interval = 8000 }: UseImageRotationPr
       setCurrentImageIndex(prev => (prev + 1) % images.length);
     }, interval);
     
-    return () => clearInterval(timer);
+    return () => { clearInterval(timer); };
   }, [images.length, interval]);
 
   return currentImageIndex;

@@ -1,11 +1,22 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { AlertCircle, ChevronDown, ChevronRight,MapPin, Plus, Trash2, X } from 'lucide-react';
+import React, { useEffect,useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
-import { Plus, MapPin, AlertCircle, X, Trash2, ChevronDown, ChevronRight } from 'lucide-react';
-import { useLocationsData } from './hooks/useLocationsData';
+
+import type { DetailerData } from '../../types';
 import { AddLocationModal } from './components/AddLocationModal';
 import { DeleteLocationModal } from './components/DeleteLocationModal';
-import type { ServiceArea, LocationFormData } from './types';
-import type { DetailerData } from '../../types';
+import { useLocationsData } from './hooks/useLocationsData';
+import type { LocationFormData,ServiceArea } from './types';
+
+// Google Places API Type Definitions
+interface AutocompleteRequest {
+  input: string;
+  region: string;
+  includedPrimaryTypes: string[];
+  sessionToken: google.maps.places.AutocompleteSessionToken;
+}
+
+
 
 interface LocationsTabProps {
   detailerData?: DetailerData;
@@ -24,7 +35,7 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
   const [isPrimaryEditMode, setIsPrimaryEditMode] = useState(false);
   const [primaryLocationInput, setPrimaryLocationInput] = useState('');
   const [primaryOriginalInput, setPrimaryOriginalInput] = useState(''); // Store original input for ZIP extraction
-  const [primaryPredictions, setPrimaryPredictions] = useState<Array<any>>([]);
+  const [primaryPredictions, setPrimaryPredictions] = useState<google.maps.places.AutocompleteSuggestion[]>([]);
   const [showPrimaryPredictions, setShowPrimaryPredictions] = useState(false);
   const [isPrimaryLoading, setIsPrimaryLoading] = useState(false);
   const [primaryDropdownStyle, setPrimaryDropdownStyle] = useState<React.CSSProperties>({});
@@ -34,7 +45,7 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
   const [isServiceAreaEditMode, setIsServiceAreaEditMode] = useState(false);
   const [serviceAreaLocationInput, setServiceAreaLocationInput] = useState('');
   const [serviceAreaOriginalInput, setServiceAreaOriginalInput] = useState(''); // Store original input for ZIP extraction
-  const [serviceAreaPredictions, setServiceAreaPredictions] = useState<Array<any>>([]);
+  const [serviceAreaPredictions, setServiceAreaPredictions] = useState<google.maps.places.AutocompleteSuggestion[]>([]);
   const [showServiceAreaPredictions, setShowServiceAreaPredictions] = useState(false);
   const [isServiceAreaLoading, setIsServiceAreaLoading] = useState(false);
   const [serviceAreaDropdownStyle, setServiceAreaDropdownStyle] = useState<React.CSSProperties>({});
@@ -44,7 +55,7 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
   const [editingLocationId, setEditingLocationId] = useState<string | null>(null);
   const [editingLocationInput, setEditingLocationInput] = useState('');
   const [editingLocationOriginalInput, setEditingLocationOriginalInput] = useState(''); // Store original input for ZIP extraction
-  const [editingLocationPredictions, setEditingLocationPredictions] = useState<Array<any>>([]);
+  const [editingLocationPredictions, setEditingLocationPredictions] = useState<google.maps.places.AutocompleteSuggestion[]>([]);
   const [showEditingLocationPredictions, setShowEditingLocationPredictions] = useState(false);
   const [isEditingLocationLoading, setIsEditingLocationLoading] = useState(false);
   const [editingLocationDropdownStyle, setEditingLocationDropdownStyle] = useState<React.CSSProperties>({});
@@ -52,34 +63,33 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
   // Primary service area refs
   const primaryInputRef = useRef<HTMLInputElement>(null);
   const primaryPredictionsRef = useRef<HTMLDivElement>(null);
-  const primarySessionTokenRef = useRef<any | null>(null);
+  const primarySessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null);
   
   // Service area refs
   const serviceAreaInputRef = useRef<HTMLInputElement>(null);
   const serviceAreaPredictionsRef = useRef<HTMLDivElement>(null);
-  const serviceAreaSessionTokenRef = useRef<any | null>(null);
+  const serviceAreaSessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null);
   
   // Editing location refs
   const editingLocationInputRef = useRef<HTMLInputElement>(null);
   const editingLocationPredictionsRef = useRef<HTMLDivElement>(null);
-  const editingLocationSessionTokenRef = useRef<any | null>(null);
+  const editingLocationSessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null);
 
   // Load Google Places API
   useEffect(() => {
-    const checkAPIReady = async () => {
+    const checkAPIReady = async (): Promise<void> => {
       try {
-        if (!window.google?.maps?.importLibrary) {
-          setTimeout(checkAPIReady, 250);
+        if (!window.google.maps.importLibrary) {
+          setTimeout(() => void checkAPIReady(), 250);
           return;
         }
         
-        const placesLib = (await window.google.maps.importLibrary('places')) as google.maps.PlacesLibrary;
-        const AutocompleteSuggestion: any = (placesLib as any).AutocompleteSuggestion;
+        const placesLib = await window.google.maps.importLibrary('places');
         
-        if (AutocompleteSuggestion?.fetchAutocompleteSuggestions) {
+        if (placesLib && typeof placesLib === 'object' && 'AutocompleteSuggestion' in placesLib) {
           setApiLoaded(true);
         } else {
-          setTimeout(checkAPIReady, 250);
+          setTimeout(() => void checkAPIReady(), 250);
         }
       } catch (error) {
         console.error('Google Maps API initialization error:', error);
@@ -87,19 +97,19 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
       }
     };
 
-    const loadGooglePlacesAPI = () => {
-      if (window.google?.maps) {
-        setTimeout(checkAPIReady, 300);
+    const loadGooglePlacesAPI = (): void => {
+      if (window.google.maps) {
+        setTimeout(() => void checkAPIReady(), 300);
         return;
       }
       
       if (document.querySelector('script[src*="maps.googleapis.com"]')) {
-        setTimeout(checkAPIReady, 500);
+        setTimeout(() => void checkAPIReady(), 500);
         return;
       }
       
       const script = document.createElement('script');
-      const apiKey = (import.meta as any).env?.VITE_GOOGLE_MAPS_API_KEY;
+      const apiKey = import.meta.env['VITE_GOOGLE_MAPS_API_KEY'] as string;
       
       if (!apiKey) {
         console.error('Google Maps API key not found. Please set VITE_GOOGLE_MAPS_API_KEY in your .env file');
@@ -110,7 +120,7 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
       script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&v=beta&loading=async`;
       script.async = true;
       script.defer = true;
-      script.onload = () => setTimeout(() => checkAPIReady(), 500);
+      script.onload = () => setTimeout(() => void checkAPIReady(), 500);
       script.onerror = (err) => {
         console.error('Failed to load Google Maps JS API', err);
         setApiLoaded(false);
@@ -131,7 +141,7 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
   } = useLocationsData();
 
   // Get primary service area from locations data (where primary: true)
-  const primaryServiceArea = locations.find(location => location.primary === true);
+  const primaryServiceArea = locations.find(location => location.primary);
 
   // Group locations by state
   const locationsByState = React.useMemo(() => {
@@ -139,7 +149,7 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
     
     locations.forEach(location => {
       if (!location.primary) { // Exclude primary service area from state grouping
-        const state = location.state?.toUpperCase();
+        const state = location.state.toUpperCase();
         if (state && !grouped[state]) {
           grouped[state] = [];
         }
@@ -188,17 +198,15 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
   };
 
   // Helper function to update primary service area
-  const updatePrimaryServiceAreaField = (field: keyof ServiceArea, value: any) => {
-    updateLocationField('primary', field, value);
+  const updatePrimaryServiceAreaField = (field: keyof ServiceArea, value: string | number) => {
+    void updateLocationField('primary', field, value);
   };
 
   // Handle primary service area location input changes and get predictions
-  const handlePrimaryLocationInputChange = async (value: string) => {
+  const handlePrimaryLocationInputChange = async (value: string): Promise<void> => {
     setPrimaryLocationInput(value);
     // Store the original input for ZIP code extraction
-    if (!primaryOriginalInput) {
-      setPrimaryOriginalInput(value);
-    }
+    setPrimaryOriginalInput(value);
 
     if (!value.trim()) {
       setPrimaryPredictions([]);
@@ -207,7 +215,7 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
       return;
     }
 
-    if (!apiLoaded || !window.google?.maps?.importLibrary) {
+    if (!apiLoaded) {
       setPrimaryPredictions([]);
       setShowPrimaryPredictions(false);
       return;
@@ -215,23 +223,23 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
 
     setIsPrimaryLoading(true);
     try {
-      const { AutocompleteSuggestion, AutocompleteSessionToken } =
-        (await window.google.maps.importLibrary('places')) as google.maps.PlacesLibrary as any;
+      const placesLib = await window.google.maps.importLibrary('places');
 
       if (!primarySessionTokenRef.current) {
-        primarySessionTokenRef.current = new AutocompleteSessionToken();
+        primarySessionTokenRef.current = new google.maps.places.AutocompleteSessionToken();
       }
 
-      const request: any = {
+      const request: AutocompleteRequest = {
         input: value,
         region: 'us',
         includedPrimaryTypes: ['locality', 'postal_code'],
         sessionToken: primarySessionTokenRef.current,
       };
 
-      const { suggestions } = await AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
-      setPrimaryPredictions(suggestions || []);
-      setShowPrimaryPredictions((suggestions || []).length > 0);
+      const response = await (placesLib as { AutocompleteSuggestion: { fetchAutocompleteSuggestions: (req: AutocompleteRequest) => Promise<{ suggestions?: google.maps.places.AutocompleteSuggestion[] }> } }).AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
+      const suggestions = response.suggestions || [];
+      setPrimaryPredictions(suggestions);
+      setShowPrimaryPredictions(suggestions.length > 0);
     } catch (err) {
       console.error('Error getting suggestions', err);
       setPrimaryPredictions([]);
@@ -242,12 +250,10 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
   };
 
   // Handle service area location input changes and get predictions
-  const handleServiceAreaLocationInputChange = async (value: string) => {
+  const handleServiceAreaLocationInputChange = async (value: string): Promise<void> => {
     setServiceAreaLocationInput(value);
     // Store the original input for ZIP code extraction
-    if (!serviceAreaOriginalInput) {
-      setServiceAreaOriginalInput(value);
-    }
+    setServiceAreaOriginalInput(value);
 
     if (!value.trim()) {
       setServiceAreaPredictions([]);
@@ -256,7 +262,7 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
       return;
     }
 
-    if (!apiLoaded || !window.google?.maps?.importLibrary) {
+    if (!apiLoaded) {
       setServiceAreaPredictions([]);
       setShowServiceAreaPredictions(false);
       return;
@@ -264,23 +270,23 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
 
     setIsServiceAreaLoading(true);
     try {
-      const { AutocompleteSuggestion, AutocompleteSessionToken } =
-        (await window.google.maps.importLibrary('places')) as google.maps.PlacesLibrary as any;
+      const placesLib = await window.google.maps.importLibrary('places');
 
       if (!serviceAreaSessionTokenRef.current) {
-        serviceAreaSessionTokenRef.current = new AutocompleteSessionToken();
+        serviceAreaSessionTokenRef.current = new google.maps.places.AutocompleteSessionToken();
       }
 
-      const request: any = {
+      const request: AutocompleteRequest = {
         input: value,
         region: 'us',
         includedPrimaryTypes: ['locality', 'postal_code'],
         sessionToken: serviceAreaSessionTokenRef.current,
       };
 
-      const { suggestions } = await AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
-      setServiceAreaPredictions(suggestions || []);
-      setShowServiceAreaPredictions((suggestions || []).length > 0);
+      const response = await (placesLib as { AutocompleteSuggestion: { fetchAutocompleteSuggestions: (req: AutocompleteRequest) => Promise<{ suggestions?: google.maps.places.AutocompleteSuggestion[] }> } }).AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
+      const suggestions = response.suggestions || [];
+      setServiceAreaPredictions(suggestions);
+      setShowServiceAreaPredictions(suggestions.length > 0);
     } catch (err) {
       console.error('Error getting suggestions', err);
       setServiceAreaPredictions([]);
@@ -291,9 +297,9 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
   };
 
   // Handle primary service area prediction selection
-  const handlePrimaryPredictionSelect = async (suggestion: any) => {
+  const handlePrimaryPredictionSelect = async (suggestion: google.maps.places.AutocompleteSuggestion): Promise<void> => {
     try {
-      const label = suggestion.placePrediction.text?.toString?.() ?? '';
+      const label = suggestion.placePrediction?.text.toString() || '';
       setPrimaryLocationInput(label);
       setShowPrimaryPredictions(false);
       setPrimaryPredictions([]);
@@ -305,18 +311,15 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
       let city = '';
       let state = '';
 
-      const place = suggestion.placePrediction.toPlace();
+      const place = suggestion.placePrediction?.toPlace();
+      if (!place) return;
       await place.fetchFields({
         fields: ['addressComponents', 'formattedAddress'],
       });
 
-      const comps = (place.addressComponents || []) as Array<{
-        longText?: string;
-        shortText?: string;
-        types: string[];
-      }>;
+      const comps = (place.addressComponents || []);
 
-      const get = (type: string) => comps.find((c) => c.types?.includes(type));
+      const get = (type: string) => comps.find((c) => c.types.includes(type));
       zipCode = get('postal_code')?.longText ?? '';
       city = get('locality')?.longText ?? get('postal_town')?.longText ?? '';
       state = get('administrative_area_level_1')?.shortText ?? '';
@@ -343,22 +346,20 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
       setPrimaryPredictions([]);
       setShowPrimaryPredictions(false);
 
-    } catch (e) {
-      const text = suggestion?.placePrediction?.text?.toString?.() ?? '';
+    } catch {
+      const text = suggestion.placePrediction?.text.toString() ?? '';
       const parts = text.split(', ');
-      let zip = '', c = '', s = '';
+      let c = '', s = '';
       
       // First, try to extract ZIP code from the original input
       const inputZipCode = extractZipFromInput(primaryOriginalInput);
       
       if (parts.length >= 2) {
-        c = parts[0];
-        s = parts[1];
+        c = parts[0] || '';
+        s = parts[1] || '';
         // Use input ZIP code if available, otherwise attempt to get ZIP code for the parsed city,state
-        if (inputZipCode) {
-          zip = inputZipCode;
-        } else if (c && s) {
-          zip = await attemptZipCodeExtraction(c, s);
+        if (!inputZipCode && c && s) {
+          await attemptZipCodeExtraction(c, s);
         }
       }
       // Update primary service area in locations data
@@ -380,9 +381,9 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
   };
 
   // Handle service area prediction selection
-  const handleServiceAreaPredictionSelect = async (suggestion: any) => {
+  const handleServiceAreaPredictionSelect = async (suggestion: google.maps.places.AutocompleteSuggestion): Promise<void> => {
     try {
-      const label = suggestion.placePrediction.text?.toString?.() ?? '';
+      const label = suggestion.placePrediction?.text.toString() || '';
       setServiceAreaLocationInput(label);
       setShowServiceAreaPredictions(false);
       setServiceAreaPredictions([]);
@@ -394,18 +395,15 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
       let city = '';
       let state = '';
 
-      const place = suggestion.placePrediction.toPlace();
+      const place = suggestion.placePrediction?.toPlace();
+      if (!place) return;
       await place.fetchFields({
         fields: ['addressComponents', 'formattedAddress'],
       });
 
-      const comps = (place.addressComponents || []) as Array<{
-        longText?: string;
-        shortText?: string;
-        types: string[];
-      }>;
+      const comps = (place.addressComponents || []);
 
-      const get = (type: string) => comps.find((c) => c.types?.includes(type));
+      const get = (type: string) => comps.find((c) => c.types.includes(type));
       zipCode = get('postal_code')?.longText ?? '';
       city = get('locality')?.longText ?? get('postal_town')?.longText ?? '';
       state = get('administrative_area_level_1')?.shortText ?? '';
@@ -438,8 +436,8 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
         setShowServiceAreaPredictions(false);
       }
 
-    } catch (e) {
-      const text = suggestion?.placePrediction?.text?.toString?.() ?? '';
+    } catch {
+      const text = suggestion.placePrediction?.text.toString() ?? '';
       const parts = text.split(', ');
       let zip = '', c = '', s = '';
       
@@ -447,8 +445,8 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
       const inputZipCode = extractZipFromInput(serviceAreaOriginalInput);
       
       if (parts.length >= 2) {
-        c = parts[0];
-        s = parts[1];
+        c = parts[0] || '';
+        s = parts[1] || '';
         // Use input ZIP code if available, otherwise attempt to get ZIP code for the parsed city,state
         if (inputZipCode) {
           zip = inputZipCode;
@@ -482,7 +480,7 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
   };
 
   // Handle editing location input changes and get predictions
-  const handleEditingLocationInputChange = async (value: string) => {
+  const handleEditingLocationInputChange = async (value: string): Promise<void> => {
     setEditingLocationInput(value);
     // Store the original input for ZIP code extraction
     if (!editingLocationOriginalInput) {
@@ -496,7 +494,7 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
       return;
     }
 
-    if (!apiLoaded || !window.google?.maps?.importLibrary) {
+    if (!apiLoaded) {
       setEditingLocationPredictions([]);
       setShowEditingLocationPredictions(false);
       return;
@@ -504,23 +502,23 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
 
     setIsEditingLocationLoading(true);
     try {
-      const { AutocompleteSuggestion, AutocompleteSessionToken } =
-        (await window.google.maps.importLibrary('places')) as google.maps.PlacesLibrary as any;
+      const placesLib = await window.google.maps.importLibrary('places');
 
       if (!editingLocationSessionTokenRef.current) {
-        editingLocationSessionTokenRef.current = new AutocompleteSessionToken();
+        editingLocationSessionTokenRef.current = new google.maps.places.AutocompleteSessionToken();
       }
 
-      const request: any = {
+      const request: AutocompleteRequest = {
         input: value,
         region: 'us',
         includedPrimaryTypes: ['locality', 'postal_code'],
         sessionToken: editingLocationSessionTokenRef.current,
       };
 
-      const { suggestions } = await AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
-      setEditingLocationPredictions(suggestions || []);
-      setShowEditingLocationPredictions((suggestions || []).length > 0);
+      const response = await (placesLib as { AutocompleteSuggestion: { fetchAutocompleteSuggestions: (req: AutocompleteRequest) => Promise<{ suggestions?: google.maps.places.AutocompleteSuggestion[] }> } }).AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
+      const suggestions = response.suggestions || [];
+      setEditingLocationPredictions(suggestions);
+      setShowEditingLocationPredictions(suggestions.length > 0);
     } catch (err) {
       console.error('Error getting suggestions', err);
       setEditingLocationPredictions([]);
@@ -531,11 +529,11 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
   };
 
   // Handle editing location prediction selection
-  const handleEditingLocationPredictionSelect = async (suggestion: any) => {
+  const handleEditingLocationPredictionSelect = async (suggestion: google.maps.places.AutocompleteSuggestion): Promise<void> => {
     if (!editingLocationId) return;
 
     try {
-      const label = suggestion.placePrediction.text?.toString?.() ?? '';
+      const label = suggestion.placePrediction?.text.toString() || '';
       setEditingLocationInput(label);
       setShowEditingLocationPredictions(false);
       setEditingLocationPredictions([]);
@@ -547,18 +545,15 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
       let city = '';
       let state = '';
 
-      const place = suggestion.placePrediction.toPlace();
+      const place = suggestion.placePrediction?.toPlace();
+      if (!place) return;
       await place.fetchFields({
         fields: ['addressComponents', 'formattedAddress'],
       });
 
-      const comps = (place.addressComponents || []) as Array<{
-        longText?: string;
-        shortText?: string;
-        types: string[];
-      }>;
+      const comps = (place.addressComponents || []);
 
-      const get = (type: string) => comps.find((c) => c.types?.includes(type));
+      const get = (type: string) => comps.find((c) => c.types.includes(type));
       zipCode = get('postal_code')?.longText ?? '';
       city = get('locality')?.longText ?? get('postal_town')?.longText ?? '';
       state = get('administrative_area_level_1')?.shortText ?? '';
@@ -588,8 +583,8 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
         setShowEditingLocationPredictions(false);
       // }
 
-    } catch (e) {
-      const text = suggestion?.placePrediction?.text?.toString?.() ?? '';
+    } catch {
+      const text = suggestion.placePrediction?.text.toString() ?? '';
       const parts = text.split(', ');
       let c = '', s = '';
       
@@ -597,8 +592,8 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
       const inputZipCode = extractZipFromInput(editingLocationOriginalInput || '');
       
       if (parts.length >= 2) {
-        c = parts[0];
-        s = parts[1];
+        c = parts[0] || '';
+        s = parts[1] || '';
         // Use input ZIP code if available, otherwise attempt to get ZIP code for the parsed city,state
         if (inputZipCode) {
           // zip = inputZipCode; // Not used in this context
@@ -638,39 +633,37 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
 
   // Attempt to get ZIP code for city,state combinations
   const attemptZipCodeExtraction = async (city: string, state: string): Promise<string> => {
-    if (!apiLoaded || !window.google?.maps?.importLibrary) {
+    if (!apiLoaded) {
       return '';
     }
 
     try {
-      const { AutocompleteSuggestion, AutocompleteSessionToken } =
-        (await window.google.maps.importLibrary('places')) as google.maps.PlacesLibrary as any;
+      const placesLib = await window.google.maps.importLibrary('places');
 
-      const sessionToken = new AutocompleteSessionToken();
-      const request: any = {
+      const sessionToken = new google.maps.places.AutocompleteSessionToken();
+      const request: AutocompleteRequest = {
         input: `${city}, ${state}`,
         region: 'us',
         includedPrimaryTypes: ['locality'],
         sessionToken: sessionToken,
       };
 
-      const { suggestions } = await AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
+      const response = await (placesLib as { AutocompleteSuggestion: { fetchAutocompleteSuggestions: (req: AutocompleteRequest) => Promise<{ suggestions?: google.maps.places.AutocompleteSuggestion[] }> } }).AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
+      const suggestions = response.suggestions || [];
       
-      if (suggestions && suggestions.length > 0) {
+      if (suggestions.length > 0) {
         // Try the first suggestion
         const suggestion = suggestions[0];
-        const place = suggestion.placePrediction.toPlace();
+        if (!suggestion) return '';
+        const place = (suggestion).placePrediction?.toPlace();
+        if (!place) return '';
         await place.fetchFields({
           fields: ['addressComponents'],
         });
 
-        const comps = (place.addressComponents || []) as Array<{
-          longText?: string;
-          shortText?: string;
-          types: string[];
-        }>;
+        const comps = ((place).addressComponents || []);
 
-        const get = (type: string) => comps.find((c) => c.types?.includes(type));
+        const get = (type: string) => comps.find((c: { types: string[] }) => c.types.includes(type));
         const zipCode = get('postal_code')?.longText ?? '';
         
         // Validate the ZIP code
@@ -678,7 +671,7 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
           return zipCode;
         }
       }
-    } catch (error) {
+    } catch {
       // Could not extract ZIP code for city,state
     }
     
@@ -719,7 +712,7 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    return () => { document.removeEventListener('mousedown', handleClickOutside); };
   }, []);
 
   // Update service area dropdown position when predictions are shown
@@ -783,7 +776,7 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
     }
   }, [editingLocationId]);
 
-  const handleAddLocation = async (locationData: LocationFormData) => {
+  const handleAddLocation = async (locationData: LocationFormData): Promise<{ success: boolean; error?: string }> => {
     const serviceAreaData: Omit<ServiceArea, 'id'> = {
       ...locationData,
       zip: locationData.zip ? parseInt(locationData.zip, 10) : null,
@@ -794,7 +787,7 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
 
 
 
-  const handleDeleteLocation = async () => {
+  const handleDeleteLocation = async (): Promise<void> => {
     if (!locationToDelete) return;
 
     setIsDeleting(true);
@@ -877,12 +870,7 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
         </div>
         
         <div className="bg-stone-800 border border-stone-700 rounded-lg p-6">
-          {loading ? (
-            <div className="flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500"></div>
-              <span className="ml-3 text-gray-600">Loading service areas...</span>
-            </div>
-          ) : error ? (
+          {error ? (
             <div className="bg-red-50 border border-red-200 rounded-md p-4">
               <p className="text-sm text-red-600">{error}</p>
             </div>
@@ -894,11 +882,11 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
             // Edit mode - show location search
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <label className="block text-sm font-medium text-gray-300">
+                <label htmlFor="primary-location-search" className="block text-sm font-medium text-gray-300">
                   Search for a city or ZIP code
                 </label>
                 <button
-                  onClick={() => setIsPrimaryEditMode(false)}
+                  onClick={() => { setIsPrimaryEditMode(false); }}
                   className="text-gray-400 hover:text-gray-300 transition-colors"
                   title="Cancel"
                 >
@@ -910,17 +898,17 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
                   <MapPin className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
+                  id="primary-location-search"
                   ref={primaryInputRef}
                   type="text"
                   value={primaryLocationInput}
-                  onChange={(e) => handlePrimaryLocationInputChange(e.target.value)}
+                  onChange={(e) => void handlePrimaryLocationInputChange(e.target.value)}
                   placeholder={apiLoaded ? "Enter city or ZIP code" : "Loading..."}
                   style={{ colorScheme: 'dark' }}
                   className={`w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
                     apiLoaded ? 'border-stone-700 bg-stone-700 text-white' : 'border-gray-200 bg-gray-50 text-gray-900'
                   }`}
                   disabled={!apiLoaded}
-                  autoFocus
                 />
                 {isPrimaryLoading && (
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
@@ -936,43 +924,47 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
             // Read-only mode - show current data with clickable location fields
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">City</label>
+                <label htmlFor="primary-city" className="block text-sm font-medium text-gray-300 mb-1">City</label>
                 <input
+                  id="primary-city"
                   type="text"
-                  value={primaryServiceArea?.city || ''}
+                  value={primaryServiceArea.city || ''}
                   readOnly
-                  onClick={() => setIsPrimaryEditMode(true)}
+                  onClick={() => { setIsPrimaryEditMode(true); }}
                   className="w-full px-3 py-2 border border-stone-700 rounded-md bg-stone-700 text-white cursor-pointer hover:bg-stone-600 transition-colors"
                   title="Click to edit location"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">State</label>
+                <label htmlFor="primary-state" className="block text-sm font-medium text-gray-300 mb-1">State</label>
                 <input
+                  id="primary-state"
                   type="text"
-                  value={primaryServiceArea?.state || ''}
+                  value={primaryServiceArea.state || ''}
                   readOnly
-                  onClick={() => setIsPrimaryEditMode(true)}
+                  onClick={() => { setIsPrimaryEditMode(true); }}
                   className="w-full px-3 py-2 border border-stone-700 rounded-md bg-stone-700 text-white cursor-pointer hover:bg-stone-600 transition-colors"
                   title="Click to edit location"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Zip</label>
+                <label htmlFor="primary-zip" className="block text-sm font-medium text-gray-300 mb-1">Zip</label>
                 <input
+                  id="primary-zip"
                   type="text"
-                  value={primaryServiceArea?.zip || ''}
+                  value={primaryServiceArea.zip || ''}
                   readOnly
-                  onClick={() => setIsPrimaryEditMode(true)}
+                  onClick={() => { setIsPrimaryEditMode(true); }}
                   className="w-full px-3 py-2 border border-stone-700 rounded-md bg-stone-700 text-white cursor-pointer hover:bg-stone-600 transition-colors"
                   title="Click to edit location"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Minimum</label>
+                <label htmlFor="primary-minimum" className="block text-sm font-medium text-gray-300 mb-1">Minimum</label>
                 <input
+                  id="primary-minimum"
                   type="number"
-                  value={primaryServiceArea?.minimum || ''}
+                  value={primaryServiceArea.minimum || ''}
                   onChange={(e) => {
                     const newMinimum = parseFloat(e.target.value) || 0;
                     updatePrimaryServiceAreaField('minimum', newMinimum);
@@ -983,11 +975,12 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Multiplier</label>
+                <label htmlFor="primary-multiplier" className="block text-sm font-medium text-gray-300 mb-1">Multiplier</label>
                 <input
+                  id="primary-multiplier"
                   type="number"
                   step="0.01"
-                  value={primaryServiceArea?.multiplier || ''}
+                  value={primaryServiceArea.multiplier || ''}
                   onChange={(e) => {
                     const newMultiplier = parseFloat(e.target.value) || 1.0;
                     updatePrimaryServiceAreaField('multiplier', newMultiplier);
@@ -1027,7 +1020,7 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
           </div>
           {!isServiceAreaEditMode && (
             <button
-              onClick={() => setIsServiceAreaEditMode(true)}
+              onClick={() => { setIsServiceAreaEditMode(true); }}
               className="inline-flex items-center px-4 py-2 bg-orange-500 text-white text-sm font-medium rounded-lg hover:bg-orange-600 transition-colors"
             >
               <Plus className="h-4 w-4 mr-2" />
@@ -1040,11 +1033,11 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
           <div className="bg-stone-800 border border-stone-700 rounded-lg p-6">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <label className="block text-sm font-medium text-gray-300">
+                <label htmlFor="service-area-location-input" className="block text-sm font-medium text-gray-300">
                   Search for a city or ZIP code
                 </label>
                 <button
-                  onClick={() => setIsServiceAreaEditMode(false)}
+                  onClick={() => { setIsServiceAreaEditMode(false); }}
                   className="text-gray-400 hover:text-gray-300 transition-colors"
                   title="Cancel"
                 >
@@ -1056,17 +1049,17 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
                   <MapPin className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
+                  id="service-area-location-input"
                   ref={serviceAreaInputRef}
                   type="text"
                   value={serviceAreaLocationInput}
-                  onChange={(e) => handleServiceAreaLocationInputChange(e.target.value)}
+                  onChange={(e) => void handleServiceAreaLocationInputChange(e.target.value)}
                   placeholder={apiLoaded ? "Enter city or ZIP code" : "Loading..."}
                   style={{ colorScheme: 'dark' }}
                   className={`w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
                     apiLoaded ? 'border-stone-700 bg-stone-700 text-white' : 'border-gray-200 bg-gray-50 text-gray-900'
                   }`}
                   disabled={!apiLoaded}
-                  autoFocus
                 />
                 {isServiceAreaLoading && (
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
@@ -1093,7 +1086,7 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
                 <div key={state} className="bg-stone-800 border border-stone-700 rounded-lg overflow-hidden">
                   {/* State Header */}
                   <button
-                    onClick={() => toggleStateExpansion(state)}
+                    onClick={() => { toggleStateExpansion(state); }}
                     className="w-full px-6 py-4 flex items-center justify-between hover:bg-stone-700 transition-colors"
                   >
                     <div className="flex items-center space-x-3">
@@ -1118,16 +1111,16 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
                           const isEditingThisLocation = editingLocationId === locationId;
                           
                           return (
-                            <div key={`${location.city}-${location.state}-${index + 1}`} className="bg-stone-700 border border-stone-600 rounded-lg p-4">
+                            <div key={`${location.city}-${location.state}-${(index + 1).toString()}`} className="bg-stone-700 border border-stone-600 rounded-lg p-4">
                               {isEditingThisLocation ? (
                                 // Edit mode - show location search
                                 <div className="space-y-4">
                                   <div className="flex items-center justify-between">
-                                    <label className="block text-sm font-medium text-gray-300">
+                                    <label htmlFor={`editing-location-input-${locationId}`} className="block text-sm font-medium text-gray-300">
                                       Search for a city or ZIP code
                                     </label>
                                     <button
-                                      onClick={() => setEditingLocationId(null)}
+                                      onClick={() => { setEditingLocationId(null); }}
                                       className="text-gray-400 hover:text-gray-300 transition-colors"
                                       title="Cancel"
                                     >
@@ -1139,17 +1132,17 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
                                       <MapPin className="h-5 w-5 text-gray-400" />
                                     </div>
                                     <input
+                                      id={`editing-location-input-${locationId}`}
                                       ref={editingLocationInputRef}
                                       type="text"
                                       value={editingLocationInput}
-                                      onChange={(e) => handleEditingLocationInputChange(e.target.value)}
+                                      onChange={(e) => void handleEditingLocationInputChange(e.target.value)}
                                       placeholder={apiLoaded ? "Enter city or ZIP code" : "Loading..."}
                                       style={{ colorScheme: 'dark' }}
                                       className={`w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
                                         apiLoaded ? 'border-stone-600 bg-stone-600 text-white' : 'border-gray-200 bg-gray-50 text-gray-900'
                                       }`}
                                       disabled={!apiLoaded}
-                                      autoFocus
                                     />
                                     {isEditingLocationLoading && (
                                       <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
@@ -1165,8 +1158,9 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
                                 // Read-only mode - show current data with clickable location fields
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                                   <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-1">City</label>
+                                    <label htmlFor={`edit-city-${String(index)}`} className="block text-sm font-medium text-gray-300 mb-1">City</label>
                                     <input
+                                      id={`edit-city-${String(index)}`}
                                       type="text"
                                       value={location.city}
                                       readOnly
@@ -1179,8 +1173,9 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
                                     />
                                   </div>
                                   <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-1">State</label>
+                                    <label htmlFor={`edit-state-${String(index)}`} className="block text-sm font-medium text-gray-300 mb-1">State</label>
                                     <input
+                                      id={`edit-state-${String(index)}`}
                                       type="text"
                                       value={location.state}
                                       readOnly
@@ -1193,8 +1188,9 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
                                     />
                                   </div>
                                   <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-1">Zip</label>
+                                    <label htmlFor={`edit-zip-${String(index)}`} className="block text-sm font-medium text-gray-300 mb-1">Zip</label>
                                     <input
+                                      id={`edit-zip-${String(index)}`}
                                       type="text"
                                       value={location.zip || ''}
                                       readOnly
@@ -1207,32 +1203,34 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
                                     />
                                   </div>
                                   <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-1">Minimum</label>
+                                    <label htmlFor={`edit-minimum-${String(index)}`} className="block text-sm font-medium text-gray-300 mb-1">Minimum</label>
                                     <input
+                                      id={`edit-minimum-${String(index)}`}
                                       type="number"
                                       value={location.minimum || ''}
                                                                               onChange={(e) => {
                                           const newMinimum = parseFloat(e.target.value) || 0;
-                                          updateLocationField(locationId, 'minimum', newMinimum);
+                                          void updateLocationField(locationId, 'minimum', newMinimum);
                                         }}
                                       className="w-full px-3 py-2 border border-stone-600 rounded-md bg-stone-600 text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                     />
                                   </div>
                                   <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-1">Multiplier</label>
+                                    <label htmlFor={`edit-multiplier-${String(index)}`} className="block text-sm font-medium text-gray-300 mb-1">Multiplier</label>
                                     <div className="flex items-center gap-1">
                                       <input
+                                        id={`edit-multiplier-${String(index)}`}
                                         type="number"
                                         step="0.01"
                                         value={location.multiplier || ''}
                                         onChange={(e) => {
                                           const newMultiplier = parseFloat(e.target.value) || 1.0;
-                                          updateLocationField(locationId, 'multiplier', newMultiplier);
+                                          void updateLocationField(locationId, 'multiplier', newMultiplier);
                                         }}
                                         className="w-1/4 px-3 py-2 border border-stone-600 rounded-md bg-stone-600 text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                       />
                                       <button
-                                        onClick={() => openDeleteModal(location)}
+                                        onClick={() => { openDeleteModal(location); }}
                                         className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded transition-colors flex-shrink-0 h-8 w-8 flex items-center justify-center"
                                         title="Delete location"
                                       >
@@ -1272,16 +1270,16 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
           style={serviceAreaDropdownStyle}
           className="bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50"
         >
-          {serviceAreaPredictions.map((sugg: any, i: number) => (
+          {serviceAreaPredictions.map((sugg: google.maps.places.AutocompleteSuggestion, i: number) => (
             <button
               key={i}
-              onClick={() => handleServiceAreaPredictionSelect(sugg)}
+              onClick={() => { void handleServiceAreaPredictionSelect(sugg); }}
               className="w-full text-left px-4 py-3 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none border-b border-gray-100 last:border-b-0"
             >
               <div className="flex items-center">
                 <MapPin className="h-4 w-4 text-gray-400 mr-2 flex-shrink-0" />
                 <span className="text-gray-900">
-                  {sugg.placePrediction?.text?.toString?.() ?? ''}
+                  {sugg.placePrediction?.text.toString() ?? ''}
                 </span>
               </div>
             </button>
@@ -1297,16 +1295,16 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
           style={primaryDropdownStyle}
           className="bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50"
         >
-          {primaryPredictions.map((sugg: any, i: number) => (
+          {primaryPredictions.map((sugg: google.maps.places.AutocompleteSuggestion, i: number) => (
             <button
               key={i}
-              onClick={() => handlePrimaryPredictionSelect(sugg)}
+              onClick={() => { void handlePrimaryPredictionSelect(sugg); }}
               className="w-full text-left px-4 py-3 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none border-b border-gray-100 last:border-b-0"
             >
               <div className="flex items-center">
                 <MapPin className="h-4 w-4 text-gray-400 mr-2 flex-shrink-0" />
                 <span className="text-gray-900">
-                  {sugg.placePrediction?.text?.toString?.() ?? ''}
+                  {sugg.placePrediction?.text.toString() ?? ''}
                 </span>
               </div>
             </button>
@@ -1322,16 +1320,16 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
           style={editingLocationDropdownStyle}
           className="bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50"
         >
-          {editingLocationPredictions.map((sugg: any, i: number) => (
+          {editingLocationPredictions.map((sugg: google.maps.places.AutocompleteSuggestion, i: number) => (
             <button
               key={i}
-              onClick={() => handleEditingLocationPredictionSelect(sugg)}
+              onClick={() => { void handleEditingLocationPredictionSelect(sugg); }}
               className="w-full text-left px-4 py-3 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none border-b border-gray-100 last:border-b-0"
             >
               <div className="flex items-center">
                 <MapPin className="h-4 w-4 text-gray-400 mr-2 flex-shrink-0" />
                 <span className="text-gray-900">
-                  {sugg.placePrediction?.text?.toString?.() ?? ''}
+                  {sugg.placePrediction?.text.toString() ?? ''}
                 </span>
               </div>
             </button>
@@ -1343,7 +1341,7 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
       {/* Modals */}
       <AddLocationModal
         isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
+        onClose={() => { setIsAddModalOpen(false); }}
         onAdd={handleAddLocation}
       />
 

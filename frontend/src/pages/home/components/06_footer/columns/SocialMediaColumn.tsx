@@ -1,5 +1,6 @@
-import React from 'react';
 import { Facebook, Instagram, Youtube } from 'lucide-react';
+import React from 'react';
+
 import TikTokIcon from '../icons/TikTokIcon';
 
 interface SocialMediaConfig {

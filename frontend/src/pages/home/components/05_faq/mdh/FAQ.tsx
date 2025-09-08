@@ -1,42 +1,35 @@
+/* eslint-disable react-refresh/only-export-components */
 import React from 'react';
-import { useFAQState } from '../hooks/useFAQState';
-import { useFAQData } from '../hooks/useFAQData';
-import { useMDHConfig } from '/src/contexts/MDHConfigContext';
-import { useFAQ } from '/src/contexts/FAQContext';
+
 import FAQExpandButton from '../components/FAQExpandButton';
+import FAQFooter from '../components/FAQFooter';
 import FAQHeader from '../components/FAQHeader';
 import FAQTabbedInterface from '../components/FAQTabbedInterface';
-import FAQFooter from '../components/FAQFooter';
+import { useFAQMDH } from './useFAQMDH';
 
 const FAQMDH: React.FC = () => {
-  // Use global FAQ state for expansion
-  const { isExpanded, setIsExpanded } = useFAQ();
-  
-  // Use local state for individual FAQ items
   const {
+    isExpanded,
+    setIsExpanded,
     openItems,
     toggleItem,
-  } = useFAQState(false);
-
-  // Use static MDH FAQ data (no backend)
-  const { groupedFAQs, categories } = useFAQData();
-
-  // Get configurable services description from MDH config (with fallback)
-  const { mdhConfig } = useMDHConfig();
-  const servicesLine = mdhConfig?.services_description || 'auto detailing, boat & RV detailing, ceramic coating, and PPF';
-  const nearbyList = '';
+    groupedFAQs,
+    categories,
+    servicesLine,
+    nearbyList
+  } = useFAQMDH();
 
   return (
     <section className="bg-stone-900 py-16" id="faq" aria-labelledby="faq-heading">
       <div className="max-w-7xl mx-auto px-4">
         {!isExpanded ? (
-          <FAQExpandButton onToggleExpanded={() => setIsExpanded(true)} />
+          <FAQExpandButton onToggleExpanded={() => { setIsExpanded(true); }} />
         ) : (
           <div className="space-y-8">
             <FAQHeader
               servicesLine={servicesLine}
               nearbyList={nearbyList}
-              onToggleExpanded={() => setIsExpanded(false)}
+              onToggleExpanded={() => { setIsExpanded(false); }}
             />
             <FAQTabbedInterface
               groupedFAQs={groupedFAQs}

@@ -1,17 +1,32 @@
 import { useCallback } from 'react';
-import { AffiliateApplication } from '../types';
+
+import type { AffiliateApplication } from '../types';
+
+// Type for form field values
+type FormValue = string | number | boolean | string[] | { city: string; state: string; zip: string };
+
+// Type for nested field access
+type NestedField = keyof AffiliateApplication;
+
+// Type guard to check if a field is nested
+const isNestedField = (field: string): field is `${NestedField}.${string}` => {
+  return field.includes('.');
+};
 
 export const useFormHandlers = (setFormData: React.Dispatch<React.SetStateAction<AffiliateApplication>>) => {
-  const handleInputChange = useCallback((field: string, value: any) => {
-    if (field.includes('.')) {
-      const [parent, child] = field.split('.');
-      setFormData(prev => ({
-        ...prev,
-        [parent]: {
-          ...(prev[parent as keyof AffiliateApplication] as object),
-          [child]: value
-        }
-      }));
+  const handleInputChange = useCallback((field: string, value: FormValue) => {
+    if (isNestedField(field)) {
+      const [parent, child] = field.split('.') as [NestedField, string];
+      setFormData(prev => {
+        const parentValue = prev[parent] as Record<string, FormValue>;
+        return {
+          ...prev,
+          [parent]: {
+            ...parentValue,
+            [child]: value
+          }
+        };
+      });
     } else {
       setFormData(prev => ({
         ...prev,

@@ -1,6 +1,6 @@
-import { FAQItem } from '../../types';
+import type { FAQItem } from '../../types';
 
-export const AFFILIATE_FAQ_PREPARATION = (_cfg: any): FAQItem[] => [
+export const AFFILIATE_FAQ_PREPARATION = (): FAQItem[] => [
   {
     category: "Preparation",
     question: "How should I prepare my vehicle for a mobile detail?",

@@ -1,6 +1,7 @@
-import { useAutoSave } from '../../../../../utils/fields/useAutoSave';
-import { useProfileData } from './useProfileData';
 import { formatPhoneNumber, getPhoneDigits } from '../../../../../utils/fields/phoneFormatter';
+import { useAutoSave } from '../../../../../utils/fields/useAutoSave';
+import type { ProfileFormData } from '../types';
+import { useProfileData } from './useProfileData';
 
 // Format Twilio phone number (keeps +1 prefix)
 const formatTwilioPhone = (input: string): string => {
@@ -56,7 +57,7 @@ const getTwilioPhoneDigits = (input: string): string => {
 
 interface UseAutoSaveFieldOptions {
   debounce?: number;
-  field: keyof import('../types').ProfileFormData;
+  field: keyof ProfileFormData;
 }
 
 export function useAutoSaveField(options: UseAutoSaveFieldOptions) {

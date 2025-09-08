@@ -1,5 +1,5 @@
+import { CheckCircle, X,XCircle } from 'lucide-react';
 import React, { useEffect } from 'react';
-import { CheckCircle, XCircle, X } from 'lucide-react';
 
 interface ToastProps {
   message: string;
@@ -21,7 +21,7 @@ export const Toast: React.FC<ToastProps> = ({
       const timer = setTimeout(() => {
         onClose();
       }, duration);
-      return () => clearTimeout(timer);
+      return () => { clearTimeout(timer); };
     }
   }, [isVisible, duration, onClose]);
 

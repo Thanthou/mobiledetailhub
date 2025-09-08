@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
 import { X } from 'lucide-react';
+import React, { useState } from 'react';
 
 interface AddServiceModalProps {
   isOpen: boolean;
@@ -64,11 +64,10 @@ export const AddServiceModal: React.FC<AddServiceModalProps> = ({
               type="text"
               id="serviceTitle"
               value={serviceTitle}
-              onChange={(e) => setServiceTitle(e.target.value)}
+              onChange={(e) => { setServiceTitle(e.target.value); }}
               className="w-full px-3 py-2 bg-stone-700 border border-stone-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               placeholder="Enter service title..."
               disabled={loading}
-              autoFocus
             />
           </div>
 

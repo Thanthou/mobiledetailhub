@@ -1,6 +1,10 @@
 // frontend/src/utils/findBusinessByLocation.ts
 import { config } from '../config/environment';
 
+interface BusinessLookupResponse {
+  slugs?: string[];
+}
+
 export async function findBusinessByLocation(zipCode?: string, city?: string, state?: string) {
   const params = new URLSearchParams();
   if (zipCode) params.append('zip', zipCode);
@@ -21,7 +25,7 @@ export async function findBusinessByLocation(zipCode?: string, city?: string, st
     return null;
   }
   
-  const data = await res.json();
+  const data = await res.json() as BusinessLookupResponse;
   
   if (import.meta.env.DEV) {
     // Response received

@@ -21,7 +21,7 @@ export const ScheduleSidebar: React.FC = () => {
 
       {/* Schedule Stats */}
       <div className="bg-stone-800 rounded-xl border border-stone-700 p-6">
-        <h3 className="text-lg font-semibold text-white mb-4">Today's Summary</h3>
+        <h3 className="text-lg font-semibold text-white mb-4">Today&rsquo;s Summary</h3>
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <span className="text-gray-300">Total Appointments</span>

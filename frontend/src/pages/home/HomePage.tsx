@@ -1,11 +1,12 @@
 import { useState } from 'react';
+
+import { BookingModal,LazyQuoteModal, prefetchQuoteModal } from '../../components/Book_Quote';
+import { useSiteContext } from '../../hooks/useSiteContext';
 import Hero from './components/02_hero';
 import Services from './components/03_services/Services';
 import * as Reviews from './components/04_reviews';
 import FAQ from './components/05_faq';
 import Footer from './components/06_footer';
-import { LazyQuoteModal, prefetchQuoteModal, BookingModal } from '../../components/Book_Quote';
-import { useSiteContext } from '../../hooks/useSiteContext';
 
 const HomePage = () => {
   const { isAffiliate } = useSiteContext();
@@ -33,7 +34,7 @@ const HomePage = () => {
 
   // Prefetch handlers for better performance
   const handleQuoteModalPrefetch = () => {
-    prefetchQuoteModal();
+    void prefetchQuoteModal();
   };
   
   return (

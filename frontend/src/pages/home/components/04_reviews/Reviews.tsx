@@ -1,10 +1,11 @@
-import React, { useState, useMemo, useCallback } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { ReviewCard } from './ReviewCard';
-import { ReviewsHeader } from './ReviewsHeader';
-import { ReviewModal } from './ReviewModal';
-import { ReviewsProps, Review } from './types';
+import React, { useMemo, useState } from 'react';
+
 import { useReviews } from './hooks/useReviews';
+import { ReviewCard } from './ReviewCard';
+import { ReviewModal } from './ReviewModal';
+import { ReviewsHeader } from './ReviewsHeader';
+import type { Review, ReviewsProps } from './types';
 
 export const Reviews: React.FC<ReviewsProps> = ({ 
   reviews: propReviews,
@@ -39,7 +40,7 @@ export const Reviews: React.FC<ReviewsProps> = ({
   
   // Sort reviews: featured first, then 5-star reviews, then by date (newest first)
   const sortedReviews = useMemo(() => {
-    if (!reviews || reviews.length === 0) return [];
+    if (!reviews.length) return [];
     
     return [...reviews].sort((a, b) => {
       // First, sort by featured status
@@ -109,7 +110,7 @@ export const Reviews: React.FC<ReviewsProps> = ({
             <h3 className="text-xl font-semibold text-stone-300 mb-2">Failed to load reviews</h3>
             <p className="text-stone-400 mb-4">{error}</p>
             <button 
-              onClick={() => window.location.reload()} 
+              onClick={() => { window.location.reload(); }} 
               className="bg-orange-400 text-stone-900 px-6 py-2 rounded-lg hover:bg-orange-300 transition-colors"
             >
               Try Again
@@ -121,7 +122,7 @@ export const Reviews: React.FC<ReviewsProps> = ({
   }
 
   // Show empty state
-  if (!sortedReviews || sortedReviews.length === 0) {
+  if (!sortedReviews.length) {
     return (
       <section className="bg-stone-800 py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
@@ -181,7 +182,7 @@ export const Reviews: React.FC<ReviewsProps> = ({
                 key={review.id}
                 className="transform transition-all duration-500 ease-in-out"
                 style={{
-                  animationDelay: `${index * 100}ms`,
+                  animationDelay: `${(index * 100).toString()}ms`,
                 }}
               >
                 <ReviewCard 
@@ -199,13 +200,13 @@ export const Reviews: React.FC<ReviewsProps> = ({
               return (
                 <button
                   key={index}
-                  onClick={() => setCurrentIndex(index * maxReviews)}
+                  onClick={() => { setCurrentIndex(index * maxReviews); }}
                   className={`w-3 h-3 rounded-full transition-all duration-300 ${
                     isActive
                       ? 'bg-orange-400 scale-125'
                       : 'bg-stone-500 hover:bg-stone-400'
                   }`}
-                  aria-label={`Go to page ${index + 1}`}
+                  aria-label={`Go to page ${(index + 1).toString()}`}
                 />
               );
             })}

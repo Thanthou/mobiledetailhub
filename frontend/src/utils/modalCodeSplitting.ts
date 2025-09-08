@@ -35,8 +35,14 @@ const DEFAULT_PREFETCH_CONFIG: ModalPrefetchConfig = {
   },
 };
 
+// Type for dynamic imports
+type ModalModule = {
+  default: React.ComponentType<unknown>;
+  [key: string]: unknown;
+};
+
 class ModalPrefetchManager {
-  private prefetchedModules = new Map<ModalType, Promise<any>>();
+  private prefetchedModules = new Map<ModalType, Promise<ModalModule>>();
   private prefetchStrategies = new Map<ModalType, PrefetchStrategy>();
   private intersectionObserver?: IntersectionObserver;
   private prefetchTimers = new Map<ModalType, NodeJS.Timeout>();
@@ -57,9 +63,9 @@ class ModalPrefetchManager {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            const modalType = entry.target.getAttribute('data-modal-trigger') as ModalType;
-            if (modalType && this.shouldPrefetchOnViewport(modalType)) {
-              this.prefetch(modalType);
+            const modalType = entry.target.getAttribute('data-modal-trigger') as ModalType | null;
+            if (modalType) {
+              void this.prefetch(modalType);
             }
           }
         });
@@ -75,7 +81,7 @@ class ModalPrefetchManager {
     this.prefetchStrategies.forEach((strategy, modalType) => {
       if (strategy.delay && strategy.delay > 0) {
         const timer = setTimeout(() => {
-          this.prefetch(modalType);
+          void this.prefetch(modalType);
         }, strategy.delay);
         this.prefetchTimers.set(modalType, timer);
       }
@@ -91,14 +97,14 @@ class ModalPrefetchManager {
       return; // Already prefetched or in progress
     }
 
-    let importPromise: Promise<any>;
+    let importPromise: Promise<ModalModule>;
 
     switch (modalType) {
       case 'quote':
-        importPromise = import('../components/Book_Quote/QuoteModal');
+        importPromise = import('../components/Book_Quote/QuoteModal') as Promise<ModalModule>;
         break;
       case 'login':
-        importPromise = import('../components/login/LoginModal');
+        importPromise = import('../components/login/LoginModal') as Promise<ModalModule>;
         break;
       default:
         // Unknown modal type
@@ -109,7 +115,7 @@ class ModalPrefetchManager {
 
     try {
       await importPromise;
-              // Modal prefetched successfully
+      // Modal prefetched successfully
     } catch (error) {
       console.error(`❌ Failed to prefetch ${modalType} modal:`, error);
       // Remove failed prefetch so it can be retried
@@ -131,17 +137,17 @@ class ModalPrefetchManager {
   }
 
   // Event handlers for manual triggering
-  handleHover = (modalType: ModalType) => {
+  handleHover = (modalType: ModalType): void => {
     const strategy = this.prefetchStrategies.get(modalType);
     if (strategy?.onHover) {
-      this.prefetch(modalType);
+      void this.prefetch(modalType);
     }
   };
 
-  handleFocus = (modalType: ModalType) => {
+  handleFocus = (modalType: ModalType): void => {
     const strategy = this.prefetchStrategies.get(modalType);
     if (strategy?.onFocus) {
-      this.prefetch(modalType);
+      void this.prefetch(modalType);
     }
   };
 
@@ -162,7 +168,7 @@ class ModalPrefetchManager {
   // Cleanup method
   destroy() {
     this.intersectionObserver?.disconnect();
-    this.prefetchTimers.forEach((timer) => clearTimeout(timer));
+    this.prefetchTimers.forEach((timer) => { clearTimeout(timer); });
     this.prefetchTimers.clear();
   }
 }
@@ -183,11 +189,11 @@ export const useModalPrefetch = () => {
 
   return {
     prefetch: (modalType: ModalType) => manager.prefetch(modalType),
-    handleHover: (modalType: ModalType) => manager.handleHover(modalType),
-    handleFocus: (modalType: ModalType) => manager.handleFocus(modalType),
+    handleHover: (modalType: ModalType) => { manager.handleHover(modalType); },
+    handleFocus: (modalType: ModalType) => { manager.handleFocus(modalType); },
     observeElement: (element: HTMLElement, modalType: ModalType) => 
-      manager.observeElement(element, modalType),
-    unobserveElement: (element: HTMLElement) => manager.unobserveElement(element),
+      { manager.observeElement(element, modalType); },
+    unobserveElement: (element: HTMLElement) => { manager.unobserveElement(element); },
     isPrefetched: (modalType: ModalType) => manager.isPrefetched(modalType),
     getStatus: () => manager.getStatus(),
   };
@@ -200,13 +206,13 @@ export const useModalTriggerRef = (modalType: ModalType) => {
   return (element: HTMLElement | null) => {
     if (element) {
       manager.observeElement(element, modalType);
-      return () => manager.unobserveElement(element);
+      return () => { manager.unobserveElement(element); };
     }
   };
 };
 
 // Preload critical modals on app initialization
-export const preloadCriticalModals = async () => {
+export const preloadCriticalModals = async (): Promise<void> => {
   const manager = getModalPrefetchManager();
   
   // Preload login modal as it's commonly used
@@ -214,8 +220,8 @@ export const preloadCriticalModals = async () => {
   
   // Optionally preload quote modal after a short delay
   setTimeout(() => {
-    manager.prefetch('quote');
+    void manager.prefetch('quote');
   }, 3000);
 };
 
-export type { ModalType, PrefetchStrategy, ModalPrefetchConfig };
+export type { ModalPrefetchConfig,ModalType, PrefetchStrategy };

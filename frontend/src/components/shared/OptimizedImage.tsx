@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
 import { Image as ImageIcon } from 'lucide-react';
+import React, { useState } from 'react';
 
 interface OptimizedImageProps {
   src: string;
@@ -82,7 +82,7 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
             width={width}
             height={height}
             decoding="async"
-            fetchpriority={fetchpriority}
+            fetchPriority={fetchpriority}
           />
         </picture>
       ) : (
@@ -98,7 +98,7 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
           width={width}
           height={height}
           decoding="async"
-          fetchPriority={fetchPriority}
+          fetchPriority={fetchpriority}
         />
       )}
     </div>

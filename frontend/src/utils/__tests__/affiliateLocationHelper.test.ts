@@ -1,5 +1,7 @@
-import { affiliateServesLocation, getPrimaryServiceArea, getAffiliateDisplayLocation } from '../affiliateLocationHelper';
-import { LocationData } from '../../contexts/LocationContext';
+import { describe, expect, it } from 'vitest';
+
+import type { LocationData } from '../../contexts/LocationContext';
+import { affiliateServesLocation, getAffiliateDisplayLocation, getPrimaryServiceArea } from '../affiliateLocationHelper';
 
 // Test data based on the seed data
 const testServiceAreas = [

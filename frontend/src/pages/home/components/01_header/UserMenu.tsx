@@ -1,10 +1,13 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { User, LogOut, Settings, ChevronDown } from 'lucide-react';
-import { useAuth } from '/src/contexts/AuthContext';
+import { ChevronDown, LogOut, Settings, User } from 'lucide-react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { useAuth } from '@/hooks/useAuth';
+
 const UserMenu: React.FC = () => {
-  const { user, logout } = useAuth();
+  const authContext = useAuth();
+  const user = authContext?.user;
+  const logout = authContext?.logout;
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -18,51 +21,55 @@ const UserMenu: React.FC = () => {
     };
 
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    return () => { document.removeEventListener('mousedown', handleClickOutside); };
   }, []);
 
-  if (!user) return null;
-
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     // Clear any stored tokens
     localStorage.removeItem('token');
     localStorage.removeItem('authToken'); // Remove old key if it exists
-    logout();
+    if (logout) {
+      logout();
+    }
     setIsOpen(false);
-  };
+  }, [logout]);
 
-  const handleAccountClick = () => {
+  const handleAccountClick = useCallback(() => {
     setIsOpen(false);
+    
+    if (!user) return;
     
     // Route based on user role (less restrictive for development)
     if (user?.role === 'admin') {
-      navigate('/admin-dashboard');
+      void navigate('/admin-dashboard');
     } else if (user?.role === 'affiliate') {
-      navigate('/affiliate-dashboard');
-    } else if (user?.role === 'user') {
-      // For now, redirect customers to home page since client dashboard is not implemented
-      navigate('/');
+      void navigate('/affiliate-dashboard');
     } else {
+      // For now, redirect customers to home page since client dashboard is not implemented
       // Fallback to home page for unknown roles
-      navigate('/');
+      void navigate('/');
     }
-  };
+  }, [user, navigate]);
 
   // Get display name (prefer first name, fallback to full name or email)
-  const getDisplayName = () => {
-    if (user.name) {
+  const getDisplayName = useCallback((): string => {
+    if (!user) return 'User';
+    
+    if (user?.name) {
       const firstName = user.name.split(' ')[0];
       return firstName;
     }
-    return user.email.split('@')[0];
-  };
+    return user?.email?.split('@')[0] || 'User';
+  }, [user]);
+
+  if (!user) return null;
 
   return (
     <div className="relative" ref={menuRef}>
       {/* User Button */}
       <button
         id="user-menu-button"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => { setIsOpen(!isOpen); }}
         className="flex items-center space-x-2 text-white hover:text-orange-400 transition-colors duration-200 font-medium"
         aria-expanded={isOpen}
         aria-haspopup="true"
@@ -80,8 +87,8 @@ const UserMenu: React.FC = () => {
           aria-labelledby="user-menu-button"
         >
           <div className="px-4 py-2 border-b border-gray-100">
-            <p className="text-sm font-medium text-gray-900">{user.name}</p>
-            <p className="text-xs text-gray-500">{user.email}</p>
+            <p className="text-sm font-medium text-gray-900">{user?.name || 'Unknown User'}</p>
+            <p className="text-xs text-gray-500">{user?.email || 'No email'}</p>
           </div>
           
           <button
@@ -100,7 +107,7 @@ const UserMenu: React.FC = () => {
           </button>
           
           <button
-            onClick={() => setIsOpen(false)}
+            onClick={() => { setIsOpen(false); }}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();

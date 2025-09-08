@@ -1,5 +1,5 @@
-import React from 'react';
 import { Database } from 'lucide-react';
+import React from 'react';
 
 interface AdminLayoutProps {
   children: React.ReactNode;

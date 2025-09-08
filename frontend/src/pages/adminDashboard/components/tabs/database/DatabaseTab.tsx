@@ -1,5 +1,6 @@
+import { Play, Server,Terminal } from 'lucide-react';
 import React, { useState } from 'react';
-import { Terminal, Play, Download, Server } from 'lucide-react';
+
 import { config } from '../../../../../config/environment';
 import type { QueryResult } from '../../../types';
 
@@ -43,17 +44,22 @@ export const DatabaseTab: React.FC = () => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to execute query');
+        const errorData = await response.json() as { error?: string };
+        throw new Error(errorData.error ?? 'Failed to execute query');
       }
 
-      const data = await response.json();
+      const data = await response.json() as {
+        success: boolean;
+        fields?: unknown[];
+        rows?: unknown[];
+        rowCount?: number;
+      };
       
       if (data.success) {
         const result: QueryResult = {
-          columns: Array.isArray(data.fields) ? data.fields : [],
+          columns: Array.isArray(data.fields) ? data.fields.map(String) : [],
           rows: Array.isArray(data.rows) ? data.rows : [],
-          rowCount: data.rowCount || 0,
+          rowCount: data.rowCount ?? 0,
           executionTime: Date.now()
         };
         
@@ -109,7 +115,7 @@ export const DatabaseTab: React.FC = () => {
         <div className="p-6">
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label htmlFor="working-query-input" className="block text-sm font-medium text-gray-300 mb-2">
                 SQL Query
               </label>
               
@@ -118,13 +124,13 @@ export const DatabaseTab: React.FC = () => {
                 className="w-full h-32 px-3 py-2 bg-gray-900 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm resize-none text-white placeholder-gray-400"
                 placeholder="Enter your SQL query here..."
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(e) => { setQuery(e.target.value); }}
               />
             </div>
             
             <div className="flex items-center gap-3">
               <button
-                onClick={executeQuery}
+                onClick={() => { void executeQuery(); }}
                 disabled={isLoading || !query.trim()}
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >

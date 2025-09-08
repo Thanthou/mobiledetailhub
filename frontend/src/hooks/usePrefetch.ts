@@ -7,10 +7,10 @@ import { useCallback, useRef } from 'react';
 export const usePrefetch = () => {
   const prefetchedRef = useRef<Set<string>>(new Set());
 
-  const prefetch = useCallback((prefetchFn: () => void, key: string) => {
+  const prefetch = useCallback((prefetchFn: () => void | Promise<void>, key: string) => {
     if (!prefetchedRef.current.has(key)) {
       prefetchedRef.current.add(key);
-      prefetchFn();
+      void prefetchFn();
     }
   }, []);
 
@@ -36,11 +36,15 @@ export const useModalPrefetch = () => {
   const { prefetch } = usePrefetch();
 
   const prefetchQuoteModal = useCallback(() => {
-    prefetch(() => import('../components/Book_Quote/QuoteModal'), 'quoteModal');
+    prefetch(() => {
+      void import('../components/Book_Quote/QuoteModal');
+    }, 'quoteModal');
   }, [prefetch]);
 
   const prefetchLoginModal = useCallback(() => {
-    prefetch(() => import('../components/login/LoginModal'), 'loginModal');
+    prefetch(() => {
+      void import('../components/login/LoginModal');
+    }, 'loginModal');
   }, [prefetch]);
 
   // Enhanced prefetch with intersection observer for viewport-based loading
@@ -62,7 +66,7 @@ export const useModalPrefetch = () => {
     );
 
     observer.observe(target);
-    return () => observer.disconnect();
+    return () => { observer.disconnect(); };
   }, [prefetchQuoteModal, prefetchLoginModal]);
 
   return {

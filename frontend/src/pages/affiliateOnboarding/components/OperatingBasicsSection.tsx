@@ -1,6 +1,8 @@
-import React from 'react';
 import { Building } from 'lucide-react';
-import { AffiliateApplication, CATEGORIES } from '../types';
+import React from 'react';
+
+import type { AffiliateApplication } from '../types';
+import { CATEGORIES } from '../types';
 
 interface OperatingBasicsSectionProps {
   formData: AffiliateApplication;
@@ -35,7 +37,7 @@ const OperatingBasicsSection: React.FC<OperatingBasicsSectionProps> = ({
                   name={`category-${category}`}
                   type="checkbox"
                   checked={formData.categories.includes(category)}
-                  onChange={(e) => handleArrayChange('categories', category, e.target.checked)}
+                  onChange={(e) => { handleArrayChange('categories', category, e.target.checked); }}
                   className="mt-1 border-stone-600 text-orange-500 rounded focus:ring-orange-500"
                 />
                 <span className="text-sm text-gray-300">{category}</span>

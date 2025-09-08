@@ -1,5 +1,5 @@
-import React from 'react';
 import { X } from 'lucide-react';
+import React from 'react';
 
 interface AffiliateTermsModalProps {
   isOpen: boolean;
@@ -29,7 +29,7 @@ const AffiliateTermsModal: React.FC<AffiliateTermsModalProps> = ({ isOpen, onClo
           
           <div className="space-y-3">
             <p className="leading-relaxed">
-              Welcome to Mobile Detail Hub ("MDH"). By applying to become an affiliate and using our platform, you agree to these Terms of Service ("Terms"). Please read them carefully.
+              Welcome to Mobile Detail Hub (&ldquo;MDH&rdquo;). By applying to become an affiliate and using our platform, you agree to these Terms of Service (&ldquo;Terms&rdquo;). Please read them carefully.
             </p>
             
             <div>
@@ -61,7 +61,7 @@ const AffiliateTermsModal: React.FC<AffiliateTermsModalProps> = ({ isOpen, onClo
             <div>
               <h3 className="text-white text-lg font-semibold mb-1">4. Payments and Fees</h3>
               <ul className="list-disc list-inside space-y-1 text-sm">
-                <li>All transactions are processed through MDH's payment processor (currently Stripe).</li>
+                <li>All transactions are processed through MDH&rsquo;s payment processor (currently Stripe).</li>
                 <li>Standard fee: 10% of each transaction (3% payment processing + 7% MDH platform fee).</li>
                 <li>Payouts are issued to your designated bank account, less applicable fees.</li>
                 <li>You are responsible for taxes associated with your earnings.</li>

@@ -1,10 +1,11 @@
 import React from 'react';
+
 import type { AdminTab } from '../types';
-import { DatabaseTab } from './tabs/database/DatabaseTab';
-import { UsersTab } from './tabs/users/UsersTab';
-import ReviewsTab from './tabs/reviews/ReviewsTab';
 import { AnalyticsTab } from './tabs/analytics/AnalyticsTab';
+import { DatabaseTab } from './tabs/database/DatabaseTab';
+import ReviewsTab from './tabs/reviews/ReviewsTab';
 import { SettingsTab } from './tabs/settings/SettingsTab';
+import { UsersTab } from './tabs/users/UsersTab';
 
 interface TabContentProps {
   activeTab: AdminTab;

@@ -1,6 +1,14 @@
-import { FAQItem } from '../types';
+import type { FAQItem } from '../types';
 
-export function buildServiceFAQs(cfg: any): FAQItem[] {
+// Configuration interface for service-based FAQ generation
+interface ServiceConfig {
+  services?: {
+    available?: string[];
+    vehicleTypes?: string[];
+  };
+}
+
+export function buildServiceFAQs(cfg: ServiceConfig | null): FAQItem[] {
   if (!cfg) return [];
   
   const servicesAvail: string[] = cfg.services?.available ?? [];

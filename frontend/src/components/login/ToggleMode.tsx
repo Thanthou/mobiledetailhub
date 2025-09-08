@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React, { forwardRef } from 'react';
 
 interface ToggleModeProps {
@@ -44,5 +45,10 @@ const ToggleMode = forwardRef<HTMLButtonElement, ToggleModeProps>(
 );
 
 ToggleMode.displayName = 'ToggleMode';
+
+ToggleMode.propTypes = {
+  isLogin: PropTypes.bool.isRequired,
+  onToggle: PropTypes.func.isRequired,
+};
 
 export default ToggleMode;

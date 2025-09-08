@@ -1,5 +1,5 @@
 export { 
-  getServiceData, 
   getAllServiceTypes, 
+  getServiceData, 
   getServiceSlug 
 } from './serviceData';

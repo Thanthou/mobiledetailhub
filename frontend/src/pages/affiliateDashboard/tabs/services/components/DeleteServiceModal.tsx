@@ -1,5 +1,5 @@
-import React from 'react';
 import { AlertTriangle, X } from 'lucide-react';
+import React from 'react';
 
 interface DeleteServiceModalProps {
   isOpen: boolean;
@@ -36,7 +36,7 @@ export const DeleteServiceModal: React.FC<DeleteServiceModalProps> = ({
         </div>
         
         <p className="text-gray-300 mb-6">
-          Are you sure you want to delete <span className="font-semibold text-white">"{serviceName}"</span>? 
+          Are you sure you want to delete <span className="font-semibold text-white">&ldquo;{serviceName}&rdquo;</span>? 
           This action cannot be undone and will remove all associated service tiers.
         </p>
         

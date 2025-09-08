@@ -1,5 +1,5 @@
+import { AlertCircle,CheckCircle, Star } from 'lucide-react';
 import React, { useState } from 'react';
-import { Star, CheckCircle, AlertCircle } from 'lucide-react';
 
 interface ReviewFormData {
   name: string;
@@ -31,7 +31,6 @@ const ReviewsTab: React.FC = () => {
     weeksAgo: 0,
     specificDate: '',
     serviceCategory: 'none',
-    avatarFile: undefined,
     reviewerUrl: ''
   });
 
@@ -47,7 +46,7 @@ const ReviewsTab: React.FC = () => {
     { value: 'quick-clean-mobile', label: 'Quick Clean Mobile' }
   ];
 
-  const handleInputChange = (field: keyof ReviewFormData, value: string | number) => {
+  const handleInputChange = (field: keyof ReviewFormData, value: string | number | File | undefined) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -75,13 +74,13 @@ const ReviewsTab: React.FC = () => {
       
       // Add timeout to prevent infinite hanging
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      const timeoutId = setTimeout(() => { controller.abort(); }, 10000); // 10 second timeout
       
       const response = await fetch('/api/admin/seed-reviews', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}` // Add auth header
+          'Authorization': `Bearer ${localStorage.getItem('token') ?? ''}` // Add auth header
         },
         body: JSON.stringify({ reviews: [formData] }),
         signal: controller.signal
@@ -92,10 +91,14 @@ const ReviewsTab: React.FC = () => {
       if (!response.ok) {
         const errorText = await response.text();
         console.error('Error response:', errorText);
-        throw new Error(`Server error: ${response.status} - ${errorText}`);
+        throw new Error(`Server error: ${String(response.status)} - ${errorText}`);
       }
 
-      const result = await response.json();
+      const result = await response.json() as {
+        errorDetails?: unknown[];
+        count?: number;
+        reviewIds?: string[];
+      };
       
       // Log error details if there are any
       if (result.errorDetails && result.errorDetails.length > 0) {
@@ -103,25 +106,25 @@ const ReviewsTab: React.FC = () => {
       }
       
       // If there's an avatar file and the review was created successfully, upload the avatar
-      if (formData.avatarFile && result.count > 0) {
+      if (formData.avatarFile && result.count && result.count > 0) {
         setSubmitMessage('Review created! Uploading avatar...');
         
         try {
           const formData_upload = new FormData();
           formData_upload.append('avatar', formData.avatarFile);
           formData_upload.append('reviewerName', formData.name);
-          formData_upload.append('reviewId', result.reviewIds?.[0] || '1'); // Use the first created review ID
+          formData_upload.append('reviewId', result.reviewIds?.[0] ?? '1'); // Use the first created review ID
           
           const avatarResponse = await fetch('/api/avatar/upload', {
             method: 'POST',
             headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token')}`
+              'Authorization': `Bearer ${localStorage.getItem('token') ?? ''}`
             },
             body: formData_upload
           });
           
           if (avatarResponse.ok) {
-            const avatarResult = await avatarResponse.json();
+            await avatarResponse.json();
             setSubmitMessage(`Successfully added review with avatar: "${formData.title}"`);
           } else {
             console.warn('Avatar upload failed, but review was created');
@@ -148,7 +151,6 @@ const ReviewsTab: React.FC = () => {
         weeksAgo: 0,
         specificDate: '',
         serviceCategory: 'none',
-        avatarFile: undefined,
         reviewerUrl: ''
       });
     } catch (error) {
@@ -176,7 +178,7 @@ const ReviewsTab: React.FC = () => {
                 ? 'text-yellow-400 fill-current'
                 : 'text-gray-300'
             } ${interactive ? 'cursor-pointer hover:text-yellow-300' : ''}`}
-            onClick={() => interactive && handleInputChange('stars', star)}
+            onClick={() => { if (interactive) handleInputChange('stars', star); }}
           />
         ))}
       </div>
@@ -194,45 +196,50 @@ const ReviewsTab: React.FC = () => {
         {/* Form */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label htmlFor="reviewer-name" className="block text-sm font-medium text-gray-300 mb-2">
               Reviewer Name *
             </label>
             <input
+              id="reviewer-name"
               type="text"
               value={formData.name}
-              onChange={(e) => handleInputChange('name', e.target.value)}
+              onChange={(e) => { handleInputChange('name', e.target.value); }}
               className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="e.g., John Smith"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label htmlFor="rating" className="block text-sm font-medium text-gray-300 mb-2">
               Rating *
             </label>
-            {renderStars(formData.stars, true)}
+            <div id="rating">
+              {renderStars(formData.stars, true)}
+            </div>
           </div>
 
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label htmlFor="review-title" className="block text-sm font-medium text-gray-300 mb-2">
               Review Title *
             </label>
             <input
+              id="review-title"
               type="text"
               value={formData.title}
-              onChange={(e) => handleInputChange('title', e.target.value)}
+              onChange={(e) => { handleInputChange('title', e.target.value); }}
               className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="e.g., Amazing service!"
             />
           </div>
 
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label htmlFor="review-content" className="block text-sm font-medium text-gray-300 mb-2">
               Review Content *
             </label>
             <textarea
+              id="review-content"
               value={formData.content}
-              onChange={(e) => handleInputChange('content', e.target.value)}
+              onChange={(e) => { handleInputChange('content', e.target.value); }}
               rows={3}
               className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Write your review here..."
@@ -240,12 +247,13 @@ const ReviewsTab: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label htmlFor="review-type" className="block text-sm font-medium text-gray-300 mb-2">
               Review Type
             </label>
             <select
+              id="review-type"
               value={formData.type}
-              onChange={(e) => handleInputChange('type', e.target.value as 'affiliate' | 'mdh')}
+              onChange={(e) => { handleInputChange('type', e.target.value as 'affiliate' | 'mdh'); }}
               className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="mdh">MDH Site Review</option>
@@ -254,12 +262,13 @@ const ReviewsTab: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label htmlFor="business-slug" className="block text-sm font-medium text-gray-300 mb-2">
               Business {formData.type === 'affiliate' && <span className="text-red-400">*</span>}
             </label>
             <select
+              id="business-slug"
               value={formData.businessSlug}
-              onChange={(e) => handleInputChange('businessSlug', e.target.value)}
+              onChange={(e) => { handleInputChange('businessSlug', e.target.value); }}
               className={`w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 formData.type === 'affiliate' ? '' : 'opacity-50 cursor-not-allowed'
               }`}
@@ -280,12 +289,13 @@ const ReviewsTab: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label htmlFor="review-source" className="block text-sm font-medium text-gray-300 mb-2">
               Review Source
             </label>
             <select
+              id="review-source"
               value={formData.source}
-              onChange={(e) => handleInputChange('source', e.target.value as 'website' | 'google' | 'yelp' | 'facebook')}
+              onChange={(e) => { handleInputChange('source', e.target.value as 'website' | 'google' | 'yelp' | 'facebook'); }}
               className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="website">Website</option>
@@ -296,10 +306,11 @@ const ReviewsTab: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label htmlFor="days-ago" className="block text-sm font-medium text-gray-300 mb-2">
               Days Ago (0-6 for recent reviews)
             </label>
             <input
+              id="days-ago"
               type="number"
               min="0"
               max="6"
@@ -317,10 +328,11 @@ const ReviewsTab: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label htmlFor="weeks-ago" className="block text-sm font-medium text-gray-300 mb-2">
               Weeks Ago (1+ for older reviews)
             </label>
             <input
+              id="weeks-ago"
               type="number"
               min="0"
               max="52"
@@ -339,10 +351,11 @@ const ReviewsTab: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label htmlFor="specific-date" className="block text-sm font-medium text-gray-300 mb-2">
               Specific Date (for reviews older than 52 weeks)
             </label>
             <input
+              id="specific-date"
               type="date"
               value={formData.specificDate}
               onChange={(e) => {
@@ -360,12 +373,13 @@ const ReviewsTab: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label htmlFor="service-category" className="block text-sm font-medium text-gray-300 mb-2">
               Service Category
             </label>
             <select
+              id="service-category"
               value={formData.serviceCategory}
-              onChange={(e) => handleInputChange('serviceCategory', e.target.value as 'car' | 'truck' | 'boat' | 'rv' | 'motorcycle' | 'ceramic' | 'none')}
+              onChange={(e) => { handleInputChange('serviceCategory', e.target.value as 'car' | 'truck' | 'boat' | 'rv' | 'motorcycle' | 'ceramic' | 'none'); }}
               className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="none">None</option>
@@ -379,10 +393,11 @@ const ReviewsTab: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label htmlFor="avatar-file" className="block text-sm font-medium text-gray-300 mb-2">
               Avatar Image (Optional)
             </label>
             <input
+              id="avatar-file"
               type="file"
               accept="image/*"
               onChange={(e) => {
@@ -407,25 +422,26 @@ const ReviewsTab: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label htmlFor="reviewer-url" className="block text-sm font-medium text-gray-300 mb-2">
               Reviewer Profile URL (Optional)
             </label>
             <input
+              id="reviewer-url"
               type="url"
               value={formData.reviewerUrl}
-              onChange={(e) => handleInputChange('reviewerUrl', e.target.value)}
+              onChange={(e) => { handleInputChange('reviewerUrl', e.target.value); }}
               className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="e.g., https://www.google.com/maps/contrib/123456789"
             />
             <p className="text-xs text-gray-400 mt-1">
-              Link to reviewer's profile page (Google, Yelp, etc.)
+              Link to reviewer&rsquo;s profile page (Google, Yelp, etc.)
             </p>
           </div>
         </div>
 
         <div className="flex space-x-4">
           <button
-            onClick={handleSubmitReview}
+            onClick={() => { void handleSubmitReview(); }}
             disabled={isSubmitting}
             className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >

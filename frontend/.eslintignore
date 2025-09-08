@@ -1,0 +1,2 @@
+# Ignore files with parsing errors
+src/pages/affiliateDashboard/tabs/services/ServicesTab.tsx

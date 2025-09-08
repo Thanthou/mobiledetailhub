@@ -1,15 +1,28 @@
 import React from 'react';
-import FooterGrid from './Grid';
-import FooterBottom from '../FooterBottom';
-import FooterErrorState from '../FooterErrorState';
 import { GetStarted } from 'shared';
-import { useMDHConfig } from '/src/contexts/MDHConfigContext';
+
+import type { MDHConfigContextType } from '@/contexts/useMDHConfig';
+import { useMDHConfig } from '@/contexts/useMDHConfig';
+
+import FooterBottom from '../FooterBottom';
+import FooterGrid from './Grid';
+
+// Type definitions
+interface MDHConfig {
+  header_display?: string;
+  [key: string]: unknown;
+}
+
+interface MDHWindow extends Window {
+  __MDH__?: MDHConfig;
+}
 
 const MDHFooter: React.FC = () => {
-  const { mdhConfig, isLoading } = useMDHConfig();
+  const mdhConfigContext = useMDHConfig() as MDHConfigContextType | undefined;
+  const mdhConfig = mdhConfigContext?.mdhConfig;
 
   // Get static config immediately (available from mdh-config.js)
-  const staticConfig = typeof window !== 'undefined' ? window.__MDH__ : null;
+  const staticConfig = typeof window !== 'undefined' ? (window as MDHWindow).__MDH__ : null;
   
   // Use dynamic config if available, otherwise fall back to static config
   const config = mdhConfig || staticConfig;
@@ -34,7 +47,7 @@ const MDHFooter: React.FC = () => {
           </div>
         </div>
         
-        <FooterBottom businessInfo={{ name: config?.header_display || 'Mobile Detail Hub' }} />
+        <FooterBottom businessInfo={{ name: (config as MDHConfig).header_display || 'Mobile Detail Hub' }} />
       </div>
     </footer>
   );

@@ -1,6 +1,6 @@
-import { FAQItem } from '../../types';
+import type { FAQItem } from '../../types';
 
-export const AFFILIATE_FAQ_WARRANTY = (_cfg: any): FAQItem[] => [
+export const AFFILIATE_FAQ_WARRANTY = (): FAQItem[] => [
   {
     category: "Warranty & Guarantee",
     question: "Do you guarantee your work?",

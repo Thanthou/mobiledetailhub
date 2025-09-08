@@ -1,4 +1,5 @@
 import React from "react";
+
 import type { SectionProps } from "../types/service";
 import { SECTION_IDS } from "../utils/sectionIds";
 
@@ -10,7 +11,7 @@ const Row = ({ q, a }: { q: string; a: string }) => (
 );
 
 const Information: React.FC<SectionProps> = ({ id = SECTION_IDS.INFO, className, serviceData }) => {
-  const faqs = serviceData?.information?.faqs || [
+  const faqs = serviceData?.information.faqs || [
     { question: "Do I need water or power?", answer: "Placeholder answer text for this FAQ item." },
     { question: "How long does it take?", answer: "Placeholder answer text for this FAQ item." },
     { question: "What prep is required?", answer: "Placeholder answer text for this FAQ item." }
@@ -20,7 +21,7 @@ const Information: React.FC<SectionProps> = ({ id = SECTION_IDS.INFO, className,
     <section id={id} className={`bg-stone-900 py-16 ${className ?? ""}`}>
       <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <h2 className="text-2xl sm:text-3xl font-bold text-white">
-          {serviceData?.information?.title || "Information"}
+          {serviceData?.information.title || "Information"}
         </h2>
         <div className="mt-6 space-y-3">
           {faqs.map((faq, index) => (

@@ -1,5 +1,5 @@
-import React from 'react';
 import { Filter, Search } from 'lucide-react';
+import React from 'react';
 
 interface Appointment {
   id: number;

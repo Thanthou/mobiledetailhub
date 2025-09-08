@@ -1,5 +1,6 @@
 import React from 'react';
-import CTAButtonsContainer from '/src/components/Book_Quote/CTAButtonsContainer';
+
+import CTAButtonsContainer from '@/components/Book_Quote/CTAButtonsContainer';
 
 interface BusinessHeroContentProps {
   onBookNow?: () => void;

@@ -1,5 +1,5 @@
+import { Settings, Shield } from 'lucide-react';
 import React from 'react';
-import { Settings, Shield, Database, Globe } from 'lucide-react';
 
 export const SettingsTab: React.FC = () => {
   return (

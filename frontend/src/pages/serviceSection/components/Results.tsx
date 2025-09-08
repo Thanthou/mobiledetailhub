@@ -1,4 +1,5 @@
 import React from "react";
+
 import type { SectionProps } from "../types/service";
 import { SECTION_IDS } from "../utils/sectionIds";
 import BeforeAfterSlider from "./BeforeAfterSlider";
@@ -17,14 +18,14 @@ const Results: React.FC<SectionProps> = ({ id = SECTION_IDS.RESULTS, className, 
     }
   };
 
-  const containerSize = getContainerSize(serviceData?.results?.containerSize);
+  const containerSize = getContainerSize(serviceData?.results.containerSize);
 
   return (
     <section id={id} className={`bg-stone-800 py-16 ${className ?? ""}`}>
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid gap-10 lg:grid-cols-[3fr_2fr] items-center">
         {/* Image/Video - First column */}
         <div className="w-full">
-          {serviceData?.results?.beforeImage && serviceData?.results?.afterImage ? (
+          {serviceData?.results.beforeImage && serviceData.results.afterImage ? (
             // Check if it's a video file
             serviceData.results.beforeImage.endsWith('.mp4') || serviceData.results.beforeImage.endsWith('.webm') || serviceData.results.beforeImage.endsWith('.mov') ? (
               <div className={`${containerSize} mx-auto rounded-2xl bg-stone-700 ring-1 ring-white/10 overflow-hidden`}>
@@ -36,7 +37,9 @@ const Results: React.FC<SectionProps> = ({ id = SECTION_IDS.RESULTS, className, 
                   playsInline
                   onLoadedData={(e) => e.currentTarget.volume = 0.2}
                   style={{ aspectRatio: '2/3' }}
-                />
+                >
+                  <track kind="captions" src="" label="No captions available" />
+                </video>
               </div>
             ) : (
               <div className={`${containerSize} mx-auto`}>
@@ -59,7 +62,7 @@ const Results: React.FC<SectionProps> = ({ id = SECTION_IDS.RESULTS, className, 
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold text-white">Results</h2>
           <div className="mt-3 text-slate-300">
-            {serviceData?.results?.description ? (
+            {serviceData?.results.description ? (
               <ul className="space-y-3">
                 {serviceData.results.description.map((point, index) => (
                   <li key={index} className="flex items-start">

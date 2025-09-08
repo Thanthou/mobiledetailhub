@@ -8,6 +8,24 @@ interface CustomError extends Error {
   resetTime?: number;
 }
 
+// API error response interface
+interface ApiErrorResponse {
+  message?: string;
+  error?: string;
+  retryAfterSeconds?: number;
+  remainingAttempts?: number;
+  resetTime?: number;
+}
+
+// Generic API response interface for unknown responses
+interface UnknownApiResponse {
+  success?: boolean;
+  message?: string;
+  error?: string;
+  data?: unknown;
+  [key: string]: unknown;
+}
+
 const API_BASE_URL = config.apiUrl;
 
 export interface QuoteFormData {
@@ -120,13 +138,14 @@ class ApiService {
 
     try {
       const response = await fetch(url, defaultOptions);
-      const data = await response.json();
+      const data = await response.json() as UnknownApiResponse;
       
       if (!response.ok) {
-        throw new Error(data.message || 'Network response was not ok');
+        const errorMessage = data.message || data.error || 'Network response was not ok';
+        throw new Error(errorMessage);
       }
       
-      return data;
+      return data as T;
     } catch (error) {
       console.error('API request failed:', error);
       throw new Error(error instanceof Error ? error.message : 'An error occurred');
@@ -151,7 +170,7 @@ class ApiService {
     try {
       // Create an AbortController for timeout
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      const timeoutId = setTimeout(() => { controller.abort(); }, 10000); // 10 second timeout
       
       const response = await fetch(url, {
         method: 'POST',
@@ -164,7 +183,7 @@ class ApiService {
       
       clearTimeout(timeoutId);
       
-      const data = await response.json();
+      const data = await response.json() as ApiErrorResponse & LoginResponse;
       
       if (!response.ok) {
         // Handle rate limiting specifically
@@ -190,7 +209,8 @@ class ApiService {
           throw error;
         }
         
-        throw new Error(data.message || data.error || 'Login failed');
+        const errorMessage = data.message || data.error || 'Login failed';
+        throw new Error(errorMessage);
       }
       
       return data;
@@ -232,7 +252,7 @@ class ApiService {
         body: JSON.stringify({ email, password, name, phone }),
       });
       
-      const data = await response.json();
+      const data = await response.json() as ApiErrorResponse & LoginResponse;
       
       if (!response.ok) {
         // Handle rate limiting specifically
@@ -247,12 +267,14 @@ class ApiService {
         
         // Handle other error codes
         if (response.status === 400) {
-          const error: CustomError = new Error(data.message || data.error || 'Registration failed');
+          const errorMessage = data.message || data.error || 'Registration failed';
+          const error: CustomError = new Error(errorMessage);
           error.code = 'VALIDATION_ERROR';
           throw error;
         }
         
-        throw new Error(data.message || data.error || 'Registration failed');
+        const errorMessage = data.message || data.error || 'Registration failed';
+        throw new Error(errorMessage);
       }
       
       return data;
@@ -289,10 +311,11 @@ class ApiService {
         },
       });
       
-      const data = await response.json();
+      const data = await response.json() as UsersResponse;
       
       if (!response.ok) {
-        throw new Error(data.message || 'Network response was not ok');
+        const errorMessage = data.message || 'Network response was not ok';
+        throw new Error(errorMessage);
       }
       
       return data;
@@ -321,10 +344,11 @@ class ApiService {
         },
       });
       
-      const data = await response.json();
+      const data = await response.json() as ApplicationsResponse;
       
       if (!response.ok) {
-        throw new Error(data.message || 'Network response was not ok');
+        const errorMessage = data.message || 'Network response was not ok';
+        throw new Error(errorMessage);
       }
       
       return data;
@@ -337,7 +361,7 @@ class ApiService {
 
   async approveApplication(applicationId: number, approvedSlug: string, adminNotes: string, serviceAreas?: Array<{city: string, state: string, zip?: string}>): Promise<AffiliateApprovalResponse> {
     // Use relative URL to leverage Vite proxy
-    const url = `/api/admin/approve-application/${applicationId}`;
+    const url = `/api/admin/approve-application/${applicationId.toString()}`;
     
     // Get token from localStorage
     const token = localStorage.getItem('token');
@@ -359,10 +383,11 @@ class ApiService {
         }),
       });
       
-      const data = await response.json();
+      const data = await response.json() as AffiliateApprovalResponse;
       
       if (!response.ok) {
-        throw new Error(data.message || 'Network response was not ok');
+        const errorMessage = data.message || 'Network response was not ok';
+        throw new Error(errorMessage);
       }
       
       return data;
@@ -375,7 +400,7 @@ class ApiService {
 
   async rejectApplication(applicationId: number, rejectionReason: string, adminNotes: string): Promise<AffiliateRejectionResponse> {
     // Use relative URL to leverage Vite proxy
-    const url = `/api/admin/reject-application/${applicationId}`;
+    const url = `/api/admin/reject-application/${applicationId.toString()}`;
     
     // Get token from localStorage
     const token = localStorage.getItem('token');
@@ -396,10 +421,11 @@ class ApiService {
         }),
       });
       
-      const data = await response.json();
+      const data = await response.json() as AffiliateRejectionResponse;
       
       if (!response.ok) {
-        throw new Error(data.message || 'Network response was not ok');
+        const errorMessage = data.message || 'Network response was not ok';
+        throw new Error(errorMessage);
       }
       
       return data;
@@ -412,7 +438,7 @@ class ApiService {
 
   async deleteAffiliate(affiliateId: number): Promise<AffiliateDeletionResponse> {
     // Use relative URL to leverage Vite proxy
-    const url = `/api/admin/affiliates/${affiliateId}`;
+    const url = `/api/admin/affiliates/${affiliateId.toString()}`;
     
     // Get token from localStorage
     const token = localStorage.getItem('token');
@@ -429,10 +455,11 @@ class ApiService {
         },
       });
       
-      const data = await response.json();
+      const data = await response.json() as AffiliateDeletionResponse;
       
       if (!response.ok) {
-        throw new Error(data.message || 'Network response was not ok');
+        const errorMessage = data.message || 'Network response was not ok';
+        throw new Error(errorMessage);
       }
       
       return data;

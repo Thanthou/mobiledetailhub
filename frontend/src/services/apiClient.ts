@@ -1,7 +1,7 @@
 import { config } from '../config/environment';
 
 // Types for the API client
-interface ApiResponse<T = any> {
+interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   message?: string;
@@ -12,7 +12,15 @@ interface RefreshResponse {
   success: boolean;
   accessToken: string;
   refreshToken: string;
-  user: any;
+  user: unknown;
+}
+
+interface ErrorResponse {
+  error?: string;
+  message?: string;
+  retryAfterSeconds?: number;
+  remainingAttempts?: number;
+  resetTime?: number;
 }
 
 // Extend Error interface for custom error codes
@@ -28,7 +36,7 @@ class RefreshTokenGuard {
   private isRefreshing = false;
   private failedQueue: Array<{
     resolve: (token: string) => void;
-    reject: (error: any) => void;
+    reject: (error: unknown) => void;
   }> = [];
 
   async executeRefresh(): Promise<string> {
@@ -59,7 +67,7 @@ class RefreshTokenGuard {
         throw new Error('Refresh token failed');
       }
 
-      const data: RefreshResponse = await response.json();
+      const data = await response.json() as RefreshResponse;
       
       // Update tokens in localStorage
       localStorage.setItem('token', data.accessToken);
@@ -69,7 +77,7 @@ class RefreshTokenGuard {
       this.processQueue(null, data.accessToken);
       
       return data.accessToken;
-    } catch (error) {
+    } catch (error: unknown) {
       // Process queued requests with error
       this.processQueue(error, null);
       throw error;
@@ -78,12 +86,12 @@ class RefreshTokenGuard {
     }
   }
 
-  private processQueue(error: any, token: string | null) {
+  private processQueue(error: unknown, token: string | null) {
     this.failedQueue.forEach(({ resolve, reject }) => {
       if (error) {
         reject(error);
-      } else {
-        resolve(token!);
+      } else if (token) {
+        resolve(token);
       }
     });
 
@@ -136,11 +144,11 @@ class ApiClient {
           const retryResponse = await fetch(url, retryOptions);
           
           if (!retryResponse.ok) {
-            throw new Error(`Request failed: ${retryResponse.status}`);
+            throw new Error(`Request failed: ${retryResponse.status.toString()}`);
           }
           
-          return await retryResponse.json();
-        } catch (refreshError) {
+          return await retryResponse.json() as T;
+        } catch {
           // Refresh failed, clear auth state and redirect
           this.handleAuthFailure();
           throw new Error('Authentication failed');
@@ -148,11 +156,11 @@ class ApiClient {
       }
       
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
+        const errorData = await response.json().catch(() => ({})) as ErrorResponse;
         
         // Handle rate limiting specifically
         if (response.status === 429) {
-          const error: CustomError = new Error(errorData.error || 'Rate limited');
+          const error: CustomError = new Error(errorData.error ?? 'Rate limited');
           error.code = 'RATE_LIMITED';
           error.retryAfterSeconds = errorData.retryAfterSeconds;
           error.remainingAttempts = errorData.remainingAttempts;
@@ -162,22 +170,22 @@ class ApiClient {
         
         // Handle other error codes
         if (response.status === 401) {
-          const error: CustomError = new Error(errorData.error || 'Unauthorized');
+          const error: CustomError = new Error(errorData.error ?? 'Unauthorized');
           error.code = 'UNAUTHORIZED';
           throw error;
         }
         
         if (response.status === 403) {
-          const error: CustomError = new Error(errorData.error || 'Forbidden');
+          const error: CustomError = new Error(errorData.error ?? 'Forbidden');
           error.code = 'FORBIDDEN';
           throw error;
         }
         
-        throw new Error(errorData.error || errorData.message || `Request failed: ${response.status}`);
+        throw new Error(errorData.error ?? errorData.message ?? `Request failed: ${response.status.toString()}`);
       }
       
-      return await response.json();
-    } catch (error) {
+      return await response.json() as T;
+    } catch (error: unknown) {
       console.error('API request failed:', error);
       throw error;
     }
@@ -202,7 +210,7 @@ class ApiClient {
   }
 
   // POST request
-  async post<T>(endpoint: string, data?: any): Promise<T> {
+  async post<T>(endpoint: string, data?: unknown): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'POST',
       headers: {
@@ -213,7 +221,7 @@ class ApiClient {
   }
 
   // PUT request
-  async put<T>(endpoint: string, data?: any): Promise<T> {
+  async put<T>(endpoint: string, data?: unknown): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'PUT',
       headers: {
@@ -229,7 +237,7 @@ class ApiClient {
   }
 
   // PATCH request
-  async patch<T>(endpoint: string, data?: any): Promise<T> {
+  async patch<T>(endpoint: string, data?: unknown): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'PATCH',
       headers: {

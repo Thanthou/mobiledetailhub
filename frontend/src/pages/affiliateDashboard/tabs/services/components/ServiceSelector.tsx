@@ -1,4 +1,5 @@
 import React from 'react';
+
 import type { Service } from '../types';
 
 interface ServiceSelectorProps {
@@ -20,7 +21,7 @@ export const ServiceSelector: React.FC<ServiceSelectorProps> = ({
         return (
           <button
             key={service.id}
-            onClick={() => onServiceChange(service.id)}
+            onClick={() => { onServiceChange(service.id); }}
               className={`w-full flex items-center space-x-3 p-3 mb-2 rounded-lg text-left transition-colors ${
               isSelected 
                 ? 'bg-purple-600 text-white' 

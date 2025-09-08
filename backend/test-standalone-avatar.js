@@ -36,7 +36,7 @@ app.post('/test-avatar-upload', upload.single('avatar'), (req, res) => {
     success: true,
     message: 'File uploaded successfully',
     filename: req.file.filename,
-    path: req.file.path
+    url: `/uploads/${req.file.filename}`
   });
 });
 

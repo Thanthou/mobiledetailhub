@@ -1,4 +1,6 @@
-import React, { Suspense, lazy, useState, useCallback, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import React, { lazy, Suspense, useCallback, useEffect, useState } from 'react';
+
 import { usePerformanceMonitor } from '../../hooks/usePerformanceMonitor';
 
 // Lazy load the LoginModal component
@@ -94,6 +96,11 @@ class ModalErrorBoundary extends React.Component<
   }
 }
 
+ModalErrorBoundary.propTypes = {
+  children: PropTypes.node.isRequired,
+  fallback: PropTypes.node.isRequired,
+};
+
 const LazyLoginModal: React.FC<LazyLoginModalProps> = ({ isOpen, onClose }) => {
   const [isPreloading, setIsPreloading] = useState(false);
   const [isPreloaded, setIsPreloaded] = useState(false);
@@ -106,7 +113,7 @@ const LazyLoginModal: React.FC<LazyLoginModalProps> = ({ isOpen, onClose }) => {
       try {
         await import('./LoginModal');
         setIsPreloaded(true);
-      } catch (error) {
+      } catch (error: unknown) {
         console.error('Failed to prefetch LoginModal:', error);
       } finally {
         setIsPreloading(false);
@@ -117,10 +124,10 @@ const LazyLoginModal: React.FC<LazyLoginModalProps> = ({ isOpen, onClose }) => {
   // Auto-prefetch after a delay to improve perceived performance
   useEffect(() => {
     const timer = setTimeout(() => {
-      handlePrefetch();
+      void handlePrefetch();
     }, 1500); // Prefetch after 1.5 seconds (login is more commonly used)
     
-    return () => clearTimeout(timer);
+    return () => { clearTimeout(timer); };
   }, [handlePrefetch]);
 
   // Monitor component loading performance
@@ -130,7 +137,7 @@ const LazyLoginModal: React.FC<LazyLoginModalProps> = ({ isOpen, onClose }) => {
       const timer = setTimeout(() => {
         endLoad();
       }, 100);
-      return () => clearTimeout(timer);
+      return () => { clearTimeout(timer); };
     }
   }, [isOpen, startLoad, endLoad]);
 
@@ -151,8 +158,9 @@ const LazyLoginModal: React.FC<LazyLoginModalProps> = ({ isOpen, onClose }) => {
 export default LazyLoginModal;
 
 // Enhanced prefetch function with better error handling and caching
+// eslint-disable-next-line react-refresh/only-export-components
 export const prefetchLoginModal = (() => {
-  let prefetchPromise: Promise<any> | null = null;
+  let prefetchPromise: Promise<unknown> | null = null;
   
   return () => {
     if (!prefetchPromise) {
@@ -161,7 +169,7 @@ export const prefetchLoginModal = (() => {
           // Pre-warm any dependencies or prepare the component
           return module;
         })
-        .catch(error => {
+        .catch((error: unknown) => {
           console.error('Failed to prefetch LoginModal:', error);
           // Reset promise on error so retry is possible
           prefetchPromise = null;
@@ -173,6 +181,7 @@ export const prefetchLoginModal = (() => {
 })();
 
 // Export hook for component prefetching
+// eslint-disable-next-line react-refresh/only-export-components
 export const useLoginModalPrefetch = () => {
   const [isPrefetched, setIsPrefetched] = useState(false);
   
@@ -181,7 +190,7 @@ export const useLoginModalPrefetch = () => {
       try {
         await prefetchLoginModal();
         setIsPrefetched(true);
-      } catch (error) {
+      } catch (error: unknown) {
         console.error('Prefetch failed:', error);
       }
     }

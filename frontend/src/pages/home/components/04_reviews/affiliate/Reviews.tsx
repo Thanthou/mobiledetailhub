@@ -1,7 +1,8 @@
 import React from 'react';
+
+import { useAffiliate } from '../../../../../hooks/useAffiliate';
 import { Reviews as BaseReviews } from '../Reviews';
-import { ReviewsProps } from '../types';
-import { useAffiliate } from '../../../../../contexts/AffiliateContext';
+import type { ReviewsProps } from '../types';
 
 export const ReviewsAffiliate: React.FC<ReviewsProps> = (props) => {
   const { businessSlug } = useAffiliate();

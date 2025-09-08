@@ -1,21 +1,23 @@
+import { env } from '../shared/env';
+
 // Environment configuration
 export const config = {
   // API URL - will be set based on environment
-  apiUrl: import.meta.env.VITE_API_URL || 
-    (import.meta.env.PROD 
-      ? import.meta.env.VITE_API_URL_LIVE || 'https://mobiledetailhub.onrender.com'
+  apiUrl: env.VITE_API_URL || 
+    (env.PROD 
+      ? env.VITE_API_URL_LIVE || 'https://mobiledetailhub.onrender.com'
       : ''  // Empty string for development to use relative URLs with Vite proxy
     ),
   
   // API URLs for admin dashboard toggle
   apiUrls: {
-    local: import.meta.env.VITE_API_URL_LOCAL || 'http://localhost:3001',
-    live: import.meta.env.VITE_API_URL_LIVE || 'https://mobiledetailhub.onrender.com'
+    local: env.VITE_API_URL_LOCAL || 'http://localhost:3001',
+    live: env.VITE_API_URL_LIVE || 'https://mobiledetailhub.onrender.com'
   },
   
   // Environment
-  isProduction: import.meta.env.PROD,
-  isDevelopment: import.meta.env.DEV,
+  isProduction: env.PROD,
+  isDevelopment: env.DEV,
   
   // Business domains
   domains: {

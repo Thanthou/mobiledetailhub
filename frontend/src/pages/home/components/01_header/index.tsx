@@ -1,7 +1,8 @@
 import React from 'react';
+
 import { useSiteContext } from '../../../../hooks/useSiteContext';
-import HeaderMDH from './mdh/Header';
 import HeaderAffiliate from './affiliate/Header';
+import HeaderMDH from './mdh/Header';
 
 const Header: React.FC = () => {
   const { isMDH } = useSiteContext();

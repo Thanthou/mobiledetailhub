@@ -1,21 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { 
-  AffiliateApplication, 
-  defaultValues 
-} from './types';
+import React, { useEffect, useRef,useState } from 'react';
+
 import { postApplication } from './api';
-import { useLocalDraft } from './useLocalDraft';
-import { useFileUpload, useFormHandlers } from './hooks';
 import {
   ApplicationHeader,
   IdentityContactSection,
+  LegalTermsSection,
   OperatingBasicsSection,
   ProofOfWorkSection,
   SocialMediaSection,
-  LegalTermsSection,
-  SuccessPage,
-  SubmitSection
-} from './components';
+  SubmitSection,
+  SuccessPage} from './components';
+import { useFileUpload, useFormHandlers } from './hooks';
+import type { 
+  AffiliateApplication
+} from './types';
+import { defaultValues } from './types';
+import { useLocalDraft } from './useLocalDraft';
 
 const AffiliateApplicationPage: React.FC = () => {
   const [formData, setFormData] = useState<AffiliateApplication>(defaultValues);
@@ -86,36 +86,36 @@ const AffiliateApplicationPage: React.FC = () => {
           setFormData(defaultValues); // Reset to clean defaults
         } else {
           // Only load data that looks legitimate
-          const validatedDraft = Object.keys(draft).reduce((acc, key) => {
+          const validatedDraft = Object.keys(draft).reduce<Partial<AffiliateApplication>>((acc, key) => {
             const value = draft[key as keyof AffiliateApplication];
             
             // For strings, only accept if they're reasonable length and don't look corrupted
             if (typeof value === 'string') {
               const trimmed = value.trim();
               if (trimmed.length > 1 && trimmed.length < 100 && !/^[a-z]$/i.test(trimmed)) {
-                (acc as any)[key] = trimmed;
+                (acc as Record<string, unknown>)[key] = trimmed;
               }
             } 
             // For arrays, only accept if they have meaningful content
             else if (Array.isArray(value) && value.length > 0) {
-              (acc as any)[key] = value;
+              (acc as Record<string, unknown>)[key] = value;
             } 
             // For booleans, always accept
             else if (typeof value === 'boolean') {
-              (acc as any)[key] = value;
+              (acc as Record<string, unknown>)[key] = value;
             } 
             // For nested objects, validate each property
             else if (value && typeof value === 'object' && !Array.isArray(value)) {
-              const nestedObj = value as any;
+              const nestedObj = value as Record<string, unknown>;
               const hasValidContent = Object.values(nestedObj).some(v => 
                 typeof v === 'string' && v.trim().length > 1 && v.trim().length < 100
               );
               if (hasValidContent) {
-                (acc as any)[key] = value;
+                (acc as Record<string, unknown>)[key] = value;
               }
             }
             return acc;
-          }, {} as Partial<AffiliateApplication>);
+          }, {});
           
           if (Object.keys(validatedDraft).length > 0) {
             setFormData(prev => ({ ...prev, ...validatedDraft }));
@@ -124,7 +124,7 @@ const AffiliateApplicationPage: React.FC = () => {
       }
       hasLoadedDraft.current = true;
     }
-  }, []); // Empty dependency array - only run once
+  }, [loadDraft]); // Include loadDraft in dependencies
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,14 +135,14 @@ const AffiliateApplicationPage: React.FC = () => {
       primary_contact: !!formData.primary_contact,
       phone: !!formData.phone,
       email: !!formData.email,
-      base_location: !!formData.base_location && !!formData.base_location.city && !!formData.base_location.state,
+      base_location: !!(formData.base_location.city && formData.base_location.state),
       accept_terms: formData.accept_terms,
       consent_notifications: formData.consent_notifications
     };
     
     // Check if all required fields are filled
     const missingFields = Object.entries(requiredFieldsCheck)
-      .filter(([key, value]) => !value)
+      .filter(([, value]) => !value)
       .map(([key]) => key);
     
     if (missingFields.length > 0) {
@@ -162,7 +162,7 @@ const AffiliateApplicationPage: React.FC = () => {
       } else {
         setSubmitError(result.message || 'Application submission failed');
       }
-    } catch (error) {
+    } catch {
       setSubmitError('Network error. Please try again.');
     } finally {
       setIsSubmitting(false);
@@ -214,7 +214,7 @@ const AffiliateApplicationPage: React.FC = () => {
       </div>
       
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
-        <form onSubmit={onSubmit} className="space-y-8" id="affiliate-form">
+        <form onSubmit={(e) => { void onSubmit(e); }} className="space-y-8" id="affiliate-form">
           <IdentityContactSection 
             formData={formData} 
             handleInputChange={handleInputChange} 
@@ -246,7 +246,7 @@ const AffiliateApplicationPage: React.FC = () => {
             isSubmitting={isSubmitting}
             submitError={submitError}
             formData={formData}
-            onSubmit={onSubmit}
+            onSubmit={(e) => { void onSubmit(e); }}
             emergencyCleanup={emergencyCleanup}
           />
         </form>

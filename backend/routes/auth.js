@@ -18,6 +18,7 @@ const {
 const { asyncHandler } = require('../middleware/errorHandler');
 const logger = require('../utils/logger');
 const { authLimiter, sensitiveAuthLimiter, refreshTokenLimiter } = require('../middleware/rateLimiter');
+const { env } = require('../src/shared/env');
 
 // User Registration
 router.post('/register', 
@@ -47,7 +48,7 @@ router.post('/register',
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     // Check if user should be admin based on environment variable
-    const ADMIN_EMAILS = process.env.ADMIN_EMAILS?.split(',') || [];
+    const ADMIN_EMAILS = env.ADMIN_EMAILS?.split(',') || [];
     const isAdmin = ADMIN_EMAILS.includes(email);
 
     // Create user with admin status if applicable
@@ -81,6 +82,23 @@ router.post('/register',
     if (isAdmin) {
       // Admin user created
     }
+
+    // Set HttpOnly cookies for enhanced security
+    res.cookie('access_token', tokens.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 15 * 60 * 1000 // 15 minutes (matches access token expiry)
+    });
+    
+    res.cookie('refresh_token', tokens.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days (matches refresh token expiry)
+    });
 
     res.json({
       success: true,
@@ -136,7 +154,7 @@ router.post('/login',
     }
 
     // Check if user should be admin based on environment variable
-    const ADMIN_EMAILS = process.env.ADMIN_EMAILS?.split(',') || [];
+    const ADMIN_EMAILS = env.ADMIN_EMAILS?.split(',') || [];
     let isAdmin = user.is_admin || false;
     
     // Auto-promote to admin if email is in ADMIN_EMAILS list
@@ -166,6 +184,23 @@ router.post('/login',
       req.get('User-Agent'),
       deviceId
     );
+
+    // Set HttpOnly cookies for enhanced security
+    res.cookie('access_token', tokens.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 15 * 60 * 1000 // 15 minutes (matches access token expiry)
+    });
+    
+    res.cookie('refresh_token', tokens.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days (matches refresh token expiry)
+    });
 
     res.json({
       success: true,
@@ -287,6 +322,23 @@ router.post('/refresh', refreshTokenLimiter, asyncHandler(async (req, res) => {
   // Revoke old refresh token
   await revokeRefreshToken(tokenHash);
 
+  // Set HttpOnly cookies for enhanced security
+  res.cookie('access_token', tokens.accessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 15 * 60 * 1000 // 15 minutes (matches access token expiry)
+  });
+  
+  res.cookie('refresh_token', tokens.refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days (matches refresh token expiry)
+  });
+
   // Consistent response format matching login endpoint
   res.json({
     success: true,
@@ -314,6 +366,21 @@ router.post('/logout', authenticateToken, asyncHandler(async (req, res) => {
 
   // Revoke all refresh tokens for the user
   await revokeAllUserTokens(req.user.userId);
+
+  // Clear HttpOnly cookies
+  res.clearCookie('access_token', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/'
+  });
+  
+  res.clearCookie('refresh_token', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/'
+  });
 
   res.json({ success: true, message: 'Logged out successfully' });
 }));

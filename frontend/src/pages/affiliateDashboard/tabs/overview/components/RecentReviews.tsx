@@ -1,5 +1,6 @@
-import React from 'react';
 import { Star } from 'lucide-react';
+import React from 'react';
+
 import { useRecentReviews } from '../hooks/useRecentReviews';
 
 export const RecentReviews: React.FC = () => {

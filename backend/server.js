@@ -4,6 +4,9 @@ const cors = require('cors');
 const helmet = require('helmet');
 const path = require('path');
 
+// Import typed environment variables
+const { env } = require('./src/shared/env');
+
 // Import environment validator
 const { validateEnvironment } = require('./utils/envValidator');
 const logger = require('./utils/logger');
@@ -38,8 +41,8 @@ const { validateUploadRequest } = require('./utils/uploadValidator');
 
 // Validate CORS configuration on boot
 const validateCorsConfig = () => {
-  if (process.env.NODE_ENV === 'production') {
-    const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',').filter(origin => origin.trim()) || [];
+  if (env.NODE_ENV === 'production') {
+    const allowedOrigins = env.ALLOWED_ORIGINS?.split(',').filter(origin => origin.trim()) || [];
     if (allowedOrigins.length === 0) {
       logger.error('FATAL: ALLOWED_ORIGINS is empty in production environment');
       logger.error('Please set ALLOWED_ORIGINS environment variable with comma-separated domains');
@@ -85,18 +88,18 @@ const ALLOWED_ORIGINS = {
   ],
   staging: [
     // Staging domains from environment + localhost for testing
-    ...(process.env.ALLOWED_ORIGINS?.split(',').filter(origin => origin.trim()) || []),
+    ...(env.ALLOWED_ORIGINS?.split(',').filter(origin => origin.trim()) || []),
     'http://localhost:3000',
     'http://localhost:5173'
   ],
-  production: process.env.ALLOWED_ORIGINS?.split(',').filter(origin => origin.trim()) || []
+  production: env.ALLOWED_ORIGINS?.split(',').filter(origin => origin.trim()) || []
 };
 
 // Validate CORS configuration
 validateCorsConfig();
 
 // Log CORS configuration for current environment
-const currentEnv = process.env.NODE_ENV || 'development';
+const currentEnv = env.NODE_ENV;
 const currentOrigins = ALLOWED_ORIGINS[currentEnv] || ALLOWED_ORIGINS.development;
 logger.info(`CORS configured for ${currentEnv} environment with ${currentOrigins.length} allowed origins`);
 if (currentEnv === 'development') {
@@ -104,7 +107,7 @@ if (currentEnv === 'development') {
 }
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = env.PORT;
 
 // Server instance for graceful shutdown
 let server = null;
@@ -155,7 +158,7 @@ const corsOptions = {
     // Allow requests with no origin (like mobile apps or Postman)
     if (!origin) return callback(null, true);
     
-    const environment = process.env.NODE_ENV || 'development';
+    const environment = env.NODE_ENV;
     const allowedOrigins = ALLOWED_ORIGINS[environment] || ALLOWED_ORIGINS.development;
     
     if (allowedOrigins.indexOf(origin) !== -1) {
@@ -171,7 +174,7 @@ const corsOptions = {
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: false, // Disable credentials to prevent token leakage
+  credentials: true, // Enable credentials for HttpOnly cookies
   optionsSuccessStatus: 200, // Some legacy browsers choke on 204
   preflightContinue: false, // Ensure preflight requests are handled properly
   maxAge: 86400 // Cache preflight response for 24 hours
@@ -180,12 +183,15 @@ const corsOptions = {
 // Middleware
 app.use(cors(corsOptions));
 app.use(requestLogger); // Add request logging with correlation IDs and PII scrubbing
+// Helmet: relax in dev, tighten in prod
+const dev = process.env.NODE_ENV !== 'production';
 app.use(helmet({
   contentSecurityPolicy: {
+    useDefaults: true,
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
-      styleSrc: ["'self'"],
+      scriptSrc: dev ? ["'self'", "'unsafe-inline'"] : ["'self'"],
+      styleSrc: dev ? ["'self'", "'unsafe-inline'"] : ["'self'"],
       imgSrc: [
         "'self'",
         "data:",
@@ -322,31 +328,28 @@ const requestValidationMiddleware = (req, res, next) => {
 app.use(requestValidationMiddleware);
 app.use(requestTracker); // Apply request tracking middleware
 
-// NOTE: Global API limiter removed.
-// Apply per-route limiters ONLY on sensitive endpoints (auth/admin/uploads).
-// Example elsewhere:
-// router.post('/login', authLimiter, asyncHandler(loginHandler));
-// router.post('/refresh', refreshLimiter, asyncHandler(refreshHandler));
+// Rate limiting strategy:
+// - Apply specific rate limiters to sensitive endpoints (auth, admin, uploads)
+// - Apply general API limiter to other routes
+// - Read-only endpoints (health, service_areas, mdh-config) are NOT rate-limited
+//   to prevent slow header/footer performance
 
-// Read-only endpoints are NOT rate-limited to prevent slow header/footer performance
-// app.use('/api/health', apiLimiter); // REMOVED - read-only endpoint
-// app.use('/api/service_areas', apiLimiter); // REMOVED - read-only endpoint
-// app.use('/api/affiliates', apiLimiter); // DISABLED - read-only endpoint
-// app.use('/api/mdh-config', apiLimiter); // DISABLED - read-only endpoint
-// app.use('/api/customers', apiLimiter); // REMOVED - read-only endpoint
+// Apply specific rate limiting to sensitive routes
+app.use('/api/auth', authLimiter, authRoutes); // Auth-specific rate limiting
+app.use('/api/admin', adminLimiter, adminRoutes); // Admin-specific rate limiting
 
-// Routes
-app.use('/api/health', healthRoutes);
-app.use('/api/service_areas', serviceAreasRoutes);
-app.use('/api/auth', authLimiter, authRoutes); // Apply auth rate limiting
-app.use('/api/affiliates', affiliatesRoutes);
-app.use('/api/mdh-config', mdhConfigRoutes);
-app.use('/api/customers', customersRoutes);
-app.use('/api/admin', adminLimiter, adminRoutes); // Apply admin rate limiting
-app.use('/api/upload', apiLimiter, uploadRoutes); // Apply upload rate limiting
-app.use('/api/services', servicesRoutes);
-app.use('/api/reviews', reviewsRoutes);
-app.use('/api/avatar', apiLimiter, avatarRoutes); // Apply upload rate limiting
+// Apply general API rate limiting to other routes
+app.use('/api/affiliates', apiLimiter, affiliatesRoutes); // Mixed read/write
+app.use('/api/customers', apiLimiter, customersRoutes); // Mixed read/write
+app.use('/api/services', servicesRoutes); // Mixed read/write - temporarily removed rate limiter
+app.use('/api/reviews', apiLimiter, reviewsRoutes); // Mixed read/write
+app.use('/api/upload', apiLimiter, uploadRoutes); // Upload routes
+app.use('/api/avatar', apiLimiter, avatarRoutes); // Avatar routes
+
+// Read-only endpoints (no rate limiting to prevent slow header/footer performance)
+app.use('/api/health', healthRoutes); // Health checks
+app.use('/api/service_areas', serviceAreasRoutes); // Service areas data
+app.use('/api/mdh-config', mdhConfigRoutes); // Configuration data
 
 // Error handling middleware (must be last)
 app.use(notFoundHandler);

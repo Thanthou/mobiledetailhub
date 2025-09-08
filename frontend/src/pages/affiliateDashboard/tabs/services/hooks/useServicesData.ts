@@ -1,6 +1,30 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Car, Truck, Home, Bot as Boat, Bike, Mountain, HelpCircle } from 'lucide-react';
+import { Bike, Bot as Boat, Car, HelpCircle, Home, Mountain, Truck } from 'lucide-react';
+import { useCallback, useState } from 'react';
+
 import type { Vehicle } from '../types';
+
+interface ApiResponse<T = unknown> {
+  data: T;
+  message?: string;
+}
+
+interface ServiceTier {
+  id: string;
+  name: string;
+  price: number;
+  description?: string;
+}
+
+interface ServiceData {
+  id: string;
+  name: string;
+  description: string;
+  base_price_cents: number;
+  tiers?: ServiceTier[];
+  affiliate_id: number;
+  vehicle_id: number;
+  service_category_id: number;
+}
 
 // Mapping from frontend IDs to database IDs
 const VEHICLE_ID_MAP: Record<string, number> = {
@@ -59,7 +83,7 @@ export const useServicesAPI = (affiliateId?: string) => {
         throw new Error('Failed to fetch services');
       }
       
-      const data = await response.json();
+      const data = await response.json() as ApiResponse<ServiceData[]>;
       return data.data;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch services');
@@ -70,7 +94,7 @@ export const useServicesAPI = (affiliateId?: string) => {
     }
   }, [affiliateId, isFetching]);
 
-  const createService = useCallback(async (vehicleId: string, categoryId: string, serviceTitle: string, tiers?: any[]) => {
+  const createService = useCallback(async (vehicleId: string, categoryId: string, serviceTitle: string, tiers?: ServiceTier[]) => {
     // Validate affiliate ID is provided
     if (!affiliateId || affiliateId === '') {
       // Don't set error for missing affiliate ID - just return early
@@ -89,9 +113,9 @@ export const useServicesAPI = (affiliateId?: string) => {
         throw new Error('Invalid vehicle or category ID');
       }
       
-      const requestBody: any = {
+      const requestBody: Partial<ServiceData> = {
         affiliate_id: parseInt(affiliateId),
-        vehicle_id: dbVehicleId,
+        vehicle_id: vehicleId, // Send the frontend vehicle ID, not the database ID
         service_category_id: dbCategoryId,
         base_price_cents: 0, // Default base price, can be updated later
         name: serviceTitle,
@@ -112,11 +136,11 @@ export const useServicesAPI = (affiliateId?: string) => {
       });
       
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create service');
+        const errorData = await response.json() as ApiResponse;
+        throw new Error(errorData.message ?? 'Failed to create service');
       }
       
-      const data = await response.json();
+      const data = await response.json() as ApiResponse<ServiceData>;
       return data.data;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create service');
@@ -142,7 +166,7 @@ export const useServicesAPI = (affiliateId?: string) => {
         throw new Error('Failed to fetch service');
       }
       
-      const data = await response.json();
+      const data = await response.json() as ApiResponse<ServiceData>;
       return data.data;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch service');
@@ -152,7 +176,7 @@ export const useServicesAPI = (affiliateId?: string) => {
     }
   }, [affiliateId]);
 
-  const updateService = useCallback(async (serviceId: string, serviceData: any) => {
+  const updateService = useCallback(async (serviceId: string, serviceData: Partial<ServiceData>) => {
     // Validate affiliate ID is provided
     if (!affiliateId || affiliateId === '') {
       return null;
@@ -171,11 +195,11 @@ export const useServicesAPI = (affiliateId?: string) => {
       });
       
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to update service');
+        const errorData = await response.json() as ApiResponse;
+        throw new Error(errorData.message ?? 'Failed to update service');
       }
       
-      const data = await response.json();
+      const data = await response.json() as ApiResponse<ServiceData>;
       return data.data;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update service');
@@ -203,8 +227,8 @@ export const useServicesAPI = (affiliateId?: string) => {
       });
       
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to delete service');
+        const errorData = await response.json() as ApiResponse;
+        throw new Error(errorData.message ?? 'Failed to delete service');
       }
       
       return true;
@@ -364,7 +388,7 @@ export const useServicesData = () => {
     }
   ]);
 
-  const toggleTierEnabled = (tierId: string) => {
+  const toggleTierEnabled = () => {
     // Implementation for toggling tier enabled/disabled state
   };
 

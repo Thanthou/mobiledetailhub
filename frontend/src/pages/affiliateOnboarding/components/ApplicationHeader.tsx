@@ -1,10 +1,8 @@
+import { ArrowLeft } from 'lucide-react';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
 
-interface ApplicationHeaderProps {}
-
-const ApplicationHeader: React.FC<ApplicationHeaderProps> = () => {
+const ApplicationHeader: React.FC = () => {
   return (
     <header className="fixed top-0 z-50 bg-black/20 backdrop-blur-sm w-full">
       <div className="w-full py-4">

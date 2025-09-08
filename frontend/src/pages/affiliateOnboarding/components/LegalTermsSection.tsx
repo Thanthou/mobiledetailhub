@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
 import { Shield } from 'lucide-react';
-import { AffiliateApplication, SOURCES } from '../types';
-import { AffiliateTermsModal, AffiliatePrivacyModal } from './index';
+import React, { useState } from 'react';
+
+import type { AffiliateApplication } from '../types';
+import { SOURCES } from '../types';
+import { AffiliatePrivacyModal, AffiliateTermsModal } from './index';
 
 interface LegalTermsSectionProps {
   formData: AffiliateApplication;
-  handleInputChange: (field: string, value: any) => void;
+  handleInputChange: (field: string, value: string | boolean) => void;
 }
 
 const LegalTermsSection: React.FC<LegalTermsSectionProps> = ({
@@ -34,12 +36,12 @@ const LegalTermsSection: React.FC<LegalTermsSectionProps> = ({
               name="accept_terms"
               type="checkbox"
               checked={formData.accept_terms}
-              onChange={(e) => handleInputChange('accept_terms', e.target.checked)}
+              onChange={(e) => { handleInputChange('accept_terms', e.target.checked); }}
               className="mt-1 border-stone-600 text-orange-500 rounded focus:ring-orange-500"
               required
             />
             <span className="text-gray-300 text-sm">
-              I accept the <button type="button" onClick={() => setShowTerms(true)} className="text-orange-400 hover:underline">Terms of Service</button> and <button type="button" onClick={() => setShowPrivacy(true)} className="text-orange-400 hover:underline">Privacy Policy</button> <span className="text-red-400">*</span>
+              I accept the <button type="button" onClick={() => { setShowTerms(true); }} className="text-orange-400 hover:underline">Terms of Service</button> and <button type="button" onClick={() => { setShowPrivacy(true); }} className="text-orange-400 hover:underline">Privacy Policy</button> <span className="text-red-400">*</span>
             </span>
           </label>
 
@@ -49,7 +51,7 @@ const LegalTermsSection: React.FC<LegalTermsSectionProps> = ({
               name="consent_notifications"
               type="checkbox"
               checked={formData.consent_notifications}
-              onChange={(e) => handleInputChange('consent_notifications', e.target.checked)}
+              onChange={(e) => { handleInputChange('consent_notifications', e.target.checked); }}
               className="mt-1 border-stone-600 text-orange-500 rounded focus:ring-orange-500"
               required
             />
@@ -65,7 +67,7 @@ const LegalTermsSection: React.FC<LegalTermsSectionProps> = ({
             id="source"
             name="source"
             value={formData.source}
-            onChange={(e) => handleInputChange('source', e.target.value)}
+            onChange={(e) => { handleInputChange('source', e.target.value); }}
             className="w-full bg-stone-700 border border-stone-600 text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
           >
             <option value="">Select source</option>
@@ -81,7 +83,7 @@ const LegalTermsSection: React.FC<LegalTermsSectionProps> = ({
             id="notes"
             name="notes"
             value={formData.notes}
-            onChange={(e) => handleInputChange('notes', e.target.value)}
+            onChange={(e) => { handleInputChange('notes', e.target.value); }}
             className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
             placeholder="Any additional information you'd like us to know..."
             rows={3}
@@ -89,8 +91,8 @@ const LegalTermsSection: React.FC<LegalTermsSectionProps> = ({
         </div>
       </div>
       
-      <AffiliateTermsModal isOpen={showTerms} onClose={() => setShowTerms(false)} />
-      <AffiliatePrivacyModal isOpen={showPrivacy} onClose={() => setShowPrivacy(false)} />
+      <AffiliateTermsModal isOpen={showTerms} onClose={() => { setShowTerms(false); }} />
+      <AffiliatePrivacyModal isOpen={showPrivacy} onClose={() => { setShowPrivacy(false); }} />
     </div>
   );
 };

@@ -7,6 +7,7 @@
     "skipLibCheck": true,
     "baseUrl": "./",
     "paths": {
+      "@/*": ["src/*"],
       "shared/*": ["src/components/shared/*"]
     },
 
@@ -35,7 +36,8 @@
     "strictNullChecks": true,
     "strictFunctionTypes": true,
     "strictBindCallApply": true,
-    "strictPropertyInitialization": true
+    "strictPropertyInitialization": true,
+    "useUnknownInCatchVariables": true
   },
-  "include": ["src"]
+  "include": ["src", "vite.config.ts", "data/**/*"]
 }

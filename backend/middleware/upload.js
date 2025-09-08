@@ -36,21 +36,28 @@ function createUploadMiddleware(options = {}, useMemory = false) {
   });
 
   // Add post-processing validation
-  const postValidation = (req, res, next) => {
+  const postValidation = async (req, res, next) => {
     if (req.files && req.files.length > 0) {
-      const validation = validateFiles(req.files, options);
-      if (!validation.success) {
-        const error = new Error(validation.errors[0]?.message || 'File validation failed');
-        error.statusCode = validation.statusCode;
-        return next(error);
+      try {
+        const validation = await validateFiles(req.files, options);
+        if (!validation.success) {
+          const error = new Error(validation.errors[0]?.message || 'File validation failed');
+          error.statusCode = validation.statusCode;
+          return next(error);
+        }
+        
+        // Add validation info to request
+        req.fileValidation = validation;
+        logger.info('Files validated successfully', {
+          fileCount: req.files.length,
+          totalSize: req.files.reduce((sum, f) => sum + f.size, 0)
+        });
+      } catch (error) {
+        logger.error('File validation error:', error);
+        const validationError = new Error('File validation failed');
+        validationError.statusCode = 500;
+        return next(validationError);
       }
-      
-      // Add validation info to request
-      req.fileValidation = validation;
-      logger.info('Files validated successfully', {
-        fileCount: req.files.length,
-        totalSize: req.files.reduce((sum, f) => sum + f.size, 0)
-      });
     }
     next();
   };

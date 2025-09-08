@@ -1,5 +1,21 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { DatabaseReview, Review, ReviewsResponse, ReviewQueryParams } from '../types';
+import { useCallback, useEffect, useRef, useState } from 'react';
+
+import type { DatabaseReview, Review, ReviewQueryParams, ReviewResponse, ReviewsResponse } from '../types';
+
+// API response types for better type safety
+interface ApiResponse<T = unknown> {
+  success: boolean;
+  data?: T;
+  message?: string;
+  error?: string;
+}
+
+interface VoteResponse {
+  review_id: number;
+  helpful_votes: number;
+  total_votes: number;
+  user_vote?: 'helpful' | 'not_helpful';
+}
 
 // Utility function to convert database review to frontend review
 const convertDatabaseReviewToReview = (dbReview: DatabaseReview): Review => ({
@@ -59,7 +75,7 @@ export const useReviews = (params: ReviewQueryParams = {}) => {
         throw new Error(`Failed to fetch reviews: ${response.statusText}`);
       }
 
-      const data: ReviewsResponse = await response.json();
+      const data = await response.json() as ReviewsResponse;
       
       if (!data.success) {
         throw new Error(data.error || 'Failed to fetch reviews');
@@ -82,17 +98,17 @@ export const useReviews = (params: ReviewQueryParams = {}) => {
     // Only fetch if we have meaningful params
     const hasParams = Object.values(params).some(value => value !== undefined && value !== null && value !== '');
     if (hasParams) {
-      fetchReviews();
+      void fetchReviews();
     }
-  }, [params]); // Only depend on params
+  }, [params, fetchReviews]); // Include fetchReviews in dependencies
 
   const refetch = useCallback(() => {
-    fetchReviews();
+    void fetchReviews();
   }, [fetchReviews]);
 
   const loadMore = useCallback(() => {
     if (pagination?.hasMore) {
-      fetchReviews({ offset: pagination.offset + pagination.limit });
+      void fetchReviews({ offset: pagination.offset + pagination.limit });
     }
   }, [pagination, fetchReviews]);
 
@@ -123,7 +139,7 @@ export const useReview = (id: string) => {
         throw new Error(`Failed to fetch review: ${response.statusText}`);
       }
 
-      const data = await response.json();
+      const data = await response.json() as ReviewResponse;
       
       if (!data.success) {
         throw new Error(data.error || 'Failed to fetch review');
@@ -141,7 +157,7 @@ export const useReview = (id: string) => {
 
   useEffect(() => {
     if (id) {
-      fetchReview(id);
+      void fetchReview(id);
     }
   }, [id, fetchReview]);
 
@@ -184,7 +200,7 @@ export const useSubmitReview = () => {
         body: JSON.stringify(reviewData),
       });
 
-      const data = await response.json();
+      const data = await response.json() as ApiResponse<DatabaseReview>;
 
       if (!response.ok || !data.success) {
         throw new Error(data.error || 'Failed to submit review');
@@ -232,7 +248,7 @@ export const useReviewVote = () => {
         }),
       });
 
-      const data = await response.json();
+      const data = await response.json() as ApiResponse<VoteResponse>;
 
       if (!response.ok || !data.success) {
         throw new Error(data.error || 'Failed to vote on review');

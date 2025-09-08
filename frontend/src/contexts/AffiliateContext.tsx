@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, type ReactNode, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+
 import { config } from '../config/environment';
-import { useLocation } from './LocationContext';
+import { useLocation } from '../hooks/useLocation';
 
 interface ServiceArea {
   city: string;
@@ -29,7 +30,7 @@ interface AffiliateData {
     lng: number | null;
   } | null;
   service_areas: ServiceArea[] | string | null;
-  services: any;
+  services: unknown;
   website_url: string;
   gbp_url: string;
   facebook_url: string;
@@ -40,13 +41,13 @@ interface AffiliateData {
   has_insurance: boolean;
   source: string;
   notes: string;
-  uploads: any;
+  uploads: unknown;
   business_license: string;
   insurance_provider: string;
   insurance_expiry: string;
   service_radius_miles: number;
-  operating_hours: any;
-  emergency_contact: any;
+  operating_hours: unknown;
+  emergency_contact: unknown;
   total_jobs: number;
   rating: number;
   review_count: number;
@@ -64,15 +65,7 @@ interface AffiliateContextType {
   businessSlug: string | null;
 }
 
-const AffiliateContext = createContext<AffiliateContextType | undefined>(undefined);
-
-export const useAffiliate = () => {
-  const context = useContext(AffiliateContext);
-  if (context === undefined) {
-    throw new Error('useAffiliate must be used within an AffiliateProvider');
-  }
-  return context;
-};
+export const AffiliateContext = createContext<AffiliateContextType | null>(null);
 
 interface AffiliateProviderProps {
   children: ReactNode;
@@ -98,12 +91,12 @@ export const AffiliateProvider: React.FC<AffiliateProviderProps> = ({ children }
         
         const response = await fetch(`${config.apiUrl}/api/affiliates/${businessSlug}`);
         if (!response.ok) {
-          throw new Error(`Failed to fetch affiliate data: ${response.status}`);
+          throw new Error(`Failed to fetch affiliate data: ${response.status.toString()}`);
         }
         
-        const data = await response.json();
+        const data = await response.json() as { success: boolean; affiliate?: AffiliateData };
         
-        if (data.success && data.affiliate) {
+        if (data.success) {
           setAffiliateData(data.affiliate);
         } else {
           throw new Error('Invalid affiliate data structure');
@@ -116,19 +109,19 @@ export const AffiliateProvider: React.FC<AffiliateProviderProps> = ({ children }
       }
     };
 
-    fetchAffiliateData();
+    void fetchAffiliateData();
   }, [businessSlug]);
 
   // Update location when affiliate data loads (only if no valid location is currently selected)
   useEffect(() => {
     if (affiliateData?.service_areas) {
       // Only update location if no valid location is currently selected
-      if (!selectedLocation || !selectedLocation.city || !selectedLocation.state) {
+      if (!selectedLocation.city || !selectedLocation.state) {
         // Parse service areas to find the primary location
         let serviceAreasData = affiliateData.service_areas;
         if (typeof serviceAreasData === 'string') {
           try {
-            serviceAreasData = JSON.parse(serviceAreasData);
+            serviceAreasData = JSON.parse(serviceAreasData) as ServiceArea[];
           } catch (e) {
             console.error('Error parsing service_areas JSON:', e);
             return;
@@ -137,7 +130,7 @@ export const AffiliateProvider: React.FC<AffiliateProviderProps> = ({ children }
         
         if (Array.isArray(serviceAreasData)) {
           // Find the primary service area (only elements with primary: true)
-          const primaryArea = serviceAreasData.find(area => area.primary === true);
+          const primaryArea = serviceAreasData.find(area => area.primary);
           
           if (primaryArea && primaryArea.city && primaryArea.state) {
             // Update location with affiliate's primary service area

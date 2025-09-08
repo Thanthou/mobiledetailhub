@@ -1,4 +1,5 @@
 import React from 'react';
+
 import ErrorBoundary from './ErrorBoundary';
 
 interface WithErrorBoundaryOptions {
@@ -42,7 +43,7 @@ export function withAsyncErrorBoundary<P extends object>(
             <span className="text-red-800">Failed to load component</span>
           </div>
           <button
-            onClick={() => setError(null)}
+            onClick={() => { setError(null); }}
             className="mt-2 text-sm text-red-600 hover:text-red-800 underline"
           >
             Try again

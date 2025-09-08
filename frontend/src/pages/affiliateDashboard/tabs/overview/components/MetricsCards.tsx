@@ -1,5 +1,5 @@
+import { Calendar, DollarSign, Star,TrendingUp, Users } from 'lucide-react';
 import React from 'react';
-import { TrendingUp, DollarSign, Users, Calendar, Star } from 'lucide-react';
 
 export const MetricsCards: React.FC = () => {
   return (
@@ -21,7 +21,7 @@ export const MetricsCards: React.FC = () => {
       <div className="bg-stone-800 p-6 rounded-xl border border-stone-700">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-gray-400 text-sm">Today's Bookings</p>
+            <p className="text-gray-400 text-sm">Today&rsquo;s Bookings</p>
             <p className="text-2xl font-bold text-white">8</p>
             <p className="text-blue-400 text-sm flex items-center mt-1">
               <Calendar className="h-3 w-3 mr-1" />

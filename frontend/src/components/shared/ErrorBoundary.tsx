@@ -1,4 +1,8 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import PropTypes from 'prop-types';
+import type { ErrorInfo, ReactNode } from 'react';
+import React, { Component } from 'react';
+
+import { env } from '../../shared/env';
 
 interface Props {
   children: ReactNode;
@@ -30,7 +34,7 @@ class ErrorBoundary extends Component<Props, State> {
     }
 
     // Log to external service in production
-    if (import.meta.env.PROD) {
+    if (env.PROD) {
       // You can integrate with services like Sentry, LogRocket, etc.
       console.error('Production error:', { error, errorInfo });
     }
@@ -56,15 +60,15 @@ class ErrorBoundary extends Component<Props, State> {
               Something went wrong
             </h2>
             <p className="text-gray-600 mb-4">
-              We're sorry, but something unexpected happened. Please try refreshing the page.
+              We&apos;re sorry, but something unexpected happened. Please try refreshing the page.
             </p>
             <button
-              onClick={() => window.location.reload()}
+              onClick={() => { window.location.reload(); }}
               className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
             >
               Refresh Page
             </button>
-            {import.meta.env.DEV && this.state.error && (
+            {env.DEV && this.state.error && (
               <details className="mt-4 text-left">
                 <summary className="cursor-pointer text-sm text-gray-500 hover:text-gray-700">
                   Error Details (Development)
@@ -82,5 +86,11 @@ class ErrorBoundary extends Component<Props, State> {
     return this.props.children;
   }
 }
+
+ErrorBoundary.propTypes = {
+  children: PropTypes.node.isRequired,
+  fallback: PropTypes.node,
+  onError: PropTypes.func,
+};
 
 export default ErrorBoundary;

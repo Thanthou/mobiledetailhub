@@ -1,6 +1,7 @@
-import React from 'react';
 import { Star } from 'lucide-react';
-import { StarRatingProps } from './types';
+import React from 'react';
+
+import type { StarRatingProps } from './types';
 
 export const StarRating: React.FC<StarRatingProps> = ({
   rating,

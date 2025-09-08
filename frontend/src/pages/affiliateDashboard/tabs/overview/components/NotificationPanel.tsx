@@ -1,5 +1,6 @@
-import React from 'react';
 import { AlertCircle } from 'lucide-react';
+import React from 'react';
+
 import { useNotifications } from '../hooks/useNotifications';
 
 export const NotificationPanel: React.FC = () => {

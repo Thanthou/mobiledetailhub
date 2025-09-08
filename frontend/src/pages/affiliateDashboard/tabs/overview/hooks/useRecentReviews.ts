@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect,useState } from 'react';
 
 interface Review {
   id: number;
@@ -14,7 +14,7 @@ export const useRecentReviews = () => {
 
   useEffect(() => {
     // Simulate API call
-    const fetchReviews = async () => {
+    const fetchReviews = () => {
       setLoading(true);
       // Mock data - replace with actual API call
       const mockReviews: Review[] = [

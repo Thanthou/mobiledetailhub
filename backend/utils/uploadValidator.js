@@ -1,5 +1,14 @@
 const logger = require('./logger');
 
+// Import file-type for magic number validation (requires: npm install file-type)
+let fileTypeFromBuffer;
+try {
+  fileTypeFromBuffer = require('file-type').fileTypeFromBuffer;
+} catch (error) {
+  logger.warn('file-type package not installed. Magic number validation disabled.', { error: error.message });
+  fileTypeFromBuffer = null;
+}
+
 // Enhanced upload validation configuration
 const UPLOAD_CONFIG = {
   // File size limits
@@ -69,12 +78,112 @@ const UPLOAD_CONFIG = {
 };
 
 /**
+ * Validate file content using magic number detection
+ * @param {Object} file - File object from multer
+ * @param {Array} allowedMimeTypes - Array of allowed MIME types
+ * @returns {Promise<Object>} Validation result
+ */
+async function validateFileMagic(file, allowedMimeTypes) {
+  // Skip magic validation if file-type is not available
+  if (!fileTypeFromBuffer) {
+    logger.debug('Magic number validation skipped - file-type package not available');
+    return { success: true, warnings: ['Magic number validation disabled'] };
+  }
+
+  try {
+    // Get file buffer for magic number detection
+    let fileBuffer;
+    if (file.buffer) {
+      // File is in memory (from memory storage)
+      fileBuffer = file.buffer;
+    } else if (file.path) {
+      // File is on disk (from disk storage)
+      const fs = require('fs');
+      fileBuffer = fs.readFileSync(file.path);
+    } else {
+      logger.warn('Cannot perform magic validation - no file buffer or path available');
+      return { success: true, warnings: ['Magic validation skipped - no file data'] };
+    }
+
+    // Detect actual file type from magic numbers
+    const magic = await fileTypeFromBuffer(fileBuffer);
+    
+    if (!magic) {
+      logger.warn('Magic number validation failed - file type could not be determined', {
+        filename: file.originalname,
+        mimetype: file.mimetype,
+        size: file.size
+      });
+      return {
+        success: false,
+        errors: [{ message: 'File type could not be determined from content', code: 415 }],
+        statusCode: 415
+      };
+    }
+
+    // Check if detected MIME type is in allowed list
+    if (!allowedMimeTypes.includes(magic.mime)) {
+      logger.warn('Magic number validation failed - detected type not allowed', {
+        filename: file.originalname,
+        declaredMimetype: file.mimetype,
+        detectedMimetype: magic.mime,
+        allowedTypes: allowedMimeTypes
+      });
+      return {
+        success: false,
+        errors: [{ 
+          message: `File content type '${magic.mime}' does not match declared type '${file.mimetype}' and is not allowed`, 
+          code: 415 
+        }],
+        statusCode: 415
+      };
+    }
+
+    // Check for MIME type mismatch (security concern)
+    if (magic.mime !== file.mimetype) {
+      logger.warn('MIME type mismatch detected', {
+        filename: file.originalname,
+        declaredMimetype: file.mimetype,
+        detectedMimetype: magic.mime
+      });
+      return {
+        success: false,
+        errors: [{ 
+          message: `File content type '${magic.mime}' does not match declared type '${file.mimetype}'`, 
+          code: 415 
+        }],
+        statusCode: 415
+      };
+    }
+
+    logger.debug('Magic number validation passed', {
+      filename: file.originalname,
+      detectedMimetype: magic.mime,
+      declaredMimetype: file.mimetype
+    });
+
+    return { success: true };
+
+  } catch (error) {
+    logger.error('Magic number validation error', {
+      filename: file.originalname,
+      error: error.message
+    });
+    return {
+      success: false,
+      errors: [{ message: 'File content validation failed', code: 500 }],
+      statusCode: 500
+    };
+  }
+}
+
+/**
  * Enhanced file validation with security checks
  * @param {Object} file - File object from multer
  * @param {Object} options - Validation options
- * @returns {Object} Validation result with proper error codes
+ * @returns {Promise<Object>} Validation result with proper error codes
  */
-function validateFile(file, options = {}) {
+async function validateFile(file, options = {}) {
   const config = { ...UPLOAD_CONFIG, ...options };
   const errors = [];
   const warnings = [];
@@ -104,9 +213,8 @@ function validateFile(file, options = {}) {
     }
 
     // Check MIME type against allowed list
-    const isAllowedMimeType = Object.values(config.allowedMimeTypes)
-      .flat()
-      .includes(mimeType);
+    const allowedMimeTypes = Object.values(config.allowedMimeTypes).flat();
+    const isAllowedMimeType = allowedMimeTypes.includes(mimeType);
 
     if (!isAllowedMimeType) {
       errors.push({ 
@@ -114,6 +222,16 @@ function validateFile(file, options = {}) {
         code: 415 
       });
       return { success: false, errors, warnings, statusCode: 415 };
+    }
+
+    // Magic number validation (file content verification)
+    const magicValidation = await validateFileMagic(file, allowedMimeTypes);
+    if (!magicValidation.success) {
+      errors.push(...magicValidation.errors);
+      return { success: false, errors, warnings, statusCode: magicValidation.statusCode };
+    }
+    if (magicValidation.warnings) {
+      warnings.push(...magicValidation.warnings);
     }
 
     // Check file extension against blocked list
@@ -160,9 +278,9 @@ function validateFile(file, options = {}) {
  * Validate multiple files with enhanced security
  * @param {Array} files - Array of file objects
  * @param {Object} options - Validation options
- * @returns {Object} Validation result
+ * @returns {Promise<Object>} Validation result
  */
-function validateFiles(files, options = {}) {
+async function validateFiles(files, options = {}) {
   const config = { ...UPLOAD_CONFIG, ...options };
   const errors = [];
   const warnings = [];
@@ -185,7 +303,7 @@ function validateFiles(files, options = {}) {
 
     // Validate each file
     for (const file of files) {
-      const fileValidation = validateFile(file, options);
+      const fileValidation = await validateFile(file, options);
       if (!fileValidation.success) {
         errors.push(...fileValidation.errors);
         warnings.push(...fileValidation.warnings);
@@ -320,6 +438,7 @@ module.exports = {
   validateUploadRequest,
   validateFile,
   validateFiles,
+  validateFileMagic,
   getAllowedMimeTypes,
   getAllowedExtensions,
   createMulterConfig,

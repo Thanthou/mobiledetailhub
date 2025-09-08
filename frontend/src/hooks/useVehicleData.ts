@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
+
 import { 
-  vehicleData, 
-  vehicleTypes, 
   getMakesForType, 
-  getModelsForMake 
-} from '../../data/vehicle_data';
-import { VehicleType, VehicleSelection } from '../types/vehicle';
+  getModelsForMake, 
+  vehicleData, 
+  vehicleTypes} from '../../data/vehicle_data';
+import type { VehicleSelection } from '../types/vehicle';
 
 export const useVehicleData = () => {
   // Get all available vehicle types
@@ -26,16 +26,16 @@ export const useVehicleData = () => {
     const allMakes = new Set<string>();
     
     // Add car makes
-    vehicleData.car.forEach(car => allMakes.add(car.brand));
+    (vehicleData.car as Array<{ brand: string }>).forEach(car => allMakes.add(car.brand));
     
     // Add boat makes
-    Object.keys(vehicleData.boat).forEach(boatMake => allMakes.add(boatMake));
+    Object.keys(vehicleData.boat as Record<string, unknown>).forEach(boatMake => allMakes.add(boatMake));
     
     // Add RV makes
-    Object.keys(vehicleData.rv).forEach(rvMake => allMakes.add(rvMake));
+    Object.keys(vehicleData.rv as Record<string, unknown>).forEach(rvMake => allMakes.add(rvMake));
     
     // Add motorcycle makes
-    Object.keys(vehicleData.motorcycle).forEach(motorcycleMake => allMakes.add(motorcycleMake));
+    Object.keys(vehicleData.motorcycle as Record<string, unknown>).forEach(motorcycleMake => allMakes.add(motorcycleMake));
     
     return Array.from(allMakes).sort();
   }, []);
@@ -63,10 +63,10 @@ export const useVehicleData = () => {
   // Get popular makes (you can customize this logic)
   const getPopularMakes = useMemo(() => {
     // For now, return first 5 makes from cars, boats, RVs, and motorcycles
-    const popularCarMakes = vehicleData.car.slice(0, 5).map(car => car.brand);
-    const popularBoatMakes = Object.keys(vehicleData.boat).slice(0, 5);
-    const popularRvMakes = Object.keys(vehicleData.rv).slice(0, 5);
-    const popularMotorcycleMakes = Object.keys(vehicleData.motorcycle).slice(0, 5);
+    const popularCarMakes = (vehicleData.car as Array<{ brand: string }>).slice(0, 5).map(car => car.brand);
+    const popularBoatMakes = Object.keys(vehicleData.boat as Record<string, unknown>).slice(0, 5);
+    const popularRvMakes = Object.keys(vehicleData.rv as Record<string, unknown>).slice(0, 5);
+    const popularMotorcycleMakes = Object.keys(vehicleData.motorcycle as Record<string, unknown>).slice(0, 5);
     
     return [...popularCarMakes, ...popularBoatMakes, ...popularRvMakes, ...popularMotorcycleMakes];
   }, []);

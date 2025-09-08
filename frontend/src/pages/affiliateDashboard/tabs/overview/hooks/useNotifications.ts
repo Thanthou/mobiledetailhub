@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect,useState } from 'react';
 
 interface Notification {
   id: number;
@@ -13,7 +13,7 @@ export const useNotifications = () => {
 
   useEffect(() => {
     // Simulate API call
-    const fetchNotifications = async () => {
+    const fetchNotifications = (): void => {
       setLoading(true);
       // Mock data - replace with actual API call
       const mockNotifications: Notification[] = [

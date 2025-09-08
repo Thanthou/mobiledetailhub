@@ -1,4 +1,5 @@
 import React from "react";
+
 import type { SectionProps } from "../types/service";
 import { SECTION_IDS } from "../utils/sectionIds";
 
@@ -11,7 +12,7 @@ const ProcessStep = ({
 }) => (
   <div className={`grid gap-8 lg:grid-cols-2 items-center ${isReversed ? 'lg:grid-flow-col-dense' : ''}`}>
     {/* Text Content */}
-    <div className={`${isReversed ? 'lg:col-start-2' : ''}`}>
+    <div className={isReversed ? 'lg:col-start-2' : ''}>
       <div className="flex items-center mb-4">
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-500 text-white text-xl font-bold mr-4">
           {step.number}
@@ -33,7 +34,7 @@ const ProcessStep = ({
     </div>
     
     {/* Image */}
-    <div className={`${isReversed ? 'lg:col-start-1' : ''}`}>
+    <div className={isReversed ? 'lg:col-start-1' : ''}>
       <div className="aspect-[4/3] rounded-2xl bg-stone-700 ring-1 ring-white/10 overflow-hidden">
         {step.image ? (
           <img 
@@ -52,7 +53,7 @@ const ProcessStep = ({
 );
 
 const Process: React.FC<SectionProps> = ({ id = SECTION_IDS.PROCESS, className, serviceData }) => {
-  const steps = serviceData?.process?.steps || [
+  const steps = serviceData?.process.steps || [
     { number: 1, title: "Step 1", description: "Short placeholder description." },
     { number: 2, title: "Step 2", description: "Short placeholder description." },
     { number: 3, title: "Step 3", description: "Short placeholder description." }
@@ -62,7 +63,7 @@ const Process: React.FC<SectionProps> = ({ id = SECTION_IDS.PROCESS, className, 
     <section id={id} className={`bg-stone-900 py-16 ${className ?? ""}`}>
       <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <h2 className="text-2xl sm:text-3xl font-bold text-white mb-12">
-          {serviceData?.process?.title || "Process"}
+          {serviceData?.process.title || "Process"}
         </h2>
         <div className="space-y-16">
           {steps.map((step, index) => (

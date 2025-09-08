@@ -1,12 +1,11 @@
+import { CheckCircle, X, XCircle } from 'lucide-react';
 import React, { useState } from 'react';
-import { X, CheckCircle, XCircle } from 'lucide-react';
 
 interface ApplicationModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: { slug?: string; reason?: string; notes: string }) => Promise<void>;
   type: 'approve' | 'reject';
-  applicationId: number;
   businessName: string;
   isLoading?: boolean;
 }
@@ -16,7 +15,6 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({
   onClose,
   onSubmit,
   type,
-  applicationId,
   businessName,
   isLoading = false
 }) => {
@@ -26,7 +24,7 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({
     notes: ''
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent): void => {
     e.preventDefault();
     
     // Validate slug format for approval
@@ -71,7 +69,7 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({
       return;
     }
     
-    await onSubmit(formData);
+    void onSubmit(formData);
     setFormData({ slug: '', reason: '', notes: '' });
   };
 
@@ -121,13 +119,13 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({
                 type="text"
                 id="slug"
                 value={formData.slug}
-                onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                onChange={(e) => { setFormData({ ...formData, slug: e.target.value }); }}
                 className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="e.g., my-business-name"
                 required
               />
               <p className="text-xs text-gray-400 mt-1">
-                This will be the URL slug for the affiliate's business page
+                This will be the URL slug for the affiliate&rsquo;s business page
               </p>
             </div>
           )}
@@ -140,7 +138,7 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({
               <textarea
                 id="reason"
                 value={formData.reason}
-                onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
+                onChange={(e) => { setFormData({ ...formData, reason: e.target.value }); }}
                 className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Please provide a reason for rejection..."
                 rows={3}
@@ -156,7 +154,7 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({
             <textarea
               id="notes"
               value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+              onChange={(e) => { setFormData({ ...formData, notes: e.target.value }); }}
               className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Additional notes (optional)..."
               rows={3}

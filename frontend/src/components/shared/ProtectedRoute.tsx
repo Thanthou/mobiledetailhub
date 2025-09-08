@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+
+import { useAuth } from '../../hooks/useAuth';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -13,7 +14,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requiredRole = 'user',
   fallbackPath = '/'
 }) => {
-  const { user, loading } = useAuth();
+  const authContext = useAuth() as { user: { id: string; name: string; email: string; role: 'admin' | 'affiliate' | 'user' } | null; loading: boolean };
+  
+  // Safely extract user and loading with proper type checking
+  const user = authContext.user;
+  const loading = authContext.loading;
   
   // Show loading while checking authentication
   if (loading) {
@@ -33,15 +38,17 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   
   // Check if user has required role
   if (Array.isArray(requiredRole)) {
-    if (!requiredRole.includes(user.role)) {
+    const userRole = user.role;
+    if (!requiredRole.includes(userRole)) {
       return <Navigate to={fallbackPath} replace />;
     }
   } else {
-    if (requiredRole === 'admin' && user.role !== 'admin') {
+    const userRole = user.role;
+    if (requiredRole === 'admin' && userRole !== 'admin') {
       return <Navigate to={fallbackPath} replace />;
     }
     
-    if (requiredRole === 'affiliate' && user.role !== 'affiliate') {
+    if (requiredRole === 'affiliate' && userRole !== 'affiliate') {
       return <Navigate to={fallbackPath} replace />;
     }
   }

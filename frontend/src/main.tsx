@@ -1,22 +1,31 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import App from './App.tsx';
 import './index.css';
 
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+
+import App from './App.tsx';
+import { env } from './shared/env';
+
 // Register Service Worker for PWA functionality
-if ('serviceWorker' in navigator && import.meta.env.PROD) {
+if ('serviceWorker' in navigator && env.PROD) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
-      .then((registration) => {
+      .then(() => {
         // Service worker registered successfully
       })
-      .catch((registrationError) => {
+      .catch((registrationError: unknown) => {
         // Service worker registration failed
+        console.warn('Service worker registration failed:', registrationError);
       });
   });
 }
 
-createRoot(document.getElementById('root')!).render(
+const rootElement = document.getElementById('root');
+if (!rootElement) {
+  throw new Error('Root element not found');
+}
+
+createRoot(rootElement).render(
   <StrictMode>
     <App />
   </StrictMode>

@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
 import { Share2 } from 'lucide-react';
-import { AffiliateApplication } from '../types';
+import React, { useState } from 'react';
+
+import type { AffiliateApplication } from '../types';
 import GoogleBusinessProfileModal from './GoogleBusinessProfileModal';
 
 interface SocialMediaSectionProps {
   formData: AffiliateApplication;
-  handleInputChange: (field: string, value: any) => void;
+  handleInputChange: (field: string, value: string) => void;
 }
 
 const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
@@ -36,7 +37,7 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
               name="website_url"
               type="url"
               value={formData.website_url}
-              onChange={(e) => handleInputChange('website_url', e.target.value)}
+              onChange={(e) => { handleInputChange('website_url', e.target.value); }}
               className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
               placeholder="https://yourwebsite.com"
               autoComplete="url"
@@ -48,7 +49,7 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
               Google Business Profile URL
               {formData.legal_name && (
                 <button
-                  onClick={() => setIsGoogleProfileModalOpen(true)}
+                  onClick={() => { setIsGoogleProfileModalOpen(true); }}
                   className="inline-flex items-center ml-2 text-blue-400 hover:text-blue-300 text-xs font-medium transition-colors"
                   title="Find your Google Business Profile"
                 >
@@ -61,7 +62,7 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
               name="gbp_url"
               type="url"
               value={formData.gbp_url}
-              onChange={(e) => handleInputChange('gbp_url', e.target.value)}
+              onChange={(e) => { handleInputChange('gbp_url', e.target.value); }}
               className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
               placeholder="https://business.google.com/..."
               autoComplete="url"
@@ -76,7 +77,7 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
                 name="facebook_url"
                 type="url"
                 value={formData.facebook_url}
-                onChange={(e) => handleInputChange('facebook_url', e.target.value)}
+                onChange={(e) => { handleInputChange('facebook_url', e.target.value); }}
                 className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 placeholder="https://facebook.com/..."
                 autoComplete="url"
@@ -89,7 +90,7 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
                 name="instagram_url"
                 type="url"
                 value={formData.instagram_url}
-                onChange={(e) => handleInputChange('instagram_url', e.target.value)}
+                onChange={(e) => { handleInputChange('instagram_url', e.target.value); }}
                 className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 placeholder="https://instagram.com/..."
                 autoComplete="url"
@@ -105,7 +106,7 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
                 name="youtube_url"
                 type="url"
                 value={formData.youtube_url || ''}
-                onChange={(e) => handleInputChange('youtube_url', e.target.value)}
+                onChange={(e) => { handleInputChange('youtube_url', e.target.value); }}
                 className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 placeholder="https://youtube.com/@..."
                 autoComplete="url"
@@ -118,7 +119,7 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
                 name="tiktok_url"
                 type="url"
                 value={formData.tiktok_url}
-                onChange={(e) => handleInputChange('tiktok_url', e.target.value)}
+                onChange={(e) => { handleInputChange('tiktok_url', e.target.value); }}
                 className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 placeholder="https://tiktok.com/@..."
                 autoComplete="url"
@@ -128,8 +129,8 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
           
           <div className="bg-stone-700 p-4 rounded-lg">
             <p className="text-gray-300 text-sm">
-              <span className="font-medium">Tip:</span> You don't need to fill in all fields. 
-              Just share the platforms where you're most active and showcase your best work.
+              <span className="font-medium">Tip:</span> You don&apos;t need to fill in all fields. 
+              Just share the platforms where you&apos;re most active and showcase your best work.
             </p>
           </div>
         </div>
@@ -138,7 +139,7 @@ const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
       {/* Google Business Profile Modal */}
       <GoogleBusinessProfileModal
         isOpen={isGoogleProfileModalOpen}
-        onClose={() => setIsGoogleProfileModalOpen(false)}
+        onClose={() => { setIsGoogleProfileModalOpen(false); }}
         businessName={formData.legal_name}
         onUrlFound={(url) => {
           handleInputChange('gbp_url', url);

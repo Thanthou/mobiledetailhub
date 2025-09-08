@@ -13,9 +13,9 @@
  * node scripts/convert-images.js
  */
 
-import sharp from 'sharp';
 import fs from 'fs/promises';
 import path from 'path';
+import sharp from 'sharp';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);

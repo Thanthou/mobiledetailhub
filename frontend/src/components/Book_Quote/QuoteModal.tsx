@@ -1,17 +1,16 @@
-import React, { useState, useEffect } from 'react';
 import { CheckCircle } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
+
+import { useVehicleData } from '../../hooks/useVehicleData';
 import { apiService } from '../../services/api';
 import { formatPhoneNumberAsTyped, isCompletePhoneNumber } from '../../utils/fields/phoneFormatter';
-import { useVehicleData } from '../../hooks/useVehicleData';
 import { 
-  validateName, 
+  sanitizeText, 
   validateEmail, 
-  validatePhone, 
-  validateVehicleField, 
-  validateService, 
   validateMessage,
-  sanitizeText 
-} from '../../utils/validation';
+  validateName, 
+  validatePhone, 
+  validateVehicleField} from '../../utils/validation';
 
 interface QuoteModalProps {
   isOpen: boolean;
@@ -81,6 +80,26 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
     }
   }, [formData.vehicleMake]);
 
+  // Section validation functions
+  const isContactSectionComplete = useCallback(() => {
+    const nameValid = validateName(formData.name).isValid;
+    const emailValid = validateEmail(formData.email).isValid;
+    const phoneValid = validatePhone(formData.phone).isValid;
+    return nameValid && emailValid && phoneValid;
+  }, [formData.name, formData.email, formData.phone]);
+
+  const isVehicleSectionComplete = useCallback(() => {
+    const vehicleTypeValid = validateVehicleField(formData.vehicleType, 'Vehicle type').isValid;
+    const vehicleMakeValid = validateVehicleField(formData.vehicleMake, 'Vehicle make').isValid;
+    const vehicleModelValid = validateVehicleField(formData.vehicleModel, 'Vehicle model').isValid;
+    const vehicleYearValid = validateVehicleField(formData.vehicleYear, 'Vehicle year').isValid;
+    return vehicleTypeValid && vehicleMakeValid && vehicleModelValid && vehicleYearValid;
+  }, [formData.vehicleType, formData.vehicleMake, formData.vehicleModel, formData.vehicleYear]);
+
+  const isServicesSectionComplete = useCallback(() => {
+    return formData.services.length > 0;
+  }, [formData.services]);
+
   // Update completed sections when form data changes
   useEffect(() => {
     setCompletedSections({
@@ -88,7 +107,7 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
       vehicle: isVehicleSectionComplete(),
       services: isServicesSectionComplete()
     });
-  }, [formData]);
+  }, [formData, isContactSectionComplete, isVehicleSectionComplete, isServicesSectionComplete]);
 
   // Helper function to display field errors
   const getFieldError = (fieldName: string): string | undefined => {
@@ -98,26 +117,6 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
   // Helper function to check if field has error
   const hasFieldError = (fieldName: string): boolean => {
     return !!fieldErrors[fieldName]?.length;
-  };
-
-  // Section validation functions
-  const isContactSectionComplete = () => {
-    const nameValid = validateName(formData.name).isValid;
-    const emailValid = validateEmail(formData.email).isValid;
-    const phoneValid = validatePhone(formData.phone).isValid;
-    return nameValid && emailValid && phoneValid;
-  };
-
-  const isVehicleSectionComplete = () => {
-    const vehicleTypeValid = validateVehicleField(formData.vehicleType, 'Vehicle type').isValid;
-    const vehicleMakeValid = validateVehicleField(formData.vehicleMake, 'Vehicle make').isValid;
-    const vehicleModelValid = validateVehicleField(formData.vehicleModel, 'Vehicle model').isValid;
-    const vehicleYearValid = validateVehicleField(formData.vehicleYear, 'Vehicle year').isValid;
-    return vehicleTypeValid && vehicleMakeValid && vehicleModelValid && vehicleYearValid;
-  };
-
-  const isServicesSectionComplete = () => {
-    return formData.services.length > 0;
   };
 
   const clearFormData = () => {
@@ -224,18 +223,18 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
       const formattedPhone = formData.phone ? formatPhoneNumberAsTyped(formData.phone, 0).value : '';
       
       await apiService.submitQuoteRequest({
-        name: sanitizeText(validations.name.sanitizedValue!),
-        email: validations.email.sanitizedValue!,
+        name: sanitizeText(validations.name.sanitizedValue ?? ''),
+        email: validations.email.sanitizedValue ?? '',
         phone: formattedPhone,
-        vehicle: `${validations.vehicleYear.sanitizedValue} ${validations.vehicleMake.sanitizedValue} ${validations.vehicleModel.sanitizedValue}`,
-        services: validations.services.sanitizedValue!,
+        vehicle: `${validations.vehicleYear.sanitizedValue ?? ''} ${validations.vehicleMake.sanitizedValue ?? ''} ${validations.vehicleModel.sanitizedValue ?? ''}`,
+        services: validations.services.sanitizedValue,
         additionalInfo: formData.message ? sanitizeText(formData.message) : ''
       });
 
       setIsSubmitted(true);
       
       // Reset form after 3 seconds
-      setTimeout(() => {
+      void setTimeout(() => {
         setIsSubmitted(false);
         setFormData({
           name: '',
@@ -251,7 +250,7 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
         setFieldErrors({});
         onClose();
       }, 3000);
-    } catch (error) {
+    } catch (error: unknown) {
       setError(error instanceof Error ? error.message : 'Failed to submit quote request');
     } finally {
       setIsSubmitting(false);
@@ -290,7 +289,7 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
           </div>
           
           {!isSubmitted ? (
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={(e) => void handleSubmit(e)} className="space-y-6">
               {/* Progress Indicator */}
               <div className="mb-4">
                 <div className="flex items-center justify-between mb-2">
@@ -303,7 +302,7 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
                   <div 
                     className="bg-orange-500 h-2 rounded-full transition-all duration-500"
                     style={{ 
-                      width: `${([completedSections.contact, completedSections.vehicle, completedSections.services].filter(Boolean).length / 3) * 100}%` 
+                      width: `${String(([completedSections.contact, completedSections.vehicle, completedSections.services].filter(Boolean).length / 3) * 100)}%` 
                     }}
                   ></div>
                 </div>
@@ -654,9 +653,9 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {/* Services */}
                   <div className="md:col-span-3">
-                    <label className="block text-sm font-medium text-white mb-3">
+                    <div className="block text-sm font-medium text-white mb-3">
                       Services Needed *
-                    </label>
+                    </div>
                     <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-4 border rounded-lg ${
                       hasFieldError('services') 
                         ? 'border-red-500 bg-red-900/20' 
@@ -667,7 +666,7 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
                           <input
                             type="checkbox"
                             checked={formData.services.includes(service)}
-                            onChange={(e) => handleServiceChange(service, e.target.checked)}
+                            onChange={(e) => { handleServiceChange(service, e.target.checked); }}
                             className="w-4 h-4 text-orange-500 bg-stone-700 border-gray-600 rounded focus:ring-orange-500 focus:ring-2"
                           />
                           <span className="text-white text-sm font-medium">{service}</span>
@@ -743,7 +742,7 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
               <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-6" />
               <h3 className="text-2xl font-bold text-white mb-3">Request Sent!</h3>
               <p className="text-gray-300 mb-6 text-lg">
-                Thank you for your request. We'll get back to you within 24 hours.
+                Thank you for your request. We&apos;ll get back to you within 24 hours.
               </p>
               <button
                 onClick={onClose}

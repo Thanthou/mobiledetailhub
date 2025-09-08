@@ -1,15 +1,14 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { useAuth } from '../../contexts/AuthContext';
+
+import { useAuth } from '../../hooks/useAuth';
 import { 
   validateEmail, 
-  validatePassword, 
   validateName, 
-  validatePhone,
-  sanitizeText 
-} from '../../utils/validation';
-import ModalHeader from './ModalHeader';
+  validatePassword, 
+  validatePhone} from '../../utils/validation';
 import LoginForm from './LoginForm';
+import ModalHeader from './ModalHeader';
 import RegisterForm from './RegisterForm';
 import SocialLogin from './SocialLogin';
 import ToggleMode from './ToggleMode';
@@ -44,7 +43,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
       const timer = setTimeout(() => {
         setCountdown(countdown - 1);
       }, 1000);
-      return () => clearTimeout(timer);
+      return () => { clearTimeout(timer); };
     } else if (countdown === 0 && rateLimitInfo) {
       setRateLimitInfo(null);
       setError('');
@@ -73,7 +72,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
         return;
       }
 
-      const result = await login(emailValidation.sanitizedValue!, password);
+      const result: { success: boolean; error?: string } = await login(emailValidation.sanitizedValue ?? '', password);
 
       if (result.success) {
         onClose();
@@ -90,29 +89,37 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
             resetTime: Date.now() + (retrySeconds * 1000)
           });
           setCountdown(retrySeconds);
-          setError(`Too many login attempts. Please try again in ${retrySeconds} seconds.`);
+          setError(`Too many login attempts. Please try again in ${String(retrySeconds)} seconds.`);
         } else {
-          setError(result.error || 'Login failed');
+          setError(result.error ?? 'Login failed');
         }
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Handle rate limiting specifically
-      if (err.code === 'RATE_LIMITED' && err.retryAfterSeconds) {
+      const error = err as {
+        code?: string;
+        retryAfterSeconds?: number;
+        remainingAttempts?: number;
+        resetTime?: number;
+        message?: string;
+      };
+      
+      if (error.code === 'RATE_LIMITED' && error.retryAfterSeconds) {
         setRateLimitInfo({
-          retryAfterSeconds: err.retryAfterSeconds,
-          remainingAttempts: err.remainingAttempts || 0,
-          resetTime: err.resetTime || Date.now() + (err.retryAfterSeconds * 1000)
+          retryAfterSeconds: error.retryAfterSeconds,
+          remainingAttempts: error.remainingAttempts ?? 0,
+          resetTime: error.resetTime ?? Date.now() + (error.retryAfterSeconds * 1000)
         });
-        setCountdown(err.retryAfterSeconds);
-        setError(`Too many login attempts. Please try again in ${err.retryAfterSeconds} seconds.`);
-      } else if (err.code === 'INVALID_CREDENTIALS') {
+        setCountdown(error.retryAfterSeconds);
+        setError(`Too many login attempts. Please try again in ${String(error.retryAfterSeconds)} seconds.`);
+      } else if (error.code === 'INVALID_CREDENTIALS') {
         setError('Email or password is incorrect.');
-      } else if (err.code === 'FORBIDDEN') {
+      } else if (error.code === 'FORBIDDEN') {
         setError('Access denied. Please contact support.');
-      } else if (err.message?.includes('Network') || err.message?.includes('fetch')) {
+      } else if (error.message?.includes('Network') || error.message?.includes('fetch')) {
         setError('Network error. Please check your connection and try again.');
       } else {
-        setError(err.message || 'An unexpected error occurred');
+        setError(error.message ?? 'An unexpected error occurred');
       }
     } finally {
       setLoading(false);
@@ -134,19 +141,19 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
       };
 
       // Check if any validation failed
-      const hasErrors = Object.values(validations).some((result: any) => !result.isValid);
+      const hasErrors = Object.values(validations).some((result) => !result.isValid);
       
       if (hasErrors) {
-        const firstError = Object.values(validations).find((result: any) => !result.isValid);
-        setError(firstError?.errors[0] || 'Validation failed');
+        const firstError = Object.values(validations).find((result) => !result.isValid);
+        setError(firstError?.errors[0] ?? 'Validation failed');
         return;
       }
 
-      const result = await register(
-        validations.email.sanitizedValue!,
+      const result: { success: boolean; error?: string } = await register(
+        validations.email.sanitizedValue ?? '',
         password,
-        validations.name.sanitizedValue!,
-        validations.phone.sanitizedValue!
+        validations.name.sanitizedValue ?? '',
+        validations.phone.sanitizedValue ?? ''
       );
 
       if (result.success) {
@@ -164,25 +171,33 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
             resetTime: Date.now() + (retrySeconds * 1000)
           });
           setCountdown(retrySeconds);
-          setError(`Too many registration attempts. Please try again in ${retrySeconds} seconds.`);
+          setError(`Too many registration attempts. Please try again in ${String(retrySeconds)} seconds.`);
         } else {
-          setError(result.error || 'Registration failed');
+          setError(result.error ?? 'Registration failed');
         }
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Handle rate limiting specifically
-      if (err.code === 'RATE_LIMITED' && err.retryAfterSeconds) {
+      const error = err as {
+        code?: string;
+        retryAfterSeconds?: number;
+        remainingAttempts?: number;
+        resetTime?: number;
+        message?: string;
+      };
+      
+      if (error.code === 'RATE_LIMITED' && error.retryAfterSeconds) {
         setRateLimitInfo({
-          retryAfterSeconds: err.retryAfterSeconds,
-          remainingAttempts: err.remainingAttempts || 0,
-          resetTime: err.resetTime || Date.now() + (err.retryAfterSeconds * 1000)
+          retryAfterSeconds: error.retryAfterSeconds,
+          remainingAttempts: error.remainingAttempts ?? 0,
+          resetTime: error.resetTime ?? Date.now() + (error.retryAfterSeconds * 1000)
         });
-        setCountdown(err.retryAfterSeconds);
-        setError(`Too many registration attempts. Please try again in ${err.retryAfterSeconds} seconds.`);
-      } else if (err.message?.includes('Network') || err.message?.includes('fetch')) {
+        setCountdown(error.retryAfterSeconds);
+        setError(`Too many registration attempts. Please try again in ${String(error.retryAfterSeconds)} seconds.`);
+      } else if (error.message?.includes('Network') || error.message?.includes('fetch')) {
         setError('Network error. Please check your connection and try again.');
       } else {
-        setError(err.message || 'An unexpected error occurred');
+        setError(error.message ?? 'An unexpected error occurred');
       }
     } finally {
       setLoading(false);
@@ -196,15 +211,15 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
     setCountdown(0);
   };
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setError('');
     setRateLimitInfo(null);
     setCountdown(0);
     onClose();
-  };
+  }, [onClose]);
 
   // Handle keyboard navigation and focus trapping
-  const handleKeyDown = useCallback((event: React.KeyboardEvent) => {
+  const handleKeyDown = useCallback((event: KeyboardEvent) => {
     if (event.key === 'Escape') {
       event.preventDefault();
       handleClose();
@@ -237,7 +252,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
         }
       }
     }
-  }, []);
+  }, [handleClose]);
 
   // Focus management
   useEffect(() => {
@@ -253,26 +268,20 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
       document.body.style.overflow = 'hidden';
       
       // Add event listeners for accessibility
-      const handleEscape = (event: KeyboardEvent) => {
-        if (event.key === 'Escape') {
-          handleClose();
-        }
-      };
-      
-      document.addEventListener('keydown', handleEscape);
+      document.addEventListener('keydown', handleKeyDown);
       
       return () => {
-        document.removeEventListener('keydown', handleEscape);
+        document.removeEventListener('keydown', handleKeyDown);
         document.body.style.overflow = 'unset';
       };
     }
-  }, [isOpen, handleClose]);
+  }, [isOpen, handleClose, handleKeyDown]);
 
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    return () => setMounted(false);
+    return () => { setMounted(false); };
   }, []);
 
   if (!isOpen || !mounted) return null;
@@ -297,21 +306,24 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
         className="absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity duration-300"
         onClick={handleClose}
         onKeyDown={(e) => {
-          if (e.key === 'Escape') {
+          if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
             handleClose();
           }
         }}
         role="button"
         tabIndex={0}
         aria-label="Close modal"
+        onMouseDown={(e) => { e.preventDefault(); }}
+        onMouseUp={(e) => { e.preventDefault(); }}
       />
       
       {/* Modal */}
       <div 
         ref={modalRef}
         className="relative w-full max-w-md transform transition-all duration-300 scale-100"
-        onKeyDown={handleKeyDown}
-        tabIndex={-1}
+        role="dialog"
+        aria-modal="true"
       >
         <div 
           className="bg-stone-900 rounded-2xl shadow-2xl border border-stone-700 overflow-hidden"

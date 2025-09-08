@@ -1,23 +1,24 @@
 import { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { HomePage } from './pages/home';
-import { LocationProvider } from './contexts/LocationContext';
-import { AuthProvider } from './contexts/AuthContext';
-import { MDHConfigProvider } from './contexts/MDHConfigContext';
-import { AffiliateProvider } from './contexts/AffiliateContext';
-import { FAQProvider } from './contexts/FAQContext';
-import DashboardPage from './pages/affiliateDashboard/DashboardPage';
-import { DashboardPage as AdminDashboard } from './pages/adminDashboard';
-import { AffiliateApplicationPage } from './pages/affiliateOnboarding';
-import { ServicePage } from './pages/serviceSection';
-import Header from './pages/home/components/01_header';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+
+import AdminNavigationContainer from './components/shared/AdminNavigationContainer';
 import ErrorBoundary from './components/shared/ErrorBoundary';
 import NotFoundPage from './components/shared/NotFoundPage';
-import AdminNavigationContainer from './components/shared/AdminNavigationContainer';
-import { useScrollToTop } from './hooks/useScrollToTop';
-import { scrollRestoration } from './utils/scrollRestoration';
 import ProtectedRoute from './components/shared/ProtectedRoute';
+import { AffiliateProvider } from './contexts/AffiliateContext';
+import { AuthProvider } from './contexts/AuthContext';
+import { FAQProvider } from './contexts/FAQContext';
+import { LocationProvider } from './contexts/LocationContext';
+import { MDHConfigProvider } from './contexts/MDHConfigContext';
+import { useScrollToTop } from './hooks/useScrollToTop';
+import { DashboardPage as AdminDashboard } from './pages/adminDashboard';
+import DashboardPage from './pages/affiliateDashboard/DashboardPage';
+import { AffiliateApplicationPage } from './pages/affiliateOnboarding';
+import { HomePage } from './pages/home';
+import Header from './pages/home/components/01_header';
+import { ServicePage } from './pages/serviceSection';
 import { preloadCriticalModals } from './utils/modalCodeSplitting';
+import { scrollRestoration } from './utils/scrollRestoration';
 
 // Custom error boundary for lazy-loaded components (removed unused component)
 // const LazyComponentErrorBoundary: React.FC<{ children: React.ReactNode }> = ({ children }) => (
@@ -69,12 +70,13 @@ function App() {
   useEffect(() => {
     // Start preloading after app initializes
     const timer = setTimeout(() => {
-      preloadCriticalModals().catch(error => {
+      void preloadCriticalModals().catch((error: unknown) => {
         // Modal preloading failed
+        console.warn('Modal preloading failed:', error);
       });
     }, 1000);
 
-    return () => clearTimeout(timer);
+    return () => { clearTimeout(timer); };
   }, []);
 
   return (

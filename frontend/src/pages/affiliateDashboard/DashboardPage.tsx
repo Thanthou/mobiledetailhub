@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect,useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { DashboardLayout } from './components/DashboardLayout';
+
 import { DashboardHeader } from './components/DashboardHeader';
+import { DashboardLayout } from './components/DashboardLayout';
 import { DashboardTabs } from './components/DashboardTabs';
 import { TabContent } from './components/TabContent';
-import type { DetailerData, DashboardTab } from './types';
+import type { DashboardTab,DetailerData } from './types';
 
 
 
@@ -31,26 +32,36 @@ const DashboardPage: React.FC = () => {
         const response = await fetch(url, {
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token ?? ''}`
           }
         });
 
         if (response.ok) {
-          const data = await response.json();
+          const data = await response.json() as { success: boolean; affiliate?: unknown };
           if (data.success && data.affiliate) {
-            const affiliate = data.affiliate;
+            const affiliate = data.affiliate as {
+              business_name?: string;
+              first_name?: string;
+              last_name?: string;
+              owner?: string;
+              business_email?: string;
+              personal_email?: string;
+              phone?: string;
+              service_areas?: Array<{ city: string; state: string }>;
+              created_at?: string;
+            };
             // Transform affiliate data to DetailerData format
             const transformedData: DetailerData = {
               business_name: affiliate.business_name || 'Unknown Business',
-              first_name: affiliate.first_name || affiliate.owner?.split(' ')[0] || 'Unknown',
-              last_name: affiliate.last_name || affiliate.owner?.split(' ').slice(1).join(' ') || 'Unknown',
+              first_name: affiliate.first_name || (affiliate.owner ? affiliate.owner.split(' ')[0] : '') || 'Unknown',
+              last_name: affiliate.last_name || (affiliate.owner ? affiliate.owner.split(' ').slice(1).join(' ') : '') || 'Unknown',
               email: affiliate.business_email || affiliate.personal_email || 'No email',
               phone: affiliate.phone || 'No phone',
               location: affiliate.service_areas && Array.isArray(affiliate.service_areas) && affiliate.service_areas.length > 0 
-                ? `${affiliate.service_areas[0].city}, ${affiliate.service_areas[0].state}` 
+                ? `${affiliate.service_areas[0]?.city ?? ''}, ${affiliate.service_areas[0]?.state ?? ''}` 
                 : 'No location',
               services: affiliate.service_areas && Array.isArray(affiliate.service_areas) && affiliate.service_areas.length > 0 
-                ? affiliate.service_areas.map((area: any) => area.city).slice(0, 4)
+                ? affiliate.service_areas.map((area: { city: string }) => area.city).slice(0, 4)
                 : ['Mobile Detailing'],
               memberSince: affiliate.created_at ? new Date(affiliate.created_at).getFullYear().toString() : 'Unknown'
             };
@@ -61,14 +72,14 @@ const DashboardPage: React.FC = () => {
         } else {
           setError('Failed to fetch affiliate data');
         }
-      } catch (error) {
+      } catch {
         setError('Failed to fetch affiliate data');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchAffiliateData();
+    void fetchAffiliateData();
   }, [businessSlug]);
 
   const handleDataUpdate = (data: Partial<DetailerData>) => {

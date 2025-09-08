@@ -1,4 +1,5 @@
 import React from 'react';
+
 import type { Category } from '../types';
 
 interface CategorySelectorProps {
@@ -20,7 +21,7 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
         return (
           <button
             key={category.id}
-            onClick={() => onCategoryChange(category.id)}
+            onClick={() => { onCategoryChange(category.id); }}
               className={`w-full flex items-center space-x-3 p-3 mb-2 rounded-lg text-left transition-colors ${
               isSelected 
                 ? 'bg-blue-600 text-white' 

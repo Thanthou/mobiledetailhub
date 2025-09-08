@@ -1,7 +1,8 @@
+import { CheckCircle, Info } from 'lucide-react';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { CheckCircle, Info } from 'lucide-react';
-import { AffiliateApplication } from '../types';
+
+import type { AffiliateApplication } from '../types';
 
 interface SuccessPageProps {
   formData: AffiliateApplication;
@@ -43,7 +44,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ formData }) => {
           <div className="flex items-start">
             <Info className="h-4 w-4 text-blue-400 mr-2 mt-0.5" />
             <p className="text-gray-300 text-sm">
-              We'll review your application within 2-3 business days and contact you at {formData.email} with next steps.
+              We&rsquo;ll review your application within 2-3 business days and contact you at {formData.email} with next steps.
             </p>
           </div>
         </div>

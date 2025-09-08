@@ -1,6 +1,7 @@
+import { Star } from 'lucide-react';
+import { Check, Edit3, Plus,X } from 'lucide-react';
 import React, { useState } from 'react';
-import { Star, Crown, Diamond } from 'lucide-react';
-import { Check, X, Edit3, Plus } from 'lucide-react';
+
 import type { Service } from '../types';
 
 interface ServiceTierCardsProps {
@@ -27,7 +28,7 @@ export const ServiceTierCards: React.FC<ServiceTierCardsProps> = ({
   const [editingTier, setEditingTier] = useState<string | null>(null);
   const [editData, setEditData] = useState<Partial<ServiceTier>>({});
 
-  const getTierIcon = (tierName: string) => {
+  const getTierIcon = () => {
     // Use a more generic approach - could be enhanced with tier metadata later
     return Star;
   };
@@ -60,7 +61,7 @@ export const ServiceTierCards: React.FC<ServiceTierCardsProps> = ({
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {service.tiers.map((tier) => {
-        const TierIcon = getTierIcon(tier.name);
+        const TierIcon = getTierIcon();
 
         return (
           <div
@@ -70,7 +71,11 @@ export const ServiceTierCards: React.FC<ServiceTierCardsProps> = ({
                 ? 'border-orange-500 shadow-lg' 
                 : 'border-stone-700'
             }`}
-            onClick={() => !isEditing(tier.id) && startEditing(tier)}
+            onClick={() => {
+              if (!isEditing(tier.id)) {
+                startEditing(tier);
+              }
+            }}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
@@ -115,8 +120,8 @@ export const ServiceTierCards: React.FC<ServiceTierCardsProps> = ({
                   id={`tier-name-${tier.id}`}
                   name="tierName"
                   value={editData.name || ''}
-                  onChange={(e) => setEditData(prev => ({ ...prev, name: e.target.value }))}
-                  onClick={(e) => e.stopPropagation()}
+                  onChange={(e) => { setEditData(prev => ({ ...prev, name: e.target.value })); }}
+                  onClick={(e) => { e.stopPropagation(); }}
                   className="text-xl font-bold text-white mb-2 bg-stone-700 border border-stone-600 rounded px-2 py-1 text-center w-full focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
               ) : (
@@ -133,8 +138,8 @@ export const ServiceTierCards: React.FC<ServiceTierCardsProps> = ({
                     name="tierPrice"
                     step="0.01"
                     value={editData.price || ''}
-                    onChange={(e) => setEditData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
-                    onClick={(e) => e.stopPropagation()}
+                    onChange={(e) => { setEditData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 })); }}
+                    onClick={(e) => { e.stopPropagation(); }}
                     className="text-3xl font-bold text-white bg-stone-700 border border-stone-600 rounded px-2 py-1 text-center w-24 focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                 ) : (
@@ -154,8 +159,8 @@ export const ServiceTierCards: React.FC<ServiceTierCardsProps> = ({
                       min="0.5"
                       step="0.5"
                       value={editData.duration || ''}
-                      onChange={(e) => setEditData(prev => ({ ...prev, duration: parseFloat(e.target.value) || 0 }))}
-                      onClick={(e) => e.stopPropagation()}
+                      onChange={(e) => { setEditData(prev => ({ ...prev, duration: parseFloat(e.target.value) || 0 })); }}
+                      onClick={(e) => { e.stopPropagation(); }}
                       className="bg-stone-700 border border-stone-600 rounded px-2 py-1 text-center w-16 text-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
                     />
                     <span className="ml-1">hour{(editData.duration || 0) > 1 ? 's' : ''}</span>
@@ -174,7 +179,7 @@ export const ServiceTierCards: React.FC<ServiceTierCardsProps> = ({
                     <div className="flex items-center flex-1">
                       <input
                         type="text"
-                        id={`tier-feature-${tier.id}-${index}`}
+                        id={`tier-feature-${tier.id}-${String(index)}`}
                         name="tierFeature"
                         value={feature}
                         onChange={(e) => {
@@ -182,7 +187,7 @@ export const ServiceTierCards: React.FC<ServiceTierCardsProps> = ({
                           newFeatures[index] = e.target.value;
                           setEditData(prev => ({ ...prev, features: newFeatures }));
                         }}
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={(e) => { e.stopPropagation(); }}
                         className="flex-1 bg-stone-700 border border-stone-600 rounded px-2 py-1 text-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
                       />
                       <button

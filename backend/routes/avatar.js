@@ -6,6 +6,7 @@ const router = express.Router();
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 const { generateAvatarFilename, ensureUploadsDir } = require('../utils/avatarUtils');
 const { asyncHandler } = require('../middleware/errorHandler');
+const { validateFileMagic } = require('../utils/uploadValidator');
 const logger = require('../utils/logger');
 
 // Configure multer for avatar uploads
@@ -40,15 +41,31 @@ const upload = multer({
 
 // Test avatar upload (no auth required for testing)
 router.post('/test-upload', upload.single('avatar'), asyncHandler(async (req, res) => {
-  console.log('=== AVATAR TEST UPLOAD DEBUG ===');
-  console.log('Request body:', req.body);
-  console.log('Request file:', req.file);
-  
+  logger.debug('Avatar test upload called', { 
+    userId: req.user?.userId,
+    ip: req.ip
+  });
+
   if (!req.file) {
-    console.log('ERROR: No file uploaded');
+    logger.warn('Avatar test upload failed - no file provided', { 
+      userId: req.user?.userId,
+      ip: req.ip
+    });
     return res.status(400).json({
       success: false,
       message: 'No file uploaded'
+    });
+  }
+
+  // Magic number validation for avatar uploads
+  const allowedImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+  const magicValidation = await validateFileMagic(req.file, allowedImageTypes);
+  if (!magicValidation.success) {
+    // Delete the uploaded file if validation fails
+    fs.unlinkSync(req.file.path);
+    return res.status(magicValidation.statusCode).json({
+      success: false,
+      message: magicValidation.errors[0]?.message || 'File validation failed'
     });
   }
 
@@ -78,8 +95,7 @@ router.post('/test-upload', upload.single('avatar'), asyncHandler(async (req, re
       success: true,
       message: 'Avatar uploaded successfully (TEST MODE)',
       avatarUrl: avatarUrl,
-      filename: properFilename,
-      filePath: properPath
+      filename: properFilename
     });
   } catch (renameError) {
     // If rename fails, delete the original file and return error
@@ -94,16 +110,32 @@ router.post('/test-upload', upload.single('avatar'), asyncHandler(async (req, re
 
 // Upload avatar for a specific review
 router.post('/upload', authenticateToken, requireAdmin, upload.single('avatar'), asyncHandler(async (req, res) => {
-  console.log('=== AVATAR UPLOAD DEBUG ===');
-  console.log('Request body:', req.body);
-  console.log('Request file:', req.file);
-  console.log('User:', req.user);
-  
+  logger.debug('Avatar upload called', { 
+    userId: req.user?.userId,
+    email: req.user?.email,
+    ip: req.ip
+  });
+
   if (!req.file) {
-    console.log('ERROR: No file uploaded');
+    logger.warn('Avatar upload failed - no file provided', { 
+      userId: req.user?.userId,
+      ip: req.ip
+    });
     return res.status(400).json({
       success: false,
       message: 'No file uploaded'
+    });
+  }
+
+  // Magic number validation for avatar uploads
+  const allowedImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+  const magicValidation = await validateFileMagic(req.file, allowedImageTypes);
+  if (!magicValidation.success) {
+    // Delete the uploaded file if validation fails
+    fs.unlinkSync(req.file.path);
+    return res.status(magicValidation.statusCode).json({
+      success: false,
+      message: magicValidation.errors[0]?.message || 'File validation failed'
     });
   }
 

@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Play, Pause, Volume2, VolumeX } from 'lucide-react';
+import { Pause, Play, Volume2, VolumeX } from 'lucide-react';
+import React, { useEffect,useRef, useState } from 'react';
 
 interface LazyVideoProps {
   src: string;
@@ -43,7 +43,7 @@ const LazyVideo: React.FC<LazyVideoProps> = ({
       if (isPlaying) {
         videoRef.current.pause();
       } else {
-        videoRef.current.play();
+        void videoRef.current.play();
       }
       setIsPlaying(!isPlaying);
     }
@@ -82,8 +82,8 @@ const LazyVideo: React.FC<LazyVideoProps> = ({
         className="w-full h-full object-cover"
         onLoadedData={handleLoad}
         onError={handleError}
-        onPlay={() => setIsPlaying(true)}
-        onPause={() => setIsPlaying(false)}
+        onPlay={() => { setIsPlaying(true); }}
+        onPause={() => { setIsPlaying(false); }}
         autoPlay={autoPlay}
         muted={muted}
         loop={loop}

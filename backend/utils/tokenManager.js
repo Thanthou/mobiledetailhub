@@ -6,6 +6,7 @@
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const logger = require('./logger');
+const { env } = require('../src/shared/env');
 
 /**
  * Token configuration
@@ -29,15 +30,23 @@ const TOKEN_CONFIG = {
  * @returns {string} JWT access token
  */
 const generateAccessToken = (payload) => {
-  if (!process.env.JWT_SECRET) {
+  if (!env.JWT_SECRET) {
     throw new Error('JWT_SECRET environment variable not configured');
   }
 
-  return jwt.sign(payload, process.env.JWT_SECRET, {
+  // Generate unique JWT ID for blacklist accuracy
+  const jwtid = crypto.randomUUID();
+  
+  // Use jwtid option instead of adding jti to payload to avoid conflict
+  return jwt.sign(payload, env.JWT_SECRET, {
     expiresIn: TOKEN_CONFIG.ACCESS_TOKEN.expiresIn,
     algorithm: TOKEN_CONFIG.ACCESS_TOKEN.algorithm,
     issuer: 'mdh-backend',
-    audience: 'mdh-users'
+    audience: 'mdh-users',
+    jwtid: jwtid,
+    header: { 
+      kid: env.JWT_KID || 'primary' // Key ID for future key rotation
+    }
   });
 };
 
@@ -48,16 +57,24 @@ const generateAccessToken = (payload) => {
  */
 const generateRefreshToken = (payload) => {
   // Use JWT_SECRET if JWT_REFRESH_SECRET is not available
-  const secret = process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET;
+  const secret = env.JWT_REFRESH_SECRET || env.JWT_SECRET;
   if (!secret) {
     throw new Error('JWT_SECRET environment variable not configured');
   }
 
+  // Generate unique JWT ID for refresh token tracking
+  const jwtid = crypto.randomUUID();
+  
+  // Use jwtid option instead of adding jti to payload to avoid conflict
   return jwt.sign(payload, secret, {
     expiresIn: TOKEN_CONFIG.REFRESH_TOKEN.expiresIn,
     algorithm: TOKEN_CONFIG.REFRESH_TOKEN.algorithm,
     issuer: 'mdh-backend',
-    audience: 'mdh-users'
+    audience: 'mdh-users',
+    jwtid: jwtid,
+    header: { 
+      kid: env.JWT_KID || 'primary' // Key ID for future key rotation
+    }
   });
 };
 
@@ -87,12 +104,12 @@ const generateSecureRefreshToken = (userId) => {
  * @returns {Object} Decoded token payload
  */
 const verifyAccessToken = (token) => {
-  if (!process.env.JWT_SECRET) {
+  if (!env.JWT_SECRET) {
     throw new Error('JWT_SECRET environment variable not configured');
   }
 
   try {
-    return jwt.verify(token, process.env.JWT_SECRET, {
+    return jwt.verify(token, env.JWT_SECRET, {
       algorithms: [TOKEN_CONFIG.ACCESS_TOKEN.algorithm],
       issuer: 'mdh-backend',
       audience: 'mdh-users'
@@ -115,7 +132,7 @@ const verifyAccessToken = (token) => {
  */
 const verifyRefreshToken = (token) => {
   // Use JWT_SECRET if JWT_REFRESH_SECRET is not available
-  const secret = process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET;
+  const secret = env.JWT_REFRESH_SECRET || env.JWT_SECRET;
   if (!secret) {
     throw new Error('JWT_SECRET environment variable not configured');
   }
@@ -218,11 +235,24 @@ const blacklistToken = (token, expiresIn = 900) => { // Default 15 minutes
   const decoded = decodeToken(token);
   if (decoded && decoded.exp) {
     const ttl = Math.max(0, decoded.exp - Math.floor(Date.now() / 1000));
+    
+    // Store both the full token and its JTI for more efficient lookups
     global.tokenBlacklist.set(token, Date.now() + (ttl * 1000));
+    
+    // Also store by JTI for more efficient revocation by JTI
+    if (decoded.jti) {
+      if (!global.tokenBlacklistByJTI) {
+        global.tokenBlacklistByJTI = new Map();
+      }
+      global.tokenBlacklistByJTI.set(decoded.jti, Date.now() + (ttl * 1000));
+    }
     
     // Clean up expired entries
     setTimeout(() => {
       global.tokenBlacklist.delete(token);
+      if (decoded.jti && global.tokenBlacklistByJTI) {
+        global.tokenBlacklistByJTI.delete(decoded.jti);
+      }
     }, ttl * 1000);
   }
 };
@@ -234,19 +264,61 @@ const blacklistToken = (token, expiresIn = 900) => { // Default 15 minutes
  */
 const isTokenBlacklisted = (token) => {
   if (!global.tokenBlacklist) return false;
-  return global.tokenBlacklist.has(token);
+  
+  // Check by full token first
+  if (global.tokenBlacklist.has(token)) return true;
+  
+  // Also check by JTI for more efficient lookups
+  const decoded = decodeToken(token);
+  if (decoded && decoded.jti && global.tokenBlacklistByJTI) {
+    return global.tokenBlacklistByJTI.has(decoded.jti);
+  }
+  
+  return false;
+};
+
+/**
+ * Blacklist token by JTI (JWT ID) for efficient revocation
+ * @param {string} jti - JWT ID to blacklist
+ * @param {number} expiresIn - Time in seconds until token expires
+ */
+const blacklistTokenByJTI = (jti, expiresIn = 900) => {
+  if (!global.tokenBlacklistByJTI) {
+    global.tokenBlacklistByJTI = new Map();
+  }
+  
+  const ttl = Math.max(0, expiresIn);
+  global.tokenBlacklistByJTI.set(jti, Date.now() + (ttl * 1000));
+  
+  // Clean up expired entry
+  setTimeout(() => {
+    if (global.tokenBlacklistByJTI) {
+      global.tokenBlacklistByJTI.delete(jti);
+    }
+  }, ttl * 1000);
 };
 
 /**
  * Clear expired blacklist entries
  */
 const cleanupBlacklist = () => {
-  if (!global.tokenBlacklist) return;
-  
   const now = Date.now();
-  for (const [token, expiresAt] of global.tokenBlacklist.entries()) {
-    if (now >= expiresAt) {
-      global.tokenBlacklist.delete(token);
+  
+  // Clean up main token blacklist
+  if (global.tokenBlacklist) {
+    for (const [token, expiresAt] of global.tokenBlacklist.entries()) {
+      if (now >= expiresAt) {
+        global.tokenBlacklist.delete(token);
+      }
+    }
+  }
+  
+  // Clean up JTI-based blacklist
+  if (global.tokenBlacklistByJTI) {
+    for (const [jti, expiresAt] of global.tokenBlacklistByJTI.entries()) {
+      if (now >= expiresAt) {
+        global.tokenBlacklistByJTI.delete(jti);
+      }
     }
   }
 };
@@ -267,6 +339,7 @@ module.exports = {
   getTimeUntilExpiration,
   generateTokenPair,
   blacklistToken,
+  blacklistTokenByJTI,
   isTokenBlacklisted,
   cleanupBlacklist
 };

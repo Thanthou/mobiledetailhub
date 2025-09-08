@@ -1,6 +1,7 @@
 import React from 'react';
-import DevNavigation from './DevNavigation';
+
 import AffiliateNavigation from './AffiliateNavigation';
+import DevNavigation from './DevNavigation';
 
 const AdminNavigationContainer: React.FC = () => {
   return (

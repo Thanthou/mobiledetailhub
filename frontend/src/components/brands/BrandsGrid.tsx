@@ -1,4 +1,5 @@
 import React from 'react';
+
 import BrandItem from './BrandItem';
 
 interface BrandData {

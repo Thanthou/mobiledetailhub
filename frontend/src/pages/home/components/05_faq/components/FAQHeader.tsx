@@ -1,5 +1,5 @@
-import React from 'react';
 import { ChevronUp } from 'lucide-react';
+import React from 'react';
 
 interface FAQHeaderProps {
   servicesLine: string;

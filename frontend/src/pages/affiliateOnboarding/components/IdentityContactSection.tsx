@@ -1,12 +1,13 @@
-import React, { useState, useRef } from 'react';
-import { User, Info } from 'lucide-react';
-import { AffiliateApplication, US_STATES } from '../types';
+import { Info,User } from 'lucide-react';
+import React, { useRef } from 'react';
+
 import { formatPhoneNumberAsTyped, isCompletePhoneNumber } from '../../../utils/fields/phoneFormatter';
+import type { AffiliateApplication } from '../types';
 import LocationInput from './LocationInput';
 
 interface IdentityContactSectionProps {
   formData: AffiliateApplication;
-  handleInputChange: (field: string, value: any) => void;
+  handleInputChange: (field: string, value: string | boolean) => void;
 }
 
 const IdentityContactSection: React.FC<IdentityContactSectionProps> = ({
@@ -71,7 +72,7 @@ const IdentityContactSection: React.FC<IdentityContactSectionProps> = ({
             name="legal_name"
             type="text"
             value={formData.legal_name}
-            onChange={(e) => handleInputChange('legal_name', e.target.value)}
+            onChange={(e) => { handleInputChange('legal_name', e.target.value); }}
             className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
             placeholder="e.g., John's Mobile Detailing LLC"
             autoComplete="organization"
@@ -88,7 +89,7 @@ const IdentityContactSection: React.FC<IdentityContactSectionProps> = ({
             name="primary_contact"
             type="text"
             value={formData.primary_contact}
-            onChange={(e) => handleInputChange('primary_contact', e.target.value)}
+            onChange={(e) => { handleInputChange('primary_contact', e.target.value); }}
             className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
             placeholder="e.g., John Smith"
             autoComplete="name"
@@ -142,7 +143,7 @@ const IdentityContactSection: React.FC<IdentityContactSectionProps> = ({
               name="email"
               type="email"
               value={formData.email}
-              onChange={(e) => handleInputChange('email', e.target.value)}
+              onChange={(e) => { handleInputChange('email', e.target.value); }}
               className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
               placeholder="john@example.com"
               autoComplete="email"

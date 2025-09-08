@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useAuth } from '../../../../../contexts/AuthContext';
 
 export interface AffiliateData {
   city: string;
@@ -10,12 +9,25 @@ export interface AffiliateData {
   multiplier?: number;
 }
 
+interface ApiResponse<T = unknown> {
+  success: boolean;
+  affiliate?: T;
+  error?: string;
+}
+
+interface AffiliateApiData {
+  city: string | null;
+  state: string | null;
+  zip: string | null;
+  minimum: number | null;
+  multiplier: number | null;
+}
+
 export const useAffiliateData = () => {
   const [affiliateData, setAffiliateData] = useState<AffiliateData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  const { user } = useAuth();
   const { businessSlug } = useParams<{ businessSlug: string }>();
 
   useEffect(() => {
@@ -35,21 +47,21 @@ export const useAffiliateData = () => {
         // Fetch affiliate data from the database
         const response = await fetch(`/api/affiliates/${businessSlug}`, {
           headers: {
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `Bearer ${token ?? ''}`,
             'Content-Type': 'application/json'
           }
         });
 
         if (response.ok) {
-          const data = await response.json();
+          const data = await response.json() as ApiResponse<AffiliateApiData>;
           if (data.success && data.affiliate) {
             const affiliate = data.affiliate;
             setAffiliateData({
-              city: affiliate.city || '',
-              state: affiliate.state || '',
-              zip: affiliate.zip || '',
-              minimum: affiliate.minimum || 0,
-              multiplier: affiliate.multiplier || 1.0
+              city: affiliate.city ?? '',
+              state: affiliate.state ?? '',
+              zip: affiliate.zip ?? '',
+              minimum: affiliate.minimum ?? 0,
+              multiplier: affiliate.multiplier ?? 1.0
             });
           } else {
             setError('Affiliate not found');
@@ -65,7 +77,7 @@ export const useAffiliateData = () => {
       }
     };
 
-    fetchAffiliateData();
+    void fetchAffiliateData();
   }, [businessSlug]);
 
   const updateAffiliateData = async (updates: Partial<AffiliateData>) => {
@@ -90,49 +102,49 @@ export const useAffiliateData = () => {
           multiplier: updates.multiplier !== undefined ? updates.multiplier : affiliateData?.multiplier || 1.0
         };
         
-        const response = await fetch(`/api/affiliates/${businessSlug}/service_areas/primary`, {
+        const response = await fetch(`/api/affiliates/${businessSlug ?? ''}/service_areas/primary`, {
           method: 'PUT',
           headers: {
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `Bearer ${token ?? ''}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify(updateData)
         });
 
         if (response.ok) {
-          const result = await response.json();
+          const result = await response.json() as ApiResponse;
           if (result.success) {
             setAffiliateData(prev => prev ? { ...prev, ...updates } : null);
             return { success: true };
           } else {
-            return { success: false, error: result.error || 'Failed to update primary service area' };
+            return { success: false, error: result.error ?? 'Failed to update primary service area' };
           }
         } else {
-          const errorData = await response.json();
-          return { success: false, error: errorData.error || 'Failed to update primary service area' };
+          const errorData = await response.json() as ApiResponse;
+          return { success: false, error: errorData.error ?? 'Failed to update primary service area' };
         }
       } else {
         // Update other affiliate data (non-service area fields)
-        const response = await fetch(`/api/affiliates/${businessSlug}`, {
+        const response = await fetch(`/api/affiliates/${businessSlug ?? ''}`, {
           method: 'PUT',
           headers: {
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `Bearer ${token ?? ''}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify(updates)
         });
 
         if (response.ok) {
-          const result = await response.json();
+          const result = await response.json() as ApiResponse;
           if (result.success) {
             setAffiliateData(prev => prev ? { ...prev, ...updates } : null);
             return { success: true };
           } else {
-            return { success: false, error: result.error || 'Failed to update affiliate data' };
+            return { success: false, error: result.error ?? 'Failed to update affiliate data' };
           }
         } else {
-          const errorData = await response.json();
-          return { success: false, error: errorData.error || 'Failed to update affiliate data' };
+          const errorData = await response.json() as ApiResponse;
+          return { success: false, error: errorData.error ?? 'Failed to update affiliate data' };
         }
       }
     } catch (error) {

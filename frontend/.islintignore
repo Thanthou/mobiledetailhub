@@ -1,0 +1,8 @@
+(
+echo node_modules
+echo dist
+echo build
+echo .next
+echo coverage
+echo *.d.ts
+) > .eslintignore

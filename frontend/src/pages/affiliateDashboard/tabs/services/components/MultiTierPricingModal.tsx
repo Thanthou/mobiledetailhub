@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { X, Plus, Edit2, Save, Trash2 } from 'lucide-react';
+import { Edit2, Plus, Save, Trash2,X } from 'lucide-react';
+import React, { useEffect,useRef, useState } from 'react';
 
 interface Tier {
   id: string;
@@ -45,7 +45,7 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
     const serviceNameChanged = prevInitialServiceNameRef.current !== initialServiceName;
     
     if (tiersChanged) {
-      if (initialTiers && initialTiers.length > 0) {
+      if (initialTiers.length > 0) {
         setTiers(initialTiers);
       } else {
         setTiers([createDefaultTier()]);
@@ -64,7 +64,7 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
 
   function createDefaultTier(): Tier {
     return {
-      id: `tier-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: `tier-${Date.now().toString()}-${Math.random().toString(36).substring(2, 11)}`,
       name: '',
       price: 0,
       duration: 60,
@@ -114,13 +114,13 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
     setEditingTier(null);
   };
 
-  const updateEditingTier = (field: keyof Tier, value: any) => {
+  const updateEditingTier = (field: keyof Tier, value: string | number | boolean | string[]) => {
     if (editingTier) {
       setEditingTier({ ...editingTier, [field]: value });
     }
   };
 
-  const addFeature = (tierId: string) => {
+  const addFeature = () => {
     if (editingTier) {
       setEditingTier({
         ...editingTier,
@@ -129,7 +129,7 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
     }
   };
 
-  const removeFeature = (tierId: string, featureIndex: number) => {
+  const removeFeature = (featureIndex: number) => {
     if (editingTier) {
       setEditingTier({
         ...editingTier,
@@ -138,7 +138,7 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
     }
   };
 
-  const updateFeature = (tierId: string, featureIndex: number, value: string) => {
+  const updateFeature = (featureIndex: number, value: string) => {
     if (editingTier) {
       setEditingTier({
         ...editingTier,
@@ -204,13 +204,14 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
           
           {/* Service Name */}
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label htmlFor="service-name" className="block text-sm font-medium text-gray-300 mb-2">
               Service Name
             </label>
             <input
+              id="service-name"
               type="text"
               value={serviceName}
-              onChange={(e) => setServiceName(e.target.value)}
+              onChange={(e) => { setServiceName(e.target.value); }}
               className="w-full bg-gray-600 border border-gray-500 rounded px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="e.g., Premium Auto Detail, Basic Wash, etc."
             />
@@ -268,7 +269,7 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
                         </>
                       ) : (
                         <button
-                          onClick={() => startEditing(tier)}
+                          onClick={() => { startEditing(tier); }}
                           className="text-blue-400 hover:text-blue-300 transition-colors"
                           title="Edit"
                         >
@@ -277,7 +278,7 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
                       )}
                       {tiers.length > 1 && (
                         <button
-                          onClick={() => removeTier(tier.id)}
+                          onClick={() => { removeTier(tier.id); }}
                           className="text-red-400 hover:text-red-300 transition-colors"
                           title="Remove Tier"
                         >
@@ -292,13 +293,14 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
                     <div className="space-y-3">
                       {/* Tier Name */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-1">
+                        <label htmlFor={`tier-name-${tier.id}`} className="block text-sm font-medium text-gray-300 mb-1">
                           Tier Name
                         </label>
                         <input
+                          id={`tier-name-${tier.id}`}
                           type="text"
                           value={editingTier.name}
-                          onChange={(e) => updateEditingTier('name', e.target.value)}
+                          onChange={(e) => { updateEditingTier('name', e.target.value); }}
                           className="w-full bg-gray-600 border border-gray-500 rounded px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                           placeholder="e.g., Basic, Premium, Ultimate"
                         />
@@ -306,10 +308,11 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
 
                       {/* Price */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-1">
+                        <label htmlFor={`tier-price-${tier.id}`} className="block text-sm font-medium text-gray-300 mb-1">
                           Price ($)
                         </label>
                         <input
+                          id={`tier-price-${tier.id}`}
                           type="text"
                           value={editingTier.price}
                           onChange={(e) => {
@@ -327,10 +330,11 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
 
                       {/* Duration */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-1">
+                        <label htmlFor={`tier-duration-${tier.id}`} className="block text-sm font-medium text-gray-300 mb-1">
                           Duration (minutes)
                         </label>
                         <input
+                          id={`tier-duration-${tier.id}`}
                           type="text"
                           value={editingTier.duration}
                           onChange={(e) => {
@@ -348,7 +352,7 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
 
                       {/* Features */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-1">
+                        <label htmlFor={`tier-features-${tier.id}`} className="block text-sm font-medium text-gray-300 mb-1">
                           Features
                         </label>
                         <div className="space-y-2">
@@ -357,13 +361,13 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
                               <input
                                 type="text"
                                 value={feature}
-                                onChange={(e) => updateFeature(editingTier.id, featureIndex, e.target.value)}
+                                onChange={(e) => { updateFeature(featureIndex, e.target.value); }}
                                 className="flex-1 bg-gray-600 border border-gray-500 rounded px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter feature description"
                               />
                               {editingTier.features.length > 1 && (
                                 <button
-                                  onClick={() => removeFeature(editingTier.id, featureIndex)}
+                                  onClick={() => { removeFeature(featureIndex); }}
                                   className="text-red-400 hover:text-red-300 transition-colors px-2"
                                 >
                                   <Trash2 className="h-4 w-4" />
@@ -372,7 +376,7 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
                             </div>
                           ))}
                           <button
-                            onClick={() => addFeature(editingTier.id)}
+                            onClick={addFeature}
                             className="text-blue-400 hover:text-blue-300 transition-colors text-sm flex items-center gap-1"
                           >
                             <Plus className="h-3 w-3" />
@@ -387,7 +391,7 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
                           <input
                             type="checkbox"
                             checked={editingTier.enabled}
-                            onChange={(e) => updateEditingTier('enabled', e.target.checked)}
+                            onChange={(e) => { updateEditingTier('enabled', e.target.checked); }}
                             className="rounded border-gray-500 text-blue-500 focus:ring-blue-500"
                           />
                           <span className="text-sm text-gray-300">Enabled</span>
@@ -396,7 +400,7 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
                           <input
                             type="checkbox"
                             checked={editingTier.popular}
-                            onChange={(e) => updateEditingTier('popular', e.target.checked)}
+                            onChange={(e) => { updateEditingTier('popular', e.target.checked); }}
                             className="rounded border-gray-500 text-blue-500 focus:ring-blue-500"
                           />
                           <span className="text-sm text-gray-300">Popular</span>
@@ -408,7 +412,7 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
                       {/* Display Mode */}
                       <div>
                         <h4 className="font-medium text-white mb-2">
-                          {tier.name || `Tier ${index + 1}`}
+                          {tier.name || `Tier ${(index + 1).toString()}`}
                         </h4>
                         <div className="text-2xl font-bold text-green-400">
                           ${tier.price.toFixed(2)}
@@ -419,7 +423,7 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
                       </div>
 
                       {/* Features */}
-                      {tier.features && tier.features.length > 0 && tier.features.some(f => f && f.trim() !== '') && (
+                      {tier.features.length > 0 && tier.features.some(f => f && f.trim() !== '') && (
                         <div>
                           <h5 className="text-sm font-medium text-gray-300 mb-2">Features:</h5>
                           <ul className="space-y-1">

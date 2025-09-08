@@ -1,8 +1,9 @@
+import { Calendar, ExternalLink, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import { X, Star, Calendar, ExternalLink } from 'lucide-react';
-import { Review } from './types';
-import { StarRating } from './StarRating';
+
 import { ReviewSourceIcon } from './ReviewSourceIcon';
+import { StarRating } from './StarRating';
+import type { Review } from './types';
 
 interface ReviewModalProps {
   review: Review;
@@ -56,16 +57,27 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
       <div 
         className="absolute inset-0 bg-black bg-opacity-75 backdrop-blur-sm transition-opacity"
         onClick={handleClose}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleClose();
+          }
+        }}
+        role="button"
+        tabIndex={0}
+        aria-label="Close modal"
       />
       
       {/* Modal */}
       <div 
         className="relative w-full max-w-2xl max-h-[90vh] overflow-hidden rounded-2xl bg-stone-900 text-left shadow-2xl transform transition-all animate-in fade-in-0 zoom-in-95 duration-300"
-        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-stone-600 px-6 py-4">
-          <h3 className="text-xl font-semibold text-white">Review Details</h3>
+          <h3 id="modal-title" className="text-xl font-semibold text-white">Review Details</h3>
           <button
             onClick={handleClose}
             className="rounded-lg p-2 text-stone-400 hover:bg-stone-700 hover:text-white transition-colors"
@@ -92,7 +104,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                     src={review.profileImage} 
                     alt={review.customerName}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                    onError={() => setImageError(true)}
+                    onError={() => { setImageError(true); }}
                   />
                 ) : (
                   review.customerName.charAt(0).toUpperCase()
@@ -105,7 +117,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                     src={review.profileImage} 
                     alt={review.customerName}
                     className="w-full h-full object-cover"
-                    onError={() => setImageError(true)}
+                    onError={() => { setImageError(true); }}
                   />
                 ) : (
                   review.customerName.charAt(0).toUpperCase()
@@ -174,7 +186,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
           {/* Full Review Text */}
           <div className="mb-6">
             <p className="text-gray-300 leading-relaxed text-base">
-              "{review.reviewText}"
+              &ldquo;{review.reviewText}&rdquo;
             </p>
           </div>
 

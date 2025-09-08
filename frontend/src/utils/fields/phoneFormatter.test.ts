@@ -3,7 +3,7 @@
  * This file demonstrates how the phone formatter works with various inputs
  */
 
-import { formatPhoneNumber, isCompletePhoneNumber, getPhoneDigits } from './phoneFormatter';
+import { formatPhoneNumber, getPhoneDigits,isCompletePhoneNumber } from './phoneFormatter';
 
 // Test examples - you can run these in the browser console to see how they work
 export const testExamples = [
@@ -41,7 +41,14 @@ export function runPhoneFormatterTests() {
     const digits = getPhoneDigits(input);
     
     if (import.meta.env.DEV) {
-      // Test results logged
+      console.log(`Test ${(index + 1).toString()}:`, {
+        input,
+        expected,
+        result,
+        isComplete,
+        digits,
+        passed: result === expected
+      });
     }
   });
   

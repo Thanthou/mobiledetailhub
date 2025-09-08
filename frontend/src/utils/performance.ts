@@ -37,7 +37,7 @@ class PerformanceMonitor {
 
     if (type === 'load') {
       existing.componentLoadTime = duration;
-    } else if (type === 'prefetch') {
+    } else {
       existing.prefetchTime = duration;
     }
 
@@ -79,10 +79,10 @@ export const performanceMonitor = new PerformanceMonitor();
  * Hook for monitoring component performance
  */
 export const usePerformanceMonitor = (componentName: string) => {
-  const startLoad = () => performanceMonitor.startTiming(componentName);
-  const endLoad = () => performanceMonitor.endTiming(componentName, 'load');
-  const startPrefetch = () => performanceMonitor.startTiming(componentName);
-  const endPrefetch = () => performanceMonitor.endTiming(componentName, 'prefetch');
+  const startLoad = () => { performanceMonitor.startTiming(componentName); };
+  const endLoad = () => { performanceMonitor.endTiming(componentName, 'load'); };
+  const startPrefetch = () => { performanceMonitor.startTiming(componentName); };
+  const endPrefetch = () => { performanceMonitor.endTiming(componentName, 'prefetch'); };
 
   return {
     startLoad,

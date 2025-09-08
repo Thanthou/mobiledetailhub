@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { StarRating } from './StarRating';
-import { ReviewSourceIcon } from './ReviewSourceIcon';
-import { ReviewCardProps, Review } from './types';
+
 import { useReviewVote } from './hooks/useReviews';
+import { ReviewSourceIcon } from './ReviewSourceIcon';
+import { StarRating } from './StarRating';
+import type { ReviewCardProps } from './types';
 
 export const ReviewCard: React.FC<ReviewCardProps> = ({ 
   review, 
@@ -51,6 +52,15 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({
         e.stopPropagation();
         onReviewClick?.(review);
       }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          e.stopPropagation();
+          onReviewClick?.(review);
+        }
+      }}
+      role="button"
+      tabIndex={0}
     >
       {/* This Week badge */}
       {isThisWeek() && (
@@ -69,7 +79,7 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({
                 src={review.profileImage} 
                 alt={review.customerName}
                 className="w-full h-full object-cover"
-                onError={() => setImageError(true)}
+                onError={() => { setImageError(true); }}
               />
             ) : (
               review.customerName.charAt(0).toUpperCase()
@@ -109,14 +119,22 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({
 
       {/* Review text */}
       <p className="text-gray-300 leading-relaxed mb-4">
-        "{truncatedText}"
+        &quot;{truncatedText}&quot;
       </p>
 
       {/* Voting section */}
       {showVoting && (review.helpfulVotes !== undefined || review.totalVotes !== undefined) && (
         <div 
           className="mb-4 p-3 bg-stone-700/50 rounded-lg"
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e) => { e.stopPropagation(); }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              e.stopPropagation();
+            }
+          }}
+          role="button"
+          tabIndex={0}
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-stone-300 text-sm">Was this review helpful?</span>
@@ -128,7 +146,7 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                handleVote('helpful');
+                void handleVote('helpful');
               }}
               disabled={hasVoted || votingLoading}
               className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
@@ -144,7 +162,7 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                handleVote('not_helpful');
+                void handleVote('not_helpful');
               }}
               disabled={hasVoted || votingLoading}
               className={`px-3 py-1 rounded text-xs font-medium transition-colors ${

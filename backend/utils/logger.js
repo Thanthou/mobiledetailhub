@@ -1,8 +1,9 @@
 const winston = require('winston');
+const { env } = require('../src/shared/env');
 
 // Create Winston logger with different configurations for different environments
 const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL || 'info',
+  level: env.LOG_LEVEL || 'info',
   format: winston.format.combine(
     winston.format.timestamp({
       format: 'YYYY-MM-DD HH:mm:ss'
@@ -15,7 +16,7 @@ const logger = winston.createLogger({
 });
 
 // Add console transport for development
-if (process.env.NODE_ENV !== 'production') {
+if (env.NODE_ENV !== 'production') {
   logger.add(new winston.transports.Console({
     format: winston.format.combine(
       winston.format.colorize(),
@@ -40,24 +41,24 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // Add file transport for production if LOG_FILE is specified
-if (process.env.NODE_ENV === 'production' && process.env.LOG_FILE) {
+if (env.NODE_ENV === 'production' && env.LOG_FILE) {
   logger.add(new winston.transports.File({
-    filename: process.env.LOG_FILE,
+    filename: env.LOG_FILE,
     level: 'info'
   }));
   
   // Separate error log file
   logger.add(new winston.transports.File({
-    filename: process.env.LOG_FILE.replace('.log', '.error.log'),
+    filename: env.LOG_FILE.replace('.log', '.error.log'),
     level: 'error'
   }));
 }
 
 // Set log level based on environment
-if (process.env.NODE_ENV === 'production') {
-  logger.level = process.env.LOG_LEVEL || 'warn';
+if (env.NODE_ENV === 'production') {
+  logger.level = env.LOG_LEVEL || 'warn';
 } else {
-  logger.level = process.env.LOG_LEVEL || 'debug';
+  logger.level = env.LOG_LEVEL || 'debug';
 }
 
 // Create a wrapper that maintains the existing API

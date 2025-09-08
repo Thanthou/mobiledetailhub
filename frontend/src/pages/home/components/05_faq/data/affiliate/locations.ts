@@ -1,24 +1,20 @@
-import { FAQItem } from '../../types';
+import type { FAQItem } from '../../types';
+import { getGeoParts } from '../../utils/geoHelpers';
 
-// Helper function for geo parts
-function getGeoParts(cfg: any) {
-  const business = cfg?.business ?? {};
-  const serviceLocations: string[] = cfg?.serviceLocations ?? [];
-  
-  const city = business.city || business.locality || "Your City";
-  const state = business.state || business.region || "Your State";
-  const address = business.address || `${city}, ${state}`;
-  
-  const primaryArea = address;
-  const nearbyList = serviceLocations?.length
-    ? serviceLocations.slice(0, 7).join(", ")
-    : `${city}, ${state}`;
-  const cityState = `${city}, ${state}`;
-
-  return { primaryArea, nearbyList, cityState };
+interface GeoConfig {
+  business?: {
+    city?: string;
+    locality?: string;
+    state?: string;
+    region?: string;
+    zip?: string;
+    postalCode?: string;
+    address?: string;
+  };
+  serviceLocations?: string[];
 }
 
-export const AFFILIATE_FAQ_LOCATIONS = (cfg: any): FAQItem[] => {
+export const AFFILIATE_FAQ_LOCATIONS = (cfg: GeoConfig): FAQItem[] => {
   const { primaryArea, nearbyList, cityState } = getGeoParts(cfg);
   return [
     {

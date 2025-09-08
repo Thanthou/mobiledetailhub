@@ -1,9 +1,10 @@
 import React from "react";
+
+import { CTAButton } from "../../../components/Book_Quote";
 import type { SectionProps } from "../types/service";
 import { SECTION_IDS } from "../utils/sectionIds";
-import { CTAButton } from "../../../components/Book_Quote";
 
-const Hero: React.FC<SectionProps> = ({ id = SECTION_IDS.HERO, onBook, onQuote, bookLabel = "Book", quoteLabel = "Quote", className, serviceData, onQuoteHover }) => {
+const Hero: React.FC<SectionProps> = ({ id = SECTION_IDS.HERO, onBook, onQuote, className, serviceData, onQuoteHover }) => {
   return (
     <section id={id} className={`bg-stone-900 py-16 sm:py-24 ${className ?? ""}`}>
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid gap-8 lg:grid-cols-[3fr_2fr] items-center">

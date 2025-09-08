@@ -1,7 +1,8 @@
-import React from 'react';
 import { AlertCircle } from 'lucide-react';
-import { useProfileData } from './hooks/useProfileData';
+import React from 'react';
+
 import { ProfileForm } from './components/ProfileForm';
+import { useProfileData } from './hooks/useProfileData';
 
 const ProfileTab: React.FC = () => {
   const {

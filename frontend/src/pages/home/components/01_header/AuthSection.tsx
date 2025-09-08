@@ -1,10 +1,12 @@
 import React from 'react';
-import { useAuth } from '../../../contexts/AuthContext';
-import UserMenu from './UserMenu';
+
+import { useAuth } from '../../../contexts/useAuth';
 import LoginButton from './LoginButton';
+import UserMenu from './UserMenu';
 
 const AuthSection: React.FC = () => {
-  const { isLoggedIn } = useAuth();
+  const authContext = useAuth();
+  const isLoggedIn = authContext?.isLoggedIn ?? false;
 
   return (
     <div className="flex items-center">

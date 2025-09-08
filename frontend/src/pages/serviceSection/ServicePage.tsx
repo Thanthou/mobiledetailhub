@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { Hero, WhatItIs, Process, Results, Information, Action } from ".";
-import { useServiceData } from "./hooks/useServiceData";
-import { LazyQuoteModal, prefetchQuoteModal, BookingModal } from "../../components/Book_Quote";
+
+import { BookingModal,LazyQuoteModal, prefetchQuoteModal } from "../../components/Book_Quote";
 import Header from "../home/components/01_header";
+import { Action,Hero, Information, Process, Results, WhatItIs } from ".";
+import { useServiceData } from "./hooks/useServiceData";
 
 const ServicePage: React.FC = () => {
   const serviceData = useServiceData();
@@ -29,8 +30,8 @@ const ServicePage: React.FC = () => {
   };
 
   // Prefetch handler for better performance
-  const handleQuoteModalPrefetch = () => {
-    prefetchQuoteModal();
+  const handleQuoteModalPrefetch = (): void => {
+    void prefetchQuoteModal();
   };
 
   if (!serviceData) {

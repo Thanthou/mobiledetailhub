@@ -1,22 +1,64 @@
-import React, { useState, useRef, useEffect } from 'react';
-import ReactDOM from 'react-dom';
 import { MapPin, Search, X } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import ReactDOM from 'react-dom';
+
+// Google Maps API types
+interface GoogleMapsWindow extends Window {
+  google: {
+    maps: {
+      importLibrary: (library: string) => Promise<google.maps.PlacesLibrary>;
+    };
+  };
+}
+
+interface AutocompleteSuggestion {
+  placePrediction: {
+    text: {
+      text: string;
+    };
+    toPlace: () => google.maps.Place;
+  };
+}
+
+interface AutocompleteSessionToken {
+  new(): google.maps.PlacesAutocompleteSessionToken;
+}
+
+interface PlacesLibrary {
+  AutocompleteSuggestion: {
+    fetchAutocompleteSuggestions: (request: AutocompleteRequest) => Promise<{ suggestions: AutocompleteSuggestion[] }>;
+  };
+  AutocompleteSessionToken: AutocompleteSessionToken;
+}
+
+interface AutocompleteRequest {
+  input: string;
+  region: string;
+  includedPrimaryTypes: string[];
+  sessionToken: google.maps.PlacesAutocompleteSessionToken;
+}
+
+interface AddressComponent {
+  longText?: string;
+  shortText?: string;
+  types: string[];
+}
 
 interface LocationInputProps {
   onLocationSubmit: (location: string, zipCode?: string, city?: string, state?: string) => void;
   placeholder?: string;
   className?: string;
-  value?: string; // Add value prop to receive form data
+  value?: string;
 }
 
 const LocationInput: React.FC<LocationInputProps> = ({
   onLocationSubmit,
   placeholder = 'Enter your city, state, or ZIP code',
   className = '',
-  value = '', // Default to empty string
+  value = '',
 }) => {
   const [inputValue, setInputValue] = useState(value);
-  const [predictions, setPredictions] = useState<Array<any>>([]);
+  const [predictions, setPredictions] = useState<AutocompleteSuggestion[]>([]);
   const [showPredictions, setShowPredictions] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [apiLoaded, setApiLoaded] = useState(false);
@@ -24,7 +66,7 @@ const LocationInput: React.FC<LocationInputProps> = ({
 
   const inputRef = useRef<HTMLInputElement>(null);
   const predictionsRef = useRef<HTMLDivElement>(null);
-  const sessionTokenRef = useRef<any | null>(null);
+  const sessionTokenRef = useRef<unknown>(null);
 
   // Update internal state when value prop changes (for test data population)
   useEffect(() => {
@@ -37,18 +79,18 @@ const LocationInput: React.FC<LocationInputProps> = ({
   useEffect(() => {
     const checkAPIReady = async () => {
       try {
-        if (!window.google?.maps?.importLibrary) {
-          setTimeout(checkAPIReady, 250);
+        const googleMapsWindow = window as unknown as GoogleMapsWindow;
+        if (!googleMapsWindow.google?.maps?.importLibrary) {
+          setTimeout(() => { void checkAPIReady(); }, 250);
           return;
         }
         
-        const placesLib = (await window.google.maps.importLibrary('places')) as google.maps.PlacesLibrary;
-        const AutocompleteSuggestion: any = (placesLib as any).AutocompleteSuggestion;
+        const placesLib = await googleMapsWindow.google.maps.importLibrary('places') as PlacesLibrary;
         
-        if (AutocompleteSuggestion?.fetchAutocompleteSuggestions) {
+        if (placesLib.AutocompleteSuggestion?.fetchAutocompleteSuggestions) {
           setApiLoaded(true);
         } else {
-          setTimeout(checkAPIReady, 250);
+          setTimeout(() => { void checkAPIReady(); }, 250);
         }
       } catch (error) {
         console.error('Google Maps API initialization error:', error);
@@ -57,18 +99,19 @@ const LocationInput: React.FC<LocationInputProps> = ({
     };
 
     const loadGooglePlacesAPI = () => {
-      if (window.google?.maps) {
-        setTimeout(checkAPIReady, 300);
+      const googleMapsWindow = window as unknown as GoogleMapsWindow;
+      if (googleMapsWindow.google && googleMapsWindow.google.maps) {
+        setTimeout(() => { void checkAPIReady(); }, 300);
         return;
       }
       
       if (document.querySelector('script[src*="maps.googleapis.com"]')) {
-        setTimeout(checkAPIReady, 500);
+        setTimeout(() => { void checkAPIReady(); }, 500);
         return;
       }
       
       const script = document.createElement('script');
-      const apiKey = (import.meta as any).env?.VITE_GOOGLE_MAPS_API_KEY;
+      const apiKey = (import.meta as { env?: { VITE_GOOGLE_MAPS_API_KEY?: string } }).env?.VITE_GOOGLE_MAPS_API_KEY;
       
       if (!apiKey) {
         console.error('Google Maps API key not found. Please set VITE_GOOGLE_MAPS_API_KEY in your .env file');
@@ -79,7 +122,7 @@ const LocationInput: React.FC<LocationInputProps> = ({
       script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&v=beta&loading=async`;
       script.async = true;
       script.defer = true;
-      script.onload = () => setTimeout(() => checkAPIReady(), 500);
+      script.onload = () => { setTimeout(() => { void checkAPIReady(); }, 500); };
       script.onerror = (err) => {
         console.error('Failed to load Google Maps JS API', err);
         setApiLoaded(false);
@@ -101,7 +144,8 @@ const LocationInput: React.FC<LocationInputProps> = ({
       return;
     }
 
-    if (!apiLoaded || !window.google?.maps?.importLibrary) {
+    const googleMapsWindow = window as unknown as GoogleMapsWindow;
+    if (!apiLoaded || !googleMapsWindow.google?.maps?.importLibrary) {
       setPredictions([]);
       setShowPredictions(false);
       return;
@@ -109,30 +153,22 @@ const LocationInput: React.FC<LocationInputProps> = ({
 
     setIsLoading(true);
     try {
-      if (!window.google?.maps?.importLibrary) {
-        console.warn('Google Maps API not available');
-        setPredictions([]);
-        setShowPredictions(false);
-        return;
-      }
-
-      const { AutocompleteSuggestion, AutocompleteSessionToken } =
-        (await window.google.maps.importLibrary('places')) as google.maps.PlacesLibrary as any;
+      const placesLib = await googleMapsWindow.google.maps.importLibrary('places') as PlacesLibrary;
 
       if (!sessionTokenRef.current) {
-        sessionTokenRef.current = new AutocompleteSessionToken();
+        sessionTokenRef.current = new placesLib.AutocompleteSessionToken() as unknown;
       }
 
-      const request: any = {
+      const request: AutocompleteRequest = {
         input: value,
         region: 'us',
         includedPrimaryTypes: ['locality', 'postal_code'],
         sessionToken: sessionTokenRef.current,
       };
 
-      const { suggestions } = await AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
-      setPredictions(suggestions || []);
-      setShowPredictions((suggestions || []).length > 0);
+      const { suggestions } = await placesLib.AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
+      setPredictions(suggestions);
+      setShowPredictions(suggestions.length > 0);
     } catch (err) {
       console.error('LocationInput: Error getting suggestions', err);
       setPredictions([]);
@@ -147,9 +183,9 @@ const LocationInput: React.FC<LocationInputProps> = ({
   };
 
   // Handle prediction selection
-  const handlePredictionSelect = async (suggestion: any) => {
+  const handlePredictionSelect = async (suggestion: AutocompleteSuggestion) => {
     try {
-      const label = suggestion.placePrediction.text?.toString?.() ?? '';
+      const label = suggestion.placePrediction.text.text;
       setInputValue(label);
       setShowPredictions(false);
       setPredictions([]);
@@ -159,38 +195,37 @@ const LocationInput: React.FC<LocationInputProps> = ({
       let state = '';
 
       const place = suggestion.placePrediction.toPlace();
-      await place.fetchFields({
-        fields: ['addressComponents', 'formattedAddress'],
-      });
+      if (place?.fetchFields) {
+        await place.fetchFields({
+          fields: ['addressComponents', 'formattedAddress'],
+        });
+      }
 
-      const comps = (place.addressComponents || []) as Array<{
-        longText?: string;
-        shortText?: string;
-        types: string[];
-      }>;
+      const comps = (place.addressComponents || []) as AddressComponent[];
 
-      const get = (type: string) => comps.find((c) => c.types?.includes(type));
+      const get = (type: string) => comps.find((c) => c.types.includes(type));
       zipCode = get('postal_code')?.longText ?? '';
       city = get('locality')?.longText ?? get('postal_town')?.longText ?? '';
       state = get('administrative_area_level_1')?.shortText ?? '';
 
-      await onLocationSubmit(label, zipCode, city, state);
-    } catch (e) {
-      const text = suggestion?.placePrediction?.text?.toString?.() ?? '';
+      onLocationSubmit(label, zipCode, city, state);
+    } catch {
+      const text = suggestion.placePrediction.text.text;
       const parts = text.split(', ');
-      let zip = '', c = '', s = '';
+      const zip = '';
+      let c = '', s = '';
       if (parts.length >= 2) {
         c = parts[0];
         s = parts[1];
       }
-      await onLocationSubmit(text, zip, c, s);
+      onLocationSubmit(text, zip, c, s);
     } finally {
       sessionTokenRef.current = null;
     }
   };
 
   // Handle form submission
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (inputValue.trim()) {
       // Parse manual input for city, state when Google Places doesn't provide structured data
@@ -216,7 +251,7 @@ const LocationInput: React.FC<LocationInputProps> = ({
         }
       }
       
-      await onLocationSubmit(input, zipCode, city, state);
+      onLocationSubmit(input, zipCode, city, state);
       sessionTokenRef.current = null;
     }
   };
@@ -248,7 +283,7 @@ const LocationInput: React.FC<LocationInputProps> = ({
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    return () => { document.removeEventListener('mousedown', handleClickOutside); };
   }, []);
 
   // Update dropdown position when predictions are shown
@@ -279,11 +314,11 @@ const LocationInput: React.FC<LocationInputProps> = ({
           id="location-search-onboarding"
           name="location"
           value={inputValue}
-          onChange={(e) => handleInputChange(e.target.value)}
+          onChange={(e) => { void handleInputChange(e.target.value); }}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               e.preventDefault();
-              handleSubmit(e as any);
+              handleSubmit(e);
             }
           }}
           placeholder={apiLoaded ? placeholder : 'Loading…'}
@@ -308,7 +343,7 @@ const LocationInput: React.FC<LocationInputProps> = ({
         
         <button
           type="button"
-          onClick={(e) => handleSubmit(e as any)}
+          onClick={handleSubmit}
           className={`absolute inset-y-0 right-0 px-6 flex items-center rounded-r-lg transition-colors duration-200 ${
             apiLoaded ? 'bg-orange-500 hover:bg-orange-600 text-white' : 'bg-gray-300 text-gray-500 cursor-not-allowed'
           }`}
@@ -331,16 +366,16 @@ const LocationInput: React.FC<LocationInputProps> = ({
           style={dropdownStyle}
           className="bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto"
         >
-          {predictions.map((sugg: any, i: number) => (
+          {predictions.map((sugg: AutocompleteSuggestion, i: number) => (
             <button
               key={i}
-              onClick={() => handlePredictionSelect(sugg)}
+              onClick={() => { void handlePredictionSelect(sugg); }}
               className="w-full text-left px-4 py-3 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none border-b border-gray-100 last:border-b-0"
             >
               <div className="flex items-center">
                 <MapPin className="h-4 w-4 text-gray-400 mr-2 flex-shrink-0" />
                 <span className="text-gray-900">
-                  {sugg.placePrediction?.text?.toString?.() ?? ''}
+                  {sugg.placePrediction.text.text}
                 </span>
               </div>
             </button>

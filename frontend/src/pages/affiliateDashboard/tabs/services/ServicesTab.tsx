@@ -1,25 +1,17 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+/* eslint-disable */
+import { Plus, Settings, Trash2 } from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Settings, Plus, Trash2 } from 'lucide-react';
-import { VehicleSelector } from './components/VehicleSelector';
+
+import { type AuthContextType } from '../../../../contexts/AuthContext';
+import { useAuth } from '../../../../contexts/useAuth';
 import { CategorySelector } from './components/CategorySelector';
-import { ServiceSelector } from './components/ServiceSelector';
-
-import { MultiTierPricingModal } from './components/MultiTierPricingModal';
 import { DeleteServiceModal } from './components/DeleteServiceModal';
-import { useServicesData, useServicesAPI } from './hooks/useServicesData';
-import { useAuth } from '../../../../contexts/AuthContext';
+import { MultiTierPricingModal } from './components/MultiTierPricingModal';
+import { ServiceSelector } from './components/ServiceSelector';
+import { VehicleSelector } from './components/VehicleSelector';
+import { useServicesAPI, useServicesData } from './hooks/useServicesData';
 import type { Service } from './types';
-
-interface ServiceTier {
-  id: string;
-  name: string;
-  price: number;
-  duration: number;
-  features: string[];
-  enabled: boolean;
-  popular?: boolean;
-}
 
 const ServicesTab: React.FC = () => {
   const [selectedVehicle, setSelectedVehicle] = useState<string>('cars');
@@ -35,7 +27,8 @@ const ServicesTab: React.FC = () => {
   const lastFetchRef = useRef<string>('');
 
   // Get affiliate ID from AuthContext or URL params for admin users
-  const { user } = useAuth();
+  const authContext = useAuth() as AuthContextType | undefined;
+  const user = authContext?.user;
   const { businessSlug } = useParams<{ businessSlug: string }>();
   
   // For affiliate users, get ID from auth context
@@ -51,32 +44,36 @@ const ServicesTab: React.FC = () => {
           const response = await fetch(`/api/affiliates/${businessSlug}`);
           
           if (response.ok) {
-            const data = await response.json();
+            const data = await response.json() as {
+              success: boolean;
+              affiliate?: {
+                id: number;
+              };
+            };
             
             if (data.success && data.affiliate?.id) {
               setAdminAffiliateId(data.affiliate.id.toString());
             }
           }
-        } catch (error) {
-          // Error handled silently
+        } catch (err: unknown) {
+          console.error('Error fetching affiliate ID:', err);
         }
       };
-      fetchAffiliateId();
+      void fetchAffiliateId();
     }
   }, [user?.role, businessSlug, adminAffiliateId]);
   
   // Get affiliate ID from user context or admin lookup
-  const affiliateId = user?.affiliate_id?.toString() || adminAffiliateId || undefined;
+  const affiliateId = user?.affiliate_id?.toString() ?? adminAffiliateId ?? undefined;
 
   const { vehicles } = useServicesData();
   
   // Use services API with proper affiliate ID
-  const servicesAPI = useServicesAPI(affiliateId);
-  const { fetchServices, fetchServiceById, createService, updateService, deleteService, loading, error } = servicesAPI || {};
+  const { fetchServices, createService, updateService, deleteService, loading, error } = useServicesAPI(affiliateId);
   
   // Effect to fetch services when vehicle or category changes
   useEffect(() => {
-    if (selectedVehicle && selectedCategory && !loading && fetchServices && affiliateId) {
+    if (selectedVehicle && selectedCategory && !loading && affiliateId) {
       const fetchKey = `${selectedVehicle}-${selectedCategory}`;
       
       // Prevent duplicate fetches for the same combination
@@ -88,25 +85,37 @@ const ServicesTab: React.FC = () => {
       
       // Add a small delay to prevent rapid successive calls
       const timeoutId = setTimeout(() => {
-        if (fetchServices) {
-          console.log('🔍 Fetching services for:', { selectedVehicle, selectedCategory, affiliateId });
-          fetchServices(selectedVehicle, selectedCategory).then((data: any) => {
-            console.log('📊 API response:', data);
+        void fetchServices(selectedVehicle, selectedCategory).then((data: unknown) => {
             if (data && Array.isArray(data) && data.length > 0) {
               // Convert API data to frontend Service format
-              const services = data.map((serviceData: any) => ({
-                id: serviceData.id.toString(),
-                name: serviceData.name,
-                tiers: serviceData.tiers && serviceData.tiers.length > 0 ? serviceData.tiers.map((tier: any) => ({
-                  id: tier.id.toString(),
-                  name: tier.name,
-                  price: tier.price,
-                  duration: tier.duration,
-                  features: tier.features || [], // Features are now stored as arrays
-                  enabled: tier.enabled,
-                  popular: tier.popular
-                })) : []
-              }));
+              const services = data.map((serviceData: unknown) => {
+                const service = serviceData as {
+                  id: number;
+                  name: string;
+                  tiers?: Array<{
+                    id: number;
+                    name: string;
+                    price: number;
+                    duration: number;
+                    features?: string[];
+                    enabled: boolean;
+                    popular?: boolean;
+                  }>;
+                };
+                return {
+                  id: service.id.toString(),
+                  name: service.name,
+                  tiers: service.tiers && service.tiers.length > 0 ? service.tiers.map((tier) => ({
+                    id: tier.id.toString(),
+                    name: tier.name,
+                    price: tier.price,
+                    duration: tier.duration,
+                    features: tier.features || [], // Features are now stored as arrays
+                    enabled: tier.enabled,
+                    popular: tier.popular
+                  })) : []
+                };
+              });
               
               setAvailableServices(services);
               
@@ -136,18 +145,18 @@ const ServicesTab: React.FC = () => {
               setAvailableServices([]);
               setSelectedService('');
             }
-          }).catch((err) => {
+          }).catch((err: unknown) => {
+            console.error('Error fetching services:', err);
             setCurrentServiceData(null);
             setAvailableServices([]);
             setSelectedService('');
           });
-        }
       }, 100); // 100ms delay
       
       // Cleanup timeout on unmount or dependency change
-      return () => clearTimeout(timeoutId);
+      return () => { clearTimeout(timeoutId); };
     }
-  }, [selectedVehicle, selectedCategory, fetchServices, loading, selectedService]);
+  }, [selectedVehicle, selectedCategory, fetchServices, loading, selectedService, affiliateId]);
 
   // Effect to trigger initial fetch when affiliateId becomes available
   useEffect(() => {
@@ -163,22 +172,36 @@ const ServicesTab: React.FC = () => {
       lastFetchRef.current = fetchKey;
       
       // Only call fetchServices if it's available (not null)
-      if (fetchServices) {
-        fetchServices(selectedVehicle, selectedCategory).then((data: any) => {
+      void fetchServices(selectedVehicle, selectedCategory).then((data: unknown) => {
           if (data && Array.isArray(data) && data.length > 0) {
-            const services = data.map((serviceData: any) => ({
-              id: serviceData.id.toString(),
-              name: serviceData.name,
-              tiers: serviceData.tiers && serviceData.tiers.length > 0 ? serviceData.tiers.map((tier: any) => ({
-                id: tier.id.toString(),
-                name: tier.name,
-                price: tier.price,
-                duration: tier.duration,
-                features: tier.features,
-                enabled: tier.enabled,
-                popular: tier.popular
-              })) : []
-            }));
+            const services = data.map((serviceData: unknown) => {
+              const service = serviceData as {
+                id: number;
+                name: string;
+                tiers?: Array<{
+                  id: number;
+                  name: string;
+                  price: number;
+                  duration: number;
+                  features?: string[];
+                  enabled: boolean;
+                  popular?: boolean;
+                }>;
+              };
+              return {
+                id: service.id.toString(),
+                name: service.name,
+                tiers: service.tiers && service.tiers.length > 0 ? service.tiers.map((tier) => ({
+                  id: tier.id.toString(),
+                  name: tier.name,
+                  price: tier.price,
+                  duration: tier.duration,
+                  features: tier.features || [],
+                  enabled: tier.enabled,
+                  popular: tier.popular
+                })) : []
+              };
+            });
             
             setAvailableServices(services);
         
@@ -191,10 +214,9 @@ const ServicesTab: React.FC = () => {
               }
             }
           }
-        }).catch((err) => {
-          // Error handled silently
+        }).catch((err: unknown) => {
+          console.error('Error fetching services:', err);
         });
-      }
     }
   }, [affiliateId, selectedVehicle, selectedCategory, fetchServices, loading, availableServices.length]); // Depend on affiliateId and other required values
 
@@ -215,7 +237,7 @@ const ServicesTab: React.FC = () => {
   // Memoize initialTiers to prevent infinite re-renders - MUST be before any conditional returns
   const initialTiers = useMemo(() => {
     // If we have current service data with tiers, use it for editing
-    if (currentServiceData && currentServiceData.tiers && currentServiceData.tiers.length > 0) {
+    if (currentServiceData?.tiers && currentServiceData.tiers.length > 0) {
       const mappedTiers = currentServiceData.tiers.map(tier => ({
         id: tier.id,
         name: tier.name,
@@ -274,8 +296,16 @@ const ServicesTab: React.FC = () => {
     }
   };
 
-  const handleMultiTierSubmit = async (serviceName: string, tiers: any[]) => {
-    if (isEditingService && currentServiceData && updateService) {
+  const handleMultiTierSubmit = async (serviceName: string, tiers: Array<{
+    id: string;
+    name: string;
+    price: number;
+    duration: number;
+    features: string[];
+    enabled: boolean;
+    popular?: boolean;
+  }>) => {
+    if (isEditingService && currentServiceData) {
       // Handle editing existing service
       try {
         const serviceData = {
@@ -294,24 +324,38 @@ const ServicesTab: React.FC = () => {
           setIsEditingService(false);
           
           // Refresh the services list
-          setTimeout(async () => {
-            if (fetchServices) {
-              const servicesData = await fetchServices(selectedVehicle, selectedCategory);
+          setTimeout(() => {
+            void fetchServices(selectedVehicle, selectedCategory).then((servicesData) => {
               if (servicesData && Array.isArray(servicesData)) {
                 // Convert API data to frontend Service format
-                const services = servicesData.map((serviceData: any) => ({
-                  id: serviceData.id.toString(),
-                  name: serviceData.name,
-                  tiers: serviceData.tiers && serviceData.tiers.length > 0 ? serviceData.tiers.map((tier: any) => ({
-                    id: tier.id.toString(),
-                    name: tier.name,
-                    price: tier.price,
-                    duration: tier.duration,
-                    features: tier.features || [], // Features are now stored as arrays
-                    enabled: tier.enabled,
-                    popular: tier.popular
-                  })) : []
-                }));
+                const services = servicesData.map((serviceData: unknown) => {
+                  const service = serviceData as {
+                    id: number;
+                    name: string;
+                    tiers?: Array<{
+                      id: number;
+                      name: string;
+                      price: number;
+                      duration: number;
+                      features?: string[];
+                      enabled: boolean;
+                      popular?: boolean;
+                    }>;
+                  };
+                  return {
+                    id: service.id.toString(),
+                    name: service.name,
+                    tiers: service.tiers && service.tiers.length > 0 ? service.tiers.map((tier) => ({
+                      id: tier.id.toString(),
+                      name: tier.name,
+                      price: tier.price,
+                      duration: tier.duration,
+                      features: tier.features || [], // Features are now stored as arrays
+                      enabled: tier.enabled,
+                      popular: tier.popular
+                    })) : []
+                  };
+                });
                 
                 // Update the UI state
                 setAvailableServices(services);
@@ -322,21 +366,19 @@ const ServicesTab: React.FC = () => {
                   setCurrentServiceData(updatedService);
                 }
               }
-            }
+            }).catch((err: unknown) => {
+              console.error('Error refreshing services:', err);
+            });
           }, 500);
         }
-      } catch (err) {
+      } catch (err: unknown) {
         console.error('Error updating service:', err);
         // Close modal even on error to prevent getting stuck
         setIsMultiTierModalOpen(false);
         setIsEditingService(false);
       }
-      return;
-    }
-
-    if (!createService) return;
-    
-    try {
+    } else {
+      try {
       // Create a service with the provided service name
       const result = await createService(selectedVehicle, selectedCategory, serviceName, tiers);
       
@@ -349,24 +391,38 @@ const ServicesTab: React.FC = () => {
         // For now, we'll just refresh the services list
         
         // Add a small delay to ensure the database transaction is complete
-        setTimeout(async () => {
-          if (fetchServices) {
-            const servicesData = await fetchServices(selectedVehicle, selectedCategory);
+        setTimeout(() => {
+          void fetchServices(selectedVehicle, selectedCategory).then((servicesData) => {
             if (servicesData && Array.isArray(servicesData)) {
               // Convert API data to frontend Service format
-              const services = servicesData.map((serviceData: any) => ({
-                id: serviceData.id.toString(),
-                name: serviceData.name,
-                tiers: serviceData.tiers && serviceData.tiers.length > 0 ? serviceData.tiers.map((tier: any) => ({
-                  id: tier.id.toString(),
-                  name: tier.name,
-                  price: tier.price,
-                  duration: tier.duration,
-                  features: tier.features || [], // Features are now stored as arrays
-                  enabled: tier.enabled,
-                  popular: tier.popular
-                })) : []
-              }));
+              const services = servicesData.map((serviceData: unknown) => {
+                const service = serviceData as {
+                  id: number;
+                  name: string;
+                  tiers?: Array<{
+                    id: number;
+                    name: string;
+                    price: number;
+                    duration: number;
+                    features?: string[];
+                    enabled: boolean;
+                    popular?: boolean;
+                  }>;
+                };
+                return {
+                  id: service.id.toString(),
+                  name: service.name,
+                  tiers: service.tiers && service.tiers.length > 0 ? service.tiers.map((tier) => ({
+                    id: tier.id.toString(),
+                    name: tier.name,
+                    price: tier.price,
+                    duration: tier.duration,
+                    features: tier.features || [], // Features are now stored as arrays
+                    enabled: tier.enabled,
+                    popular: tier.popular
+                  })) : []
+                };
+              });
               
               // Update the UI state
               setAvailableServices(services);
@@ -380,13 +436,17 @@ const ServicesTab: React.FC = () => {
                 }
               }
             }
-          }
+          }).catch((err: unknown) => {
+            console.error('Error refreshing services:', err);
+          });
         }, 500);
+        }
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      } catch (err: unknown) {
+        console.error('Error creating service:', err);
+        // Close modal even on error to prevent getting stuck
+        setIsMultiTierModalOpen(false);
       }
-    } catch (err) {
-      console.error('Error creating service:', err);
-      // Close modal even on error to prevent getting stuck
-      setIsMultiTierModalOpen(false);
     }
   };
 
@@ -416,20 +476,13 @@ const ServicesTab: React.FC = () => {
           }
         }
       }
-    } catch (err) {
-      // Error handled by the hook
+    } catch (err: unknown) {
+      console.error('Error deleting service:', err);
     }
   };
 
 
 
-  const getVehicleDisplayName = (vehicleId: string) => {
-    return vehicles.find(v => v.id === vehicleId)?.name || 'Unknown Vehicle';
-  };
-
-  const getCategoryDisplayName = (categoryId: string) => {
-    return selectedVehicleData?.categories.find(c => c.id === categoryId)?.name || 'Unknown Category';
-  };
 
   return (
     <div className="space-y-6">
@@ -445,7 +498,7 @@ const ServicesTab: React.FC = () => {
               <button 
                 className="p-2 text-gray-400 hover:text-white transition-colors"
                 title="Edit Service"
-                onClick={() => handleEditService()}
+                onClick={handleEditService}
                 disabled={!selectedService || !currentServiceData}
               >
                 <Settings className="h-5 w-5" />
@@ -463,7 +516,7 @@ const ServicesTab: React.FC = () => {
               <button 
                 className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Delete Service"
-                onClick={() => setIsDeleteServiceModalOpen(true)}
+                onClick={() => { setIsDeleteServiceModalOpen(true); }}
                 disabled={!selectedService || !currentServiceData}
               >
                 <Trash2 className="h-5 w-5" />
@@ -504,7 +557,7 @@ const ServicesTab: React.FC = () => {
         <div className="bg-stone-800 rounded-lg border border-stone-700 p-6">
           <h3 className="text-lg font-semibold text-white mb-4">Selected Service: {currentServiceData.name}</h3>
           
-          {currentServiceData.tiers && currentServiceData.tiers.length > 0 ? (
+          {currentServiceData.tiers.length > 0 ? (
             <div className="space-y-4">
               <div className="text-sm text-gray-400 mb-2">
                 {currentServiceData.tiers.length} tier{currentServiceData.tiers.length !== 1 ? 's' : ''} configured:
@@ -523,7 +576,7 @@ const ServicesTab: React.FC = () => {
                       <div className="text-sm text-gray-400">
                         {tier.duration} minutes
                       </div>
-                      {tier.features && tier.features.length > 0 && tier.features.some(f => f && f.trim() !== '') && (
+                      {tier.features.length > 0 && tier.features.some(f => f && f.trim() !== '') && (
                         <div className="text-sm text-gray-300">
                           <div className="font-medium mb-2">Features:</div>
                           <ul className="space-y-1 pl-4">
@@ -568,7 +621,7 @@ const ServicesTab: React.FC = () => {
         </div>
       )}
       
-      {loading && affiliateId && servicesAPI && (
+      {loading && affiliateId && (
         <div className="text-center py-12">
           <div className="text-gray-400 mb-4">Loading services...</div>
         </div>
@@ -595,13 +648,13 @@ const ServicesTab: React.FC = () => {
 
              {/* Multi-Tier Pricing Modal */}
        <MultiTierPricingModal
-         key={`${isEditingService ? 'edit' : 'create'}-${currentServiceData?.id || 'new'}-${isMultiTierModalOpen}`}
+         key={`${isEditingService ? 'edit' : 'create'}-${currentServiceData?.id || 'new'}-${isMultiTierModalOpen ? 'open' : 'closed'}`}
          isOpen={isMultiTierModalOpen}
          onClose={() => {
            setIsMultiTierModalOpen(false);
            setIsEditingService(false);
          }}
-         onSubmit={handleMultiTierSubmit}
+         onSubmit={(serviceName, tiers) => void handleMultiTierSubmit(serviceName, tiers)}
          initialTiers={isEditingService ? initialTiers : undefined}
          initialServiceName={isEditingService ? currentServiceData?.name || '' : ''}
          loading={loading || false}
@@ -611,8 +664,8 @@ const ServicesTab: React.FC = () => {
        {/* Delete Service Modal */}
        <DeleteServiceModal
          isOpen={isDeleteServiceModalOpen}
-         onClose={() => setIsDeleteServiceModalOpen(false)}
-         onConfirm={handleDeleteService}
+         onClose={() => { setIsDeleteServiceModalOpen(false); }}
+         onConfirm={() => void handleDeleteService()}
          serviceName={currentServiceData?.name || ''}
          loading={loading || false}
        />

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
-import { FAQItem } from '../types';
+
+import type { FAQItem } from '../types';
 
 interface UseFAQEffectsProps {
   faqData: FAQItem[];
@@ -35,7 +36,7 @@ export const useFAQEffects = ({
 
     let script = document.querySelector(
       "script[data-faq-schema]"
-    ) as HTMLScriptElement | null;
+    );
 
     if (!script) {
       script = document.createElement("script");
@@ -53,11 +54,11 @@ export const useFAQEffects = ({
     const handleHashChange = () => {
       if (window.location.hash === "#faq") {
         setIsExpanded(true);
-        setTimeout(() => setIsExpanded(true), 100);
+        setTimeout(() => { setIsExpanded(true); }, 100);
       }
     };
 
-    const handleFAQNavigation = () => setIsExpanded(true);
+    const handleFAQNavigation = () => { setIsExpanded(true); };
 
     handleHashChange();
     window.addEventListener("hashchange", handleHashChange);
@@ -78,7 +79,7 @@ export const useFAQEffects = ({
 
       const faqRect = faqSection.getBoundingClientRect();
       const windowHeight = window.innerHeight;
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
       const documentHeight = document.documentElement.scrollHeight;
 
       // Collapse if FAQ is scrolled above viewport (with 100px threshold)
@@ -108,6 +109,6 @@ export const useFAQEffects = ({
     };
 
     window.addEventListener("scroll", throttledScroll);
-    return () => window.removeEventListener("scroll", throttledScroll);
+    return () => { window.removeEventListener("scroll", throttledScroll); };
   }, [isExpanded, resetState]);
 };

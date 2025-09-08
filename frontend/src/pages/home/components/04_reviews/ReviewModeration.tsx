@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { DatabaseReview, ReviewUpdate } from './types';
+
 import { useReviews } from './hooks/useReviews';
+import type { DatabaseReview, ReviewUpdate } from './types';
 
 interface ReviewModerationProps {
   isAdmin?: boolean;
@@ -23,7 +24,7 @@ export const ReviewModeration: React.FC<ReviewModerationProps> = ({ isAdmin = fa
     limit: 20
   });
 
-  const handleApprove = async (review: DatabaseReview) => {
+  const handleApprove = async (review: DatabaseReview): Promise<void> => {
     if (!isAdmin) return;
     
     setIsUpdating(true);
@@ -33,11 +34,11 @@ export const ReviewModeration: React.FC<ReviewModerationProps> = ({ isAdmin = fa
         moderation_notes: moderationNotes || undefined
       };
 
-      const response = await fetch(`/api/reviews/${review.id}`, {
+      const response = await fetch(`/api/reviews/${String(review.id)}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}` // In production, use proper auth
+          'Authorization': `Bearer ${localStorage.getItem('token') ?? ''}` // In production, use proper auth
         },
         body: JSON.stringify(updateData)
       });
@@ -56,7 +57,7 @@ export const ReviewModeration: React.FC<ReviewModerationProps> = ({ isAdmin = fa
     }
   };
 
-  const handleReject = async (review: DatabaseReview) => {
+  const handleReject = async (review: DatabaseReview): Promise<void> => {
     if (!isAdmin) return;
     
     setIsUpdating(true);
@@ -66,11 +67,11 @@ export const ReviewModeration: React.FC<ReviewModerationProps> = ({ isAdmin = fa
         moderation_notes: moderationNotes || 'Review rejected by moderator'
       };
 
-      const response = await fetch(`/api/reviews/${review.id}`, {
+      const response = await fetch(`/api/reviews/${String(review.id)}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}` // In production, use proper auth
+          'Authorization': `Bearer ${localStorage.getItem('token') ?? ''}` // In production, use proper auth
         },
         body: JSON.stringify(updateData)
       });
@@ -89,7 +90,7 @@ export const ReviewModeration: React.FC<ReviewModerationProps> = ({ isAdmin = fa
     }
   };
 
-  const handleFeature = async (review: DatabaseReview) => {
+  const handleFeature = async (review: DatabaseReview): Promise<void> => {
     if (!isAdmin) return;
     
     setIsUpdating(true);
@@ -98,11 +99,11 @@ export const ReviewModeration: React.FC<ReviewModerationProps> = ({ isAdmin = fa
         is_featured: !review.is_featured
       };
 
-      const response = await fetch(`/api/reviews/${review.id}`, {
+      const response = await fetch(`/api/reviews/${String(review.id)}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}` // In production, use proper auth
+          'Authorization': `Bearer ${localStorage.getItem('token') ?? ''}` // In production, use proper auth
         },
         body: JSON.stringify(updateData)
       });
@@ -199,7 +200,7 @@ export const ReviewModeration: React.FC<ReviewModerationProps> = ({ isAdmin = fa
                   </p>
                   
                   <div className="flex items-center gap-4 text-xs text-stone-400">
-                    <span>Submitted: {new Date(review.created_at).toLocaleDateString()}</span>
+                    <span>Submitted: {new Date(String(review.created_at)).toLocaleDateString()}</span>
                     {review.service_category && (
                       <span>Service: {review.service_category}</span>
                     )}
@@ -212,21 +213,21 @@ export const ReviewModeration: React.FC<ReviewModerationProps> = ({ isAdmin = fa
 
               <div className="flex items-center gap-3 pt-3 border-t border-stone-600">
                 <button
-                  onClick={() => handleApprove(review)}
+                  onClick={() => void handleApprove(review)}
                   disabled={isUpdating}
                   className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors disabled:opacity-50"
                 >
                   Approve
                 </button>
                 <button
-                  onClick={() => handleReject(review)}
+                  onClick={() => void handleReject(review)}
                   disabled={isUpdating}
                   className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors disabled:opacity-50"
                 >
                   Reject
                 </button>
                 <button
-                  onClick={() => handleFeature(review)}
+                  onClick={() => void handleFeature(review)}
                   disabled={isUpdating}
                   className={`px-4 py-2 rounded text-sm font-medium transition-colors disabled:opacity-50 ${
                     review.is_featured
@@ -237,7 +238,7 @@ export const ReviewModeration: React.FC<ReviewModerationProps> = ({ isAdmin = fa
                   {review.is_featured ? 'Featured' : 'Feature'}
                 </button>
                 <button
-                  onClick={() => setSelectedReview(review)}
+                  onClick={() => { setSelectedReview(review); }}
                   className="bg-stone-600 hover:bg-stone-500 text-stone-300 px-4 py-2 rounded text-sm font-medium transition-colors"
                 >
                   View Details
@@ -252,12 +253,23 @@ export const ReviewModeration: React.FC<ReviewModerationProps> = ({ isAdmin = fa
       {selectedReview && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4">
-            <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setSelectedReview(null)} />
+            <div 
+              className="fixed inset-0 bg-black bg-opacity-50" 
+              onClick={() => { setSelectedReview(null); }}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') {
+                  setSelectedReview(null);
+                }
+              }}
+              role="button"
+              tabIndex={0}
+              aria-label="Close modal"
+            />
             <div className="relative bg-stone-800 rounded-xl p-6 max-w-2xl w-full">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-bold text-white">Review Details</h3>
                 <button
-                  onClick={() => setSelectedReview(null)}
+                  onClick={() => { setSelectedReview(null); }}
                   className="text-stone-400 hover:text-white"
                 >
                   ✕
@@ -266,12 +278,13 @@ export const ReviewModeration: React.FC<ReviewModerationProps> = ({ isAdmin = fa
               
               <div className="space-y-4">
                 <div>
-                  <label className="block text-stone-300 text-sm font-medium mb-2">
+                  <label htmlFor="moderation-notes" className="block text-stone-300 text-sm font-medium mb-2">
                     Moderation Notes
                   </label>
                   <textarea
+                    id="moderation-notes"
                     value={moderationNotes}
-                    onChange={(e) => setModerationNotes(e.target.value)}
+                    onChange={(e) => { setModerationNotes(e.target.value); }}
                     rows={3}
                     className="w-full px-3 py-2 bg-stone-700 border border-stone-600 rounded text-white placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-400"
                     placeholder="Add notes about this review..."
@@ -280,21 +293,21 @@ export const ReviewModeration: React.FC<ReviewModerationProps> = ({ isAdmin = fa
                 
                 <div className="flex gap-3">
                   <button
-                    onClick={() => handleApprove(selectedReview)}
+                    onClick={() => void handleApprove(selectedReview)}
                     disabled={isUpdating}
                     className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded font-medium transition-colors disabled:opacity-50"
                   >
                     Approve
                   </button>
                   <button
-                    onClick={() => handleReject(selectedReview)}
+                    onClick={() => void handleReject(selectedReview)}
                     disabled={isUpdating}
                     className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-medium transition-colors disabled:opacity-50"
                   >
                     Reject
                   </button>
                   <button
-                    onClick={() => setSelectedReview(null)}
+                    onClick={() => { setSelectedReview(null); }}
                     className="bg-stone-600 hover:bg-stone-500 text-stone-300 px-4 py-2 rounded font-medium transition-colors"
                   >
                     Cancel

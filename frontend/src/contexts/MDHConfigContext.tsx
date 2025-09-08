@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import React, { createContext, useCallback, useEffect, useState } from 'react';
+
 import { config } from '../config/environment';
 
 interface MDHConfig {
@@ -41,22 +43,22 @@ interface StaticMDHConfig {
   updated_at: string;
 }
 
-interface MDHConfigContextType {
+// Extend Window interface to include __MDH__ property
+declare global {
+  interface Window {
+    __MDH__?: StaticMDHConfig;
+  }
+}
+
+export interface MDHConfigContextType {
   mdhConfig: MDHConfig | null;
   isLoading: boolean;
   error: string | null;
   refreshConfig: () => Promise<void>;
 }
 
-const MDHConfigContext = createContext<MDHConfigContextType | undefined>(undefined);
+export const MDHConfigContext = createContext<MDHConfigContextType | null>(null);
 
-export const useMDHConfig = () => {
-  const context = useContext(MDHConfigContext);
-  if (context === undefined) {
-    throw new Error('useMDHConfig must be used within an MDHConfigProvider');
-  }
-  return context;
-};
 
 interface MDHConfigProviderProps {
   children: ReactNode;
@@ -70,7 +72,7 @@ export const MDHConfigProvider: React.FC<MDHConfigProviderProps> = ({ children }
   const [mdhConfig, setMdhConfig] = useState<MDHConfig | null>(() => {
     // Initialize with static config from mdh-config.js if available
     if (typeof window !== 'undefined' && window.__MDH__) {
-      const staticConfig = window.__MDH__ as StaticMDHConfig;
+      const staticConfig = window.__MDH__;
       return {
         email: staticConfig.email,
         phone: staticConfig.phone,
@@ -79,10 +81,10 @@ export const MDHConfigProvider: React.FC<MDHConfigProviderProps> = ({ children }
         header_display: staticConfig.header_display,
         tagline: staticConfig.tagline,
         services_description: staticConfig.services_description,
-        facebook: staticConfig.socials?.facebook || '',
-        instagram: staticConfig.socials?.instagram || '',
-        tiktok: staticConfig.socials?.tiktok || '',
-        youtube: staticConfig.socials?.youtube || '',
+        facebook: staticConfig.socials.facebook,
+        instagram: staticConfig.socials.instagram,
+        tiktok: staticConfig.socials.tiktok,
+        youtube: staticConfig.socials.youtube,
         created_at: staticConfig.created_at,
         updated_at: staticConfig.updated_at
       };
@@ -99,10 +101,10 @@ export const MDHConfigProvider: React.FC<MDHConfigProviderProps> = ({ children }
       if (!response.ok) {
         const errorText = await response.text();
         console.error('❌ [MDHConfig] Response not OK:', errorText);
-        throw new Error(`Failed to fetch MDH config: ${response.status} - ${errorText}`);
+        throw new Error(`Failed to fetch MDH config: ${response.status.toString()} - ${errorText}`);
       }
       
-      const data = await response.json();
+      const data = await response.json() as MDHConfig;
       return data;
     } catch (err) {
       console.error('❌ [MDHConfig] Error fetching MDH config:', err);
@@ -110,20 +112,20 @@ export const MDHConfigProvider: React.FC<MDHConfigProviderProps> = ({ children }
     }
   };
 
-  const refreshConfig = async () => {
+  const refreshConfig = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
       
       // Use global cache if available
-      if (globalConfigCache) {
+      if (globalConfigCache !== null) {
         setMdhConfig(globalConfigCache);
         setIsLoading(false);
         return;
       }
 
       // Use global promise if already fetching
-      if (globalConfigPromise) {
+      if (globalConfigPromise !== null) {
         const data = await globalConfigPromise;
         setMdhConfig(data);
         setIsLoading(false);
@@ -145,14 +147,14 @@ export const MDHConfigProvider: React.FC<MDHConfigProviderProps> = ({ children }
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     // Only fetch if we don't have static config and haven't cached anything
-    if (!mdhConfig && !globalConfigCache && !globalConfigPromise) {
-      refreshConfig();
+    if (mdhConfig === null && globalConfigCache === null && globalConfigPromise === null) {
+      void refreshConfig();
     }
-  }, []);
+  }, [mdhConfig, refreshConfig]);
 
   const value: MDHConfigContextType = {
     mdhConfig,

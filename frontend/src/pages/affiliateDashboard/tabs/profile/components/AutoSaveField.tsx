@@ -1,10 +1,12 @@
+import { AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
 import React from 'react';
-import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
-import { useAutoSaveField } from '../hooks/useAutoSaveField';
+
 import { formatPhoneNumber } from '../../../../../utils/fields/phoneFormatter';
+import { useAutoSaveField } from '../hooks/useAutoSaveField';
+import type { ProfileFormData } from '../types';
 
 interface AutoSaveFieldProps {
-  field: keyof import('../types').ProfileFormData;
+  field: keyof ProfileFormData;
   label: string;
   type?: 'text' | 'email' | 'tel' | 'url' | 'date';
   placeholder?: string;
@@ -48,7 +50,7 @@ export const AutoSaveField: React.FC<AutoSaveFieldProps> = ({
     if (error) {
       return <AlertCircle className="h-4 w-4 text-red-500" />;
     }
-    if (value && !isSaving && !error) {
+    if (value && value.trim() !== '') {
       return <CheckCircle className="h-4 w-4 text-green-500" />;
     }
     return null;

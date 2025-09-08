@@ -1,7 +1,20 @@
 // Shared geo helper functions for affiliate FAQs
-export function getGeoParts(cfg: any) {
-  const business = cfg?.business ?? {};
-  const serviceLocations: string[] = cfg?.serviceLocations ?? [];
+export function getGeoParts(cfg: unknown) {
+  const config = cfg as {
+    business?: {
+      city?: string;
+      locality?: string;
+      state?: string;
+      region?: string;
+      zip?: string;
+      postalCode?: string;
+      address?: string;
+    };
+    serviceLocations?: string[];
+  };
+  
+  const business = config.business ?? {};
+  const serviceLocations: string[] = config.serviceLocations ?? [];
 
   // Prefer structured geo if present; fall back to address string.
   const city = business.city || business.locality || "Your City";
@@ -10,7 +23,7 @@ export function getGeoParts(cfg: any) {
   const address = business.address || `${city}, ${state}${zip ? ' ' + zip : ''}`;
 
   const primaryArea = address;
-  const nearbyList = serviceLocations?.length
+  const nearbyList = serviceLocations.length
     ? serviceLocations.slice(0, 7).join(", ")
     : `${city}, ${state}`;
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import { createRoot } from 'react-dom/client';
 
 interface ReviewSourceIconProps {
   source: 'website' | 'google' | 'yelp' | 'facebook' | 'imported';
@@ -113,7 +114,10 @@ export const ReviewSourceIcon: React.FC<ReviewSourceIconProps> = ({
           // If PNG also fails, use inline SVG fallback
           if (parent) {
             parent.innerHTML = '';
-            parent.appendChild(renderFallbackIcon(source) as any);
+            const fallbackElement = document.createElement('div');
+            parent.appendChild(fallbackElement);
+            const root = createRoot(fallbackElement);
+            root.render(renderFallbackIcon(source));
           }
         }}
       />

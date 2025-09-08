@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
 import { X } from 'lucide-react';
+import React, { useState } from 'react';
+
 import { ReviewForm } from './ReviewForm';
-import { ReviewFormData } from './types';
 
 interface ReviewSubmissionModalProps {
   isOpen: boolean;
@@ -22,7 +22,7 @@ export const ReviewSubmissionModal: React.FC<ReviewSubmissionModalProps> = ({
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (data: ReviewFormData) => {
+  const handleSubmit = () => {
     setIsSubmitting(true);
     try {
       // The actual submission is handled by the ReviewForm component
@@ -44,6 +44,13 @@ export const ReviewSubmissionModal: React.FC<ReviewSubmissionModalProps> = ({
       <div 
         className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
         onClick={onClose}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') {
+            onClose();
+          }
+        }}
+        role="button"
+        tabIndex={0}
       />
       
       {/* Modal */}

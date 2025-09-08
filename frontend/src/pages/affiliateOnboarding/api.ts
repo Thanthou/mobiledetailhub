@@ -3,13 +3,20 @@ import type { AffiliateApplication } from './types';
 interface ApiResponse {
   ok: boolean;
   message?: string;
-  data?: any;
+  data?: unknown;
+}
+
+interface AffiliateApiResponse {
+  success?: boolean;
+  message?: string;
+  error?: string;
+  affiliate?: AffiliateApplication;
 }
 
 export const postApplication = async (data: AffiliateApplication): Promise<ApiResponse> => {
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+    const timeoutId = setTimeout(() => { controller.abort(); }, 30000); // 30 second timeout
     
     const response = await fetch('http://localhost:3001/api/affiliates/apply', {
       method: 'POST',
@@ -22,12 +29,12 @@ export const postApplication = async (data: AffiliateApplication): Promise<ApiRe
     
     clearTimeout(timeoutId);
 
-    const result = await response.json();
+    const result = await response.json() as AffiliateApiResponse;
 
     if (!response.ok) {
       return {
         ok: false,
-        message: result.error || `HTTP error! status: ${response.status}`
+        message: result.error || `HTTP error! status: ${response.status.toString()}`
       };
     }
 

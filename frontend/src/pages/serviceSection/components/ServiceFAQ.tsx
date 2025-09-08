@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { ServicePageProps } from '../types';
+
+import type { ServicePageProps } from '../types';
 
 export const ServiceFAQ = ({ serviceData }: ServicePageProps) => {
   const [openItems, setOpenItems] = useState<Set<number>>(new Set());
@@ -31,7 +32,7 @@ export const ServiceFAQ = ({ serviceData }: ServicePageProps) => {
             <div key={item.id} className="bg-gray-50 rounded-lg">
               <button
                 className="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-100 transition-colors"
-                onClick={() => toggleItem(item.id)}
+                onClick={() => { toggleItem(item.id); }}
               >
                 <h3 className="text-lg font-semibold text-gray-900">
                   {item.question}

@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { ServicePageProps } from '../types';
+
+import type { ServicePageProps } from '../types';
 
 export const ServiceGallery = ({ serviceData }: ServicePageProps) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -21,7 +22,16 @@ export const ServiceGallery = ({ serviceData }: ServicePageProps) => {
             <div 
               key={image.id}
               className="group cursor-pointer bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow"
-              onClick={() => setSelectedImage(image.src)}
+              onClick={() => { setSelectedImage(image.src); }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setSelectedImage(image.src);
+                }
+              }}
+              role="button"
+              tabIndex={0}
+              aria-label={`View enlarged image: ${image.alt}`}
             >
               <div className="aspect-w-16 aspect-h-12">
                 <img
@@ -45,7 +55,16 @@ export const ServiceGallery = ({ serviceData }: ServicePageProps) => {
         {selectedImage && (
           <div 
             className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
-            onClick={() => setSelectedImage(null)}
+            onClick={() => { setSelectedImage(null); }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setSelectedImage(null);
+              }
+            }}
+            role="button"
+            tabIndex={0}
+            aria-label="Close image modal"
           >
             <div className="max-w-4xl max-h-full">
               <img
@@ -55,7 +74,7 @@ export const ServiceGallery = ({ serviceData }: ServicePageProps) => {
               />
               <button
                 className="absolute top-4 right-4 text-white text-2xl hover:text-gray-300"
-                onClick={() => setSelectedImage(null)}
+                onClick={() => { setSelectedImage(null); }}
               >
                 ×
               </button>

@@ -32,13 +32,11 @@ const getConfigData = async () => {
   
   // Return cached data if still valid
   if (configCache && now < cacheExpiry) {
-    console.log('✅ [MDHConfig] Returning cached MDH config');
     logger.debug('Returning cached MDH config');
     return configCache;
   }
   
   // Fetch fresh data from database
-  console.log('🔍 [MDHConfig] Fetching fresh MDH config from database');
   logger.debug('Fetching fresh MDH config from database');
   const result = await query('SELECT * FROM system.system_config WHERE is_public = true', [], { 
     retries: 3, 
@@ -81,16 +79,19 @@ const getConfigData = async () => {
 // Get MDH config
 router.get('/', asyncHandler(async (req, res) => {
   try {
-    console.log('🔍 [MDHConfig] GET /api/mdh-config endpoint called');
+    logger.debug('MDH config endpoint called', { 
+      ip: req.ip,
+      userAgent: req.get('User-Agent')
+    });
     const configData = await getConfigData();
-    console.log('✅ [MDHConfig] Config data retrieved:', configData);
+    logger.debug('Config data retrieved successfully');
     
     // Generate ETag for cache validation
     const etag = `"${Buffer.from(JSON.stringify(configData)).toString('base64').slice(0, 8)}"`;
     
     // Check if client has fresh version
     if (req.headers['if-none-match'] === etag) {
-      console.log('📋 [MDHConfig] Client has fresh version, returning 304');
+      logger.debug('Client has fresh version, returning 304');
       return res.status(304).end(); // Not Modified
     }
     
@@ -101,10 +102,9 @@ router.get('/', asyncHandler(async (req, res) => {
       'Vary': 'Accept-Encoding'
     });
     
-    console.log('📤 [MDHConfig] Sending config data to client');
+    logger.debug('Sending config data to client');
     res.json(configData);
   } catch (error) {
-    console.error('❌ [MDHConfig] Failed to fetch MDH config:', error);
     logger.error('Failed to fetch MDH config:', { error: error.message });
     throw error;
   }

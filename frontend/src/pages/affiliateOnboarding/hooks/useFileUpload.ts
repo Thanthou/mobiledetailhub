@@ -1,7 +1,14 @@
-import { useState, useCallback } from 'react';
-import { AffiliateApplication } from '../types';
+import { useCallback,useState } from 'react';
 
-export const useFileUpload = (handleInputChange: (field: string, value: any) => void) => {
+// Type for uploaded file data
+interface UploadedFileData {
+  name: string;
+  size: number;
+  type: string;
+  url: string;
+}
+
+export const useFileUpload = (handleInputChange: (field: string, value: UploadedFileData[] | File[]) => void) => {
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
   const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {

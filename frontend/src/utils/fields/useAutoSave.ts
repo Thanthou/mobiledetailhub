@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useEffect,useRef, useState } from 'react';
 
 interface UseAutoSaveOptions {
   debounce?: number;
@@ -6,7 +6,7 @@ interface UseAutoSaveOptions {
 
 export function useAutoSave<T>(
   initialValue: T,
-  saveFn: (value: T) => Promise<any>,
+  saveFn: (value: T) => Promise<unknown>,
   options: UseAutoSaveOptions = {}
 ) {
   const { debounce = 800 } = options;
@@ -31,14 +31,17 @@ export function useAutoSave<T>(
     setIsSaving(true);
     setError(null);
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    timeoutRef.current = window.setTimeout(async () => {
-      try {
-        await saveFn(value);
-        setIsSaving(false);
-      } catch (err: any) {
-        setError(err?.message || 'Failed to save');
-        setIsSaving(false);
-      }
+    timeoutRef.current = window.setTimeout(() => {
+      void (async () => {
+        try {
+          await saveFn(value);
+          setIsSaving(false);
+        } catch (err: unknown) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to save';
+          setError(errorMessage);
+          setIsSaving(false);
+        }
+      })();
     }, debounce);
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);

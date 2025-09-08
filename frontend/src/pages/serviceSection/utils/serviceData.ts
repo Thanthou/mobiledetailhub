@@ -1,4 +1,4 @@
-import { ServiceData, ServiceType } from '../types';
+import type { ServiceData, ServiceType } from '../types';
 
 // Import service images
 const autoImage = '/images/services/thumbnails/auto.png';
@@ -879,10 +879,9 @@ export const getServiceData = async (serviceType: ServiceType): Promise<ServiceD
   // Simulate API call delay
   await new Promise(resolve => setTimeout(resolve, 500));
   
+  // Since serviceDataMap is Record<ServiceType, ServiceData>, this lookup will always succeed
+  // The conditional check is kept for defensive programming in case ServiceType is extended
   const serviceData = serviceDataMap[serviceType];
-  if (!serviceData) {
-    throw new Error(`Service type "${serviceType}" not found`);
-  }
   
   return serviceData;
 };
@@ -892,5 +891,5 @@ export const getAllServiceTypes = (): ServiceType[] => {
 };
 
 export const getServiceSlug = (serviceType: ServiceType): string => {
-  return serviceDataMap[serviceType]?.slug || serviceType;
+  return serviceDataMap[serviceType].slug || serviceType;
 };

@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
 import { MapPin } from 'lucide-react';
-import { useLocation } from '../../contexts/LocationContext';
+import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
+
+import { useLocation } from '../../hooks/useLocation';
 import { useSiteContext } from '../../hooks/useSiteContext';
 import GetStarted from './LocationSearchBar';
 
@@ -18,7 +19,6 @@ interface LocationEditModalProps {
 
 const LocationEditModal: React.FC<LocationEditModalProps> = ({
   placeholder = 'Enter your city or zip code',
-  className = '',
   buttonClassName = '',
   modalTitle = 'Update your location',
   onLocationChange,
@@ -36,9 +36,9 @@ const LocationEditModal: React.FC<LocationEditModalProps> = ({
   if (isAffiliate) {
     // Always use displayText on affiliate pages to show the affiliate's location
     buttonText = displayText;
-  } else if (hasValidLocation() && (displayText === 'Set Location' || displayText === 'Select Location')) {
+  } else if (hasValidLocation() && selectedLocation && (displayText === 'Set Location' || displayText === 'Select Location')) {
     // On MDH pages, use selectedLocation if displayText is default
-    buttonText = `${selectedLocation!.city}, ${selectedLocation!.state}`;
+    buttonText = `${selectedLocation.city}, ${selectedLocation.state}`;
   }
 
 
@@ -47,7 +47,7 @@ const LocationEditModal: React.FC<LocationEditModalProps> = ({
     <>
       <button
         className={`flex items-center ${gapClassName} text-lg hover:text-orange-400 transition-colors duration-200 hover:underline cursor-pointer bg-transparent border-none p-0 font-inherit text-left ${buttonClassName}`}
-        onClick={() => setShowModal(true)}
+        onClick={() => { setShowModal(true); }}
         type="button"
       >
         {showIcon && <MapPin className="h-5 w-5 text-orange-400" />}
@@ -74,7 +74,7 @@ const LocationEditModal: React.FC<LocationEditModalProps> = ({
               id="location-search-modal"
             />
             <button
-              onClick={() => setShowModal(false)}
+              onClick={() => { setShowModal(false); }}
               className="text-xs text-gray-500 hover:text-gray-700 mt-2"
               type="button"
               aria-label="Cancel location update"

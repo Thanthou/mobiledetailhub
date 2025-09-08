@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useEffect,useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useAuth } from '../../../../../contexts/AuthContext';
+
 import { config } from '../../../../../config/environment';
+import { useAuth } from '../../../../../hooks/useAuth';
 import type { ProfileData, ProfileFormData, ProfileUpdateResponse, ProfileValidationErrors } from '../types';
 
 interface UseProfileDataReturn {
@@ -35,14 +36,17 @@ export const useProfileData = (): UseProfileDataReturn => {
           const token = localStorage.getItem('token');
           const response = await fetch(`${config.apiUrl}/api/affiliates/${businessSlug}`, {
             headers: {
-              'Authorization': `Bearer ${token}`,
+              'Authorization': `Bearer ${token ?? ''}`,
               'Content-Type': 'application/json'
             }
           });
           
           if (response.ok) {
-            const data = await response.json();
-            if (data.success && data.affiliate) {
+            const data = await response.json() as {
+              success?: boolean;
+              affiliate?: { id?: string };
+            };
+            if (data.success && data.affiliate?.id) {
               setAdminAffiliateId(data.affiliate.id);
             }
           }
@@ -51,7 +55,7 @@ export const useProfileData = (): UseProfileDataReturn => {
         }
       };
       
-      fetchAffiliateId();
+      void fetchAffiliateId();
     }
   }, [user?.role, businessSlug, adminAffiliateId]);
 
@@ -79,7 +83,7 @@ export const useProfileData = (): UseProfileDataReturn => {
         }
 
         // Fetch profile data from the affiliate endpoint
-        const response = await fetch(`${config.apiUrl}/api/affiliates/${businessSlug}`, {
+        const response = await fetch(`${config.apiUrl}/api/affiliates/${businessSlug ?? ''}`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -97,8 +101,37 @@ export const useProfileData = (): UseProfileDataReturn => {
           throw new Error(`Failed to fetch profile: ${response.statusText}`);
         }
 
-        const result = await response.json();
+        const result = await response.json() as {
+          affiliate?: {
+            first_name?: string;
+            last_name?: string;
+            personal_phone?: string;
+            personal_email?: string;
+            business_name?: string;
+            business_email?: string;
+            business_phone?: string;
+            twilio_phone?: string;
+            business_start_date?: string;
+            website_url?: string;
+            gbp_url?: string;
+            facebook_url?: string;
+            youtube_url?: string;
+            tiktok_url?: string;
+            instagram_url?: string;
+            id?: string;
+            slug?: string;
+            owner?: string;
+            email?: string;
+            phone?: string;
+            created_at?: string;
+            updated_at?: string;
+          };
+        };
         const data = result.affiliate;
+        
+        if (!data) {
+          throw new Error('No affiliate data received');
+        }
         
         // Transform the data to match our ProfileData interface
         const transformedData: ProfileData = {
@@ -119,13 +152,13 @@ export const useProfileData = (): UseProfileDataReturn => {
           tiktok_url: data.tiktok_url || '',
           instagram_url: data.instagram_url || '',
           // Additional fields from database
-          id: data.id,
-          slug: data.slug,
-          owner: data.owner,
-          email: data.email,
-          phone: data.phone,
-          created_at: data.created_at,
-          updated_at: data.updated_at,
+          id: data.id || '',
+          slug: data.slug || '',
+          owner: data.owner || '',
+          email: data.email || '',
+          phone: data.phone || '',
+          created_at: data.created_at || '',
+          updated_at: data.updated_at || '',
         };
 
         setProfileData(transformedData);
@@ -139,8 +172,8 @@ export const useProfileData = (): UseProfileDataReturn => {
     };
 
     // Only fetch if we have the necessary data
-    if ((user?.role === 'affiliate' && user?.id) || (user?.role === 'admin' && adminAffiliateId)) {
-      fetchProfileData();
+    if ((user?.role === 'affiliate' && user.id) || (user?.role === 'admin' && adminAffiliateId)) {
+      void fetchProfileData();
     }
   }, [user?.id, user?.role, adminAffiliateId, businessSlug]);
 
@@ -174,7 +207,7 @@ export const useProfileData = (): UseProfileDataReturn => {
       }
 
       // Update profile data via API
-      const response = await fetch(`${config.apiUrl}/api/affiliates/${businessSlug}`, {
+      const response = await fetch(`${config.apiUrl}/api/affiliates/${businessSlug ?? ''}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -188,7 +221,9 @@ export const useProfileData = (): UseProfileDataReturn => {
           throw new Error('Authentication failed. Please log in again.');
         }
         if (response.status === 400) {
-          const errorData = await response.json();
+          const errorData = await response.json() as {
+            errors?: ProfileValidationErrors;
+          };
           if (errorData.errors) {
             setValidationErrors(errorData.errors);
             return { success: false, error: 'Validation failed' };
@@ -197,11 +232,11 @@ export const useProfileData = (): UseProfileDataReturn => {
         throw new Error(`Failed to update profile: ${response.statusText}`);
       }
 
-      const responseData = await response.json();
+      await response.json();
       
       // Update local state with the new data
       const updatedProfile: ProfileData = {
-        ...profileData!,
+        ...(profileData ?? {} as ProfileData),
         ...data,
         updated_at: new Date().toISOString(),
       };
@@ -232,47 +267,47 @@ const validateProfileData = (data: ProfileFormData): ProfileValidationErrors => 
   const errors: ProfileValidationErrors = {};
 
   // Personal Information Validation - only validate format if provided
-  if (data.personal_phone?.trim() && !/^[\d\s\-\+\(\)]{10,20}$/.test(data.personal_phone)) {
+  if (data.personal_phone.trim() && !/^[\d\s\-+()]{10,20}$/.test(data.personal_phone)) {
     errors.personal_phone = 'Please enter a valid phone number';
   }
 
-  if (data.personal_email?.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.personal_email)) {
+  if (data.personal_email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.personal_email)) {
     errors.personal_email = 'Please enter a valid email address';
   }
 
   // Business Information Validation - only validate format if provided
-  if (data.business_email?.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.business_email)) {
+  if (data.business_email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.business_email)) {
     errors.business_email = 'Please enter a valid email address';
   }
 
-  if (data.business_phone?.trim() && !/^[\d\s\-\+\(\)]{10,20}$/.test(data.business_phone)) {
+  if (data.business_phone.trim() && !/^[\d\s\-+()]{10,20}$/.test(data.business_phone)) {
     errors.business_phone = 'Please enter a valid phone number';
   }
 
-  if (data.twilio_phone?.trim() && !/^[\d\s\-\+\(\)]{10,20}$/.test(data.twilio_phone)) {
+  if (data.twilio_phone.trim() && !/^[\d\s\-+()]{10,20}$/.test(data.twilio_phone)) {
     errors.twilio_phone = 'Please enter a valid phone number';
   }
 
   // URL Validation - only validate format if provided
   const urlPattern = /^https?:\/\/.+/;
   
-  if (data.gbp_url?.trim() && !urlPattern.test(data.gbp_url)) {
+  if (data.gbp_url.trim() && !urlPattern.test(data.gbp_url)) {
     errors.gbp_url = 'Please enter a valid URL (must start with http:// or https://)';
   }
   
-  if (data.facebook_url?.trim() && !urlPattern.test(data.facebook_url)) {
+  if (data.facebook_url.trim() && !urlPattern.test(data.facebook_url)) {
     errors.facebook_url = 'Please enter a valid URL (must start with http:// or https://)';
   }
   
-  if (data.youtube_url?.trim() && !urlPattern.test(data.youtube_url)) {
+  if (data.youtube_url.trim() && !urlPattern.test(data.youtube_url)) {
     errors.youtube_url = 'Please enter a valid URL (must start with http:// or https://)';
   }
   
-  if (data.tiktok_url?.trim() && !urlPattern.test(data.tiktok_url)) {
+  if (data.tiktok_url.trim() && !urlPattern.test(data.tiktok_url)) {
     errors.tiktok_url = 'Please enter a valid URL (must start with http:// or https://)';
   }
   
-  if (data.instagram_url?.trim() && !urlPattern.test(data.instagram_url)) {
+  if (data.instagram_url.trim() && !urlPattern.test(data.instagram_url)) {
     errors.instagram_url = 'Please enter a valid URL (must start with http:// or https://)';
   }
 

@@ -1,7 +1,11 @@
 import { useMemo } from 'react';
-import { FAQItem } from '../types';
+
+import { useLocation } from '@/hooks/useLocation';
+
 import { AFFILIATE_FAQ_ITEMS } from '../data/affiliate';
-import { useLocation } from '/src/contexts/LocationContext';
+import type { FAQItem } from '../types';
+
+// Note: LocationData interface removed as it was unused
 
 export const useAffiliateData = () => {
   const { selectedLocation } = useLocation();
@@ -11,10 +15,10 @@ export const useAffiliateData = () => {
     if (selectedLocation) {
       return {
         business: {
-          city: selectedLocation.city,
-          state: selectedLocation.state,
-          zip: selectedLocation.zipCode,
-          address: `${selectedLocation.city}, ${selectedLocation.state} ${selectedLocation.zipCode || ''}`.trim(),
+          city: selectedLocation.city || '',
+          state: selectedLocation.state || '',
+          zip: selectedLocation.zipCode || '',
+          address: `${selectedLocation.city || ''}, ${selectedLocation.state || ''} ${selectedLocation.zipCode || ''}`.trim(),
         },
         serviceLocations: [], // Empty array for nearby locations
       };
@@ -28,11 +32,11 @@ export const useAffiliateData = () => {
   }, [geoConfig]);
 
   const groupedFAQs = useMemo(() => {
-    return faqData.reduce((acc, item, index) => {
+    return faqData.reduce<Record<string, (FAQItem & { originalIndex: number })[]>>((acc, item, index) => {
       if (!acc[item.category]) acc[item.category] = [];
       acc[item.category].push({ ...item, originalIndex: index });
       return acc;
-    }, {} as Record<string, (FAQItem & { originalIndex: number })[]>);
+    }, {});
   }, [faqData]);
 
   const categories = useMemo(() => Object.keys(groupedFAQs), [groupedFAQs]);

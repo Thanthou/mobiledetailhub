@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import React, { createContext, useState } from 'react';
 
-interface FAQContextType {
+export interface FAQContextType {
   isExpanded: boolean;
   setIsExpanded: (expanded: boolean) => void;
   expandFAQ: () => void;
@@ -8,7 +9,7 @@ interface FAQContextType {
   toggleFAQ: () => void;
 }
 
-const FAQContext = createContext<FAQContextType | undefined>(undefined);
+export const FAQContext = createContext<FAQContextType | null>(null);
 
 interface FAQProviderProps {
   children: ReactNode;
@@ -22,15 +23,13 @@ export const FAQProvider: React.FC<FAQProviderProps> = ({ children }) => {
     // Scroll to FAQ section after a brief delay to ensure it's expanded
     setTimeout(() => {
       const faqSection = document.getElementById('faq');
-      if (faqSection) {
-        faqSection.scrollIntoView({ behavior: 'smooth' });
-      }
+      faqSection.scrollIntoView({ behavior: 'smooth' });
     }, 100);
   };
 
-  const collapseFAQ = () => setIsExpanded(false);
+  const collapseFAQ = () => { setIsExpanded(false); };
   
-  const toggleFAQ = () => setIsExpanded(prev => !prev);
+  const toggleFAQ = () => { setIsExpanded(prev => !prev); };
 
   const value: FAQContextType = {
     isExpanded,
@@ -47,10 +46,3 @@ export const FAQProvider: React.FC<FAQProviderProps> = ({ children }) => {
   );
 };
 
-export const useFAQ = (): FAQContextType => {
-  const context = useContext(FAQContext);
-  if (context === undefined) {
-    throw new Error('useFAQ must be used within a FAQProvider');
-  }
-  return context;
-};

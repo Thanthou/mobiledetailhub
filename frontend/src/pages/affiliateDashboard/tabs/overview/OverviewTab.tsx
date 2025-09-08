@@ -1,9 +1,10 @@
 import React from 'react';
+
 import { MetricsCards } from './components/MetricsCards';
-import { RecentAppointments } from './components/RecentAppointments';
-import { RecentReviews } from './components/RecentReviews';
 import { NotificationPanel } from './components/NotificationPanel';
 import { QuickActions } from './components/QuickActions';
+import { RecentAppointments } from './components/RecentAppointments';
+import { RecentReviews } from './components/RecentReviews';
 
 export const OverviewTab: React.FC = () => {
   return (

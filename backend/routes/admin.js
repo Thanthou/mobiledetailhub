@@ -594,9 +594,11 @@ router.get('/mdh-service-areas', adminLimiter, authenticateToken, requireAdmin, 
 
 // Seed reviews endpoint
 router.post('/seed-reviews', adminLimiter, authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
-  console.log('=== SEED REVIEWS ENDPOINT CALLED ===');
-  console.log('Request body:', req.body);
-  console.log('User:', req.user);
+  logger.debug('Seed reviews endpoint called', { 
+    userId: req.user?.userId,
+    email: req.user?.email,
+    ip: req.ip
+  });
   
   if (!pool) {
     const error = new Error('Database connection not available');
@@ -782,10 +784,11 @@ router.post('/seed-reviews', adminLimiter, authenticateToken, requireAdmin, asyn
         ];
         
 
-        console.log('Executing query:', insertQuery);
-        console.log('With values:', values);
+        logger.debug('Executing review insert query', { 
+          reviewTitle: review.title,
+          businessSlug: review.businessSlug
+        });
         const insertResult = await client.query(insertQuery, values);
-        console.log('Query result:', insertResult);
         
         // Check if the insert was successful
         if (!insertResult.rows || insertResult.rows.length === 0) {
@@ -807,7 +810,10 @@ router.post('/seed-reviews', adminLimiter, authenticateToken, requireAdmin, asyn
             'UPDATE reputation.reviews SET reviewer_avatar_url = $1 WHERE id = $2',
             [customAvatar, reviewId]
           );
-          console.log(`Updated review ${reviewId} with custom avatar: ${customAvatar}`);
+          logger.debug('Updated review with custom avatar', { 
+            reviewId, 
+            customAvatar 
+          });
         }
 
       } catch (reviewError) {

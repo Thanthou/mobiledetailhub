@@ -1,14 +1,24 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useAuth } from '/src/contexts/AuthContext';
-import { LazyLoginModal, prefetchLoginModal } from '/src/components/login';
-import { useModalPrefetch } from '/src/utils/modalCodeSplitting';
+import React, { useEffect, useRef, useState } from 'react';
+
+import { LazyLoginModal, prefetchLoginModal } from '@/components/login';
+import { useAuth } from '@/hooks/useAuth';
+import { useModalPrefetch } from '@/utils/modalCodeSplitting';
+
 import UserMenu from './UserMenu';
+
+// Define modal prefetch type
+interface ModalPrefetchType {
+  handleHover: (modalType: string) => void;
+  handleFocus: (modalType: string) => void;
+}
 
 const LoginButton: React.FC = () => {
   const { isLoggedIn } = useAuth();
   const [showModal, setShowModal] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const { handleHover, handleFocus } = useModalPrefetch();
+  const modalPrefetch = useModalPrefetch() as ModalPrefetchType | undefined;
+  const handleHover = modalPrefetch?.handleHover ?? (() => {});
+  const handleFocus = modalPrefetch?.handleFocus ?? (() => {});
 
   // Handle keyboard navigation
   const handleKeyDown = (event: React.KeyboardEvent) => {
@@ -38,16 +48,28 @@ const LoginButton: React.FC = () => {
   };
 
   // Enhanced prefetch handlers using the new system
-  const handleModalHover = () => {
-    handleHover('login');
-    // Fallback to legacy prefetch
-    prefetchLoginModal();
+  const handleModalHover = (): void => {
+    try {
+      handleHover('login');
+      // Fallback to legacy prefetch
+      prefetchLoginModal();
+    } catch (error) {
+      console.warn('Error in handleModalHover:', error);
+      // Fallback to legacy prefetch only
+      prefetchLoginModal();
+    }
   };
 
-  const handleModalFocus = () => {
-    handleFocus('login');
-    // Fallback to legacy prefetch
-    prefetchLoginModal();
+  const handleModalFocus = (): void => {
+    try {
+      handleFocus('login');
+      // Fallback to legacy prefetch
+      prefetchLoginModal();
+    } catch (error) {
+      console.warn('Error in handleModalFocus:', error);
+      // Fallback to legacy prefetch only
+      prefetchLoginModal();
+    }
   };
 
   // Focus management when component mounts
@@ -66,7 +88,7 @@ const LoginButton: React.FC = () => {
     <>
       <button
         ref={buttonRef}
-        onClick={() => setShowModal(true)}
+        onClick={() => { setShowModal(true); }}
         onKeyDown={handleKeyDown}
         onMouseEnter={handleModalHover}
         onFocus={handleModalFocus}

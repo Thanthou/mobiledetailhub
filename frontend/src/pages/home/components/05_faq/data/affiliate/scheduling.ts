@@ -1,14 +1,26 @@
-import { FAQItem } from '../../types';
+import type { FAQItem } from '../../types';
+
+// Type definitions for configuration
+interface BusinessConfig {
+  city?: string;
+  locality?: string;
+  state?: string;
+  region?: string;
+}
+
+interface AffiliateConfig {
+  business?: BusinessConfig;
+}
 
 // Helper function for geo parts
-function getGeoParts(cfg: any) {
-  const business = cfg?.business ?? {};
+function getGeoParts(cfg: AffiliateConfig): { city: string; state: string } {
+  const business = cfg.business ?? {};
   const city = business.city || business.locality || "Your City";
   const state = business.state || business.region || "Your State";
   return { city, state };
 }
 
-export const AFFILIATE_FAQ_SCHEDULING = (cfg: any): FAQItem[] => {
+export const AFFILIATE_FAQ_SCHEDULING = (cfg: AffiliateConfig): FAQItem[] => {
   const { city, state } = getGeoParts(cfg);
   return [
     {

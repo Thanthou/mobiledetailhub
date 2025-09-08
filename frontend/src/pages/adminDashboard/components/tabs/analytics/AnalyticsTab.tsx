@@ -1,5 +1,5 @@
+import { BarChart3, TrendingUp } from 'lucide-react';
 import React from 'react';
-import { BarChart3, TrendingUp, Activity, PieChart } from 'lucide-react';
 
 export const AnalyticsTab: React.FC = () => {
   return (

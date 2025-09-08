@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
 import { Search } from 'lucide-react';
+import React, { useState } from 'react';
+
+import type { FAQItemWithIndex } from '../types';
 import FAQItem from './FAQItem';
-import { FAQItemWithIndex } from '../types';
 
 interface FAQTabbedInterfaceProps {
   groupedFAQs: Record<string, FAQItemWithIndex[]>;
@@ -48,7 +49,7 @@ const FAQTabbedInterface: React.FC<FAQTabbedInterfaceProps> = ({
             name="faqSearch"
             placeholder="Search FAQs..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => { setSearchTerm(e.target.value); }}
             className="w-full pl-10 pr-4 py-3 bg-stone-700 border border-stone-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
           />
         </div>
@@ -64,7 +65,7 @@ const FAQTabbedInterface: React.FC<FAQTabbedInterfaceProps> = ({
                   {categories.map((category) => (
                     <button
                       key={category}
-                      onClick={() => setActiveCategory(category)}
+                      onClick={() => { setActiveCategory(category); }}
                       className={`
                         px-6 py-3 font-semibold text-sm whitespace-nowrap rounded-t-lg transition-all duration-200
                         ${activeCategory === category
@@ -99,7 +100,7 @@ const FAQTabbedInterface: React.FC<FAQTabbedInterfaceProps> = ({
                   <FAQItem
                     item={item}
                     isOpen={openItems.includes(item.originalIndex)}
-                    onToggle={() => onToggleItem(item.originalIndex)}
+                    onToggle={() => { onToggleItem(item.originalIndex); }}
                   />
                 </div>
               ))}
@@ -127,7 +128,7 @@ const FAQTabbedInterface: React.FC<FAQTabbedInterfaceProps> = ({
                 <FAQItem
                   item={item}
                   isOpen={openItems.includes(item.originalIndex)}
-                  onToggle={() => onToggleItem(item.originalIndex)}
+                  onToggle={() => { onToggleItem(item.originalIndex); }}
                   highlightTerm={searchTerm}
                 />
               </div>
@@ -136,7 +137,7 @@ const FAQTabbedInterface: React.FC<FAQTabbedInterfaceProps> = ({
 
           {filteredFAQs.length === 0 && (
             <div className="text-center py-12 text-gray-400">
-              <p>No FAQs found matching "{searchTerm}"</p>
+              <p>No FAQs found matching &ldquo;{searchTerm}&rdquo;</p>
               <p className="text-sm mt-2">Try different keywords or browse by category above.</p>
             </div>
           )}

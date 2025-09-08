@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect,useState } from 'react';
 
 interface Appointment {
   id: number;
@@ -15,7 +15,7 @@ export const useRecentAppointments = () => {
 
   useEffect(() => {
     // Simulate API call
-    const fetchAppointments = async () => {
+    const fetchAppointments = (): void => {
       setLoading(true);
       // Mock data - replace with actual API call
       const mockAppointments: Appointment[] = [

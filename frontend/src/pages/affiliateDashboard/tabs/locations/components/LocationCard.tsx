@@ -1,5 +1,6 @@
+import { Edit,MapPin, Trash2 } from 'lucide-react';
 import React from 'react';
-import { MapPin, Trash2, Edit } from 'lucide-react';
+
 import type { ServiceArea } from '../types';
 
 interface LocationCardProps {
@@ -53,7 +54,7 @@ export const LocationCard: React.FC<LocationCardProps> = ({
         <div className="flex items-center space-x-2">
           {onEdit && (
             <button
-              onClick={() => onEdit(location)}
+              onClick={() => { onEdit(location); }}
               className="p-1 text-gray-400 hover:text-orange-500 transition-colors"
               title="Edit location"
             >
@@ -62,7 +63,7 @@ export const LocationCard: React.FC<LocationCardProps> = ({
           )}
           {onDelete && (
             <button
-              onClick={() => onDelete(`${location.city}-${location.state}`)}
+              onClick={() => { onDelete(`${location.city}-${location.state}`); }}
               disabled={isDeleting}
               className="p-1 text-gray-400 hover:text-red-500 disabled:text-gray-300 transition-colors"
               title="Delete location"

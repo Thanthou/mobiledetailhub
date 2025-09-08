@@ -8,7 +8,7 @@ const BrandsLoadingState: React.FC = () => {
           <div className="h-8 bg-stone-600 rounded w-64 mx-auto mb-2 animate-pulse"></div>
         </div>
         <div className="flex justify-center items-center gap-4">
-          {[...Array(4)].map((_, index) => (
+          {Array.from({ length: 4 }, (_, index) => (
             <div 
               key={index}
               className="w-40 h-40 bg-stone-600 rounded-full animate-pulse"

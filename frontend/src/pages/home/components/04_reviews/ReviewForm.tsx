@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { StarRating } from './StarRating';
-import { ReviewFormProps, ReviewFormData } from './types';
+
 import { useSubmitReview } from './hooks/useReviews';
+import { StarRating } from './StarRating';
+import type { ReviewFormData, ReviewFormProps } from './types';
 
 export const ReviewForm: React.FC<ReviewFormProps> = ({
   businessSlug,
@@ -50,7 +51,7 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({
       newErrors.reviewer_email = 'Please enter a valid email address';
     }
 
-    if (formData.reviewer_phone && !/^[\d\s\-\+\(\)]+$/.test(formData.reviewer_phone)) {
+    if (formData.reviewer_phone && !/^[\d\s\-+()]+$/.test(formData.reviewer_phone)) {
       newErrors.reviewer_phone = 'Please enter a valid phone number';
     }
 
@@ -81,7 +82,7 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({
       };
 
       await submitReview(reviewData);
-      onSubmit(formData);
+      await onSubmit(formData);
     } catch (error) {
       console.error('Failed to submit review:', error);
     }
@@ -102,10 +103,10 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({
         )}
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={(e) => { void handleSubmit(e); }} className="space-y-6">
         {/* Rating */}
         <div>
-          <label className="block text-stone-300 text-sm font-medium mb-3">
+          <label htmlFor="rating" className="block text-stone-300 text-sm font-medium mb-3">
             Overall Rating *
           </label>
           <div className="flex items-center gap-2">
@@ -122,13 +123,14 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({
 
         {/* Reviewer Name */}
         <div>
-          <label className="block text-stone-300 text-sm font-medium mb-2">
+          <label htmlFor="reviewer_name" className="block text-stone-300 text-sm font-medium mb-2">
             Your Name *
           </label>
           <input
+            id="reviewer_name"
             type="text"
             value={formData.reviewer_name}
-            onChange={(e) => handleInputChange('reviewer_name', e.target.value)}
+            onChange={(e) => { handleInputChange('reviewer_name', e.target.value); }}
             className={`w-full px-4 py-3 bg-stone-700 border rounded-lg text-white placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-400 ${
               errors.reviewer_name ? 'border-red-500' : 'border-stone-600'
             }`}
@@ -142,13 +144,14 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({
 
         {/* Review Title */}
         <div>
-          <label className="block text-stone-300 text-sm font-medium mb-2">
+          <label htmlFor="title" className="block text-stone-300 text-sm font-medium mb-2">
             Review Title (Optional)
           </label>
           <input
+            id="title"
             type="text"
             value={formData.title}
-            onChange={(e) => handleInputChange('title', e.target.value)}
+            onChange={(e) => { handleInputChange('title', e.target.value); }}
             className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-lg text-white placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-400"
             placeholder="Summarize your experience"
             disabled={isSubmitting}
@@ -157,12 +160,13 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({
 
         {/* Review Content */}
         <div>
-          <label className="block text-stone-300 text-sm font-medium mb-2">
+          <label htmlFor="content" className="block text-stone-300 text-sm font-medium mb-2">
             Your Review *
           </label>
           <textarea
+            id="content"
             value={formData.content}
-            onChange={(e) => handleInputChange('content', e.target.value)}
+            onChange={(e) => { handleInputChange('content', e.target.value); }}
             rows={4}
             className={`w-full px-4 py-3 bg-stone-700 border rounded-lg text-white placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none ${
               errors.content ? 'border-red-500' : 'border-stone-600'
@@ -182,12 +186,13 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({
 
         {/* Service Category */}
         <div>
-          <label className="block text-stone-300 text-sm font-medium mb-2">
+          <label htmlFor="service_category" className="block text-stone-300 text-sm font-medium mb-2">
             Service Category (Optional)
           </label>
           <select
+            id="service_category"
             value={formData.service_category}
-            onChange={(e) => handleInputChange('service_category', e.target.value)}
+            onChange={(e) => { handleInputChange('service_category', e.target.value); }}
             className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-400"
             disabled={isSubmitting}
           >
@@ -205,13 +210,14 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({
 
         {/* Service Date */}
         <div>
-          <label className="block text-stone-300 text-sm font-medium mb-2">
+          <label htmlFor="service_date" className="block text-stone-300 text-sm font-medium mb-2">
             Service Date (Optional)
           </label>
           <input
+            id="service_date"
             type="date"
             value={formData.service_date}
-            onChange={(e) => handleInputChange('service_date', e.target.value)}
+            onChange={(e) => { handleInputChange('service_date', e.target.value); }}
             className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-400"
             disabled={isSubmitting}
           />
@@ -220,13 +226,14 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({
         {/* Contact Information */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-stone-300 text-sm font-medium mb-2">
+            <label htmlFor="reviewer_email" className="block text-stone-300 text-sm font-medium mb-2">
               Email (Optional)
             </label>
             <input
+              id="reviewer_email"
               type="email"
               value={formData.reviewer_email}
-              onChange={(e) => handleInputChange('reviewer_email', e.target.value)}
+              onChange={(e) => { handleInputChange('reviewer_email', e.target.value); }}
               className={`w-full px-4 py-3 bg-stone-700 border rounded-lg text-white placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-400 ${
                 errors.reviewer_email ? 'border-red-500' : 'border-stone-600'
               }`}
@@ -239,13 +246,14 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({
           </div>
 
           <div>
-            <label className="block text-stone-300 text-sm font-medium mb-2">
+            <label htmlFor="reviewer_phone" className="block text-stone-300 text-sm font-medium mb-2">
               Phone (Optional)
             </label>
             <input
+              id="reviewer_phone"
               type="tel"
               value={formData.reviewer_phone}
-              onChange={(e) => handleInputChange('reviewer_phone', e.target.value)}
+              onChange={(e) => { handleInputChange('reviewer_phone', e.target.value); }}
               className={`w-full px-4 py-3 bg-stone-700 border rounded-lg text-white placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-400 ${
                 errors.reviewer_phone ? 'border-red-500' : 'border-stone-600'
               }`}

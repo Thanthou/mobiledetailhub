@@ -2,17 +2,18 @@
  * Tests for validation utility functions
  */
 
+import { describe, expect, it } from 'vitest';
+
 import { 
+  sanitizeHtml,
+  sanitizeText,
   validateEmail, 
-  validatePhone, 
+  validateMessage,
   validateName, 
   validatePassword,
-  validateVehicleField,
+  validatePhone, 
   validateService,
-  validateMessage,
-  sanitizeText,
-  sanitizeHtml
-} from './validation';
+  validateVehicleField} from './validation';
 
 describe('Validation Utilities', () => {
   describe('validateEmail', () => {

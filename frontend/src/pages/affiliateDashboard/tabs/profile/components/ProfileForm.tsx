@@ -1,20 +1,15 @@
+import { Building2, Link,User } from 'lucide-react';
 import React from 'react';
-import { User, Building2, Link } from 'lucide-react';
+
+import type { ProfileData } from '../types';
 import { AutoSaveField } from './AutoSaveField';
-import type { ProfileData, ProfileFormData, ProfileValidationErrors } from '../types';
 
 interface ProfileFormProps {
   profileData: ProfileData | null;
-  validationErrors: ProfileValidationErrors;
-  isUpdating: boolean;
-  onSave: (data: ProfileFormData) => Promise<void>;
 }
 
 export const ProfileForm: React.FC<ProfileFormProps> = ({
   profileData,
-  validationErrors,
-  isUpdating,
-  onSave,
 }) => {
 
   if (!profileData) {
@@ -123,12 +118,13 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label htmlFor="website-url" className="block text-sm font-medium text-gray-300 mb-2">
               Website
             </label>
             <input
+              id="website-url"
               type="url"
-              value={profileData?.website_url || `http://mobiledetailhub.com/${profileData?.slug || ''}`}
+              value={profileData.website_url || `http://mobiledetailhub.com/${profileData.slug || ''}`}
               readOnly
               className="w-full px-3 py-2 border rounded-md bg-stone-600 text-gray-300 cursor-not-allowed"
               placeholder="Auto-generated based on your business slug"

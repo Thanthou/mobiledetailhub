@@ -1,7 +1,9 @@
 import React from 'react';
-import { useImageRotation } from '/src/hooks/useImageRotation';
+
+import { useImageRotation } from '@/hooks/useImageRotation';
+
 import { HERO_CONSTANTS } from '../constants';
-import { HeroBackgroundProps } from '../types/index';
+import type { HeroBackgroundProps } from '../types/index';
 
 const HeroBackground: React.FC<HeroBackgroundProps & React.HTMLAttributes<HTMLDivElement>> = ({ 
   images = HERO_CONSTANTS.IMAGES,
@@ -23,9 +25,9 @@ const HeroBackground: React.FC<HeroBackgroundProps & React.HTMLAttributes<HTMLDi
     <div className={`absolute inset-0 overflow-hidden ${className}`} {...rest}>
       {images.map((src: string, idx: number) => (
         <img
-          key={`hero-${idx}`}
+          key={`hero-${String(idx)}`}
           src={src}
-          alt={`Professional mobile detailing service ${idx + 1}`}
+          alt={`Professional mobile detailing service ${String(idx + 1)}`}
           className="absolute inset-0 w-full h-full object-cover transition-opacity duration-[2000ms] ease-in-out"
           style={{
             opacity: idx === currentImageIndex ? 1 : 0,
@@ -35,7 +37,6 @@ const HeroBackground: React.FC<HeroBackgroundProps & React.HTMLAttributes<HTMLDi
           height={HERO_CONSTANTS.IMAGE_DIMENSIONS.height}
           loading={idx === 0 ? "eager" : "lazy"}
           decoding="async"
-          fetchpriority={idx === 0 ? "high" : "low"}
         />
       ))}
     </div>

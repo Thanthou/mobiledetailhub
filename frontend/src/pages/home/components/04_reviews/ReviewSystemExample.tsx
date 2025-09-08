@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Reviews, ReviewSubmissionModal, ReviewModeration } from './index';
+
+import { ReviewModeration,Reviews, ReviewSubmissionModal } from './index';
 
 /**
  * Example component showing how to use the new review system
@@ -16,7 +17,7 @@ export const ReviewSystemExample: React.FC = () => {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold text-white">MDH Site Reviews</h2>
           <button
-            onClick={() => setShowSubmissionModal(true)}
+            onClick={() => { setShowSubmissionModal(true); }}
             className="bg-orange-400 text-stone-900 px-4 py-2 rounded-lg hover:bg-orange-300 transition-colors"
           >
             Write Review
@@ -34,7 +35,7 @@ export const ReviewSystemExample: React.FC = () => {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold text-white">Business Reviews</h2>
           <button
-            onClick={() => setShowSubmissionModal(true)}
+            onClick={() => { setShowSubmissionModal(true); }}
             className="bg-orange-400 text-stone-900 px-4 py-2 rounded-lg hover:bg-orange-300 transition-colors"
           >
             Write Review
@@ -64,7 +65,7 @@ export const ReviewSystemExample: React.FC = () => {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold text-white">Review Moderation</h2>
           <button
-            onClick={() => setShowModeration(!showModeration)}
+            onClick={() => { setShowModeration(!showModeration); }}
             className="bg-stone-600 text-stone-300 px-4 py-2 rounded-lg hover:bg-stone-500 transition-colors"
           >
             {showModeration ? 'Hide' : 'Show'} Moderation
@@ -78,7 +79,7 @@ export const ReviewSystemExample: React.FC = () => {
       {/* Review Submission Modal */}
       <ReviewSubmissionModal
         isOpen={showSubmissionModal}
-        onClose={() => setShowSubmissionModal(false)}
+        onClose={() => { setShowSubmissionModal(false); }}
         reviewType="mdh"
         onSuccess={() => {
           // You might want to refresh the reviews here

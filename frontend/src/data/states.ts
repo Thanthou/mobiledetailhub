@@ -86,7 +86,7 @@ export function getStateName(code: string): string | undefined {
  */
 export function getStateCode(name: string): string | undefined {
   const normalizedName = name.toLowerCase();
-  const entry = Object.entries(STATES).find(([_, stateName]) => 
+  const entry = Object.entries(STATES).find(([, stateName]) => 
     stateName.toLowerCase() === normalizedName
   );
   return entry?.[0];

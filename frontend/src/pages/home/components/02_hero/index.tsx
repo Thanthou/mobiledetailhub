@@ -1,8 +1,9 @@
 import React from 'react';
+
 import { useSiteContext } from '../../../../hooks/useSiteContext';
+import AFFILIATE from './affiliate/Hero';
 import HeroBackground from './components/HeroBackground';
 import MDH from './mdh/Hero';
-import AFFILIATE from './affiliate/Hero';
 
 interface HeroProps {
   onRequestQuote: () => void;

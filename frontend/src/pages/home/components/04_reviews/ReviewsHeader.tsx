@@ -1,6 +1,7 @@
-import React from 'react';
 import { Star, Users } from 'lucide-react';
-import { Review } from './types';
+import React from 'react';
+
+import type { Review } from './types';
 
 interface ReviewsHeaderProps {
   reviews: Review[];
@@ -21,7 +22,7 @@ export const ReviewsHeader: React.FC<ReviewsHeaderProps> = ({ reviews }) => {
       </div>
       
       <p className="text-gray-300 text-lg max-w-3xl mx-auto mb-8">
-        Don't just take our word for it. See what our satisfied customers have to say about our premium mobile detailing services.
+        Don&rsquo;t just take our word for it. See what our satisfied customers have to say about our premium mobile detailing services.
       </p>
 
       {/* Stats Bar */}

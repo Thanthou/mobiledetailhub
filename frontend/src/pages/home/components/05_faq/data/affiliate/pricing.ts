@@ -1,15 +1,15 @@
-import { FAQItem } from '../../types';
+import type { FAQItem } from '../../types';
 
 // Helper function for geo parts
-function getGeoParts(cfg: any) {
-  const business = cfg?.business ?? {};
+function getGeoParts(cfg: { business?: { city?: string; locality?: string; state?: string; region?: string } }) {
+  const business = cfg.business ?? {};
   const city = business.city || business.locality || "Your City";
   const state = business.state || business.region || "Your State";
   const cityState = `${city}, ${state}`;
   return { city, state, cityState };
 }
 
-export const AFFILIATE_FAQ_PRICING = (cfg: any): FAQItem[] => {
+export const AFFILIATE_FAQ_PRICING = (cfg: { business?: { city?: string; locality?: string; state?: string; region?: string } }): FAQItem[] => {
   const { cityState } = getGeoParts(cfg);
   return [
     {

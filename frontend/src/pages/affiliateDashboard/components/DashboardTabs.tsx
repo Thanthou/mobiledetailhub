@@ -1,6 +1,7 @@
 import React from 'react';
-import { DASHBOARD_TABS } from '../utils/constants';
+
 import type { DashboardTab } from '../types';
+import { DASHBOARD_TABS } from '../utils/constants';
 
 interface DashboardTabsProps {
   activeTab: DashboardTab;
@@ -19,7 +20,7 @@ export const DashboardTabs: React.FC<DashboardTabsProps> = ({
           return (
             <button
               key={tab.id}
-              onClick={() => onTabChange(tab.id)}
+              onClick={() => { onTabChange(tab.id); }}
               className={`flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
                 activeTab === tab.id
                   ? 'bg-orange-500 text-white shadow-md hover:bg-orange-600'

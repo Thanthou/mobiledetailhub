@@ -1,6 +1,6 @@
-import { FAQItem } from '../../types';
+import type { FAQItem } from '../../types';
 
-export const AFFILIATE_FAQ_PAYMENTS = (_cfg: any): FAQItem[] => [
+export const AFFILIATE_FAQ_PAYMENTS = (): FAQItem[] => [
   {
     category: "Payments & Deposits",
     question: "What payment methods do you accept?",

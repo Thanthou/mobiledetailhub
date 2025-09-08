@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useCallback, useEffect,useState } from 'react';
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -8,7 +8,7 @@ interface ErrorBoundaryState {
 export const useErrorBoundary = () => {
   const [errorState, setErrorState] = useState<ErrorBoundaryState>({ hasError: false });
 
-  const handleError = useCallback((error: Error, errorInfo?: any) => {
+  const handleError = useCallback((error: Error, errorInfo?: { componentStack?: string; errorBoundary?: string }) => {
     console.error('useErrorBoundary caught an error:', error, errorInfo);
     
     setErrorState({
@@ -29,11 +29,13 @@ export const useErrorBoundary = () => {
   // Global error handler
   useEffect(() => {
     const handleGlobalError = (event: ErrorEvent) => {
-      handleError(event.error || new Error(event.message));
+      const error = event.error instanceof Error ? event.error : new Error(event.message);
+      handleError(error);
     };
 
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      handleError(new Error(event.reason));
+      const reason = typeof event.reason === 'string' ? event.reason : String(event.reason);
+      handleError(new Error(reason));
     };
 
     window.addEventListener('error', handleGlobalError);

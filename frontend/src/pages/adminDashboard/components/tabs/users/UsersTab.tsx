@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Users, UserPlus, UserCheck, UserX, UserCog, Loader2, Trash2 } from 'lucide-react';
-import type { UserSubTab } from '../../../types';
+import { Loader2, Trash2,UserCheck, UserCog, UserPlus, Users, UserX } from 'lucide-react';
+import React, { useCallback,useEffect, useRef, useState } from 'react';
+
 import { apiService } from '../../../../../services/api';
-import { ApplicationModal, Toast } from '../../shared';
 import { affiliateEventManager } from '../../../../../utils/affiliateEvents';
+import type { UserSubTab } from '../../../types';
+import { ApplicationModal, Toast } from '../../shared';
 
 interface User {
   id: number;
@@ -64,7 +65,7 @@ export const UsersTab: React.FC = () => {
     { id: 'pending' as UserSubTab, label: 'Pending', icon: UserPlus },
   ];
 
-  const fetchUsers = useCallback(async (status: UserSubTab, force = false) => {
+  const fetchUsers = useCallback((status: UserSubTab, force = false) => {
     // Debouncing: prevent rapid successive calls for the same status
     const now = Date.now();
     const lastFetch = lastFetchRef.current;
@@ -80,40 +81,34 @@ export const UsersTab: React.FC = () => {
     }
     
     // Set a debounce timer for rapid successive calls
-    debounceTimer.current = setTimeout(async () => {
-      setLoading(true);
-      setError(null);
-      lastFetchRef.current = { status, timestamp: now };
-      
-      try {
-        if (status === 'pending') {
-          // Fetch pending affiliate applications
-          const response = await apiService.getPendingApplications();
-          if (response.success) {
-            setPendingApplications(response.applications || []);
+    debounceTimer.current = setTimeout(() => {
+      void (async () => {
+        setLoading(true);
+        setError(null);
+        lastFetchRef.current = { status, timestamp: now };
+        
+        try {
+          if (status === 'pending') {
+            // Fetch pending affiliate applications
+            const response = await apiService.getPendingApplications();
+            setPendingApplications(response.applications);
           } else {
-            setError('Failed to fetch pending applications');
+            // Fetch regular users
+            const response = await apiService.getUsers(status);
+            setUsers(response.users);
           }
-        } else {
-          // Fetch regular users
-          const response = await apiService.getUsers(status);
-          if (response.success) {
-            setUsers(response.users || []);
-          } else {
-            setError('Failed to fetch users');
-          }
+        } catch (err) {
+          setError(err instanceof Error ? err.message : 'An error occurred');
+        } finally {
+          setLoading(false);
         }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setLoading(false);
-      }
+      })();
     }, 200); // 200ms debounce delay
   }, []); // Empty dependency array is correct here
 
   useEffect(() => {
     fetchUsers(activeSubTab);
-  }, [activeSubTab]); // Remove fetchUsers from dependencies to prevent infinite loop
+  }, [activeSubTab, fetchUsers]); // Include fetchUsers in dependencies
 
   // Cleanup timer on unmount
   useEffect(() => {
@@ -193,7 +188,7 @@ export const UsersTab: React.FC = () => {
       }
       
       // Refresh the pending applications list
-      await fetchUsers('pending', true);
+      fetchUsers('pending', true);
       
       // Notify other components that an affiliate was updated
       affiliateEventManager.notify();
@@ -248,7 +243,7 @@ export const UsersTab: React.FC = () => {
           type: 'success',
           isVisible: true
         });
-        await fetchUsers('affiliates', true); // Refresh affiliates list
+        fetchUsers('affiliates', true); // Refresh affiliates list
         
         // Notify other components that an affiliate was deleted
         affiliateEventManager.notify();
@@ -306,7 +301,7 @@ export const UsersTab: React.FC = () => {
           <h3 className="text-lg font-semibold mb-2 text-red-400">Error</h3>
           <p className="text-red-300">{error}</p>
           <button 
-            onClick={() => fetchUsers(subTab, true)}
+            onClick={() => { fetchUsers(subTab, true); }}
             className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
           >
             Retry
@@ -323,7 +318,7 @@ export const UsersTab: React.FC = () => {
               <h3 className="text-lg font-semibold mb-2">No Pending Applications</h3>
               <p>All affiliate applications have been processed.</p>
               <button 
-                onClick={() => fetchUsers('pending', true)}
+                onClick={() => { fetchUsers('pending', true); }}
                 className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
               >
                 Refresh
@@ -339,7 +334,7 @@ export const UsersTab: React.FC = () => {
                 Showing {pendingApplications.length} pending application{pendingApplications.length !== 1 ? 's' : ''}
               </span>
               <button 
-                onClick={() => fetchUsers('pending', true)}
+                onClick={() => { fetchUsers('pending', true); }}
                 className="px-3 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-700 transition-colors"
               >
                 Refresh
@@ -369,7 +364,7 @@ export const UsersTab: React.FC = () => {
                   </div>
                   <div className="ml-4 flex flex-col gap-2">
                     <button 
-                      onClick={() => handleApproveApplication(app.id, app.business_name)}
+                      onClick={() => { handleApproveApplication(app.id, app.business_name); }}
                       disabled={processingApplication}
                       className={`px-3 py-1.5 text-white text-xs rounded transition-colors ${
                         processingApplication 
@@ -380,7 +375,7 @@ export const UsersTab: React.FC = () => {
                       {processingApplication ? 'Processing...' : 'Approve'}
                     </button>
                     <button 
-                      onClick={() => handleRejectApplication(app.id, app.business_name)}
+                      onClick={() => { handleRejectApplication(app.id, app.business_name); }}
                       disabled={processingApplication}
                       className={`px-3 py-1.5 text-white text-xs rounded transition-colors ${
                         processingApplication 
@@ -440,7 +435,7 @@ export const UsersTab: React.FC = () => {
                   {/* Delete button for affiliates */}
                   {user.role === 'affiliate' && (
                     <button
-                      onClick={() => handleDeleteAffiliate(user.id, user.business_name || user.name)}
+                      onClick={() => void handleDeleteAffiliate(user.id, user.business_name || user.name)}
                       disabled={deletingAffiliate === user.id}
                       className={`flex items-center gap-2 px-3 py-1.5 text-white text-xs rounded transition-colors ${
                         deletingAffiliate === user.id
@@ -486,7 +481,7 @@ export const UsersTab: React.FC = () => {
               return (
                 <button
                   key={subTab.id}
-                  onClick={() => handleSubTabChange(subTab.id)}
+                  onClick={() => { handleSubTabChange(subTab.id); }}
                   className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                     activeSubTab === subTab.id
                       ? 'bg-blue-900 text-blue-300 border-b-2 border-blue-400'
@@ -525,7 +520,7 @@ export const UsersTab: React.FC = () => {
           message={toast.message}
           type={toast.type}
           isVisible={toast.isVisible}
-          onClose={() => setToast(null)}
+          onClose={() => { setToast(null); }}
         />
       )}
     </div>

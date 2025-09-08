@@ -1,6 +1,7 @@
-import React from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import { FAQItemWithIndex } from '../types';
+import React from 'react';
+
+import type { FAQItemWithIndex } from '../types';
 
 interface FAQItemProps {
   item: FAQItemWithIndex;
@@ -39,7 +40,7 @@ const FAQItem: React.FC<FAQItemProps> = ({ item, isOpen, onToggle, highlightTerm
         onClick={onToggle}
         className={`w-full text-left p-6 flex justify-between items-start hover:bg-stone-600 transition-colors ${!isOpen ? 'flex-shrink-0' : ''}`}
         aria-expanded={isOpen}
-        aria-controls={`faq-answer-${item.originalIndex}`}
+        aria-controls={`faq-answer-${item.originalIndex.toString()}`}
       >
         <h4 className="text-lg font-semibold text-white pr-4" itemProp="name">
           {highlightText(item.question, highlightTerm)}
@@ -53,7 +54,7 @@ const FAQItem: React.FC<FAQItemProps> = ({ item, isOpen, onToggle, highlightTerm
 
       {isOpen ? (
         <div
-          id={`faq-answer-${item.originalIndex}`}
+          id={`faq-answer-${item.originalIndex.toString()}`}
           className="px-6 pb-6"
           itemScope
           itemProp="acceptedAnswer"

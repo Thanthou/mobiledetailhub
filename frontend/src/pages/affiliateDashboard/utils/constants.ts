@@ -1,4 +1,5 @@
-import { Home, Calendar, Users, Car, BarChart3, MapPin, User } from 'lucide-react';
+import { BarChart3, Calendar, Car, Home, MapPin, User,Users } from 'lucide-react';
+
 import type { TabConfig } from '../types';
 
 export const DASHBOARD_TABS: TabConfig[] = [

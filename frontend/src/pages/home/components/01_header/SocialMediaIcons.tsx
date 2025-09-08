@@ -1,5 +1,5 @@
-import React from 'react';
 import { Facebook, Instagram, Youtube } from 'lucide-react';
+import React from 'react';
 
 // Custom TikTok icon component
 const TikTokIcon: React.FC<{ className?: string }> = ({ className }) => (

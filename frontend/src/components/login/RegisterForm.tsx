@@ -1,5 +1,6 @@
+import { Eye, EyeOff, Lock, Mail, Phone,User } from 'lucide-react';
 import React, { useState } from 'react';
-import { Eye, EyeOff, Mail, Lock, User, Phone } from 'lucide-react';
+
 import FormField from './FormField';
 
 interface RegisterFormProps {
@@ -9,7 +10,7 @@ interface RegisterFormProps {
   disabled?: boolean;
 }
 
-const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, error, disabled = false }) => {
+const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, disabled = false }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -51,7 +52,12 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, error, d
       return;
     }
 
-    await onSubmit(formData.email, formData.password, formData.name, formData.phone);
+    try {
+      await onSubmit(formData.email, formData.password, formData.name, formData.phone);
+    } catch (err) {
+      // Error handling is done by the parent component
+      console.error('Registration failed:', err);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,7 +76,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, error, d
   const passwordRightElement = (
     <button
       type="button"
-      onClick={() => setShowPassword(!showPassword)}
+      onClick={() => { setShowPassword(!showPassword); }}
       className="text-gray-500 hover:text-gray-300 transition-colors duration-200"
       disabled={disabled}
     >
@@ -79,7 +85,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, error, d
   );
 
   return (
-    <form onSubmit={handleSubmit} className="px-8 pb-8">
+    <form onSubmit={(e) => { void handleSubmit(e); }} className="px-8 pb-8">
       <div className="space-y-6">
         {/* Name Field */}
         <FormField

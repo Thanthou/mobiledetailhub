@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Calendar } from 'lucide-react';
-import { ScheduleHeader } from './components/ScheduleHeader';
+
 import { ScheduleGrid } from './components/ScheduleGrid';
+import { ScheduleHeader } from './components/ScheduleHeader';
 import { ScheduleSidebar } from './components/ScheduleSidebar';
 import { useScheduleData } from './hooks/useScheduleData';
 

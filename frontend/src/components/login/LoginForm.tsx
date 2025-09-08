@@ -1,5 +1,6 @@
+import { Eye, EyeOff, Lock,Mail } from 'lucide-react';
 import React, { useState } from 'react';
-import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
+
 import FormField from './FormField';
 
 interface LoginFormProps {
@@ -9,7 +10,7 @@ interface LoginFormProps {
   disabled?: boolean;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading, error, disabled = false }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading, disabled = false }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -60,7 +61,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading, error, disable
   const passwordRightElement = (
     <button
       type="button"
-      onClick={() => setShowPassword(!showPassword)}
+      onClick={() => { setShowPassword(!showPassword); }}
       className="text-gray-500 hover:text-gray-300 transition-colors duration-200"
       disabled={disabled}
     >
@@ -69,7 +70,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading, error, disable
   );
 
   return (
-    <form onSubmit={handleSubmit} className="px-8 pb-8">
+    <form onSubmit={(e) => void handleSubmit(e)} className="px-8 pb-8">
       <div className="space-y-6">
         {/* Email Field */}
         <FormField

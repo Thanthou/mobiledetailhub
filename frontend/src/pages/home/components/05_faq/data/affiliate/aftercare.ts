@@ -1,6 +1,6 @@
-import { FAQItem } from '../../types';
+import type { FAQItem } from '../../types';
 
-export const AFFILIATE_FAQ_AFTERCARE = (_cfg: any): FAQItem[] => [
+export const AFFILIATE_FAQ_AFTERCARE = (): FAQItem[] => [
   {
     category: "Aftercare & Maintenance",
     question: "How should I maintain my vehicle after detailing?",

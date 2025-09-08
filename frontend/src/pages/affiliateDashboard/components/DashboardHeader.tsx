@@ -1,5 +1,6 @@
+import { Calendar,Car } from 'lucide-react';
 import React from 'react';
-import { Car, Calendar } from 'lucide-react';
+
 import type { DetailerData } from '../types';
 
 interface DashboardHeaderProps {
@@ -8,8 +9,7 @@ interface DashboardHeaderProps {
 }
 
 export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ 
-  detailerData, 
-  onBackToForm 
+  detailerData
 }) => {
   return (
     <div className="bg-stone-800 rounded-2xl shadow-lg border border-stone-700 mb-8 overflow-hidden">
@@ -27,20 +27,20 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             {/* Business Details */}
             <div>
               <h1 className="text-3xl font-bold mb-2 text-white">
-                {detailerData?.business_name || "Your Business Name"}
+                {detailerData.business_name || "Your Business Name"}
               </h1>
               <p className="text-gray-300 text-lg mb-1">
-                {detailerData?.first_name && detailerData?.last_name 
+                {detailerData.first_name && detailerData.last_name 
                   ? `${detailerData.first_name} ${detailerData.last_name}` 
                   : "Owner Name"}
               </p>
               <div className="flex items-center text-gray-400 mb-1">
                 <Car className="h-4 w-4 mr-2" />
-                <span>{detailerData?.location || "Business Location"}</span>
+                <span>{detailerData.location || "Business Location"}</span>
               </div>
               <div className="flex items-center text-gray-400">
                 <Calendar className="h-4 w-4 mr-2" />
-                <span>In business since {detailerData?.memberSince || "2019"}</span>
+                <span>In business since {detailerData.memberSince || "2019"}</span>
               </div>
             </div>
           </div>

@@ -1,5 +1,7 @@
 import { useParams } from 'react-router-dom';
-import { servicesData, type ServiceData } from '../data/services';
+
+import { servicesData } from '../data/services';
+import type { ServiceData } from '../data/types';
 
 export function useServiceData(): ServiceData | null {
   const { serviceType } = useParams<{ serviceType: string }>();

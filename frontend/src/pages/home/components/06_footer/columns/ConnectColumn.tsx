@@ -1,9 +1,10 @@
+import { LogIn,Mail, Phone, UserPlus } from 'lucide-react';
 import React, { useState } from 'react';
-import { Phone, Mail, UserPlus, LogIn } from 'lucide-react';
-import { useAuth } from '../../../../../contexts/AuthContext';
+
 import { LazyLoginModal, prefetchLoginModal } from '../../../../../components/login';
-import UserMenu from '../../01_header/UserMenu';
+import { useAuth } from '../../../../../contexts/useAuth';
 import { formatPhoneNumber } from '../../../../../utils/fields/phoneFormatter';
+import UserMenu from '../../01_header/UserMenu';
 
 interface ConnectColumnProps {
   config?: {
@@ -80,9 +81,9 @@ const ConnectColumn: React.FC<ConnectColumnProps> = ({ config }) => {
           <div className="flex items-center justify-center md:justify-start space-x-3">
             <LogIn className="h-5 w-5 flex-shrink-0 text-orange-400" />
             <button
-              onClick={() => setShowLoginModal(true)}
-              onMouseEnter={prefetchLoginModal}
-              onFocus={prefetchLoginModal}
+              onClick={() => { setShowLoginModal(true); }}
+              onMouseEnter={() => { void prefetchLoginModal(); }}
+              onFocus={() => { void prefetchLoginModal(); }}
               className="text-lg hover:text-orange-400 transition-colors duration-200 bg-transparent border-none p-0 font-inherit cursor-pointer"
             >
               Login
@@ -98,7 +99,7 @@ const ConnectColumn: React.FC<ConnectColumnProps> = ({ config }) => {
       
       <LazyLoginModal 
         isOpen={showLoginModal} 
-        onClose={() => setShowLoginModal(false)} 
+        onClose={() => { setShowLoginModal(false); }} 
       />
     </div>
   );

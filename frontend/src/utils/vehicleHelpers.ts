@@ -1,5 +1,5 @@
-import { vehicleData, getMakesForType, getModelsForMake } from '../../data/vehicle_data';
-import { VehicleSelection } from '../types/vehicle';
+import { getMakesForType, getModelsForMake,vehicleData } from '../../data/vehicle_data';
+import type { VehicleSelection } from '../types/vehicle';
 
 /**
  * Format vehicle display name
@@ -127,7 +127,7 @@ export const getVehicleStats = () => {
 export const getPopularMakes = (): string[] => {
   const popular: string[] = [];
   
-  Object.entries(vehicleData).forEach(([type, data]) => {
+  Object.entries(vehicleData).forEach(([, data]) => {
     if (Array.isArray(data)) {
       // Car data structure
       popular.push(...data.slice(0, 5).map(item => item.brand));

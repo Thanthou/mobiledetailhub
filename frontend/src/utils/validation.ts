@@ -26,7 +26,7 @@ export function validateTextField(
   validation: FieldValidation = {}
 ): ValidationResult {
   const errors: string[] = [];
-  let sanitizedValue = value.trim();
+  const sanitizedValue = value.trim();
 
   // Required validation
   if (validation.required && !sanitizedValue) {
@@ -41,11 +41,11 @@ export function validateTextField(
 
   // Length validations
   if (validation.minLength && sanitizedValue.length < validation.minLength) {
-    errors.push(`${fieldName} must be at least ${validation.minLength} characters`);
+    errors.push(`${fieldName} must be at least ${String(validation.minLength)} characters`);
   }
 
   if (validation.maxLength && sanitizedValue.length > validation.maxLength) {
-    errors.push(`${fieldName} must be no more than ${validation.maxLength} characters`);
+    errors.push(`${fieldName} must be no more than ${String(validation.maxLength)} characters`);
   }
 
   // Pattern validation
@@ -93,7 +93,7 @@ export function validatePhone(phone: string): ValidationResult {
   
   return validateTextField(phone, 'Phone number', {
     required: true,
-    custom: (value) => {
+    custom: () => {
       if (digitsOnly.length < 10) return 'Phone number must have at least 10 digits';
       if (digitsOnly.length > 15) return 'Phone number is too long';
       return null;
@@ -109,7 +109,7 @@ export function validateName(name: string): ValidationResult {
     required: true,
     minLength: 2,
     maxLength: 100,
-    pattern: /^[a-zA-Z\s\-'\.]+$/,
+    pattern: /^[a-zA-Z\s\-'.]+$/,
     custom: (value) => {
       if (value.includes('  ')) return 'Name cannot contain consecutive spaces';
       if (value.startsWith(' ') || value.endsWith(' ')) return 'Name cannot start or end with spaces';
@@ -153,7 +153,7 @@ export function validateVehicleField(value: string, fieldName: string): Validati
     required: true,
     minLength: 2,
     maxLength: 50,
-    pattern: /^[a-zA-Z0-9\s\-'\.]+$/,
+    pattern: /^[a-zA-Z0-9\s\-'.]+$/,
     custom: (value) => {
       if (value.includes('  ')) return `${fieldName} cannot contain consecutive spaces`;
       if (value.startsWith(' ') || value.endsWith(' ')) return `${fieldName} cannot start or end with spaces`;

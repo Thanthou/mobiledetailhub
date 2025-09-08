@@ -1,5 +1,5 @@
-import React from 'react';
 import { Star } from 'lucide-react';
+import React from 'react';
 
 export const GoogleBadge: React.FC = () => {
   return (
@@ -13,7 +13,7 @@ export const GoogleBadge: React.FC = () => {
           <div className="text-gray-300 text-sm">Verified Reviews</div>
         </div>
         <div className="flex gap-1 ml-4">
-          {[...Array(5)].map((_, i) => (
+          {Array.from({ length: 5 }, (_, i) => (
             <Star key={i} className="w-4 h-4 text-orange-400 fill-current" />
           ))}
         </div>

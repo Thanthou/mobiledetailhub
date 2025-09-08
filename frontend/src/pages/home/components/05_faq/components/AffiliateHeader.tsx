@@ -1,9 +1,23 @@
-import React from 'react';
 import { ChevronUp } from 'lucide-react';
+import React from 'react';
+
 import { getGeoParts } from '../utils/geoHelpers';
 
+interface GeoConfig {
+  business?: {
+    city?: string;
+    locality?: string;
+    state?: string;
+    region?: string;
+    zip?: string;
+    postalCode?: string;
+    address?: string;
+  };
+  serviceLocations?: string[];
+}
+
 interface AffiliateHeaderProps {
-  geoConfig: any;
+  geoConfig: GeoConfig | null;
   onToggleExpanded: () => void;
 }
 

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect,useRef, useState } from 'react';
 
 interface BeforeAfterSliderProps {
   beforeImage: string;
@@ -46,7 +46,7 @@ const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
   };
 
   useEffect(() => {
-    const handleGlobalMouseUp = () => setIsDragging(false);
+    const handleGlobalMouseUp = () => { setIsDragging(false); };
     const handleGlobalMouseMove = (e: MouseEvent) => {
       if (!isDragging || !containerRef.current) return;
       
@@ -72,12 +72,25 @@ const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
       <div 
         ref={containerRef}
         className="relative w-full h-full cursor-col-resize select-none"
+        role="slider"
+        tabIndex={0}
+        aria-label="Before and after image slider"
+        aria-valuenow={sliderPosition}
+        aria-valuemin={0}
+        aria-valuemax={100}
         onMouseMove={handleMouseMove}
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         onTouchMove={handleTouchMove}
-        onTouchStart={() => setIsDragging(true)}
-        onTouchEnd={() => setIsDragging(false)}
+        onTouchStart={() => { setIsDragging(true); }}
+        onTouchEnd={() => { setIsDragging(false); }}
+        onKeyDown={(e) => {
+          if (e.key === 'ArrowLeft') {
+            setSliderPosition(Math.max(0, sliderPosition - 1));
+          } else if (e.key === 'ArrowRight') {
+            setSliderPosition(Math.min(100, sliderPosition + 1));
+          }
+        }}
       >
         {/* Before Image (Background) */}
         <div className="absolute inset-0">
@@ -94,7 +107,7 @@ const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
         {/* After Image (Clipped) */}
         <div 
           className="absolute inset-0 overflow-hidden"
-          style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
+          style={{ clipPath: `inset(0 ${String(100 - sliderPosition)}% 0 0)` }}
         >
           <img 
             src={afterImage} 
@@ -109,7 +122,7 @@ const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
         {/* Slider Line */}
         <div 
           className="absolute top-0 bottom-0 w-1 bg-white shadow-lg z-10"
-          style={{ left: `${sliderPosition}%` }}
+          style={{ left: `${String(sliderPosition)}%` }}
         >
           {/* Slider Handle */}
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center cursor-col-resize">

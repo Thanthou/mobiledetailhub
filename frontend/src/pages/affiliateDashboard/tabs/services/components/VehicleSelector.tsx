@@ -1,5 +1,5 @@
 import React from 'react';
-import { Car, Truck, Home, Bot as Boat, Bike, Mountain } from 'lucide-react';
+
 import type { Vehicle } from '../types';
 
 interface VehicleSelectorProps {
@@ -16,13 +16,13 @@ export const VehicleSelector: React.FC<VehicleSelectorProps> = ({
   return (
     <div className="p-4">
       {vehicles.map((vehicle) => {
-        const VehicleIcon = vehicle.icon;
+        const VehicleIcon = vehicle.icon as React.ComponentType<{ className?: string }>;
         const isSelected = selectedVehicle === vehicle.id;
         
         return (
           <button
             key={vehicle.id}
-            onClick={() => onVehicleChange(vehicle.id)}
+            onClick={() => { onVehicleChange(vehicle.id); }}
               className={`w-full flex items-center space-x-3 p-3 mb-2 rounded-lg text-left transition-colors ${
               isSelected 
                 ? 'bg-green-600 text-white' 

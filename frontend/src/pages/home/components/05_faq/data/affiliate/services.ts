@@ -1,9 +1,34 @@
-import { FAQItem } from '../../types';
+import type { FAQItem } from '../../types';
+
+// Configuration interface for affiliate data
+interface AffiliateConfig {
+  business?: {
+    city?: string;
+    locality?: string;
+    state?: string;
+    region?: string;
+    zip?: string;
+    postalCode?: string;
+    address?: string;
+  };
+  serviceLocations?: string[];
+}
+
+// Geo parts interface
+interface GeoParts {
+  city: string;
+  state: string;
+  zip: string;
+  address: string;
+  primaryArea: string;
+  nearbyList: string;
+  cityState: string;
+}
 
 // Helper function for geo parts
-function getGeoParts(cfg: any) {
-  const business = cfg?.business ?? {};
-  const serviceLocations: string[] = cfg?.serviceLocations ?? [];
+function getGeoParts(cfg: AffiliateConfig): GeoParts {
+  const business = cfg.business ?? {};
+  const serviceLocations: string[] = cfg.serviceLocations ?? [];
 
   const city = business.city || business.locality || "Your City";
   const state = business.state || business.region || "Your State";
@@ -11,7 +36,7 @@ function getGeoParts(cfg: any) {
   const address = business.address || `${city}, ${state}${zip ? ' ' + zip : ''}`;
 
   const primaryArea = address;
-  const nearbyList = serviceLocations?.length
+  const nearbyList = serviceLocations.length > 0
     ? serviceLocations.slice(0, 7).join(", ")
     : `${city}, ${state}`;
 
@@ -20,7 +45,7 @@ function getGeoParts(cfg: any) {
   return { city, state, zip, address, primaryArea, nearbyList, cityState };
 }
 
-export const AFFILIATE_FAQ_SERVICES = (cfg: any): FAQItem[] => {
+export const AFFILIATE_FAQ_SERVICES = (cfg: AffiliateConfig): FAQItem[] => {
   const { city, state, cityState } = getGeoParts(cfg);
   return [
     {

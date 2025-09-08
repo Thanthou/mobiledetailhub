@@ -85,9 +85,9 @@ export const scrollRestoration = new ScrollRestorationManager();
  */
 export const useScrollRestoration = () => {
   return {
-    savePosition: (pathname: string) => scrollRestoration.saveScrollPosition(pathname),
-    restorePosition: (pathname: string) => scrollRestoration.restoreScrollPosition(pathname),
-    scrollToTop: () => scrollRestoration.scrollToTop(),
-    clearPositions: () => scrollRestoration.clearScrollPositions()
+    savePosition: (pathname: string) => { scrollRestoration.saveScrollPosition(pathname); },
+    restorePosition: (pathname: string) => { scrollRestoration.restoreScrollPosition(pathname); },
+    scrollToTop: () => { scrollRestoration.scrollToTop(); },
+    clearPositions: () => { scrollRestoration.clearScrollPositions(); }
   };
 };

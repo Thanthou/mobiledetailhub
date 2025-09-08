@@ -1,4 +1,4 @@
-import { ServicePageProps } from '../types';
+import type { ServicePageProps } from '../types';
 
 export const ServiceOverview = ({ serviceData }: ServicePageProps) => {
   return (
@@ -36,7 +36,7 @@ export const ServiceOverview = ({ serviceData }: ServicePageProps) => {
           {/* Features */}
           <div>
             <h3 className="text-2xl font-semibold text-gray-900 mb-6">
-              What's Included
+              What&rsquo;s Included
             </h3>
             <ul className="space-y-4">
               {serviceData.overview.features.map((feature, index) => (

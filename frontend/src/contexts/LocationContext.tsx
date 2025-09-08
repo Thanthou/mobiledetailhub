@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import type { ReactNode } from 'react';
+import React, { createContext, useEffect, useState } from 'react';
 
-interface LocationData {
+export interface LocationData {
   city: string;
   state: string;
   zipCode: string;
@@ -15,15 +16,7 @@ interface LocationContextType {
   hasValidLocation: () => boolean;
 }
 
-const LocationContext = createContext<LocationContextType | undefined>(undefined);
-
-export const useLocation = () => {
-  const context = useContext(LocationContext);
-  if (context === undefined) {
-    throw new Error('useLocation must be used within a LocationProvider');
-  }
-  return context;
-};
+export const LocationContext = createContext<LocationContextType | null>(null);
 
 interface LocationProviderProps {
   children: ReactNode;
@@ -34,8 +27,8 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
     try {
       const saved = localStorage.getItem('selectedLocation');
       if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed && parsed.city && parsed.state) {
+        const parsed = JSON.parse(saved) as LocationData;
+        if (parsed.city && parsed.state) {
           return parsed;
         }
       }
@@ -47,7 +40,7 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
 
   // Persist to localStorage whenever location changes
   useEffect(() => {
-    if (selectedLocation && selectedLocation.city && selectedLocation.state) {
+    if (selectedLocation.city && selectedLocation.state) {
       localStorage.setItem('selectedLocation', JSON.stringify(selectedLocation));
     } else {
       localStorage.removeItem('selectedLocation');
@@ -59,9 +52,9 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'selectedLocation' && e.newValue) {
         try {
-          const newLocation = JSON.parse(e.newValue);
+          const newLocation = JSON.parse(e.newValue) as LocationData;
           // Only set if we have complete location data
-          if (newLocation && newLocation.city && newLocation.state) {
+          if (newLocation.city && newLocation.state) {
             setSelectedLocation(newLocation);
           }
         } catch {
@@ -78,9 +71,9 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
       try {
         const saved = localStorage.getItem('selectedLocation');
         if (saved) {
-          const parsed = JSON.parse(saved);
+          const parsed = JSON.parse(saved) as LocationData;
           // Only update if we have complete location data and it's different from current
-          if (parsed && parsed.city && parsed.state && 
+          if (parsed.city && parsed.state && 
               (!selectedLocation || 
                parsed.city !== selectedLocation.city || 
                parsed.state !== selectedLocation.state || 
@@ -110,7 +103,7 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
         const updatedLocation: LocationData = {
           city: city,
           state: state,
-          zipCode: selectedLocation?.zipCode || '',
+          zipCode: selectedLocation?.zipCode ?? '',
           fullLocation: `${city}, ${state}`
         };
         setSelectedLocation(updatedLocation);
@@ -119,7 +112,7 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
   };
 
   const hasValidLocation = () => {
-    return !!(selectedLocation && selectedLocation.city && selectedLocation.state);
+    return !!(selectedLocation.city && selectedLocation.state);
   };
 
   return (

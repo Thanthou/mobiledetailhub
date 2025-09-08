@@ -1,25 +1,38 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+import { config } from '../../../../../config/environment';
+import { useLocation } from '../../../../../hooks/useLocation';
 import ConnectColumn from '../columns/ConnectColumn';
 import SocialMediaColumn from '../columns/SocialMediaColumn';
-import { MapPin } from 'lucide-react';
-import { config } from '../../../../../config/environment';
-import { useLocation } from '../../../../../contexts/LocationContext';
 
 interface ServiceArea {
   state_code: string;
   name: string;
+  cities?: Record<string, string[]>;
 }
 
 interface City {
-  id: number;
-  name: string;
-  city_slug: string;
+  city: string;
   state_code: string;
+  slugs: string[];
+}
+
+interface ParentConfig {
+  socials?: {
+    facebook?: string;
+    instagram?: string;
+    tiktok?: string;
+    youtube?: string;
+  };
+  facebook?: string;
+  instagram?: string;
+  tiktok?: string;
+  youtube?: string;
 }
 
 interface FooterGridProps {
-  parentConfig: any;
+  parentConfig: ParentConfig;
   businessSlug?: string;
 }
 
@@ -41,10 +54,13 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig }) => {
         const response = await fetch(`${config.apiUrl}/api/service_areas/footer`);
         
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          throw new Error(`HTTP error! status: ${String(response.status)}`);
         }
         
-        const data = await response.json();
+        const data = await response.json() as {
+          success?: boolean;
+          service_areas?: Record<string, Record<string, string[]>>;
+        };
         
         // Handle the new nested structure: { state: { city: [slugs] } }
         if (data.success && data.service_areas && Object.keys(data.service_areas).length > 0) {
@@ -52,7 +68,7 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig }) => {
           const statesArray = Object.keys(data.service_areas).map(stateCode => ({
             state_code: stateCode,
             name: stateCode,
-            cities: data.service_areas[stateCode]
+            cities: data.service_areas?.[stateCode] ?? {}
           }));
           
           setServiceAreas(statesArray);
@@ -60,7 +76,7 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig }) => {
           // No service areas available - this is normal if no affiliates are approved yet
           setServiceAreas([]);
         }
-      } catch (err) {
+      } catch {
         setError('Failed to load service areas');
         setServiceAreas([]);
       } finally {
@@ -68,7 +84,7 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig }) => {
       }
     };
 
-    fetchServiceAreas();
+    void fetchServiceAreas();
   }, []);
 
   const selectState = (stateCode: string) => {
@@ -104,7 +120,7 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig }) => {
     // Use React Router navigation instead of window.location.href
     // This allows the location to be set before navigation
     setTimeout(() => {
-      navigate(`/${city.slugs[0]}`);
+      void navigate(`/${city.slugs[0] ?? ''}`);
     }, 100); // Small delay to ensure location is set
   };
 
@@ -125,10 +141,10 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig }) => {
           <div className="inline-flex flex-col space-y-3 items-start">
             <SocialMediaColumn
               socialMedia={{
-                facebook: parentConfig?.socials?.facebook || parentConfig?.facebook,
-                instagram: parentConfig?.socials?.instagram || parentConfig?.instagram,
-                tiktok: parentConfig?.socials?.tiktok || parentConfig?.tiktok,
-                youtube: parentConfig?.socials?.youtube || parentConfig?.youtube,
+                facebook: parentConfig.socials?.facebook || parentConfig.facebook,
+                instagram: parentConfig.socials?.instagram || parentConfig.instagram,
+                tiktok: parentConfig.socials?.tiktok || parentConfig.tiktok,
+                youtube: parentConfig.socials?.youtube || parentConfig.youtube,
               }}
             />
           </div>
@@ -152,7 +168,7 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig }) => {
                 states.map(state => (
                   <button
                     key={state.state_code}
-                    onClick={() => selectState(state.state_code)}
+                    onClick={() => { selectState(state.state_code); }}
                     className="block w-full text-white hover:text-gray-300 text-lg font-medium cursor-pointer transition-colors text-center md:text-right"
                   >
                     {state.name}
@@ -163,8 +179,8 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig }) => {
                 <div className="space-y-1">
                                   {cities.map((city, index) => (
                   <button
-                    key={`${city.state_code}-${city.city}-${index}`}
-                    onClick={() => handleCityClick(city)}
+                    key={`${city.state_code}-${city.city}-${String(index)}`}
+                    onClick={() => { handleCityClick(city); }}
                     className="text-orange-400 hover:text-orange-300 text-sm text-center md:text-right cursor-pointer transition-colors block w-full"
                   >
                     {city.city}

@@ -1,7 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { ChevronDown, Globe, Home, Settings, UserPlus } from 'lucide-react';
+import React, { useEffect,useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronDown, Globe, Settings, Home, UserPlus } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
+
+import { useAuth } from '../../hooks/useAuth';
 
 const DevNavigation: React.FC = () => {
   const { user, loading } = useAuth();
@@ -18,7 +19,7 @@ const DevNavigation: React.FC = () => {
     };
 
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    return () => { document.removeEventListener('mousedown', handleClickOutside); };
   }, []);
 
 
@@ -36,7 +37,7 @@ const DevNavigation: React.FC = () => {
   const handleNavigation = (path: string) => {
     // DEV Navigation: Going to path
     setIsOpen(false);
-    navigate(path);
+    void navigate(path);
   };
 
   const handleMenuToggle = () => {
@@ -63,7 +64,7 @@ const DevNavigation: React.FC = () => {
       {isOpen && (
         <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
           <button
-            onClick={() => handleNavigation('/')}
+            onClick={() => { handleNavigation('/'); }}
             className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
           >
             <Home className="h-4 w-4 mr-3 text-green-600" />
@@ -71,7 +72,7 @@ const DevNavigation: React.FC = () => {
           </button>
           
           <button
-            onClick={() => handleNavigation('/admin-dashboard')}
+            onClick={() => { handleNavigation('/admin-dashboard'); }}
             className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
           >
             <Settings className="h-4 w-4 mr-3 text-red-600" />
@@ -79,7 +80,7 @@ const DevNavigation: React.FC = () => {
           </button>
           
           <button
-            onClick={() => handleNavigation('/affiliate-onboarding')}
+            onClick={() => { handleNavigation('/affiliate-onboarding'); }}
             className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
           >
             <UserPlus className="h-4 w-4 mr-3 text-purple-600" />

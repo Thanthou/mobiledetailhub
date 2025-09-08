@@ -1,37 +1,54 @@
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import SocialMediaIcons from '../SocialMediaIcons';
-import { NAV_LINKS } from '../constants';
-import { useSiteContext } from '/src/hooks/useSiteContext';
-import { useLocation as useLocationContext } from '/src/contexts/LocationContext';
+import { useLocation, useNavigate } from 'react-router-dom';
 import LocationEditModal from 'shared/LocationEditModal';
-import { scrollToTop } from '/src/utils/scrollToTop';
+
+import { useMDHConfig } from '@/contexts/useMDHConfig';
+import { useAffiliate } from '@/hooks/useAffiliate';
+import { useAuth } from '@/hooks/useAuth';
+import { useFAQ } from '@/hooks/useFAQ';
+import { useLocation as useLocationContext } from '@/hooks/useLocation';
+import { useSiteContext } from '@/hooks/useSiteContext';
+import { getAffiliateDisplayLocation } from '@/utils/affiliateLocationHelper';
+import { formatPhoneNumber } from '@/utils/fields/phoneFormatter';
+import { scrollToTop } from '@/utils/scrollToTop';
+
+import { NAV_LINKS } from '../constants';
 import LoginButton from '../LoginButton';
-import { useAuth } from '/src/contexts/AuthContext';
+import SocialMediaIcons from '../SocialMediaIcons';
 import UserMenu from '../UserMenu';
-import { useAffiliate } from '/src/contexts/AffiliateContext';
-import { useMDHConfig } from '/src/contexts/MDHConfigContext';
-import { useFAQ } from '/src/contexts/FAQContext';
-import { formatPhoneNumber } from '/src/utils/fields/phoneFormatter';
-import { getAffiliateDisplayLocation } from '/src/utils/affiliateLocationHelper';
+
+// Type definitions
 
 const HeaderAffiliate: React.FC = () => {
-  const { businessSlug } = useSiteContext();
-  const { user } = useAuth();
-  const { selectedLocation } = useLocationContext();
-  const { affiliateData, isLoading: affiliateLoading, error: affiliateError } = useAffiliate();
-  const { mdhConfig, isLoading: mdhLoading, error: mdhError } = useMDHConfig();
-  const { expandFAQ } = useFAQ();
+  const siteContext = useSiteContext();
+  const authContext = useAuth();
+  const locationContext = useLocationContext();
+  const affiliateContext = useAffiliate();
+  const mdhContext = useMDHConfig();
+  const faqContext = useFAQ();
   const navigate = useNavigate();
   const location = useLocation();
+  
+  // Safely extract values with proper type checking
+  const businessSlug = siteContext?.businessSlug;
+  const user = authContext?.user;
+  const selectedLocation = locationContext?.selectedLocation;
+  const affiliateData = affiliateContext?.affiliateData;
+  const affiliateLoading = affiliateContext?.isLoading ?? false;
+  const affiliateError = affiliateContext?.error;
+  const mdhConfig = mdhContext?.mdhConfig;
+  const mdhLoading = mdhContext?.isLoading ?? false;
+  const mdhError = mdhContext?.error;
+  const expandFAQ = faqContext?.expandFAQ ?? (() => {});
   
   // Check if we're on a service page
   const isServicePage = location.pathname.includes('/service/');
   
   // Get the appropriate location to display (selected location if served, otherwise primary)
   const displayLocation = React.useMemo(() => {
+    if (!affiliateData || !selectedLocation) return null;
     return getAffiliateDisplayLocation(affiliateData?.service_areas, selectedLocation);
-  }, [affiliateData?.service_areas, selectedLocation]);
+  }, [affiliateData, selectedLocation]);
 
   const isLoading = affiliateLoading || mdhLoading;
   const hasError = affiliateError || mdhError;
@@ -70,14 +87,16 @@ const HeaderAffiliate: React.FC = () => {
           {isServicePage && (
             <button
               onClick={() => {
-                navigate(`/${businessSlug}`);
-                // Scroll to services section after navigation
-                setTimeout(() => {
-                  const servicesSection = document.getElementById('services');
-                  if (servicesSection) {
-                    servicesSection.scrollIntoView({ behavior: 'smooth' });
-                  }
-                }, 100);
+                if (businessSlug) {
+                  navigate(`/${businessSlug as string}`);
+                  // Scroll to services section after navigation
+                  setTimeout(() => {
+                    const servicesSection = document.getElementById('services');
+                    if (servicesSection) {
+                      servicesSection.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }, 100);
+                }
               }}
               className="flex items-center text-white hover:text-orange-400 transition-colors duration-200 mr-4"
             >
@@ -90,7 +109,7 @@ const HeaderAffiliate: React.FC = () => {
           
           {/* 1. Logo/Business Name/Info */}
           <div className="flex items-center space-x-3">
-            {mdhConfig.logo_url && (
+            {mdhConfig?.logo_url && (
               <button 
                 onClick={scrollToTop}
                 className="hover:opacity-80 transition-opacity duration-200 cursor-pointer"
@@ -103,30 +122,30 @@ const HeaderAffiliate: React.FC = () => {
                 onClick={scrollToTop}
                 className="hover:opacity-80 transition-opacity duration-200 cursor-pointer text-left"
               >
-                <h1 className="text-2xl md:text-3xl font-bold text-white">{affiliateData.business_name}</h1>
+                <h1 className="text-2xl md:text-3xl font-bold text-white">{affiliateData?.business_name ?? 'Business Name'}</h1>
               </button>
-                             <div className="text-white text-sm md:text-base font-semibold">
-                 <div className="flex items-center space-x-2">
-                   {/* Display phone number from database with consistent formatting */}
-                                       {affiliateData.phone ? (
-                      <span>{formatPhoneNumber(affiliateData.phone)}</span>
-                    ) : (
-                      <span className="text-red-400">No phone data</span>
-                    )}
-                   {/* Show separator if we have both phone and location */}
-                   {affiliateData.phone && displayLocation && (
-                     <span className="text-orange-400">•</span>
-                   )}
-                   {displayLocation && (
-                     <LocationEditModal
-                       placeholder="Enter new location"
-                       buttonClassName="text-white hover:text-orange-400 text-sm md:text-base font-semibold hover:underline cursor-pointer"
-                       displayText={displayLocation.fullLocation}
-                       showIcon={false}
-                     />
-                   )}
-                 </div>
-               </div>
+              <div className="text-white text-sm md:text-base font-semibold">
+                <div className="flex items-center space-x-2">
+                  {/* Display phone number from database with consistent formatting */}
+                  {affiliateData?.phone ? (
+                    <span>{formatPhoneNumber(affiliateData.phone)}</span>
+                  ) : (
+                    <span className="text-red-400">No phone data</span>
+                  )}
+                  {/* Show separator if we have both phone and location */}
+                  {affiliateData?.phone && displayLocation && (
+                    <span className="text-orange-400">•</span>
+                  )}
+                  {displayLocation && (
+                    <LocationEditModal
+                      placeholder="Enter new location"
+                      buttonClassName="text-white hover:text-orange-400 text-sm md:text-base font-semibold hover:underline cursor-pointer"
+                      displayText={displayLocation?.fullLocation ?? 'Select Location'}
+                      showIcon={false}
+                    />
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
@@ -137,7 +156,7 @@ const HeaderAffiliate: React.FC = () => {
                 link.isFAQ ? (
                   <button
                     key={link.name}
-                    onClick={expandFAQ}
+                    onClick={() => expandFAQ?.()}
                     className="text-white hover:text-orange-400 transition-colors duration-200 bg-transparent border-none p-0 cursor-pointer"
                   >
                     {link.name}
@@ -153,12 +172,12 @@ const HeaderAffiliate: React.FC = () => {
                 )
               ))}
             </nav>
-            {(mdhConfig.facebook || mdhConfig.instagram || mdhConfig.tiktok || mdhConfig.youtube) && (
+            {(mdhConfig?.facebook || mdhConfig?.instagram || mdhConfig?.tiktok || mdhConfig?.youtube) && (
               <SocialMediaIcons socialMedia={{
-                facebook: mdhConfig.facebook,
-                instagram: mdhConfig.instagram,
-                tiktok: mdhConfig.tiktok,
-                youtube: mdhConfig.youtube,
+                facebook: mdhConfig?.facebook ?? '',
+                instagram: mdhConfig?.instagram ?? '',
+                tiktok: mdhConfig?.tiktok ?? '',
+                youtube: mdhConfig?.youtube ?? '',
               }} />
             )}
           </div>

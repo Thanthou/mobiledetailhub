@@ -1,5 +1,6 @@
-import { useState, useCallback } from 'react';
-import type { AdminData, QueryHistory, QueryResult } from '../types';
+import { useCallback,useState } from 'react';
+
+import type { AdminData, QueryHistory } from '../types';
 
 export const useAdminData = (initialData: Partial<AdminData> = {}) => {
   const [adminData, setAdminData] = useState<AdminData>({

@@ -1,5 +1,6 @@
+import { AlertTriangle, Trash2,X } from 'lucide-react';
 import React from 'react';
-import { X, AlertTriangle, Trash2 } from 'lucide-react';
+
 import type { ServiceArea } from '../types';
 
 interface DeleteLocationModalProps {
@@ -82,7 +83,7 @@ export const DeleteLocationModal: React.FC<DeleteLocationModalProps> = ({
               Cancel
             </button>
             <button
-              onClick={onConfirm}
+              onClick={() => { void onConfirm(); }}
               disabled={isDeleting}
               className="px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 disabled:bg-red-300 rounded-md transition-colors flex items-center space-x-2"
             >

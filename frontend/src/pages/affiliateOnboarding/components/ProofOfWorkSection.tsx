@@ -1,16 +1,13 @@
+import { Camera, X } from 'lucide-react';
 import React from 'react';
-import { Camera, Upload, X } from 'lucide-react';
-import { AffiliateApplication } from '../types';
 
 interface ProofOfWorkSectionProps {
-  formData: AffiliateApplication;
   uploadedFiles: File[];
   handleFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
   removeFile: (index: number) => void;
 }
 
 const ProofOfWorkSection: React.FC<ProofOfWorkSectionProps> = ({
-  formData,
   uploadedFiles,
   handleFileUpload,
   removeFile
@@ -60,7 +57,7 @@ const ProofOfWorkSection: React.FC<ProofOfWorkSectionProps> = ({
                   </div>
                   <button
                     type="button"
-                    onClick={() => removeFile(index)}
+                    onClick={() => { removeFile(index); }}
                     className="text-red-400 hover:text-red-300 p-1 rounded hover:bg-stone-600 transition-colors"
                   >
                     <X className="w-4 h-4" />
@@ -73,7 +70,7 @@ const ProofOfWorkSection: React.FC<ProofOfWorkSectionProps> = ({
           <div className="bg-stone-700 p-4 rounded-lg mt-4">
             <p className="text-gray-300 text-sm">
               <span className="font-medium">Tip:</span> Choose 2-3 high-quality photos that best showcase your 
-              detailing skills and finished results. Good lighting and clear "before/after" shots work great!
+              detailing skills and finished results. Good lighting and clear &quot;before/after&quot; shots work great!
             </p>
           </div>
         </div>

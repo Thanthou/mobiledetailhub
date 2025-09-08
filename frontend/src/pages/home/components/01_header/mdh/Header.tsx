@@ -1,19 +1,39 @@
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import SocialMediaIcons from '../SocialMediaIcons';
+import { useLocation,useNavigate } from 'react-router-dom';
+
+import { useAuth } from '@/contexts/useAuth';
+import { useMDHConfig } from '@/contexts/useMDHConfig';
+import { useFAQ } from '@/hooks/useFAQ';
+import { scrollToTop } from '@/utils/scrollToTop';
+
+// Type declaration for window.__MDH__
+declare global {
+  interface Window {
+    __MDH__?: {
+      logo_url?: string;
+      header_display?: string;
+      facebook?: string;
+      instagram?: string;
+      tiktok?: string;
+      youtube?: string;
+    };
+  }
+}
+
 import { NAV_LINKS } from '../constants';
 import LoginButton from '../LoginButton';
-import { useAuth } from '/src/contexts/AuthContext';
-import { useMDHConfig } from '/src/contexts/MDHConfigContext';
-import { useFAQ } from '/src/contexts/FAQContext';
+import SocialMediaIcons from '../SocialMediaIcons';
 import UserMenu from '../UserMenu';
-import { scrollToTop } from '/src/utils/scrollToTop';
-import { formatPhoneNumber } from '/src/utils/fields/phoneFormatter';
 
 const HeaderMDH: React.FC = () => {
-  const { user, loading: authLoading } = useAuth();
-  const { mdhConfig, isLoading } = useMDHConfig();
-  const { expandFAQ } = useFAQ();
+  const authContext = useAuth() as { user: unknown; loading: boolean };
+  const { user, loading: authLoading } = authContext;
+  
+  const mdhConfigContext = useMDHConfig() as { mdhConfig: { logo_url?: string; header_display?: string; facebook?: string; instagram?: string; tiktok?: string; youtube?: string } };
+  const { mdhConfig } = mdhConfigContext;
+  
+  const faqContext = useFAQ() as { expandFAQ: () => void };
+  const { expandFAQ } = faqContext;
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -24,7 +44,7 @@ const HeaderMDH: React.FC = () => {
   const staticConfig = typeof window !== 'undefined' ? window.__MDH__ : null;
   
   // Use dynamic config if available, otherwise fall back to static config
-  const config = mdhConfig || staticConfig;
+  const config = mdhConfig ?? staticConfig;
   
   // Always render header immediately - never wait for network
   return (
@@ -34,7 +54,7 @@ const HeaderMDH: React.FC = () => {
           {/* Back button for service pages */}
           {isServicePage && (
             <button
-              onClick={() => navigate('/')}
+              onClick={() => { void navigate('/'); }}
               className="flex items-center text-white hover:text-orange-400 transition-colors duration-200 mr-4"
             >
               <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -47,11 +67,11 @@ const HeaderMDH: React.FC = () => {
           {/* 1. Logo/Business Name - Always show immediately */}
           <button 
             className="flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity duration-200 bg-transparent border-none p-0"
-            onClick={scrollToTop}
+            onClick={() => { void scrollToTop(); }}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                scrollToTop();
+                void scrollToTop();
               }
             }}
             aria-label="Go to top of page"
@@ -73,7 +93,7 @@ const HeaderMDH: React.FC = () => {
                 link.isFAQ ? (
                   <button
                     key={link.name}
-                    onClick={expandFAQ}
+                    onClick={() => { expandFAQ(); }}
                     className="text-white hover:text-orange-400 transition-colors duration-200 bg-transparent border-none p-0 cursor-pointer"
                   >
                     {link.name}
@@ -92,10 +112,10 @@ const HeaderMDH: React.FC = () => {
             {/* Social media icons - show if available in either config */}
             {(config?.facebook || config?.instagram || config?.tiktok || config?.youtube) && (
               <SocialMediaIcons socialMedia={{
-                facebook: config.facebook || '',
-                instagram: config.instagram || '',
-                tiktok: config.tiktok || '',
-                youtube: config.youtube || '',
+                facebook: config.facebook ?? '',
+                instagram: config.instagram ?? '',
+                tiktok: config.tiktok ?? '',
+                youtube: config.youtube ?? '',
               }} />
             )}
           </div>
