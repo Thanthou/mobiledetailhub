@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const logger = require('./logger');
 const { env } = require('../src/shared/env');
+const { pool } = require('../database/pool');
 
 /**
  * Token configuration
@@ -221,13 +222,78 @@ const generateTokenPair = (payload) => {
 };
 
 /**
- * Blacklist a token (for logout)
+ * Blacklist a token (for logout) - Database persistent version
  * @param {string} token - Token to blacklist
- * @param {number} expiresIn - Time in seconds until token expires
+ * @param {Object} options - Additional options
+ * @param {string} options.reason - Reason for blacklisting (default: 'logout')
+ * @param {string} options.ipAddress - IP address of the request
+ * @param {string} options.userAgent - User agent of the request
  */
-const blacklistToken = (token, expiresIn = 900) => { // Default 15 minutes
-  // In a production environment, you would store this in Redis or database
-  // For now, we'll use a simple in-memory store (not recommended for production)
+const blacklistToken = async (token, options = {}) => {
+  if (!pool) {
+    logger.warn('Database connection not available for token blacklisting, falling back to memory');
+    return blacklistTokenInMemory(token);
+  }
+
+  try {
+    const decoded = decodeToken(token);
+    if (!decoded || !decoded.exp) {
+      logger.warn('Invalid token provided for blacklisting');
+      return false;
+    }
+
+    const {
+      reason = 'logout',
+      ipAddress = null,
+      userAgent = null
+    } = options;
+
+    // Calculate expiration time
+    const expiresAt = new Date(decoded.exp * 1000);
+    
+    // Create token hash for exact matching
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    
+    // Insert into database blacklist
+    const result = await pool.query(`
+      INSERT INTO auth.token_blacklist 
+      (token_jti, token_hash, user_id, expires_at, reason, ip_address, user_agent)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      ON CONFLICT (token_jti) DO NOTHING
+      RETURNING id
+    `, [
+      decoded.jti,
+      tokenHash,
+      decoded.userId,
+      expiresAt,
+      reason,
+      ipAddress,
+      userAgent
+    ]);
+
+    if (result.rows.length > 0) {
+      logger.info('Token blacklisted successfully', { 
+        jti: decoded.jti, 
+        userId: decoded.userId,
+        reason 
+      });
+      return true;
+    } else {
+      logger.warn('Token already blacklisted', { jti: decoded.jti });
+      return true; // Already blacklisted, consider it successful
+    }
+  } catch (error) {
+    logger.error('Error blacklisting token in database', { error: error.message });
+    // Fallback to memory blacklist
+    return blacklistTokenInMemory(token);
+  }
+};
+
+/**
+ * Fallback in-memory blacklist (for when database is unavailable)
+ * @param {string} token - Token to blacklist
+ */
+const blacklistTokenInMemory = (token) => {
   if (!global.tokenBlacklist) {
     global.tokenBlacklist = new Map();
   }
@@ -258,11 +324,48 @@ const blacklistToken = (token, expiresIn = 900) => { // Default 15 minutes
 };
 
 /**
- * Check if token is blacklisted
+ * Check if token is blacklisted - Database persistent version
  * @param {string} token - Token to check
  * @returns {boolean} True if token is blacklisted
  */
-const isTokenBlacklisted = (token) => {
+const isTokenBlacklisted = async (token) => {
+  if (!pool) {
+    logger.warn('Database connection not available for token blacklist check, falling back to memory');
+    return isTokenBlacklistedInMemory(token);
+  }
+
+  try {
+    const decoded = decodeToken(token);
+    if (!decoded || !decoded.jti) {
+      return false;
+    }
+
+    // Check database blacklist
+    const result = await pool.query(`
+      SELECT 1 FROM auth.token_blacklist 
+      WHERE token_jti = $1 AND expires_at > CURRENT_TIMESTAMP
+      LIMIT 1
+    `, [decoded.jti]);
+
+    if (result.rows.length > 0) {
+      logger.debug('Token found in blacklist', { jti: decoded.jti });
+      return true;
+    }
+
+    return false;
+  } catch (error) {
+    logger.error('Error checking token blacklist in database', { error: error.message });
+    // Fallback to memory check
+    return isTokenBlacklistedInMemory(token);
+  }
+};
+
+/**
+ * Fallback in-memory blacklist check (for when database is unavailable)
+ * @param {string} token - Token to check
+ * @returns {boolean} True if token is blacklisted
+ */
+const isTokenBlacklistedInMemory = (token) => {
   if (!global.tokenBlacklist) return false;
   
   // Check by full token first

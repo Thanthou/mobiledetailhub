@@ -1,4 +1,4 @@
-import { Mail, MapPin, Phone } from 'lucide-react';
+import { Mail, MapPin, Phone, Instagram, Facebook, Youtube } from 'lucide-react';
 import React from 'react';
 import LocationEditModal from 'shared/LocationEditModal';
 
@@ -80,6 +80,15 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig, serviceAreas, ser
     }
   };
 
+  const handleServiceAreaClick = (city: string, state: string) => {
+    setSelectedLocation({
+      city: city,
+      state: state,
+      zipCode: '',
+      fullLocation: `${city}, ${state}`
+    });
+  };
+
   return (
     <>
       {/* 3-Column Footer Grid */}
@@ -142,9 +151,7 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig, serviceAreas, ser
                 rel="noopener noreferrer" 
                 className="text-white hover:text-orange-400 transition-colors duration-200 flex items-center space-x-3"
               >
-                <svg className="h-5 w-5 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                </svg>
+                <Facebook className="h-5 w-5 flex-shrink-0" />
                 <span className="text-lg">Facebook</span>
               </a>
             )}
@@ -155,9 +162,7 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig, serviceAreas, ser
                 rel="noopener noreferrer" 
                 className="text-white hover:text-orange-400 transition-colors duration-200 flex items-center space-x-3"
               >
-                <svg className="h-5 w-5 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 6.62 5.367 11.987 11.988 11.987s11.987-5.367 11.987-11.987C24.014 5.367 18.647.001 12.017.001zM8.449 16.988c-1.297 0-2.448-.49-3.323-1.297C4.198 14.895 3.708 13.744 3.708 12.447s.49-2.448 1.418-3.323c.875-.807 2.026-1.297 3.323-1.297s2.448.49 3.323 1.297c.928.875 1.418 2.026 1.418 3.323s-.49 2.448-1.418 3.244c-.875.807-2.026 1.297-3.323 1.297zm7.83-9.281c-.49 0-.928-.175-1.297-.49-.368-.315-.49-.753-.49-1.243s.122-.928.49-1.243c.369-.315.807-.49 1.297-.49s.928.175 1.297.49c.368.315.49.753.49 1.243s-.122.928-.49 1.243c-.369.315-.807.49-1.297.49z"/>
-                </svg>
+                <Instagram className="h-5 w-5 flex-shrink-0" />
                 <span className="text-lg">Instagram</span>
               </a>
             )}
@@ -179,9 +184,7 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig, serviceAreas, ser
                 rel="noopener noreferrer" 
                 className="text-white hover:text-orange-400 transition-colors duration-200 flex items-center space-x-3"
               >
-                <svg className="h-5 w-5 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                </svg>
+                <Youtube className="h-5 w-5 flex-shrink-0" />
                 <span className="text-lg">YouTube</span>
               </a>
             )}
@@ -200,7 +203,7 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig, serviceAreas, ser
                   area.state.toLowerCase() === displayLocation.state.toLowerCase();
                 
                 // Determine styling based on selection
-                let className = 'text-lg';
+                let className = 'text-lg cursor-pointer transition-colors duration-200 hover:text-orange-400 block w-full text-center md:text-right';
                 if (isDisplayLocation) {
                   className += ' text-orange-400 font-semibold';
                 } else if (area.primary) {
@@ -210,19 +213,25 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig, serviceAreas, ser
                 }
                 
                 return (
-                  <div 
+                  <button 
                     key={`${area.city}-${area.state}-${String(index)}`} 
                     className={className}
+                    onClick={() => handleServiceAreaClick(area.city, area.state)}
+                    type="button"
                   >
                     {area.city}, {area.state}
-                  </div>
+                  </button>
                 );
               })}
             </div>
           ) : parentConfig.base_location?.city && parentConfig.base_location.state_name ? (
-            <div className="text-lg text-orange-400 font-semibold">
+            <button 
+              className="text-lg text-orange-400 font-semibold cursor-pointer transition-colors duration-200 hover:text-orange-300 block w-full text-center md:text-right"
+              onClick={() => handleServiceAreaClick(parentConfig.base_location.city!, parentConfig.base_location.state_name!)}
+              type="button"
+            >
               {parentConfig.base_location.city}, {parentConfig.base_location.state_name}
-            </div>
+            </button>
           ) : (
             <div className="text-lg text-orange-400 font-semibold">
               {parentConfig.name || 'Metropolitan Area'}

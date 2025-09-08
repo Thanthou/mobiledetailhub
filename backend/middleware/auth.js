@@ -40,7 +40,7 @@ const authenticateToken = async (req, res, next) => {
     });
 
     // Check if token is blacklisted
-    if (isTokenBlacklisted(token)) {
+    if (await isTokenBlacklisted(token)) {
       logger.warn('Blacklisted token used', { 
         path: req.path, 
         method: req.method,

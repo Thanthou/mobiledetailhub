@@ -360,8 +360,12 @@ router.post('/logout', authenticateToken, asyncHandler(async (req, res) => {
   const token = authHeader && authHeader.split(' ')[1];
   
   if (token) {
-    // Blacklist the access token
-    blacklistToken(token);
+    // Blacklist the access token with additional context
+    await blacklistToken(token, {
+      reason: 'logout',
+      ipAddress: req.ip,
+      userAgent: req.get('User-Agent')
+    });
   }
 
   // Revoke all refresh tokens for the user
