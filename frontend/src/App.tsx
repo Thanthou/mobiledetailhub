@@ -17,6 +17,7 @@ import { AffiliateApplicationPage } from './pages/affiliateOnboarding';
 import { HomePage } from './pages/home';
 import Header from './pages/home/components/01_header';
 import { ServicePage } from './pages/serviceSection';
+import BookingPage from './pages/booking/BookingPage';
 import { preloadCriticalModals } from './utils/modalCodeSplitting';
 import { scrollRestoration } from './utils/scrollRestoration';
 
@@ -102,6 +103,12 @@ function App() {
                       </ProtectedRoute>
                     } />
                     <Route path="/affiliate-onboarding" element={<AffiliateApplicationPage />} />
+                    <Route path="/booking" element={<BookingPage />} />
+                    <Route path="/:businessSlug/booking" element={
+                      <AffiliateProvider>
+                        <BookingPage />
+                      </AffiliateProvider>
+                    } />
                     <Route path="/service/:serviceType" element={<ServicePage />} />
                     <Route path="/:businessSlug/service/:serviceType" element={
                       <AffiliateProvider>

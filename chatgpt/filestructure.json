@@ -291,6 +291,7 @@
     "review_votes.sql": "backend/review_votes.sql",
     "login_attempts.sql": "backend/login_attempts.sql",
     "refresh_tokens.sql": "backend/refresh_tokens.sql",
+    "token_blacklist.sql": "backend/token_blacklist.sql",
     "users.sql": "backend/users.sql",
     "user_sessions.sql": "backend/user_sessions.sql",
     "business.sql": "backend/business.sql",
@@ -608,6 +609,7 @@
     "review_votes.sql": "backend/database/schemas/reputation/review_votes.sql",
     "login_attempts.sql": "backend/database/schemas/auth/login_attempts.sql",
     "refresh_tokens.sql": "backend/database/schemas/auth/refresh_tokens.sql",
+    "token_blacklist.sql": "backend/database/schemas/auth/token_blacklist.sql",
     "users.sql": "backend/database/schemas/auth/users.sql",
     "user_sessions.sql": "backend/database/schemas/auth/user_sessions.sql",
     "business.sql": "backend/database/schemas/affiliates/business.sql",
@@ -920,6 +922,7 @@
       "backend/review_votes.sql",
       "backend/login_attempts.sql",
       "backend/refresh_tokens.sql",
+      "backend/token_blacklist.sql",
       "backend/users.sql",
       "backend/user_sessions.sql",
       "backend/business.sql",
@@ -940,5 +943,5 @@
       "backend/tiers.sql"
     ]
   },
-  "timestamp": "2025-09-08T16:45:05.015Z"
+  "timestamp": "2025-09-08T23:04:43.696Z"
 }

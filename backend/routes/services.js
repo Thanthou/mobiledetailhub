@@ -8,6 +8,7 @@ router.post('/', async (req, res) => {
   try {
     const { affiliate_id, vehicle_id, service_category_id, base_price_cents, name, description, tiers } = req.body;
     
+    
     // Validate required fields
     if (!affiliate_id || !name || !vehicle_id || !service_category_id) {
       return res.status(400).json({
@@ -18,21 +19,24 @@ router.post('/', async (req, res) => {
     }
     
     // Map the category based on the service_category_id
-    let category = 'auto'; // default
+    let category = 'service-packages'; // default
     let originalCategory = 'service-packages'; // default
     
     if (service_category_id) {
+      // Convert to number in case it's a string
+      const categoryId = parseInt(service_category_id);
+      
       const categoryMap = {
-        1: { db: 'auto', original: 'interior' },
-        2: { db: 'auto', original: 'exterior' },
-        3: { db: 'auto', original: 'service-packages' },
-        4: { db: 'ceramic', original: 'ceramic-coating' },
-        5: { db: 'auto', original: 'paint-correction' },
-        6: { db: 'auto', original: 'paint-protection-film' },
-        7: { db: 'auto', original: 'addons' }
+        1: { db: 'interior', original: 'interior' },
+        2: { db: 'exterior', original: 'exterior' },
+        3: { db: 'service-packages', original: 'service-packages' },
+        4: { db: 'ceramic-coating', original: 'ceramic-coating' },
+        5: { db: 'paint-correction', original: 'paint-correction' },
+        6: { db: 'paint-protection-film', original: 'paint-protection-film' },
+        7: { db: 'addons', original: 'addons' }
       };
       
-      const mapping = categoryMap[service_category_id] || { db: 'auto', original: 'service-packages' };
+      const mapping = categoryMap[categoryId] || { db: 'service-packages', original: 'service-packages' };
       category = mapping.db;
       originalCategory = mapping.original;
     }
@@ -142,6 +146,182 @@ router.post('/', async (req, res) => {
   }
 });
 
+// PUT /api/services/:serviceId - Update a service and its tiers
+router.put('/:serviceId', async (req, res) => {
+  try {
+    const { serviceId } = req.params;
+    const { affiliate_id, vehicle_id, service_category_id, base_price_cents, name, description, tiers } = req.body;
+    
+    if (!serviceId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing service ID',
+        message: 'Service ID is required'
+      });
+    }
+    
+    // Validate required fields
+    if (!affiliate_id || !name || !vehicle_id || !service_category_id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields',
+        message: 'affiliate_id, vehicle_id, service_category_id, and name are required'
+      });
+    }
+    
+    // Map the category based on the service_category_id
+    let category = 'service-packages'; // default
+    let originalCategory = 'service-packages'; // default
+    
+    if (service_category_id) {
+      // Convert to number in case it's a string
+      const categoryId = parseInt(service_category_id);
+      
+      const categoryMap = {
+        1: { db: 'interior', original: 'interior' },
+        2: { db: 'exterior', original: 'exterior' },
+        3: { db: 'service-packages', original: 'service-packages' },
+        4: { db: 'ceramic-coating', original: 'ceramic-coating' },
+        5: { db: 'paint-correction', original: 'paint-correction' },
+        6: { db: 'paint-protection-film', original: 'paint-protection-film' },
+        7: { db: 'addons', original: 'addons' }
+      };
+      
+      const mapping = categoryMap[categoryId] || { db: 'service-packages', original: 'service-packages' };
+      category = mapping.db;
+      originalCategory = mapping.original;
+    }
+    
+    // Map frontend vehicle IDs to database vehicle IDs
+    const vehicleMap = {
+      'cars': 1,
+      'trucks': 2,
+      'rvs': 3,
+      'boats': 4,
+      'motorcycles': 5,
+      'offroad': 6,
+      'other': 7
+    };
+    
+    const dbVehicleId = vehicleMap[vehicle_id] || 1;
+    const vehicleTypes = JSON.stringify([dbVehicleId]);
+    const metadata = JSON.stringify({
+      base_price_cents: base_price_cents || 0,
+      pricing_unit: 'flat',
+      min_duration_min: 60,
+      original_category: originalCategory
+    });
+    
+    // Start a transaction to ensure both updates succeed or both fail
+    const client = await pool.connect();
+    
+    try {
+      await client.query('BEGIN');
+      
+      // Update the service
+      const updateServiceQuery = `
+        UPDATE affiliates.services 
+        SET service_name = $1, 
+            service_description = $2, 
+            service_category = $3, 
+            vehicle_types = $4, 
+            metadata = $5,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = $6 AND business_id = $7
+        RETURNING *
+      `;
+      
+      const serviceResult = await client.query(updateServiceQuery, [
+        name,
+        description || 'Offered by affiliate',
+        category,
+        vehicleTypes,
+        metadata,
+        serviceId,
+        affiliate_id
+      ]);
+      
+      if (serviceResult.rowCount === 0) {
+        await client.query('ROLLBACK');
+        return res.status(404).json({
+          success: false,
+          error: 'Service not found',
+          message: 'No service found with the provided ID or you do not have permission to update it'
+        });
+      }
+      
+      // Delete existing tiers
+      await client.query('DELETE FROM affiliates.service_tiers WHERE service_id = $1', [serviceId]);
+      
+      // Create new service tiers
+      if (tiers && Array.isArray(tiers) && tiers.length > 0) {
+        // Use custom tiers provided by the frontend
+        for (const tier of tiers) {
+          if (tier.name && tier.name.trim() !== '') {
+            await client.query(`
+              INSERT INTO affiliates.service_tiers (service_id, tier_name, price_cents, included_services, duration_minutes, is_active, is_featured, sort_order)
+              VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            `, [
+              serviceId,
+              tier.name,
+              Math.round((tier.price || 0) * 100), // Price in cents
+              JSON.stringify(tier.features || []), // Features as JSON array
+              tier.duration || 60, // Duration in minutes
+              true, // is_active
+              tier.popular || false, // is_featured
+              0 // sort_order
+            ]);
+          }
+        }
+      } else {
+        // Create default service tiers if no custom tiers provided
+        const tierNames = ['Basic', 'Premium', 'Luxury'];
+        const tierPrices = [50, 100, 150]; // Default prices in dollars
+        
+        for (let i = 0; i < tierNames.length; i++) {
+          await client.query(`
+            INSERT INTO affiliates.service_tiers (service_id, tier_name, price_cents, included_services, duration_minutes, is_active, is_featured, sort_order)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+          `, [
+            serviceId,
+            tierNames[i],
+            Math.round(tierPrices[i] * 100), // Convert to cents
+            JSON.stringify([`${tierNames[i]} tier features`]), // Features as JSON array
+            60, // Duration in minutes
+            true, // is_active
+            i === 1, // Mark Premium as featured
+            i // sort_order
+          ]);
+        }
+      }
+      
+      // Commit the transaction
+      await client.query('COMMIT');
+      
+      res.json({
+        success: true,
+        data: serviceResult.rows[0],
+        message: 'Service updated successfully'
+      });
+      
+    } catch (error) {
+      // Rollback the transaction on error
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+    
+  } catch (error) {
+    console.error('Error updating service:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update service',
+      message: error.message
+    });
+  }
+});
+
 // DELETE /api/services/:serviceId - Delete a service and its tiers
 router.delete('/:serviceId', async (req, res) => {
   try {
@@ -211,18 +391,8 @@ router.get('/affiliate/:affiliateId/vehicle/:vehicleId/category/:categoryId', as
   try {
     const { affiliateId, vehicleId, categoryId } = req.params;
     
-    // Map frontend IDs to database categories
-    const categoryMap = {
-      'interior': 'auto',
-      'exterior': 'auto', 
-      'service-packages': 'auto',
-      'addons': 'auto',
-      'ceramic-coating': 'ceramic',
-      'paint-correction': 'auto',
-      'paint-protection-film': 'auto'
-    };
-    
-    const dbCategory = categoryMap[categoryId] || 'auto';
+    // Use the category ID directly since we now store proper category names
+    const dbCategory = categoryId;
     
     // Map frontend vehicle IDs to database vehicle IDs
     const vehicleMap = {
@@ -237,7 +407,7 @@ router.get('/affiliate/:affiliateId/vehicle/:vehicleId/category/:categoryId', as
     
     const dbVehicleId = vehicleMap[vehicleId] || 1;
     
-    // Clean query using the correct table structure with original category filtering
+    // Clean query using the correct table structure with proper category filtering
     const query = `
       SELECT 
         s.id as service_id,
@@ -252,11 +422,10 @@ router.get('/affiliate/:affiliateId/vehicle/:vehicleId/category/:categoryId', as
       WHERE s.business_id = $1 
         AND s.service_category = $2
         AND s.vehicle_types @> $3::jsonb
-        AND (s.metadata->>'original_category' = $4 OR s.metadata->>'original_category' IS NULL)
       ORDER BY s.created_at DESC, s.service_name ASC
     `;
     
-    const result = await pool.query(query, [affiliateId, dbCategory, JSON.stringify([dbVehicleId]), categoryId]);
+    const result = await pool.query(query, [affiliateId, dbCategory, JSON.stringify([dbVehicleId])]);
     
     if (result.rows.length === 0) {
       return res.json({

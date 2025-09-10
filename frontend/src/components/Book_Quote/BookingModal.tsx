@@ -1,4 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+
+import { useSiteContext } from '../../hooks/useSiteContext';
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -6,33 +9,26 @@ interface BookingModalProps {
 }
 
 const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) => {
-  if (!isOpen) return null;
+  const navigate = useNavigate();
+  const { businessSlug } = useParams();
+  const { isAffiliate } = useSiteContext();
 
-  return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-stone-800 rounded-lg shadow-xl max-w-md w-full p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-white">Book Appointment</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-white text-2xl font-bold"
-          >
-            ×
-          </button>
-        </div>
-        
-        <div className="text-center text-white">
-          <p>Booking functionality coming soon...</p>
-          <button
-            onClick={onClose}
-            className="mt-4 bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg"
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+  useEffect(() => {
+    if (isOpen) {
+      // Automatically navigate to booking page when modal opens
+      onClose(); // Close the modal first
+      
+      // Navigate to the appropriate booking route based on context
+      if (isAffiliate && businessSlug) {
+        navigate(`/${businessSlug}/booking`);
+      } else {
+        navigate('/booking');
+      }
+    }
+  }, [isOpen, navigate, onClose, isAffiliate, businessSlug]);
+
+  // Don't render anything since we're redirecting immediately
+  return null;
 };
 
 export default BookingModal;

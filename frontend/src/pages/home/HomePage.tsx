@@ -17,7 +17,9 @@ const HomePage = () => {
   
   // Centralized modal handlers with prefetching
   const handleOpenQuoteModal = () => {
-    setIsQuoteModalOpen(true);
+    if (isAffiliate) {
+      setIsQuoteModalOpen(true);
+    }
   };
   
   const handleCloseQuoteModal = () => {
@@ -34,7 +36,9 @@ const HomePage = () => {
 
   // Prefetch handlers for better performance
   const handleQuoteModalPrefetch = () => {
-    void prefetchQuoteModal();
+    if (isAffiliate) {
+      void prefetchQuoteModal();
+    }
   };
   
   return (
@@ -65,10 +69,12 @@ const HomePage = () => {
       </section>
       
       {/* Centralized Modals - Now using lazy loading */}
-      <LazyQuoteModal 
-        isOpen={isQuoteModalOpen} 
-        onClose={handleCloseQuoteModal} 
-      />
+      {isAffiliate && (
+        <LazyQuoteModal 
+          isOpen={isQuoteModalOpen} 
+          onClose={handleCloseQuoteModal} 
+        />
+      )}
       {/* Note: BookingModal remains eager loaded for now - can be made lazy if needed */}
       <BookingModal 
         isOpen={isBookingModalOpen} 

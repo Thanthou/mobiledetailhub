@@ -2,6 +2,9 @@ import { CheckCircle } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 
 import { useVehicleData } from '../../hooks/useVehicleData';
+import { useLocation } from '../../hooks/useLocation';
+import { useAffiliate } from '../../hooks/useAffiliate';
+import { useSiteContext } from '../../hooks/useSiteContext';
 import { apiService } from '../../services/api';
 import { formatPhoneNumberAsTyped, isCompletePhoneNumber } from '../../utils/fields/phoneFormatter';
 import { 
@@ -11,6 +14,7 @@ import {
   validateName, 
   validatePhone, 
   validateVehicleField} from '../../utils/validation';
+import LocationEditModal from '../shared/LocationEditModal';
 
 interface QuoteModalProps {
   isOpen: boolean;
@@ -19,11 +23,32 @@ interface QuoteModalProps {
 
 const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
   const { vehicleTypes, getMakes, getModels } = useVehicleData();
+  const { selectedLocation } = useLocation();
+  const { isAffiliate } = useSiteContext();
+  
+  // Safety check - QuoteModal should only be used on affiliate pages
+  if (!isAffiliate) {
+    console.warn('QuoteModal should only be used on affiliate pages');
+    return null;
+  }
+  
+  // Safely get affiliate data - it might not be available on all pages
+  let affiliateData = null;
+  try {
+    const affiliateContext = useAffiliate();
+    affiliateData = affiliateContext.affiliateData;
+  } catch (error) {
+    // useAffiliate not available (no AffiliateProvider)
+    // This should not happen on affiliate pages
+    console.error('useAffiliate not available on affiliate page:', error);
+    affiliateData = null;
+  }
   
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
+    location: '',
     services: [] as string[],
     vehicleType: '',
     vehicleMake: '',
@@ -80,13 +105,101 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
     }
   }, [formData.vehicleMake]);
 
+  // Process service areas from affiliate data (same logic as affiliate footer)
+  const serviceAreas = React.useMemo((): Array<{ city: string; state: string; primary?: boolean }> => {
+    // Only process service areas if we're on an affiliate page and have affiliate data
+    if (!isAffiliate || !affiliateData?.service_areas) {
+      return [];
+    }
+    
+    let serviceAreasData: unknown = affiliateData.service_areas;
+    if (typeof serviceAreasData === 'string') {
+      try {
+        serviceAreasData = JSON.parse(serviceAreasData);
+      } catch (error) {
+        console.error('Error parsing service_areas JSON:', error);
+        return [];
+      }
+    }
+    
+    if (Array.isArray(serviceAreasData)) {
+      // Sort by state, with primary location first
+      const processedAreas = serviceAreasData
+        .map((area: unknown): { city: string; state: string; primary?: boolean } => {
+          const areaData = area as { city?: string; state?: string; primary?: boolean };
+          return {
+            city: areaData.city || '',
+            state: areaData.state || '',
+            primary: areaData.primary || false
+          };
+        })
+        .filter(area => area.city && area.state)
+        .sort((a, b) => {
+          // Primary locations first
+          if (a.primary && !b.primary) return -1;
+          if (!a.primary && b.primary) return 1;
+          // Then sort by state, then city
+          if (a.state !== b.state) return a.state.localeCompare(b.state);
+          return a.city.localeCompare(b.city);
+        });
+      
+      return processedAreas;
+    }
+    
+    return [];
+  }, [isAffiliate, affiliateData?.service_areas]);
+
+  // Auto-fill location when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      let locationToSet = '';
+      
+      // First priority: selected location from context
+      if (selectedLocation) {
+        locationToSet = `${selectedLocation.city}, ${selectedLocation.state}`;
+      } 
+      // Second priority: primary service area
+      else if (serviceAreas.length > 0) {
+        const primaryArea = serviceAreas.find(area => area.primary);
+        if (primaryArea) {
+          locationToSet = `${primaryArea.city}, ${primaryArea.state}`;
+        } else {
+          // Fallback to first service area
+          locationToSet = `${serviceAreas[0].city}, ${serviceAreas[0].state}`;
+        }
+      }
+      // Third priority: base location
+      else if (affiliateData?.base_location?.city && affiliateData?.base_location?.state_name) {
+        locationToSet = `${affiliateData.base_location.city}, ${affiliateData.base_location.state_name}`;
+      }
+      
+      if (locationToSet) {
+        setFormData(prev => ({
+          ...prev,
+          location: locationToSet
+        }));
+      }
+    }
+  }, [isOpen, selectedLocation, serviceAreas, affiliateData]);
+
+  // Handle location change from LocationEditModal
+  const handleLocationChange = (location: string, zipCode?: string, city?: string, state?: string) => {
+    if (city && state) {
+      setFormData(prev => ({
+        ...prev,
+        location: `${city}, ${state}`
+      }));
+    }
+  };
+
   // Section validation functions
   const isContactSectionComplete = useCallback(() => {
     const nameValid = validateName(formData.name).isValid;
     const emailValid = validateEmail(formData.email).isValid;
     const phoneValid = validatePhone(formData.phone).isValid;
-    return nameValid && emailValid && phoneValid;
-  }, [formData.name, formData.email, formData.phone]);
+    const locationValid = formData.location.trim().length > 0;
+    return nameValid && emailValid && phoneValid && locationValid;
+  }, [formData.name, formData.email, formData.phone, formData.location]);
 
   const isVehicleSectionComplete = useCallback(() => {
     const vehicleTypeValid = validateVehicleField(formData.vehicleType, 'Vehicle type').isValid;
@@ -124,6 +237,7 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
       name: '',
       email: '',
       phone: '',
+      location: '',
       services: [],
       vehicleType: '',
       vehicleMake: '',
@@ -323,7 +437,7 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
                   )}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Name */}
+                  {/* Row 1: Full Name | Phone Number */}
                   <div>
                     <label htmlFor="modal-name" className="block text-sm font-medium text-white mb-2">
                       Full Name *
@@ -350,7 +464,6 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
                     )}
                   </div>
 
-                  {/* Phone */}
                   <div>
                     <label htmlFor="modal-phone" className="block text-sm font-medium text-white mb-2">
                       Phone Number *
@@ -407,8 +520,8 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
                     )}
                   </div>
 
-                  {/* Email - Full Width */}
-                  <div className="md:col-span-2">
+                  {/* Row 2: Email | Location */}
+                  <div>
                     <label htmlFor="modal-email" className="block text-sm font-medium text-white mb-2">
                       Email Address *
                     </label>
@@ -430,6 +543,63 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
                     {hasFieldError('email') && (
                       <p className="text-sm text-red-400 mt-1">
                         {getFieldError('email')}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label htmlFor="modal-location" className="block text-sm font-medium text-white mb-2">
+                      Location *
+                    </label>
+                    {isAffiliate ? (
+                      <select
+                        id="modal-location"
+                        name="location"
+                        required
+                        value={formData.location}
+                        onChange={handleInputChange}
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 ${
+                          hasFieldError('location') 
+                            ? 'border-red-500 bg-red-900/20' 
+                            : 'border-gray-600 bg-stone-700'
+                        } text-white`}
+                      >
+                        <option value="">Select a location</option>
+                        {serviceAreas.length > 0 ? (
+                          serviceAreas.map((area, index) => (
+                            <option 
+                              key={`${area.city}-${area.state}-${String(index)}`} 
+                              value={`${area.city}, ${area.state}`}
+                              className="bg-stone-700 text-white"
+                            >
+                              {area.city}, {area.state}
+                            </option>
+                          ))
+                        ) : (
+                          <option value="" disabled className="bg-stone-700 text-white">
+                            No service areas available
+                          </option>
+                        )}
+                      </select>
+                    ) : (
+                      <input
+                        type="text"
+                        id="modal-location"
+                        name="location"
+                        required
+                        value={formData.location}
+                        onChange={handleInputChange}
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 ${
+                          hasFieldError('location') 
+                            ? 'border-red-500 bg-red-900/20' 
+                            : 'border-gray-600 bg-stone-700'
+                        } text-white`}
+                        placeholder="Enter your location"
+                      />
+                    )}
+                    {hasFieldError('location') && (
+                      <p className="text-sm text-red-400 mt-1">
+                        {getFieldError('location')}
                       </p>
                     )}
                   </div>

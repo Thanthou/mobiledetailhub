@@ -2,1536 +2,1541 @@
   "frontend/index.html": {
     "sha1": "8a82082ec779f2d94a91888c3f819f7979345b1f",
     "size": 3693,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/package.json": {
-    "sha1": "757305aaf810776185d5f390bb4726a9f51e5d94",
-    "size": 1436,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "sha1": "887cb8d31d38e6044916db51808da8535826d6e3",
+    "size": 1487,
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/postcss.config.js": {
     "sha1": "50423d11f317aef9d5fcfb2563b2a501b344dcd5",
     "size": 81,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/QUICK_START.md": {
     "sha1": "e734f4b5f9fb67e2d41487a5a360b5544620961f",
     "size": 2303,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/tailwind.config.js": {
     "sha1": "08a1abdfac340b1b5967ce1582f8fe36d178b05a",
     "size": 170,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/tsconfig.app.json": {
     "sha1": "b5f47ff89070ea0f56f6e5af68462f3c1c13a53b",
     "size": 1158,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/tsconfig.eslint.json": {
     "sha1": "fcf2ed19cc108383504ef9cef434e3e78989d24c",
     "size": 249,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/tsconfig.json": {
     "sha1": "916168243c072245e89f349fb50e0d11696086fb",
     "size": 119,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/tsconfig.node.json": {
     "sha1": "995a07fa915b7c8201a0969a518b4b61eb506200",
     "size": 901,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/App.tsx": {
     "sha1": "d63cf1b0763770200cef317759521797da811d2c",
     "size": 5240,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/index.css": {
     "sha1": "8312ae7bcd7d016a3548a2ea3bedf428b7d81cb0",
     "size": 2032,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/main.tsx": {
-    "sha1": "3fa113cda6616de9aabafc9a81dca140125ed124",
-    "size": 829,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "sha1": "da499fdddbccf168475e604b222851b8a542c0a9",
+    "size": 861,
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ServicePage.tsx": {
     "sha1": "c2f65ee9acceaabce8d7313c7eac8c3479581986",
     "size": 2566,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/Action.tsx": {
     "sha1": "459f72ea1b021babda05efc5f2200e77fff34839",
     "size": 1227,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/BeforeAfterSlider.tsx": {
     "sha1": "d476d8ba3c40d8846d250d65735501a822af6755",
     "size": 4744,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/Hero.tsx": {
     "sha1": "6c8c71dd2451d400649da50e5181689f0a65c7f8",
     "size": 880,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/Information.tsx": {
     "sha1": "c9db9dfc15e133f6cec6f5cab514bb4cf0c5f152",
     "size": 1449,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/Process.tsx": {
     "sha1": "a034c924407c52fe85bbb74b87b48cedecfe8f59",
     "size": 2972,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/Results.tsx": {
     "sha1": "49cce8a3c69033cb82981d3fcee891d923135ec7",
     "size": 3477,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ServiceCTA.tsx": {
     "sha1": "787e0a5e013a779fa879e0477f942e5edfcbe572",
     "size": 1091,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ServiceErrorState.tsx": {
     "sha1": "860e5daf45634ff0fa93254af6ebf47831c9a610",
     "size": 1612,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ServiceFAQ.tsx": {
     "sha1": "d5dab4de8992f76db22021e6ee4fe7651e84647c",
     "size": 2231,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ServiceGallery.tsx": {
     "sha1": "5774684a0d6e0b514fa426161fa6a79737c15954",
     "size": 3075,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ServiceHero.tsx": {
     "sha1": "97bdfbc22864fa5d832d18fd7f724980dec1454d",
     "size": 1362,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ServiceLoadingState.tsx": {
     "sha1": "364dedbae18cd5c10294d9dfc82905a256f46bef",
     "size": 552,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ServiceOverview.tsx": {
     "sha1": "d21261f4e9690b0c78c1a7619897088e89041441",
     "size": 2631,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ServicePricing.tsx": {
     "sha1": "5515bbfaddfffd705d7a9c4038ec2c6041b24576",
     "size": 3031,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ServiceProcess.tsx": {
     "sha1": "8db6ff0a92744655f4b7be08d30119f211345d57",
     "size": 1845,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/WhatItIs.tsx": {
     "sha1": "57305ed231b46e047b2bd673a5e39cc8f95f25ba",
     "size": 4712,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/HomePage.tsx": {
-    "sha1": "29c82f971895bf5e1010d3ca9804d9411c788b14",
-    "size": 2313,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "sha1": "d6d523c0d70d3eb82527b893a673eb0f04477663",
+    "size": 2503,
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/FooterBottom.tsx": {
     "sha1": "555691f7b301b25a87944e1235cad7b1870b7b80",
     "size": 1397,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/FooterErrorState.tsx": {
     "sha1": "48573b03f8ef7525fef7d7a0f9138b2b63f743de",
     "size": 488,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/FooterLoadingState.tsx": {
     "sha1": "4bbd4ee3ec2e26bfd6d23648bde3975c1781b4f5",
     "size": 521,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/GetStartedSection.tsx": {
     "sha1": "c3bf6d5445f10bd06a66cd0b77f4d8d3b906932e",
     "size": 490,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/index.tsx": {
     "sha1": "d8edbe4a9abdc97274ac1e6a85c25a783951d056",
     "size": 348,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/Footer.tsx": {
     "sha1": "53d78b84b9c0e20df334a5470f6bb9c55aebe7b8",
     "size": 8259,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/Grid.tsx": {
-    "sha1": "d6d3bf4ebda481d4ef53e36a11802e206dcdf9a2",
-    "size": 11375,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "sha1": "a4c7190c1fc3ec7774fb44d04aed1492196536eb",
+    "size": 10657,
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/TikTokIcon.tsx": {
     "sha1": "eb709927220f4a744766b6c741e06008d10b93f9",
     "size": 423,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ConnectColumn.tsx": {
     "sha1": "984238d3e5a573fd6b46eea52495eba8da9ff2bb",
     "size": 3744,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/QuickLinksColumn.tsx": {
     "sha1": "51af9900485d0b5bdd1fc5a5e2535564c04883d4",
     "size": 776,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/SocialMediaColumn.tsx": {
     "sha1": "4f41929917b2a9692755012256b659d188e0ee70",
     "size": 1724,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/FAQ.tsx": {
     "sha1": "6ae0fa6f020544b22d70154cacbc0be47b7a4e61",
     "size": 2717,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/AffiliateFooter.tsx": {
     "sha1": "5d0640b98653f7c5c24edc675d5ba44d9b1a7497",
     "size": 223,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/AffiliateHeader.tsx": {
     "sha1": "17ce27091fcdbae94ffcdbdc80ca3568e99549ba",
     "size": 1377,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/FAQErrorState.tsx": {
     "sha1": "de1cae26c9cc94d2ce6ed0a737082e37937ab5e6",
     "size": 369,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/FAQExpandButton.tsx": {
     "sha1": "aedba14dcb7bb870bfc075379755c455394327d4",
     "size": 808,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/FAQFooter.tsx": {
     "sha1": "e23092788073a1d34e6cca425e8748a07fab785f",
     "size": 211,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/FAQHeader.tsx": {
     "sha1": "e22e2b9e746e022218b0fdf77410dd009cd729f8",
     "size": 1075,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/FAQItem.tsx": {
     "sha1": "f962f6cef24acc99c2b37dab81ef26fda983bcfb",
     "size": 2390,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/FAQLoadingState.tsx": {
     "sha1": "4f53a92c8e5ba3302c304c22d58342da29544654",
     "size": 373,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/FAQTabbedInterface.tsx": {
     "sha1": "8761fc6c55b41367b15e71b0a91a921af67373ac",
     "size": 5825,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/GoogleBadge.tsx": {
     "sha1": "35621cf66d75c70889a0343482076c61467c5821",
     "size": 952,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ReviewCard.tsx": {
     "sha1": "8af8c92bb27d3882798ec5cbc63448b04092ab29",
     "size": 7305,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ReviewForm.tsx": {
     "sha1": "ff287b0de671f04b882f343e4ca4604f13f0c0a2",
     "size": 11586,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ReviewModal.tsx": {
     "sha1": "1a4dc00480a5ed6b1aa371afa11b0d619bbfe1ea",
     "size": 8012,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ReviewModeration.tsx": {
     "sha1": "1ad0edbaa329a3ae06803f0039ad5557437a3268",
     "size": 11888,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/Reviews.tsx": {
     "sha1": "3fd6cda83ca26675a31dea49e05c09588b41544f",
     "size": 509,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ReviewsHeader.tsx": {
     "sha1": "6c7e4dfaf82a605edc863513f67ebf14e36846a9",
     "size": 1776,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ReviewSourceIcon.tsx": {
     "sha1": "5efee3a427c1ecd333db77a56780dec1aca2e82a",
     "size": 5843,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ReviewSubmissionModal.tsx": {
     "sha1": "911d8b7da4210cba9b226e5dcda9c9eab8fe8405",
     "size": 2308,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ReviewSystemExample.tsx": {
     "sha1": "2a775a9c8b6c33446d30223d19dc095ac03353cc",
     "size": 3071,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/StarRating.tsx": {
     "sha1": "23cdace174cece4e5a758e244b1e7b2f164f2190",
     "size": 1018,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/Services.tsx": {
     "sha1": "b2b159e63d08370cae1c6450f24a22bc0745a87e",
     "size": 2389,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/HeroBackground.tsx": {
     "sha1": "ab73bdae2617cc2ebbc89b147711209d4e10d8f7",
     "size": 1475,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/AuthSection.tsx": {
     "sha1": "2aae7a27e067dc6ebac11382d502d33da5d5911b",
     "size": 452,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/LoginButton.tsx": {
     "sha1": "a0cf62de13589cc84b0957991032fcbc92f6dcfe",
     "size": 3618,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/Logo.tsx": {
     "sha1": "c1caddcc9bc64231f96f07c0edf44eab7391cb7c",
     "size": 536,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/MobileMenu.tsx": {
     "sha1": "61fcd589ec3382b3c2d7857348f5c881fa14f6bc",
     "size": 3177,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/SocialMediaIcons.tsx": {
     "sha1": "59b4ee7d1c4e374158b5e9d99b51c8f1d451539d",
     "size": 1998,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/UserMenu.tsx": {
     "sha1": "5e4a8cc4f1c6fe90ee3a8fccfe92601370b97daa",
     "size": 4952,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/Header.tsx": {
     "sha1": "47b5414b6aeff00e8260f2fb3ebd75bcc2f08ca6",
     "size": 7969,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/AffiliateApplicationPage.tsx": {
     "sha1": "fa993b49c664ce3221071c8f8333c9bffe7fae48",
     "size": 9634,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/README.md": {
     "sha1": "87a5f9efd4c44c0be30bcba3a4d83a347e27fae0",
     "size": 2109,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/AffiliatePrivacyModal.tsx": {
     "sha1": "91929a07e8407b92790feca8d15a0274ab3663a7",
     "size": 5499,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/AffiliateTermsModal.tsx": {
     "sha1": "b1bd83f9f8df3e10dbb9446f2de1dea46767eab8",
     "size": 5808,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ApplicationHeader.tsx": {
     "sha1": "3a9dfe7496c2c81a2c6b1e34b148c2bc543a73c8",
     "size": 1191,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/GoogleBusinessProfileModal.tsx": {
     "sha1": "71757837807a9176be552d75cf504944e2af60e2",
     "size": 7824,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/IdentityContactSection.tsx": {
     "sha1": "f71906c65cb78bf0e69a3186a6cb3006af5979fe",
     "size": 7118,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/LegalTermsSection.tsx": {
     "sha1": "e479afe18b89ffd0158ed238d6a8139664ba7e55",
     "size": 4448,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/LocationInput.tsx": {
     "sha1": "ebd9b32ecd2d28f9b97934025d7dbd5bc246869b",
     "size": 13364,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/OperatingBasicsSection.tsx": {
     "sha1": "e9867cc4fb6d1284bed6474acabf0105fb296006",
     "size": 1992,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ProofOfWorkSection.tsx": {
     "sha1": "aab2fdd0c8b06a92794f1bed4f47b668ec1d6b40",
     "size": 3398,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/SocialMediaSection.tsx": {
     "sha1": "dba9bc5be9ea264be7e0f8b4faa7fc3aadb75fc2",
     "size": 6833,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/SubmitSection.tsx": {
     "sha1": "ba901d08fd52a26c471a622855de85ae1c8b2784",
     "size": 1946,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/SuccessPage.tsx": {
     "sha1": "f567a125ae16bfc79dfd3d5df162d1bbd927aa33",
     "size": 2737,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/DashboardPage.tsx": {
     "sha1": "4532b07876d3d58f962e725449acffafe2e78399",
     "size": 610,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ServicesTab.tsx": {
-    "sha1": "8d5b55f40a8a4100867a8fd16f1a4d97532c2e0e",
-    "size": 26900,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "sha1": "53e07423afe613aeb807c85c28f1abbb2b1db15c",
+    "size": 27422,
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/AddServiceModal.tsx": {
     "sha1": "8f9e40c90b4541dd40d4167cf59b8e5bc8288fb2",
     "size": 3151,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/CategorySelector.tsx": {
     "sha1": "f54eab4b57f430dd84e940e155ed72793546cd08",
     "size": 994,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/DeleteServiceModal.tsx": {
     "sha1": "c8c6ab7b8cfae9fc29d2cd6d23ad5eb7c3618b36",
     "size": 2131,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/MultiTierPricingModal.tsx": {
     "sha1": "36357f05e01bd10a02236280c75885d866c1791b",
     "size": 19842,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ServiceSelector.tsx": {
     "sha1": "a4ccea9f5b62dadc0399c20fcba7239b927018af",
     "size": 973,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ServiceTierCards.tsx": {
     "sha1": "405433435f995ac1cedfca26cce4eec0a5934e50",
     "size": 10482,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/VehicleSelector.tsx": {
     "sha1": "aef19f836e670be5e20bf52ecb614e5a1d8f29d5",
     "size": 1109,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ScheduleTab.tsx": {
     "sha1": "b6e3e6f3b25ac2ccc5f82c77f20b9383f7460d02",
     "size": 1075,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ScheduleGrid.tsx": {
     "sha1": "a885df70b08a2c3e6305d59f50b3d0608504d6b6",
     "size": 3592,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ScheduleHeader.tsx": {
     "sha1": "24a7f8a6fb817fd764d05e8af37f2853c576a5a6",
     "size": 2186,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ScheduleSidebar.tsx": {
     "sha1": "8b53aed213c98c7d17eeee181ec3c44110e4cb7d",
     "size": 2325,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ProfileTab.tsx": {
     "sha1": "576b8366dff48d1bb6664ad972fded53fe22bc04",
     "size": 1656,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/AutoSaveField.tsx": {
     "sha1": "d2ec45c2fd5770f27fab793ca6e65f2db656dbe9",
     "size": 2706,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ProfileForm.tsx": {
     "sha1": "c213a2af823af5f9c171d5bf143530ff0e5347bd",
     "size": 5860,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/PerformanceTab.tsx": {
     "sha1": "20f1ce4e6c12c7be5c953de9111983ae36727b52",
     "size": 142,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/OverviewTab.tsx": {
     "sha1": "ed199153a2a551dcb14a1c316b3f2212c88dd1d1",
     "size": 698,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/MetricsCards.tsx": {
     "sha1": "3c2ee4ac7d14eb1adfd4153c9aa2074fcdc7f5bd",
     "size": 2510,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/NotificationPanel.tsx": {
     "sha1": "10feee95eea8973b1224dcb7d9a2b74d82486776",
     "size": 1379,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/QuickActions.tsx": {
     "sha1": "37a91a90f1e647146cbf2a3f0939649217a027e4",
     "size": 1536,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/RecentAppointments.tsx": {
     "sha1": "276c3ff88316541cc6f1dce158f60021d3fed44c",
     "size": 1931,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/RecentReviews.tsx": {
     "sha1": "ad717f8f90d5ee40b3322751f6025b26882cd510",
     "size": 1292,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/LocationsTab.tsx": {
     "sha1": "93a73bff16c7cd0b1325b2554f1ef5aa9f091da9",
     "size": 59554,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/AddLocationModal.tsx": {
     "sha1": "18be11a35c5be5ee74e72daa85652a2dc449d852",
     "size": 18670,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/DeleteLocationModal.tsx": {
     "sha1": "a0cabf3d40496eda9452aee3e96a30916d93cf24",
     "size": 3991,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/LocationCard.tsx": {
     "sha1": "62ad7735a081531e9d20d3ba8b705e90ff044118",
     "size": 2675,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/CustomersTab.tsx": {
     "sha1": "9d939e07014a7ec6141a9152c3f456c15be91ae5",
     "size": 136,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/DashboardHeader.tsx": {
     "sha1": "79bd1292feded97265ce3712f80bd1020695ff8a",
     "size": 3265,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/DashboardLayout.tsx": {
     "sha1": "f80979c67fcbfac5b7682c6a62a05ca2d26e6cab",
     "size": 301,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/DashboardTabs.tsx": {
     "sha1": "8caf3ea55796860d1ea044e22cba1ce3e4c3cb53",
     "size": 1192,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/TabContent.tsx": {
     "sha1": "710ea6c17303f423a61f6b6528e708ddf08dc542",
     "size": 801,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/AdminLayout.tsx": {
     "sha1": "e5934374472ddd53d47afd7f2bb22db9fff811fd",
     "size": 1234,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/AdminTabs.tsx": {
     "sha1": "13f9db2d702213fbcfdd40beb73e4fb24a1a713a",
     "size": 1181,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/UsersTab.tsx": {
     "sha1": "168de4ab1f34e5611d2798866c799bbc6bf1a148",
     "size": 19132,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/SettingsTab.tsx": {
     "sha1": "bd1ff45743b5faaa759606481d2a8909752cbbe9",
     "size": 1264,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ReviewsTab.tsx": {
     "sha1": "96550bb797d8c297b6203d345a19169a86e0f1d5",
     "size": 19354,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/DatabaseTab.tsx": {
     "sha1": "208063aabd14553d8bebf02f6b8d977c954adf3b",
     "size": 8386,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/AnalyticsTab.tsx": {
     "sha1": "f703e99b1897ade4fae325641da8abd55a59ad1f",
     "size": 1369,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ApplicationModal.tsx": {
     "sha1": "1beca6584808f1929db55b478d418a2c6ed46b4c",
     "size": 7115,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/Toast.tsx": {
     "sha1": "e976835e3c45e6d1ba76b176a774129a1e65ab3c",
     "size": 1255,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/AffiliateContext.tsx": {
     "sha1": "276387772706f5f95c0aa6bc88c0ba44cf449e4a",
     "size": 4716,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/AuthContext.tsx": {
     "sha1": "9fa3f6677102d6461f21973139993f6a9d6878ec",
     "size": 7703,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/FAQContext.tsx": {
     "sha1": "d957b7d599881a972a31e6ca97b0f15c805951ab",
     "size": 1213,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/LocationContext.tsx": {
     "sha1": "da4502ed5206cc231f11e49bf725ecb55a37e65e",
     "size": 4209,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/MDHConfigContext.tsx": {
     "sha1": "a1267d599770e9a076760e149156aa22b8224c59",
     "size": 4921,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ProtectionComparisonChart.tsx": {
     "sha1": "3135965786a4fef8b49b965a9a4e8ffe6a2744fb",
     "size": 5460,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/RatingLegend.tsx": {
     "sha1": "fda31abb65ee5528590bfa86e138f25f60f178f9",
     "size": 375,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/AdminNavigationContainer.tsx": {
     "sha1": "2bc6b6b2f11498c260e9d641fc0fb2eb3b848cd3",
     "size": 398,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/AffiliateNavigation.tsx": {
     "sha1": "840d3537245e1584c6aff851833981fbd26ab9b8",
     "size": 8663,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/DevNavigation.tsx": {
     "sha1": "89befa6573233f80edc8c7955fc785224d170540",
     "size": 3194,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ErrorBoundary.tsx": {
     "sha1": "ff95eed6e85aa7f1f71d12553302ecc88bfb3cc8",
     "size": 3270,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/LazyVideo.tsx": {
     "sha1": "cec12684d9fbcec2c3d8f6b67fd48b7b0961f2ad",
     "size": 4130,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/LocationEditModal.tsx": {
     "sha1": "03521d59b10cb06482f56fe7b4ff743bb7874a4c",
     "size": 3415,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/LocationSearchBar.tsx": {
     "sha1": "e98ee866fd584baebfc0909a42c96d6c1769f191",
     "size": 14602,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/NotFoundPage.tsx": {
     "sha1": "e69df0df3be1783f36e4747ab058506c835a3247",
     "size": 1280,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/OptimizedImage.tsx": {
     "sha1": "d344ff4c2db7a39ea3579e1a19aef8e9c29d714c",
     "size": 3006,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ProtectedRoute.tsx": {
     "sha1": "58ddae05c70bc2b55e12d5921c55a354459ed03b",
     "size": 2053,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/README_ERROR_BOUNDARIES.md": {
     "sha1": "653d31411dbb9c7df34caa8bc1fe273843ed57a4",
     "size": 3474,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/useErrorBoundary.tsx": {
     "sha1": "b94eb8499aa16ef654b9261adceefdb3494831f0",
     "size": 1679,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/withErrorBoundary.tsx": {
     "sha1": "3d5dd3294f76b61f821ed201fa1423d0ed82cbc3",
     "size": 2317,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ACCESSIBILITY.md": {
     "sha1": "65a0fe38232cef1dcc9c06bb21b21aae93669ed9",
     "size": 8302,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/FormField.tsx": {
     "sha1": "0d963fc1a5c0a1b7e9bf3d23b31ad2d80dd83d61",
     "size": 2452,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/LazyLoginModal.tsx": {
     "sha1": "084d3b3cbd02829ef0de92119839fad8e4949b97",
     "size": 6611,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/LoginForm.tsx": {
     "sha1": "de462dff59b6a5a3ed33264cd922e08f7330c401",
     "size": 4882,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/LoginModal.tsx": {
     "sha1": "bcc3337710b560186f24ac5d33d6b854b1a1cccc",
     "size": 13051,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ModalHeader.tsx": {
     "sha1": "6b49bfc41725200d57a5e0510b101598528c3bd3",
     "size": 2077,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/RegisterForm.tsx": {
     "sha1": "f94d09ef18da9d3638f27f1b1c478f7efb9f97ab",
     "size": 5434,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/SocialLogin.tsx": {
     "sha1": "d1d07531016b46dfd254de22aab48d2c2a90bc82",
     "size": 1187,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ToggleMode.tsx": {
     "sha1": "86ebb16f9b72584eed9bc04ee886d61c7bae8af3",
     "size": 1888,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/BrandItem.tsx": {
     "sha1": "b2e3cf8b1f432e56449602e4a814a31da7f1a1e0",
     "size": 1570,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/Brands.tsx": {
     "sha1": "1857366d87fe71c95c1e2ffe90e36c285520f657",
     "size": 2067,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/BrandsEmptyState.tsx": {
     "sha1": "1f49826494c7bbfd6c75379edaff7f092cb3db93",
     "size": 364,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/BrandsErrorState.tsx": {
     "sha1": "7d6bf3911f9a6ed6d3d6965f060592ae339924e6",
     "size": 504,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/BrandsGrid.tsx": {
     "sha1": "4f549613cb578764d87b78727a66d5b2e0cf5e14",
     "size": 590,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/BrandsLoadingState.tsx": {
     "sha1": "cb9760880fc3ca84385384f5aa21c5d0d06fabbb",
     "size": 662,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/BookingModal.tsx": {
     "sha1": "5f068073fe13e4b643ca00ccdb534ee577b46dc2",
     "size": 1144,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/CTAButton.tsx": {
     "sha1": "adb8fe7d97c75d484955309c0208e0bea7fa053b",
     "size": 1323,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/CTAButtonsContainer.tsx": {
     "sha1": "a5c639e54d249f9ae3aaaf57d0529a4dd3193f25",
     "size": 1166,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/LazyQuoteModal.tsx": {
     "sha1": "49239e69c89d8afbce4a3689bd55edf92b7b3f7b",
     "size": 6644,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/QuoteModal.tsx": {
-    "sha1": "6acec02245f04776750fa31bbfb6860e0384fa37",
-    "size": 33834,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "sha1": "89101b23251444249d4e4dce596c37f8b5284d79",
+    "size": 40948,
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/convert-images.js": {
     "sha1": "323bfc20cc0209cde1884f1b04bd5a7d12ddfb5b",
     "size": 6106,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/sw.js": {
     "sha1": "ecda5e6fbd9aca6f663b0f42e1eb3d2b36002ea5",
     "size": 3278,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/jsonld-loader.js": {
     "sha1": "09df1660ad013b6cb02666fe14deb8e1ac5e17ef",
     "size": 2427,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/mdh-config.js": {
     "sha1": "54d3ff402864f3e2046110d1959697324f0f3e6a",
     "size": 1180,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/ASSET_OPTIMIZATION_PWA.md": {
     "sha1": "e9e51f052e153a6b5061cc90ee983abb80f382d9",
     "size": 5289,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/CSP_SAFE_JSONLD_IMPLEMENTATION.md": {
     "sha1": "549007ce5dbe6ae208d9ba56a01bc8e25d229f27",
     "size": 4106,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/MODAL_CODE_SPLITTING_IMPROVEMENTS.md": {
     "sha1": "6c46ee4ede53bb3c801aa7d8578260c2f241f590",
     "size": 5421,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/VITE_ALIAS_ALIGNMENT.md": {
     "sha1": "d13f5c76ef3574f2dedd78189fea2e4a79006bc3",
     "size": 5347,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/BoatMakeModel.json": {
     "sha1": "9a7b09f0578abd8c8a7c2f27f53236f78a1a2c8e",
     "size": 924,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/CarMakeModel.json": {
     "sha1": "31a05f5e94880368ec9c23475d51b0747a0852fd",
     "size": 42087,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/MotorcycleMakeModel.json": {
     "sha1": "a167b8c2efe4bb49614622b338d3291a9eb4b0df",
     "size": 926,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "frontend/RvMakeModel.json": {
     "sha1": "3bd4a1d110e7750a31d1e67f002eb798004aada0",
     "size": 919,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/check-db.js": {
     "sha1": "ff2a41284a0e1569a61958c50c268131f2d65d41",
     "size": 550,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/check-review.js": {
     "sha1": "4a8c5cf0cd532acc9c20ca73bcfd146ef6f897c5",
     "size": 734,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/check-service-category.js": {
     "sha1": "06636bdbf8f4130055bdc6b35c8048198bf90443",
     "size": 1031,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/check-services.js": {
     "sha1": "a1d1c4f2e772ed1500b62acfd159a3a054040e9b",
     "size": 1633,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/clear-services.js": {
     "sha1": "d39dac8aba57dde3949cc66bc01b7af4fc1caf40",
     "size": 1743,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/debug-services.js": {
     "sha1": "a18ffcfaa082a9081a5a1a57d7256a62769c3792",
     "size": 2148,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/package.json": {
     "sha1": "96d6a279b4a8b51fe526a2278cedd7098c9f5981",
     "size": 777,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/README.md": {
     "sha1": "ee696d49d63d1b54e808819a87b9bcb3ded76e1c",
     "size": 954,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/server.js": {
-    "sha1": "ec4e2173c67192d830dbd71e7b72f94f5f53cc26",
-    "size": 17283,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "sha1": "9b71376ebd9b12fe5bfec66b48a51cde7c051b98",
+    "size": 17306,
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/test-avatar-upload.js": {
     "sha1": "7e82232969f50c95b58c37f5825db8f596949a62",
     "size": 1928,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/test-avatar.html": {
     "sha1": "ab3fcde97d3c5a2e6db14ad95fdfe7277b93fbe9",
     "size": 1933,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/test-endpoint.js": {
     "sha1": "e1c86ae4abe4cc5ca4396498cbaaab91dec3a260",
     "size": 392,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/test-query.js": {
     "sha1": "5e461a92de686d9488da38ee2609641c68de8daf",
     "size": 1688,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/test-standalone-avatar.js": {
     "sha1": "7b470217c16fe525064862e9b3a6556f93bbdd90",
     "size": 1378,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/avatarUtils.js": {
     "sha1": "14f2fbe05565691982bc3827ba238108e7afa34f",
     "size": 2893,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/databaseInit.js": {
     "sha1": "544f3a6a69c80d236373ab33763c1955abaaf16d",
     "size": 28044,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/db.js": {
     "sha1": "83533a77e5044bc1d409d1b3126103ae959db626",
     "size": 4225,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/dbHelper.js": {
     "sha1": "4b4674d7374f701f5d23aefb39ccba62bffab6b1",
     "size": 2993,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/envValidator.js": {
     "sha1": "c1cab9a077a9ee4a9ca21adeb59e440dabffb07e",
     "size": 11694,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/logger.js": {
     "sha1": "521eef6f8967aa92100bf0ca3a0eaf5b1a0cddbb",
     "size": 4486,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/migrationTracker.js": {
     "sha1": "c56a9933f337cc086cb386ca8d6eac6763e75cf6",
     "size": 5175,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/serviceAreaProcessor.js": {
     "sha1": "721433d6d25698fd9c7d99d4f99f928f9107a61a",
     "size": 4137,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/tokenManager.js": {
-    "sha1": "ec0889b7fc8e427af727991d2069974c15f3ac87",
-    "size": 9784,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "sha1": "b6e051f22dec55b55ebee92331ecdeccec166b83",
+    "size": 12778,
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/uploadValidator.js": {
     "sha1": "9fd51b02f14a8c107c948c4744c8b07222718c73",
     "size": 14673,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/validationSchemas.js": {
     "sha1": "31cd74c6a6911a18d487ee9e87bdb1fd58b8b118",
     "size": 10546,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/validators.js": {
     "sha1": "c5674c8e0fa0857d7661547c85a92483b16e2745",
     "size": 7989,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/test-affiliate-endpoint.js": {
     "sha1": "a73f2b2cd01cda42c54112c2a6b10c431bf2ee63",
     "size": 1145,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/test-affiliate-security.js": {
     "sha1": "3b967bdd85ce41bb8898417944d74f6837f35d79",
     "size": 2539,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/env.js": {
     "sha1": "f2ad8c0eb3bcf847b9e36dcf84644f0d7603593c",
     "size": 726,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/refreshTokenService.js": {
     "sha1": "84ffaeab71a97a39dbdae02032d1ed547aa02bc8",
     "size": 8999,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/db-inspect.js": {
     "sha1": "229a65263ab50a8e2ac0dd8b427d5fd83ebddf26",
     "size": 8337,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/admin.js": {
     "sha1": "9243bccf5014884c2de18692ec06e1a5ac41ed2d",
     "size": 29329,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/affiliates.js": {
     "sha1": "28578daa14e8b1790c0d779b48154532ae2eeb6d",
     "size": 50893,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/auth.js": {
-    "sha1": "9557208100e10a11709cfd25ad369ea14d5246e2",
-    "size": 8174,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "sha1": "0ba8dd00eb7d960c8b6bd4d8ebd88fe03815f979",
+    "size": 8180,
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/avatar.js": {
     "sha1": "e0ec93b14cbc105022eb023b05edf454bac7325d",
     "size": 9141,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/customers.js": {
     "sha1": "cbea271e3706e649ccc1cbba8f9edaee0c35e312",
     "size": 1977,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/health.js": {
     "sha1": "90d23063d3aa5a490c19bbc7b9d7ccf8e254c79f",
     "size": 4146,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/mdhConfig.js": {
     "sha1": "3853a6762a36e76b214ec3fa4137d5387e153c49",
     "size": 8769,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/reviews.js": {
     "sha1": "8890f79a06f3890a4d3f8700507a33073625780d",
     "size": 11871,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/serviceAreas.js": {
     "sha1": "d2ddfa687dce3f6df3c5cd30c4b60527c73b7fa9",
     "size": 6984,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/services.js": {
-    "sha1": "2b0f604b5cfe26be80fa5c9195e2a2c2954b0214",
-    "size": 10732,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "sha1": "30593fcc23916c0059d8603c3304009242084c20",
+    "size": 10782,
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/upload.js": {
     "sha1": "e8f5433f6f51cbffd4fe6616970d1f3353edea4d",
     "size": 4156,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/errorHandler.js": {
     "sha1": "21674fc67b867b7ca731e64c4d1633e520ed3c22",
     "size": 5189,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/rateLimiter.js": {
     "sha1": "937526cdabe265e9ac29cb392a50292c80f274c9",
     "size": 7369,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/requestLogger.js": {
     "sha1": "4cbcded13bcc2b29617ccf71f871f9c2c25114a3",
     "size": 4616,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/validation.js": {
     "sha1": "6b6659b2126927c7f379503e6f3c23f31e2f668f",
     "size": 9847,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/ADMIN_AUTHORIZATION_AUDIT_FIX.md": {
     "sha1": "836b5716c5ba5370db214dc66eb24a51f5b73899",
     "size": 6704,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/ADMIN_PASSWORD_SETUP.md": {
     "sha1": "1448db6e0ffa6351c0e892ed279dc1c94051cfbc",
     "size": 1125,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/AFFILIATE_APPROVAL_SERVICE_AREAS.md": {
     "sha1": "deb70afed3f50e267546033e55cb877f1eaeb60b",
     "size": 5865,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/AFFILIATE_SUBMISSION_FIX.md": {
     "sha1": "b79378cfbf7b4ddab5cdea1c92092208d993c36a",
     "size": 2817,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/AUTH_FIXES_IMPLEMENTATION.md": {
     "sha1": "c0b77a582eb7b2fdc86d1f8ff508f51ccd774738",
     "size": 8188,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/AUTH_RATE_LIMITING_IMPROVEMENTS.md": {
     "sha1": "53ac1701325e6cdf7a702a640d041a78e216017b",
     "size": 6013,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/AXIOS_AUTH_REFRESH_FIX.md": {
     "sha1": "fa6d09b4fe78b2b23c16970e3e5821f2e2126889",
     "size": 11786,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/CONFIG_ENDPOINT_CACHING.md": {
     "sha1": "147d8837becdfe646464928f1b456f565f12fcf3",
     "size": 2729,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/CORS_SECURITY_SETUP.md": {
     "sha1": "22df955ac57ef610d5689cc3118d1c4b89323d2e",
     "size": 2440,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/CORS_UNIFICATION.md": {
     "sha1": "e10cee4cd64f97d6149bcb935b209dea51214a63",
     "size": 4789,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/CSP_SECURITY_IMPLEMENTATION.md": {
     "sha1": "66a217c075ca197de8968782311fb6da8f59dbbb",
     "size": 4572,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/DATABASE_CONNECTION_MIGRATION.md": {
     "sha1": "15d1b2251c1e71bc6942fde495fe3e5ab44aaa9f",
     "size": 5523,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/DATABASE_SETUP.md": {
     "sha1": "9f0c39051082b3066cffce77ce7fd7430469078f",
     "size": 900,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/ENHANCED_SECURITY_VALIDATION.md": {
     "sha1": "117222b352767f8dccd5280870b4d6681f4d6f7f",
     "size": 3338,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/ENVIRONMENT_SETUP.md": {
     "sha1": "0cfd52ac8f8f65d702a140f57607f5df94134756",
     "size": 2240,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/ENVIRONMENT_VALIDATION_ALREADY_IMPLEMENTED.md": {
     "sha1": "240125b189af375a64779edb3fe1c6975afa9e19",
     "size": 2985,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/ERROR_HANDLING_STANDARDIZATION.md": {
     "sha1": "4693f60850a1f5470a470a8fe63ac6b4ff40dacc",
     "size": 5345,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/GRACEFUL_SHUTDOWN_IMPLEMENTATION.md": {
     "sha1": "ea3894160ea62cbc4a21ede6e1f7b236274fa469",
     "size": 6738,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/HEADER_FOOTER_DUPLICATE_FETCH_FIX.md": {
     "sha1": "88062ed91051245b159beaa43766a4d998528b9e",
     "size": 7262,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/HEALTH_ENDPOINTS_LIVENESS_READINESS_FIX.md": {
     "sha1": "782fea815e00e3b5771f427d8292ac8a6a8bdd08",
     "size": 5389,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/INPUT_VALIDATION.md": {
     "sha1": "30b58b4070e3f720dfa2d66d5e44dd6d20d7de41",
     "size": 6046,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/INPUT_VALIDATION_FIX_SUMMARY.md": {
     "sha1": "c41ae3058f5d81e3a0ff8d27e5b0282642780e78",
     "size": 7295,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/JWT_ENVIRONMENT_SETUP.md": {
     "sha1": "024d91733ee77fa986f95a6d6f4ed23d34064409",
     "size": 6596,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/JWT_REFRESH_TOKEN_FIX_SUMMARY.md": {
     "sha1": "c4f8b2e1e9653a98212e4b50f6352ac9391732a5",
     "size": 6618,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/JWT_REFRESH_TOKEN_SYSTEM.md": {
     "sha1": "977244a21a2815d690624fda6162dc995c1c8c8d",
     "size": 9060,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/JWT_SECURITY_ENHANCEMENT.md": {
     "sha1": "9101cdd1558ea31bead2cf9d21b56495091e977a",
     "size": 6835,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/JWT_SECURITY_FIX_SUMMARY.md": {
     "sha1": "47622adfbe28c9be9b8a81851eb4ae14278d695b",
     "size": 10080,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/JWT_SECURITY_SETUP.md": {
     "sha1": "975b66b8a6735552a92f98e758a1849557ef959f",
     "size": 9928,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/LOGGING_CONFIG.md": {
     "sha1": "d288131fd3a11907ac7726fbb4a2421c72e8f721",
     "size": 2568,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/LOGGING_IMPROVEMENTS.md": {
     "sha1": "58adb3aa266369e1851d7de2fe28558d10072f18",
     "size": 4056,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/LOGIN_FLOW_SANITY_CHECKS.md": {
     "sha1": "7851439765c2e082be772c3cda37a4bfd03f4487",
     "size": 8696,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/MIDDLEWARE_ORDERING_ANALYSIS.md": {
     "sha1": "b38f02866abc81095e18591a49f279bd74302a5a",
     "size": 6903,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/RATE_LIMITING_IMPLEMENTATION.md": {
     "sha1": "386edfa546c0ef2d5e83c9e742370627fb3d834a",
     "size": 3554,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/README_SERVICES_CONFIG.md": {
     "sha1": "4cd755a52f33a514a92c1f1a501aa4dcc6562522",
     "size": 1546,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/RECOMMENDED_SCHEMA_ORGANIZATION.md": {
     "sha1": "3e781758f46e075b6d4155f4083a2198e2819038",
     "size": 5591,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/REQUEST_LOGGING_IMPLEMENTATION.md": {
     "sha1": "46bd01dd9ce64cdffb7e724650067656faa62a4b",
     "size": 3350,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/REQUEST_VALIDATION_VERIFICATION.md": {
     "sha1": "02274ed18813f9b9ecd5e0ad60c234f6b66fd717",
     "size": 6540,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/ROLE_BASED_ACCESS_CONTROL.md": {
     "sha1": "b0c405d78340b82671952d171f4485ba1f6f6e79",
     "size": 3850,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/SCHEMA_CONSISTENCY_FIXES.md": {
     "sha1": "40c26ba74a306416cb9e09296413f31dd5e6aed4",
     "size": 5703,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/SECURITY_SETUP.md": {
     "sha1": "2ededdb2fc44a2fa3abdb56058a32a990c6000f8",
     "size": 664,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/SERVICE_AREAS_IMPLEMENTATION.md": {
     "sha1": "2134812d5c61b2f3ddff403c2803434164b0cccf",
     "size": 4888,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/SERVICE_AREAS_NORMALIZATION.md": {
     "sha1": "2c244db669ad8c0bc2a36a8d42eb25bf234222a2",
     "size": 6247,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/SIMPLIFIED_SERVICE_AREAS.md": {
     "sha1": "0ad396b353d59b8f424af616e55915be4736f0df",
     "size": 1617,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/SLUG_CHANGES_SUMMARY.md": {
     "sha1": "40596df5f8e87d083dedc8902b2c569502665b49",
     "size": 2250,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/STRUCTURE.md": {
     "sha1": "a32c4409882607632c0972df7b65e0555a92e010",
     "size": 3562,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/UPLOAD_GUARDRAILS_IMPLEMENTATION.md": {
     "sha1": "9e21e774e46a456dc877aceb71ac6d034ce450be",
     "size": 5331,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/UPLOAD_MAGIC_VALIDATION.md": {
     "sha1": "eaa0a7efa1e4b32b1f0283611eb7ea305ce1fd64",
     "size": 7839,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/pool.js": {
     "sha1": "8d451def6d21b85321e6941e79736fed7ee19e17",
     "size": 2474,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/affiliate_businesses.sql": {
     "sha1": "86d5134f69b2790d623e3800e09e1df59776bb6e",
     "size": 10626,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/affiliate_services.sql": {
     "sha1": "b7169af5ce1e8b4e3c958546d5ca1c1d010688d5",
     "size": 5513,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/auth_users.sql": {
     "sha1": "f92d0de13758f55406d4037f63e6774ccdf392a2",
     "size": 1610,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/reputation_reviews.sql": {
     "sha1": "8c1cda1c384d545835e8ff09f08d08cfea5df9d2",
     "size": 8661,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/add_reputation_schema.js": {
     "sha1": "57a9596b3f5224106fd5d789614c39ee40b198ac",
     "size": 5419,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/database_inspector.js": {
     "sha1": "229a65263ab50a8e2ac0dd8b427d5fd83ebddf26",
     "size": 8337,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/init_database.js": {
     "sha1": "9f3d22a7e281b3fdb1867f276f8ed830ee694368",
     "size": 7922,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/reset_reputation_data.js": {
     "sha1": "ad8c0ddc694b6d63ff834e2f5f8681cc021bb96d",
     "size": 1477,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/seed-affiliates.js": {
     "sha1": "5312c87aca99dab97745e21b2f4213ff1d46fddb",
     "size": 2546,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/seed-reviews-simple.js": {
     "sha1": "c5f19109845eaff86d96b8bb2979d2771fdc0591",
     "size": 11820,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/schema_migrations.sql": {
     "sha1": "58a43140536966e0f1b76f3c4274b372b3fc6104",
     "size": 680,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/system_config.sql": {
     "sha1": "4eb7f5f69ba044784c68a7fae1eec47e5461dd84",
     "size": 2476,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/reviews.sql": {
     "sha1": "f4aab27a6a24ee052cbcf0514b5056f531106618",
     "size": 5310,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/review_replies.sql": {
     "sha1": "3b5b0779a72faf0094759d706bed14adf388fc16",
     "size": 2144,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/review_votes.sql": {
     "sha1": "3019e33bdc6d88a84ea2a33219b788f37c98f811",
     "size": 1737,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/login_attempts.sql": {
     "sha1": "127136c05e776fb6a93a6989a4fd7ee9d4b8ed86",
     "size": 1152,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/refresh_tokens.sql": {
     "sha1": "b80955d05d54bf21c4330c3eb50113e0de199dbd",
     "size": 2959,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
+  },
+  "backend/token_blacklist.sql": {
+    "sha1": "993445078fca22faf36b018f130c50cb2a1ea60f",
+    "size": 2474,
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/users.sql": {
     "sha1": "1ac7afbf110396afcd726332d78c7815d8500b8a",
     "size": 2544,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/user_sessions.sql": {
     "sha1": "f1daf843545c522f85ee0f8a460bbaae521c8c89",
     "size": 2210,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/business.sql": {
     "sha1": "8386fcd27647371daa4632bd085ee9fe69e106c4",
     "size": 2546,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/services.sql": {
     "sha1": "d43cf5fcc5e10a13b6915b0022b2cfc0f3679efa",
     "size": 880,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/service_tiers.sql": {
     "sha1": "3308d646ae50c2f1fc5e34e4ea7682ef5eb997c4",
     "size": 1773,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/add_affiliate_pricing_columns.sql": {
     "sha1": "b034356e8dc1400ed9adf5c487b3d84d7c3fa3ff",
     "size": 520,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/add_profile_columns_to_affiliates.sql": {
     "sha1": "0456aca269a6284c35becf50c86ba0d6ba50cb10",
     "size": 2799,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/add_slug_to_service_tiers.sql": {
     "sha1": "89e00e5a5cdc7dced659e2b39c9cd826e3dcce00",
     "size": 2416,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/add_url_columns_to_affiliates.sql": {
     "sha1": "599e64e8b111baa87a2936d67d3dd1bd45b65943",
     "size": 1040,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/create_reputation_schema.sql": {
     "sha1": "01e3d7f2e1e5e0ada911b79ae959b5b93f32cce1",
     "size": 701,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/drop_redundant_location_columns.sql": {
     "sha1": "04aeaf5e4173534c15d265a50c1887338e4b253c",
     "size": 2809,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/migrate_to_3_schemas.sql": {
     "sha1": "4a3de1e265b55f050435eac297a557ebe62526b0",
     "size": 6420,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/migrate_to_modular_schemas.sql": {
     "sha1": "86ad5a646d2ed9393a49474251e4fc03fb24b40c",
     "size": 11063,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/runMigration.js": {
     "sha1": "12c808829a67e58d7e65898f48add65ef03e7c76",
     "size": 3904,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/categories.sql": {
     "sha1": "712d7b2515a196e746767c5ade326e8125001051",
     "size": 369,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/vehicles.sql": {
     "sha1": "55e60fd7ee0b9a9dc11905b55c6546e9d59e5a2d",
     "size": 531,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/create_service_tier_features.sql": {
     "sha1": "f2ae0b6e39e72d8e89f53df65ab6bdcbe148f22a",
     "size": 1072,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   },
   "backend/tiers.sql": {
     "sha1": "c431d4302a669fb505e20e248e25ec82d5e74393",
     "size": 1022,
-    "timestamp": "2025-09-08T16:45:05.015Z"
+    "timestamp": "2025-09-08T23:04:43.697Z"
   }
 }

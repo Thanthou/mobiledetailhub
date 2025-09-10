@@ -308,11 +308,35 @@ const ServicesTab: React.FC = () => {
     if (isEditingService && currentServiceData) {
       // Handle editing existing service
       try {
+        // Map vehicle ID to backend format
+        const vehicleMap: { [key: string]: string } = {
+          'cars': 'cars',
+          'trucks': 'trucks',
+          'rvs': 'rvs',
+          'boats': 'boats',
+          'motorcycles': 'motorcycles',
+          'offroad': 'offroad',
+          'other': 'other'
+        };
+        
+        // Map category ID to backend format
+        const categoryMap: { [key: string]: number } = {
+          'interior': 1,
+          'exterior': 2,
+          'service-packages': 3,
+          'ceramic-coating': 4,
+          'paint-correction': 5,
+          'paint-protection-film': 6,
+          'addons': 7
+        };
+        
         const serviceData = {
+          affiliate_id: affiliateId,
+          vehicle_id: vehicleMap[selectedVehicle] || 'cars',
+          service_category_id: categoryMap[selectedCategory] || 3,
           name: serviceName,
           description: serviceName + ' service',
           base_price_cents: Math.round((tiers[0]?.price || 0) * 100),
-          min_duration_min: tiers[0]?.duration || 60,
           tiers: tiers
         };
         

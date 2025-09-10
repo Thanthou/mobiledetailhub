@@ -724,7 +724,7 @@ app.use('/api/admin', adminLimiter, adminRoutes); // Admin-specific rate limitin
 // Apply general API rate limiting to other routes
 app.use('/api/affiliates', apiLimiter, affiliatesRoutes); // Mixed read/write
 app.use('/api/customers', apiLimiter, customersRoutes); // Mixed read/write
-app.use('/api/services', apiLimiter, servicesRoutes); // Mixed read/write
+app.use('/api/services', servicesRoutes); // Mixed read/write - temporarily removed rate limiter
 app.use('/api/reviews', apiLimiter, reviewsRoutes); // Mixed read/write
 app.use('/api/upload', apiLimiter, uploadRoutes); // Upload routes
 app.use('/api/avatar', apiLimiter, avatarRoutes); // Avatar routes

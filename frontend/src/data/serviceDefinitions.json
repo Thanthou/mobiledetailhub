@@ -1,0 +1,583 @@
+{
+  "full-exterior-wash": {
+    "name": "Full Exterior Wash",
+    "description": "Complete exterior cleaning and protection service",
+    "explanation": "Our full exterior wash service provides a comprehensive cleaning of your vehicle's exterior surfaces. We use premium products and techniques to remove dirt, grime, road salt, and contaminants while protecting your paint with high-quality wash solutions and finishing products.",
+    "image": "/images/services/full-exterior-wash-before-after.jpg",
+    "vehicles": {
+      "car": {
+        "duration": 90,
+        "features": [
+          "Hand wash with premium pH-neutral soap",
+          "Wheel and tire deep cleaning",
+          "Chrome and trim detailing",
+          "Door jambs and trunk cleaning",
+          "Quick wax application",
+          "Tire shine application"
+        ]
+      },
+      "truck": {
+        "duration": 120,
+        "features": [
+          "Hand wash with premium pH-neutral soap",
+          "Wheel and tire deep cleaning",
+          "Chrome and trim detailing",
+          "Bed cleaning and protection",
+          "Door jambs and tailgate cleaning",
+          "Quick wax application",
+          "Tire shine application"
+        ]
+      },
+      "boat": {
+        "duration": 150,
+        "features": [
+          "Fresh water wash with marine-grade soap",
+          "Hull and deck cleaning",
+          "Metal hardware polishing",
+          "Canvas and vinyl cleaning",
+          "Quick wax application",
+          "Anti-fouling protection"
+        ]
+      },
+      "rv": {
+        "duration": 180,
+        "features": [
+          "Hand wash with premium pH-neutral soap",
+          "Wheel and tire deep cleaning",
+          "Chrome and trim detailing",
+          "Awning cleaning and protection",
+          "Exterior storage compartments",
+          "Quick wax application",
+          "Tire shine application"
+        ]
+      }
+    }
+  },
+  "preparation-detail": {
+    "name": "Preparation Detail",
+    "description": "Thorough preparation for paint correction or coating application",
+    "explanation": "Preparation detail is the crucial first step before any paint correction or ceramic coating work. We meticulously clean, decontaminate, and prepare your vehicle's paint surface to ensure optimal results for subsequent treatments. This process removes embedded contaminants and creates the perfect foundation for paint correction or coating application.",
+    "image": "/images/services/preparation-detail-before-after.jpg",
+    "vehicles": {
+      "car": {
+        "duration": 120,
+        "features": [
+          "Deep hand wash and rinse",
+          "Clay bar decontamination",
+          "Iron fallout removal",
+          "Tar and adhesive removal",
+          "Paint surface inspection",
+          "Masking and protection"
+        ]
+      },
+      "truck": {
+        "duration": 150,
+        "features": [
+          "Deep hand wash and rinse",
+          "Clay bar decontamination",
+          "Iron fallout removal",
+          "Tar and adhesive removal",
+          "Bed liner cleaning",
+          "Paint surface inspection",
+          "Masking and protection"
+        ]
+      },
+      "boat": {
+        "duration": 180,
+        "features": [
+          "Fresh water wash and rinse",
+          "Marine clay bar decontamination",
+          "Salt and mineral removal",
+          "Barnacle and marine growth removal",
+          "Hull surface inspection",
+          "Masking and protection"
+        ]
+      },
+      "rv": {
+        "duration": 200,
+        "features": [
+          "Deep hand wash and rinse",
+          "Clay bar decontamination",
+          "Iron fallout removal",
+          "Tar and adhesive removal",
+          "Awning and trim cleaning",
+          "Paint surface inspection",
+          "Masking and protection"
+        ]
+      }
+    }
+  },
+  "fallout-removal": {
+    "name": "Fallout Removal",
+    "description": "Specialized removal of embedded iron particles and contaminants",
+    "explanation": "Fallout removal is a specialized process that targets embedded iron particles, brake dust, and other metallic contaminants that bond to your vehicle's paint. These contaminants can cause rust spots and paint damage if left untreated. Our chemical fallout removers safely dissolve these particles, revealing a cleaner, healthier paint surface.",
+    "image": "/images/services/fallout-removal-before-after.jpg",
+    "vehicles": {
+      "car": {
+        "duration": 60,
+        "features": [
+          "Chemical fallout remover application",
+          "Iron particle dissolution",
+          "Brake dust removal",
+          "Paint surface neutralization",
+          "Thorough rinse and dry",
+          "Surface inspection"
+        ]
+      },
+      "truck": {
+        "duration": 75,
+        "features": [
+          "Chemical fallout remover application",
+          "Iron particle dissolution",
+          "Brake dust removal",
+          "Bed liner treatment",
+          "Paint surface neutralization",
+          "Thorough rinse and dry",
+          "Surface inspection"
+        ]
+      },
+      "boat": {
+        "duration": 90,
+        "features": [
+          "Marine-grade fallout remover",
+          "Salt and mineral removal",
+          "Metal hardware treatment",
+          "Hull surface neutralization",
+          "Fresh water rinse",
+          "Surface inspection"
+        ]
+      },
+      "rv": {
+        "duration": 90,
+        "features": [
+          "Chemical fallout remover application",
+          "Iron particle dissolution",
+          "Brake dust removal",
+          "Awning and trim treatment",
+          "Paint surface neutralization",
+          "Thorough rinse and dry",
+          "Surface inspection"
+        ]
+      }
+    }
+  },
+  "1-stage-paint-correction": {
+    "name": "1 Stage Paint Correction",
+    "description": "Single-stage paint polishing to remove light defects and enhance gloss",
+    "explanation": "1 Stage Paint Correction is perfect for vehicles with light to moderate paint defects. This process uses a single polishing step with a compound and pad to remove swirl marks, light scratches, and oxidation while dramatically improving paint gloss and depth. It's ideal for well-maintained vehicles that need a refresh.",
+    "image": "/images/services/1-stage-paint-correction-before-after.jpg",
+    "vehicles": {
+      "car": {
+        "duration": 300,
+        "features": [
+          "Paint surface assessment",
+          "Single-stage compound polishing",
+          "Swirl mark removal",
+          "Light scratch correction",
+          "Paint enhancement",
+          "Final inspection and protection"
+        ]
+      },
+      "truck": {
+        "duration": 360,
+        "features": [
+          "Paint surface assessment",
+          "Single-stage compound polishing",
+          "Swirl mark removal",
+          "Light scratch correction",
+          "Bed liner polishing",
+          "Paint enhancement",
+          "Final inspection and protection"
+        ]
+      },
+      "boat": {
+        "duration": 420,
+        "features": [
+          "Hull surface assessment",
+          "Marine-grade compound polishing",
+          "Oxidation removal",
+          "Gel coat enhancement",
+          "Hull gloss improvement",
+          "Final inspection and protection"
+        ]
+      },
+      "rv": {
+        "duration": 480,
+        "features": [
+          "Paint surface assessment",
+          "Single-stage compound polishing",
+          "Swirl mark removal",
+          "Light scratch correction",
+          "Awning and trim polishing",
+          "Paint enhancement",
+          "Final inspection and protection"
+        ]
+      }
+    }
+  },
+  "2-stage-paint-correction": {
+    "name": "2 Stage Paint Correction",
+    "description": "Two-stage paint polishing for moderate to heavy defects",
+    "explanation": "2 Stage Paint Correction is our most popular service for vehicles with moderate to heavy paint defects. This comprehensive process uses two different polishing steps - first with a cutting compound to remove deeper scratches and defects, then with a finishing polish to refine the surface and maximize gloss. Perfect for vehicles that need significant paint improvement.",
+    "image": "/images/services/2-stage-paint-correction-before-after.jpg",
+    "vehicles": {
+      "car": {
+        "duration": 480,
+        "features": [
+          "Detailed paint assessment",
+          "Heavy cutting compound application",
+          "Deep scratch and defect removal",
+          "Finishing polish application",
+          "Swirl mark elimination",
+          "Paint depth enhancement",
+          "Final inspection and protection"
+        ]
+      },
+      "truck": {
+        "duration": 540,
+        "features": [
+          "Detailed paint assessment",
+          "Heavy cutting compound application",
+          "Deep scratch and defect removal",
+          "Bed liner correction",
+          "Finishing polish application",
+          "Swirl mark elimination",
+          "Paint depth enhancement",
+          "Final inspection and protection"
+        ]
+      },
+      "boat": {
+        "duration": 600,
+        "features": [
+          "Hull surface assessment",
+          "Heavy marine compound application",
+          "Oxidation and defect removal",
+          "Gel coat restoration",
+          "Finishing polish application",
+          "Hull depth enhancement",
+          "Final inspection and protection"
+        ]
+      },
+      "rv": {
+        "duration": 660,
+        "features": [
+          "Detailed paint assessment",
+          "Heavy cutting compound application",
+          "Deep scratch and defect removal",
+          "Awning and trim correction",
+          "Finishing polish application",
+          "Swirl mark elimination",
+          "Paint depth enhancement",
+          "Final inspection and protection"
+        ]
+      }
+    }
+  },
+  "3-stage-paint-correction": {
+    "name": "3 Stage Paint Correction",
+    "description": "Three-stage paint polishing for severe defects and maximum results",
+    "explanation": "3 Stage Paint Correction is our most intensive paint correction service, designed for vehicles with severe paint defects or those requiring maximum gloss and depth. This three-step process uses progressively finer compounds and pads to achieve near-perfect paint finish. Ideal for show cars, high-end vehicles, or heavily damaged paint that needs complete restoration.",
+    "image": "/images/services/3-stage-paint-correction-before-after.jpg",
+    "vehicles": {
+      "car": {
+        "duration": 720,
+        "features": [
+          "Comprehensive paint assessment",
+          "Heavy cutting compound (Stage 1)",
+          "Medium cutting compound (Stage 2)",
+          "Finishing polish (Stage 3)",
+          "Severe defect removal",
+          "Maximum gloss achievement",
+          "Paint depth optimization",
+          "Final inspection and protection"
+        ]
+      },
+      "truck": {
+        "duration": 840,
+        "features": [
+          "Comprehensive paint assessment",
+          "Heavy cutting compound (Stage 1)",
+          "Medium cutting compound (Stage 2)",
+          "Finishing polish (Stage 3)",
+          "Bed liner restoration",
+          "Severe defect removal",
+          "Maximum gloss achievement",
+          "Paint depth optimization",
+          "Final inspection and protection"
+        ]
+      },
+      "boat": {
+        "duration": 900,
+        "features": [
+          "Hull surface assessment",
+          "Heavy marine compound (Stage 1)",
+          "Medium marine compound (Stage 2)",
+          "Finishing polish (Stage 3)",
+          "Gel coat restoration",
+          "Oxidation elimination",
+          "Maximum hull gloss",
+          "Final inspection and protection"
+        ]
+      },
+      "rv": {
+        "duration": 960,
+        "features": [
+          "Comprehensive paint assessment",
+          "Heavy cutting compound (Stage 1)",
+          "Medium cutting compound (Stage 2)",
+          "Finishing polish (Stage 3)",
+          "Awning and trim restoration",
+          "Severe defect removal",
+          "Maximum gloss achievement",
+          "Paint depth optimization",
+          "Final inspection and protection"
+        ]
+      }
+    }
+  },
+  "paint-enhancement": {
+    "name": "Paint Enhancement",
+    "description": "Light polishing to enhance existing paint condition and gloss",
+    "explanation": "Paint Enhancement is perfect for well-maintained vehicles that don't need full correction but could benefit from improved gloss and depth. This gentle polishing process removes very light swirl marks and enhances the paint's natural shine without aggressive cutting. It's ideal for vehicles that are regularly maintained and just need a refresh.",
+    "image": "/images/services/paint-enhancement-before-after.jpg",
+    "vehicles": {
+      "car": {
+        "duration": 180,
+        "features": [
+          "Paint condition assessment",
+          "Light polishing compound",
+          "Swirl mark reduction",
+          "Gloss enhancement",
+          "Paint depth improvement",
+          "Final protection application"
+        ]
+      },
+      "truck": {
+        "duration": 210,
+        "features": [
+          "Paint condition assessment",
+          "Light polishing compound",
+          "Swirl mark reduction",
+          "Bed liner enhancement",
+          "Gloss enhancement",
+          "Paint depth improvement",
+          "Final protection application"
+        ]
+      },
+      "boat": {
+        "duration": 240,
+        "features": [
+          "Hull condition assessment",
+          "Light marine polishing",
+          "Oxidation reduction",
+          "Gel coat enhancement",
+          "Hull gloss improvement",
+          "Final protection application"
+        ]
+      },
+      "rv": {
+        "duration": 270,
+        "features": [
+          "Paint condition assessment",
+          "Light polishing compound",
+          "Swirl mark reduction",
+          "Awning and trim enhancement",
+          "Gloss enhancement",
+          "Paint depth improvement",
+          "Final protection application"
+        ]
+      }
+    }
+  },
+  "1-stage-ceramic-coating": {
+    "name": "1 Stage Ceramic Coating",
+    "description": "Single-layer ceramic coating for basic protection and gloss",
+    "explanation": "1 Stage Ceramic Coating provides excellent protection and gloss enhancement with a single application of our premium ceramic coating. This coating creates a semi-permanent bond with your paint, providing superior protection against UV rays, chemical contaminants, and environmental damage. Perfect for daily drivers that need reliable protection.",
+    "image": "/images/services/1-stage-ceramic-coating-before-after.jpg",
+    "vehicles": {
+      "car": {
+        "duration": 480,
+        "features": [
+          "Paint preparation and decontamination",
+          "Surface inspection and masking",
+          "Single ceramic coating application",
+          "Curing process monitoring",
+          "Quality inspection",
+          "Maintenance instructions provided"
+        ]
+      },
+      "truck": {
+        "duration": 540,
+        "features": [
+          "Paint preparation and decontamination",
+          "Surface inspection and masking",
+          "Bed liner coating application",
+          "Single ceramic coating application",
+          "Curing process monitoring",
+          "Quality inspection",
+          "Maintenance instructions provided"
+        ]
+      },
+      "boat": {
+        "duration": 600,
+        "features": [
+          "Hull preparation and decontamination",
+          "Surface inspection and masking",
+          "Marine-grade ceramic coating",
+          "Hull coating application",
+          "Curing process monitoring",
+          "Quality inspection",
+          "Maintenance instructions provided"
+        ]
+      },
+      "rv": {
+        "duration": 660,
+        "features": [
+          "Paint preparation and decontamination",
+          "Surface inspection and masking",
+          "Awning and trim preparation",
+          "Single ceramic coating application",
+          "Curing process monitoring",
+          "Quality inspection",
+          "Maintenance instructions provided"
+        ]
+      }
+    }
+  },
+  "2-stage-ceramic-coating": {
+    "name": "2 Stage Ceramic Coating",
+    "description": "Two-layer ceramic coating for enhanced protection and durability",
+    "explanation": "2 Stage Ceramic Coating provides superior protection and longevity with a dual-layer application system. The first layer bonds directly to the paint, while the second layer creates an additional protective barrier. This creates exceptional gloss, depth, and protection that can last 3-5 years with proper maintenance. Ideal for vehicles that need maximum protection.",
+    "image": "/images/services/2-stage-ceramic-coating-before-after.jpg",
+    "vehicles": {
+      "car": {
+        "duration": 720,
+        "features": [
+          "Comprehensive paint preparation",
+          "Surface decontamination and correction",
+          "First ceramic coating layer",
+          "Curing and inspection",
+          "Second ceramic coating layer",
+          "Extended curing process",
+          "Quality inspection and testing",
+          "Maintenance instructions provided"
+        ]
+      },
+      "truck": {
+        "duration": 840,
+        "features": [
+          "Comprehensive paint preparation",
+          "Surface decontamination and correction",
+          "Bed liner coating preparation",
+          "First ceramic coating layer",
+          "Curing and inspection",
+          "Second ceramic coating layer",
+          "Extended curing process",
+          "Quality inspection and testing",
+          "Maintenance instructions provided"
+        ]
+      },
+      "boat": {
+        "duration": 900,
+        "features": [
+          "Hull preparation and decontamination",
+          "Gel coat correction and preparation",
+          "First marine ceramic coating",
+          "Curing and inspection",
+          "Second marine ceramic coating",
+          "Extended curing process",
+          "Quality inspection and testing",
+          "Maintenance instructions provided"
+        ]
+      },
+      "rv": {
+        "duration": 960,
+        "features": [
+          "Comprehensive paint preparation",
+          "Surface decontamination and correction",
+          "Awning and trim preparation",
+          "First ceramic coating layer",
+          "Curing and inspection",
+          "Second ceramic coating layer",
+          "Extended curing process",
+          "Quality inspection and testing",
+          "Maintenance instructions provided"
+        ]
+      }
+    }
+  },
+  "3-stage-ceramic-coating": {
+    "name": "3 Stage Ceramic Coating",
+    "description": "Three-layer ceramic coating for maximum protection and show-quality finish",
+    "explanation": "3 Stage Ceramic Coating is our most premium protection service, featuring three layers of ceramic coating for maximum durability, gloss, and protection. This system creates an incredibly deep, mirror-like finish with exceptional hydrophobic properties and long-lasting protection. Perfect for show cars, luxury vehicles, or any vehicle where maximum protection and appearance are desired.",
+    "image": "/images/services/3-stage-ceramic-coating-before-after.jpg",
+    "vehicles": {
+      "car": {
+        "duration": 1080,
+        "features": [
+          "Extensive paint preparation",
+          "Multi-stage decontamination",
+          "Paint correction if needed",
+          "First ceramic coating layer",
+          "Curing and inspection",
+          "Second ceramic coating layer",
+          "Curing and inspection",
+          "Third ceramic coating layer",
+          "Extended curing process",
+          "Comprehensive quality testing",
+          "Maintenance instructions provided"
+        ]
+      },
+      "truck": {
+        "duration": 1200,
+        "features": [
+          "Extensive paint preparation",
+          "Multi-stage decontamination",
+          "Paint correction if needed",
+          "Bed liner preparation",
+          "First ceramic coating layer",
+          "Curing and inspection",
+          "Second ceramic coating layer",
+          "Curing and inspection",
+          "Third ceramic coating layer",
+          "Extended curing process",
+          "Comprehensive quality testing",
+          "Maintenance instructions provided"
+        ]
+      },
+      "boat": {
+        "duration": 1260,
+        "features": [
+          "Hull extensive preparation",
+          "Multi-stage decontamination",
+          "Gel coat correction",
+          "First marine ceramic coating",
+          "Curing and inspection",
+          "Second marine ceramic coating",
+          "Curing and inspection",
+          "Third marine ceramic coating",
+          "Extended curing process",
+          "Comprehensive quality testing",
+          "Maintenance instructions provided"
+        ]
+      },
+      "rv": {
+        "duration": 1320,
+        "features": [
+          "Extensive paint preparation",
+          "Multi-stage decontamination",
+          "Paint correction if needed",
+          "Awning and trim preparation",
+          "First ceramic coating layer",
+          "Curing and inspection",
+          "Second ceramic coating layer",
+          "Curing and inspection",
+          "Third ceramic coating layer",
+          "Extended curing process",
+          "Comprehensive quality testing",
+          "Maintenance instructions provided"
+        ]
+      }
+    }
+  }
+}

@@ -14,7 +14,7 @@ Docs: 0 files
 Tests: 7 files
 Scripts: 0 files
 Config: 11 files
-Other: 117 files
+Other: 118 files
 
 TESTS (7 files)
 ============================================================
@@ -1844,7 +1844,7 @@ ON CONFLICT (config_key) DO NOTHING;
 
 ==================================================
 
-OTHER (117 files)
+OTHER (118 files)
 ============================================================
 
 FILE: backend/check-db.js
@@ -2640,7 +2640,7 @@ app.use('/api/admin', adminLimiter, adminRoutes); // Admin-specific rate limitin
 // Apply general API rate limiting to other routes
 app.use('/api/affiliates', apiLimiter, affiliatesRoutes); // Mixed read/write
 app.use('/api/customers', apiLimiter, customersRoutes); // Mixed read/write
-app.use('/api/services', apiLimiter, servicesRoutes); // Mixed read/write
+app.use('/api/services', servicesRoutes); // Mixed read/write - temporarily removed rate limiter
 app.use('/api/reviews', apiLimiter, reviewsRoutes); // Mixed read/write
 app.use('/api/upload', apiLimiter, uploadRoutes); // Upload routes
 app.use('/api/avatar', apiLimiter, avatarRoutes); // Avatar routes
@@ -4438,6 +4438,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const logger = require('./logger');
 const { env } = require('../src/shared/env');
+const { pool } = require('../database/pool');
 
 /**
  * Token configuration
@@ -4468,13 +4469,8 @@ const generateAccessToken = (payload) => {
   // Generate unique JWT ID for blacklist accuracy
   const jwtid = crypto.randomUUID();
   
-  // Add jti to payload for blacklist tracking
-  const enhancedPayload = {
-    ...payload,
-    jti: jwtid
-  };
-
-  return jwt.sign(enhancedPayload, env.JWT_SECRET, {
+  // Use jwtid option instead of adding jti to payload to avoid conflict
+  return jwt.sign(payload, env.JWT_SECRET, {
     expiresIn: TOKEN_CONFIG.ACCESS_TOKEN.expiresIn,
     algorithm: TOKEN_CONFIG.ACCESS_TOKEN.algorithm,
     issuer: 'mdh-backend',
@@ -4501,13 +4497,8 @@ const generateRefreshToken = (payload) => {
   // Generate unique JWT ID for refresh token tracking
   const jwtid = crypto.randomUUID();
   
-  // Add jti to payload for tracking
-  const enhancedPayload = {
-    ...payload,
-    jti: jwtid
-  };
-
-  return jwt.sign(enhancedPayload, secret, {
+  // Use jwtid option instead of adding jti to payload to avoid conflict
+  return jwt.sign(payload, secret, {
     expiresIn: TOKEN_CONFIG.REFRESH_TOKEN.expiresIn,
     algorithm: TOKEN_CONFIG.REFRESH_TOKEN.algorithm,
     issuer: 'mdh-backend',
@@ -4662,13 +4653,78 @@ const generateTokenPair = (payload) => {
 };
 
 /**
- * Blacklist a token (for logout)
+ * Blacklist a token (for logout) - Database persistent version
  * @param {string} token - Token to blacklist
- * @param {number} expiresIn - Time in seconds until token expires
+ * @param {Object} options - Additional options
+ * @param {string} options.reason - Reason for blacklisting (default: 'logout')
+ * @param {string} options.ipAddress - IP address of the request
+ * @param {string} options.userAgent - User agent of the request
  */
-const blacklistToken = (token, expiresIn = 900) => { // Default 15 minutes
-  // In a production environment, you would store this in Redis or database
-  // For now, we'll use a simple in-memory store (not recommended for production)
+const blacklistToken = async (token, options = {}) => {
+  if (!pool) {
+    logger.warn('Database connection not available for token blacklisting, falling back to memory');
+    return blacklistTokenInMemory(token);
+  }
+
+  try {
+    const decoded = decodeToken(token);
+    if (!decoded || !decoded.exp) {
+      logger.warn('Invalid token provided for blacklisting');
+      return false;
+    }
+
+    const {
+      reason = 'logout',
+      ipAddress = null,
+      userAgent = null
+    } = options;
+
+    // Calculate expiration time
+    const expiresAt = new Date(decoded.exp * 1000);
+    
+    // Create token hash for exact matching
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    
+    // Insert into database blacklist
+    const result = await pool.query(`
+      INSERT INTO auth.token_blacklist 
+      (token_jti, token_hash, user_id, expires_at, reason, ip_address, user_agent)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      ON CONFLICT (token_jti) DO NOTHING
+      RETURNING id
+    `, [
+      decoded.jti,
+      tokenHash,
+      decoded.userId,
+      expiresAt,
+      reason,
+      ipAddress,
+      userAgent
+    ]);
+
+    if (result.rows.length > 0) {
+      logger.info('Token blacklisted successfully', { 
+        jti: decoded.jti, 
+        userId: decoded.userId,
+        reason 
+      });
+      return true;
+    } else {
+      logger.warn('Token already blacklisted', { jti: decoded.jti });
+      return true; // Already blacklisted, consider it successful
+    }
+  } catch (error) {
+    logger.error('Error blacklisting token in database', { error: error.message });
+    // Fallback to memory blacklist
+    return blacklistTokenInMemory(token);
+  }
+};
+
+/**
+ * Fallback in-memory blacklist (for when database is unavailable)
+ * @param {string} token - Token to blacklist
+ */
+const blacklistTokenInMemory = (token) => {
   if (!global.tokenBlacklist) {
     global.tokenBlacklist = new Map();
   }
@@ -4699,11 +4755,48 @@ const blacklistToken = (token, expiresIn = 900) => { // Default 15 minutes
 };
 
 /**
- * Check if token is blacklisted
+ * Check if token is blacklisted - Database persistent version
  * @param {string} token - Token to check
  * @returns {boolean} True if token is blacklisted
  */
-const isTokenBlacklisted = (token) => {
+const isTokenBlacklisted = async (token) => {
+  if (!pool) {
+    logger.warn('Database connection not available for token blacklist check, falling back to memory');
+    return isTokenBlacklistedInMemory(token);
+  }
+
+  try {
+    const decoded = decodeToken(token);
+    if (!decoded || !decoded.jti) {
+      return false;
+    }
+
+    // Check database blacklist
+    const result = await pool.query(`
+      SELECT 1 FROM auth.token_blacklist 
+      WHERE token_jti = $1 AND expires_at > CURRENT_TIMESTAMP
+      LIMIT 1
+    `, [decoded.jti]);
+
+    if (result.rows.length > 0) {
+      logger.debug('Token found in blacklist', { jti: decoded.jti });
+      return true;
+    }
+
+    return false;
+  } catch (error) {
+    logger.error('Error checking token blacklist in database', { error: error.message });
+    // Fallback to memory check
+    return isTokenBlacklistedInMemory(token);
+  }
+};
+
+/**
+ * Fallback in-memory blacklist check (for when database is unavailable)
+ * @param {string} token - Token to check
+ * @returns {boolean} True if token is blacklisted
+ */
+const isTokenBlacklistedInMemory = (token) => {
   if (!global.tokenBlacklist) return false;
   
   // Check by full token first
@@ -9347,8 +9440,12 @@ router.post('/logout', authenticateToken, asyncHandler(async (req, res) => {
   const token = authHeader && authHeader.split(' ')[1];
   
   if (token) {
-    // Blacklist the access token
-    blacklistToken(token);
+    // Blacklist the access token with additional context
+    await blacklistToken(token, {
+      reason: 'logout',
+      ipAddress: req.ip,
+      userAgent: req.get('User-Agent')
+    });
   }
 
   // Revoke all refresh tokens for the user
@@ -10648,6 +10745,7 @@ const express = require('express');
 const router = express.Router();
 const { pool } = require('../database/pool');
 
+
 // POST /api/services - Create a new service
 router.post('/', async (req, res) => {
   try {
@@ -10673,7 +10771,8 @@ router.post('/', async (req, res) => {
         3: { db: 'auto', original: 'service-packages' },
         4: { db: 'ceramic', original: 'ceramic-coating' },
         5: { db: 'auto', original: 'paint-correction' },
-        6: { db: 'auto', original: 'paint-protection-film' }
+        6: { db: 'auto', original: 'paint-protection-film' },
+        7: { db: 'auto', original: 'addons' }
       };
       
       const mapping = categoryMap[service_category_id] || { db: 'auto', original: 'service-packages' };
@@ -11160,7 +11259,7 @@ const authenticateToken = async (req, res, next) => {
     });
 
     // Check if token is blacklisted
-    if (isTokenBlacklisted(token)) {
+    if (await isTokenBlacklisted(token)) {
       logger.warn('Blacklisted token used', { 
         path: req.path, 
         method: req.method,
@@ -22380,6 +22479,66 @@ ALTER TABLE auth.refresh_tokens ADD CONSTRAINT chk_token_type
 
 ALTER TABLE auth.refresh_tokens ADD CONSTRAINT chk_revoked_reason 
     CHECK (revoked_reason IN ('expired', 'logout', 'security', 'rotation', 'admin_revoke'));
+
+
+==================================================
+
+FILE: backend/token_blacklist.sql
+------------------------------
+-- Token blacklist table for persistent token revocation
+-- This ensures tokens remain blacklisted even after server restarts
+
+DROP TABLE IF EXISTS auth.token_blacklist CASCADE;
+
+CREATE TABLE auth.token_blacklist (
+    id SERIAL PRIMARY KEY,
+    token_jti VARCHAR(255) NOT NULL, -- JWT ID for efficient lookups
+    token_hash VARCHAR(255) NOT NULL, -- Full token hash for exact matches
+    user_id INTEGER NOT NULL,
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    blacklisted_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    reason VARCHAR(100) DEFAULT 'logout', -- logout, security, rotation, etc.
+    ip_address INET,
+    user_agent TEXT,
+    
+    CONSTRAINT fk_token_blacklist_user_id 
+        FOREIGN KEY (user_id) 
+        REFERENCES auth.users(id) 
+        ON DELETE CASCADE
+);
+
+-- Create indexes for efficient lookups
+CREATE INDEX IF NOT EXISTS idx_token_blacklist_jti ON auth.token_blacklist(token_jti);
+CREATE INDEX IF NOT EXISTS idx_token_blacklist_hash ON auth.token_blacklist(token_hash);
+CREATE INDEX IF NOT EXISTS idx_token_blacklist_user_id ON auth.token_blacklist(user_id);
+CREATE INDEX IF NOT EXISTS idx_token_blacklist_expires_at ON auth.token_blacklist(expires_at);
+CREATE INDEX IF NOT EXISTS idx_token_blacklist_blacklisted_at ON auth.token_blacklist(blacklisted_at);
+
+-- Create unique constraint to prevent duplicate blacklist entries
+CREATE UNIQUE INDEX IF NOT EXISTS idx_token_blacklist_unique_jti ON auth.token_blacklist(token_jti);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_token_blacklist_unique_hash ON auth.token_blacklist(token_hash);
+
+-- Function to clean up expired blacklisted tokens
+CREATE OR REPLACE FUNCTION auth.cleanup_expired_blacklisted_tokens()
+RETURNS INTEGER AS $$
+DECLARE
+    deleted_count INTEGER;
+BEGIN
+    DELETE FROM auth.token_blacklist 
+    WHERE expires_at < CURRENT_TIMESTAMP;
+    
+    GET DIAGNOSTICS deleted_count = ROW_COUNT;
+    RETURN deleted_count;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create a scheduled job to clean up expired tokens (if pg_cron is available)
+-- This would be run periodically to clean up expired blacklisted tokens
+-- SELECT cron.schedule('cleanup-blacklist', '0 */6 * * *', 'SELECT auth.cleanup_expired_blacklisted_tokens();');
+
+-- Grant permissions (adjust role name as needed for your setup)
+-- GRANT SELECT, INSERT, DELETE ON auth.token_blacklist TO mdh_app;
+-- GRANT USAGE, SELECT ON SEQUENCE auth.token_blacklist_id_seq TO mdh_app;
 
 
 ==================================================
