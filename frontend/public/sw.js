@@ -28,7 +28,7 @@ self.addEventListener('install', (event) => {
                   // Static assets cached successfully
         return self.skipWaiting();
       })
-      .catch((error) => {
+      .catch((_error) => {
         // Failed to cache static assets
       })
   );

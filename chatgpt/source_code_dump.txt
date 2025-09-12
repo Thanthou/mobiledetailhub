@@ -20,8 +20,8 @@ import { useAuth } from '@/hooks/useAuth';
 
 const UserMenu: React.FC = () => {
   const authContext = useAuth();
-  const user = authContext?.user;
-  const logout = authContext?.logout;
+  const user = authContext.user;
+  const logout = authContext.logout;
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -42,9 +42,7 @@ const UserMenu: React.FC = () => {
     // Clear any stored tokens
     localStorage.removeItem('token');
     localStorage.removeItem('authToken'); // Remove old key if it exists
-    if (logout) {
-      logout();
-    }
+    logout();
     setIsOpen(false);
   }, [logout]);
 
@@ -54,18 +52,19 @@ const UserMenu: React.FC = () => {
     if (!user) return;
     
     // Route based on user role (less restrictive for development)
-    if (user?.role === 'admin') {
+    if (user.role === 'admin') {
       void navigate('/admin-dashboard');
-    } else if (user?.role === 'affiliate') {
+    } else if (user.role === 'affiliate') {
       void navigate('/affiliate-dashboard');
     } else {
       // For now, redirect customers to home page since client dashboard is not implemented
       // Fallback to home page for unknown roles
       void navigate('/');
+    }
+  }, [user, navigate]);
 
-// ... (truncated 46 lines) ...
+// ... (truncated 44 lines) ...
 
-              if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
                 handleAccountClick();
               }
@@ -116,6 +115,7 @@ const UserMenu: React.FC = () => {
 
 export default UserMenu;
 
+
 ******
 UsersTab.tsx
 frontend/src/UsersTab.tsx
@@ -123,13 +123,14 @@ frontend/src/UsersTab.tsx
 
 // Exports: function: UsersTab, component: UsersTab
 
-import { Loader2, Trash2,UserCheck, UserCog, UserPlus, Users, UserX } from 'lucide-react';
-import React, { useCallback,useEffect, useRef, useState } from 'react';
+import { Loader2, Trash2, UserCheck, UserCog, UserPlus, Users, UserX } from 'lucide-react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { apiService } from '../../../../../services/api';
-import { affiliateEventManager } from '../../../../../utils/affiliateEvents';
-import type { UserSubTab } from '../../../types';
-import { ApplicationModal, Toast } from '../../shared';
+import { ApplicationModal, Toast } from '@/features/adminDashboard/components/shared';
+import type { UserSubTab } from '@/features/adminDashboard/types';
+import { apiService } from '@/services/api';
+import { Button } from '@/shared/ui';
+import { affiliateEventManager } from '@/utils/affiliateEvents';
 
 interface User {
   id: number;
@@ -172,9 +173,8 @@ export const UsersTab: React.FC = () => {
   } | null>(null);
   const [processingApplication, setProcessingApplication] = useState(false);
   const [toast, setToast] = useState<{
-    message: string;
 
-// ... (truncated 429 lines) ...
+// ... (truncated 434 lines) ...
 
               const Icon = subTab.icon;
               return (
@@ -304,8 +304,8 @@ import { useAuth } from '@/hooks/useAuth';
 
 const UserMenu: React.FC = () => {
   const authContext = useAuth();
-  const user = authContext?.user;
-  const logout = authContext?.logout;
+  const user = authContext.user;
+  const logout = authContext.logout;
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -326,9 +326,7 @@ const UserMenu: React.FC = () => {
     // Clear any stored tokens
     localStorage.removeItem('token');
     localStorage.removeItem('authToken'); // Remove old key if it exists
-    if (logout) {
-      logout();
-    }
+    logout();
     setIsOpen(false);
   }, [logout]);
 
@@ -338,18 +336,19 @@ const UserMenu: React.FC = () => {
     if (!user) return;
     
     // Route based on user role (less restrictive for development)
-    if (user?.role === 'admin') {
+    if (user.role === 'admin') {
       void navigate('/admin-dashboard');
-    } else if (user?.role === 'affiliate') {
+    } else if (user.role === 'affiliate') {
       void navigate('/affiliate-dashboard');
     } else {
       // For now, redirect customers to home page since client dashboard is not implemented
       // Fallback to home page for unknown roles
       void navigate('/');
+    }
+  }, [user, navigate]);
 
-// ... (truncated 46 lines) ...
+// ... (truncated 44 lines) ...
 
-              if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
                 handleAccountClick();
               }
@@ -400,6 +399,7 @@ const UserMenu: React.FC = () => {
 
 export default UserMenu;
 
+
 ******
 UsersTab.tsx
 frontend/UsersTab.tsx
@@ -407,13 +407,14 @@ frontend/UsersTab.tsx
 
 // Exports: function: UsersTab, component: UsersTab
 
-import { Loader2, Trash2,UserCheck, UserCog, UserPlus, Users, UserX } from 'lucide-react';
-import React, { useCallback,useEffect, useRef, useState } from 'react';
+import { Loader2, Trash2, UserCheck, UserCog, UserPlus, Users, UserX } from 'lucide-react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { apiService } from '../../../../../services/api';
-import { affiliateEventManager } from '../../../../../utils/affiliateEvents';
-import type { UserSubTab } from '../../../types';
-import { ApplicationModal, Toast } from '../../shared';
+import { ApplicationModal, Toast } from '@/features/adminDashboard/components/shared';
+import type { UserSubTab } from '@/features/adminDashboard/types';
+import { apiService } from '@/services/api';
+import { Button } from '@/shared/ui';
+import { affiliateEventManager } from '@/utils/affiliateEvents';
 
 interface User {
   id: number;
@@ -456,9 +457,8 @@ export const UsersTab: React.FC = () => {
   } | null>(null);
   const [processingApplication, setProcessingApplication] = useState(false);
   const [toast, setToast] = useState<{
-    message: string;
 
-// ... (truncated 429 lines) ...
+// ... (truncated 434 lines) ...
 
               const Icon = subTab.icon;
               return (
@@ -588,7 +588,8 @@ frontend/src/AffiliateContext.tsx
 import React, { createContext, type ReactNode, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { config } from '../config/environment';
+import { config } from '@/../config/env';
+
 import { useLocation } from '../hooks/useLocation';
 
 interface ServiceArea {
@@ -634,9 +635,8 @@ interface AffiliateData {
   insurance_expiry: string;
   service_radius_miles: number;
   operating_hours: unknown;
-  emergency_contact: unknown;
 
-// ... (truncated 57 lines) ...
+// ... (truncated 58 lines) ...
 
         setIsLoading(false);
       }
@@ -978,7 +978,7 @@ frontend/src/MDHConfigContext.tsx
 import type { ReactNode } from 'react';
 import React, { createContext, useCallback, useEffect, useState } from 'react';
 
-import { config } from '../config/environment';
+import { config } from '@/../config/env';
 
 interface MDHConfig {
   email: string;
@@ -1089,7 +1089,8 @@ frontend/AffiliateContext.tsx
 import React, { createContext, type ReactNode, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { config } from '../config/environment';
+import { config } from '@/../config/env';
+
 import { useLocation } from '../hooks/useLocation';
 
 interface ServiceArea {
@@ -1135,9 +1136,8 @@ interface AffiliateData {
   insurance_expiry: string;
   service_radius_miles: number;
   operating_hours: unknown;
-  emergency_contact: unknown;
 
-// ... (truncated 57 lines) ...
+// ... (truncated 58 lines) ...
 
         setIsLoading(false);
       }
@@ -1479,7 +1479,7 @@ frontend/MDHConfigContext.tsx
 import type { ReactNode } from 'react';
 import React, { createContext, useCallback, useEffect, useState } from 'react';
 
-import { config } from '../config/environment';
+import { config } from '@/../config/env';
 
 interface MDHConfig {
   email: string;
@@ -1607,6 +1607,8 @@ FRONTEND:
   test:ui: vitest --ui
   optimize-images: node scripts/convert-images.js
   prebuild: npm run optimize-images
+  check-pages: node scripts/check-pages-usage.js
+  lint:pages: eslint . --rule 'import/no-restricted-paths: error'
 
 BACKEND:
   start: node server.js

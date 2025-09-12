@@ -1,9 +1,0 @@
-export { ServiceCTA } from './ServiceCTA';
-export { ServiceErrorState } from './ServiceErrorState';
-export { ServiceFAQ } from './ServiceFAQ';
-export { ServiceGallery } from './ServiceGallery';
-export { ServiceHero } from './ServiceHero';
-export { ServiceLoadingState } from './ServiceLoadingState';
-export { ServiceOverview } from './ServiceOverview';
-export { ServicePricing } from './ServicePricing';
-export { ServiceProcess } from './ServiceProcess';

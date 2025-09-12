@@ -1,0 +1,1 @@
+export { useMDHServiceAreas } from './useMDHServiceAreas';

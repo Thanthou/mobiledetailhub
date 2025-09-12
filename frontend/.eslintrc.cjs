@@ -76,7 +76,7 @@ module.exports = {
             ecmaVersion: 'latest',
             sourceType: 'module',
             project: ['./tsconfig.eslint.json'], // typed linting here only
-            tsconfigRootDir: __dirname,
+            tsconfigRootDir: require('path').dirname(require.main.filename),
           },
           plugins: ['@typescript-eslint'],
           extends: ['plugin:@typescript-eslint/recommended'],

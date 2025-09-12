@@ -50,8 +50,9 @@
     <script type="application/ld+json" id="website-jsonld">{}</script>
     <script type="application/ld+json" id="directory-jsonld">{}</script>
 
-    <!-- MDH brand context (static) -->
-    <script src="/js/mdh-config.js" defer></script>
+    <!-- MDH brand context (now handled by TypeScript) -->
+    <!-- MDH Global Config Initialization (must run before jsonld-loader) -->
+    <script src="/js/mdh-init.js"></script>
 
     <!-- JSON-LD Loader -->
     <script src="/js/jsonld-loader.js" defer></script>

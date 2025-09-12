@@ -1,76 +1,331 @@
-# Cursor Rules for Mobile Detail Hub Project
+# .cursorrules — MDH Monorepo
 
-## Environment Context
-- OS: Windows 10/11 (PowerShell environment)
-- Package manager: npm
-- Database: PostgreSQL with pgAdmin
-- Use node scripts for database operations, not psql CLI
-- Shell: PowerShell (C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe)
-- **ENVIRONMENT FILES**: .env files exist and are properly configured but are hidden by .gitignore - DO NOT suggest creating them or act like they don't exist
+# =========================================================
+# High-level Goals
+# =========================================================
+- Prefer a feature-first structure for frontend code.
+- UI = dumb/presentational; side-effects & IO live in hooks; parsing in utils; schemas/types in types.
+- Keep import graphs acyclic across features; communicate via public barrels only.
+- Enforce Vite alias usage (`@/`) for intra-frontend imports. (See Vite alias alignment doc.)
+- Small files/components; fast boundaries; code-splitting at route/modals. 
+- Cursor should move code toward these rules on edits & refactors.
 
-## Code Style & Preferences
-- Keep responses concise and to the point
-- Respect existing codebase modularity
-- Use ✅ for success, ❌ for errors in console output
-- Maintain separate login logic folder structure
-- Centralize social media links and phone numbers in config
-- Phone numbers: Pull from config.js, not hard-coded
-- Location input: Use modal/center approach across header, contact, and footer
+# Reference
+# - Frontend quick-start & structure: `frontend/docs/QUICK_START.md`, `frontend/docs/VITE_ALIAS_ALIGNMENT.md`.
+# - Use the `@` alias for `frontend/src`. Do not use deep relative paths like `../../../`. 
+#   (Cursor: auto-rewrite to `@/…` on save.) 
+# - Keep Pages/Routes thin; most logic belongs to `features/*` packages.
+# (Docs live in the repo; obey them when reorganizing.) 
 
-## Terminal Commands
-- Use PowerShell syntax (; not &&)
-- Don't auto-run commands - user prefers to run them
-- Append | cat to pager commands (git, less, head, tail, more)
-- Prefer node scripts over direct database CLI
-- **NEVER use curl** - user cannot use curl for HTTP requests, suggest alternatives like HTTPie or Postman
-- **Database Script Execution**: Always run database scripts from the backend directory where dependencies are available
-- **Shell Navigation**: Use proper PowerShell commands and ensure correct working directory before running scripts
+# =========================================================
+# Path Aliases & Import Hygiene
+# =========================================================
+[imports]
+allow:
+  - "^@/.*"              # Vite alias to src
+  - "^react(|-dom)$"
+  - "^react-router-dom$"
+  - "^lucide-react$"
+  - "^zod$"
+  - "^axios$"
+  - "^@tanstack/react-query$"
+  - "^[a-z0-9_.-]+$"     # CSS, JSON, or bare deps
+disallow:
+  - "^\\.\\./\\.\\./"    # deep relatives across features
+  - "^frontend/"         # repo-root absolute imports
+rewrite:
+  - from: "^\\.\\./(.*)$"
+    to: "@/\\1"
+  - from: "^\\.\\./\\.\\./(.*)$"
+    to: "@/\\1"
+  - from: "^src/(.*)$"
+    to: "@/\\1"
 
-## Project Structure
-- Backend: Node.js + Express + PostgreSQL
-- Frontend: React + TypeScript + Vite + Tailwind
-- Scripts: backend/scripts/ for database operations
-- Keep documentation in .md files
-- Backend: `backend/` directory
-- Frontend: `frontend/` directory
-- Documentation: Various `.md` files documenting fixes and improvements
+# =========================================================
+# Directory Ownership (Frontend)
+# =========================================================
+# Feature capsule layout (enforced):
+# features/<domain>/
+#   components/   # React UI only (no side-effects)
+#   hooks/        # useXxx, side-effects allowed (fetch, router, etc.), no DOM ops
+#   utils/        # pure functions, no React imports
+#   types/        # .ts only (interfaces, zod schemas), no runtime code
+#   api/          # fetchers only (no React, no UI)
+#   state/        # Zustand/Jotai/machines, no UI
+#   index.ts      # re-export from components/ only (public barrel)
+#
+# Shared UI & primitives:
+# shared/ui/      # buttons, inputs, cards; no business logic
+# shared/hooks/   # generic hooks, no feature deps
+# shared/utils/   # cross-cutting pure utils
+# shared/types/   # shared types/schemas
+# shared/api/     # cross-cutting fetch utilities (e.g., axios instance)
+#
+# Routes/pages:
+# pages/          # route components only; compose feature components; no deep logic
+# routes/         # route config, loaders, lazy() boundaries
 
-## Recent Improvements Made
-- ✅ **TypeScript strict mode**: Enhanced with additional strict checks
-- ✅ **Database retry logic**: Simplified using established retry library
-- ✅ **Environment validation**: Already properly implemented
-- ✅ **Logging system**: Upgraded to Winston for production logging
+[folders.frontend]
+roots:
+  - "frontend/src"
+featureCapsule:
+  pattern: "frontend/src/features/*"
+  enforceSubdirs: ["components","hooks","utils","types","api","state"]
+  barrel: "index.ts"
+sharedRoots:
+  - "frontend/src/shared"
+  - "frontend/src/pages"
+  - "frontend/src/routes"
 
-## Common Commands
-```powershell
-# Install dependencies
-npm install
+# =========================================================
+# Component Rules
+# =========================================================
+[components]
+maxLOC: 150                 # excluding types & styled literals
+oneResponsibilityPerFile: true
+uiOnlyIn: ["components"]
+noRouterInUI: true          # navigation belongs in hooks or pages
+noDataFetchingInUI: true
+receiveDataViaProps: true
+exportStyle:
+  defaultExport: true       # one default component per file
+naming:
+  componentCase: "PascalCase"
+  fileCase: "PascalCase"    # FooCard.tsx
 
-# Run backend
-cd backend; npm start
+# =========================================================
+# Hook Rules
+# =========================================================
+[hooks]
+folder: "hooks"
+prefix: "use"
+oneNamedExportPerFile: true
+canUse:
+  - otherHooks
+  - shared/utils
+  - feature/utils
+  - feature/api
+  - feature/state
+  - router/navigation
+cannotUse:
+  - feature/components
+  - pages/*
+sideEffectsAllowed: true
+domManipulation: false
 
-# Run database scripts
-cd backend; node scripts/script-name.js
+# =========================================================
+# Utils & Types
+# =========================================================
+[utils]
+pureFunctionsOnly: true
+noReactImports: true
+noSideEffects: true
+testingRequired: true
 
-# Frontend development
-cd frontend; npm run dev
-```
+[types]
+tsOnly: true
+noReactImports: true
+location: ["features/*/types","shared/types"]
+include:
+  - interfaces
+  - zodSchemas
+  - dto types
+exclude:
+  - runtime logic
 
-## AI Assistant Behavior
-- Check this file for full context before making recommendations
-- Provide concise code solutions
-- Respect user's preference for concise explanations
-- Maintain backward compatibility when possible
-- Use established libraries over custom implementations
-- Always respect the user's preference for concise responses
+# =========================================================
+# API Layer
+# =========================================================
+[api]
+location: ["features/*/api","shared/api"]
+allowed:
+  - fetch/axios clients
+  - request/response mappers
+  - query keys
+disallowed:
+  - React imports
+  - UI logic
+  - direct DOM/router
+pattern:
+  - "createXClient.ts" for client factory
+  - "getX.ts / postX.ts" per operation
+errorHandling:
+  - map transport errors to domain-safe errors
+  - never throw raw Response/axios error across boundary
 
-## System Context & Database Understanding
-- **AUTOMATIC CONTEXT**: Use `db-inspect.js` script to understand current database state
-- This script provides: database schema, tables, foreign keys, row counts, and detailed table structures
-- The script is located at `scripts/db-inspect.js` but must be run from the backend directory where pg dependency is available
-- Use this context to understand the complete current state of the database before making any changes
-- **Script Location**: `scripts/db-inspect.js` (runs from backend directory where pg dependency is available)
-- **Cursor Freezing Issue**: The database scripts work perfectly and complete successfully. The issue is that Cursor freezes when trying to display the output, not the script itself. The script runs fine and exits cleanly.
-- **Database Script Execution**: Always run database scripts from the backend directory where dependencies are available. The scripts themselves work correctly - the freezing is a Cursor interface issue.
-- **Terminal Execution**: Ensure proper PowerShell syntax and correct working directory. The script execution is fine - the issue is with Cursor's output handling.
-- **Enhanced Scripts**: Any script that tries to run system commands (git, netstat, etc.) or complex operations causes Cursor terminal integration to hang. Stick with simple database-only scripts.
+# =========================================================
+# State
+# =========================================================
+[state]
+location: ["features/*/state"]
+purpose:
+  - encapsulate feature state (Zustand/Jotai/xstate)
+  - expose typed selectors/actions
+disallowed:
+  - UI components
+  - direct fetch (use hooks or api layer)
+
+# =========================================================
+# Pages & Routes
+# =========================================================
+[pages]
+location: "frontend/src/pages"
+rules:
+  - must import from feature barrels & shared/ui only
+  - no low-level API calls directly; use feature hooks
+  - keep <200 LOC
+[routes]
+location: "frontend/src/routes"
+rules:
+  - colocate route config and lazy-loaded pages
+  - use React.lazy + Suspense for code-splitting
+  - loaders should delegate to hooks/api (thin)
+
+# =========================================================
+# Modals & Code-Splitting
+# =========================================================
+[modals]
+lazyLoad: true
+pattern:
+  - "features/*/components/modals/*" or "shared/ui/modals/*"
+rules:
+  - render-only UI; actions delegated to hooks
+  - avoid passing large objects via props; pass ids/selectors
+
+# =========================================================
+# Styling / Assets
+# =========================================================
+[styles]
+tech: "Tailwind"
+rules:
+  - prefer utility-first, extract repeated patterns into components
+  - no feature logic in className helpers (those go in utils)
+[assets]
+location:
+  - "frontend/public"
+  - "frontend/src/assets"
+rules:
+  - import via Vite when needed
+  - large media stays in /public
+
+# =========================================================
+# Testing (Frontend)
+# =========================================================
+[testing]
+utilsRequireUnitTests: true
+componentTests:
+  - render smoke test for new components
+  - interaction tests for complex forms
+filePlacement:
+  - colocate `*.test.ts(x)` next to source or in `__tests__/`
+
+# =========================================================
+# Naming Conventions
+# =========================================================
+[naming]
+components: "PascalCase"
+hooks: "camelCaseWithUsePrefix"
+utils: "camelCase"
+types: "PascalCase"
+files:
+  - components/*.tsx: "PascalCase.tsx"
+  - hooks/*.ts: "use*.ts"
+  - utils/*.ts: "*.ts"
+  - types/*.ts: "*.ts"
+barrels:
+  - features/*/index.ts exports only from components/
+
+# =========================================================
+# Lint & Safety Defaults
+# =========================================================
+[lint]
+typescriptStrict: true
+preferNoNonNull: true          # forbid `!` except in typed guards
+noUnsafeAny: true
+noFloatingPromises: true
+noRestrictedImports:
+  - from: "features/*/*"
+    to: "features/*/*"
+    rule: "Only import through a feature's barrel or its subdirs (no cross-feature deep imports)."
+autoFix:
+  - convert deep relatives to "@/" alias
+  - lift side-effects from components -> hooks
+  - move pure helpers from components -> utils
+  - split components >150 LOC into subcomponents
+
+# =========================================================
+# PR Acceptance Checklist
+# =========================================================
+[pr.checklist]
+- [ ] UI code in `components/`; side-effects in `hooks/`; parsing in `utils/`; shapes in `types/`.
+- [ ] New feature has `index.ts` exporting components only.
+- [ ] No cross-feature deep imports (barrels or shared only).
+- [ ] No routing/nav inside UI components.
+- [ ] Utils have unit tests.
+- [ ] Components ≤ 150 LOC or split.
+- [ ] All imports use `@/…` alias.
+- [ ] Route or modal changes use lazy code-splitting.
+
+# =========================================================
+# Cursor Behaviors
+# =========================================================
+[cursor.behavior]
+whenCreatingFeature:
+  - scaffold folders: components/, hooks/, utils/, types/, api/, state/, index.ts
+  - generate index.ts that re-exports from components only
+whenAddingComponent:
+  - create in components/, with default export, ≤150 LOC
+  - do not fetch inside; create hook if IO needed
+whenAddingHook:
+  - place in hooks/, create types in types/ if public
+  - depend on api/ and state/ as needed; never import components
+whenSeeingDeepRelativeImport:
+  - rewrite to "@/…" alias
+  - if crossing features, route through feature barrel or shared/
+whenComponentHasSideEffects:
+  - extract side-effect into useXxx hook in hooks/
+whenFileTooLarge:
+  - propose and perform split into smaller components/utils
+
+# =========================================================
+# Notes for This Repo
+# =========================================================
+# Vite alias & structure are documented in `frontend/docs/*`; follow them exactly.
+# (Cursor may consult and align with: QUICK_START.md and VITE_ALIAS_ALIGNMENT.md) 
+# Keep the codebase consistent with those docs when refactoring.
+
+# 1) Always run eslint --fix on TS/TSX save
+- when: file_matches("**/*.{ts,tsx}")
+  run: |
+    eslint --fix {{file}}
+
+# 2) Import/Export order + Prettier
+- when: file_matches("**/*.{ts,tsx,js,jsx,json,md}")
+  run: |
+    prettier --write {{file}}
+
+# 3) For template literals with possibly undefined parts, coalesce to ""
+- when: grep("**/*.{ts,tsx}", "@typescript-eslint/restrict-template-expressions")
+  message: |
+    Convert `${value}` to `${value ?? ""}` or `String(value)`.
+
+# 4) For "hooks called conditionally", keep hooks at top-level and guard INSIDE effects.
+- when: grep("**/*.{ts,tsx}", "react-hooks/rules-of-hooks")
+  message: |
+    Move conditional outside of hooks. Call hooks unconditionally and guard within.
+
+# 5) For unsafe member access on unknown/any:
+- when: grep("**/*.{ts,tsx}", "@typescript-eslint/no-unsafe-member-access")
+  message: |
+    Change variable to `unknown`, add a type guard (or zod decode) before property access.
+
+# 6) For no-unnecessary-condition:
+- when: grep("**/*.{ts,tsx}", "@typescript-eslint/no-unnecessary-condition")
+  message: |
+    Remove optional chain if type is non-nullable. If value can be null, widen the type and guard.
+
+# 7) Google Maps Places usage standardization:
+- when: file_matches("src/**/*{LocationsTab,LocationSearchBar}*.tsx")
+  message: |
+    Access `window.google` via a narrowed helper. Use `PlacesLibrary` types, check for `AutocompleteSuggestion.fetchAutocompleteSuggestions` existence, and guard `toPlace()` calls.
+

@@ -19,6 +19,8 @@ FRONTEND:
   test:ui: vitest --ui
   optimize-images: node scripts/convert-images.js
   prebuild: npm run optimize-images
+  check-pages: node scripts/check-pages-usage.js
+  lint:pages: eslint . --rule 'import/no-restricted-paths: error'
 
 BACKEND:
   start: node server.js

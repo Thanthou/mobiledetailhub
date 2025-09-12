@@ -1,0 +1,103 @@
+{
+  "us_states": [
+    { "name": "Alabama", "abbreviation": "AL" },
+    { "name": "Alaska", "abbreviation": "AK" },
+    { "name": "Arizona", "abbreviation": "AZ" },
+    { "name": "Arkansas", "abbreviation": "AR" },
+    { "name": "California", "abbreviation": "CA" },
+    { "name": "Colorado", "abbreviation": "CO" },
+    { "name": "Connecticut", "abbreviation": "CT" },
+    { "name": "Delaware", "abbreviation": "DE" },
+    { "name": "Florida", "abbreviation": "FL" },
+    { "name": "Georgia", "abbreviation": "GA" },
+    { "name": "Hawaii", "abbreviation": "HI" },
+    { "name": "Idaho", "abbreviation": "ID" },
+    { "name": "Illinois", "abbreviation": "IL" },
+    { "name": "Indiana", "abbreviation": "IN" },
+    { "name": "Iowa", "abbreviation": "IA" },
+    { "name": "Kansas", "abbreviation": "KS" },
+    { "name": "Kentucky", "abbreviation": "KY" },
+    { "name": "Louisiana", "abbreviation": "LA" },
+    { "name": "Maine", "abbreviation": "ME" },
+    { "name": "Maryland", "abbreviation": "MD" },
+    { "name": "Massachusetts", "abbreviation": "MA" },
+    { "name": "Michigan", "abbreviation": "MI" },
+    { "name": "Minnesota", "abbreviation": "MN" },
+    { "name": "Mississippi", "abbreviation": "MS" },
+    { "name": "Missouri", "abbreviation": "MO" },
+    { "name": "Montana", "abbreviation": "MT" },
+    { "name": "Nebraska", "abbreviation": "NE" },
+    { "name": "Nevada", "abbreviation": "NV" },
+    { "name": "New Hampshire", "abbreviation": "NH" },
+    { "name": "New Jersey", "abbreviation": "NJ" },
+    { "name": "New Mexico", "abbreviation": "NM" },
+    { "name": "New York", "abbreviation": "NY" },
+    { "name": "North Carolina", "abbreviation": "NC" },
+    { "name": "North Dakota", "abbreviation": "ND" },
+    { "name": "Ohio", "abbreviation": "OH" },
+    { "name": "Oklahoma", "abbreviation": "OK" },
+    { "name": "Oregon", "abbreviation": "OR" },
+    { "name": "Pennsylvania", "abbreviation": "PA" },
+    { "name": "Rhode Island", "abbreviation": "RI" },
+    { "name": "South Carolina", "abbreviation": "SC" },
+    { "name": "South Dakota", "abbreviation": "SD" },
+    { "name": "Tennessee", "abbreviation": "TN" },
+    { "name": "Texas", "abbreviation": "TX" },
+    { "name": "Utah", "abbreviation": "UT" },
+    { "name": "Vermont", "abbreviation": "VT" },
+    { "name": "Virginia", "abbreviation": "VA" },
+    { "name": "Washington", "abbreviation": "WA" },
+    { "name": "West Virginia", "abbreviation": "WV" },
+    { "name": "Wisconsin", "abbreviation": "WI" },
+    { "name": "Wyoming", "abbreviation": "WY" }
+  ],
+  "major_cities": [
+    { "city": "New York", "state": "NY", "zipCode": "10001" },
+    { "city": "Los Angeles", "state": "CA", "zipCode": "90210" },
+    { "city": "Chicago", "state": "IL", "zipCode": "60601" },
+    { "city": "Houston", "state": "TX", "zipCode": "77001" },
+    { "city": "Phoenix", "state": "AZ", "zipCode": "85001" },
+    { "city": "Philadelphia", "state": "PA", "zipCode": "19101" },
+    { "city": "San Antonio", "state": "TX", "zipCode": "78201" },
+    { "city": "San Diego", "state": "CA", "zipCode": "92101" },
+    { "city": "Dallas", "state": "TX", "zipCode": "75201" },
+    { "city": "San Jose", "state": "CA", "zipCode": "95101" },
+    { "city": "Austin", "state": "TX", "zipCode": "78701" },
+    { "city": "Jacksonville", "state": "FL", "zipCode": "32201" },
+    { "city": "Fort Worth", "state": "TX", "zipCode": "76101" },
+    { "city": "Columbus", "state": "OH", "zipCode": "43201" },
+    { "city": "Charlotte", "state": "NC", "zipCode": "28201" },
+    { "city": "San Francisco", "state": "CA", "zipCode": "94101" },
+    { "city": "Indianapolis", "state": "IN", "zipCode": "46201" },
+    { "city": "Seattle", "state": "WA", "zipCode": "98101" },
+    { "city": "Denver", "state": "CO", "zipCode": "80201" },
+    { "city": "Washington", "state": "DC", "zipCode": "20001" }
+  ],
+  "service_areas": [
+    {
+      "region": "Northeast",
+      "states": ["NY", "NJ", "CT", "MA", "RI", "VT", "NH", "ME", "PA"],
+      "major_cities": ["New York", "Boston", "Philadelphia", "Hartford", "Providence"]
+    },
+    {
+      "region": "Southeast",
+      "states": ["FL", "GA", "SC", "NC", "VA", "WV", "KY", "TN", "AL", "MS", "AR", "LA"],
+      "major_cities": ["Miami", "Atlanta", "Charlotte", "Nashville", "Orlando", "Tampa"]
+    },
+    {
+      "region": "Midwest",
+      "states": ["IL", "IN", "OH", "MI", "WI", "MN", "IA", "MO", "ND", "SD", "NE", "KS"],
+      "major_cities": ["Chicago", "Detroit", "Cleveland", "Minneapolis", "Milwaukee", "St. Louis"]
+    },
+    {
+      "region": "Southwest",
+      "states": ["TX", "OK", "NM", "AZ", "CO", "UT", "NV"],
+      "major_cities": ["Houston", "Dallas", "Phoenix", "Denver", "Austin", "San Antonio"]
+    },
+    {
+      "region": "West Coast",
+      "states": ["CA", "OR", "WA", "AK", "HI"],
+      "major_cities": ["Los Angeles", "San Francisco", "Seattle", "Portland", "San Diego"]
+    }
+  ]
+}

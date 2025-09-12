@@ -1,0 +1,1 @@
+export { useVehicleData } from './useVehicleData';

@@ -1,10 +1,10 @@
-import './index.css';
-
-import { StrictMode } from 'react';
+import React, { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import App from './App.tsx';
 import { env } from './shared/env';
+
+import './index.css';
 
 // Register Service Worker for PWA functionality
 if ('serviceWorker' in navigator && env.PROD) {

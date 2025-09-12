@@ -12,13 +12,18 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "optimize-images": "node scripts/convert-images.js",
-    "prebuild": "npm run optimize-images"
+    "prebuild": "npm run optimize-images",
+    "check-pages": "node scripts/check-pages-usage.js",
+    "lint:pages": "eslint . --rule 'import/no-restricted-paths: error'"
   },
   "dependencies": {
+    "clsx": "^2.1.1",
     "lucide-react": "^0.344.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-icons": "^5.5.0",
     "react-router-dom": "^7.7.1",
+    "tailwind-merge": "^3.3.1",
     "zod": "^4.1.5"
   },
   "devDependencies": {
