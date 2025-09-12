@@ -7,7 +7,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useAffiliate } from '@/features/affiliateDashboard/hooks';
 import { getAffiliateDisplayLocation } from '@/features/affiliateDashboard/utils';
 import { useAuth, useFAQ, useLocation as useLocationContext, useMDHConfig, useSiteContext } from '@/shared/hooks';
-import { Button, LocationEditModal } from '@/shared/ui';
+import { Button } from '@/shared/ui';
 import { formatPhoneNumber, scrollToTop } from '@/shared/utils';
 
 import { NAV_LINKS } from '../constants';
@@ -44,8 +44,16 @@ const HeaderAffiliate: React.FC = () => {
   
   // Get the appropriate location to display (selected location if served, otherwise primary)
   const displayLocation = React.useMemo(() => {
-    if (!affiliateData || !selectedLocation) return null;
-    return getAffiliateDisplayLocation(affiliateData.service_areas, selectedLocation);
+    if (!affiliateData) return null;
+    
+    // If we have a selected location, try to use it
+    if (selectedLocation) {
+      const locationFromSelected = getAffiliateDisplayLocation(affiliateData.service_areas, selectedLocation);
+      if (locationFromSelected) return locationFromSelected;
+    }
+    
+    // Fallback to primary service area
+    return getAffiliateDisplayLocation(affiliateData.service_areas, null);
   }, [affiliateData, selectedLocation]);
 
   const isLoading = affiliateLoading || mdhLoading;
@@ -130,28 +138,27 @@ const HeaderAffiliate: React.FC = () => {
                 className="text-2xl md:text-3xl font-bold text-white hover:opacity-80 cursor-pointer transition-opacity duration-200 text-left"
                 aria-label="Go to top"
               >
-                {affiliateData.business_name || 'Business Name'}
+                {affiliateData?.business_name || 'Business Name'}
               </button>
               <div className="text-white text-sm md:text-base font-semibold">
                 <div className="flex items-center space-x-2">
                   {/* Display phone number from database with consistent formatting */}
-                  {affiliateData.phone ? (
+                  {affiliateData && affiliateData.phone ? (
                     <span>{formatPhoneNumber(affiliateData.phone)}</span>
                   ) : (
                     <span className="text-red-400">No phone data</span>
                   )}
                   {/* Show separator if we have both phone and location */}
-                  {affiliateData.phone && displayLocation && (
+                  {affiliateData && affiliateData.phone && displayLocation && (
                     <span className="text-orange-400">•</span>
                   )}
-                  {displayLocation && (
-                    <LocationEditModal
-                      placeholder="Enter new location"
-                      buttonClassName="text-white hover:text-orange-400 text-sm md:text-base font-semibold hover:underline cursor-pointer"
-                      displayText={displayLocation.fullLocation || 'Select Location'}
-                      showIcon={false}
-                      asText={true}
-                    />
+                  {/* Always show location if available, regardless of phone status */}
+                  {displayLocation ? (
+                    <span className="text-white hover:text-orange-400 text-sm md:text-base font-semibold hover:underline cursor-pointer">
+                      {displayLocation.fullLocation || 'Select Location'}
+                    </span>
+                  ) : (
+                    <span className="text-gray-300 text-sm md:text-base">Location not available</span>
                   )}
                 </div>
               </div>

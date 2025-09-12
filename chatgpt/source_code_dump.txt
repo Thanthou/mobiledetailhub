@@ -8,15 +8,79 @@ HOOKS
 --------------------
 
 ******
+useErrorBoundary.tsx
+frontend/src/useErrorBoundary.tsx
+******
+
+// Exports: function: useErrorBoundary
+
+import { useCallback, useEffect,useState } from 'react';
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error?: Error;
+}
+
+export const useErrorBoundary = () => {
+  const [errorState, setErrorState] = useState<ErrorBoundaryState>({ hasError: false });
+
+  const handleError = useCallback((error: Error, errorInfo?: { componentStack?: string; errorBoundary?: string }) => {
+    console.error('useErrorBoundary caught an error:', error, errorInfo);
+    
+    setErrorState({
+      hasError: true,
+      error
+    });
+
+    // Log to external service in production
+    if (import.meta.env.PROD) {
+      console.error('Production error:', { error, errorInfo });
+    }
+  }, []);
+
+  const resetError = useCallback(() => {
+    setErrorState({ hasError: false, error: undefined });
+  }, []);
+
+  // Global error handler
+  useEffect(() => {
+    const handleGlobalError = (event: ErrorEvent) => {
+      const error = event.error instanceof Error ? event.error : new Error(event.message);
+      handleError(error);
+    };
+
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      const reason = typeof event.reason === 'string' ? event.reason : String(event.reason);
+      handleError(new Error(reason));
+    };
+
+    window.addEventListener('error', handleGlobalError);
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+
+    return () => {
+      window.removeEventListener('error', handleGlobalError);
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+    };
+  }, [handleError]);
+
+  return {
+    ...errorState,
+    handleError,
+    resetError
+  };
+};
+
+
+******
 UserMenu.tsx
 frontend/src/UserMenu.tsx
 ******
 
-import { ChevronDown, LogOut, Settings, User } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ChevronDown, LogOut, Settings, User } from 'lucide-react';
 
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/shared/hooks';
 
 const UserMenu: React.FC = () => {
   const authContext = useAuth();
@@ -123,298 +187,14 @@ frontend/src/UsersTab.tsx
 
 // Exports: function: UsersTab, component: UsersTab
 
-import { Loader2, Trash2, UserCheck, UserCog, UserPlus, Users, UserX } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Loader2, Trash2, UserCheck, UserCog, UserPlus, Users, UserX } from 'lucide-react';
 
 import { ApplicationModal, Toast } from '@/features/adminDashboard/components/shared';
 import type { UserSubTab } from '@/features/adminDashboard/types';
-import { apiService } from '@/services/api';
+import { affiliateEventManager } from '@/features/affiliateDashboard/utils';
+import { apiService } from '@/shared/api/api';
 import { Button } from '@/shared/ui';
-import { affiliateEventManager } from '@/utils/affiliateEvents';
-
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  role: string;
-  created_at: string;
-  business_name?: string;
-  slug?: string;
-}
-
-interface PendingApplication {
-  id: number;
-  slug: string;
-  business_name: string;
-  owner: string;
-  phone: string;
-  email: string;
-  city: string;
-  state_code: string;
-  postal_code: string;
-  has_insurance: boolean;
-  source: string;
-  notes?: string;
-  application_date: string;
-  created_at: string;
-}
-
-export const UsersTab: React.FC = () => {
-  const [activeSubTab, setActiveSubTab] = useState<UserSubTab>('all-users');
-  const [users, setUsers] = useState<User[]>([]);
-  const [pendingApplications, setPendingApplications] = useState<PendingApplication[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [modalState, setModalState] = useState<{
-    isOpen: boolean;
-    type: 'approve' | 'reject';
-    applicationId: number;
-    businessName: string;
-  } | null>(null);
-  const [processingApplication, setProcessingApplication] = useState(false);
-  const [toast, setToast] = useState<{
-
-// ... (truncated 434 lines) ...
-
-              const Icon = subTab.icon;
-              return (
-                <button
-                  key={subTab.id}
-                  onClick={() => { handleSubTabChange(subTab.id); }}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    activeSubTab === subTab.id
-                      ? 'bg-blue-900 text-blue-300 border-b-2 border-blue-400'
-                      : 'text-gray-300 hover:text-white hover:bg-gray-700'
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  {subTab.label}
-                </button>
-              );
-            })}
-          </nav>
-        </div>
-        
-        <div className="p-6">
-          {renderSubTabContent(activeSubTab)}
-        </div>
-      </div>
-      
-      {/* Application Modal */}
-      {modalState && (
-        <ApplicationModal
-          isOpen={modalState.isOpen}
-          onClose={closeModal}
-          onSubmit={handleModalSubmit}
-          type={modalState.type}
-          applicationId={modalState.applicationId}
-          businessName={modalState.businessName}
-          isLoading={processingApplication}
-        />
-      )}
-      
-      {/* Toast Notifications */}
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          isVisible={toast.isVisible}
-          onClose={() => { setToast(null); }}
-        />
-      )}
-    </div>
-  );
-};
-
-
-******
-useErrorBoundary.tsx
-frontend/src/useErrorBoundary.tsx
-******
-
-// Exports: function: useErrorBoundary
-
-import { useCallback, useEffect,useState } from 'react';
-
-interface ErrorBoundaryState {
-  hasError: boolean;
-  error?: Error;
-}
-
-export const useErrorBoundary = () => {
-  const [errorState, setErrorState] = useState<ErrorBoundaryState>({ hasError: false });
-
-  const handleError = useCallback((error: Error, errorInfo?: { componentStack?: string; errorBoundary?: string }) => {
-    console.error('useErrorBoundary caught an error:', error, errorInfo);
-    
-    setErrorState({
-      hasError: true,
-      error
-    });
-
-    // Log to external service in production
-    if (import.meta.env.PROD) {
-      console.error('Production error:', { error, errorInfo });
-    }
-  }, []);
-
-  const resetError = useCallback(() => {
-    setErrorState({ hasError: false, error: undefined });
-  }, []);
-
-  // Global error handler
-  useEffect(() => {
-    const handleGlobalError = (event: ErrorEvent) => {
-      const error = event.error instanceof Error ? event.error : new Error(event.message);
-      handleError(error);
-    };
-
-    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      const reason = typeof event.reason === 'string' ? event.reason : String(event.reason);
-      handleError(new Error(reason));
-    };
-
-    window.addEventListener('error', handleGlobalError);
-    window.addEventListener('unhandledrejection', handleUnhandledRejection);
-
-    return () => {
-      window.removeEventListener('error', handleGlobalError);
-      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
-    };
-  }, [handleError]);
-
-  return {
-    ...errorState,
-    handleError,
-    resetError
-  };
-};
-
-
-******
-UserMenu.tsx
-frontend/UserMenu.tsx
-******
-
-import { ChevronDown, LogOut, Settings, User } from 'lucide-react';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-
-import { useAuth } from '@/hooks/useAuth';
-
-const UserMenu: React.FC = () => {
-  const authContext = useAuth();
-  const user = authContext.user;
-  const logout = authContext.logout;
-  const navigate = useNavigate();
-  const [isOpen, setIsOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  // Close menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => { document.removeEventListener('mousedown', handleClickOutside); };
-  }, []);
-
-  const handleLogout = useCallback(() => {
-    // Clear any stored tokens
-    localStorage.removeItem('token');
-    localStorage.removeItem('authToken'); // Remove old key if it exists
-    logout();
-    setIsOpen(false);
-  }, [logout]);
-
-  const handleAccountClick = useCallback(() => {
-    setIsOpen(false);
-    
-    if (!user) return;
-    
-    // Route based on user role (less restrictive for development)
-    if (user.role === 'admin') {
-      void navigate('/admin-dashboard');
-    } else if (user.role === 'affiliate') {
-      void navigate('/affiliate-dashboard');
-    } else {
-      // For now, redirect customers to home page since client dashboard is not implemented
-      // Fallback to home page for unknown roles
-      void navigate('/');
-    }
-  }, [user, navigate]);
-
-// ... (truncated 44 lines) ...
-
-                e.preventDefault();
-                handleAccountClick();
-              }
-            }}
-            className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-            role="menuitem"
-          >
-            <User className="h-4 w-4 mr-3" />
-            Account
-          </button>
-          
-          <button
-            onClick={() => { setIsOpen(false); }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                setIsOpen(false);
-              }
-            }}
-            className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-            role="menuitem"
-          >
-            <Settings className="h-4 w-4 mr-3" />
-            Settings
-          </button>
-          
-          <hr className="my-1" />
-          
-          <button
-            onClick={handleLogout}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                handleLogout();
-              }
-            }}
-            className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
-            role="menuitem"
-          >
-            <LogOut className="h-4 w-4 mr-3" />
-            Logout
-          </button>
-        </div>
-      )}
-    </div>
-  );
-};
-
-export default UserMenu;
-
-
-******
-UsersTab.tsx
-frontend/UsersTab.tsx
-******
-
-// Exports: function: UsersTab, component: UsersTab
-
-import { Loader2, Trash2, UserCheck, UserCog, UserPlus, Users, UserX } from 'lucide-react';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-
-import { ApplicationModal, Toast } from '@/features/adminDashboard/components/shared';
-import type { UserSubTab } from '@/features/adminDashboard/types';
-import { apiService } from '@/services/api';
-import { Button } from '@/shared/ui';
-import { affiliateEventManager } from '@/utils/affiliateEvents';
 
 interface User {
   id: number;
@@ -575,6 +355,226 @@ export const useErrorBoundary = () => {
 };
 
 
+******
+UserMenu.tsx
+frontend/UserMenu.tsx
+******
+
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ChevronDown, LogOut, Settings, User } from 'lucide-react';
+
+import { useAuth } from '@/shared/hooks';
+
+const UserMenu: React.FC = () => {
+  const authContext = useAuth();
+  const user = authContext.user;
+  const logout = authContext.logout;
+  const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => { document.removeEventListener('mousedown', handleClickOutside); };
+  }, []);
+
+  const handleLogout = useCallback(() => {
+    // Clear any stored tokens
+    localStorage.removeItem('token');
+    localStorage.removeItem('authToken'); // Remove old key if it exists
+    logout();
+    setIsOpen(false);
+  }, [logout]);
+
+  const handleAccountClick = useCallback(() => {
+    setIsOpen(false);
+    
+    if (!user) return;
+    
+    // Route based on user role (less restrictive for development)
+    if (user.role === 'admin') {
+      void navigate('/admin-dashboard');
+    } else if (user.role === 'affiliate') {
+      void navigate('/affiliate-dashboard');
+    } else {
+      // For now, redirect customers to home page since client dashboard is not implemented
+      // Fallback to home page for unknown roles
+      void navigate('/');
+    }
+  }, [user, navigate]);
+
+// ... (truncated 44 lines) ...
+
+                e.preventDefault();
+                handleAccountClick();
+              }
+            }}
+            className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+            role="menuitem"
+          >
+            <User className="h-4 w-4 mr-3" />
+            Account
+          </button>
+          
+          <button
+            onClick={() => { setIsOpen(false); }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setIsOpen(false);
+              }
+            }}
+            className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+            role="menuitem"
+          >
+            <Settings className="h-4 w-4 mr-3" />
+            Settings
+          </button>
+          
+          <hr className="my-1" />
+          
+          <button
+            onClick={handleLogout}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleLogout();
+              }
+            }}
+            className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
+            role="menuitem"
+          >
+            <LogOut className="h-4 w-4 mr-3" />
+            Logout
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default UserMenu;
+
+
+******
+UsersTab.tsx
+frontend/UsersTab.tsx
+******
+
+// Exports: function: UsersTab, component: UsersTab
+
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Loader2, Trash2, UserCheck, UserCog, UserPlus, Users, UserX } from 'lucide-react';
+
+import { ApplicationModal, Toast } from '@/features/adminDashboard/components/shared';
+import type { UserSubTab } from '@/features/adminDashboard/types';
+import { affiliateEventManager } from '@/features/affiliateDashboard/utils';
+import { apiService } from '@/shared/api/api';
+import { Button } from '@/shared/ui';
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  created_at: string;
+  business_name?: string;
+  slug?: string;
+}
+
+interface PendingApplication {
+  id: number;
+  slug: string;
+  business_name: string;
+  owner: string;
+  phone: string;
+  email: string;
+  city: string;
+  state_code: string;
+  postal_code: string;
+  has_insurance: boolean;
+  source: string;
+  notes?: string;
+  application_date: string;
+  created_at: string;
+}
+
+export const UsersTab: React.FC = () => {
+  const [activeSubTab, setActiveSubTab] = useState<UserSubTab>('all-users');
+  const [users, setUsers] = useState<User[]>([]);
+  const [pendingApplications, setPendingApplications] = useState<PendingApplication[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [modalState, setModalState] = useState<{
+    isOpen: boolean;
+    type: 'approve' | 'reject';
+    applicationId: number;
+    businessName: string;
+  } | null>(null);
+  const [processingApplication, setProcessingApplication] = useState(false);
+  const [toast, setToast] = useState<{
+
+// ... (truncated 434 lines) ...
+
+              const Icon = subTab.icon;
+              return (
+                <button
+                  key={subTab.id}
+                  onClick={() => { handleSubTabChange(subTab.id); }}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    activeSubTab === subTab.id
+                      ? 'bg-blue-900 text-blue-300 border-b-2 border-blue-400'
+                      : 'text-gray-300 hover:text-white hover:bg-gray-700'
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  {subTab.label}
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+        
+        <div className="p-6">
+          {renderSubTabContent(activeSubTab)}
+        </div>
+      </div>
+      
+      {/* Application Modal */}
+      {modalState && (
+        <ApplicationModal
+          isOpen={modalState.isOpen}
+          onClose={closeModal}
+          onSubmit={handleModalSubmit}
+          type={modalState.type}
+          applicationId={modalState.applicationId}
+          businessName={modalState.businessName}
+          isLoading={processingApplication}
+        />
+      )}
+      
+      {/* Toast Notifications */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          isVisible={toast.isVisible}
+          onClose={() => { setToast(null); }}
+        />
+      )}
+    </div>
+  );
+};
+
+
 CONTEXTS
 --------------------
 
@@ -589,8 +589,7 @@ import React, { createContext, type ReactNode, useEffect, useState } from 'react
 import { useParams } from 'react-router-dom';
 
 import { config } from '@/../config/env';
-
-import { useLocation } from '../hooks/useLocation';
+import { useLocation } from '@/shared/hooks/useLocation';
 
 interface ServiceArea {
   city: string;
@@ -635,12 +634,10 @@ interface AffiliateData {
   insurance_expiry: string;
   service_radius_miles: number;
   operating_hours: unknown;
+  emergency_contact: unknown;
 
-// ... (truncated 58 lines) ...
+// ... (truncated 60 lines) ...
 
-        setIsLoading(false);
-      }
-    };
 
     void fetchAffiliateData();
   }, [businessSlug]);
@@ -649,7 +646,8 @@ interface AffiliateData {
   useEffect(() => {
     if (affiliateData?.service_areas) {
       // Only update location if no valid location is currently selected
-      if (!selectedLocation.city || !selectedLocation.state) {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      if (!selectedLocation?.city || !selectedLocation?.state) {
         // Parse service areas to find the primary location
         let serviceAreasData = affiliateData.service_areas;
         if (typeof serviceAreasData === 'string') {
@@ -667,7 +665,9 @@ interface AffiliateData {
           
           if (primaryArea && primaryArea.city && primaryArea.state) {
             // Update location with affiliate's primary service area
-            updateLocationWithState(primaryArea.city, primaryArea.state);
+            if (typeof updateLocationWithState === 'function') {
+              updateLocationWithState(primaryArea.city, primaryArea.state);
+            }
           }
         }
       }
@@ -698,8 +698,8 @@ frontend/src/AuthContext.tsx
 
 import React, { createContext, useCallback, useEffect, useState } from 'react';
 
-import { apiService } from '../services/api';
-import { apiClient } from '../services/apiClient';
+import { apiService } from '@/shared/api/api';
+import { apiClient } from '@/shared/api/apiClient';
 
 interface User {
   id: string;
@@ -874,7 +874,7 @@ export interface LocationData {
   fullLocation: string;
 }
 
-interface LocationContextType {
+export interface LocationContextType {
   selectedLocation: LocationData | null;
   setSelectedLocation: (location: LocationData | null) => void;
   clearLocation: () => void;
@@ -980,53 +980,53 @@ import React, { createContext, useCallback, useEffect, useState } from 'react';
 
 import { config } from '@/../config/env';
 
-interface MDHConfig {
-  email: string;
-  phone: string;
-  sms_phone?: string;
-  logo_url: string;
-  favicon_url: string;
-  header_display: string;
-  tagline: string;
-  services_description: string;
-  facebook: string;
-  instagram: string;
-  tiktok: string;
-  youtube: string;
-  created_at: string;
-  updated_at: string;
-}
+import { getStaticMDHConfig, initializeGlobalConfig, type MDHConfig } from '../../../data/mdh';
 
-// Static config interface to match mdh-config.js
-interface StaticMDHConfig {
-  name: string;
-  url: string;
-  logo: string;
-  phone: string;
-  email: string;
-  socials: {
-    facebook: string;
-    instagram: string;
-    youtube: string;
-    tiktok: string;
-  };
-  header_display: string;
-  tagline: string;
-  services_description: string;
-  logo_url: string;
-  favicon_url: string;
-  ogImage: string;
-  created_at: string;
-  updated_at: string;
-}
+// Types are now imported from @/data/mdh/mdh-config
 
-// Extend Window interface to include __MDH__ property
+// Global window interface for JSON-LD loader compatibility
 declare global {
   interface Window {
-    __MDH__?: StaticMDHConfig;
+    __MDH__?: {
+      name: string;
+      url: string;
+      logo: string;
+      phone: string;
+      email: string;
+      socials: {
+        facebook: string;
+        instagram: string;
+        youtube: string;
+        tiktok: string;
+      };
+      header_display: string;
+      tagline: string;
+      services_description: string;
+      logo_url: string;
+      favicon_url: string;
+      ogImage: string;
+      created_at: string;
+      updated_at: string;
+    };
   }
+}
 
-// ... (truncated 72 lines) ...
+export interface MDHConfigContextType {
+  mdhConfig: MDHConfig | null;
+  isLoading: boolean;
+  error: string | null;
+  refreshConfig: () => Promise<void>;
+}
+
+export const MDHConfigContext = createContext<MDHConfigContextType | null>(null);
+
+
+interface MDHConfigProviderProps {
+  children: ReactNode;
+}
+
+
+// ... (truncated 43 lines) ...
 
         setIsLoading(false);
         return;
@@ -1090,8 +1090,7 @@ import React, { createContext, type ReactNode, useEffect, useState } from 'react
 import { useParams } from 'react-router-dom';
 
 import { config } from '@/../config/env';
-
-import { useLocation } from '../hooks/useLocation';
+import { useLocation } from '@/shared/hooks/useLocation';
 
 interface ServiceArea {
   city: string;
@@ -1136,12 +1135,10 @@ interface AffiliateData {
   insurance_expiry: string;
   service_radius_miles: number;
   operating_hours: unknown;
+  emergency_contact: unknown;
 
-// ... (truncated 58 lines) ...
+// ... (truncated 60 lines) ...
 
-        setIsLoading(false);
-      }
-    };
 
     void fetchAffiliateData();
   }, [businessSlug]);
@@ -1150,7 +1147,8 @@ interface AffiliateData {
   useEffect(() => {
     if (affiliateData?.service_areas) {
       // Only update location if no valid location is currently selected
-      if (!selectedLocation.city || !selectedLocation.state) {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      if (!selectedLocation?.city || !selectedLocation?.state) {
         // Parse service areas to find the primary location
         let serviceAreasData = affiliateData.service_areas;
         if (typeof serviceAreasData === 'string') {
@@ -1168,7 +1166,9 @@ interface AffiliateData {
           
           if (primaryArea && primaryArea.city && primaryArea.state) {
             // Update location with affiliate's primary service area
-            updateLocationWithState(primaryArea.city, primaryArea.state);
+            if (typeof updateLocationWithState === 'function') {
+              updateLocationWithState(primaryArea.city, primaryArea.state);
+            }
           }
         }
       }
@@ -1199,8 +1199,8 @@ frontend/AuthContext.tsx
 
 import React, { createContext, useCallback, useEffect, useState } from 'react';
 
-import { apiService } from '../services/api';
-import { apiClient } from '../services/apiClient';
+import { apiService } from '@/shared/api/api';
+import { apiClient } from '@/shared/api/apiClient';
 
 interface User {
   id: string;
@@ -1375,7 +1375,7 @@ export interface LocationData {
   fullLocation: string;
 }
 
-interface LocationContextType {
+export interface LocationContextType {
   selectedLocation: LocationData | null;
   setSelectedLocation: (location: LocationData | null) => void;
   clearLocation: () => void;
@@ -1481,53 +1481,53 @@ import React, { createContext, useCallback, useEffect, useState } from 'react';
 
 import { config } from '@/../config/env';
 
-interface MDHConfig {
-  email: string;
-  phone: string;
-  sms_phone?: string;
-  logo_url: string;
-  favicon_url: string;
-  header_display: string;
-  tagline: string;
-  services_description: string;
-  facebook: string;
-  instagram: string;
-  tiktok: string;
-  youtube: string;
-  created_at: string;
-  updated_at: string;
-}
+import { getStaticMDHConfig, initializeGlobalConfig, type MDHConfig } from '../../../data/mdh';
 
-// Static config interface to match mdh-config.js
-interface StaticMDHConfig {
-  name: string;
-  url: string;
-  logo: string;
-  phone: string;
-  email: string;
-  socials: {
-    facebook: string;
-    instagram: string;
-    youtube: string;
-    tiktok: string;
-  };
-  header_display: string;
-  tagline: string;
-  services_description: string;
-  logo_url: string;
-  favicon_url: string;
-  ogImage: string;
-  created_at: string;
-  updated_at: string;
-}
+// Types are now imported from @/data/mdh/mdh-config
 
-// Extend Window interface to include __MDH__ property
+// Global window interface for JSON-LD loader compatibility
 declare global {
   interface Window {
-    __MDH__?: StaticMDHConfig;
+    __MDH__?: {
+      name: string;
+      url: string;
+      logo: string;
+      phone: string;
+      email: string;
+      socials: {
+        facebook: string;
+        instagram: string;
+        youtube: string;
+        tiktok: string;
+      };
+      header_display: string;
+      tagline: string;
+      services_description: string;
+      logo_url: string;
+      favicon_url: string;
+      ogImage: string;
+      created_at: string;
+      updated_at: string;
+    };
   }
+}
 
-// ... (truncated 72 lines) ...
+export interface MDHConfigContextType {
+  mdhConfig: MDHConfig | null;
+  isLoading: boolean;
+  error: string | null;
+  refreshConfig: () => Promise<void>;
+}
+
+export const MDHConfigContext = createContext<MDHConfigContextType | null>(null);
+
+
+interface MDHConfigProviderProps {
+  children: ReactNode;
+}
+
+
+// ... (truncated 43 lines) ...
 
         setIsLoading(false);
         return;

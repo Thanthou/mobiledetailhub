@@ -170,8 +170,16 @@ const AffiliateFooter: React.FC<AffiliateFooterProps> = ({ onRequestQuote, onBoo
 
   // Get the appropriate location to display (selected location if served, otherwise primary)
   const displayLocation = React.useMemo(() => {
-    if (!affiliateData || !selectedLocation) return null;
-    return getAffiliateDisplayLocation(affiliateData.service_areas as string | ServiceAreaData[] | null, selectedLocation);
+    if (!affiliateData) return null;
+    
+    // If we have a selected location, try to use it
+    if (selectedLocation) {
+      const locationFromSelected = getAffiliateDisplayLocation(affiliateData.service_areas as string | ServiceAreaData[] | null, selectedLocation);
+      if (locationFromSelected) return locationFromSelected;
+    }
+    
+    // Fallback to primary service area
+    return getAffiliateDisplayLocation(affiliateData.service_areas as string | ServiceAreaData[] | null, null);
   }, [affiliateData, selectedLocation]);
 
   // Combine affiliate data with MDH social media config

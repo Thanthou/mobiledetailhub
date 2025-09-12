@@ -3,10 +3,10 @@ import type { LocationData } from '@/shared/contexts';
 interface ServiceArea {
   city: string;
   state: string;
-  zip?: string;
-  primary?: boolean;
-  minimum?: number;
-  multiplier?: number;
+  zip?: string | number | null;
+  primary: boolean;
+  minimum: number;
+  multiplier: number;
 }
 
 /**

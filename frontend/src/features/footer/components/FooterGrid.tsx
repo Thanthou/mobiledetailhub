@@ -5,7 +5,6 @@ import { Mail, MapPin, Phone } from 'lucide-react';
 import { getAffiliateDisplayLocation } from '@/features/affiliateDashboard/utils';
 import { CTAButtonsContainer } from '@/features/booking';
 import { useLocation } from '@/shared/hooks';
-import { LocationEditModal } from '@/shared/ui';
 import { formatPhoneNumber } from '@/shared/utils';
 
 import MDHServiceAreas from './MDHServiceAreas';
@@ -72,16 +71,6 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig, serviceAreas, ser
     }
   };
 
-  const handleLocationChange = (location: string, zipCode?: string, city?: string, state?: string) => {
-    if (city && state) {
-      setSelectedLocation({
-        city: city,
-        state: state,
-        zipCode: zipCode || '',
-        fullLocation: `${city}, ${state}`
-      });
-    }
-  };
 
   const handleServiceAreaClick = (city: string, state: string) => {
     setSelectedLocation({
@@ -123,14 +112,9 @@ const FooterGrid: React.FC<FooterGridProps> = ({ parentConfig, serviceAreas, ser
             {!isMDH && (
               <div className="flex items-center justify-center md:justify-start space-x-3">
                 <MapPin className="h-5 w-5 flex-shrink-0 text-orange-400" />
-                <LocationEditModal
-                  displayText={displayLocation?.fullLocation ?? 'Select Location'}
-                  buttonClassName="text-lg hover:text-orange-400 transition-colors duration-200 bg-transparent border-none p-0 font-inherit cursor-pointer text-left"
-                  showIcon={false}
-                  gapClassName="space-x-0"
-                  onLocationChange={handleLocationChange}
-                  asText={true}
-                />
+                <span className="text-lg hover:text-orange-400 transition-colors duration-200 cursor-pointer text-left">
+                  {displayLocation?.fullLocation ?? 'Select Location'}
+                </span>
               </div>
             )}
           </div>

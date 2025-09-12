@@ -5,6 +5,7 @@
 export type BookingState = 
   | 'idle'
   | 'vehicle'
+  | 'vehicleDetails'
   | 'services'
   | 'schedule'
   | 'review'
@@ -49,6 +50,7 @@ export type BookingEvent =
   | { type: 'NEXT_STEP' }
   | { type: 'PREVIOUS_STEP' }
   | { type: 'SELECT_VEHICLE'; data: BookingContext['vehicleData'] }
+  | { type: 'CONFIRM_VEHICLE_DETAILS' }
   | { type: 'SELECT_SERVICES'; data: BookingContext['selectedServices'] }
   | { type: 'SELECT_SCHEDULE'; data: BookingContext['scheduleData'] }
   | { type: 'SUBMIT_PAYMENT'; data: BookingContext['paymentData'] }
@@ -59,6 +61,7 @@ export type BookingEvent =
 // Step order
 const STEP_ORDER: BookingState[] = [
   'vehicle',
+  'vehicleDetails',
   'services', 
   'schedule',
   'review',
@@ -76,6 +79,12 @@ export const bookingReducer = (state: BookingContext, event: BookingEvent): Book
       return {
         ...state,
         vehicleData: event.data,
+        currentStep: 'vehicleDetails'
+      };
+    
+    case 'CONFIRM_VEHICLE_DETAILS':
+      return {
+        ...state,
         currentStep: 'services'
       };
     

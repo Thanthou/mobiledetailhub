@@ -7,6 +7,7 @@ import { Header } from '@/features/header';
 import { HERO_CONSTANTS,HeroBackground } from '@/features/hero';
 import { useSiteContext } from '@/shared/hooks';
 import { Button } from '@/shared/ui';
+import { getMakesForType, getModelsForMake } from '../../../../data';
 
 import { categories, vehicles } from '../data/vehicles';
 import type { Service, ServiceTier, Vehicle } from '../types';
@@ -30,6 +31,53 @@ const BookingPage: React.FC = () => {
   const [averageRating, setAverageRating] = useState<number>(4.9);
   const [totalReviews, setTotalReviews] = useState<number>(0);
   const [selectedTierForService, setSelectedTierForService] = useState<{ [serviceId: string]: string }>({});
+  
+  // Vehicle details state
+  const [selectedMake, setSelectedMake] = useState<string>('');
+  const [selectedModel, setSelectedModel] = useState<string>('');
+  const [selectedYear, setSelectedYear] = useState<string>('');
+  const [selectedColor, setSelectedColor] = useState<string>('');
+  const [selectedLength, setSelectedLength] = useState<string>('');
+
+  // Get makes and models based on selected vehicle type
+  // For truck and SUV, use car data since they're often made by the same manufacturers
+  const vehicleTypeForData = ['truck', 'suv'].includes(selectedVehicle || '') ? 'car' : (selectedVehicle || 'car');
+  const vehicleMakes = getMakesForType(vehicleTypeForData);
+  const vehicleModels: { [make: string]: string[] } = {};
+  vehicleMakes.forEach((make) => {
+    vehicleModels[make] = getModelsForMake(vehicleTypeForData, make);
+  });
+  const vehicleYears = Array.from({ length: 25 }, (_, i) => (2024 - i).toString());
+  const vehicleColors = ['White', 'Black', 'Silver', 'Gray', 'Red', 'Blue', 'Green', 'Brown', 'Gold', 'Orange', 'Yellow', 'Purple', 'Beige', 'Tan', 'Maroon', 'Navy', 'Forest Green', 'Burgundy', 'Champagne', 'Pearl'];
+
+  // Check if selected vehicle type should show detailed dropdowns
+  const shouldShowVehicleDetails = selectedVehicle && ['car', 'truck', 'suv', 'boat', 'rv'].includes(selectedVehicle);
+
+  // Check if all vehicle details are completed
+  const isVehicleDetailsComplete = () => {
+    if (!shouldShowVehicleDetails) return true; // For non-detailed vehicle types, always complete
+    
+    const hasMake = selectedMake !== '';
+    const hasModel = selectedModel !== '';
+    const hasYear = selectedYear !== '';
+    
+    if (['boat', 'rv'].includes(selectedVehicle || '')) {
+      const hasLength = selectedLength !== '';
+      return hasMake && hasModel && hasYear && hasLength;
+    } else {
+      const hasColor = selectedColor !== '';
+      return hasMake && hasModel && hasYear && hasColor;
+    }
+  };
+
+  // Reset vehicle details when vehicle type changes
+  useEffect(() => {
+    setSelectedMake('');
+    setSelectedModel('');
+    setSelectedYear('');
+    setSelectedColor('');
+    setSelectedLength('');
+  }, [selectedVehicle]);
 
   // Filter vehicles based on affiliate's available services
   useEffect(() => {
@@ -459,9 +507,9 @@ const BookingPage: React.FC = () => {
                     } else {
                       // Select the vehicle
                       setSelectedVehicle(vehicle.id);
-                      // Scroll to service selection section after a brief delay
+                      // Scroll to vehicle details section after a brief delay
                       setTimeout(() => {
-                        const element = document.getElementById('service-selection');
+                        const element = document.querySelector('[data-vehicle-details]');
                         if (element) {
                           const elementRect = element.getBoundingClientRect();
                           const absoluteElementTop = elementRect.top + window.scrollY;
@@ -483,7 +531,7 @@ const BookingPage: React.FC = () => {
                       } else {
                         setSelectedVehicle(vehicle.id);
                         setTimeout(() => {
-                          const element = document.getElementById('service-selection');
+                          const element = document.querySelector('[data-vehicle-details]');
                           if (element) {
                             const elementRect = element.getBoundingClientRect();
                             const absoluteElementTop = elementRect.top + window.scrollY;
@@ -519,9 +567,144 @@ const BookingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Service Selection - Skip Category Selection for now */}
+      {/* Vehicle Details Section */}
       {selectedVehicle && (
-        <section id="service-selection" className="py-16 bg-stone-800">
+        <section data-vehicle-details className="py-16 bg-stone-800">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="bg-stone-700 rounded-xl p-8">
+              <h2 className="text-3xl font-bold text-white text-center mb-8">Vehicle Details</h2>
+              
+              {shouldShowVehicleDetails ? (
+                <div className="mb-8">
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {/* Make Dropdown */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Make</label>
+                      <select
+                        value={selectedMake}
+                        onChange={(e) => {
+                          setSelectedMake(e.target.value);
+                          setSelectedModel(''); // Reset model when make changes
+                        }}
+                        className="w-full px-3 py-2 bg-stone-600 border border-stone-500 rounded-lg text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      >
+                        <option value="">Select Make</option>
+                        {vehicleMakes.map((make) => (
+                          <option key={make} value={make}>{make}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Model Dropdown */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Model</label>
+                      <select
+                        value={selectedModel}
+                        onChange={(e) => setSelectedModel(e.target.value)}
+                        disabled={!selectedMake}
+                        className="w-full px-3 py-2 bg-stone-600 border border-stone-500 rounded-lg text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <option value="">Select Model</option>
+                        {selectedMake && vehicleModels[selectedMake]?.map((model) => (
+                          <option key={model} value={model}>{model}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Year Dropdown */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Year</label>
+                      <select
+                        value={selectedYear}
+                        onChange={(e) => setSelectedYear(e.target.value)}
+                        className="w-full px-3 py-2 bg-stone-600 border border-stone-500 rounded-lg text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      >
+                        <option value="">Select Year</option>
+                        {vehicleYears.map((year) => (
+                          <option key={year} value={year}>{year}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Conditional field based on vehicle type */}
+                    {['boat', 'rv'].includes(selectedVehicle || '') ? (
+                      /* Length Input for boats and RVs */
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                          Length (feet)
+                        </label>
+                        <input
+                          type="number"
+                          value={selectedLength}
+                          onChange={(e) => setSelectedLength(e.target.value)}
+                          placeholder={`Enter ${selectedVehicle === 'boat' ? 'boat' : 'RV'} length`}
+                          className="w-full px-3 py-2 bg-stone-600 border border-stone-500 rounded-lg text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 placeholder-gray-400"
+                        />
+                      </div>
+                    ) : (
+                      /* Color Dropdown for cars/trucks/SUVs */
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">Color</label>
+                        <select
+                          value={selectedColor}
+                          onChange={(e) => setSelectedColor(e.target.value)}
+                          className="w-full px-3 py-2 bg-stone-600 border border-stone-500 rounded-lg text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                        >
+                          <option value="">Select Color</option>
+                          {vehicleColors.map((color) => (
+                            <option key={color} value={color}>{color}</option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="grid md:grid-cols-2 gap-8 mb-8">
+                  <div className="bg-stone-600 rounded-lg p-6">
+                    <h3 className="text-xl font-semibold text-white mb-4">Vehicle Information</h3>
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Type:</span>
+                        <span className="text-white font-medium capitalize">{selectedVehicleData?.id}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Name:</span>
+                        <span className="text-white font-medium">{selectedVehicleData?.name}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Description:</span>
+                        <span className="text-white font-medium">{selectedVehicleData?.description}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-stone-600 rounded-lg p-6">
+                    <h3 className="text-xl font-semibold text-white mb-4">Next Steps</h3>
+                    <p className="text-gray-300 text-sm mb-4">
+                      Now we'll help you select the services you need for your vehicle. 
+                      Our technicians will assess your {selectedVehicleData?.name} and recommend 
+                      the best maintenance and repair services.
+                    </p>
+                    <div className="bg-orange-900/20 border border-orange-500/30 rounded-lg p-4">
+                      <h4 className="text-orange-400 font-semibold mb-2">Specialized Service</h4>
+                      <p className="text-gray-300 text-sm">
+                        Our team has extensive experience with {selectedVehicleData?.name} vehicles and 
+                        understands the specific maintenance requirements for your vehicle type.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Service Selection - Skip Category Selection for now */}
+      {selectedVehicle && isVehicleDetailsComplete() && (
+        <section id="service-selection" className="py-16 bg-stone-900">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {loadingServices ? (
               <div className="text-center py-12">
@@ -671,7 +854,7 @@ const BookingPage: React.FC = () => {
       )}
 
       {/* Pre-Wizard Summary */}
-      {selectedVehicle && selectedService && (
+      {selectedVehicle && isVehicleDetailsComplete() && selectedService && (
         <section className="py-16">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <div className="bg-stone-800 rounded-xl p-8">
@@ -743,7 +926,7 @@ const BookingPage: React.FC = () => {
       )}
 
       {/* Proof Section */}
-      {selectedVehicle && selectedService && (
+      {selectedVehicle && isVehicleDetailsComplete() && selectedService && (
         <section className="py-16 bg-stone-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 className="text-3xl font-bold text-white text-center mb-12">
@@ -768,7 +951,7 @@ const BookingPage: React.FC = () => {
       )}
 
       {/* FAQ Section */}
-      {selectedVehicle && (
+      {selectedVehicle && isVehicleDetailsComplete() && (
         <section className="py-16">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 className="text-3xl font-bold text-white text-center mb-12">
@@ -800,7 +983,7 @@ const BookingPage: React.FC = () => {
       )}
 
       {/* Sticky Footer CTA */}
-      {selectedVehicle && selectedService && (
+      {selectedVehicle && isVehicleDetailsComplete() && selectedService && (
         <div className="fixed bottom-0 left-0 right-0 bg-stone-900/95 backdrop-blur-sm border-t border-stone-700 p-4 z-50">
           <div className="max-w-7xl mx-auto">
             <Button

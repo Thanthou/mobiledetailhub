@@ -6,13 +6,13 @@ CORE APPLICATION FILES
 
 FILE: frontend/src/main.tsx
 ----------------------------------------
-import './index.css';
-
 import React, { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import App from './App.tsx';
 import { env } from './shared/env';
+
+import './index.css';
 
 // Register Service Worker for PWA functionality
 if ('serviceWorker' in navigator && env.PROD) {
@@ -104,8 +104,9 @@ FILE: frontend/index.html
     <script type="application/ld+json" id="website-jsonld">{}</script>
     <script type="application/ld+json" id="directory-jsonld">{}</script>
 
-    <!-- MDH brand context (static) -->
-    <script src="/js/mdh-config.js" defer></script>
+    <!-- MDH brand context (now handled by TypeScript) -->
+    <!-- MDH Global Config Initialization (must run before jsonld-loader) -->
+    <script src="/js/mdh-init.js"></script>
 
     <!-- JSON-LD Loader -->
     <script src="/js/jsonld-loader.js" defer></script>
@@ -122,10 +123,9 @@ FILE: frontend/index.html
 
 FILE: frontend/vite.config.ts
 ----------------------------------------
+import react from '@vitejs/plugin-react';
 import { fileURLToPath } from 'node:url';
 import { URL } from 'node:url';
-
-import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
 // https://vitejs.dev/config/
@@ -1362,10 +1362,9 @@ async function cacheFirst(request) {
 
 FILE: frontend/vite.config.ts
 ----------------------------------------
+import react from '@vitejs/plugin-react';
 import { fileURLToPath } from 'node:url';
 import { URL } from 'node:url';
-
-import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
 // https://vitejs.dev/config/

@@ -1,10 +1,10 @@
-import { useState, useMemo } from 'react';
+import { useMemo,useState } from 'react';
 
 import { useSiteContext } from '@/shared/hooks';
 
-import { MDH_FAQ_ITEMS } from '../data/mdh/data';
 import { AFFILIATE_FAQ_ITEMS } from '../data/affiliate/data';
 import type { AffiliateConfig } from '../data/affiliate/types';
+import { MDH_FAQ_ITEMS } from '../data/mdh/data';
 
 interface UseFAQDataProps {
   config?: AffiliateConfig;

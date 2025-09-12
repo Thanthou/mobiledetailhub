@@ -28,6 +28,10 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
     dispatch({ type: 'SELECT_VEHICLE', data: vehicleData });
   };
 
+  const handleVehicleDetailsNext = () => {
+    dispatch({ type: 'CONFIRM_VEHICLE_DETAILS' });
+  };
+
   const handleServicesNext = (serviceData: { services: string[] }) => {
     dispatch({ type: 'SELECT_SERVICES', data: serviceData.services });
   };
@@ -82,6 +86,15 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
             onNext={handleVehicleNext}
             onPrevious={onCancel}
             initialData={state.vehicleData}
+          />
+        );
+      
+      case 'vehicleDetails':
+        return (
+          <StepVehicleDetails
+            onNext={handleVehicleDetailsNext}
+            onPrevious={handlePrevious}
+            vehicleData={state.vehicleData || { type: '', make: '', model: '', year: '' }}
           />
         );
       
