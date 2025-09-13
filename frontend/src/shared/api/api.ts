@@ -166,7 +166,6 @@ class ApiService {
   async login(email: string, password: string): Promise<LoginResponse> {
     // Use config API URL for proper routing
     const url = `${API_BASE_URL}/api/auth/login`;
-    
     try {
       // Create an AbortController for timeout
       const controller = new AbortController();

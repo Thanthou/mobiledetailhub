@@ -22,7 +22,6 @@ export interface VehicleCategory {
 export const vehicles: Vehicle[] = [
   { id: 'car', name: 'Car', description: 'Sedan/Coupe/Compact', icon: Car },
   { id: 'truck', name: 'Truck', description: 'Light duty, work trucks', icon: Truck },
-  { id: 'suv', name: 'SUV', description: 'Crossovers & full-size', icon: Car },
   { id: 'boat', name: 'Boat', description: 'Runabout, bass, wake', icon: Ship },
   { id: 'rv', name: 'RV', description: 'Travel trailers & coaches', icon: RVIcon },
   { id: 'motorcycle', name: 'Motorcycle', description: 'Street & sport bikes', icon: Bike },

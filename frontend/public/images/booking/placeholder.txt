@@ -1,0 +1,16 @@
+# Placeholder for Booking Hero Images
+
+This file serves as a placeholder to keep the booking directory in version control.
+
+## To add images:
+
+1. Add your booking hero images to this directory
+2. Follow the naming convention in README.md
+3. Ensure images are 1920x1080 resolution
+4. Optimize for web (compress PNGs, create WebP/AVIF versions)
+
+## Current Status:
+- Directory created: ✅
+- Constants configured: ✅
+- MultiStepHero updated: ✅
+- Ready for images: ⏳

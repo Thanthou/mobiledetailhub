@@ -155,6 +155,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { success: false, error: response.message || 'Login failed' };
       }
     } catch (error: unknown) {
+      console.error('AuthContext: Login error:', error);
       const err = error as { code?: string; message?: string };
       // Handle specific error codes
       if (err.code === 'RATE_LIMITED') {

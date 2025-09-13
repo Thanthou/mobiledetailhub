@@ -1,108 +1,94 @@
-import { useMemo } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
-import type { VehicleSelection } from '@/types/vehicle';
+import { useAffiliate } from '@/features/affiliateDashboard/hooks';
+import { useSiteContext } from '@/shared/hooks';
 
-import { 
-  vehicleData, 
-  vehicles
-} from '../data/vehicles.data';
-import { getAvailableMakes, getAvailableModels } from '../utils/vehicleHelpers';
+import { getMakesForType, getModelsForMake } from '../../../../data';
+import { vehicles } from '../data/vehicles';
+import type { Service, Vehicle } from '../types';
 
 export const useVehicleData = () => {
-  // Get all available vehicle types
-  const availableVehicleTypes = useMemo(() => vehicles, []);
+  const { isAffiliate } = useSiteContext();
+  const { affiliateData, isLoading: affiliateLoading } = useAffiliate();
+  
+  const [selectedVehicle, setSelectedVehicle] = useState<string>('');
+  const [availableVehicles, setAvailableVehicles] = useState<Vehicle[]>([]);
+  const [loadingVehicles, setLoadingVehicles] = useState(false);
 
-  // Get makes for a specific vehicle type
-  const getMakes = (vehicleType: string) => {
-    return getAvailableMakes(vehicleType);
-  };
+  // Get makes and models based on selected vehicle type
+  const vehicleTypeForData = ['truck', 'suv'].includes(selectedVehicle || '') ? 'car' : (selectedVehicle || 'car');
+  const vehicleMakes = getMakesForType(vehicleTypeForData);
+  const vehicleModels: { [make: string]: string[] } = {};
+  vehicleMakes.forEach((make) => {
+    vehicleModels[make] = getModelsForMake(vehicleTypeForData, make);
+  });
+  const vehicleYears = Array.from({ length: 25 }, (_, i) => (2024 - i).toString());
+  const vehicleColors = ['White', 'Black', 'Silver', 'Gray', 'Red', 'Blue', 'Green', 'Brown', 'Gold', 'Orange', 'Yellow', 'Purple', 'Beige', 'Tan', 'Maroon', 'Navy', 'Forest Green', 'Burgundy', 'Champagne', 'Pearl'];
 
-  // Get models for a specific make and vehicle type
-  const getModels = (vehicleType: string, make: string) => {
-    return getAvailableModels(vehicleType, make);
-  };
+  // Filter vehicles based on affiliate's available services
+  useEffect(() => {
+    if (isAffiliate && affiliateData?.id) {
+      const checkVehicleServices = async () => {
+        setLoadingVehicles(true);
+        const vehiclesWithServices: Vehicle[] = [];
+        
+        // Map frontend vehicle IDs to backend vehicle IDs
+        const vehicleMap: { [key: string]: string } = {
+          'car': 'cars',
+          'truck': 'trucks', 
+          'rv': 'rvs',
+          'boat': 'boats',
+          'motorcycle': 'motorcycles'
+        };
+        
+        // Check each vehicle type to see if it has any services
+        for (const vehicle of vehicles) {
+          const backendVehicleId = vehicleMap[vehicle.id];
+          if (backendVehicleId) {
+            try {
+              // Check if this vehicle type has any services for this affiliate
+              const response = await fetch(`/api/services/affiliate/${String(affiliateData.id)}/vehicle/${backendVehicleId}/category/service-packages`);
+              if (response.ok) {
+                const data = await response.json() as { success: boolean; data: Service[] };
+                if (data.success && data.data.length > 0) {
+                  vehiclesWithServices.push(vehicle);
+                }
+              }
+            } catch (error) {
+              console.error(`Error checking services for ${vehicle.id}:`, error);
+            }
+          }
+        }
+        
+        setAvailableVehicles(vehiclesWithServices);
+        setLoadingVehicles(false);
+      };
+      
+      void checkVehicleServices();
+    } else if (!isAffiliate) {
+      // For MDH site, show all vehicles
+      setAvailableVehicles(vehicles);
+    }
+  }, [isAffiliate, affiliateData]);
 
-  // Get all makes across all vehicle types
-  const getAllMakes = useMemo(() => {
-    const allMakes = new Set<string>();
-    
-    // Add car makes
-    (vehicleData.car as Array<{ brand: string }>).forEach(car => allMakes.add(car.brand));
-    
-    // Add boat makes
-    Object.keys(vehicleData.boat as Record<string, unknown>).forEach(boatMake => allMakes.add(boatMake));
-    
-    // Add RV makes
-    Object.keys(vehicleData.rv as Record<string, unknown>).forEach(rvMake => allMakes.add(rvMake));
-    
-    // Add motorcycle makes
-    Object.keys(vehicleData.motorcycle as Record<string, unknown>).forEach(motorcycleMake => allMakes.add(motorcycleMake));
-    
-    return Array.from(allMakes).sort();
+  const selectVehicle = useCallback((vehicleId: string) => {
+    setSelectedVehicle(vehicleId);
   }, []);
 
-  // Search makes by name (case-insensitive)
-  const searchMakes = (query: string, vehicleType?: string) => {
-    const makes = vehicleType ? getMakes(vehicleType) : getAllMakes;
-    const lowerQuery = query.toLowerCase();
-    
-    return makes.filter(make => 
-      make.toLowerCase().includes(lowerQuery)
-    );
-  };
-
-  // Search models by name (case-insensitive)
-  const searchModels = (query: string, vehicleType: string, make: string) => {
-    const models = getModels(vehicleType, make);
-    const lowerQuery = query.toLowerCase();
-    
-    return models.filter(model => 
-      model.toLowerCase().includes(lowerQuery)
-    );
-  };
-
-  // Get popular makes (you can customize this logic)
-  const getPopularMakes = useMemo(() => {
-    // For now, return first 5 makes from cars, boats, RVs, and motorcycles
-    const popularCarMakes = (vehicleData.car as Array<{ brand: string }>).slice(0, 5).map(car => car.brand);
-    const popularBoatMakes = Object.keys(vehicleData.boat as Record<string, unknown>).slice(0, 5);
-    const popularRvMakes = Object.keys(vehicleData.rv as Record<string, unknown>).slice(0, 5);
-    const popularMotorcycleMakes = Object.keys(vehicleData.motorcycle as Record<string, unknown>).slice(0, 5);
-    
-    return [...popularCarMakes, ...popularBoatMakes, ...popularRvMakes, ...popularMotorcycleMakes];
+  const clearVehicleSelection = useCallback(() => {
+    setSelectedVehicle('');
   }, []);
-
-  // Validate vehicle selection
-  const validateVehicleSelection = (selection: VehicleSelection): boolean => {
-    const { type, make, model } = selection;
-    
-    if (!type || !make || !model) return false;
-    
-    const makes = getMakes(type);
-    if (!makes.includes(make)) return false;
-    
-    const models = getModels(type, make);
-    return models.includes(model);
-  };
 
   return {
-    // Data
-    vehicleData,
-    vehicleTypes: availableVehicleTypes,
-    
-    // Functions
-    getMakes,
-    getModels,
-    getAllMakes,
-    searchMakes,
-    searchModels,
-    getPopularMakes,
-    validateVehicleSelection,
-    
-    // Convenience getters
-    carMakes: useMemo(() => getMakes('car'), []),
-    boatMakes: useMemo(() => getMakes('boat'), []),
-    rvMakes: useMemo(() => getMakes('rv'), []),
-    motorcycleMakes: useMemo(() => getMakes('motorcycle'), []),
+    selectedVehicle,
+    availableVehicles,
+    loadingVehicles,
+    affiliateLoading,
+    vehicleMakes,
+    vehicleModels,
+    vehicleYears,
+    vehicleColors,
+    selectVehicle,
+    clearVehicleSelection,
   };
 };

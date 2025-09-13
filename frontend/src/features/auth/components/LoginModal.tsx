@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-import { authApi, AuthError } from '../api/auth.api';
+import { useAuth } from '@/shared/hooks';
 import { validateLoginRequest, validateRegisterRequest } from '../schemas/auth.schemas';
 import LoginForm from './LoginForm';
 import ModalHeader from './ModalHeader';
@@ -21,6 +21,7 @@ interface RateLimitInfo {
 }
 
 const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
+  const { login, register } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -53,34 +54,16 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
       // Validate input using Zod schemas
       const loginData = validateLoginRequest({ email, password });
       
-      const result = await authApi.login(loginData);
+      const result = await login(loginData.email, loginData.password);
 
       if (result.success) {
-        // Store tokens
-        localStorage.setItem('accessToken', result.accessToken);
-        localStorage.setItem('refreshToken', result.refreshToken);
         onClose();
+      } else {
+        setError(result.error || 'Login failed');
       }
     } catch (err: unknown) {
-      if (err instanceof AuthError) {
-        if (err.code === 'RATE_LIMITED' && err.retryAfterSeconds) {
-          setRateLimitInfo({
-            retryAfterSeconds: err.retryAfterSeconds,
-            remainingAttempts: err.remainingAttempts,
-            resetTime: err.resetTime ? new Date(err.resetTime).getTime() : undefined
-          });
-          setCountdown(err.retryAfterSeconds);
-          setError(`Too many login attempts. Please try again in ${err.retryAfterSeconds.toString()} seconds.`);
-        } else if (err.code === 'UNAUTHORIZED') {
-          setError('Email or password is incorrect.');
-        } else if (err.code === 'FORBIDDEN') {
-          setError('Access denied. Please contact support.');
-        } else {
-          setError(err.message);
-        }
-      } else {
-        setError('An unexpected error occurred');
-      }
+      console.error('Login error:', err);
+      setError('An unexpected error occurred');
     } finally {
       setLoading(false);
     }
@@ -95,32 +78,16 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
       // Validate input using Zod schemas
       const registerData = validateRegisterRequest({ email, password, name, phone });
       
-      const result = await authApi.register(registerData);
+      const result = await register(registerData.email, registerData.password, registerData.name, registerData.phone);
 
       if (result.success) {
-        // Store tokens
-        localStorage.setItem('accessToken', result.accessToken);
-        localStorage.setItem('refreshToken', result.refreshToken);
         onClose();
+      } else {
+        setError(result.error || 'Registration failed');
       }
     } catch (err: unknown) {
-      if (err instanceof AuthError) {
-        if (err.code === 'RATE_LIMITED' && err.retryAfterSeconds) {
-          setRateLimitInfo({
-            retryAfterSeconds: err.retryAfterSeconds,
-            remainingAttempts: err.remainingAttempts,
-            resetTime: err.resetTime ? new Date(err.resetTime).getTime() : undefined
-          });
-          setCountdown(err.retryAfterSeconds);
-          setError(`Too many registration attempts. Please try again in ${err.retryAfterSeconds.toString()} seconds.`);
-        } else if (err.code === 'VALIDATION_ERROR') {
-          setError('Please check your input and try again.');
-        } else {
-          setError(err.message);
-        }
-      } else {
-        setError('An unexpected error occurred');
-      }
+      console.error('Registration error:', err);
+      setError('An unexpected error occurred');
     } finally {
       setLoading(false);
     }
