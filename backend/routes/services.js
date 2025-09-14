@@ -59,7 +59,8 @@ router.post('/', async (req, res) => {
       'other': 7
     };
     
-    const dbVehicleId = vehicleMap[vehicle_id] || 1;
+    // Handle both string vehicle IDs (from old frontend) and numeric vehicle IDs (from new frontend)
+    const dbVehicleId = typeof vehicle_id === 'string' ? vehicleMap[vehicle_id] || 1 : vehicle_id;
     const vehicleTypes = JSON.stringify([dbVehicleId]);
     const metadata = JSON.stringify({
       base_price_cents: base_price_cents || 0,
@@ -84,18 +85,21 @@ router.post('/', async (req, res) => {
     
     // Create service tiers - use custom tiers if provided, otherwise create default tiers
     if (tiers && Array.isArray(tiers) && tiers.length > 0) {
+      console.log('Backend - Received tiers data:', JSON.stringify(tiers, null, 2));
       // Use custom tiers provided by the frontend
       for (const tier of tiers) {
         if (tier.name && tier.name.trim() !== '') {
+          console.log('Backend - Processing tier:', tier.name, 'tierCopies:', tier.tierCopies);
           await pool.query(`
-            INSERT INTO affiliates.service_tiers (service_id, tier_name, price_cents, included_services, duration_minutes, is_active, is_featured, sort_order)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            INSERT INTO affiliates.service_tiers (service_id, tier_name, price_cents, included_services, duration_minutes, metadata, is_active, is_featured, sort_order)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
           `, [
             newService.id,
             tier.name,
             Math.round((tier.price || 0) * 100), // Price in cents
             JSON.stringify(tier.features || []), // Features as JSON array
             tier.duration || 60, // Duration in minutes
+            JSON.stringify({}), // Empty metadata
             true, // is_active
             tier.popular || false, // is_featured
             0 // sort_order
@@ -255,18 +259,21 @@ router.put('/:serviceId', async (req, res) => {
       
       // Create new service tiers
       if (tiers && Array.isArray(tiers) && tiers.length > 0) {
+        console.log('Backend PUT - Received tiers data:', JSON.stringify(tiers, null, 2));
         // Use custom tiers provided by the frontend
         for (const tier of tiers) {
           if (tier.name && tier.name.trim() !== '') {
+            console.log('Backend PUT - Processing tier:', tier.name, 'tierCopies:', tier.tierCopies);
             await client.query(`
-              INSERT INTO affiliates.service_tiers (service_id, tier_name, price_cents, included_services, duration_minutes, is_active, is_featured, sort_order)
-              VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+              INSERT INTO affiliates.service_tiers (service_id, tier_name, price_cents, included_services, duration_minutes, metadata, is_active, is_featured, sort_order)
+              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
             `, [
               serviceId,
               tier.name,
               Math.round((tier.price || 0) * 100), // Price in cents
               JSON.stringify(tier.features || []), // Features as JSON array
               tier.duration || 60, // Duration in minutes
+              JSON.stringify({}), // Empty metadata
               true, // is_active
               tier.popular || false, // is_featured
               0 // sort_order
@@ -391,8 +398,18 @@ router.get('/affiliate/:affiliateId/vehicle/:vehicleId/category/:categoryId', as
   try {
     const { affiliateId, vehicleId, categoryId } = req.params;
     
-    // Use the category ID directly since we now store proper category names
-    const dbCategory = categoryId;
+    // Map the category ID to the actual category name
+    const categoryMap = {
+      1: 'interior',
+      2: 'exterior', 
+      3: 'service-packages',
+      4: 'ceramic-coating',
+      5: 'paint-correction',
+      6: 'paint-protection-film',
+      7: 'addons'
+    };
+    
+    const dbCategory = categoryMap[parseInt(categoryId)] || 'service-packages';
     
     // Map frontend vehicle IDs to database vehicle IDs
     const vehicleMap = {
@@ -406,6 +423,14 @@ router.get('/affiliate/:affiliateId/vehicle/:vehicleId/category/:categoryId', as
     };
     
     const dbVehicleId = vehicleMap[vehicleId] || 1;
+    
+    // For cars, check both vehicle_types [1] and [2] due to database inconsistency
+    let vehicleTypesFilter;
+    if (vehicleId === 'cars') {
+      vehicleTypesFilter = '(s.vehicle_types @> $3::jsonb OR s.vehicle_types @> $4::jsonb)';
+    } else {
+      vehicleTypesFilter = 's.vehicle_types @> $3::jsonb';
+    }
     
     // Clean query using the correct table structure with proper category filtering
     const query = `
@@ -421,11 +446,15 @@ router.get('/affiliate/:affiliateId/vehicle/:vehicleId/category/:categoryId', as
       FROM affiliates.services s
       WHERE s.business_id = $1 
         AND s.service_category = $2
-        AND s.vehicle_types @> $3::jsonb
+        AND ${vehicleTypesFilter}
       ORDER BY s.created_at DESC, s.service_name ASC
     `;
     
-    const result = await pool.query(query, [affiliateId, dbCategory, JSON.stringify([dbVehicleId])]);
+    const queryParams = vehicleId === 'cars' 
+      ? [affiliateId, dbCategory, JSON.stringify([1]), JSON.stringify([2])]
+      : [affiliateId, dbCategory, JSON.stringify([dbVehicleId])];
+    
+    const result = await pool.query(query, queryParams);
     
     if (result.rows.length === 0) {
       return res.json({
@@ -444,7 +473,10 @@ router.get('/affiliate/:affiliateId/vehicle/:vehicleId/category/:categoryId', as
           st.tier_name,
           st.price_cents,
           st.included_services,
-          st.duration_minutes
+          st.duration_minutes,
+          st.metadata,
+          st.is_active,
+          st.is_featured
         FROM affiliates.service_tiers st
         WHERE st.service_id = $1
         ORDER BY st.price_cents ASC
@@ -464,8 +496,8 @@ router.get('/affiliate/:affiliateId/vehicle/:vehicleId/category/:categoryId', as
           price: row.price_cents / 100,
           duration: row.duration_minutes || 60,
           features: row.included_services || [],
-          enabled: true,
-          popular: false
+          enabled: row.is_active,
+          popular: row.is_featured
         }))
       };
       

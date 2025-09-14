@@ -27,6 +27,7 @@ export {
   useVehicleData,
   useServiceData,
   useTierSelection,
+  useAddonData,
   useReviews,
 } from './hooks';
 

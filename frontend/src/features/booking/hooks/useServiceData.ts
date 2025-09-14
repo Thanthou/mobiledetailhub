@@ -31,9 +31,12 @@ export const useServiceData = (selectedVehicle: string) => {
         
         if (backendVehicleId) {
           try {
-            const response = await fetch(`/api/services/affiliate/${String(affiliateData.id)}/vehicle/${backendVehicleId}/category/service-packages`);
+            const url = `/api/services/affiliate/${String(affiliateData.id)}/vehicle/${backendVehicleId}/category/service-packages`;
+            const response = await fetch(url);
+            
             if (response.ok) {
               const data = await response.json() as { success: boolean; data: Service[] };
+              
               if (data.success) {
                 setAvailableServices(data.data);
                 // Auto-select the first service if available
@@ -41,6 +44,8 @@ export const useServiceData = (selectedVehicle: string) => {
                   setSelectedService(data.data[0].id);
                 }
               }
+            } else {
+              console.error('Services API error:', response.status, response.statusText);
             }
           } catch (error) {
             console.error('Error fetching services:', error);

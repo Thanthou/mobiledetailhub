@@ -3,7 +3,7 @@ import React, { createContext, useCallback, useEffect, useState } from 'react';
 
 import { config } from '@/../config/env';
 
-import { getStaticMDHConfig, initializeGlobalConfig, type MDHConfig } from '../../../data/mdh';
+import { getStaticMDHConfig, initializeGlobalConfig, type MDHConfig } from '@/data/mdh';
 
 // Types are now imported from @/data/mdh/mdh-config
 

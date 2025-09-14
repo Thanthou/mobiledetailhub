@@ -1,17 +1,13 @@
 import React, { useEffect,useRef, useState } from 'react';
-import { Edit2, Plus, Save, Trash2,X } from 'lucide-react';
+import { Edit2, Plus, Save, Trash2, X } from 'lucide-react';
 
 import { Button } from '@/shared/ui';
+import { FeatureDropdown } from './FeatureDropdown';
+import { FeatureList } from './FeatureList';
+import { CAR_SERVICE_OPTIONS } from '@/data/affiliate-services/cars/features';
+import { Service, Tier } from '../types/ServiceClasses';
 
-interface Tier {
-  id: string;
-  name: string;
-  price: number;
-  duration: number;
-  features: string[];
-  enabled: boolean;
-  popular?: boolean;
-}
+// Using Service and Tier classes from ServiceClasses.ts
 
 interface MultiTierPricingModalProps {
   isOpen: boolean;
@@ -21,6 +17,8 @@ interface MultiTierPricingModalProps {
   initialServiceName?: string;
   loading?: boolean;
   error?: string | null;
+  vehicleType?: string;
+  categoryType?: 'service-packages' | 'addons';
 }
 
 export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
@@ -30,27 +28,60 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
   initialTiers = [],
   initialServiceName = '',
   loading = false,
-  error = null
+  error = null,
+  vehicleType = 'cars',
+  categoryType = 'service-packages'
 }) => {
   const [serviceName, setServiceName] = useState<string>(initialServiceName);
-  const [tiers, setTiers] = useState<Tier[]>(initialTiers.length > 0 ? initialTiers : [createDefaultTier()]);
+  const [service, setService] = useState<Service>(() => {
+    if (initialTiers.length > 0) {
+      const service = new Service('temp-id', initialServiceName);
+      initialTiers.forEach(tierData => {
+        const tier = new Tier(tierData.id, tierData.name, tierData.price, tierData.duration);
+        // Convert features to serviceOptions for the new structure
+        tier.serviceOptions = tierData.features || tierData.serviceOptions || [];
+        tier.enabled = tierData.enabled;
+        tier.popular = tierData.popular;
+        service.addTier(tier);
+      });
+      return service;
+    } else {
+      const service = new Service('temp-id', initialServiceName);
+      service.addTier(createDefaultTier());
+      return service;
+    }
+  });
   const [editingTierId, setEditingTierId] = useState<string | null>(null);
   const [editingTier, setEditingTier] = useState<Tier | null>(null);
+  const [expandedTiers, setExpandedTiers] = useState<Record<string, boolean>>({});
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const prevInitialTiersRef = useRef<Tier[] | undefined>(initialTiers);
   const prevInitialServiceNameRef = useRef<string | undefined>(initialServiceName);
 
   // Update tiers and service name when initial values change (for editing existing services)
   useEffect(() => {
-    // Only update if initialTiers actually changed
+    // Force update when initialTiers has data, regardless of comparison
+    const hasInitialTiers = initialTiers && initialTiers.length > 0;
     const tiersChanged = JSON.stringify(prevInitialTiersRef.current) !== JSON.stringify(initialTiers);
     const serviceNameChanged = prevInitialServiceNameRef.current !== initialServiceName;
     
-    if (tiersChanged) {
+    if (tiersChanged || hasInitialTiers) {
       if (initialTiers.length > 0) {
-        setTiers(initialTiers);
+        // Convert old format to new Service class format
+        const service = new Service('temp-id', initialServiceName);
+        initialTiers.forEach(tierData => {
+          const tier = new Tier(tierData.id, tierData.name, tierData.price, tierData.duration);
+          // Convert features to serviceOptions for the new structure
+          tier.serviceOptions = tierData.features || tierData.serviceOptions || [];
+          tier.enabled = tierData.enabled;
+          tier.popular = tierData.popular;
+          service.addTier(tier);
+        });
+        setService(service);
       } else {
-        setTiers([createDefaultTier()]);
+        const service = new Service('temp-id', initialServiceName);
+        service.addTier(createDefaultTier());
+        setService(service);
       }
       // Reset editing state when switching between create/edit modes
       setEditingTierId(null);
@@ -65,19 +96,38 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
   }, [initialTiers, initialServiceName]);
 
   function createDefaultTier(): Tier {
-    return {
-      id: `tier-${Date.now().toString()}-${Math.random().toString(36).substring(2, 11)}`,
-      name: '',
-      price: 0,
-      duration: 60,
-      features: [''],
-      enabled: true,
-      popular: false
-    };
+    return new Tier(
+      `tier-${Date.now().toString()}-${Math.random().toString(36).substring(2, 11)}`,
+      '',
+      0,
+      60
+    );
+  }
+
+  // Helper function to ensure tier is a Tier class instance
+  const ensureTierInstance = (tier: any): Tier => {
+    if (tier instanceof Tier) {
+      return tier;
+    } else {
+      // Convert plain object back to Tier instance
+      const tierInstance = new Tier(tier.id, tier.name, tier.price, tier.duration);
+      tierInstance.serviceOptions = tier.serviceOptions || [];
+      tierInstance.tierCopies = tier.tierCopies || {};
+      tierInstance.enabled = tier.enabled;
+      tierInstance.popular = tier.popular;
+      return tierInstance;
+    }
   }
 
   const addTier = () => {
-    setTiers(prev => [...prev, createDefaultTier()]);
+    setService(prev => {
+      const newService = new Service(prev.id, prev.name);
+      prev.tiers.forEach(tier => {
+        newService.addTier(ensureTierInstance(tier));
+      });
+      newService.addTier(createDefaultTier());
+      return newService;
+    });
     // Scroll to the right to show the new tier
     setTimeout(() => {
       if (scrollContainerRef.current) {
@@ -87,8 +137,16 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
   };
 
   const removeTier = (tierId: string) => {
-    if (tiers.length > 1) {
-      setTiers(prev => prev.filter(tier => tier.id !== tierId));
+    if (service.tiers.length > 1) {
+    setService(prev => {
+      const newService = new Service(prev.id, prev.name);
+      prev.tiers.forEach(tier => {
+        if (tier.id !== tierId) {
+          newService.addTier(ensureTierInstance(tier));
+        }
+      });
+      return newService;
+    });
       if (editingTierId === tierId) {
         setEditingTierId(null);
         setEditingTier(null);
@@ -103,9 +161,17 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
 
   const saveTier = () => {
     if (editingTier) {
-      setTiers(prev => prev.map(tier => 
-        tier.id === editingTier.id ? editingTier : tier
-      ));
+    setService(prev => {
+      const newService = new Service(prev.id, prev.name);
+      prev.tiers.forEach(tier => {
+        if (tier.id === editingTier.id) {
+          newService.addTier(editingTier);
+        } else {
+          newService.addTier(ensureTierInstance(tier));
+        }
+      });
+      return newService;
+    });
       setEditingTierId(null);
       setEditingTier(null);
     }
@@ -122,34 +188,14 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
     }
   };
 
-  const addFeature = () => {
-    if (editingTier) {
-      setEditingTier({
-        ...editingTier,
-        features: [...editingTier.features, '']
-      });
-    }
+  const toggleTierExpansion = (tierName: string) => {
+    setExpandedTiers(prev => ({
+      ...prev,
+      [tierName]: !prev[tierName]
+    }));
   };
 
-  const removeFeature = (featureIndex: number) => {
-    if (editingTier) {
-      setEditingTier({
-        ...editingTier,
-        features: editingTier.features.filter((_, index) => index !== featureIndex)
-      });
-    }
-  };
 
-  const updateFeature = (featureIndex: number, value: string) => {
-    if (editingTier) {
-      setEditingTier({
-        ...editingTier,
-        features: editingTier.features.map((feature, index) => 
-          index === featureIndex ? value : feature
-        )
-      });
-    }
-  };
 
   const handleSubmit = () => {
     // Validate service name
@@ -157,8 +203,19 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
       return;
     }
     
-    // Filter out tiers with empty names
-    const validTiers = tiers.filter(tier => tier.name.trim() !== '');
+    // Filter out tiers with empty names and convert to backend format
+    const validTiers = service.tiers
+      .filter(tier => tier.name.trim() !== '')
+      .map(tier => ({
+        id: tier.id,
+        name: tier.name,
+        price: tier.price,
+        duration: tier.duration,
+        features: tier.serviceOptions, // Convert serviceOptions to features for backend
+        enabled: tier.enabled,
+        popular: tier.popular
+      }));
+    
     if (validTiers.length > 0) {
       onSubmit(serviceName.trim(), validTiers);
     }
@@ -167,9 +224,19 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
   const handleClose = () => {
     // Reset to initial state when closing
     if (initialTiers.length > 0) {
-      setTiers(initialTiers);
+      const service = new Service('temp-id', initialServiceName);
+      initialTiers.forEach(tierData => {
+        const tier = new Tier(tierData.id, tierData.name, tierData.price, tierData.duration);
+        tier.serviceOptions = tierData.features || tierData.serviceOptions || [];
+        tier.enabled = tierData.enabled;
+        tier.popular = tierData.popular;
+        service.addTier(tier);
+      });
+      setService(service);
     } else {
-      setTiers([createDefaultTier()]);
+      const service = new Service('temp-id', initialServiceName);
+      service.addTier(createDefaultTier());
+      setService(service);
     }
     setServiceName(initialServiceName);
     setEditingTierId(null);
@@ -245,11 +312,14 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
                 scrollbarColor: '#6B7280 #374151'
               }}
             >
-              {tiers.map((tier, index) => (
+              {service.tiers.map((tier, index) => {
+                // Ensure tier is a Tier class instance
+                const tierInstance = ensureTierInstance(tier);
+                return (
                 <div
-                  key={tier.id}
+                  key={tierInstance.id}
                   className={`min-w-[300px] bg-gray-700 rounded-lg p-4 border-2 ${
-                    editingTierId === tier.id ? 'border-blue-500' : 'border-gray-600'
+                    editingTierId === tierInstance.id ? 'border-blue-500' : 'border-gray-600'
                   }`}
                 >
                   {/* Tier Header */}
@@ -288,7 +358,7 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
                           <Edit2 className="h-4 w-4" />
                         </Button>
                       )}
-                      {tiers.length > 1 && (
+                      {service.tiers.length > 1 && (
                         <Button
                           onClick={() => { removeTier(tier.id); }}
                           variant="ghost"
@@ -365,39 +435,14 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
                       </div>
 
                       {/* Features */}
-                      <div>
-                        <label htmlFor={`tier-features-${tier.id}`} className="block text-sm font-medium text-gray-300 mb-1">
-                          Features
-                        </label>
-                        <div className="space-y-2">
-                          {editingTier.features.map((feature, featureIndex) => (
-                            <div key={featureIndex} className="flex gap-2">
-                              <input
-                                type="text"
-                                value={feature}
-                                onChange={(e) => { updateFeature(featureIndex, e.target.value); }}
-                                className="flex-1 bg-gray-600 border border-gray-500 rounded px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Enter feature description"
-                              />
-                              {editingTier.features.length > 1 && (
-                                <button
-                                  onClick={() => { removeFeature(featureIndex); }}
-                                  className="text-red-400 hover:text-red-300 transition-colors px-2"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </button>
-                              )}
-                            </div>
-                          ))}
-                          <button
-                            onClick={addFeature}
-                            className="text-blue-400 hover:text-blue-300 transition-colors text-sm flex items-center gap-1"
-                          >
-                            <Plus className="h-3 w-3" />
-                            Add Feature
-                          </button>
-                        </div>
-                      </div>
+                      <FeatureDropdown
+                        selectedFeatures={editingTier.serviceOptions}
+                        onFeaturesChange={(features) => updateEditingTier('serviceOptions', features)}
+                        vehicleType={vehicleType}
+                        categoryType={categoryType}
+                        serviceName={serviceName}
+                        disabled={false}
+                      />
 
                       {/* Toggles */}
                       <div className="flex gap-4">
@@ -426,29 +471,31 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
                       {/* Display Mode */}
                       <div>
                         <h4 className="font-medium text-white mb-2">
-                          {tier.name || `Tier ${(index + 1).toString()}`}
+                          {tierInstance.name || `Tier ${(index + 1).toString()}`}
                         </h4>
                         <div className="text-2xl font-bold text-green-400">
-                          ${tier.price.toFixed(2)}
+                          ${tierInstance.price.toFixed(2)}
                         </div>
                         <div className="text-sm text-gray-400">
-                          {tier.duration} minutes
+                          {tierInstance.duration} minutes
                         </div>
                       </div>
 
                       {/* Features */}
-                      {tier.features.length > 0 && tier.features.some(f => f && f.trim() !== '') && (
+                      {tierInstance.serviceOptions.length > 0 && (
                         <div>
                           <h5 className="text-sm font-medium text-gray-300 mb-2">Features:</h5>
                           <ul className="space-y-1">
-                            {tier.features.map((feature, featureIndex) => (
-                              feature && feature.trim() !== '' && (
-                                <li key={featureIndex} className="text-sm text-gray-400 flex items-center gap-2">
-                                  <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-                                  {feature}
+                            {tierInstance.serviceOptions.map(option => {
+                              const serviceOption = CAR_SERVICE_OPTIONS.find(s => s.id === option);
+                              
+                              return (
+                                <li key={option} className="text-sm text-gray-300 flex items-center">
+                                  <span className="w-2 h-2 bg-gray-400 rounded-full mr-2"></span>
+                                  {serviceOption?.name || option}
                                 </li>
-                              )
-                            ))}
+                              );
+                            })}
                           </ul>
                         </div>
                       )}
@@ -469,7 +516,8 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
                     </div>
                   )}
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
@@ -491,7 +539,7 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
             variant="primary"
             size="md"
             loading={loading}
-            disabled={!serviceName.trim() || tiers.filter(t => t.name.trim()).length === 0}
+            disabled={!serviceName.trim() || service.tiers.filter(t => t.name.trim()).length === 0}
             className="px-6 py-2"
           >
             {loading ? 'Saving...' : 'Save Service'}

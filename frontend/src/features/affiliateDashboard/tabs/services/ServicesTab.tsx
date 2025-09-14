@@ -13,6 +13,9 @@ import { ServiceSelector } from './components/ServiceSelector';
 import { VehicleSelector } from './components/VehicleSelector';
 import { useServicesAPI, useServicesData } from './hooks/useServicesData';
 import type { Service } from './types';
+import { CAR_SERVICE_OPTIONS } from '@/data/affiliate-services/cars/features';
+import { buildTierDisplayStructure, resolveServiceNames, removeServiceFromTierGroup, convertTierToNewFormat, convertTierToOldFormat, type ServiceFeature, type TierFeatureGroup } from './types/ServiceFeature';
+import { FeatureList } from './components/FeatureList';
 
 const ServicesTab: React.FC = () => {
   const [selectedVehicle, setSelectedVehicle] = useState<string>('cars');
@@ -26,6 +29,30 @@ const ServicesTab: React.FC = () => {
   
   // Prevent infinite loops
   const lastFetchRef = useRef<string>('');
+
+  // Handle removing features from tiers
+  const handleRemoveFeature = (serviceId: string, currentTierId: string, groupTierName: string) => {
+    if (currentServiceData) {
+      // Find the tier by ID (currentTierId is like "tier-142")
+      const tierToUpdate = currentServiceData.tiers.find(tier => `tier-${tier.id}` === currentTierId);
+      if (tierToUpdate) {
+        // Convert to new format, remove service, then convert back
+        const newFormatTier = convertTierToNewFormat(tierToUpdate);
+        const updatedNewFormatTiers = removeServiceFromTierGroup([newFormatTier], newFormatTier.id, groupTierName, serviceId);
+        const updatedOldFormatTier = convertTierToOldFormat(updatedNewFormatTiers[0]);
+        
+        // Update the tier in the service data
+        const updatedTiers = currentServiceData.tiers.map(tier => 
+          tier.id === tierToUpdate.id ? updatedOldFormatTier : tier
+        );
+        
+        setCurrentServiceData({
+          ...currentServiceData,
+          tiers: updatedTiers
+        });
+      }
+    }
+  };
 
   // Get affiliate ID from AuthContext or URL params for admin users
   const authContext = useAuth() as AuthContextType | undefined;
@@ -605,19 +632,17 @@ const ServicesTab: React.FC = () => {
                       <div className="text-sm text-gray-400">
                         {tier.duration} minutes
                       </div>
-                      {tier.features.length > 0 && tier.features.some(f => f && f.trim() !== '') && (
+                      {tier.features.length > 0 && (
                         <div className="text-sm text-gray-300">
                           <div className="font-medium mb-2">Features:</div>
-                          <ul className="space-y-1 pl-4">
-                            {tier.features.map((feature, featureIndex) => (
-                              feature && feature.trim() !== '' && (
-                                <li key={featureIndex} className="flex items-start gap-2">
-                                  <span className="text-blue-400 mt-1">•</span>
-                                  <span>{feature}</span>
-                                </li>
-                              )
-                            ))}
-                          </ul>
+                          <FeatureList 
+                            features={resolveServiceNames(buildTierDisplayStructure(tier, currentServiceData?.tiers || [], CAR_SERVICE_OPTIONS), CAR_SERVICE_OPTIONS)}
+                            tierNames={currentServiceData?.tiers?.map(t => t.name) || []}
+                            onRemoveFeature={handleRemoveFeature}
+                            showRemoveButtons={true}
+                            currentTierId={`tier-${tier.id}`}
+                            allTiers={currentServiceData?.tiers || []}
+                          />
                         </div>
                       )}
                       <div className="flex gap-2 mt-3">
@@ -677,7 +702,7 @@ const ServicesTab: React.FC = () => {
 
              {/* Multi-Tier Pricing Modal */}
        <MultiTierPricingModal
-         key={`${isEditingService ? 'edit' : 'create'}-${currentServiceData?.id || 'new'}-${isMultiTierModalOpen ? 'open' : 'closed'}`}
+         key={`${isEditingService ? 'edit' : 'create'}-${currentServiceData?.id || 'new'}`}
          isOpen={isMultiTierModalOpen}
          onClose={() => {
            setIsMultiTierModalOpen(false);
@@ -688,6 +713,8 @@ const ServicesTab: React.FC = () => {
          initialServiceName={isEditingService ? currentServiceData?.name || '' : ''}
          loading={loading || false}
          error={error}
+         vehicleType={selectedVehicle}
+         categoryType={selectedCategory as 'service-packages' | 'addons'}
        />
 
        {/* Delete Service Modal */}

@@ -16,11 +16,19 @@ export interface Service {
   tiers: ServiceTier[];
 }
 
+export interface Subcategory {
+  id: string;
+  name: string;
+  color: string;
+  services: Service[];
+}
+
 export interface Category {
   id: string;
   name: string;
   color: string;
   services: Service[];
+  subcategories?: Subcategory[];
 }
 
 export interface Vehicle {

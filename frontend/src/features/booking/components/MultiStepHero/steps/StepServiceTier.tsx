@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, CheckCircle, ArrowLeft, ArrowRight } from 'l
 
 import { Button } from '@/shared/ui';
 import { StepContainer, StepBottomSection } from '../components';
+import { getServiceDisplayNames } from '../../../utils/serviceNameMapping';
 
 import type { Service, ServiceTier } from '../../../types';
 
@@ -78,12 +79,12 @@ const StepServiceTier: React.FC<StepServiceTierProps> = ({
     
     if (position === 'hidden') return null;
 
-    const baseClasses = "bg-stone-800/80 backdrop-blur-sm rounded-xl p-6 text-center transition-all duration-300 transform cursor-pointer flex-1";
+           const baseClasses = "relative bg-stone-800/80 backdrop-blur-sm rounded-xl p-9 text-center transition-all duration-300 transform cursor-pointer flex-1";
     
     const positionClasses = {
       center: "scale-100 z-10 ring-2 ring-orange-500",
-      left: "scale-90 -translate-x-4 opacity-70",
-      right: "scale-90 translate-x-4 opacity-70"
+      left: "scale-90 -translate-x-2 opacity-70",
+      right: "scale-90 translate-x-2 opacity-70"
     };
     
     let finalClasses = `${baseClasses} ${positionClasses[position as keyof typeof positionClasses]}`;
@@ -106,22 +107,31 @@ const StepServiceTier: React.FC<StepServiceTierProps> = ({
         role="button"
         tabIndex={0}
       >
-        <div className="mb-4">
-          <h3 className="text-2xl font-bold text-white mb-2">{realTier.name}</h3>
-          <p className="text-3xl font-bold text-orange-500">${realTier.price}</p>
-          {realTier.originalPrice && realTier.originalPrice > realTier.price && (
-            <p className="text-lg text-gray-400 line-through">${realTier.originalPrice}</p>
-          )}
-        </div>
+        {/* Popular Badge */}
+        {realTier.popular && (
+          <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-20">
+            <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+              POPULAR
+            </div>
+          </div>
+        )}
+        
+               <div className="mb-6">
+                 <h3 className="text-3xl font-bold text-white mb-3">{realTier.name}</h3>
+                 <p className="text-4xl font-bold text-orange-500">${realTier.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                 {realTier.originalPrice && realTier.originalPrice > realTier.price && (
+                   <p className="text-xl text-gray-400 line-through">${realTier.originalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                 )}
+               </div>
 
-        <div className="mb-4">
-          <p className="text-stone-300 text-sm mb-4">{realTier.description}</p>
+        <div className="mb-6">
+          <p className="text-stone-300 text-base mb-6">{realTier.description}</p>
           
           {realTier.features && realTier.features.length > 0 && (
-            <div className="space-y-2">
-              {realTier.features.map((feature, index) => (
-                <div key={index} className="flex items-center text-sm text-stone-300">
-                  <CheckCircle className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
+            <div className="space-y-3">
+              {getServiceDisplayNames(realTier.features).map((feature, index) => (
+                <div key={index} className="flex items-center text-base text-stone-300">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
                   <span className="truncate">{feature}</span>
                 </div>
               ))}
@@ -136,12 +146,12 @@ const StepServiceTier: React.FC<StepServiceTierProps> = ({
           }}
           variant={isSelected ? "primary" : "secondary"}
           size="lg"
-          className={`w-full text-base ${
+          className={`w-full text-lg py-4 ${
             isSelected 
               ? 'bg-green-600 hover:bg-green-700' 
               : 'bg-orange-500 hover:bg-orange-600'
           }`}
-          leftIcon={isSelected ? <CheckCircle size={16} /> : undefined}
+          leftIcon={isSelected ? <CheckCircle size={20} /> : undefined}
         >
           {isSelected ? 'Selected' : 'Choose'}
         </Button>
@@ -181,9 +191,9 @@ const StepServiceTier: React.FC<StepServiceTierProps> = ({
   return (
     <StepContainer>
       {/* Main Content Area - Green Container */}
-      <div className="flex-1 flex flex-col px-4 py-8 border-2 border-green-500">
+      <div className="flex-1 flex flex-col px-4 py-8">
         {/* Main Content */}
-        <div className="flex-1 flex flex-col justify-center">
+        <div className="flex flex-col justify-center" style={{ height: 'calc(100vh - 200px)' }}>
           {/* Service Tiers */}
           <div className="relative">
             {/* Navigation Arrows */}
@@ -207,9 +217,9 @@ const StepServiceTier: React.FC<StepServiceTierProps> = ({
               </button>
             )}
 
-            {/* Tier Cards */}
-            <div className="flex justify-center items-start py-8">
-              <div className="flex gap-4 w-full max-w-4xl justify-center">
+                   {/* Tier Cards */}
+                   <div className="flex justify-center items-start py-8">
+                     <div className="flex gap-4 w-full max-w-5xl justify-center">
                 {/* Create array with dummy cards at start and end */}
                 {[null, ...service.tiers, null].map((tier, index) => 
                   renderTierCard(service, tier as ServiceTier, index)
@@ -238,24 +248,22 @@ const StepServiceTier: React.FC<StepServiceTierProps> = ({
         </div>
 
         {/* Orange Container - Footer inside Green */}
-        <div className="mt-auto pb-4 border-4 border-orange-500">
-          <StepBottomSection
-            onBackToHome={onBackToHome}
-            onBack={onBack}
-            onNext={() => {
-              console.log('Continue button clicked in StepServiceTier');
-              if (onNext) {
-                onNext();
-              } else {
-                console.log('onNext function is not defined');
-              }
-            }}
-            showBack={true}
-            showNext={true}
-            nextText="Continue"
-            averageRating={averageRating}
-            totalReviews={totalReviews}
-          />
+        <div className="-mt-52 pb-4">
+        <StepBottomSection
+          onBack={onBack}
+          onNext={() => {
+            if (onNext) {
+              onNext();
+            }
+          }}
+          showBack={true}
+          showNext={true}
+          nextText="Continue"
+          averageRating={averageRating}
+          totalReviews={totalReviews}
+          currentStep={2}
+          totalSteps={5}
+        />
         </div>
       </div>
     </StepContainer>

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Header } from '@/features/header';
@@ -28,8 +28,10 @@ const BookingPage: React.FC = () => {
     vehicleModels,
     vehicleYears,
     vehicleColors,
+    vehicleDetails,
     selectVehicle,
     clearVehicleSelection,
+    updateVehicleDetails,
   } = useVehicleData();
 
   const {
@@ -48,6 +50,7 @@ const BookingPage: React.FC = () => {
     goRight,
     selectTier,
     clearTierSelection,
+    initializeTierPositions,
   } = useTierSelection();
 
   const { averageRating, totalReviews } = useReviews();
@@ -56,14 +59,12 @@ const BookingPage: React.FC = () => {
   const [selectedTierForModal, setSelectedTierForModal] = useState<ServiceTier | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Vehicle details state
-  const [vehicleDetails, setVehicleDetails] = useState({
-    make: '',
-    model: '',
-    year: '',
-    color: '',
-    length: '',
-  });
+  // Initialize tier positions based on popular tiers when services are loaded
+  useEffect(() => {
+    if (availableServices.length > 0 && !loadingServices) {
+      initializeTierPositions(availableServices);
+    }
+  }, [availableServices, loadingServices, initializeTierPositions]);
 
   // Remove auto-scroll since we're using a single hero section
 
@@ -71,9 +72,15 @@ const BookingPage: React.FC = () => {
     void navigate('/');
   };
 
-  const handleVehicleDetailsChange = useCallback((details: typeof vehicleDetails) => {
-    setVehicleDetails(details);
-  }, []);
+  const handleVehicleDetailsChange = useCallback((details: {
+    make: string;
+    model: string;
+    year: string;
+    color: string;
+    length: string;
+  }) => {
+    updateVehicleDetails(details);
+  }, [updateVehicleDetails]);
 
   const handleTierSelect = useCallback((serviceId: string, tierIndex: number) => {
     selectTier(serviceId, tierIndex, availableServices, selectService, (serviceId, tierId) => {
@@ -131,6 +138,7 @@ const BookingPage: React.FC = () => {
         vehicleModels={vehicleModels}
         vehicleYears={vehicleYears}
         vehicleColors={vehicleColors}
+        vehicleDetails={vehicleDetails}
         availableServices={availableServices}
         selectedService={selectedService}
         loadingServices={loadingServices}

@@ -44,8 +44,7 @@ export const useTierSelection = () => {
       const isCurrentlySelected = selectedTierForService[serviceId] === tierId;
       
       if (isCurrentlySelected) {
-        // Clear selection if clicking the same tier
-        onServiceChange('');
+        // Clear tier selection but keep service selected (stay in carousel view)
         setSelectedTierForService(prev => {
           const { [serviceId]: removed, ...newState } = prev;
           void removed; // Explicitly mark as intentionally unused
@@ -67,6 +66,30 @@ export const useTierSelection = () => {
     setSelectedTierForService({});
   }, []);
 
+  const initializeTierPositions = useCallback((availableServices: any[]) => {
+    const newPositions: { [serviceId: string]: number } = {};
+    
+    availableServices.forEach(service => {
+      if (service.tiers && service.tiers.length > 0) {
+        // Find the first popular tier
+        const popularTierIndex = service.tiers.findIndex((tier: ServiceTier) => tier.popular === true);
+        
+        if (popularTierIndex !== -1) {
+          // Set the popular tier as the center position
+          newPositions[service.id] = popularTierIndex;
+        } else {
+          // Default to first tier if no popular tier found
+          newPositions[service.id] = 0;
+        }
+      }
+    });
+    
+    setCurrentTierIndex(prev => ({
+      ...prev,
+      ...newPositions
+    }));
+  }, []);
+
   return {
     currentTierIndex,
     selectedTierForService,
@@ -75,5 +98,6 @@ export const useTierSelection = () => {
     goRight,
     selectTier,
     clearTierSelection,
+    initializeTierPositions,
   };
 };

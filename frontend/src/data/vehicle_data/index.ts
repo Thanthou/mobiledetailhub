@@ -7,6 +7,9 @@ import rvData from './RvMakeModel.json';
 // Export individual data sets
 export { boatData, carData, motorcycleData, rvData };
 
+// Export years dropdown utilities
+export { getVehicleYears, getFormattedYears, yearsConfig } from './years-dropdown';
+
 // Export combined data
 export const vehicleData = {
   boat: boatData,

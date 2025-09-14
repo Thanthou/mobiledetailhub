@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useAffiliate } from '@/features/affiliateDashboard/hooks';
 import { useSiteContext } from '@/shared/hooks';
 
-import { getMakesForType, getModelsForMake } from '../../../../data';
+import { getMakesForType, getModelsForMake, getVehicleYears } from '@/data';
 import { vehicles } from '../data/vehicles';
 import type { Service, Vehicle } from '../types';
 
@@ -11,9 +11,16 @@ export const useVehicleData = () => {
   const { isAffiliate } = useSiteContext();
   const { affiliateData, isLoading: affiliateLoading } = useAffiliate();
   
-  const [selectedVehicle, setSelectedVehicle] = useState<string>('');
+  const [selectedVehicle, setSelectedVehicle] = useState<string>('car');
   const [availableVehicles, setAvailableVehicles] = useState<Vehicle[]>([]);
   const [loadingVehicles, setLoadingVehicles] = useState(false);
+  const [vehicleDetails, setVehicleDetails] = useState({
+    make: '',
+    model: '',
+    year: '',
+    color: '',
+    length: '',
+  });
 
   // Get makes and models based on selected vehicle type
   const vehicleTypeForData = ['truck', 'suv'].includes(selectedVehicle || '') ? 'car' : (selectedVehicle || 'car');
@@ -22,7 +29,7 @@ export const useVehicleData = () => {
   vehicleMakes.forEach((make) => {
     vehicleModels[make] = getModelsForMake(vehicleTypeForData, make);
   });
-  const vehicleYears = Array.from({ length: 25 }, (_, i) => (2024 - i).toString());
+  const vehicleYears = getVehicleYears().map(year => year.toString());
   const vehicleColors = ['White', 'Black', 'Silver', 'Gray', 'Red', 'Blue', 'Green', 'Brown', 'Gold', 'Orange', 'Yellow', 'Purple', 'Beige', 'Tan', 'Maroon', 'Navy', 'Forest Green', 'Burgundy', 'Champagne', 'Pearl'];
 
   // Filter vehicles based on affiliate's available services
@@ -79,6 +86,26 @@ export const useVehicleData = () => {
     setSelectedVehicle('');
   }, []);
 
+  const updateVehicleDetails = useCallback((details: {
+    make: string;
+    model: string;
+    year: string;
+    color: string;
+    length: string;
+  }) => {
+    setVehicleDetails(details);
+  }, []);
+
+  const clearVehicleDetails = useCallback(() => {
+    setVehicleDetails({
+      make: '',
+      model: '',
+      year: '',
+      color: '',
+      length: '',
+    });
+  }, []);
+
   return {
     selectedVehicle,
     availableVehicles,
@@ -88,7 +115,10 @@ export const useVehicleData = () => {
     vehicleModels,
     vehicleYears,
     vehicleColors,
+    vehicleDetails,
     selectVehicle,
     clearVehicleSelection,
+    updateVehicleDetails,
+    clearVehicleDetails,
   };
 };

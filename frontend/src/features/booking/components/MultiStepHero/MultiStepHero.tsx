@@ -3,10 +3,13 @@ import React, { useState } from 'react';
 import { HeroBackground } from '@/features/hero';
 import { BOOKING_HERO_CONSTANTS } from '../../constants/hero';
 import { useAffiliate } from '@/features/affiliateDashboard/hooks';
+import { useAddonData } from '../../hooks/useAddonData';
 
 import StepVehicleSelection from './steps/StepVehicleSelection';
 import StepServiceTier from './steps/StepServiceTier';
-import StepQuote from './steps/StepQuote';
+import StepAddons from './steps/StepAddons';
+import BookingSchedule from './steps/BookingSchedule';
+import BookingPayment from './steps/BookingPayment';
 
 import type { Vehicle, Service, ServiceTier } from '../../types';
 
@@ -19,6 +22,13 @@ interface MultiStepHeroProps {
   vehicleModels: { [make: string]: string[] };
   vehicleYears: string[];
   vehicleColors: string[];
+  vehicleDetails: {
+    make: string;
+    model: string;
+    year: string;
+    color: string;
+    length: string;
+  };
   
   // Service data
   availableServices: Service[];
@@ -46,7 +56,7 @@ interface MultiStepHeroProps {
   onBackToHome: () => void;
 }
 
-type Step = 'vehicle-selection' | 'service-tier' | 'quote';
+type Step = 'vehicle-selection' | 'service-tier' | 'addons' | 'schedule' | 'payment';
 
 const MultiStepHero: React.FC<MultiStepHeroProps> = ({
   availableVehicles,
@@ -56,6 +66,7 @@ const MultiStepHero: React.FC<MultiStepHeroProps> = ({
   vehicleModels,
   vehicleYears,
   vehicleColors,
+  vehicleDetails,
   availableServices,
   selectedService,
   loadingServices,
@@ -72,13 +83,15 @@ const MultiStepHero: React.FC<MultiStepHeroProps> = ({
 }) => {
   const { businessSlug } = useAffiliate();
   const [currentStep, setCurrentStep] = useState<Step>('vehicle-selection');
-  const [vehicleDetails, setVehicleDetails] = useState({
-    make: '',
-    model: '',
-    year: '',
-    color: '',
-    length: '',
-  });
+
+  // Addon data
+  const {
+    availableAddons,
+    loadingAddons,
+    selectedTierForAddon,
+    toggleAddon,
+    clearAddonSelection,
+  } = useAddonData(selectedVehicle, selectedService);
 
   // Check if vehicle details are complete
   const isVehicleDetailsComplete = () => {
@@ -124,7 +137,13 @@ const MultiStepHero: React.FC<MultiStepHeroProps> = ({
         }
         break;
       case 'service-tier':
-        setCurrentStep('quote');
+        setCurrentStep('addons');
+        break;
+      case 'addons':
+        setCurrentStep('schedule');
+        break;
+      case 'schedule':
+        setCurrentStep('payment');
         break;
     }
   };
@@ -135,8 +154,14 @@ const MultiStepHero: React.FC<MultiStepHeroProps> = ({
       case 'service-tier':
         setCurrentStep('vehicle-selection');
         break;
-      case 'quote':
+      case 'addons':
         setCurrentStep('service-tier');
+        break;
+      case 'schedule':
+        setCurrentStep('addons');
+        break;
+      case 'payment':
+        setCurrentStep('schedule');
         break;
     }
   };
@@ -154,10 +179,11 @@ const MultiStepHero: React.FC<MultiStepHeroProps> = ({
             vehicleModels={vehicleModels}
             vehicleYears={vehicleYears}
             vehicleColors={vehicleColors}
+            vehicleDetails={vehicleDetails}
             onVehicleSelect={onVehicleSelect}
-            onVehicleDetailsChange={handleVehicleDetailsChange}
+            onVehicleDetailsChange={onVehicleDetailsChange}
             onNext={() => handleStepComplete('vehicle-selection')}
-            onBackToHome={handleBackToHome}
+            onBackToHome={onBackToHome}
             averageRating={averageRating}
             totalReviews={totalReviews}
           />
@@ -182,13 +208,46 @@ const MultiStepHero: React.FC<MultiStepHeroProps> = ({
           />
         );
       
-      case 'quote':
+      case 'addons':
         return (
-          <StepQuote
+          <StepAddons
+            availableAddons={availableAddons}
+            selectedTierForAddon={selectedTierForAddon}
+            onAddonToggle={(addonId, tierId) => toggleAddon(addonId, tierId || addonId)}
+            onTierModalOpen={onTierModalOpen}
+            onNext={() => handleStepComplete('addons')}
             onBack={goToPreviousStep}
             onBackToHome={handleBackToHome}
             averageRating={averageRating}
             totalReviews={totalReviews}
+          />
+        );
+      
+      case 'schedule':
+        return (
+          <BookingSchedule
+            onBack={goToPreviousStep}
+            onBackToHome={handleBackToHome}
+            averageRating={averageRating}
+            totalReviews={totalReviews}
+          />
+        );
+      
+      case 'payment':
+        return (
+          <BookingPayment
+            onBack={goToPreviousStep}
+            onBackToHome={handleBackToHome}
+            averageRating={averageRating}
+            totalReviews={totalReviews}
+            selectedVehicle={selectedVehicle}
+            selectedService={selectedService}
+            selectedTierForService={selectedTierForService}
+            selectedTierForAddon={selectedTierForAddon}
+            availableVehicles={availableVehicles}
+            availableServices={availableServices}
+            availableAddons={availableAddons}
+            vehicleDetails={vehicleDetails}
           />
         );
       

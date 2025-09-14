@@ -20,7 +20,7 @@ const vehicleIcons = {
 };
 
 const StepVehicle: React.FC<StepVehicleProps> = ({ onNext, onPrevious, initialData }) => {
-  const { vehicleTypes, getMakes, getModels } = useVehicleData();
+  const { vehicleTypes, getMakes, getModels, vehicleYears } = useVehicleData();
   const [selectedType, setSelectedType] = useState(initialData?.type || '');
   const [selectedMake, setSelectedMake] = useState(initialData?.make || '');
   const [selectedModel, setSelectedModel] = useState(initialData?.model || '');
@@ -132,14 +132,11 @@ const StepVehicle: React.FC<StepVehicleProps> = ({ onNext, onPrevious, initialDa
             className="w-full p-3 rounded-lg bg-gray-800 border border-gray-600 text-white"
           >
             <option value="">Select Year</option>
-            {Array.from({ length: 30 }, (_, i) => {
-              const year = new Date().getFullYear() - i;
-              return (
-                <option key={year} value={year.toString()}>
-                  {year}
-                </option>
-              );
-            })}
+            {vehicleYears.map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
           </select>
         </div>
       )}

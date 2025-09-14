@@ -12,6 +12,10 @@ interface ServiceTier {
   id: string;
   name: string;
   price: number;
+  duration: number;
+  features: string[];
+  enabled: boolean;
+  popular: boolean;
   description?: string;
 }
 
@@ -78,7 +82,7 @@ export const useServicesAPI = (affiliateId?: string) => {
         throw new Error('Invalid vehicle or category ID');
       }
       
-      const response = await fetch(`/api/services/affiliate/${affiliateId}/vehicle/${vehicleId}/category/${categoryId}`);
+      const response = await fetch(`/api/services/affiliate/${affiliateId}/vehicle/${vehicleId}/category/${dbCategoryId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch services');
       }
@@ -115,7 +119,7 @@ export const useServicesAPI = (affiliateId?: string) => {
       
       const requestBody: Partial<ServiceData> = {
         affiliate_id: parseInt(affiliateId),
-        vehicle_id: vehicleId, // Send the frontend vehicle ID, not the database ID
+        vehicle_id: dbVehicleId, // Send the database vehicle ID
         service_category_id: dbCategoryId,
         base_price_cents: 0, // Default base price, can be updated later
         name: serviceTitle,

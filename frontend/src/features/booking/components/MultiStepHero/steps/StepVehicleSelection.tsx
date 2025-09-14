@@ -14,6 +14,13 @@ interface StepVehicleSelectionProps {
   vehicleModels: { [make: string]: string[] };
   vehicleYears: string[];
   vehicleColors: string[];
+  vehicleDetails: {
+    make: string;
+    model: string;
+    year: string;
+    color: string;
+    length: string;
+  };
   averageRating: number;
   totalReviews: number;
   onVehicleSelect: (vehicleId: string) => void;
@@ -36,6 +43,7 @@ const StepVehicleSelection: React.FC<StepVehicleSelectionProps> = ({
   vehicleModels,
   vehicleYears,
   vehicleColors,
+  vehicleDetails,
   averageRating,
   totalReviews,
   onVehicleSelect,
@@ -43,35 +51,20 @@ const StepVehicleSelection: React.FC<StepVehicleSelectionProps> = ({
   onNext,
   onBackToHome,
 }) => {
-  // Vehicle details state
-  const [vehicleDetails, setVehicleDetails] = useState({
-    make: '',
-    model: '',
-    year: '',
-    color: '',
-    length: '',
-  });
 
   // Check if vehicle details are complete - Always allow continue for testing
   const isVehicleDetailsComplete = () => {
     return true; // Always allow continue button to work
   };
 
-  // Reset vehicle details when vehicle type changes
-  useEffect(() => {
-    setVehicleDetails({
-      make: '',
-      model: '',
-      year: '',
-      color: '',
-      length: '',
-    });
-  }, [selectedVehicle]);
-
-  // Notify parent of changes
-  useEffect(() => {
-    onVehicleDetailsChange(vehicleDetails);
-  }, [vehicleDetails, onVehicleDetailsChange]);
+  // Handle vehicle details changes
+  const handleVehicleDetailsUpdate = (field: string, value: string) => {
+    const updatedDetails = {
+      ...vehicleDetails,
+      [field]: value,
+    };
+    onVehicleDetailsChange(updatedDetails);
+  };
   const handleVehicleClick = (vehicle: Vehicle) => {
     if (selectedVehicle === vehicle.id) {
       onVehicleSelect('');
@@ -88,30 +81,11 @@ const StepVehicleSelection: React.FC<StepVehicleSelectionProps> = ({
   };
 
   return (
-    <StepContainer
-      bottomSection={
-        <StepBottomSection
-          onBackToHome={onBackToHome}
-          onNext={() => {
-            console.log('Continue button clicked in StepVehicleSelection');
-            if (onNext) {
-              onNext();
-            } else {
-              console.log('onNext function is not defined');
-            }
-          }}
-          showNext={true}
-          nextText="Continue"
-          averageRating={averageRating}
-          totalReviews={totalReviews}
-        />
-      }
-    >
-
+    <StepContainer>
       {/* Main Content Area - Green Container */}
-      <div className="flex-1 flex flex-col px-4 py-8 border-2 border-green-500">
+      <div className="flex-1 flex flex-col px-4 py-8">
         {/* Main Content */}
-        <div className="flex-1 flex flex-col justify-center">
+        <div className="flex flex-col justify-center" style={{ height: 'calc(100vh - 200px)' }}>
           {/* Tab-style Vehicle Selection */}
           <div className="mb-6">
             {loading ? (
@@ -171,11 +145,12 @@ const StepVehicleSelection: React.FC<StepVehicleSelectionProps> = ({
                       id="vehicle-make"
                       value={vehicleDetails.make}
                       onChange={(e) => {
-                        setVehicleDetails({
+                        const updatedDetails = {
                           ...vehicleDetails,
                           make: e.target.value,
                           model: '', // Reset model when make changes
-                        });
+                        };
+                        onVehicleDetailsChange(updatedDetails);
                       }}
                       className="w-full px-3 py-2 bg-stone-600 border border-stone-500 rounded-lg text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                     >
@@ -192,10 +167,7 @@ const StepVehicleSelection: React.FC<StepVehicleSelectionProps> = ({
                     <select
                       id="vehicle-model"
                       value={vehicleDetails.model}
-                      onChange={(e) => setVehicleDetails({
-                        ...vehicleDetails,
-                        model: e.target.value,
-                      })}
+                      onChange={(e) => handleVehicleDetailsUpdate('model', e.target.value)}
                       disabled={!vehicleDetails.make}
                       className="w-full px-3 py-2 bg-stone-600 border border-stone-500 rounded-lg text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
@@ -212,10 +184,7 @@ const StepVehicleSelection: React.FC<StepVehicleSelectionProps> = ({
                     <select
                       id="vehicle-year"
                       value={vehicleDetails.year}
-                      onChange={(e) => setVehicleDetails({
-                        ...vehicleDetails,
-                        year: e.target.value,
-                      })}
+                      onChange={(e) => handleVehicleDetailsUpdate('year', e.target.value)}
                       className="w-full px-3 py-2 bg-stone-600 border border-stone-500 rounded-lg text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                     >
                       <option value="">Select Year</option>
@@ -232,10 +201,7 @@ const StepVehicleSelection: React.FC<StepVehicleSelectionProps> = ({
                       <select
                         id="vehicle-length"
                         value={vehicleDetails.length}
-                        onChange={(e) => setVehicleDetails({
-                          ...vehicleDetails,
-                          length: e.target.value,
-                        })}
+                        onChange={(e) => handleVehicleDetailsUpdate('length', e.target.value)}
                         className="w-full px-3 py-2 bg-stone-600 border border-stone-500 rounded-lg text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                       >
                         <option value="">Select Length</option>
@@ -250,10 +216,7 @@ const StepVehicleSelection: React.FC<StepVehicleSelectionProps> = ({
                       <select
                         id="vehicle-color"
                         value={vehicleDetails.color}
-                        onChange={(e) => setVehicleDetails({
-                          ...vehicleDetails,
-                          color: e.target.value,
-                        })}
+                        onChange={(e) => handleVehicleDetailsUpdate('color', e.target.value)}
                         className="w-full px-3 py-2 bg-stone-600 border border-stone-500 rounded-lg text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                       >
                         <option value="">Select Color</option>
@@ -270,22 +233,20 @@ const StepVehicleSelection: React.FC<StepVehicleSelectionProps> = ({
         </div>
 
         {/* Orange Container - Footer inside Green */}
-        <div className="mt-auto pb-4 border-4 border-orange-500">
-          <StepBottomSection
-            onBackToHome={onBackToHome}
-            onNext={() => {
-              console.log('Continue button clicked in StepVehicleSelection');
-              if (onNext) {
-                onNext();
-              } else {
-                console.log('onNext function is not defined');
-              }
-            }}
-            showNext={true}
-            nextText="Continue"
-            averageRating={averageRating}
-            totalReviews={totalReviews}
-          />
+        <div className="-mt-52 pb-4">
+        <StepBottomSection
+          onNext={() => {
+            if (onNext) {
+              onNext();
+            }
+          }}
+          showNext={true}
+          nextText="Continue"
+          averageRating={averageRating}
+          totalReviews={totalReviews}
+          currentStep={1}
+            totalSteps={5}
+        />
         </div>
       </div>
     </StepContainer>

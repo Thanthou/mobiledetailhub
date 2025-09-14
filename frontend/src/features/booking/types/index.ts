@@ -24,6 +24,7 @@ export interface ServiceTier {
   features: string[];
   enabled: boolean;
   popular?: boolean;
+  addonType?: 'wheels' | 'windows' | 'trim';
 }
 
 // Category types

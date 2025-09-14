@@ -16,9 +16,11 @@
         "NSX",
         "RDX",
         "RL",
+        "RLX",
         "RSX",
         "SLX",
         "TL",
+        "TLX",
         "TSX",
         "Vigor",
         "ZDX"
@@ -48,7 +50,9 @@
         "Giulietta",
         "MiTo",
         "Milano",
-        "Spider"
+        "Spider",
+        "Stelvio",
+        "Tonale"
       ]
     },
     {
@@ -66,12 +70,16 @@
       "models": [
         "DB7",
         "DB9",
+        "DB11",
+        "DB12",
         "DBS",
         "Lagonda",
         "Rapide",
         "V12 Vantage",
         "V8 Vantage",
+        "Valhalla",
         "Vanquish",
+        "Vantage",
         "Virage"
       ]
     },
@@ -109,13 +117,17 @@
         "Cabriolet",
         "Coupe",
         "Q3",
+        "Q4 e-tron",
         "Q5",
         "Q7",
+        "Q8 e-tron",
         "Quattro",
         "R8",
+        "RS 3",
         "RS 4",
         "RS 5",
         "RS 6",
+        "RS Q8",
         "RS4 Cabriolet",
         "RS4/RS4 Avant",
         "RS5",
@@ -138,7 +150,8 @@
         "TT Roadster",
         "TTS",
         "V8 Quattro",
-        "allroad"
+        "allroad",
+        "e-tron GT"
       ]
     },
     {
@@ -154,10 +167,13 @@
       "models": [
         "Arnage",
         "Azure",
+        "Bentayga",
         "Brooklands",
         "Continental",
+        "Continental GT",
         "Corniche",
         "Eight",
+        "Flying Spur",
         "Mulsanne",
         "Turbo R"
       ]
@@ -291,7 +307,15 @@
         "Z4 Roadster",
         "Z8",
         "i3",
-        "i8"
+        "i4",
+        "i5",
+        "i7",
+        "i8",
+        "iX",
+        "M2",
+        "M8",
+        "XM",
+        "X7"
       ]
     },
     {
@@ -301,6 +325,8 @@
         "Electra",
         "Enclave",
         "Encore",
+        "Encore GX",
+        "Envista",
         "LaCrosse",
         "Le Sabre",
         "Lucerne",
@@ -333,12 +359,20 @@
         "Escalade",
         "Escalade ESV",
         "Escalade EXT",
+        "Celestiq",
+        "CT4",
+        "CT5",
+        "CT6",
         "Fleetwood",
         "SRX",
         "STS",
         "Seville",
         "XLR",
-        "XTS"
+        "XTS",
+        "XT4",
+        "XT5",
+        "XT6",
+        "Lyriq"
       ]
     },
     {
@@ -351,6 +385,7 @@
         "Aveo5",
         "Beretta",
         "Blazer",
+        "Blazer EV",
         "Camaro",
         "Caprice",
         "Captiva",
@@ -368,6 +403,7 @@
         "El Camino",
         "Epica",
         "Equinox",
+        "Equinox EV",
         "Evanda",
         "Express Van",
         "G Van",
@@ -394,6 +430,7 @@
         "Silverado and other C/K1500",
         "Silverado and other C/K2500",
         "Silverado and other C/K3500",
+        "Silverado EV",
         "Sonic",
         "Spark",
         "Spectrum",
@@ -403,6 +440,7 @@
         "Tahoe",
         "Tracker",
         "TrailBlazer",
+        "Trailblazer",
         "TrailBlazer EXT",
         "Traverse",
         "Trax",
@@ -440,6 +478,7 @@
         "Newport",
         "PT Cruiser",
         "Pacifica",
+        "Pacifica Hybrid",
         "Plymouth",
         "Prowler",
         "Sebring",
@@ -462,6 +501,7 @@
         "C1",
         "C2",
         "C3",
+        "C3 Aircross",
         "C3 Picasso",
         "C4",
         "C4 Aircross",
@@ -470,6 +510,7 @@
         "C4 Grand Picasso",
         "C4 Sedan",
         "C5",
+        "C5 Aircross",
         "C5 Break",
         "C5 Tourer",
         "C6",
@@ -483,7 +524,17 @@
         "Nemo",
         "Saxo",
         "Xantia",
-        "Xsara"
+        "Xsara",
+        "ë-C4"
+      ]
+    },
+    {
+      "brand": "Cupra",
+      "models": [
+        "Born",
+        "Formentor",
+        "Ateca",
+        "Leon"
       ]
     },
     {
@@ -502,7 +553,9 @@
         "Logan MCV",
         "Logan Van",
         "Sandero",
-        "Solenza"
+        "Solenza",
+        "Jogger",
+        "Spring"
       ]
     },
     {
@@ -575,6 +628,7 @@
         "Durango",
         "Dynasty",
         "Grand Caravan",
+        "Hornet",
         "Intrepid",
         "Journey",
         "Lancer",
@@ -605,6 +659,15 @@
         "Stealth",
         "Stratus",
         "Viper"
+      ]
+    },
+    {
+      "brand": "DS Automobiles",
+      "models": [
+        "DS 3",
+        "DS 4",
+        "DS 7",
+        "DS 9"
       ]
     },
     {
@@ -651,7 +714,11 @@
         "F50",
         "FF",
         "Mondial",
-        "Testarossa"
+        "Purosangue",
+        "Roma",
+        "SF90 Stradale",
+        "Testarossa",
+        "296 GTB"
       ]
     },
     {
@@ -661,8 +728,10 @@
         "126",
         "2000 Spider",
         "500",
+        "500e",
         "500L",
         "500X",
+        "500X (US)",
         "850",
         "Barchetta",
         "Bertone X1/9",
@@ -724,6 +793,7 @@
         "B-Max",
         "Bronco",
         "Bronco II",
+        "Bronco Sport",
         "C-MAX",
         "C-Max",
         "Club Wagon",
@@ -747,6 +817,7 @@
         "Explorer",
         "Explorer Sport Trac",
         "F-150",
+        "F-150 Lightning",
         "F-250",
         "F100",
         "F150",
@@ -776,6 +847,7 @@
         "Mondeo",
         "Mondeo Combi",
         "Mustang",
+        "Mustang Mach-E",
         "Orion",
         "Probe",
         "Puma",
@@ -846,7 +918,21 @@
         "Typhoon",
         "Vandura",
         "Yukon",
-        "Yukon XL"
+        "Yukon XL",
+        "HUMMER EV Pickup",
+        "HUMMER EV SUV",
+        "Sierra EV"
+      ]
+    },
+    {
+      "brand": "Genesis",
+      "models": [
+        "G70",
+        "G80",
+        "G90",
+        "GV60",
+        "GV70",
+        "GV80"
       ]
     },
     {
@@ -857,6 +943,7 @@
         "Accord Crosstour",
         "Accord Tourer",
         "CR-V",
+        "CR-V Hybrid",
         "CR-X",
         "CR-Z",
         "CRX",
@@ -880,6 +967,7 @@
         "Passport",
         "Pilot",
         "Prelude",
+        "Prologue",
         "Ridgeline",
         "S2000"
       ]
@@ -938,7 +1026,12 @@
         "i40 CW",
         "ix20",
         "ix35",
-        "ix55"
+        "ix55",
+        "Ioniq 5",
+        "Ioniq 6",
+        "Kona Electric",
+        "Palisade",
+        "Santa Cruz"
       ]
     },
     {
@@ -973,6 +1066,7 @@
         "Q45",
         "QX",
         "QX4",
+        "QX55",
         "QX56"
       ]
     },
@@ -1024,7 +1118,8 @@
         "XK8",
         "XK8 Convertible",
         "XKR",
-        "XKR Convertible"
+        "XKR Convertible",
+        "I-PACE"
       ]
     },
     {
@@ -1036,6 +1131,7 @@
         "Commander",
         "Compass",
         "Grand Cherokee",
+        "Grand Cherokee L",
         "Grand Wagoneer",
         "Liberty",
         "Patriot",
@@ -1043,7 +1139,8 @@
         "Renegade",
         "Scrambler",
         "Wagoneer",
-        "Wrangler"
+        "Wrangler",
+        "Avenger (EU)"
       ]
     },
     {
@@ -1081,7 +1178,12 @@
         "Spectra",
         "Spectra5",
         "Sportage",
-        "Venga"
+        "Venga",
+        "K5",
+        "EV6",
+        "EV9",
+        "Telluride",
+        "Seltos"
       ]
     },
     {
@@ -1093,7 +1195,10 @@
         "Gallardo",
         "Jalpa",
         "LM002",
-        "Murcielago"
+        "Murcielago",
+        "Urus",
+        "Revuelto",
+        "Huracán Tecnica"
       ]
     },
     {
@@ -1108,6 +1213,7 @@
       "models": [
         "109",
         "Defender",
+        "Defender (L663)",
         "Discovery",
         "Discovery Sport",
         "Freelander",
@@ -1116,7 +1222,8 @@
         "LR4",
         "Range Rover",
         "Range Rover Evoque",
-        "Range Rover Sport"
+        "Range Rover Sport",
+        "Range Rover Velar"
       ]
     },
     {
@@ -1139,6 +1246,7 @@
         "GX",
         "GX 460",
         "GX 470",
+        "GX (new gen)",
         "HS 250h",
         "IS",
         "IS 200",
@@ -1170,13 +1278,17 @@
         "RX 450h",
         "SC 300",
         "SC 400",
-        "SC 430"
+        "SC 430",
+        "TX",
+        "RZ",
+        "UX"
       ]
     },
     {
       "brand": "Lincoln",
       "models": [
         "Aviator",
+        "Aviator (current gen)",
         "Blackwood",
         "Continental",
         "LS",
@@ -1191,7 +1303,9 @@
         "Navigator",
         "Navigator L",
         "Town Car",
-        "Zephyr"
+        "Zephyr",
+        "Corsair",
+        "Nautilus"
       ]
     },
     {
@@ -1201,7 +1315,17 @@
         "Elise",
         "Esprit",
         "Evora",
-        "Exige"
+        "Exige",
+        "Emira",
+        "Eletre",
+        "Evija"
+      ]
+    },
+    {
+      "brand": "Lucid",
+      "models": [
+        "Air",
+        "Gravity"
       ]
     },
     {
@@ -1213,7 +1337,10 @@
         "GranSport",
         "GranTurismo",
         "Quattroporte",
-        "Spyder"
+        "Spyder",
+        "Grecale",
+        "MC20",
+        "Levante (US)"
       ]
     },
     {
@@ -1247,6 +1374,10 @@
         "CX-5",
         "CX-7",
         "CX-9",
+        "CX-30",
+        "CX-50",
+        "CX-70",
+        "CX-90",
         "Demio",
         "GLC",
         "MAZDA2",
@@ -1410,6 +1541,7 @@
         "GL450",
         "GL550",
         "GLA",
+        "GLB",
         "GLC",
         "GLE",
         "GLK",
@@ -1474,7 +1606,12 @@
         "Trieda G",
         "Trieda M",
         "Trieda R",
-        "Trieda S"
+        "Trieda S",
+        "EQB",
+        "EQE",
+        "EQE SUV",
+        "EQS",
+        "EQS SUV"
       ]
     },
     {
@@ -1525,7 +1662,9 @@
         "Cooper S Roadster",
         "Countryman",
         "Mini One",
-        "One D"
+        "One D",
+        "Countryman SE ALL4",
+        "Cooper SE (Electric)"
       ]
     },
     {
@@ -1573,7 +1712,8 @@
         "Starion",
         "Tredia",
         "Van",
-        "i"
+        "i",
+        "Eclipse Cross"
       ]
     },
     {
@@ -1641,7 +1781,10 @@
         "Versa",
         "X-Trail",
         "Xterra",
-        "e-NV200"
+        "e-NV200",
+        "Ariya",
+        "Kicks",
+        "Z (RZ34)"
       ]
     },
     {
@@ -1693,7 +1836,10 @@
         "Vectra Caravan",
         "Vivaro",
         "Vivaro Kombi",
-        "Zafira"
+        "Zafira",
+        "Mokka-e",
+        "Corsa-e",
+        "Grandland"
       ]
     },
     {
@@ -1737,7 +1883,12 @@
         "806",
         "807",
         "Bipper",
-        "RCZ"
+        "RCZ",
+        "208",
+        "e-208",
+        "2008",
+        "3008",
+        "5008"
       ]
     },
     {
@@ -1762,6 +1913,15 @@
         "Sundance",
         "Trailduster",
         "Voyager"
+      ]
+    },
+    {
+      "brand": "Polestar",
+      "models": [
+        "Polestar 1",
+        "Polestar 2",
+        "Polestar 3",
+        "Polestar 4"
       ]
     },
     {
@@ -1813,7 +1973,11 @@
         "Cayenne",
         "Cayman",
         "Macan",
-        "Panamera"
+        "Panamera",
+        "Taycan",
+        "718 Cayman",
+        "718 Boxster",
+        "Macan Electric"
       ]
     },
     {
@@ -1862,7 +2026,10 @@
         "Thalia",
         "Twingo",
         "Wind",
-        "Zoé"
+        "Zoé",
+        "Austral",
+        "Arkana",
+        "Megane E-Tech"
       ]
     },
     {
@@ -1876,7 +2043,10 @@
         "Silver Dawn",
         "Silver Seraph",
         "Silver Spirit",
-        "Silver Spur"
+        "Silver Spur",
+        "Cullinan",
+        "Spectre",
+        "Ghost (current)"
       ]
     },
     {
@@ -1891,6 +2061,13 @@
         "416",
         "620",
         "75"
+      ]
+    },
+    {
+      "brand": "Rivian",
+      "models": [
+        "R1T",
+        "R1S"
       ]
     },
     {
@@ -1966,7 +2143,11 @@
         "Leon",
         "Leon ST",
         "Mii",
-        "Toledo"
+        "Toledo",
+        "Ateca",
+        "Arona",
+        "Tarraco",
+        "Leon (Mk4)"
       ]
     },
     {
@@ -2018,7 +2199,10 @@
         "Tribeca B9",
         "XT",
         "XV",
-        "XV Crosstrek"
+        "XV Crosstrek",
+        "Solterra",
+        "Crosstrek (current gen)",
+        "Ascent"
       ]
     },
     {
@@ -2048,14 +2232,20 @@
         "Vitara",
         "Wagon R+",
         "X-90",
-        "XL7"
+        "XL7",
+        "S-Cross",
+        "Vitara (current)"
       ]
     },
     {
       "brand": "Tesla",
       "models": [
         "Model S",
-        "Roadster"
+        "Roadster",
+        "Model 3",
+        "Model X",
+        "Model Y",
+        "Cybertruck"
       ]
     },
     {
@@ -2111,7 +2301,12 @@
         "Venza",
         "Verso",
         "Yaris",
-        "Yaris Verso"
+        "Yaris Verso",
+        "Corolla Cross",
+        "Crown",
+        "bZ4X",
+        "Grand Highlander",
+        "Land Cruiser (250/Prado)"
       ]
     },
     {
@@ -2119,6 +2314,15 @@
       "models": [
         "TR7",
         "TR8"
+      ]
+    },
+    {
+      "brand": "Vauxhall",
+      "models": [
+        "Corsa",
+        "Astra",
+        "Mokka",
+        "Grandland"
       ]
     },
     {
@@ -2185,7 +2389,11 @@
         "Tiguan",
         "Touareg",
         "Touran",
-        "Vanagon"
+        "Vanagon",
+        "ID.4",
+        "ID.7",
+        "Atlas Cross Sport",
+        "Taos"
       ]
     },
     {
@@ -2219,7 +2427,11 @@
         "V90",
         "XC60",
         "XC70",
-        "XC90"
+        "XC90",
+        "EX30",
+        "EX90",
+        "C40 Recharge",
+        "XC40 Recharge"
       ]
     },
     {
@@ -2249,7 +2461,12 @@
         "Roomster",
         "Superb",
         "Superb Combi",
-        "Yeti"
+        "Yeti",
+        "Enyaq",
+        "Kodiaq",
+        "Karoq",
+        "Kamiq",
+        "Scala"
       ]
     }
   ]

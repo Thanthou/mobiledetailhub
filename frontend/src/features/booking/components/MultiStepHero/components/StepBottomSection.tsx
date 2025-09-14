@@ -3,7 +3,6 @@ import { Button } from '@/shared/ui';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 interface StepBottomSectionProps {
-  onBackToHome: () => void;
   onBack?: () => void;
   onNext?: () => void;
   showBack?: boolean;
@@ -11,10 +10,12 @@ interface StepBottomSectionProps {
   nextText?: string;
   averageRating: number;
   totalReviews: number;
+  currentStep?: number;
+  totalSteps?: number;
+  disabled?: boolean;
 }
 
 const StepBottomSection: React.FC<StepBottomSectionProps> = ({
-  onBackToHome,
   onBack,
   onNext,
   showBack = true,
@@ -22,26 +23,50 @@ const StepBottomSection: React.FC<StepBottomSectionProps> = ({
   nextText = 'Continue',
   averageRating,
   totalReviews,
+  currentStep,
+  totalSteps,
+  disabled = false,
 }) => {
   return (
     <>
-      {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
-        <Button
-          onClick={onBackToHome}
-          variant="outline-white"
-          size="lg"
-          className="px-8"
-        >
-          Back to Home
-        </Button>
+      {/* Step Counter */}
+      {currentStep && totalSteps && (
+        <div className="flex justify-center mb-4">
+          <div className="bg-stone-700/50 backdrop-blur-sm rounded-lg px-4 py-2">
+            <div className="flex items-center space-x-4">
+              <span className={`text-sm font-semibold ${currentStep >= 1 ? 'text-orange-500' : 'text-stone-400'}`}>
+                Vehicle
+              </span>
+              <span className="text-stone-500">•</span>
+              <span className={`text-sm font-semibold ${currentStep >= 2 ? 'text-orange-500' : 'text-stone-400'}`}>
+                Service
+              </span>
+              <span className="text-stone-500">•</span>
+              <span className={`text-sm font-semibold ${currentStep >= 3 ? 'text-orange-500' : 'text-stone-400'}`}>
+                Addons
+              </span>
+              <span className="text-stone-500">•</span>
+              <span className={`text-sm font-semibold ${currentStep >= 4 ? 'text-orange-500' : 'text-stone-400'}`}>
+                Schedule
+              </span>
+              <span className="text-stone-500">•</span>
+              <span className={`text-sm font-semibold ${currentStep >= 5 ? 'text-orange-500' : 'text-stone-400'}`}>
+                Payment
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
+
+      {/* Action Buttons */}
+      <div className="flex items-center justify-center gap-4 mb-4">
         {showBack && onBack && (
           <Button
             onClick={onBack}
             variant="outline-white"
             size="lg"
-            className="px-8"
+            className="px-8 min-w-[120px]"
             leftIcon={<ArrowLeft className="h-5 w-5" />}
           >
             Back
@@ -50,11 +75,13 @@ const StepBottomSection: React.FC<StepBottomSectionProps> = ({
 
         {showNext && (
           <Button
-            onClick={onNext || (() => console.log('No onNext function provided'))}
+            onClick={disabled ? undefined : (onNext || (() => {}))}
             variant="primary"
             size="lg"
-            className="px-8"
+            className={`px-8 min-w-[120px] ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+            style={disabled ? { cursor: 'not-allowed' } : {}}
             rightIcon={<ArrowRight className="h-5 w-5" />}
+            disabled={disabled}
           >
             {nextText}
           </Button>

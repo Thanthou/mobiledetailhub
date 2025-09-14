@@ -21,10 +21,8 @@ const StepQuote: React.FC<StepQuoteProps> = ({
     <StepContainer
       bottomSection={
         <StepBottomSection
-          onBackToHome={onBackToHome}
           onBack={onBack}
           onNext={() => {
-            console.log('Get Quote button clicked in StepQuote');
             alert('Opening booking wizard...');
           }}
           showBack={true}

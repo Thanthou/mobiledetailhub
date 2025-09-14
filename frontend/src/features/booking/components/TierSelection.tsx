@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, CheckCircle } from 'lucide-react';
 
 import { Button } from '@/shared/ui';
 import { HERO_CONSTANTS, HeroBackground } from '@/features/hero';
+import { getServiceDisplayNames } from '../utils/serviceNameMapping';
 
 import type { Service, ServiceTier } from '../types';
 
@@ -42,7 +43,7 @@ const TierSelection: React.FC<TierSelectionProps> = ({
     
     if (position === 'hidden') return null;
 
-    const baseClasses = "bg-stone-800 rounded-xl p-12 text-center transition-all duration-300 transform";
+    const baseClasses = "relative bg-stone-800 rounded-xl p-12 text-center transition-all duration-300 transform";
     const positionClasses = {
       center: "scale-100 z-10 ring-2 ring-orange-500",
       left: "scale-90 -translate-x-4 opacity-70",
@@ -65,11 +66,20 @@ const TierSelection: React.FC<TierSelectionProps> = ({
         role="button"
         tabIndex={0}
       >
+        {/* Popular Badge */}
+        {tier.popular && (
+          <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-20">
+            <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+              POPULAR
+            </div>
+          </div>
+        )}
+        
         <div className="mb-8">
           <h3 className="text-3xl font-bold text-white mb-4">{tier.name}</h3>
-          <p className="text-4xl font-bold text-orange-500">${tier.price}</p>
+          <p className="text-4xl font-bold text-orange-500">${tier.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
           {tier.originalPrice && tier.originalPrice > tier.price && (
-            <p className="text-lg text-gray-400 line-through">${tier.originalPrice}</p>
+            <p className="text-lg text-gray-400 line-through">${tier.originalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
           )}
         </div>
 
@@ -78,7 +88,7 @@ const TierSelection: React.FC<TierSelectionProps> = ({
           
           {tier.features && tier.features.length > 0 && (
             <div className="space-y-4">
-              {tier.features.map((feature, index) => (
+              {getServiceDisplayNames(tier.features).map((feature, index) => (
                 <div key={index} className="flex items-center text-lg text-stone-300">
                   <CheckCircle className="h-6 w-6 text-green-500 mr-4 flex-shrink-0" />
                   <span>{feature}</span>
