@@ -8,13 +8,17 @@ interface ScheduleHeaderProps {
   setSelectedDate: (date: string) => void;
   viewMode: 'day' | 'week' | 'month';
   setViewMode: (mode: 'day' | 'week' | 'month') => void;
+  onCreateAppointment: () => void;
+  onGoToToday: () => void;
 }
 
 export const ScheduleHeader: React.FC<ScheduleHeaderProps> = ({
   selectedDate,
   setSelectedDate,
   viewMode,
-  setViewMode
+  setViewMode,
+  onCreateAppointment,
+  onGoToToday
 }) => {
   return (
     <div className="bg-stone-800 rounded-xl border border-stone-700 p-6">
@@ -54,12 +58,23 @@ export const ScheduleHeader: React.FC<ScheduleHeaderProps> = ({
             className="bg-stone-700 border border-stone-600 text-white rounded-lg px-3 py-2 text-sm"
           />
           
+          {/* Today Button */}
+          <Button 
+            variant="secondary"
+            size="sm"
+            className="bg-stone-700 hover:bg-stone-600 text-white px-3 py-2 rounded-lg text-sm"
+            onClick={onGoToToday}
+          >
+            Today
+          </Button>
+          
           {/* Add Appointment Button */}
           <Button 
             variant="primary"
             size="md"
             className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-medium flex items-center"
             leftIcon={<Plus className="h-4 w-4" />}
+            onClick={onCreateAppointment}
           >
             New Appointment
           </Button>

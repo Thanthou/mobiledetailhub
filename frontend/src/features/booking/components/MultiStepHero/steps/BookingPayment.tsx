@@ -184,23 +184,21 @@ const BookingPayment: React.FC<BookingPaymentProps> = ({
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="-mt-52 pb-4">
-          <StepBottomSection
-            onBack={onBack}
-            onNext={() => {
-              // TODO: Implement payment processing logic
-              console.log('Payment processed!');
-            }}
-            showBack={true}
-            showNext={true}
-            nextText="Complete Payment"
-            averageRating={averageRating}
-            totalReviews={totalReviews}
-            currentStep={5}
-            totalSteps={5}
-          />
-        </div>
+        {/* Fixed Footer */}
+        <StepBottomSection
+          onBack={onBack}
+          onNext={() => {
+            // TODO: Implement payment processing logic
+            console.log('Payment processed!');
+          }}
+          showBack={true}
+          showNext={true}
+          nextText="Complete Payment"
+          averageRating={averageRating}
+          totalReviews={totalReviews}
+          currentStep={5}
+          totalSteps={5}
+        />
       </div>
     </StepContainer>
   );

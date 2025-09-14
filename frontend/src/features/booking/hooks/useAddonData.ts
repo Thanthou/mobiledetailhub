@@ -1,11 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
-
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAffiliate } from '@/features/affiliateDashboard/hooks';
 import { useSiteContext } from '@/shared/hooks';
-
 import type { Service } from '../types';
 
-// Helper function to determine addon type from service name
 const getAddonTypeFromServiceName = (serviceName: string): 'wheels' | 'windows' | 'trim' | undefined => {
   const name = serviceName.toLowerCase();
   if (name.includes('wheel')) return 'wheels';
@@ -14,90 +11,109 @@ const getAddonTypeFromServiceName = (serviceName: string): 'wheels' | 'windows' 
   return undefined;
 };
 
+const vehicleMap: Record<string, string> = {
+  car: 'cars',
+  truck: 'trucks',
+  rv: 'rvs',
+  boat: 'boats',
+  motorcycle: 'motorcycles',
+};
+
 export const useAddonData = (selectedVehicle: string, selectedService: string) => {
   const [availableAddons, setAvailableAddons] = useState<Service[]>([]);
   const [loadingAddons, setLoadingAddons] = useState(false);
-  const [selectedTierForAddon, setSelectedTierForAddon] = useState<{ [addonId: string]: string }>({});
+  const [selectedTierForAddon, setSelectedTierForAddon] = useState<Record<string, string>>({});
   const { businessSlug } = useSiteContext();
   const { affiliateData } = useAffiliate();
 
-  const fetchAddons = useCallback(async () => {
-    const affiliateId = affiliateData?.id;
-    
-    // Map frontend vehicle IDs to backend vehicle IDs
-    const vehicleMap: { [key: string]: string } = {
-      'car': 'cars',
-      'truck': 'trucks', 
-      'rv': 'rvs',
-      'boat': 'boats',
-      'motorcycle': 'motorcycles'
-    };
-    
-    const backendVehicleId = vehicleMap[selectedVehicle] || 'cars';
-    
-    if (!selectedVehicle || !selectedService || !affiliateId || !businessSlug) {
+  // Derived + stabilized values
+  const affiliateId = affiliateData?.id;
+  const backendVehicleId = useMemo(
+    () => vehicleMap[selectedVehicle] || 'cars',
+    [selectedVehicle]
+  );
+
+  // Debounce + abort control + race guard
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
+  const requestSeq = useRef(0);
+
+  const canFetch =
+    Boolean(selectedVehicle && selectedService && affiliateId && businessSlug);
+
+  const fetchAddonsOnce = useCallback(async () => {
+    if (!canFetch) {
       setAvailableAddons([]);
       return;
     }
 
+    // Cancel any in-flight request
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    const seq = ++requestSeq.current;
     setLoadingAddons(true);
+
     const url = `/api/services/affiliate/${affiliateId}/vehicle/${backendVehicleId}/category/7`;
-    
+
     try {
       const response = await fetch(url, {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
       });
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch addons: ${response.statusText}`);
-      }
+      if (!response.ok) throw new Error(`Failed to fetch addons: ${response.statusText}`);
 
-      const data = await response.json();
-      
-      // Process the addon data to include addon type information
-      const processedAddons = (data.data || []).map((addon: any) => ({
-        ...addon,
-        tiers: addon.tiers?.map((tier: any) => ({
-          ...tier,
-          addonType: getAddonTypeFromServiceName(addon.name)
-        })) || []
-      }));
-      
-      setAvailableAddons(processedAddons);
-    } catch (error) {
-      console.error('Error fetching addons:', error);
-      setAvailableAddons([]);
+      const json = await response.json();
+      const processed: Service[] =
+        (json.data || []).map((addon: any) => ({
+          ...addon,
+          tiers: addon.tiers?.map((tier: any) => ({
+            ...tier,
+            addonType: getAddonTypeFromServiceName(addon.name),
+          })) ?? [],
+        }));
+
+      // Only apply latest response
+      if (seq === requestSeq.current) {
+        setAvailableAddons(processed);
+      }
+    } catch (err) {
+      if ((err as any)?.name !== 'AbortError') {
+        console.error('Error fetching addons:', err);
+        if (seq === requestSeq.current) setAvailableAddons([]);
+      }
     } finally {
-      setLoadingAddons(false);
+      if (seq === requestSeq.current) setLoadingAddons(false);
     }
-  }, [selectedVehicle, selectedService, affiliateData, businessSlug]);
+  }, [affiliateId, backendVehicleId, businessSlug, selectedService, canFetch]);
+
+  useEffect(() => {
+    // Debounce rapid changes
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      void fetchAddonsOnce();
+    }, 250); // adjust delay to taste
+
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      // Don’t abort here; allow latest fetch to proceed unless inputs change again
+    };
+  }, [fetchAddonsOnce]);
 
   const toggleAddon = useCallback((addonId: string, tierId: string) => {
     setSelectedTierForAddon(prev => {
-      // If this tier is already selected, deselect it
       if (prev[addonId] === tierId) {
-        const newState = { ...prev };
-        delete newState[addonId];
-        return newState;
+        const next = { ...prev };
+        delete next[addonId];
+        return next;
       }
-      // Otherwise, select this tier for this addon
-      return {
-        ...prev,
-        [addonId]: tierId
-      };
+      return { ...prev, [addonId]: tierId };
     });
   }, []);
 
-  const clearAddonSelection = useCallback(() => {
-    setSelectedTierForAddon({});
-  }, []);
-
-  useEffect(() => {
-    fetchAddons();
-  }, [fetchAddons]);
+  const clearAddonSelection = useCallback(() => setSelectedTierForAddon({}), []);
 
   return {
     availableAddons,

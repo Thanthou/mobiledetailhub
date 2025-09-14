@@ -102,6 +102,7 @@ async function initializeDatabase() {
       CREATE SCHEMA affiliates;
       CREATE SCHEMA system;
       CREATE SCHEMA reputation;
+      CREATE SCHEMA customers;
     `);
     schemaClient.release();
     console.log('✅ Schemas created');
@@ -166,7 +167,22 @@ async function initializeDatabase() {
       'Creating review_votes table'
     );
     
-    // 6. Insert seed data
+    // 6. Create customers tables
+    console.log('\n👥 Creating customer tables...');
+    await executeSqlFile(
+      path.join(__dirname, '../schemas/customers/customers.sql'),
+      'Creating customers table'
+    );
+    await executeSqlFile(
+      path.join(__dirname, '../schemas/customers/customer_vehicles.sql'),
+      'Creating customer_vehicles table'
+    );
+    await executeSqlFile(
+      path.join(__dirname, '../schemas/customers/customer_communications.sql'),
+      'Creating customer_communications table'
+    );
+    
+    // 7. Insert seed data
     console.log('\n🌱 Inserting seed data...');
     await executeSqlFile(
       path.join(__dirname, '../seeds/auth_users.sql'),
@@ -185,7 +201,7 @@ async function initializeDatabase() {
       'Inserting sample reviews'
     );
     
-    // 7. Update schema migrations
+    // 8. Update schema migrations
     console.log('\n📝 Updating schema migrations...');
     const migrationClient = await pool.connect();
     await migrationClient.query(`
@@ -203,6 +219,7 @@ async function initializeDatabase() {
     console.log('   • Affiliates Schema: 3 tables (business, services, service_tiers)');
     console.log('   • System Schema: 2 tables (schema_migrations, system_config)');
     console.log('   • Reputation Schema: 3 tables (reviews, review_replies, review_votes)');
+    console.log('   • Customers Schema: 3 tables (customers, customer_vehicles, customer_communications)');
     console.log('   • Seed Data: Initial users and system configuration');
     console.log('\n⚠️  WARNING: All previous data has been removed!');
     

@@ -5,6 +5,7 @@
 
 const logger = require('../utils/logger');
 const { ValidationError } = require('../utils/validators');
+const { errorMonitor } = require('../utils/errorMonitor');
 
 /**
  * Error handler middleware
@@ -20,6 +21,9 @@ const errorHandler = (err, req, res, next) => {
     ip: req.ip || req.connection.remoteAddress,
     userAgent: req.get('User-Agent')
   });
+
+  // Capture error in our monitoring system
+  errorMonitor.captureRequestError(req, res, err);
 
   // Handle validation errors
   if (err instanceof ValidationError) {

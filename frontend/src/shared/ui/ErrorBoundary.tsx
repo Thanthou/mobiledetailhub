@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import { env } from '@/shared/env';
+import { handleReactError } from '@/shared/utils/errorMonitoring';
 
 interface Props {
   children: ReactNode;
@@ -27,6 +28,9 @@ class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
+    
+    // Capture error in our monitoring system
+    handleReactError(error, errorInfo, errorInfo.componentStack);
     
     // Call custom error handler if provided
     if (this.props.onError) {

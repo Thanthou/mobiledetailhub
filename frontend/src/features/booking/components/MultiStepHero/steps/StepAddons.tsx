@@ -185,6 +185,11 @@ const StepAddons: React.FC<StepAddonsProps> = ({
           onClick={(e) => {
             e.stopPropagation();
             toggleAddon(addonId, realTier.id);
+            // Center the selected tier
+            setCurrentTierIndex(prev => ({
+              ...prev,
+              [addonId]: realTierIndex
+            }));
           }}
           variant={isSelected ? "primary" : "secondary"}
           size="lg"
@@ -201,10 +206,25 @@ const StepAddons: React.FC<StepAddonsProps> = ({
     );
   };
 
+  const getAddonOrder = (addonName: string): number => {
+    const order = ['Wheels', 'Windows', 'Trim'];
+    return order.indexOf(addonName);
+  };
+
   const renderAddonTabs = () => {
+    // Sort addons by the specified order: Wheels, Windows, Trim
+    const sortedAddons = [...availableAddons].sort((a, b) => {
+      const orderA = getAddonOrder(a.name);
+      const orderB = getAddonOrder(b.name);
+      // If addon is not in the order list, put it at the end
+      if (orderA === -1) return 1;
+      if (orderB === -1) return -1;
+      return orderA - orderB;
+    });
+
     return (
       <div className="flex justify-center space-x-1 mb-6 overflow-x-auto">
-        {availableAddons.map((addon) => (
+        {sortedAddons.map((addon) => (
           <button
             key={addon.id}
             onClick={() => setActiveAddonTab(addon.id)}
@@ -316,20 +336,18 @@ const StepAddons: React.FC<StepAddonsProps> = ({
           )}
         </div>
 
-        {/* Footer */}
-        <div className="-mt-52 pb-4">
-          <StepBottomSection
-            onBack={onBack}
-            onNext={onNext}
-            showBack={true}
-            showNext={true}
-            nextText="Continue"
-            averageRating={averageRating}
-            totalReviews={totalReviews}
-            currentStep={3}
-            totalSteps={5}
-          />
-        </div>
+        {/* Fixed Footer */}
+        <StepBottomSection
+          onBack={onBack}
+          onNext={onNext}
+          showBack={true}
+          showNext={true}
+          nextText="Continue"
+          averageRating={averageRating}
+          totalReviews={totalReviews}
+          currentStep={3}
+          totalSteps={5}
+        />
       </div>
     </StepContainer>
   );

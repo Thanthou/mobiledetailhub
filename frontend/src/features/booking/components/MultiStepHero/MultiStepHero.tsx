@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 
 import { HeroBackground } from '@/features/hero';
 import { BOOKING_HERO_CONSTANTS } from '../../constants/hero';
@@ -29,18 +29,18 @@ interface MultiStepHeroProps {
     color: string;
     length: string;
   };
-  
+
   // Service data
   availableServices: Service[];
   selectedService: string;
   loadingServices: boolean;
   selectedTierForService: { [serviceId: string]: string };
   currentTierIndex: { [serviceId: string]: number };
-  
+
   // Reviews
   averageRating: number;
   totalReviews: number;
-  
+
   // Handlers
   onVehicleSelect: (vehicleId: string) => void;
   onVehicleDetailsChange: (details: {
@@ -93,33 +93,30 @@ const MultiStepHero: React.FC<MultiStepHeroProps> = ({
     clearAddonSelection,
   } = useAddonData(selectedVehicle, selectedService);
 
-  // Check if vehicle details are complete
-  const isVehicleDetailsComplete = () => {
+  // Decide when vehicle details are "complete"
+  const isVehicleDetailsComplete = useMemo(() => {
     if (!selectedVehicle) return false;
-    
-    const shouldShowVehicleDetails = ['car', 'truck', 'boat', 'rv'].includes(selectedVehicle);
-    if (!shouldShowVehicleDetails) return true; // For non-detailed vehicle types, always complete
-    
-    const hasMake = vehicleDetails.make !== '';
-    const hasModel = vehicleDetails.model !== '';
-    const hasYear = vehicleDetails.year !== '';
-    
-    if (['boat', 'rv'].includes(selectedVehicle)) {
-      const hasLength = vehicleDetails.length !== '';
-      return hasMake && hasModel && hasYear && hasLength;
-    } else {
-      const hasColor = vehicleDetails.color !== '';
-      return hasMake && hasModel && hasYear && hasColor;
-    }
-  };
 
-  // Handle vehicle details change
+    const needsFullDetails = ['car', 'truck', 'boat', 'rv'].includes(selectedVehicle);
+    if (!needsFullDetails) return true;
+
+    const hasMake = !!vehicleDetails.make;
+    const hasModel = !!vehicleDetails.model;
+    const hasYear = !!vehicleDetails.year;
+
+    if (selectedVehicle === 'boat' || selectedVehicle === 'rv') {
+      const hasLength = !!vehicleDetails.length;
+      return hasMake && hasModel && hasYear && hasLength;
+    }
+    const hasColor = !!vehicleDetails.color;
+    return hasMake && hasModel && hasYear && hasColor;
+  }, [selectedVehicle, vehicleDetails]);
+
+  // Forward vehicle detail changes up — no local state here
   const handleVehicleDetailsChange = (details: typeof vehicleDetails) => {
-    setVehicleDetails(details);
     onVehicleDetailsChange(details);
   };
 
-  // Handle back to home navigation
   const handleBackToHome = () => {
     if (businessSlug) {
       window.location.href = `/${businessSlug}`;
@@ -128,16 +125,15 @@ const MultiStepHero: React.FC<MultiStepHeroProps> = ({
     }
   };
 
-  // Step progression logic
   const handleStepComplete = (step: Step) => {
     switch (step) {
       case 'vehicle-selection':
-        if (isVehicleDetailsComplete()) {
-          setCurrentStep('service-tier');
-        }
+        if (isVehicleDetailsComplete) setCurrentStep('service-tier');
         break;
       case 'service-tier':
-        setCurrentStep('addons');
+        if (selectedService && selectedTierForService[selectedService]) {
+          setCurrentStep('addons');
+        }
         break;
       case 'addons':
         setCurrentStep('schedule');
@@ -148,7 +144,6 @@ const MultiStepHero: React.FC<MultiStepHeroProps> = ({
     }
   };
 
-  // Go back to previous step
   const goToPreviousStep = () => {
     switch (currentStep) {
       case 'service-tier':
@@ -166,7 +161,6 @@ const MultiStepHero: React.FC<MultiStepHeroProps> = ({
     }
   };
 
-  // Render current step
   const renderCurrentStep = () => {
     switch (currentStep) {
       case 'vehicle-selection':
@@ -181,14 +175,14 @@ const MultiStepHero: React.FC<MultiStepHeroProps> = ({
             vehicleColors={vehicleColors}
             vehicleDetails={vehicleDetails}
             onVehicleSelect={onVehicleSelect}
-            onVehicleDetailsChange={onVehicleDetailsChange}
+            onVehicleDetailsChange={handleVehicleDetailsChange}
             onNext={() => handleStepComplete('vehicle-selection')}
             onBackToHome={onBackToHome}
             averageRating={averageRating}
             totalReviews={totalReviews}
           />
         );
-      
+
       case 'service-tier':
         return (
           <StepServiceTier
@@ -207,13 +201,15 @@ const MultiStepHero: React.FC<MultiStepHeroProps> = ({
             totalReviews={totalReviews}
           />
         );
-      
+
       case 'addons':
         return (
           <StepAddons
             availableAddons={availableAddons}
             selectedTierForAddon={selectedTierForAddon}
-            onAddonToggle={(addonId, tierId) => toggleAddon(addonId, tierId || addonId)}
+            onAddonToggle={(addonId, tierId) =>
+              toggleAddon(addonId, tierId || addonId)
+            }
             onTierModalOpen={onTierModalOpen}
             onNext={() => handleStepComplete('addons')}
             onBack={goToPreviousStep}
@@ -222,7 +218,7 @@ const MultiStepHero: React.FC<MultiStepHeroProps> = ({
             totalReviews={totalReviews}
           />
         );
-      
+
       case 'schedule':
         return (
           <BookingSchedule
@@ -232,7 +228,7 @@ const MultiStepHero: React.FC<MultiStepHeroProps> = ({
             totalReviews={totalReviews}
           />
         );
-      
+
       case 'payment':
         return (
           <BookingPayment
@@ -250,7 +246,7 @@ const MultiStepHero: React.FC<MultiStepHeroProps> = ({
             vehicleDetails={vehicleDetails}
           />
         );
-      
+
       default:
         return null;
     }
@@ -258,13 +254,8 @@ const MultiStepHero: React.FC<MultiStepHeroProps> = ({
 
   return (
     <section className="relative w-full h-screen bg-stone-900 overflow-hidden">
-      {/* Rotating Background */}
       <HeroBackground images={BOOKING_HERO_CONSTANTS.IMAGES} />
-      
-      {/* Overlay for better text readability */}
       <div className="absolute inset-0 bg-black/40 z-5" />
-      
-      {/* Content */}
       <div className="relative z-10 flex flex-col justify-center h-screen max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {renderCurrentStep()}
       </div>

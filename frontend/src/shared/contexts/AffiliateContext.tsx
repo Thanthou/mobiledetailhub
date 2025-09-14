@@ -1,5 +1,6 @@
-import React, { createContext, type ReactNode, useEffect, useState } from 'react';
+import React, { createContext, type ReactNode, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 
 import { config } from '@/../config/env';
 import { useLocation } from '@/shared/hooks/useLocation';
@@ -74,86 +75,67 @@ interface AffiliateProviderProps {
 export const AffiliateProvider: React.FC<AffiliateProviderProps> = ({ children }) => {
   const { businessSlug } = useParams<{ businessSlug: string }>();
   const { updateLocationWithState, selectedLocation } = useLocation();
-  const [affiliateData, setAffiliateData] = useState<AffiliateData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!businessSlug) {
-      setIsLoading(false);
-      return;
-    }
+  const enabled = !!businessSlug;
 
-    const fetchAffiliateData = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        
-        const response = await fetch(`${config.apiUrl}/api/affiliates/${businessSlug}`);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch affiliate data: ${response.status.toString()}`);
-        }
-        
-        const data = await response.json() as { success: boolean; affiliate?: AffiliateData };
-        
-        if (data.success) {
-          setAffiliateData(data.affiliate);
-        } else {
-          throw new Error('Invalid affiliate data structure');
-        }
-      } catch (err) {
-        console.error('Error fetching affiliate data:', err);
-        setError(err instanceof Error ? err.message : 'Failed to fetch affiliate data');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    void fetchAffiliateData();
-  }, [businessSlug]);
-
-  // Update location when affiliate data loads (only if no valid location is currently selected)
-  useEffect(() => {
-    if (affiliateData?.service_areas) {
-      // Only update location if no valid location is currently selected
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      if (!selectedLocation?.city || !selectedLocation?.state) {
-        // Parse service areas to find the primary location
-        let serviceAreasData = affiliateData.service_areas;
-        if (typeof serviceAreasData === 'string') {
-          try {
-            serviceAreasData = JSON.parse(serviceAreasData) as ServiceArea[];
-          } catch (e) {
-            console.error('Error parsing service_areas JSON:', e);
-            return;
-          }
-        }
-        
-        if (Array.isArray(serviceAreasData)) {
-          // Find the primary service area (only elements with primary: true)
-          const primaryArea = serviceAreasData.find(area => area.primary);
-          
-          if (primaryArea && primaryArea.city && primaryArea.state) {
-            // Update location with affiliate's primary service area
-            if (typeof updateLocationWithState === 'function') {
-              updateLocationWithState(primaryArea.city, primaryArea.state);
-            }
-          }
-        }
-      }
-    }
-  }, [affiliateData, updateLocationWithState, selectedLocation]);
-
-  const value: AffiliateContextType = {
-    affiliateData,
+  const {
+    data,
     isLoading,
+    isFetching,
     error,
-    businessSlug,
-  };
+  } = useQuery({
+    queryKey: ['affiliate', businessSlug],
+    enabled,
+    keepPreviousData: true,
+    staleTime: 5 * 60_000, // 5 minutes
+    queryFn: async ({ signal }) => {
+      const res = await fetch(`${config.apiUrl}/api/affiliates/${businessSlug}`, { signal });
+      if (!res.ok) throw new Error(`Failed to fetch affiliate data: ${res.status}`);
+      const json = (await res.json()) as { success: boolean; affiliate?: AffiliateData };
+      if (!json.success || !json.affiliate) throw new Error('Invalid affiliate data structure');
+      return json.affiliate;
+    },
+  });
 
-  return (
-    <AffiliateContext.Provider value={value}>
-      {children}
-    </AffiliateContext.Provider>
+  const affiliateData = data ?? null;
+  const ctxError = error ? (error as Error).message : null;
+
+  // Update location when affiliate data loads (only if no valid location is selected)
+  useEffect(() => {
+    if (!affiliateData?.service_areas) return;
+
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    const hasLocation = Boolean(selectedLocation?.city && selectedLocation?.state);
+    if (hasLocation) return;
+
+    let areas: ServiceArea[] | null = null;
+    if (Array.isArray(affiliateData.service_areas)) {
+      areas = affiliateData.service_areas as ServiceArea[];
+    } else if (typeof affiliateData.service_areas === 'string') {
+      try {
+        areas = JSON.parse(affiliateData.service_areas) as ServiceArea[];
+      } catch {
+        areas = null;
+      }
+    }
+
+    if (areas && areas.length) {
+      const primary = areas.find(a => a.primary);
+      if (primary?.city && primary?.state && typeof updateLocationWithState === 'function') {
+        updateLocationWithState(primary.city, primary.state);
+      }
+    }
+  }, [affiliateData, selectedLocation, updateLocationWithState]);
+
+  const value: AffiliateContextType = useMemo(
+    () => ({
+      affiliateData,
+      isLoading: isLoading && !data, // initial load true only when no data yet
+      error: ctxError,
+      businessSlug: businessSlug ?? null,
+    }),
+    [affiliateData, isLoading, data, ctxError, businessSlug]
   );
+
+  return <AffiliateContext.Provider value={value}>{children}</AffiliateContext.Provider>;
 };

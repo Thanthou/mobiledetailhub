@@ -7,7 +7,10 @@
     "build": "cd frontend && npm run build",
     "dev": "concurrently \"npm run dev --workspace=frontend\" \"npm run dev --workspace=backend\"",
     "install:all": "npm install && npm install --workspace=frontend && npm install --workspace=backend",
-    "overview": "node scripts/generate-codebase-overview.js"
+    "overview": "node scripts/generate-codebase-overview.js",
+    "error-monitor": "node scripts/unified-error-monitor.js",
+    "error-monitor:backend": "node backend/scripts/error-monitor.js",
+    "error-monitor:frontend": "echo 'Frontend error monitoring is automatic when the app is running. Open browser console to see errors.'"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

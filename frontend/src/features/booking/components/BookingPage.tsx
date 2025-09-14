@@ -37,10 +37,10 @@ const BookingPage: React.FC = () => {
   const {
     selectedService,
     availableServices,
-    loadingServices,
+    isInitialLoading: loadingServices,
     selectService,
     clearServiceSelection,
-  } = useServiceData(selectedVehicle);
+  } = useServiceData(selectedVehicle, { autoSelectFirst: true });
 
   const {
     currentTierIndex,

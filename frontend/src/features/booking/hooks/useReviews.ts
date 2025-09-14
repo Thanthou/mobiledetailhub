@@ -1,48 +1,80 @@
-import { useCallback, useEffect, useState } from 'react';
-
+import { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useAffiliate } from '@/features/affiliateDashboard/hooks';
 import { useSiteContext } from '@/shared/hooks';
 
-export const useReviews = () => {
+type Review = { 
+  rating: number;
+  id?: string;
+  comment?: string;
+  author?: string;
+  created_at?: string;
+};
+
+type ReviewsData = {
+  averageRating: number;
+  totalReviews: number;
+};
+
+export function useReviews() {
   const { isAffiliate } = useSiteContext();
   const { affiliateData } = useAffiliate();
-  
-  const [averageRating, setAverageRating] = useState<number>(4.9);
-  const [totalReviews, setTotalReviews] = useState<number>(0);
+  const affiliateId = affiliateData?.id ? String(affiliateData.id) : '';
 
-  // Fetch reviews and calculate average rating
-  useEffect(() => {
-    const fetchReviews = async () => {
-      try {
-        let url = '/api/reviews?type=mdh&status=approved&limit=100';
-        
-        // If we're on an affiliate page, fetch affiliate reviews
-        if (isAffiliate && affiliateData?.id) {
-          url = `/api/reviews?type=affiliate&affiliate_id=${String(affiliateData.id)}&status=approved&limit=100`;
-        }
-        
-        const response = await fetch(url);
-        if (response.ok) {
-          const data = await response.json() as { success: boolean; data: { rating: number }[] };
-          if (data.success && data.data.length > 0) {
-            const reviews = data.data;
-            const totalRating = reviews.reduce((sum: number, review) => sum + review.rating, 0);
-            const average = totalRating / reviews.length;
-            setAverageRating(Math.round(average * 10) / 10); // Round to 1 decimal place
-            setTotalReviews(reviews.length);
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching reviews:', error);
-        // Keep default values if fetch fails
+  const { url, key } = useMemo(() => {
+    if (isAffiliate && affiliateId) {
+      return {
+        url: `/api/reviews?type=affiliate&affiliate_id=${affiliateId}&status=approved&limit=100`,
+        key: ['reviews', 'affiliate', affiliateId] as const,
+      };
+    }
+    return { url: '/api/reviews?type=mdh&status=approved&limit=100', key: ['reviews', 'mdh'] as const };
+  }, [isAffiliate, affiliateId]);
+
+  const q = useQuery<Review[], Error, ReviewsData>({
+    queryKey: key,
+    queryFn: async ({ signal }) => {
+      const res = await fetch(url, { signal });
+      if (!res.ok) {
+        throw new Error(`Reviews API error: ${res.status} ${res.statusText}`);
       }
-    };
-    
-    void fetchReviews();
-  }, [isAffiliate, affiliateData]);
+      const json = await res.json() as { success: boolean; data: Review[] };
+      if (!json.success) {
+        throw new Error('Invalid response format from reviews API');
+      }
+      return json.data || [];
+    },
+    select: (list: Review[]): ReviewsData => {
+      if (!list || list.length === 0) {
+        return { averageRating: 4.9, totalReviews: 0 };
+      }
+      
+      const sum = list.reduce((acc, review) => acc + review.rating, 0);
+      const total = list.length;
+      const average = Math.round((sum / total) * 10) / 10; // Round to 1 decimal place
+      
+      return { averageRating: average, totalReviews: total };
+    },
+    staleTime: 30 * 60_000, // 30 minutes
+    gcTime: 60 * 60_000, // 1 hour
+    retry: 1,
+    refetchOnWindowFocus: false,
+    placeholderData: (previousData) => previousData, // Keep previous data while refetching
+  });
 
   return {
-    averageRating,
-    totalReviews,
+    averageRating: q.data?.averageRating ?? 4.9,
+    totalReviews: q.data?.totalReviews ?? 0,
+    isInitialLoading: q.isLoading,
+    isRefreshing: q.isFetching && !q.isLoading,
+    error: q.error ? { 
+      message: q.error.message, 
+      status: (q.error as any)?.status 
+    } : null,
+    refetch: q.refetch,
+    isStale: q.isStale,
   };
-};
+}
+
+// Export as alias for backward compatibility
+export const useReviewsRQ = useReviews;

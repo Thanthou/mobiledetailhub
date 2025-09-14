@@ -247,8 +247,7 @@ const StepServiceTier: React.FC<StepServiceTierProps> = ({
           </div>
         </div>
 
-        {/* Orange Container - Footer inside Green */}
-        <div className="-mt-52 pb-4">
+        {/* Fixed Footer */}
         <StepBottomSection
           onBack={onBack}
           onNext={() => {
@@ -263,8 +262,8 @@ const StepServiceTier: React.FC<StepServiceTierProps> = ({
           totalReviews={totalReviews}
           currentStep={2}
           totalSteps={5}
+          disabled={!selectedService || !selectedTierForService[selectedService]}
         />
-        </div>
       </div>
     </StepContainer>
   );

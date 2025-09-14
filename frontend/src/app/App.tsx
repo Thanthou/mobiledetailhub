@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 
 import { preloadCriticalModals } from '@/shared/utils/modalCodeSplitting';
 import { scrollRestoration } from '@/shared/utils/scrollRestoration';
+import { errorMonitor } from '@/shared/utils/errorMonitoring';
 
 import { Providers } from './providers';
 import { AppRoutes } from './routes';
@@ -31,6 +32,31 @@ function App() {
     }, 1000);
 
     return () => { clearTimeout(timer); };
+  }, []);
+
+  // Initialize error monitoring
+  useEffect(() => {
+    // Set up error monitoring
+    errorMonitor.enable();
+    
+    // Add error listener for real-time debugging
+    const unsubscribe = errorMonitor.addListener((error) => {
+      // In development, show a more detailed error notification
+      if (process.env.NODE_ENV === 'development') {
+        console.group(`🚨 New Error Captured`);
+        console.error('Type:', error.type);
+        console.error('Message:', error.message);
+        console.error('Time:', error.timestamp.toISOString());
+        console.error('URL:', error.url);
+        if (error.stack) console.error('Stack:', error.stack);
+        console.groupEnd();
+      }
+    });
+
+    // Cleanup
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   return (

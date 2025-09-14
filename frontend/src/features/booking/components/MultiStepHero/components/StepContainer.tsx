@@ -8,7 +8,7 @@ interface StepContainerProps {
 
 const StepContainer: React.FC<StepContainerProps> = ({ children, bottomSection, className = '' }) => {
   return (
-    <div className={`flex flex-col h-screen overflow-hidden ${className}`}>
+    <div className={`flex flex-col h-screen ${className}`}>
       {children}
     </div>
   );

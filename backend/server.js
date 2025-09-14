@@ -23,6 +23,7 @@ const uploadRoutes = require('./routes/upload');
 const servicesRoutes = require('./routes/services');
 const reviewsRoutes = require('./routes/reviews');
 const avatarRoutes = require('./routes/avatar');
+const scheduleRoutes = require('./routes/schedule');
 
 // Get the update function from health routes
 const { updateShutdownStatus } = healthRoutes;
@@ -345,6 +346,7 @@ app.use('/api/services', servicesRoutes); // Mixed read/write - temporarily remo
 app.use('/api/reviews', apiLimiter, reviewsRoutes); // Mixed read/write
 app.use('/api/upload', apiLimiter, uploadRoutes); // Upload routes
 app.use('/api/avatar', apiLimiter, avatarRoutes); // Avatar routes
+app.use('/api/schedule', apiLimiter, scheduleRoutes); // Schedule routes
 
 // Read-only endpoints (no rate limiting to prevent slow header/footer performance)
 app.use('/api/health', healthRoutes); // Health checks
