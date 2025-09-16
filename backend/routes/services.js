@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { pool } = require('../database/pool');
+const { getDatabaseId } = require('../utils/vehicleMapping');
 
 
 // POST /api/services - Create a new service
@@ -48,19 +49,8 @@ router.post('/', async (req, res) => {
       RETURNING *
     `;
     
-    // Map frontend vehicle IDs to database vehicle IDs
-    const vehicleMap = {
-      'cars': 1,
-      'trucks': 2,
-      'rvs': 3,
-      'boats': 4,
-      'motorcycles': 5,
-      'offroad': 6,
-      'other': 7
-    };
-    
     // Handle both string vehicle IDs (from old frontend) and numeric vehicle IDs (from new frontend)
-    const dbVehicleId = typeof vehicle_id === 'string' ? vehicleMap[vehicle_id] || 1 : vehicle_id;
+    const dbVehicleId = typeof vehicle_id === 'string' ? getDatabaseId(vehicle_id) : vehicle_id;
     const vehicleTypes = JSON.stringify([dbVehicleId]);
     const metadata = JSON.stringify({
       base_price_cents: base_price_cents || 0,
@@ -196,18 +186,7 @@ router.put('/:serviceId', async (req, res) => {
       originalCategory = mapping.original;
     }
     
-    // Map frontend vehicle IDs to database vehicle IDs
-    const vehicleMap = {
-      'cars': 1,
-      'trucks': 2,
-      'rvs': 3,
-      'boats': 4,
-      'motorcycles': 5,
-      'offroad': 6,
-      'other': 7
-    };
-    
-    const dbVehicleId = vehicleMap[vehicle_id] || 1;
+    const dbVehicleId = getDatabaseId(vehicle_id);
     const vehicleTypes = JSON.stringify([dbVehicleId]);
     const metadata = JSON.stringify({
       base_price_cents: base_price_cents || 0,
@@ -411,26 +390,12 @@ router.get('/affiliate/:affiliateId/vehicle/:vehicleId/category/:categoryId', as
     
     const dbCategory = categoryMap[parseInt(categoryId)] || 'service-packages';
     
-    // Map frontend vehicle IDs to database vehicle IDs
-    const vehicleMap = {
-      'cars': 1,
-      'trucks': 2,
-      'rvs': 3,
-      'boats': 4,
-      'motorcycles': 5,
-      'offroad': 6,
-      'other': 7
-    };
+    // Get database ID for the vehicle type
+    const dbVehicleType = getDatabaseId(vehicleId);
     
-    const dbVehicleId = vehicleMap[vehicleId] || 1;
-    
-    // For cars, check both vehicle_types [1] and [2] due to database inconsistency
-    let vehicleTypesFilter;
-    if (vehicleId === 'cars') {
-      vehicleTypesFilter = '(s.vehicle_types @> $3::jsonb OR s.vehicle_types @> $4::jsonb)';
-    } else {
-      vehicleTypesFilter = 's.vehicle_types @> $3::jsonb';
-    }
+    // Check for the specific vehicle type requested
+    // Only return services that specifically support this vehicle type
+    const vehicleTypesFilter = 's.vehicle_types @> $3::jsonb';
     
     // Clean query using the correct table structure with proper category filtering
     const query = `
@@ -450,9 +415,7 @@ router.get('/affiliate/:affiliateId/vehicle/:vehicleId/category/:categoryId', as
       ORDER BY s.created_at DESC, s.service_name ASC
     `;
     
-    const queryParams = vehicleId === 'cars' 
-      ? [affiliateId, dbCategory, JSON.stringify([1]), JSON.stringify([2])]
-      : [affiliateId, dbCategory, JSON.stringify([dbVehicleId])];
+    const queryParams = [affiliateId, dbCategory, JSON.stringify([dbVehicleType])];
     
     const result = await pool.query(query, queryParams);
     

@@ -1,6 +1,6 @@
 # Mobile Detail Hub - Development Context
 
-Generated: 2025-09-12T13:51:10.909Z
+Generated: 2025-09-15T20:31:42.562Z
 
 ## Project Overview
 
@@ -10,11 +10,11 @@ Generated: 2025-09-12T13:51:10.909Z
 
 ## File Structure Summary
 
-- **Total Files**: 695
-- **Frontend Files**: 203
-- **Backend Files**: 138
-- **Root Files**: 354
-- **Total Directories**: 658
+- **Total Files**: 758
+- **Frontend Files**: 215
+- **Backend Files**: 156
+- **Root Files**: 387
+- **Total Directories**: 712
 
 ## Frontend Structure
 
@@ -69,17 +69,12 @@ Generated: 2025-09-12T13:51:10.909Z
 - **test**: `echo "Error: no test specified" && exit 1`
 
 ## TODO Items
-- **frontend/src/features/affiliateDashboard/tabs/locations/LocationsTab.tsx**: Implement updatePrimaryServiceArea function
-- **frontend/src/features/affiliateDashboard/tabs/locations/LocationsTab.tsx**: Implement updatePrimaryServiceArea function
-- **frontend/src/features/affiliateDashboard/tabs/locations/LocationsTab.tsx**: Implement updateLocation function
-- **frontend/src/features/affiliateDashboard/tabs/locations/LocationsTab.tsx**: Implement updateLocation function
-- **frontend/src/features/affiliateDashboard/tabs/locations/LocationsTab.tsx**: Implement API call to updatePrimaryServiceAreaMinimum
-- **frontend/src/features/affiliateDashboard/tabs/locations/LocationsTab.tsx**: Implement API call to updatePrimaryServiceAreaMultiplier
+- **frontend/src/features/affiliateDashboard/tabs/services/components/FeatureDropdown.tsx**: Add other vehicle types as they are implemented
 - **frontend/src/features/affiliateDashboard/tabs/services/ServicesTab.tsx**: After creating the service, we need to create the tiers
-- **frontend/src/features/booking/api/booking.api.ts**: Implement actual API call
-- **frontend/src/features/booking/api/booking.api.ts**: Implement actual API call
-- **frontend/src/features/booking/api/booking.api.ts**: Implement actual API call
-- **frontend/src/features/booking/api/booking.api.ts**: Implement actual API call
+- **frontend/src/features/booking/components/steps/StepAddons/StepAddons.tsx**: Replace with actual addon data from API/config
+- **frontend/src/features/booking/components/steps/StepPayment/StepPayment.tsx**: Replace with actual payment methods from API/config
+- **frontend/src/features/booking/components/steps/StepSchedule/StepSchedule.tsx**: Replace with actual schedule data from API/config
+- **frontend/src/features/booking/components/steps/StepService/StepService.tsx**: Replace with actual service data from API/config
 - **frontend/src/features/faq/api/faq.api.ts**: Implement actual API call
 - **frontend/src/features/faq/api/faq.api.ts**: Implement actual API call
 - **frontend/src/features/footer/api/footer.api.ts**: Implement actual API call
@@ -113,14 +108,14 @@ Generated: 2025-09-12T13:51:10.909Z
 - **frontend/src/features/services/data/services/ppf-installation.ts**: [video]: 30–60s explainer (voiceover optional): "What PPF Is & Why It's Worth It"
 
 ## Recent Changes
+- 07b7bb6 Improved Booking
+- a191b4e Booking: 5 Step Wizard
+- 38dc9a6 Booking, Cards, Pricing, Layout
+- 85afd2a FAQ touchups
 - aa5eb43 Refactored to feature based file structure
 - 6b9bfcf Added: Booking Page
 - ca13422 Footer Service Areas clickable
 - 6f93edf ENLint, all errors resolved
 - 19361c6 Affiliate Services Add/Delete
 - 1b5aca9 Reviews Section with Database. Most things done and correct
-- a00758a Review Section & Database Added
-- f416ffb Services Section Content, Images, Video
-- 7ef4bf5 Major overhaul
-- a53302f New Database Schemas
 

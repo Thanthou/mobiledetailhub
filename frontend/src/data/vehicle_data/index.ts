@@ -40,6 +40,10 @@ export const getMakesForType = (vehicleType: string) => {
       break;
     }
     case 'truck':
+    case 'suv': {
+      makes = carData.map(item => item.brand);
+      break;
+    }
     case 'off-road':
     case 'other': {
       makes = []; // No predefined makes for these types
@@ -81,6 +85,11 @@ export const getModelsForMake = (vehicleType: string, make: string) => {
       break;
     }
     case 'truck':
+    case 'suv': {
+      const carItem = carData.find(item => item.brand === make);
+      models = carItem ? carItem.models : [];
+      break;
+    }
     case 'off-road':
     case 'other': {
       models = []; // No predefined models for these types

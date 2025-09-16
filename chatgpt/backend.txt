@@ -13,8 +13,8 @@ Database: 0 files
 Docs: 0 files
 Tests: 7 files
 Scripts: 0 files
-Config: 11 files
-Other: 120 files
+Config: 12 files
+Other: 137 files
 
 TESTS (7 files)
 ============================================================
@@ -400,7 +400,7 @@ testAffiliateSecurity();
 
 ==================================================
 
-CONFIG (11 files)
+CONFIG (12 files)
 ============================================================
 
 FILE: backend/package.json
@@ -1115,6 +1115,13 @@ router.post('/invalidate-cache', asyncHandler(async (req, res) => {
 }));
 
 module.exports = router;
+
+
+==================================================
+
+FILE: backend/errors.json
+------------------------------
+{"id":"error_1757867296433_qkbtnp2pk","timestamp":"2025-09-14T16:28:16.433Z","sessionId":"backend_1757867250882_unqy0u03h","type":"request","message":"Cannot use a pool after calling end on the pool","stack":"Error: Cannot use a pool after calling end on the pool\n    at C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\backend\\node_modules\\pg-pool\\index.js:45:11\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async storeRefreshToken (C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\backend\\services\\refreshTokenService.js:58:22)\n    at async C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\backend\\routes\\auth.js:179:5","url":"/api/auth/login","method":"POST","statusCode":500,"ip":"::1","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36","requestBody":{"email":"admin@mobiledetailhub.com","password":"B95c1143!"},"query":{},"params":{}}
 
 
 ==================================================
@@ -1844,7 +1851,7 @@ ON CONFLICT (config_key) DO NOTHING;
 
 ==================================================
 
-OTHER (120 files)
+OTHER (137 files)
 ============================================================
 
 FILE: backend/check-db.js
@@ -2322,6 +2329,7 @@ const uploadRoutes = require('./routes/upload');
 const servicesRoutes = require('./routes/services');
 const reviewsRoutes = require('./routes/reviews');
 const avatarRoutes = require('./routes/avatar');
+const scheduleRoutes = require('./routes/schedule');
 
 // Get the update function from health routes
 const { updateShutdownStatus } = healthRoutes;
@@ -2644,6 +2652,7 @@ app.use('/api/services', servicesRoutes); // Mixed read/write - temporarily remo
 app.use('/api/reviews', apiLimiter, reviewsRoutes); // Mixed read/write
 app.use('/api/upload', apiLimiter, uploadRoutes); // Upload routes
 app.use('/api/avatar', apiLimiter, avatarRoutes); // Avatar routes
+app.use('/api/schedule', apiLimiter, scheduleRoutes); // Schedule routes
 
 // Read-only endpoints (no rate limiting to prevent slow header/footer performance)
 app.use('/api/health', healthRoutes); // Health checks
@@ -3942,6 +3951,319 @@ module.exports = {
   getConnectionStatus,
   closeConnections,
   getPool // Re-export for convenience
+};
+
+
+==================================================
+
+FILE: backend/errorMonitor.js
+------------------------------
+/**
+ * Enhanced Backend Error Monitoring System
+ * Provides comprehensive error tracking, logging, and terminal output
+ */
+
+const fs = require('fs').promises;
+const path = require('path');
+
+class BackendErrorMonitor {
+  constructor() {
+    this.errors = [];
+    this.maxErrors = 1000;
+    this.sessionId = this.generateSessionId();
+    this.isEnabled = true;
+    this.listeners = [];
+    this.errorLogFile = path.join(__dirname, '../logs/errors.json');
+    this.setupErrorLogging();
+  }
+
+  generateSessionId() {
+    return `backend_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  async setupErrorLogging() {
+    // Ensure logs directory exists
+    const logsDir = path.dirname(this.errorLogFile);
+    try {
+      await fs.mkdir(logsDir, { recursive: true });
+    } catch (error) {
+      console.warn('Could not create logs directory:', error.message);
+    }
+  }
+
+  captureError(errorData) {
+    if (!this.isEnabled) return;
+
+    const error = {
+      id: `error_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      timestamp: new Date(),
+      sessionId: this.sessionId,
+      type: 'backend',
+      ...errorData,
+    };
+
+    this.errors.push(error);
+
+    // Keep only the last maxErrors
+    if (this.errors.length > this.maxErrors) {
+      this.errors = this.errors.slice(-this.maxErrors);
+    }
+
+    // Notify listeners
+    this.listeners.forEach(listener => listener(error));
+
+    // Log to console with enhanced formatting
+    this.logErrorToConsole(error);
+
+    // Log to file
+    this.logErrorToFile(error);
+  }
+
+  logErrorToConsole(error) {
+    const timestamp = error.timestamp.toISOString();
+    const type = error.type || 'ERROR';
+    const message = error.message || 'Unknown error';
+    const stack = error.stack || '';
+    const url = error.url || 'N/A';
+    const method = error.method || 'N/A';
+    const statusCode = error.statusCode || 'N/A';
+    const userId = error.userId || 'N/A';
+    const ip = error.ip || 'N/A';
+
+    console.log('\n' + '='.repeat(80));
+    console.log(`🚨 BACKEND ERROR CAPTURED - ${timestamp}`);
+    console.log('='.repeat(80));
+    console.log(`Type: ${type}`);
+    console.log(`Message: ${message}`);
+    console.log(`URL: ${method} ${url}`);
+    console.log(`Status Code: ${statusCode}`);
+    console.log(`User ID: ${userId}`);
+    console.log(`IP: ${ip}`);
+    console.log(`Session ID: ${error.sessionId}`);
+    
+    if (stack) {
+      console.log('\nStack Trace:');
+      console.log(stack);
+    }
+
+    if (error.details) {
+      console.log('\nAdditional Details:');
+      console.log(JSON.stringify(error.details, null, 2));
+    }
+
+    if (error.requestBody) {
+      console.log('\nRequest Body:');
+      console.log(JSON.stringify(error.requestBody, null, 2));
+    }
+
+    if (error.query) {
+      console.log('\nQuery:');
+      console.log(JSON.stringify(error.query, null, 2));
+    }
+
+    console.log('='.repeat(80) + '\n');
+  }
+
+  async logErrorToFile(error) {
+    try {
+      const logEntry = {
+        ...error,
+        timestamp: error.timestamp.toISOString(),
+      };
+
+      // Append to error log file
+      await fs.appendFile(
+        this.errorLogFile,
+        JSON.stringify(logEntry) + '\n'
+      );
+    } catch (fileError) {
+      console.warn('Failed to write error to log file:', fileError.message);
+    }
+  }
+
+  // Enhanced error capture methods
+  captureRequestError(req, res, error, additionalData = {}) {
+    this.captureError({
+      type: 'request',
+      message: error.message,
+      stack: error.stack,
+      url: req.url,
+      method: req.method,
+      statusCode: error.statusCode || 500,
+      userId: req.user?.id,
+      ip: req.ip || req.connection.remoteAddress,
+      userAgent: req.get('User-Agent'),
+      requestBody: req.body,
+      query: req.query,
+      params: req.params,
+      ...additionalData,
+    });
+  }
+
+  captureDatabaseError(error, query, params = []) {
+    this.captureError({
+      type: 'database',
+      message: error.message,
+      stack: error.stack,
+      query: query,
+      params: params,
+      code: error.code,
+      detail: error.detail,
+      hint: error.hint,
+    });
+  }
+
+  captureValidationError(error, field, value) {
+    this.captureError({
+      type: 'validation',
+      message: error.message,
+      field: field,
+      value: value,
+      stack: error.stack,
+    });
+  }
+
+  captureAuthError(error, userId, action) {
+    this.captureError({
+      type: 'auth',
+      message: error.message,
+      stack: error.stack,
+      userId: userId,
+      action: action,
+    });
+  }
+
+  captureMiddlewareError(error, middleware, req) {
+    this.captureError({
+      type: 'middleware',
+      message: error.message,
+      stack: error.stack,
+      middleware: middleware,
+      url: req.url,
+      method: req.method,
+    });
+  }
+
+  // Public methods
+  enable() {
+    this.isEnabled = true;
+    console.log('✅ Backend Error Monitor enabled');
+  }
+
+  disable() {
+    this.isEnabled = false;
+    console.log('❌ Backend Error Monitor disabled');
+  }
+
+  getErrors() {
+    return [...this.errors];
+  }
+
+  getErrorsByType(type) {
+    return this.errors.filter(error => error.type === type);
+  }
+
+  getRecentErrors(count = 10) {
+    return this.errors.slice(-count);
+  }
+
+  clearErrors() {
+    this.errors = [];
+    console.log('🧹 Error history cleared');
+  }
+
+  addListener(listener) {
+    this.listeners.push(listener);
+    return () => {
+      const index = this.listeners.indexOf(listener);
+      if (index > -1) {
+        this.listeners.splice(index, 1);
+      }
+    };
+  }
+
+  getErrorSummary() {
+    const byType = this.errors.reduce((acc, error) => {
+      acc[error.type] = (acc[error.type] || 0) + 1;
+      return acc;
+    }, {});
+
+    return {
+      total: this.errors.length,
+      byType,
+      recent: this.getRecentErrors(5),
+      sessionId: this.sessionId,
+    };
+  }
+
+  printErrorsToConsole() {
+    console.log('\n' + '='.repeat(80));
+    console.log('🔍 BACKEND ERROR MONITOR - ALL CAPTURED ERRORS');
+    console.log('='.repeat(80));
+    console.log(`Session ID: ${this.sessionId}`);
+    console.log(`Total Errors: ${this.errors.length}`);
+    
+    if (this.errors.length === 0) {
+      console.log('No errors captured yet.');
+      console.log('='.repeat(80) + '\n');
+      return;
+    }
+
+    this.errors.forEach((error, index) => {
+      console.log(`\n--- Error ${index + 1} (${error.type}) ---`);
+      console.log(`Time: ${error.timestamp.toISOString()}`);
+      console.log(`Message: ${error.message}`);
+      if (error.url) console.log(`URL: ${error.method} ${error.url}`);
+      if (error.statusCode) console.log(`Status: ${error.statusCode}`);
+      if (error.userId) console.log(`User: ${error.userId}`);
+      if (error.stack) console.log(`Stack: ${error.stack}`);
+    });
+    
+    console.log('='.repeat(80) + '\n');
+  }
+
+  async exportErrors() {
+    const exportData = {
+      sessionId: this.sessionId,
+      timestamp: new Date().toISOString(),
+      totalErrors: this.errors.length,
+      errors: this.errors,
+    };
+
+    const exportFile = path.join(__dirname, '../logs/error-export.json');
+    await fs.writeFile(exportFile, JSON.stringify(exportData, null, 2));
+    console.log(`📁 Errors exported to: ${exportFile}`);
+    return exportFile;
+  }
+
+  // Real-time error monitoring
+  startRealTimeMonitoring() {
+    console.log('🔄 Starting real-time error monitoring...');
+    console.log('Press Ctrl+C to stop monitoring\n');
+
+    const unsubscribe = this.addListener((error) => {
+      const timestamp = new Date().toLocaleTimeString();
+      console.log(`[${timestamp}] 🚨 ${error.type.toUpperCase()}: ${error.message}`);
+    });
+
+    // Handle graceful shutdown
+    process.on('SIGINT', () => {
+      console.log('\n🛑 Stopping error monitoring...');
+      unsubscribe();
+      process.exit(0);
+    });
+
+    return unsubscribe;
+  }
+}
+
+// Create singleton instance
+const errorMonitor = new BackendErrorMonitor();
+
+// Export the instance and class
+module.exports = {
+  errorMonitor,
+  BackendErrorMonitor,
 };
 
 
@@ -6200,6 +6522,96 @@ module.exports = {
 
 ==================================================
 
+FILE: backend/vehicleMapping.js
+------------------------------
+// Vehicle type mapping configuration for backend
+// Maps frontend vehicle IDs to database IDs and backend endpoints
+
+const VEHICLE_MAPPINGS = {
+  car: {
+    frontendId: 'car',
+    backendEndpoint: 'car',
+    databaseId: 1,
+    displayName: 'Car',
+    description: 'Sedan/Coupe/Compact'
+  },
+  truck: {
+    frontendId: 'truck',
+    backendEndpoint: 'truck',
+    databaseId: 2,
+    displayName: 'Truck',
+    description: 'Light duty, work trucks'
+  },
+  suv: {
+    frontendId: 'suv',
+    backendEndpoint: 'auto', // Uses same endpoint as car
+    databaseId: 3, // Uses same database ID as car
+    displayName: 'SUV',
+    description: 'Sport Utility Vehicle'
+  },
+  rv: {
+    frontendId: 'rv',
+    backendEndpoint: 'rv',
+    databaseId: 4,
+    displayName: 'RV',
+    description: 'Travel trailers & coaches'
+  },
+  boat: {
+    frontendId: 'boat',
+    backendEndpoint: 'boat',
+    databaseId: 5,
+    displayName: 'Boat',
+    description: 'Runabout, bass, wake'
+  },
+  motorcycle: {
+    frontendId: 'motorcycle',
+    backendEndpoint: 'motorcycle',
+    databaseId: 6,
+    displayName: 'Motorcycle',
+    description: 'Street & sport bikes'
+  }
+};
+
+// Helper functions
+const getVehicleMapping = (vehicleId) => {
+  return VEHICLE_MAPPINGS[vehicleId];
+};
+
+const getDatabaseId = (vehicleId) => {
+  return VEHICLE_MAPPINGS[vehicleId]?.databaseId || 1;
+};
+
+const getDisplayName = (vehicleId) => {
+  return VEHICLE_MAPPINGS[vehicleId]?.displayName || vehicleId;
+};
+
+// Get all vehicle IDs that map to the same database ID
+const getVehiclesByDatabaseId = (databaseId) => {
+  return Object.entries(VEHICLE_MAPPINGS)
+    .filter(([_, mapping]) => mapping.databaseId === databaseId)
+    .map(([vehicleId, _]) => vehicleId);
+};
+
+// Get the primary vehicle type for a given database ID
+const getPrimaryVehicleType = (databaseId) => {
+  const vehicles = getVehiclesByDatabaseId(databaseId);
+  // Priority order: car > truck > suv > rv > boat > motorcycle
+  const priorityOrder = ['car', 'truck', 'suv', 'rv', 'boat', 'motorcycle'];
+  return vehicles.find(vehicleId => priorityOrder.includes(vehicleId)) || vehicles[0] || 'car';
+};
+
+module.exports = {
+  VEHICLE_MAPPINGS,
+  getVehicleMapping,
+  getDatabaseId,
+  getDisplayName,
+  getVehiclesByDatabaseId,
+  getPrimaryVehicleType
+};
+
+
+==================================================
+
 FILE: backend/refreshTokenService.js
 ------------------------------
 /**
@@ -6516,6 +6928,130 @@ module.exports = {
 
 ==================================================
 
+FILE: backend/add-blocked-days-table.js
+------------------------------
+const { pool } = require('../database/pool');
+const fs = require('fs');
+const path = require('path');
+
+async function addBlockedDaysTable() {
+  try {
+    console.log('Adding blocked days table to existing schedule schema...');
+    
+    // Check if schedule schema exists
+    const schemaCheck = await pool.query(`
+      SELECT schema_name FROM information_schema.schemata 
+      WHERE schema_name = 'schedule'
+    `);
+    
+    if (schemaCheck.rows.length === 0) {
+      console.log('❌ Schedule schema does not exist. Please run create-schedule-schema.js first.');
+      process.exit(1);
+    }
+    
+    console.log('✅ Schedule schema exists');
+    
+    // Check if blocked_days table already exists
+    const tableCheck = await pool.query(`
+      SELECT table_name FROM information_schema.tables 
+      WHERE table_schema = 'schedule' AND table_name = 'blocked_days'
+    `);
+    
+    if (tableCheck.rows.length > 0) {
+      console.log('✅ Blocked days table already exists');
+      process.exit(0);
+    }
+    
+    // Read and execute blocked_days.sql
+    const blockedDaysSql = fs.readFileSync(
+      path.join(__dirname, '../database/schemas/schedule/blocked_days.sql'), 
+      'utf8'
+    );
+    await pool.query(blockedDaysSql);
+    console.log('✅ Blocked days table created');
+    
+    console.log('🎉 Blocked days table added successfully!');
+    process.exit(0);
+  } catch (error) {
+    console.error('❌ Error adding blocked days table:', error);
+    process.exit(1);
+  }
+}
+
+addBlockedDaysTable();
+
+
+==================================================
+
+FILE: backend/create-schedule-schema.js
+------------------------------
+const { pool } = require('../database/pool');
+const fs = require('fs');
+const path = require('path');
+
+async function createScheduleSchema() {
+  try {
+    console.log('Creating schedule schema...');
+    
+    // Create schema
+    await pool.query('CREATE SCHEMA IF NOT EXISTS schedule;');
+    console.log('✅ Schema created');
+    
+    // Read and execute appointments.sql
+    const appointmentsSql = fs.readFileSync(
+      path.join(__dirname, '../database/schemas/schedule/appointments.sql'), 
+      'utf8'
+    );
+    await pool.query(appointmentsSql);
+    console.log('✅ Appointments table created');
+    
+    // Read and execute time_blocks.sql
+    const timeBlocksSql = fs.readFileSync(
+      path.join(__dirname, '../database/schemas/schedule/time_blocks.sql'), 
+      'utf8'
+    );
+    await pool.query(timeBlocksSql);
+    console.log('✅ Time blocks table created');
+    
+    // Read and execute schedule_settings.sql
+    const scheduleSettingsSql = fs.readFileSync(
+      path.join(__dirname, '../database/schemas/schedule/schedule_settings.sql'), 
+      'utf8'
+    );
+    await pool.query(scheduleSettingsSql);
+    console.log('✅ Schedule settings table created');
+    
+    // Read and execute blocked_days.sql
+    const blockedDaysSql = fs.readFileSync(
+      path.join(__dirname, '../database/schemas/schedule/blocked_days.sql'), 
+      'utf8'
+    );
+    await pool.query(blockedDaysSql);
+    console.log('✅ Blocked days table created');
+    
+    // Insert default schedule settings for existing affiliates
+    const insertSettingsQuery = `
+      INSERT INTO schedule.schedule_settings (affiliate_id)
+      SELECT id FROM affiliates.business
+      WHERE id NOT IN (SELECT affiliate_id FROM schedule.schedule_settings)
+      ON CONFLICT (affiliate_id) DO NOTHING;
+    `;
+    await pool.query(insertSettingsQuery);
+    console.log('✅ Default schedule settings created for existing affiliates');
+    
+    console.log('🎉 Schedule schema creation completed successfully!');
+    process.exit(0);
+  } catch (error) {
+    console.error('❌ Error creating schedule schema:', error);
+    process.exit(1);
+  }
+}
+
+createScheduleSchema();
+
+
+==================================================
+
 FILE: backend/db-inspect.js
 ------------------------------
 #!/usr/bin/env node
@@ -6757,6 +7293,317 @@ async function inspectDatabase() {
 }
 
 inspectDatabase();
+
+
+==================================================
+
+FILE: backend/error-monitor.js
+------------------------------
+#!/usr/bin/env node
+
+/**
+ * Error Monitoring Terminal Script
+ * Provides real-time error monitoring and debugging capabilities
+ */
+
+const { errorMonitor } = require('../utils/errorMonitor');
+const fs = require('fs').promises;
+const path = require('path');
+
+class ErrorMonitorCLI {
+  constructor() {
+    this.isRunning = false;
+    this.filter = null;
+    this.showStack = false;
+    this.autoRefresh = false;
+    this.refreshInterval = null;
+  }
+
+  async start() {
+    console.log('🚀 MDH Error Monitor Started');
+    console.log('================================');
+    console.log('Commands:');
+    console.log('  help, h     - Show this help');
+    console.log('  list, l     - List all errors');
+    console.log('  recent, r   - Show recent errors');
+    console.log('  clear, c    - Clear error history');
+    console.log('  export, e   - Export errors to file');
+    console.log('  summary, s  - Show error summary');
+    console.log('  filter, f   - Filter errors by type');
+    console.log('  stack, st   - Toggle stack trace display');
+    console.log('  watch, w    - Watch for new errors');
+    console.log('  stop        - Stop watching');
+    console.log('  quit, q     - Exit monitor');
+    console.log('================================\n');
+
+    // Enable error monitoring
+    errorMonitor.enable();
+
+    // Start watching for new errors
+    this.startWatching();
+
+    // Set up input handling
+    this.setupInputHandling();
+  }
+
+  startWatching() {
+    if (this.isRunning) return;
+
+    this.isRunning = true;
+    console.log('👀 Watching for new errors...\n');
+
+    this.unsubscribe = errorMonitor.addListener((error) => {
+      this.displayError(error, 'NEW');
+    });
+  }
+
+  stopWatching() {
+    if (!this.isRunning) return;
+
+    this.isRunning = false;
+    if (this.unsubscribe) {
+      this.unsubscribe();
+    }
+    if (this.refreshInterval) {
+      clearInterval(this.refreshInterval);
+    }
+    console.log('🛑 Stopped watching for errors\n');
+  }
+
+  setupInputHandling() {
+    const readline = require('readline');
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+      prompt: 'error-monitor> '
+    });
+
+    rl.prompt();
+
+    rl.on('line', async (input) => {
+      const command = input.trim().toLowerCase();
+      await this.handleCommand(command);
+      rl.prompt();
+    });
+
+    rl.on('close', () => {
+      this.stopWatching();
+      console.log('\n👋 Goodbye!');
+      process.exit(0);
+    });
+  }
+
+  async handleCommand(command) {
+    const [cmd, ...args] = command.split(' ');
+
+    switch (cmd) {
+      case 'help':
+      case 'h':
+        this.showHelp();
+        break;
+
+      case 'list':
+      case 'l':
+        this.listErrors();
+        break;
+
+      case 'recent':
+      case 'r':
+        this.showRecentErrors(args[0] ? parseInt(args[0]) : 10);
+        break;
+
+      case 'clear':
+      case 'c':
+        this.clearErrors();
+        break;
+
+      case 'export':
+      case 'e':
+        await this.exportErrors();
+        break;
+
+      case 'summary':
+      case 's':
+        this.showSummary();
+        break;
+
+      case 'filter':
+      case 'f':
+        this.setFilter(args[0]);
+        break;
+
+      case 'stack':
+      case 'st':
+        this.toggleStack();
+        break;
+
+      case 'watch':
+      case 'w':
+        this.startWatching();
+        break;
+
+      case 'stop':
+        this.stopWatching();
+        break;
+
+      case 'quit':
+      case 'q':
+        this.stopWatching();
+        process.exit(0);
+        break;
+
+      case '':
+        // Empty command, just show prompt
+        break;
+
+      default:
+        console.log(`❌ Unknown command: ${cmd}`);
+        console.log('Type "help" for available commands\n');
+    }
+  }
+
+  showHelp() {
+    console.log('\n📖 Error Monitor Commands:');
+    console.log('  help, h     - Show this help');
+    console.log('  list, l     - List all errors');
+    console.log('  recent, r   - Show recent errors (default: 10)');
+    console.log('  clear, c    - Clear error history');
+    console.log('  export, e   - Export errors to file');
+    console.log('  summary, s  - Show error summary');
+    console.log('  filter, f   - Filter errors by type (request, database, validation, auth, middleware)');
+    console.log('  stack, st   - Toggle stack trace display');
+    console.log('  watch, w    - Watch for new errors');
+    console.log('  stop        - Stop watching');
+    console.log('  quit, q     - Exit monitor\n');
+  }
+
+  listErrors() {
+    const errors = this.getFilteredErrors();
+    
+    if (errors.length === 0) {
+      console.log('📭 No errors found\n');
+      return;
+    }
+
+    console.log(`\n📋 Found ${errors.length} errors:\n`);
+    errors.forEach((error, index) => {
+      this.displayError(error, index + 1);
+    });
+    console.log('');
+  }
+
+  showRecentErrors(count = 10) {
+    const errors = this.getFilteredErrors().slice(-count);
+    
+    if (errors.length === 0) {
+      console.log('📭 No recent errors found\n');
+      return;
+    }
+
+    console.log(`\n🕒 Recent ${errors.length} errors:\n`);
+    errors.forEach((error, index) => {
+      this.displayError(error, index + 1);
+    });
+    console.log('');
+  }
+
+  clearErrors() {
+    errorMonitor.clearErrors();
+    console.log('🧹 Error history cleared\n');
+  }
+
+  async exportErrors() {
+    try {
+      const exportFile = await errorMonitor.exportErrors();
+      console.log(`📁 Errors exported to: ${exportFile}\n`);
+    } catch (error) {
+      console.log(`❌ Export failed: ${error.message}\n`);
+    }
+  }
+
+  showSummary() {
+    const summary = errorMonitor.getErrorSummary();
+    
+    console.log('\n📊 Error Summary:');
+    console.log('================');
+    console.log(`Session ID: ${summary.sessionId}`);
+    console.log(`Total Errors: ${summary.total}`);
+    console.log('\nBy Type:');
+    Object.entries(summary.byType).forEach(([type, count]) => {
+      console.log(`  ${type}: ${count}`);
+    });
+    
+    if (summary.recent.length > 0) {
+      console.log('\nRecent Errors:');
+      summary.recent.forEach((error, index) => {
+        console.log(`  ${index + 1}. [${error.type}] ${error.message}`);
+      });
+    }
+    console.log('');
+  }
+
+  setFilter(type) {
+    if (!type) {
+      this.filter = null;
+      console.log('🔍 Filter cleared\n');
+      return;
+    }
+
+    const validTypes = ['request', 'database', 'validation', 'auth', 'middleware'];
+    if (!validTypes.includes(type)) {
+      console.log(`❌ Invalid filter type. Valid types: ${validTypes.join(', ')}\n`);
+      return;
+    }
+
+    this.filter = type;
+    console.log(`🔍 Filter set to: ${type}\n`);
+  }
+
+  toggleStack() {
+    this.showStack = !this.showStack;
+    console.log(`📚 Stack trace display: ${this.showStack ? 'ON' : 'OFF'}\n`);
+  }
+
+  getFilteredErrors() {
+    let errors = errorMonitor.getErrors();
+    
+    if (this.filter) {
+      errors = errors.filter(error => error.type === this.filter);
+    }
+    
+    return errors;
+  }
+
+  displayError(error, label) {
+    const timestamp = error.timestamp.toISOString();
+    const type = error.type || 'unknown';
+    const message = error.message || 'No message';
+    const url = error.url ? `${error.method} ${error.url}` : 'N/A';
+    const statusCode = error.statusCode || 'N/A';
+    const userId = error.userId || 'N/A';
+
+    console.log(`[${label}] 🚨 ${type.toUpperCase()}`);
+    console.log(`    Time: ${timestamp}`);
+    console.log(`    Message: ${message}`);
+    if (url !== 'N/A') console.log(`    URL: ${url}`);
+    if (statusCode !== 'N/A') console.log(`    Status: ${statusCode}`);
+    if (userId !== 'N/A') console.log(`    User: ${userId}`);
+    
+    if (this.showStack && error.stack) {
+      console.log(`    Stack: ${error.stack}`);
+    }
+    
+    console.log('');
+  }
+}
+
+// Start the CLI if this file is run directly
+if (require.main === module) {
+  const cli = new ErrorMonitorCLI();
+  cli.start().catch(console.error);
+}
+
+module.exports = ErrorMonitorCLI;
 
 
 ==================================================
@@ -8700,6 +9547,58 @@ router.get('/:slug/service_areas', asyncHandler(async (req, res) => {
   }
 }));
 
+// Get affiliate services by slug
+router.get('/:slug/services', asyncHandler(async (req, res) => {
+  const { slug } = req.params;
+  
+  try {
+    if (!pool) {
+      return res.status(500).json({ error: 'Database connection not available' });
+    }
+
+    // First get the business_id from the slug
+    const businessQuery = `
+      SELECT id FROM affiliates.business 
+      WHERE slug = $1 AND application_status = 'approved'
+    `;
+    const businessResult = await pool.query(businessQuery, [slug]);
+    
+    if (businessResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Affiliate not found' });
+    }
+    
+    const businessId = businessResult.rows[0].id;
+    
+    // Get all services for this affiliate
+    const servicesQuery = `
+      SELECT 
+        id,
+        business_id,
+        service_name,
+        service_description,
+        service_category,
+        service_type,
+        vehicle_types,
+        is_active,
+        is_featured,
+        sort_order,
+        created_at,
+        updated_at,
+        metadata
+      FROM affiliates.services 
+      WHERE business_id = $1 AND is_active = true
+      ORDER BY sort_order ASC, service_name ASC
+    `;
+    
+    const servicesResult = await pool.query(servicesQuery, [businessId]);
+    
+    res.json(servicesResult.rows);
+  } catch (err) {
+    logger.error('Error fetching affiliate services:', { error: err.message });
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}));
+
 // Add service area to affiliate
 router.post('/:slug/service_areas', asyncHandler(async (req, res) => {
   const { slug } = req.params;
@@ -10573,6 +11472,877 @@ module.exports = router;
 
 ==================================================
 
+FILE: backend/schedule.js
+------------------------------
+const express = require('express');
+const { pool } = require('../database/pool');
+const { authenticateToken } = require('../middleware/auth');
+const { validateBody } = require('../middleware/validation');
+const { apiLimiter } = require('../middleware/rateLimiter');
+const { requestLogger } = require('../middleware/requestLogger');
+
+const router = express.Router();
+
+// Helper function to get affiliate_id from user_id
+const getAffiliateId = async (userId, isAdmin = false) => {
+  // For admin users, get the first available business or allow them to work without affiliate context
+  if (isAdmin) {
+    // For now, let's get the first business for admin users
+    const affiliateQuery = `
+      SELECT id FROM affiliates.business ORDER BY id LIMIT 1
+    `;
+    const affiliateResult = await pool.query(affiliateQuery);
+    
+    if (affiliateResult.rows.length === 0) {
+      throw new Error('No affiliate businesses found in the system');
+    }
+    
+    return affiliateResult.rows[0].id;
+  }
+  
+  // For regular users, get their specific business
+  const affiliateQuery = `
+    SELECT id FROM affiliates.business WHERE user_id = $1
+  `;
+  const affiliateResult = await pool.query(affiliateQuery, [userId]);
+  
+  if (affiliateResult.rows.length === 0) {
+    throw new Error('No affiliate business found for this user');
+  }
+  
+  return affiliateResult.rows[0].id;
+};
+
+// Apply middleware
+// router.use(requestLogger); // Temporarily disabled due to env validation issues
+router.use(apiLimiter);
+router.use(authenticateToken);
+
+// Validation schemas
+const appointmentSchema = {
+  body: {
+    type: 'object',
+    required: ['title', 'service_type', 'service_duration', 'start_time', 'end_time', 'customer_name', 'customer_phone'],
+    properties: {
+      title: { type: 'string', minLength: 1, maxLength: 255 },
+      description: { type: 'string', maxLength: 1000 },
+      service_type: { type: 'string', minLength: 1, maxLength: 100 },
+      service_duration: { type: 'integer', minimum: 1 },
+      start_time: { type: 'string', format: 'date-time' },
+      end_time: { type: 'string', format: 'date-time' },
+      customer_name: { type: 'string', minLength: 1, maxLength: 255 },
+      customer_phone: { type: 'string', minLength: 1, maxLength: 20 },
+      customer_email: { type: 'string', format: 'email', maxLength: 255 },
+      price: { type: 'number', minimum: 0 },
+      deposit: { type: 'number', minimum: 0 },
+      notes: { type: 'string', maxLength: 1000 },
+      internal_notes: { type: 'string', maxLength: 1000 }
+    }
+  }
+};
+
+const timeBlockSchema = {
+  body: {
+    type: 'object',
+    required: ['title', 'block_type', 'start_time', 'end_time'],
+    properties: {
+      title: { type: 'string', minLength: 1, maxLength: 255 },
+      description: { type: 'string', maxLength: 1000 },
+      block_type: { type: 'string', enum: ['unavailable', 'break', 'maintenance', 'personal', 'other'] },
+      start_time: { type: 'string', format: 'date-time' },
+      end_time: { type: 'string', format: 'date-time' },
+      is_recurring: { type: 'boolean' },
+      recurrence_pattern: { type: 'string', enum: ['daily', 'weekly', 'monthly'] },
+      recurrence_end_date: { type: 'string', format: 'date-time' }
+    }
+  }
+};
+
+// APPOINTMENTS ROUTES
+
+// Get appointments for a date range
+router.get('/appointments', async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    const userId = req.user.userId;
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({ error: 'startDate and endDate are required' });
+    }
+
+    const affiliateId = await getAffiliateId(userId, req.user.isAdmin);
+
+    const query = `
+      SELECT * FROM schedule.appointments 
+      WHERE affiliate_id = $1 
+        AND start_time >= $2 
+        AND end_time <= $3
+      ORDER BY start_time ASC
+    `;
+
+    const result = await pool.query(query, [affiliateId, startDate, endDate]);
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching appointments:', error);
+    if (error.message === 'No affiliate business found for this user') {
+      return res.status(404).json({ error: error.message });
+    }
+    res.status(500).json({ error: 'Failed to fetch appointments' });
+  }
+});
+
+// Get appointments for a specific date
+router.get('/appointments/date/:date', async (req, res) => {
+  try {
+    const { date } = req.params;
+    const affiliateId = req.user.affiliate_id;
+
+    const query = `
+      SELECT * FROM schedule.appointments 
+      WHERE affiliate_id = $1 
+        AND DATE(start_time) = $2
+      ORDER BY start_time ASC
+    `;
+
+    const result = await pool.query(query, [affiliateId, date]);
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching appointments for date:', error);
+    res.status(500).json({ error: 'Failed to fetch appointments' });
+  }
+});
+
+// Get single appointment
+router.get('/appointments/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const affiliateId = req.user.affiliate_id;
+
+    const query = `
+      SELECT * FROM schedule.appointments 
+      WHERE id = $1 AND affiliate_id = $2
+    `;
+
+    const result = await pool.query(query, [id, affiliateId]);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Appointment not found' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error fetching appointment:', error);
+    res.status(500).json({ error: 'Failed to fetch appointment' });
+  }
+});
+
+// Create appointment
+router.post('/appointments', validateBody(appointmentSchema.body), async (req, res) => {
+  try {
+    const affiliateId = req.user.affiliate_id;
+    const userId = req.user.id;
+    const {
+      title, description, service_type, service_duration,
+      start_time, end_time, customer_name, customer_phone,
+      customer_email, price, deposit, notes, internal_notes
+    } = req.body;
+
+    // Validate time constraints
+    const startTime = new Date(start_time);
+    const endTime = new Date(end_time);
+    
+    if (endTime <= startTime) {
+      return res.status(400).json({ error: 'End time must be after start time' });
+    }
+
+    // Check for conflicts
+    const conflictQuery = `
+      SELECT id FROM schedule.appointments 
+      WHERE affiliate_id = $1 
+        AND (
+          (start_time < $2 AND end_time > $2) OR
+          (start_time < $3 AND end_time > $3) OR
+          (start_time >= $2 AND end_time <= $3)
+        )
+    `;
+
+    const conflictResult = await pool.query(conflictQuery, [affiliateId, start_time, end_time]);
+    
+    if (conflictResult.rows.length > 0) {
+      return res.status(409).json({ error: 'Time slot conflicts with existing appointment' });
+    }
+
+    const query = `
+      INSERT INTO schedule.appointments (
+        affiliate_id, title, description, service_type, service_duration,
+        start_time, end_time, customer_name, customer_phone, customer_email,
+        price, deposit, notes, internal_notes, created_by
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+      RETURNING *
+    `;
+
+    const result = await pool.query(query, [
+      affiliateId, title, description, service_type, service_duration,
+      start_time, end_time, customer_name, customer_phone, customer_email,
+      price, deposit, notes, internal_notes, userId
+    ]);
+
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error('Error creating appointment:', error);
+    res.status(500).json({ error: 'Failed to create appointment' });
+  }
+});
+
+// Update appointment
+router.put('/appointments/:id', validateBody(appointmentSchema.body), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const affiliateId = req.user.affiliate_id;
+    const userId = req.user.id;
+    const updateData = req.body;
+
+    // Check if appointment exists and belongs to affiliate
+    const checkQuery = `
+      SELECT id FROM schedule.appointments 
+      WHERE id = $1 AND affiliate_id = $2
+    `;
+    
+    const checkResult = await pool.query(checkQuery, [id, affiliateId]);
+    if (checkResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Appointment not found' });
+    }
+
+    // Build dynamic update query
+    const updateFields = [];
+    const values = [];
+    let paramCount = 1;
+
+    Object.keys(updateData).forEach(key => {
+      if (updateData[key] !== undefined) {
+        updateFields.push(`${key} = $${paramCount}`);
+        values.push(updateData[key]);
+        paramCount++;
+      }
+    });
+
+    if (updateFields.length === 0) {
+      return res.status(400).json({ error: 'No fields to update' });
+    }
+
+    updateFields.push(`updated_by = $${paramCount}`);
+    values.push(userId);
+    paramCount++;
+
+    updateFields.push(`updated_at = CURRENT_TIMESTAMP`);
+    values.push(id, affiliateId);
+
+    const query = `
+      UPDATE schedule.appointments 
+      SET ${updateFields.join(', ')}
+      WHERE id = $${paramCount} AND affiliate_id = $${paramCount + 1}
+      RETURNING *
+    `;
+
+    const result = await pool.query(query, values);
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error updating appointment:', error);
+    res.status(500).json({ error: 'Failed to update appointment' });
+  }
+});
+
+// Update appointment status
+router.patch('/appointments/:id/status', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    const affiliateId = req.user.affiliate_id;
+    const userId = req.user.id;
+
+    const validStatuses = ['scheduled', 'confirmed', 'in_progress', 'completed', 'cancelled', 'no_show'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ error: 'Invalid status' });
+    }
+
+    const query = `
+      UPDATE schedule.appointments 
+      SET status = $1, updated_by = $2, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $3 AND affiliate_id = $4
+      RETURNING *
+    `;
+
+    const result = await pool.query(query, [status, userId, id, affiliateId]);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Appointment not found' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error updating appointment status:', error);
+    res.status(500).json({ error: 'Failed to update appointment status' });
+  }
+});
+
+// Delete appointment
+router.delete('/appointments/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const affiliateId = req.user.affiliate_id;
+
+    const query = `
+      DELETE FROM schedule.appointments 
+      WHERE id = $1 AND affiliate_id = $2
+      RETURNING id
+    `;
+
+    const result = await pool.query(query, [id, affiliateId]);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Appointment not found' });
+    }
+
+    res.status(204).send();
+  } catch (error) {
+    console.error('Error deleting appointment:', error);
+    res.status(500).json({ error: 'Failed to delete appointment' });
+  }
+});
+
+// Get available time slots
+router.get('/appointments/available-slots', async (req, res) => {
+  try {
+    const { date, duration = 60 } = req.query;
+    const affiliateId = req.user.affiliate_id;
+
+    if (!date) {
+      return res.status(400).json({ error: 'date is required' });
+    }
+
+    // Get schedule settings for this affiliate
+    const settingsQuery = `
+      SELECT * FROM schedule.schedule_settings 
+      WHERE affiliate_id = $1
+    `;
+    
+    const settingsResult = await pool.query(settingsQuery, [affiliateId]);
+    const settings = settingsResult.rows[0];
+
+    if (!settings) {
+      return res.status(404).json({ error: 'Schedule settings not found' });
+    }
+
+    // Get existing appointments and time blocks for the date
+    const conflictsQuery = `
+      SELECT start_time, end_time FROM schedule.appointments 
+      WHERE affiliate_id = $1 AND DATE(start_time) = $2
+      UNION ALL
+      SELECT start_time, end_time FROM schedule.time_blocks 
+      WHERE affiliate_id = $1 AND DATE(start_time) = $2
+      ORDER BY start_time
+    `;
+
+    const conflictsResult = await pool.query(conflictsQuery, [affiliateId, date]);
+    const conflicts = conflictsResult.rows;
+
+    // Generate available time slots based on business hours and settings
+    const availableSlots = [];
+    const businessHours = settings.business_hours;
+    const dayOfWeek = new Date(date).toLocaleDateString('en-US', { weekday: 'lowercase' });
+    const dayHours = businessHours[dayOfWeek];
+
+    if (!dayHours || !dayHours.enabled) {
+      return res.json([]);
+    }
+
+    const startTime = new Date(`${date}T${dayHours.start}:00`);
+    const endTime = new Date(`${date}T${dayHours.end}:00`);
+    const interval = settings.time_slot_interval * 60 * 1000; // Convert to milliseconds
+    const appointmentDuration = duration * 60 * 1000;
+
+    for (let time = startTime.getTime(); time + appointmentDuration <= endTime.getTime(); time += interval) {
+      const slotStart = new Date(time);
+      const slotEnd = new Date(time + appointmentDuration);
+      
+      // Check if this slot conflicts with existing appointments/blocks
+      const hasConflict = conflicts.some(conflict => {
+        const conflictStart = new Date(conflict.start_time);
+        const conflictEnd = new Date(conflict.end_time);
+        return (slotStart < conflictEnd && slotEnd > conflictStart);
+      });
+
+      if (!hasConflict) {
+        availableSlots.push(slotStart.toTimeString().slice(0, 5));
+      }
+    }
+
+    res.json(availableSlots);
+  } catch (error) {
+    console.error('Error fetching available time slots:', error);
+    res.status(500).json({ error: 'Failed to fetch available time slots' });
+  }
+});
+
+// TIME BLOCKS ROUTES
+
+// Get time blocks for a date range
+router.get('/time-blocks', async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    const userId = req.user.userId;
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({ error: 'startDate and endDate are required' });
+    }
+
+    const affiliateId = await getAffiliateId(userId, req.user.isAdmin);
+
+    const query = `
+      SELECT * FROM schedule.time_blocks 
+      WHERE affiliate_id = $1 
+        AND start_time >= $2 
+        AND end_time <= $3
+      ORDER BY start_time ASC
+    `;
+
+    const result = await pool.query(query, [affiliateId, startDate, endDate]);
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching time blocks:', error);
+    if (error.message === 'No affiliate business found for this user') {
+      return res.status(404).json({ error: error.message });
+    }
+    res.status(500).json({ error: 'Failed to fetch time blocks' });
+  }
+});
+
+// Get time blocks for a specific date
+router.get('/time-blocks/date/:date', async (req, res) => {
+  try {
+    const { date } = req.params;
+    const affiliateId = req.user.affiliate_id;
+
+    const query = `
+      SELECT * FROM schedule.time_blocks 
+      WHERE affiliate_id = $1 
+        AND DATE(start_time) = $2
+      ORDER BY start_time ASC
+    `;
+
+    const result = await pool.query(query, [affiliateId, date]);
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching time blocks for date:', error);
+    res.status(500).json({ error: 'Failed to fetch time blocks' });
+  }
+});
+
+// Create time block
+router.post('/time-blocks', validateBody(timeBlockSchema.body), async (req, res) => {
+  try {
+    const affiliateId = req.user.affiliate_id;
+    const userId = req.user.id;
+    const {
+      title, description, block_type, start_time, end_time,
+      is_recurring, recurrence_pattern, recurrence_end_date
+    } = req.body;
+
+    // Validate time constraints
+    const startTime = new Date(start_time);
+    const endTime = new Date(end_time);
+    
+    if (endTime <= startTime) {
+      return res.status(400).json({ error: 'End time must be after start time' });
+    }
+
+    const query = `
+      INSERT INTO schedule.time_blocks (
+        affiliate_id, title, description, block_type,
+        start_time, end_time, is_recurring, recurrence_pattern,
+        recurrence_end_date, created_by
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      RETURNING *
+    `;
+
+    const result = await pool.query(query, [
+      affiliateId, title, description, block_type,
+      start_time, end_time, is_recurring, recurrence_pattern,
+      recurrence_end_date, userId
+    ]);
+
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error('Error creating time block:', error);
+    res.status(500).json({ error: 'Failed to create time block' });
+  }
+});
+
+// Update time block
+router.put('/time-blocks/:id', validateBody(timeBlockSchema.body), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const affiliateId = req.user.affiliate_id;
+    const updateData = req.body;
+
+    // Check if time block exists and belongs to affiliate
+    const checkQuery = `
+      SELECT id FROM schedule.time_blocks 
+      WHERE id = $1 AND affiliate_id = $2
+    `;
+    
+    const checkResult = await pool.query(checkQuery, [id, affiliateId]);
+    if (checkResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Time block not found' });
+    }
+
+    // Build dynamic update query
+    const updateFields = [];
+    const values = [];
+    let paramCount = 1;
+
+    Object.keys(updateData).forEach(key => {
+      if (updateData[key] !== undefined) {
+        updateFields.push(`${key} = $${paramCount}`);
+        values.push(updateData[key]);
+        paramCount++;
+      }
+    });
+
+    if (updateFields.length === 0) {
+      return res.status(400).json({ error: 'No fields to update' });
+    }
+
+    updateFields.push(`updated_at = CURRENT_TIMESTAMP`);
+    values.push(id, affiliateId);
+
+    const query = `
+      UPDATE schedule.time_blocks 
+      SET ${updateFields.join(', ')}
+      WHERE id = $${paramCount} AND affiliate_id = $${paramCount + 1}
+      RETURNING *
+    `;
+
+    const result = await pool.query(query, values);
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error updating time block:', error);
+    res.status(500).json({ error: 'Failed to update time block' });
+  }
+});
+
+// Delete time block
+router.delete('/time-blocks/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const affiliateId = req.user.affiliate_id;
+
+    const query = `
+      DELETE FROM schedule.time_blocks 
+      WHERE id = $1 AND affiliate_id = $2
+      RETURNING id
+    `;
+
+    const result = await pool.query(query, [id, affiliateId]);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Time block not found' });
+    }
+
+    res.status(204).send();
+  } catch (error) {
+    console.error('Error deleting time block:', error);
+    res.status(500).json({ error: 'Failed to delete time block' });
+  }
+});
+
+// BLOCKED DAYS ROUTES
+
+// Get blocked days for a date range
+router.get('/blocked-days', async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    const userId = req.user.userId;
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({ error: 'startDate and endDate are required' });
+    }
+
+    const affiliateId = await getAffiliateId(userId, req.user.isAdmin);
+
+    const query = `
+      SELECT blocked_date, reason, is_recurring, recurrence_pattern, recurrence_end_date
+      FROM schedule.blocked_days 
+      WHERE affiliate_id = $1 
+        AND blocked_date >= $2 
+        AND blocked_date <= $3
+      ORDER BY blocked_date ASC
+    `;
+
+    const result = await pool.query(query, [affiliateId, startDate, endDate]);
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching blocked days:', error);
+    if (error.message === 'No affiliate business found for this user') {
+      return res.status(404).json({ error: error.message });
+    }
+    res.status(500).json({ error: 'Failed to fetch blocked days' });
+  }
+});
+
+// Toggle blocked day (add if not exists, remove if exists)
+router.post('/blocked-days/toggle', async (req, res) => {
+  try {
+    const { date, reason } = req.body;
+    const userId = req.user.userId;
+
+    if (!date) {
+      return res.status(400).json({ error: 'date is required' });
+    }
+
+    const affiliateId = await getAffiliateId(userId, req.user.isAdmin);
+
+    // Check if date is already blocked
+    const checkQuery = `
+      SELECT id FROM schedule.blocked_days 
+      WHERE affiliate_id = $1 AND blocked_date = $2
+    `;
+    
+    const checkResult = await pool.query(checkQuery, [affiliateId, date]);
+    
+    if (checkResult.rows.length > 0) {
+      // Remove blocked day
+      const deleteQuery = `
+        DELETE FROM schedule.blocked_days 
+        WHERE affiliate_id = $1 AND blocked_date = $2
+        RETURNING blocked_date
+      `;
+      
+      const deleteResult = await pool.query(deleteQuery, [affiliateId, date]);
+      res.json({ 
+        action: 'removed', 
+        date: deleteResult.rows[0].blocked_date,
+        message: 'Day unblocked successfully'
+      });
+    } else {
+      // Add blocked day
+      const insertQuery = `
+        INSERT INTO schedule.blocked_days (affiliate_id, blocked_date, reason, created_by)
+        VALUES ($1, $2, $3, $4)
+        RETURNING blocked_date, reason
+      `;
+      
+      const insertResult = await pool.query(insertQuery, [affiliateId, date, reason || 'Blocked', userId]);
+      res.json({ 
+        action: 'added', 
+        date: insertResult.rows[0].blocked_date,
+        reason: insertResult.rows[0].reason,
+        message: 'Day blocked successfully'
+      });
+    }
+  } catch (error) {
+    console.error('Error toggling blocked day:', error);
+    if (error.message === 'No affiliate business found for this user') {
+      return res.status(404).json({ error: error.message });
+    }
+    res.status(500).json({ error: 'Failed to toggle blocked day' });
+  }
+});
+
+// Add blocked day
+router.post('/blocked-days', async (req, res) => {
+  try {
+    const { date, reason, is_recurring, recurrence_pattern, recurrence_end_date } = req.body;
+    const affiliateId = req.user.affiliate_id;
+    const userId = req.user.id;
+
+    if (!date) {
+      return res.status(400).json({ error: 'date is required' });
+    }
+
+    // Check if date is already blocked
+    const checkQuery = `
+      SELECT id FROM schedule.blocked_days 
+      WHERE affiliate_id = $1 AND blocked_date = $2
+    `;
+    
+    const checkResult = await pool.query(checkQuery, [affiliateId, date]);
+    if (checkResult.rows.length > 0) {
+      return res.status(409).json({ error: 'Date is already blocked' });
+    }
+
+    const query = `
+      INSERT INTO schedule.blocked_days (
+        affiliate_id, blocked_date, reason, is_recurring, 
+        recurrence_pattern, recurrence_end_date, created_by
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING *
+    `;
+
+    const result = await pool.query(query, [
+      affiliateId, date, reason || 'Blocked', is_recurring || false,
+      recurrence_pattern, recurrence_end_date, userId
+    ]);
+
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error('Error adding blocked day:', error);
+    res.status(500).json({ error: 'Failed to add blocked day' });
+  }
+});
+
+// Remove blocked day
+router.delete('/blocked-days/:date', async (req, res) => {
+  try {
+    const { date } = req.params;
+    const affiliateId = req.user.affiliate_id;
+
+    const query = `
+      DELETE FROM schedule.blocked_days 
+      WHERE affiliate_id = $1 AND blocked_date = $2
+      RETURNING blocked_date
+    `;
+
+    const result = await pool.query(query, [affiliateId, date]);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Blocked day not found' });
+    }
+
+    res.json({ 
+      message: 'Blocked day removed successfully',
+      date: result.rows[0].blocked_date
+    });
+  } catch (error) {
+    console.error('Error removing blocked day:', error);
+    res.status(500).json({ error: 'Failed to remove blocked day' });
+  }
+});
+
+// SCHEDULE SETTINGS ROUTES
+
+// Get schedule settings
+router.get('/settings', async (req, res) => {
+  try {
+    const affiliateId = req.user.affiliate_id;
+
+    const query = `
+      SELECT * FROM schedule.schedule_settings 
+      WHERE affiliate_id = $1
+    `;
+
+    const result = await pool.query(query, [affiliateId]);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Schedule settings not found' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error fetching schedule settings:', error);
+    res.status(500).json({ error: 'Failed to fetch schedule settings' });
+  }
+});
+
+// Update schedule settings
+router.put('/settings', async (req, res) => {
+  try {
+    const affiliateId = req.user.affiliate_id;
+    const userId = req.user.id;
+    const updateData = req.body;
+
+    // Build dynamic update query
+    const updateFields = [];
+    const values = [];
+    let paramCount = 1;
+
+    Object.keys(updateData).forEach(key => {
+      if (updateData[key] !== undefined) {
+        updateFields.push(`${key} = $${paramCount}`);
+        values.push(updateData[key]);
+        paramCount++;
+      }
+    });
+
+    if (updateFields.length === 0) {
+      return res.status(400).json({ error: 'No fields to update' });
+    }
+
+    updateFields.push(`updated_by = $${paramCount}`);
+    values.push(userId);
+    paramCount++;
+
+    updateFields.push(`updated_at = CURRENT_TIMESTAMP`);
+    values.push(affiliateId);
+
+    const query = `
+      UPDATE schedule.schedule_settings 
+      SET ${updateFields.join(', ')}
+      WHERE affiliate_id = $${paramCount}
+      RETURNING *
+    `;
+
+    const result = await pool.query(query, values);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Schedule settings not found' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error updating schedule settings:', error);
+    res.status(500).json({ error: 'Failed to update schedule settings' });
+  }
+});
+
+// Reset schedule settings to defaults
+router.post('/settings/reset', async (req, res) => {
+  try {
+    const affiliateId = req.user.affiliate_id;
+    const userId = req.user.id;
+
+    const query = `
+      UPDATE schedule.schedule_settings 
+      SET 
+        business_hours = '{
+          "monday": {"start": "09:00", "end": "17:00", "enabled": true},
+          "tuesday": {"start": "09:00", "end": "17:00", "enabled": true},
+          "wednesday": {"start": "09:00", "end": "17:00", "enabled": true},
+          "thursday": {"start": "09:00", "end": "17:00", "enabled": true},
+          "friday": {"start": "09:00", "end": "17:00", "enabled": true},
+          "saturday": {"start": "10:00", "end": "15:00", "enabled": true},
+          "sunday": {"start": "10:00", "end": "15:00", "enabled": false}
+        }',
+        default_appointment_duration = 60,
+        buffer_time = 15,
+        max_appointments_per_day = 20,
+        advance_booking_days = 30,
+        same_day_booking_allowed = true,
+        time_slot_interval = 15,
+        earliest_appointment_time = '08:00',
+        latest_appointment_time = '18:00',
+        send_reminders = true,
+        reminder_hours_before = 24,
+        send_confirmation_emails = true,
+        updated_by = $1,
+        updated_at = CURRENT_TIMESTAMP
+      WHERE affiliate_id = $2
+      RETURNING *
+    `;
+
+    const result = await pool.query(query, [userId, affiliateId]);
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error resetting schedule settings:', error);
+    res.status(500).json({ error: 'Failed to reset schedule settings' });
+  }
+});
+
+module.exports = router;
+
+
+==================================================
+
 FILE: backend/serviceAreas.js
 ------------------------------
 const express = require('express');
@@ -10803,6 +12573,7 @@ FILE: backend/services.js
 const express = require('express');
 const router = express.Router();
 const { pool } = require('../database/pool');
+const { getDatabaseId } = require('../utils/vehicleMapping');
 
 
 // POST /api/services - Create a new service
@@ -10850,18 +12621,8 @@ router.post('/', async (req, res) => {
       RETURNING *
     `;
     
-    // Map frontend vehicle IDs to database vehicle IDs
-    const vehicleMap = {
-      'cars': 1,
-      'trucks': 2,
-      'rvs': 3,
-      'boats': 4,
-      'motorcycles': 5,
-      'offroad': 6,
-      'other': 7
-    };
-    
-    const dbVehicleId = vehicleMap[vehicle_id] || 1;
+    // Handle both string vehicle IDs (from old frontend) and numeric vehicle IDs (from new frontend)
+    const dbVehicleId = typeof vehicle_id === 'string' ? getDatabaseId(vehicle_id) : vehicle_id;
     const vehicleTypes = JSON.stringify([dbVehicleId]);
     const metadata = JSON.stringify({
       base_price_cents: base_price_cents || 0,
@@ -10886,18 +12647,21 @@ router.post('/', async (req, res) => {
     
     // Create service tiers - use custom tiers if provided, otherwise create default tiers
     if (tiers && Array.isArray(tiers) && tiers.length > 0) {
+      console.log('Backend - Received tiers data:', JSON.stringify(tiers, null, 2));
       // Use custom tiers provided by the frontend
       for (const tier of tiers) {
         if (tier.name && tier.name.trim() !== '') {
+          console.log('Backend - Processing tier:', tier.name, 'tierCopies:', tier.tierCopies);
           await pool.query(`
-            INSERT INTO affiliates.service_tiers (service_id, tier_name, price_cents, included_services, duration_minutes, is_active, is_featured, sort_order)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            INSERT INTO affiliates.service_tiers (service_id, tier_name, price_cents, included_services, duration_minutes, metadata, is_active, is_featured, sort_order)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
           `, [
             newService.id,
             tier.name,
             Math.round((tier.price || 0) * 100), // Price in cents
             JSON.stringify(tier.features || []), // Features as JSON array
             tier.duration || 60, // Duration in minutes
+            JSON.stringify({}), // Empty metadata
             true, // is_active
             tier.popular || false, // is_featured
             0 // sort_order
@@ -10994,18 +12758,7 @@ router.put('/:serviceId', async (req, res) => {
       originalCategory = mapping.original;
     }
     
-    // Map frontend vehicle IDs to database vehicle IDs
-    const vehicleMap = {
-      'cars': 1,
-      'trucks': 2,
-      'rvs': 3,
-      'boats': 4,
-      'motorcycles': 5,
-      'offroad': 6,
-      'other': 7
-    };
-    
-    const dbVehicleId = vehicleMap[vehicle_id] || 1;
+    const dbVehicleId = getDatabaseId(vehicle_id);
     const vehicleTypes = JSON.stringify([dbVehicleId]);
     const metadata = JSON.stringify({
       base_price_cents: base_price_cents || 0,
@@ -11057,18 +12810,21 @@ router.put('/:serviceId', async (req, res) => {
       
       // Create new service tiers
       if (tiers && Array.isArray(tiers) && tiers.length > 0) {
+        console.log('Backend PUT - Received tiers data:', JSON.stringify(tiers, null, 2));
         // Use custom tiers provided by the frontend
         for (const tier of tiers) {
           if (tier.name && tier.name.trim() !== '') {
+            console.log('Backend PUT - Processing tier:', tier.name, 'tierCopies:', tier.tierCopies);
             await client.query(`
-              INSERT INTO affiliates.service_tiers (service_id, tier_name, price_cents, included_services, duration_minutes, is_active, is_featured, sort_order)
-              VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+              INSERT INTO affiliates.service_tiers (service_id, tier_name, price_cents, included_services, duration_minutes, metadata, is_active, is_featured, sort_order)
+              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
             `, [
               serviceId,
               tier.name,
               Math.round((tier.price || 0) * 100), // Price in cents
               JSON.stringify(tier.features || []), // Features as JSON array
               tier.duration || 60, // Duration in minutes
+              JSON.stringify({}), // Empty metadata
               true, // is_active
               tier.popular || false, // is_featured
               0 // sort_order
@@ -11193,21 +12949,25 @@ router.get('/affiliate/:affiliateId/vehicle/:vehicleId/category/:categoryId', as
   try {
     const { affiliateId, vehicleId, categoryId } = req.params;
     
-    // Use the category ID directly since we now store proper category names
-    const dbCategory = categoryId;
-    
-    // Map frontend vehicle IDs to database vehicle IDs
-    const vehicleMap = {
-      'cars': 1,
-      'trucks': 2,
-      'rvs': 3,
-      'boats': 4,
-      'motorcycles': 5,
-      'offroad': 6,
-      'other': 7
+    // Map the category ID to the actual category name
+    const categoryMap = {
+      1: 'interior',
+      2: 'exterior', 
+      3: 'service-packages',
+      4: 'ceramic-coating',
+      5: 'paint-correction',
+      6: 'paint-protection-film',
+      7: 'addons'
     };
     
-    const dbVehicleId = vehicleMap[vehicleId] || 1;
+    const dbCategory = categoryMap[parseInt(categoryId)] || 'service-packages';
+    
+    // Get database ID for the vehicle type
+    const dbVehicleType = getDatabaseId(vehicleId);
+    
+    // Check for the specific vehicle type requested
+    // Only return services that specifically support this vehicle type
+    const vehicleTypesFilter = 's.vehicle_types @> $3::jsonb';
     
     // Clean query using the correct table structure with proper category filtering
     const query = `
@@ -11223,11 +12983,13 @@ router.get('/affiliate/:affiliateId/vehicle/:vehicleId/category/:categoryId', as
       FROM affiliates.services s
       WHERE s.business_id = $1 
         AND s.service_category = $2
-        AND s.vehicle_types @> $3::jsonb
+        AND ${vehicleTypesFilter}
       ORDER BY s.created_at DESC, s.service_name ASC
     `;
     
-    const result = await pool.query(query, [affiliateId, dbCategory, JSON.stringify([dbVehicleId])]);
+    const queryParams = [affiliateId, dbCategory, JSON.stringify([dbVehicleType])];
+    
+    const result = await pool.query(query, queryParams);
     
     if (result.rows.length === 0) {
       return res.json({
@@ -11246,7 +13008,10 @@ router.get('/affiliate/:affiliateId/vehicle/:vehicleId/category/:categoryId', as
           st.tier_name,
           st.price_cents,
           st.included_services,
-          st.duration_minutes
+          st.duration_minutes,
+          st.metadata,
+          st.is_active,
+          st.is_featured
         FROM affiliates.service_tiers st
         WHERE st.service_id = $1
         ORDER BY st.price_cents ASC
@@ -11266,8 +13031,8 @@ router.get('/affiliate/:affiliateId/vehicle/:vehicleId/category/:categoryId', as
           price: row.price_cents / 100,
           duration: row.duration_minutes || 60,
           features: row.included_services || [],
-          enabled: true,
-          popular: false
+          enabled: row.is_active,
+          popular: row.is_featured
         }))
       };
       
@@ -11742,6 +13507,7 @@ FILE: backend/errorHandler.js
 
 const logger = require('../utils/logger');
 const { ValidationError } = require('../utils/validators');
+const { errorMonitor } = require('../utils/errorMonitor');
 
 /**
  * Error handler middleware
@@ -11757,6 +13523,9 @@ const errorHandler = (err, req, res, next) => {
     ip: req.ip || req.connection.remoteAddress,
     userAgent: req.get('User-Agent')
   });
+
+  // Capture error in our monitoring system
+  errorMonitor.captureRequestError(req, res, err);
 
   // Handle validation errors
   if (err instanceof ValidationError) {
@@ -21822,6 +23591,7 @@ async function initializeDatabase() {
       CREATE SCHEMA affiliates;
       CREATE SCHEMA system;
       CREATE SCHEMA reputation;
+      CREATE SCHEMA customers;
     `);
     schemaClient.release();
     console.log('✅ Schemas created');
@@ -21886,7 +23656,22 @@ async function initializeDatabase() {
       'Creating review_votes table'
     );
     
-    // 6. Insert seed data
+    // 6. Create customers tables
+    console.log('\n👥 Creating customer tables...');
+    await executeSqlFile(
+      path.join(__dirname, '../schemas/customers/customers.sql'),
+      'Creating customers table'
+    );
+    await executeSqlFile(
+      path.join(__dirname, '../schemas/customers/customer_vehicles.sql'),
+      'Creating customer_vehicles table'
+    );
+    await executeSqlFile(
+      path.join(__dirname, '../schemas/customers/customer_communications.sql'),
+      'Creating customer_communications table'
+    );
+    
+    // 7. Insert seed data
     console.log('\n🌱 Inserting seed data...');
     await executeSqlFile(
       path.join(__dirname, '../seeds/auth_users.sql'),
@@ -21905,7 +23690,7 @@ async function initializeDatabase() {
       'Inserting sample reviews'
     );
     
-    // 7. Update schema migrations
+    // 8. Update schema migrations
     console.log('\n📝 Updating schema migrations...');
     const migrationClient = await pool.connect();
     await migrationClient.query(`
@@ -21923,6 +23708,7 @@ async function initializeDatabase() {
     console.log('   • Affiliates Schema: 3 tables (business, services, service_tiers)');
     console.log('   • System Schema: 2 tables (schema_migrations, system_config)');
     console.log('   • Reputation Schema: 3 tables (reviews, review_replies, review_votes)');
+    console.log('   • Customers Schema: 3 tables (customers, customer_vehicles, customer_communications)');
     console.log('   • Seed Data: Initial users and system configuration');
     console.log('\n⚠️  WARNING: All previous data has been removed!');
     
@@ -22004,6 +23790,100 @@ async function resetReputationData() {
 }
 
 resetReputationData().catch(console.error);
+
+
+==================================================
+
+FILE: backend/run-migration.js
+------------------------------
+#!/usr/bin/env node
+
+/**
+ * Migration Runner Script
+ * 
+ * Runs individual migration files safely
+ * 
+ * Usage: node database/scripts/run-migration.js <migration-file>
+ * Example: node database/scripts/run-migration.js 20241220_create_customers_schema.sql
+ */
+
+const fs = require('fs');
+const path = require('path');
+const { Pool } = require('pg');
+
+// Load environment variables from .env file
+require('dotenv').config({ path: path.join(__dirname, '../../.env') });
+
+// Database configuration
+const dbConfig = {
+  host: process.env.DB_HOST || 'localhost',
+  port: process.env.DB_PORT || 5432,
+  database: process.env.DB_NAME || 'mdh',
+  user: process.env.DB_USER || 'postgres',
+  password: process.env.DB_PASSWORD || 'password',
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+};
+
+// Create database connection
+const pool = new Pool(dbConfig);
+
+async function runMigration(migrationFile) {
+  const client = await pool.connect();
+  try {
+    console.log(`🚀 Running migration: ${migrationFile}`);
+    
+    const migrationPath = path.join(__dirname, '../migrations', migrationFile);
+    
+    if (!fs.existsSync(migrationPath)) {
+      throw new Error(`Migration file not found: ${migrationPath}`);
+    }
+    
+    const sql = fs.readFileSync(migrationPath, 'utf8');
+    
+    // Add timeout to prevent hanging
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Migration timed out after 60 seconds')), 60000);
+    });
+    
+    const queryPromise = client.query(sql);
+    await Promise.race([queryPromise, timeoutPromise]);
+    
+    console.log(`✅ Migration ${migrationFile} completed successfully`);
+    
+  } catch (error) {
+    console.error(`❌ Migration ${migrationFile} failed:`, error.message);
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+// Handle script execution
+if (require.main === module) {
+  const migrationFile = process.argv[2];
+  
+  if (!migrationFile) {
+    console.error('❌ Please provide a migration file name');
+    console.log('Usage: node database/scripts/run-migration.js <migration-file>');
+    console.log('Example: node database/scripts/run-migration.js 20241220_create_customers_schema.sql');
+    process.exit(1);
+  }
+  
+  runMigration(migrationFile)
+    .then(() => {
+      console.log('✨ Migration completed!');
+      process.exit(0);
+    })
+    .catch((error) => {
+      console.error('💥 Migration failed:', error.message);
+      process.exit(1);
+    })
+    .finally(() => {
+      pool.end();
+    });
+}
+
+module.exports = { runMigration };
 
 
 ==================================================
@@ -22385,6 +24265,247 @@ ON CONFLICT (version) DO NOTHING;
 
 ==================================================
 
+FILE: backend/appointments.sql
+------------------------------
+-- Appointments table for scheduling system
+CREATE TABLE IF NOT EXISTS schedule.appointments (
+    id SERIAL PRIMARY KEY,
+    affiliate_id INTEGER NOT NULL REFERENCES affiliates.business(id) ON DELETE CASCADE,
+    customer_id INTEGER REFERENCES auth.users(id) ON DELETE SET NULL,
+    
+    -- Appointment details
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    service_type VARCHAR(100) NOT NULL,
+    service_duration INTEGER NOT NULL, -- in minutes
+    
+    -- Scheduling
+    start_time TIMESTAMP WITH TIME ZONE NOT NULL,
+    end_time TIMESTAMP WITH TIME ZONE NOT NULL,
+    
+    -- Customer information (denormalized for performance)
+    customer_name VARCHAR(255) NOT NULL,
+    customer_phone VARCHAR(20) NOT NULL,
+    customer_email VARCHAR(255),
+    
+    -- Status and pricing
+    status VARCHAR(20) NOT NULL DEFAULT 'scheduled' CHECK (status IN ('scheduled', 'confirmed', 'in_progress', 'completed', 'cancelled', 'no_show')),
+    price DECIMAL(10,2),
+    deposit DECIMAL(10,2) DEFAULT 0,
+    
+    -- Metadata
+    notes TEXT,
+    internal_notes TEXT, -- for affiliate use only
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    created_by INTEGER REFERENCES auth.users(id),
+    updated_by INTEGER REFERENCES auth.users(id),
+    
+    -- Constraints
+    CONSTRAINT valid_appointment_duration CHECK (service_duration > 0),
+    CONSTRAINT valid_appointment_times CHECK (end_time > start_time),
+    CONSTRAINT valid_price CHECK (price IS NULL OR price >= 0),
+    CONSTRAINT valid_deposit CHECK (deposit >= 0 AND (price IS NULL OR deposit <= price))
+);
+
+-- Indexes for performance
+CREATE INDEX IF NOT EXISTS idx_appointments_affiliate_id ON schedule.appointments(affiliate_id);
+CREATE INDEX IF NOT EXISTS idx_appointments_customer_id ON schedule.appointments(customer_id);
+CREATE INDEX IF NOT EXISTS idx_appointments_start_time ON schedule.appointments(start_time);
+CREATE INDEX IF NOT EXISTS idx_appointments_end_time ON schedule.appointments(end_time);
+CREATE INDEX IF NOT EXISTS idx_appointments_status ON schedule.appointments(status);
+CREATE INDEX IF NOT EXISTS idx_appointments_date_range ON schedule.appointments(affiliate_id, start_time, end_time);
+
+-- Trigger to update updated_at timestamp
+CREATE OR REPLACE FUNCTION schedule.update_appointments_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_update_appointments_updated_at
+    BEFORE UPDATE ON schedule.appointments
+    FOR EACH ROW
+    EXECUTE FUNCTION schedule.update_appointments_updated_at();
+
+
+==================================================
+
+FILE: backend/blocked_days.sql
+------------------------------
+-- Blocked days table for disabling specific dates
+CREATE TABLE IF NOT EXISTS schedule.blocked_days (
+    id SERIAL PRIMARY KEY,
+    affiliate_id INTEGER NOT NULL REFERENCES affiliates.business(id) ON DELETE CASCADE,
+    blocked_date DATE NOT NULL,
+    reason VARCHAR(255), -- Optional reason for blocking (e.g., "Holiday", "Maintenance", "Personal")
+    is_recurring BOOLEAN DEFAULT FALSE, -- For recurring blocked days (e.g., every Sunday)
+    recurrence_pattern VARCHAR(20) CHECK (recurrence_pattern IN ('yearly', 'monthly', 'weekly')),
+    recurrence_end_date DATE, -- When to stop recurring
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    created_by INTEGER REFERENCES auth.users(id),
+    
+    -- Constraints
+    CONSTRAINT unique_affiliate_date UNIQUE (affiliate_id, blocked_date),
+    CONSTRAINT valid_recurrence_end CHECK (
+        (is_recurring = FALSE) OR 
+        (is_recurring = TRUE AND recurrence_end_date IS NOT NULL AND recurrence_end_date > blocked_date)
+    )
+);
+
+-- Indexes for performance
+CREATE INDEX IF NOT EXISTS idx_blocked_days_affiliate_id ON schedule.blocked_days(affiliate_id);
+CREATE INDEX IF NOT EXISTS idx_blocked_days_date ON schedule.blocked_days(blocked_date);
+CREATE INDEX IF NOT EXISTS idx_blocked_days_recurring ON schedule.blocked_days(is_recurring);
+CREATE INDEX IF NOT EXISTS idx_blocked_days_affiliate_date_range ON schedule.blocked_days(affiliate_id, blocked_date);
+
+-- Trigger to update updated_at timestamp
+CREATE OR REPLACE FUNCTION schedule.update_blocked_days_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_update_blocked_days_updated_at
+    BEFORE UPDATE ON schedule.blocked_days
+    FOR EACH ROW
+    EXECUTE FUNCTION schedule.update_blocked_days_updated_at();
+
+
+==================================================
+
+FILE: backend/schedule_settings.sql
+------------------------------
+-- Schedule settings table for affiliate-specific scheduling configuration
+CREATE TABLE IF NOT EXISTS schedule.schedule_settings (
+    id SERIAL PRIMARY KEY,
+    affiliate_id INTEGER NOT NULL UNIQUE REFERENCES affiliates.business(id) ON DELETE CASCADE,
+    
+    -- Business hours (stored as JSON for flexibility)
+    business_hours JSONB NOT NULL DEFAULT '{
+        "monday": {"start": "09:00", "end": "17:00", "enabled": true},
+        "tuesday": {"start": "09:00", "end": "17:00", "enabled": true},
+        "wednesday": {"start": "09:00", "end": "17:00", "enabled": true},
+        "thursday": {"start": "09:00", "end": "17:00", "enabled": true},
+        "friday": {"start": "09:00", "end": "17:00", "enabled": true},
+        "saturday": {"start": "10:00", "end": "15:00", "enabled": true},
+        "sunday": {"start": "10:00", "end": "15:00", "enabled": false}
+    }',
+    
+    -- Scheduling constraints
+    default_appointment_duration INTEGER DEFAULT 60, -- in minutes
+    buffer_time INTEGER DEFAULT 15, -- buffer between appointments in minutes
+    max_appointments_per_day INTEGER DEFAULT 20,
+    advance_booking_days INTEGER DEFAULT 30, -- how far in advance customers can book
+    same_day_booking_allowed BOOLEAN DEFAULT TRUE,
+    
+    -- Time slot configuration
+    time_slot_interval INTEGER DEFAULT 15, -- interval between available time slots
+    earliest_appointment_time TIME DEFAULT '08:00',
+    latest_appointment_time TIME DEFAULT '18:00',
+    
+    -- Notifications
+    send_reminders BOOLEAN DEFAULT TRUE,
+    reminder_hours_before INTEGER DEFAULT 24,
+    send_confirmation_emails BOOLEAN DEFAULT TRUE,
+    
+    -- Metadata
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_by INTEGER REFERENCES auth.users(id),
+    
+    -- Constraints
+    CONSTRAINT valid_default_duration CHECK (default_appointment_duration > 0),
+    CONSTRAINT valid_buffer_time CHECK (buffer_time >= 0),
+    CONSTRAINT valid_max_appointments CHECK (max_appointments_per_day > 0),
+    CONSTRAINT valid_advance_booking CHECK (advance_booking_days > 0),
+    CONSTRAINT valid_time_slot_interval CHECK (time_slot_interval > 0),
+    CONSTRAINT valid_reminder_hours CHECK (reminder_hours_before > 0)
+);
+
+-- Index for performance
+CREATE INDEX IF NOT EXISTS idx_schedule_settings_affiliate_id ON schedule.schedule_settings(affiliate_id);
+
+-- Trigger to update updated_at timestamp
+CREATE OR REPLACE FUNCTION schedule.update_schedule_settings_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_update_schedule_settings_updated_at
+    BEFORE UPDATE ON schedule.schedule_settings
+    FOR EACH ROW
+    EXECUTE FUNCTION schedule.update_schedule_settings_updated_at();
+
+
+==================================================
+
+FILE: backend/time_blocks.sql
+------------------------------
+-- Time blocks table for blocking out unavailable time slots
+CREATE TABLE IF NOT EXISTS schedule.time_blocks (
+    id SERIAL PRIMARY KEY,
+    affiliate_id INTEGER NOT NULL REFERENCES affiliates.business(id) ON DELETE CASCADE,
+    
+    -- Block details
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    block_type VARCHAR(50) NOT NULL DEFAULT 'unavailable' CHECK (block_type IN ('unavailable', 'break', 'maintenance', 'personal', 'other')),
+    
+    -- Time range
+    start_time TIMESTAMP WITH TIME ZONE NOT NULL,
+    end_time TIMESTAMP WITH TIME ZONE NOT NULL,
+    
+    -- Recurrence (optional)
+    is_recurring BOOLEAN DEFAULT FALSE,
+    recurrence_pattern VARCHAR(20) CHECK (recurrence_pattern IN ('daily', 'weekly', 'monthly')),
+    recurrence_end_date TIMESTAMP WITH TIME ZONE,
+    
+    -- Metadata
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    created_by INTEGER REFERENCES auth.users(id),
+    
+    -- Constraints
+    CONSTRAINT valid_time_block_duration CHECK (end_time > start_time),
+    CONSTRAINT valid_recurrence_end CHECK (
+        (is_recurring = FALSE) OR 
+        (is_recurring = TRUE AND recurrence_end_date IS NOT NULL AND recurrence_end_date > start_time)
+    )
+);
+
+-- Indexes for performance
+CREATE INDEX IF NOT EXISTS idx_time_blocks_affiliate_id ON schedule.time_blocks(affiliate_id);
+CREATE INDEX IF NOT EXISTS idx_time_blocks_start_time ON schedule.time_blocks(start_time);
+CREATE INDEX IF NOT EXISTS idx_time_blocks_end_time ON schedule.time_blocks(end_time);
+CREATE INDEX IF NOT EXISTS idx_time_blocks_type ON schedule.time_blocks(block_type);
+CREATE INDEX IF NOT EXISTS idx_time_blocks_recurring ON schedule.time_blocks(is_recurring);
+
+-- Trigger to update updated_at timestamp
+CREATE OR REPLACE FUNCTION schedule.update_time_blocks_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_update_time_blocks_updated_at
+    BEFORE UPDATE ON schedule.time_blocks
+    FOR EACH ROW
+    EXECUTE FUNCTION schedule.update_time_blocks_updated_at();
+
+
+==================================================
+
 FILE: backend/reviews.sql
 ------------------------------
 -- Reviews table for both affiliate and MDH site reviews
@@ -22609,6 +24730,275 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_review_votes_unique_ip
 CREATE UNIQUE INDEX IF NOT EXISTS idx_review_votes_unique_user 
     ON reputation.review_votes(review_id, voter_user_id) 
     WHERE voter_user_id IS NOT NULL;
+
+
+==================================================
+
+FILE: backend/customers.sql
+------------------------------
+-- Customers table for customer profiles and preferences
+DROP TABLE IF EXISTS customers.customers CASCADE;
+
+CREATE TABLE customers.customers (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES auth.users(id) ON DELETE SET NULL,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255),
+    phone VARCHAR(50),
+    address VARCHAR(500),
+    city VARCHAR(100),
+    state VARCHAR(50),
+    zip_code VARCHAR(20),
+    country VARCHAR(50) DEFAULT 'US',
+    
+    -- Customer status and lifecycle
+    status VARCHAR(20) DEFAULT 'anonymous', -- anonymous, registered, verified, inactive
+    registration_source VARCHAR(50), -- website, phone, walk_in, referral, etc.
+    converted_at TIMESTAMPTZ, -- when they converted from anonymous to registered
+    
+    -- Contact preferences
+    contact_preferences JSONB DEFAULT '{
+        "email": true,
+        "sms": true,
+        "phone": true,
+        "marketing_emails": false,
+        "promotional_offers": false
+    }'::jsonb,
+    
+    -- Service preferences
+    service_preferences JSONB DEFAULT '{
+        "preferred_services": [],
+        "preferred_affiliates": [],
+        "vehicle_preferences": {},
+        "service_notes": ""
+    }'::jsonb,
+    
+    -- Customer metadata
+    notes TEXT,
+    tags TEXT[], -- for categorization: "vip", "frequent", "new", etc.
+    lifetime_value_cents INTEGER DEFAULT 0,
+    total_bookings INTEGER DEFAULT 0,
+    last_booking_at TIMESTAMPTZ,
+    last_activity_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    
+    -- Timestamps
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create indexes for better performance
+CREATE INDEX IF NOT EXISTS idx_customers_user_id ON customers.customers(user_id);
+CREATE INDEX IF NOT EXISTS idx_customers_email ON customers.customers(email);
+CREATE INDEX IF NOT EXISTS idx_customers_phone ON customers.customers(phone);
+CREATE INDEX IF NOT EXISTS idx_customers_status ON customers.customers(status);
+CREATE INDEX IF NOT EXISTS idx_customers_last_activity ON customers.customers(last_activity_at);
+CREATE INDEX IF NOT EXISTS idx_customers_created_at ON customers.customers(created_at);
+CREATE INDEX IF NOT EXISTS idx_customers_lifetime_value ON customers.customers(lifetime_value_cents);
+
+-- Create trigger to automatically update updated_at timestamp
+CREATE OR REPLACE FUNCTION customers.update_customers_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_customers_updated_at
+    BEFORE UPDATE ON customers.customers
+    FOR EACH ROW
+    EXECUTE FUNCTION customers.update_customers_updated_at();
+
+-- Create trigger to update last_activity_at on any change
+CREATE OR REPLACE FUNCTION customers.update_customers_last_activity()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.last_activity_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_customers_last_activity
+    BEFORE UPDATE ON customers.customers
+    FOR EACH ROW
+    EXECUTE FUNCTION customers.update_customers_last_activity();
+
+-- Add comments for documentation
+COMMENT ON TABLE customers.customers IS 'Customer profiles and preferences';
+COMMENT ON COLUMN customers.customers.status IS 'Customer lifecycle status: anonymous, registered, verified, inactive';
+COMMENT ON COLUMN customers.customers.registration_source IS 'How the customer was acquired';
+COMMENT ON COLUMN customers.customers.converted_at IS 'When customer converted from anonymous to registered';
+COMMENT ON COLUMN customers.customers.contact_preferences IS 'Customer communication preferences';
+COMMENT ON COLUMN customers.customers.service_preferences IS 'Customer service and vehicle preferences';
+COMMENT ON COLUMN customers.customers.lifetime_value_cents IS 'Total revenue from this customer in cents';
+COMMENT ON COLUMN customers.customers.tags IS 'Customer categorization tags';
+
+
+==================================================
+
+FILE: backend/customer_communications.sql
+------------------------------
+-- Customer communications table for tracking all customer interactions
+DROP TABLE IF EXISTS customers.customer_communications CASCADE;
+
+CREATE TABLE customers.customer_communications (
+    id SERIAL PRIMARY KEY,
+    customer_id INTEGER NOT NULL REFERENCES customers.customers(id) ON DELETE CASCADE,
+    
+    -- Communication details
+    communication_type VARCHAR(50) NOT NULL, -- email, sms, phone, in_app, mail
+    direction VARCHAR(10) NOT NULL, -- inbound, outbound
+    subject VARCHAR(255),
+    content TEXT NOT NULL,
+    
+    -- Communication metadata
+    status VARCHAR(20) DEFAULT 'sent', -- sent, delivered, read, failed, bounced
+    priority VARCHAR(10) DEFAULT 'normal', -- low, normal, high, urgent
+    category VARCHAR(50), -- booking_confirmation, quote_request, marketing, support, etc.
+    
+    -- Related entities
+    related_booking_id INTEGER, -- if related to a booking
+    related_quote_id INTEGER, -- if related to a quote
+    related_affiliate_id INTEGER, -- if from/to specific affiliate
+    
+    -- Delivery tracking
+    sent_at TIMESTAMPTZ,
+    delivered_at TIMESTAMPTZ,
+    read_at TIMESTAMPTZ,
+    failed_at TIMESTAMPTZ,
+    failure_reason TEXT,
+    
+    -- Response tracking
+    response_required BOOLEAN DEFAULT false,
+    response_received_at TIMESTAMPTZ,
+    response_content TEXT,
+    
+    -- External system tracking
+    external_id VARCHAR(255), -- ID from email/SMS service
+    external_status VARCHAR(50), -- status from external service
+    
+    -- Timestamps
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create indexes for better performance
+CREATE INDEX IF NOT EXISTS idx_customer_communications_customer_id ON customers.customer_communications(customer_id);
+CREATE INDEX IF NOT EXISTS idx_customer_communications_type ON customers.customer_communications(communication_type);
+CREATE INDEX IF NOT EXISTS idx_customer_communications_direction ON customers.customer_communications(direction);
+CREATE INDEX IF NOT EXISTS idx_customer_communications_status ON customers.customer_communications(status);
+CREATE INDEX IF NOT EXISTS idx_customer_communications_created_at ON customers.customer_communications(created_at);
+CREATE INDEX IF NOT EXISTS idx_customer_communications_booking_id ON customers.customer_communications(related_booking_id);
+CREATE INDEX IF NOT EXISTS idx_customer_communications_quote_id ON customers.customer_communications(related_quote_id);
+
+-- Create trigger to automatically update updated_at timestamp
+CREATE OR REPLACE FUNCTION customers.update_customer_communications_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_customer_communications_updated_at
+    BEFORE UPDATE ON customers.customer_communications
+    FOR EACH ROW
+    EXECUTE FUNCTION customers.update_customer_communications_updated_at();
+
+-- Add comments for documentation
+COMMENT ON TABLE customers.customer_communications IS 'All customer communication history and tracking';
+COMMENT ON COLUMN customers.customer_communications.communication_type IS 'Type of communication: email, sms, phone, in_app, mail';
+COMMENT ON COLUMN customers.customer_communications.direction IS 'Whether communication was inbound or outbound';
+COMMENT ON COLUMN customers.customer_communications.status IS 'Current status of the communication';
+COMMENT ON COLUMN customers.customer_communications.category IS 'Business category of the communication';
+
+
+==================================================
+
+FILE: backend/customer_vehicles.sql
+------------------------------
+-- Customer vehicles table for storing customer vehicle information
+DROP TABLE IF EXISTS customers.customer_vehicles CASCADE;
+
+CREATE TABLE customers.customer_vehicles (
+    id SERIAL PRIMARY KEY,
+    customer_id INTEGER NOT NULL REFERENCES customers.customers(id) ON DELETE CASCADE,
+    
+    -- Vehicle identification
+    make VARCHAR(100) NOT NULL,
+    model VARCHAR(100) NOT NULL,
+    year INTEGER,
+    color VARCHAR(50),
+    license_plate VARCHAR(20),
+    vin VARCHAR(17), -- Vehicle Identification Number
+    
+    -- Vehicle details
+    vehicle_type VARCHAR(20) NOT NULL, -- auto, boat, rv, motorcycle
+    size_bucket VARCHAR(10), -- xs, s, m, l, xl
+    mileage INTEGER,
+    
+    -- Service history and preferences
+    service_notes TEXT,
+    preferred_services TEXT[], -- array of service names
+    last_service_date DATE,
+    next_service_due DATE,
+    
+    -- Vehicle status
+    is_primary BOOLEAN DEFAULT false, -- customer's primary vehicle
+    is_active BOOLEAN DEFAULT true,
+    
+    -- Timestamps
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create indexes for better performance
+CREATE INDEX IF NOT EXISTS idx_customer_vehicles_customer_id ON customers.customer_vehicles(customer_id);
+CREATE INDEX IF NOT EXISTS idx_customer_vehicles_vehicle_type ON customers.customer_vehicles(vehicle_type);
+CREATE INDEX IF NOT EXISTS idx_customer_vehicles_is_primary ON customers.customer_vehicles(is_primary);
+CREATE INDEX IF NOT EXISTS idx_customer_vehicles_is_active ON customers.customer_vehicles(is_active);
+CREATE INDEX IF NOT EXISTS idx_customer_vehicles_license_plate ON customers.customer_vehicles(license_plate);
+
+-- Create trigger to automatically update updated_at timestamp
+CREATE OR REPLACE FUNCTION customers.update_customer_vehicles_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_customer_vehicles_updated_at
+    BEFORE UPDATE ON customers.customer_vehicles
+    FOR EACH ROW
+    EXECUTE FUNCTION customers.update_customer_vehicles_updated_at();
+
+-- Ensure only one primary vehicle per customer
+CREATE OR REPLACE FUNCTION customers.ensure_single_primary_vehicle()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- If setting this vehicle as primary, unset all others for this customer
+    IF NEW.is_primary = true THEN
+        UPDATE customers.customer_vehicles 
+        SET is_primary = false 
+        WHERE customer_id = NEW.customer_id 
+        AND id != NEW.id;
+    END IF;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_ensure_single_primary_vehicle
+    BEFORE INSERT OR UPDATE ON customers.customer_vehicles
+    FOR EACH ROW
+    EXECUTE FUNCTION customers.ensure_single_primary_vehicle();
+
+-- Add comments for documentation
+COMMENT ON TABLE customers.customer_vehicles IS 'Customer vehicle information and service history';
+COMMENT ON COLUMN customers.customer_vehicles.is_primary IS 'Whether this is the customer''s primary vehicle';
+COMMENT ON COLUMN customers.customer_vehicles.size_bucket IS 'Vehicle size category for pricing';
+COMMENT ON COLUMN customers.customer_vehicles.preferred_services IS 'Services typically requested for this vehicle';
 
 
 ==================================================
@@ -23067,6 +25457,802 @@ CREATE TRIGGER trigger_service_tiers_updated_at
 ALTER TABLE affiliates.service_tiers 
 ADD CONSTRAINT fk_service_tiers_service_id 
 FOREIGN KEY (service_id) REFERENCES affiliates.services(id) ON DELETE CASCADE;
+
+
+==================================================
+
+FILE: backend/20241220_create_booking_and_customers_schemas.sql
+------------------------------
+-- Migration: Create booking and customers schemas
+-- Version: v6.0
+-- Description: Create dedicated booking and customers schemas with proper relationships
+
+BEGIN;
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Create new schemas
+-- ─────────────────────────────────────────────────────────────────────────────
+
+CREATE SCHEMA IF NOT EXISTS booking;
+COMMENT ON SCHEMA booking IS 'Availability, quotes, and bookings';
+
+CREATE SCHEMA IF NOT EXISTS customers;
+COMMENT ON SCHEMA customers IS 'Customer profiles, preferences, and communication history';
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Create customers schema tables
+-- ─────────────────────────────────────────────────────────────────────────────
+
+-- Create customers table
+CREATE TABLE IF NOT EXISTS customers.customers (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES auth.users(id) ON DELETE SET NULL,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255),
+    phone VARCHAR(50),
+    address VARCHAR(500),
+    city VARCHAR(100),
+    state VARCHAR(50),
+    zip_code VARCHAR(20),
+    country VARCHAR(50) DEFAULT 'US',
+    
+    -- Customer status and lifecycle
+    status VARCHAR(20) DEFAULT 'anonymous', -- anonymous, registered, verified, inactive
+    registration_source VARCHAR(50), -- website, phone, walk_in, referral, etc.
+    converted_at TIMESTAMPTZ, -- when they converted from anonymous to registered
+    
+    -- Contact preferences
+    contact_preferences JSONB DEFAULT '{
+        "email": true,
+        "sms": true,
+        "phone": true,
+        "marketing_emails": false,
+        "promotional_offers": false
+    }'::jsonb,
+    
+    -- Service preferences
+    service_preferences JSONB DEFAULT '{
+        "preferred_services": [],
+        "preferred_affiliates": [],
+        "vehicle_preferences": {},
+        "service_notes": ""
+    }'::jsonb,
+    
+    -- Customer metadata
+    notes TEXT,
+    tags TEXT[], -- for categorization: "vip", "frequent", "new", etc.
+    lifetime_value_cents INTEGER DEFAULT 0,
+    total_bookings INTEGER DEFAULT 0,
+    last_booking_at TIMESTAMPTZ,
+    last_activity_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    
+    -- Timestamps
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create customer vehicles table
+CREATE TABLE IF NOT EXISTS customers.customer_vehicles (
+    id SERIAL PRIMARY KEY,
+    customer_id INTEGER NOT NULL REFERENCES customers.customers(id) ON DELETE CASCADE,
+    
+    -- Vehicle identification
+    make VARCHAR(100) NOT NULL,
+    model VARCHAR(100) NOT NULL,
+    year INTEGER,
+    color VARCHAR(50),
+    license_plate VARCHAR(20),
+    vin VARCHAR(17), -- Vehicle Identification Number
+    
+    -- Vehicle details
+    vehicle_type VARCHAR(20) NOT NULL, -- auto, boat, rv, motorcycle
+    size_bucket VARCHAR(10), -- xs, s, m, l, xl
+    mileage INTEGER,
+    
+    -- Service history and preferences
+    service_notes TEXT,
+    preferred_services TEXT[], -- array of service names
+    last_service_date DATE,
+    next_service_due DATE,
+    
+    -- Vehicle status
+    is_primary BOOLEAN DEFAULT false, -- customer's primary vehicle
+    is_active BOOLEAN DEFAULT true,
+    
+    -- Timestamps
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create customer communications table
+CREATE TABLE IF NOT EXISTS customers.customer_communications (
+    id SERIAL PRIMARY KEY,
+    customer_id INTEGER NOT NULL REFERENCES customers.customers(id) ON DELETE CASCADE,
+    
+    -- Communication details
+    communication_type VARCHAR(50) NOT NULL, -- email, sms, phone, in_app, mail
+    direction VARCHAR(10) NOT NULL, -- inbound, outbound
+    subject VARCHAR(255),
+    content TEXT NOT NULL,
+    
+    -- Communication metadata
+    status VARCHAR(20) DEFAULT 'sent', -- sent, delivered, read, failed, bounced
+    priority VARCHAR(10) DEFAULT 'normal', -- low, normal, high, urgent
+    category VARCHAR(50), -- booking_confirmation, quote_request, marketing, support, etc.
+    
+    -- Related entities
+    related_booking_id INTEGER, -- if related to a booking
+    related_quote_id INTEGER, -- if related to a quote
+    related_affiliate_id INTEGER, -- if from/to specific affiliate
+    
+    -- Delivery tracking
+    sent_at TIMESTAMPTZ,
+    delivered_at TIMESTAMPTZ,
+    read_at TIMESTAMPTZ,
+    failed_at TIMESTAMPTZ,
+    failure_reason TEXT,
+    
+    -- Response tracking
+    response_required BOOLEAN DEFAULT false,
+    response_received_at TIMESTAMPTZ,
+    response_content TEXT,
+    
+    -- External system tracking
+    external_id VARCHAR(255), -- ID from email/SMS service
+    external_status VARCHAR(50), -- status from external service
+    
+    -- Timestamps
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Create booking schema tables
+-- ─────────────────────────────────────────────────────────────────────────────
+
+-- Create availability table
+CREATE TABLE IF NOT EXISTS booking.availability (
+    id SERIAL PRIMARY KEY,
+    affiliate_id INTEGER NOT NULL REFERENCES affiliates.business(id) ON DELETE CASCADE,
+    date DATE NOT NULL,
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    capacity INTEGER NOT NULL DEFAULT 1,
+    is_blocked BOOLEAN DEFAULT false,
+    block_reason VARCHAR(255),
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create quotes table
+CREATE TABLE IF NOT EXISTS booking.quotes (
+    id SERIAL PRIMARY KEY,
+    affiliate_id INTEGER NOT NULL REFERENCES affiliates.business(id) ON DELETE CASCADE,
+    customer_id INTEGER REFERENCES customers.customers(id) ON DELETE SET NULL,
+    address_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    requested_start TIMESTAMPTZ,
+    status VARCHAR(20) NOT NULL DEFAULT 'new', -- new, contacted, priced, accepted, rejected, expired
+    details_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    estimated_total_cents INTEGER,
+    notes TEXT,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create bookings table
+CREATE TABLE IF NOT EXISTS booking.bookings (
+    id SERIAL PRIMARY KEY,
+    affiliate_id INTEGER NOT NULL REFERENCES affiliates.business(id) ON DELETE CASCADE,
+    customer_id INTEGER REFERENCES customers.customers(id) ON DELETE SET NULL,
+    service_id INTEGER REFERENCES affiliates.services(id) ON DELETE SET NULL,
+    tier_id INTEGER REFERENCES affiliates.service_tiers(id) ON DELETE SET NULL,
+    appointment_start TIMESTAMPTZ NOT NULL,
+    appointment_end TIMESTAMPTZ NOT NULL,
+    address_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    status VARCHAR(20) NOT NULL DEFAULT 'pending', -- pending, confirmed, in_progress, completed, canceled, no_show
+    total_cents INTEGER NOT NULL DEFAULT 0,
+    stripe_payment_intent_id TEXT,
+    notes TEXT,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Migrate existing data (if exists in public schema)
+-- ─────────────────────────────────────────────────────────────────────────────
+
+-- Check if tables exist in public schema and migrate data
+DO $$
+BEGIN
+    -- Migrate customers if they exist
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'customers') THEN
+        INSERT INTO customers.customers (
+            id, user_id, name, email, phone, address, preferences, 
+            created_at, updated_at
+        )
+        SELECT 
+            id, 
+            user_id, 
+            name, 
+            email, 
+            phone, 
+            address, 
+            COALESCE(preferences, '{}'::jsonb) as preferences,
+            created_at, 
+            updated_at
+        FROM public.customers
+        ON CONFLICT (id) DO NOTHING;
+        
+        -- Update sequence to avoid conflicts
+        SELECT setval('customers.customers_id_seq', (SELECT MAX(id) FROM customers.customers));
+        
+        -- Drop old table
+        DROP TABLE public.customers CASCADE;
+    END IF;
+    
+    -- Migrate quotes if they exist
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'quotes') THEN
+        INSERT INTO booking.quotes (
+            id, affiliate_id, customer_id, address_json, requested_start, 
+            status, details_json, estimated_total_cents, created_at, updated_at
+        )
+        SELECT 
+            id, affiliate_id, customer_id, address_json, requested_start,
+            status, details_json, estimated_total_cents, created_at, updated_at
+        FROM public.quotes
+        ON CONFLICT (id) DO NOTHING;
+        
+        -- Update sequence
+        SELECT setval('booking.quotes_id_seq', (SELECT MAX(id) FROM booking.quotes));
+        
+        -- Drop old table
+        DROP TABLE public.quotes CASCADE;
+    END IF;
+    
+    -- Migrate bookings if they exist
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'bookings') THEN
+        INSERT INTO booking.bookings (
+            id, affiliate_id, customer_id, service_id, tier_id, 
+            appointment_start, appointment_end, address_json, status, 
+            total_cents, stripe_payment_intent_id, created_at, updated_at
+        )
+        SELECT 
+            id, affiliate_id, customer_id, service_id, tier_id,
+            appointment_start, appointment_end, address_json, status,
+            total_cents, stripe_payment_intent_id, created_at, updated_at
+        FROM public.bookings
+        ON CONFLICT (id) DO NOTHING;
+        
+        -- Update sequence
+        SELECT setval('booking.bookings_id_seq', (SELECT MAX(id) FROM booking.bookings));
+        
+        -- Drop old table
+        DROP TABLE public.bookings CASCADE;
+    END IF;
+    
+    -- Migrate availability if it exists
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'availability') THEN
+        INSERT INTO booking.availability (
+            id, affiliate_id, date, start_time, end_time, capacity, created_at, updated_at
+        )
+        SELECT 
+            id, affiliate_id, date, start_time, end_time, capacity, created_at, updated_at
+        FROM public.availability
+        ON CONFLICT (id) DO NOTHING;
+        
+        -- Update sequence
+        SELECT setval('booking.availability_id_seq', (SELECT MAX(id) FROM booking.availability));
+        
+        -- Drop old table
+        DROP TABLE public.availability CASCADE;
+    END IF;
+END $$;
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Create indexes for better performance
+-- ─────────────────────────────────────────────────────────────────────────────
+
+-- Customers table indexes
+CREATE INDEX IF NOT EXISTS idx_customers_user_id ON customers.customers(user_id);
+CREATE INDEX IF NOT EXISTS idx_customers_email ON customers.customers(email);
+CREATE INDEX IF NOT EXISTS idx_customers_phone ON customers.customers(phone);
+CREATE INDEX IF NOT EXISTS idx_customers_status ON customers.customers(status);
+CREATE INDEX IF NOT EXISTS idx_customers_last_activity ON customers.customers(last_activity_at);
+CREATE INDEX IF NOT EXISTS idx_customers_created_at ON customers.customers(created_at);
+CREATE INDEX IF NOT EXISTS idx_customers_lifetime_value ON customers.customers(lifetime_value_cents);
+
+-- Customer vehicles table indexes
+CREATE INDEX IF NOT EXISTS idx_customer_vehicles_customer_id ON customers.customer_vehicles(customer_id);
+CREATE INDEX IF NOT EXISTS idx_customer_vehicles_vehicle_type ON customers.customer_vehicles(vehicle_type);
+CREATE INDEX IF NOT EXISTS idx_customer_vehicles_is_primary ON customers.customer_vehicles(is_primary);
+CREATE INDEX IF NOT EXISTS idx_customer_vehicles_is_active ON customers.customer_vehicles(is_active);
+CREATE INDEX IF NOT EXISTS idx_customer_vehicles_license_plate ON customers.customer_vehicles(license_plate);
+
+-- Customer communications table indexes
+CREATE INDEX IF NOT EXISTS idx_customer_communications_customer_id ON customers.customer_communications(customer_id);
+CREATE INDEX IF NOT EXISTS idx_customer_communications_type ON customers.customer_communications(communication_type);
+CREATE INDEX IF NOT EXISTS idx_customer_communications_direction ON customers.customer_communications(direction);
+CREATE INDEX IF NOT EXISTS idx_customer_communications_status ON customers.customer_communications(status);
+CREATE INDEX IF NOT EXISTS idx_customer_communications_created_at ON customers.customer_communications(created_at);
+CREATE INDEX IF NOT EXISTS idx_customer_communications_booking_id ON customers.customer_communications(related_booking_id);
+CREATE INDEX IF NOT EXISTS idx_customer_communications_quote_id ON customers.customer_communications(related_quote_id);
+
+-- Booking table indexes
+CREATE INDEX IF NOT EXISTS idx_availability_affiliate_date ON booking.availability(affiliate_id, date);
+CREATE INDEX IF NOT EXISTS idx_availability_date ON booking.availability(date);
+CREATE INDEX IF NOT EXISTS idx_quotes_customer_id ON booking.quotes(customer_id);
+CREATE INDEX IF NOT EXISTS idx_quotes_affiliate_id ON booking.quotes(affiliate_id);
+CREATE INDEX IF NOT EXISTS idx_quotes_status ON booking.quotes(status);
+CREATE INDEX IF NOT EXISTS idx_quotes_created_at ON booking.quotes(created_at);
+CREATE INDEX IF NOT EXISTS idx_bookings_customer_id ON booking.bookings(customer_id);
+CREATE INDEX IF NOT EXISTS idx_bookings_affiliate_id ON booking.bookings(affiliate_id);
+CREATE INDEX IF NOT EXISTS idx_bookings_status ON booking.bookings(status);
+CREATE INDEX IF NOT EXISTS idx_bookings_appointment_start ON booking.bookings(appointment_start);
+CREATE INDEX IF NOT EXISTS idx_bookings_created_at ON booking.bookings(created_at);
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Create triggers
+-- ─────────────────────────────────────────────────────────────────────────────
+
+-- Customers table triggers
+CREATE OR REPLACE FUNCTION customers.update_customers_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_customers_updated_at
+    BEFORE UPDATE ON customers.customers
+    FOR EACH ROW
+    EXECUTE FUNCTION customers.update_customers_updated_at();
+
+CREATE OR REPLACE FUNCTION customers.update_customers_last_activity()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.last_activity_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_customers_last_activity
+    BEFORE UPDATE ON customers.customers
+    FOR EACH ROW
+    EXECUTE FUNCTION customers.update_customers_last_activity();
+
+-- Customer vehicles table triggers
+CREATE OR REPLACE FUNCTION customers.update_customer_vehicles_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_customer_vehicles_updated_at
+    BEFORE UPDATE ON customers.customer_vehicles
+    FOR EACH ROW
+    EXECUTE FUNCTION customers.update_customer_vehicles_updated_at();
+
+-- Ensure only one primary vehicle per customer
+CREATE OR REPLACE FUNCTION customers.ensure_single_primary_vehicle()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- If setting this vehicle as primary, unset all others for this customer
+    IF NEW.is_primary = true THEN
+        UPDATE customers.customer_vehicles 
+        SET is_primary = false 
+        WHERE customer_id = NEW.customer_id 
+        AND id != NEW.id;
+    END IF;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_ensure_single_primary_vehicle
+    BEFORE INSERT OR UPDATE ON customers.customer_vehicles
+    FOR EACH ROW
+    EXECUTE FUNCTION customers.ensure_single_primary_vehicle();
+
+-- Customer communications table triggers
+CREATE OR REPLACE FUNCTION customers.update_customer_communications_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_customer_communications_updated_at
+    BEFORE UPDATE ON customers.customer_communications
+    FOR EACH ROW
+    EXECUTE FUNCTION customers.update_customer_communications_updated_at();
+
+-- Booking table triggers
+CREATE OR REPLACE FUNCTION booking.update_booking_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_availability_updated_at
+    BEFORE UPDATE ON booking.availability
+    FOR EACH ROW
+    EXECUTE FUNCTION booking.update_booking_updated_at();
+
+CREATE TRIGGER trigger_quotes_updated_at
+    BEFORE UPDATE ON booking.quotes
+    FOR EACH ROW
+    EXECUTE FUNCTION booking.update_booking_updated_at();
+
+CREATE TRIGGER trigger_bookings_updated_at
+    BEFORE UPDATE ON booking.bookings
+    FOR EACH ROW
+    EXECUTE FUNCTION booking.update_booking_updated_at();
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Add table comments for documentation
+-- ─────────────────────────────────────────────────────────────────────────────
+
+COMMENT ON TABLE customers.customers IS 'Customer profiles and preferences';
+COMMENT ON TABLE customers.customer_vehicles IS 'Customer vehicle information and service history';
+COMMENT ON TABLE customers.customer_communications IS 'All customer communication history and tracking';
+COMMENT ON TABLE booking.availability IS 'Affiliate availability windows';
+COMMENT ON TABLE booking.quotes IS 'Customer quote requests';
+COMMENT ON TABLE booking.bookings IS 'Confirmed appointments';
+
+COMMIT;
+
+
+==================================================
+
+FILE: backend/20241220_create_customers_schema.sql
+------------------------------
+-- Migration: Create customers schema and move customers table
+-- Version: v6.0
+-- Description: Create dedicated customers schema and migrate existing customers table
+
+BEGIN;
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Create customers schema
+-- ─────────────────────────────────────────────────────────────────────────────
+
+CREATE SCHEMA IF NOT EXISTS customers;
+COMMENT ON SCHEMA customers IS 'Customer profiles, preferences, and communication history';
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Create customers schema tables
+-- ─────────────────────────────────────────────────────────────────────────────
+
+-- Create customers table (if it doesn't exist in public schema)
+CREATE TABLE IF NOT EXISTS customers.customers (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES auth.users(id) ON DELETE SET NULL,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255),
+    phone VARCHAR(50),
+    address VARCHAR(500),
+    city VARCHAR(100),
+    state VARCHAR(50),
+    zip_code VARCHAR(20),
+    country VARCHAR(50) DEFAULT 'US',
+    
+    -- Customer status and lifecycle
+    status VARCHAR(20) DEFAULT 'anonymous', -- anonymous, registered, verified, inactive
+    registration_source VARCHAR(50), -- website, phone, walk_in, referral, etc.
+    converted_at TIMESTAMPTZ, -- when they converted from anonymous to registered
+    
+    -- Contact preferences
+    contact_preferences JSONB DEFAULT '{
+        "email": true,
+        "sms": true,
+        "phone": true,
+        "marketing_emails": false,
+        "promotional_offers": false
+    }'::jsonb,
+    
+    -- Service preferences
+    service_preferences JSONB DEFAULT '{
+        "preferred_services": [],
+        "preferred_affiliates": [],
+        "vehicle_preferences": {},
+        "service_notes": ""
+    }'::jsonb,
+    
+    -- Customer metadata
+    notes TEXT,
+    tags TEXT[], -- for categorization: "vip", "frequent", "new", etc.
+    lifetime_value_cents INTEGER DEFAULT 0,
+    total_bookings INTEGER DEFAULT 0,
+    last_booking_at TIMESTAMPTZ,
+    last_activity_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    
+    -- Timestamps
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create customer vehicles table
+CREATE TABLE IF NOT EXISTS customers.customer_vehicles (
+    id SERIAL PRIMARY KEY,
+    customer_id INTEGER NOT NULL REFERENCES customers.customers(id) ON DELETE CASCADE,
+    
+    -- Vehicle identification
+    make VARCHAR(100) NOT NULL,
+    model VARCHAR(100) NOT NULL,
+    year INTEGER,
+    color VARCHAR(50),
+    license_plate VARCHAR(20),
+    vin VARCHAR(17), -- Vehicle Identification Number
+    
+    -- Vehicle details
+    vehicle_type VARCHAR(20) NOT NULL, -- auto, boat, rv, motorcycle
+    size_bucket VARCHAR(10), -- xs, s, m, l, xl
+    mileage INTEGER,
+    
+    -- Service history and preferences
+    service_notes TEXT,
+    preferred_services TEXT[], -- array of service names
+    last_service_date DATE,
+    next_service_due DATE,
+    
+    -- Vehicle status
+    is_primary BOOLEAN DEFAULT false, -- customer's primary vehicle
+    is_active BOOLEAN DEFAULT true,
+    
+    -- Timestamps
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create customer communications table
+CREATE TABLE IF NOT EXISTS customers.customer_communications (
+    id SERIAL PRIMARY KEY,
+    customer_id INTEGER NOT NULL REFERENCES customers.customers(id) ON DELETE CASCADE,
+    
+    -- Communication details
+    communication_type VARCHAR(50) NOT NULL, -- email, sms, phone, in_app, mail
+    direction VARCHAR(10) NOT NULL, -- inbound, outbound
+    subject VARCHAR(255),
+    content TEXT NOT NULL,
+    
+    -- Communication metadata
+    status VARCHAR(20) DEFAULT 'sent', -- sent, delivered, read, failed, bounced
+    priority VARCHAR(10) DEFAULT 'normal', -- low, normal, high, urgent
+    category VARCHAR(50), -- booking_confirmation, quote_request, marketing, support, etc.
+    
+    -- Related entities
+    related_booking_id INTEGER, -- if related to a booking
+    related_quote_id INTEGER, -- if related to a quote
+    related_affiliate_id INTEGER, -- if from/to specific affiliate
+    
+    -- Delivery tracking
+    sent_at TIMESTAMPTZ,
+    delivered_at TIMESTAMPTZ,
+    read_at TIMESTAMPTZ,
+    failed_at TIMESTAMPTZ,
+    failure_reason TEXT,
+    
+    -- Response tracking
+    response_required BOOLEAN DEFAULT false,
+    response_received_at TIMESTAMPTZ,
+    response_content TEXT,
+    
+    -- External system tracking
+    external_id VARCHAR(255), -- ID from email/SMS service
+    external_status VARCHAR(50), -- status from external service
+    
+    -- Timestamps
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Migrate existing customers data (if exists in public schema)
+-- ─────────────────────────────────────────────────────────────────────────────
+
+-- Check if customers table exists in public schema and migrate data
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'customers') THEN
+        -- Migrate existing customers data
+        INSERT INTO customers.customers (
+            id, user_id, name, email, phone, address, preferences, 
+            created_at, updated_at
+        )
+        SELECT 
+            id, 
+            user_id, 
+            name, 
+            email, 
+            phone, 
+            address, 
+            COALESCE(preferences, '{}'::jsonb) as preferences,
+            created_at, 
+            updated_at
+        FROM public.customers
+        ON CONFLICT (id) DO NOTHING;
+        
+        -- Update sequence to avoid conflicts
+        SELECT setval('customers.customers_id_seq', (SELECT MAX(id) FROM customers.customers));
+        
+        -- Drop old table
+        DROP TABLE public.customers CASCADE;
+    END IF;
+END $$;
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Create indexes for better performance
+-- ─────────────────────────────────────────────────────────────────────────────
+
+-- Customers table indexes
+CREATE INDEX IF NOT EXISTS idx_customers_user_id ON customers.customers(user_id);
+CREATE INDEX IF NOT EXISTS idx_customers_email ON customers.customers(email);
+CREATE INDEX IF NOT EXISTS idx_customers_phone ON customers.customers(phone);
+CREATE INDEX IF NOT EXISTS idx_customers_status ON customers.customers(status);
+CREATE INDEX IF NOT EXISTS idx_customers_last_activity ON customers.customers(last_activity_at);
+CREATE INDEX IF NOT EXISTS idx_customers_created_at ON customers.customers(created_at);
+CREATE INDEX IF NOT EXISTS idx_customers_lifetime_value ON customers.customers(lifetime_value_cents);
+
+-- Customer vehicles table indexes
+CREATE INDEX IF NOT EXISTS idx_customer_vehicles_customer_id ON customers.customer_vehicles(customer_id);
+CREATE INDEX IF NOT EXISTS idx_customer_vehicles_vehicle_type ON customers.customer_vehicles(vehicle_type);
+CREATE INDEX IF NOT EXISTS idx_customer_vehicles_is_primary ON customers.customer_vehicles(is_primary);
+CREATE INDEX IF NOT EXISTS idx_customer_vehicles_is_active ON customers.customer_vehicles(is_active);
+CREATE INDEX IF NOT EXISTS idx_customer_vehicles_license_plate ON customers.customer_vehicles(license_plate);
+
+-- Customer communications table indexes
+CREATE INDEX IF NOT EXISTS idx_customer_communications_customer_id ON customers.customer_communications(customer_id);
+CREATE INDEX IF NOT EXISTS idx_customer_communications_type ON customers.customer_communications(communication_type);
+CREATE INDEX IF NOT EXISTS idx_customer_communications_direction ON customers.customer_communications(direction);
+CREATE INDEX IF NOT EXISTS idx_customer_communications_status ON customers.customer_communications(status);
+CREATE INDEX IF NOT EXISTS idx_customer_communications_created_at ON customers.customer_communications(created_at);
+CREATE INDEX IF NOT EXISTS idx_customer_communications_booking_id ON customers.customer_communications(related_booking_id);
+CREATE INDEX IF NOT EXISTS idx_customer_communications_quote_id ON customers.customer_communications(related_quote_id);
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Create triggers
+-- ─────────────────────────────────────────────────────────────────────────────
+
+-- Customers table triggers
+CREATE OR REPLACE FUNCTION customers.update_customers_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_customers_updated_at
+    BEFORE UPDATE ON customers.customers
+    FOR EACH ROW
+    EXECUTE FUNCTION customers.update_customers_updated_at();
+
+CREATE OR REPLACE FUNCTION customers.update_customers_last_activity()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.last_activity_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_customers_last_activity
+    BEFORE UPDATE ON customers.customers
+    FOR EACH ROW
+    EXECUTE FUNCTION customers.update_customers_last_activity();
+
+-- Customer vehicles table triggers
+CREATE OR REPLACE FUNCTION customers.update_customer_vehicles_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_customer_vehicles_updated_at
+    BEFORE UPDATE ON customers.customer_vehicles
+    FOR EACH ROW
+    EXECUTE FUNCTION customers.update_customer_vehicles_updated_at();
+
+-- Ensure only one primary vehicle per customer
+CREATE OR REPLACE FUNCTION customers.ensure_single_primary_vehicle()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- If setting this vehicle as primary, unset all others for this customer
+    IF NEW.is_primary = true THEN
+        UPDATE customers.customer_vehicles 
+        SET is_primary = false 
+        WHERE customer_id = NEW.customer_id 
+        AND id != NEW.id;
+    END IF;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_ensure_single_primary_vehicle
+    BEFORE INSERT OR UPDATE ON customers.customer_vehicles
+    FOR EACH ROW
+    EXECUTE FUNCTION customers.ensure_single_primary_vehicle();
+
+-- Customer communications table triggers
+CREATE OR REPLACE FUNCTION customers.update_customer_communications_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_customer_communications_updated_at
+    BEFORE UPDATE ON customers.customer_communications
+    FOR EACH ROW
+    EXECUTE FUNCTION customers.update_customer_communications_updated_at();
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Update foreign key references in other tables
+-- ─────────────────────────────────────────────────────────────────────────────
+
+-- Update quotes table to reference customers.customers
+ALTER TABLE booking.quotes DROP CONSTRAINT IF EXISTS quotes_customer_id_fkey;
+ALTER TABLE booking.quotes ADD CONSTRAINT quotes_customer_id_fkey 
+    FOREIGN KEY (customer_id) REFERENCES customers.customers(id) ON DELETE SET NULL;
+
+-- Update bookings table to reference customers.customers
+ALTER TABLE booking.bookings DROP CONSTRAINT IF EXISTS bookings_customer_id_fkey;
+ALTER TABLE booking.bookings ADD CONSTRAINT bookings_customer_id_fkey 
+    FOREIGN KEY (customer_id) REFERENCES customers.customers(id) ON DELETE SET NULL;
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Add table comments for documentation
+-- ─────────────────────────────────────────────────────────────────────────────
+
+COMMENT ON TABLE customers.customers IS 'Customer profiles and preferences';
+COMMENT ON TABLE customers.customer_vehicles IS 'Customer vehicle information and service history';
+COMMENT ON TABLE customers.customer_communications IS 'All customer communication history and tracking';
+
+COMMIT;
+
+
+==================================================
+
+FILE: backend/20241220_create_schedule_schema.sql
+------------------------------
+-- Create schedule schema and tables
+-- Migration: 20241220_create_schedule_schema.sql
+
+-- Create the schedule schema
+CREATE SCHEMA IF NOT EXISTS schedule;
+
+-- Set search path to include schedule schema
+SET search_path TO schedule, public;
+
+-- Create appointments table
+\i ../schemas/schedule/appointments.sql
+
+-- Create time_blocks table  
+\i ../schemas/schedule/time_blocks.sql
+
+-- Create schedule_settings table
+\i ../schemas/schedule/schedule_settings.sql
+
+-- Create blocked_days table
+\i ../schemas/schedule/blocked_days.sql
+
+-- Insert default schedule settings for existing affiliates
+INSERT INTO schedule.schedule_settings (affiliate_id)
+SELECT id FROM affiliates.business
+WHERE id NOT IN (SELECT affiliate_id FROM schedule.schedule_settings)
+ON CONFLICT (affiliate_id) DO NOTHING;
+
+-- Reset search path
+SET search_path TO public;
 
 
 ==================================================

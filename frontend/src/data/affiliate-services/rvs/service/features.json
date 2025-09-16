@@ -1,0 +1,10 @@
+{
+  "basic-rv-cleaning": {
+    "name": "Basic RV Cleaning",
+    "description": "Essential RV cleaning service",
+    "explanation": "Basic cleaning for RV maintenance",
+    "image": "/images/services/basic-rv-cleaning.jpg",
+    "duration": 120,
+    "features": ["Exterior wash", "Interior cleaning"]
+  }
+}

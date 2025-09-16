@@ -1,6 +1,7 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-import { BookingModal, prefetchQuoteModal } from "@/features/booking";
+import { usePrefetch } from "@/shared/hooks";
 import { Header } from "@/features/header";
 import { RequestQuoteModal } from "@/features/quotes";
 import { useSiteContext } from "@/shared/hooks";
@@ -10,11 +11,12 @@ import { Action, Hero, Information, Process, Results, WhatItIs } from "./service
 
 const ServicePage: React.FC = () => {
   const serviceData = useServiceData();
-  const { isAffiliate } = useSiteContext();
+  const { isAffiliate, businessSlug } = useSiteContext();
+  const { prefetchQuoteModal } = usePrefetch();
+  const navigate = useNavigate();
   
   // Modal state - only needed for affiliate pages
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
-  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   
   // Modal handlers
   const handleOpenQuoteModal = () => {
@@ -25,17 +27,15 @@ const ServicePage: React.FC = () => {
     setIsQuoteModalOpen(false);
   };
 
-  const handleOpenBookingModal = () => {
-    setIsBookingModalOpen(true);
-  };
-  
-  const handleCloseBookingModal = () => {
-    setIsBookingModalOpen(false);
+  const handleBookNow = () => {
+    // Navigate to booking page, preserving business slug for affiliate sites
+    const bookingPath = businessSlug ? `/${businessSlug}/booking` : '/booking';
+    navigate(bookingPath);
   };
 
   // Prefetch handler for better performance
   const handleQuoteModalPrefetch = (): void => {
-    void prefetchQuoteModal();
+    prefetchQuoteModal();
   };
 
   if (!serviceData) {
@@ -53,7 +53,7 @@ const ServicePage: React.FC = () => {
     <main className="bg-stone-900 text-white">
       <Header />
       <Hero 
-        onBook={isAffiliate ? handleOpenBookingModal : undefined} 
+        onBook={isAffiliate ? handleBookNow : undefined} 
         onQuote={isAffiliate ? handleOpenQuoteModal : undefined} 
         onQuoteHover={isAffiliate ? handleQuoteModalPrefetch : undefined}
         bookLabel={isAffiliate ? serviceData.action.bookLabel : undefined} 
@@ -65,7 +65,7 @@ const ServicePage: React.FC = () => {
       <Results serviceData={serviceData} />
       <Information serviceData={serviceData} />
       <Action 
-        onBook={isAffiliate ? handleOpenBookingModal : undefined} 
+        onBook={isAffiliate ? handleBookNow : undefined} 
         onQuote={isAffiliate ? handleOpenQuoteModal : undefined} 
         bookLabel={isAffiliate ? serviceData.action.bookLabel : undefined} 
         quoteLabel={isAffiliate ? serviceData.action.quoteLabel : undefined}
@@ -74,16 +74,10 @@ const ServicePage: React.FC = () => {
       
       {/* Modals - only render on affiliate pages */}
       {isAffiliate && (
-        <>
-          <RequestQuoteModal 
-            isOpen={isQuoteModalOpen} 
-            onClose={handleCloseQuoteModal} 
-          />
-          <BookingModal 
-            isOpen={isBookingModalOpen} 
-            onClose={handleCloseBookingModal} 
-          />
-        </>
+        <RequestQuoteModal 
+          isOpen={isQuoteModalOpen} 
+          onClose={handleCloseQuoteModal} 
+        />
       )}
     </main>
   );

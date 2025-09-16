@@ -33,12 +33,13 @@ interface ServiceData {
 // Mapping from frontend IDs to database IDs
 const VEHICLE_ID_MAP: Record<string, number> = {
   'cars': 1,
+  'suv': 3, // SUV has its own database ID
   'trucks': 2,
-  'rvs': 3,
-  'boats': 4,
-  'motorcycles': 5,
-  'offroad': 6,
-  'other': 7
+  'rvs': 4,
+  'boats': 5,
+  'motorcycles': 6,
+  'offroad': 7,
+  'other': 8
 };
 
 const CATEGORY_ID_MAP: Record<string, number> = {
@@ -260,6 +261,25 @@ export const useServicesData = () => {
     {
       id: 'cars',
       name: 'Cars',
+      icon: Car,
+      categories: [
+        {
+          id: 'service-packages',
+          name: 'Service Packages',
+          color: 'bg-green-600',
+          services: []
+        },
+        {
+          id: 'addons',
+          name: 'Addons',
+          color: 'bg-indigo-600',
+          services: []
+        }
+      ]
+    },
+    {
+      id: 'suv',
+      name: 'SUV',
       icon: Car,
       categories: [
         {

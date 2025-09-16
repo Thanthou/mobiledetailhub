@@ -37,7 +37,7 @@ export const useModalPrefetch = () => {
 
   const prefetchQuoteModal = useCallback(() => {
     prefetch(() => {
-      void import('@/features/booking/components/QuoteModal');
+      void import('@/features/quotes/components/RequestQuoteModal');
     }, 'quoteModal');
   }, [prefetch]);
 

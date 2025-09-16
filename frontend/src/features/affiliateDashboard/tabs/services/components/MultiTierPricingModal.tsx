@@ -4,7 +4,11 @@ import { Edit2, Plus, Save, Trash2, X } from 'lucide-react';
 import { Button } from '@/shared/ui';
 import { FeatureDropdown } from './FeatureDropdown';
 import { FeatureList } from './FeatureList';
-import { CAR_SERVICE_OPTIONS } from '@/data/affiliate-services/cars/features';
+// Disabled affiliate services import
+// import { CAR_SERVICE_OPTIONS } from '@/data/affiliate-services/cars/service/features';
+
+// Fallback empty data
+const CAR_SERVICE_OPTIONS = [];
 import { Service, Tier } from '../types/ServiceClasses';
 
 // Using Service and Tier classes from ServiceClasses.ts

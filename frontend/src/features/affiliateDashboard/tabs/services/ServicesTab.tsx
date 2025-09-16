@@ -5,7 +5,7 @@ import { useParams } from 'react-router-dom';
 
 import { Button } from '@/shared/ui';
 
-import { type AuthContextType, useAuth } from '@/shared/hooks';
+import { useAuth } from '@/shared/hooks';
 import { CategorySelector } from './components/CategorySelector';
 import { DeleteServiceModal } from './components/DeleteServiceModal';
 import { MultiTierPricingModal } from './components/MultiTierPricingModal';
@@ -13,7 +13,11 @@ import { ServiceSelector } from './components/ServiceSelector';
 import { VehicleSelector } from './components/VehicleSelector';
 import { useServicesAPI, useServicesData } from './hooks/useServicesData';
 import type { Service } from './types';
-import { CAR_SERVICE_OPTIONS } from '@/data/affiliate-services/cars/features';
+// Disabled affiliate services import
+// import { CAR_SERVICE_OPTIONS } from '@/data/affiliate-services/cars/service/features';
+
+// Fallback empty data
+const CAR_SERVICE_OPTIONS = [];
 import { buildTierDisplayStructure, resolveServiceNames, removeServiceFromTierGroup, convertTierToNewFormat, convertTierToOldFormat, type ServiceFeature, type TierFeatureGroup } from './types/ServiceFeature';
 import { FeatureList } from './components/FeatureList';
 
@@ -55,7 +59,7 @@ const ServicesTab: React.FC = () => {
   };
 
   // Get affiliate ID from AuthContext or URL params for admin users
-  const authContext = useAuth() as AuthContextType | undefined;
+  const authContext = useAuth();
   const user = authContext?.user;
   const { businessSlug } = useParams<{ businessSlug: string }>();
   
@@ -101,7 +105,7 @@ const ServicesTab: React.FC = () => {
   
   // Effect to fetch services when vehicle or category changes
   useEffect(() => {
-    if (selectedVehicle && selectedCategory && !loading && affiliateId) {
+    if (selectedVehicle && selectedCategory && affiliateId) {
       const fetchKey = `${selectedVehicle}-${selectedCategory}`;
       
       // Prevent duplicate fetches for the same combination
@@ -140,7 +144,7 @@ const ServicesTab: React.FC = () => {
                     duration: tier.duration,
                     features: tier.features || [], // Features are now stored as arrays
                     enabled: tier.enabled,
-                    popular: tier.popular
+                    popular: tier.popular || false
                   })) : []
                 };
               });
@@ -184,12 +188,12 @@ const ServicesTab: React.FC = () => {
       // Cleanup timeout on unmount or dependency change
       return () => { clearTimeout(timeoutId); };
     }
-  }, [selectedVehicle, selectedCategory, fetchServices, loading, selectedService, affiliateId]);
+  }, [selectedVehicle, selectedCategory, fetchServices, affiliateId]);
 
   // Effect to trigger initial fetch when affiliateId becomes available
   useEffect(() => {
     // Only fetch if we have all required data and haven't fetched yet
-    if (affiliateId && selectedVehicle && selectedCategory && !loading && availableServices.length === 0) {
+    if (affiliateId && selectedVehicle && selectedCategory && availableServices.length === 0) {
       const fetchKey = `${selectedVehicle}-${selectedCategory}`;
       
       // Prevent duplicate fetches
@@ -246,7 +250,7 @@ const ServicesTab: React.FC = () => {
           console.error('Error fetching services:', err);
         });
     }
-  }, [affiliateId, selectedVehicle, selectedCategory, fetchServices, loading, availableServices.length]); // Depend on affiliateId and other required values
+  }, [affiliateId, selectedVehicle, selectedCategory, fetchServices, availableServices.length]);
 
   // Effect to handle service selection changes
   useEffect(() => {
@@ -336,16 +340,8 @@ const ServicesTab: React.FC = () => {
     if (isEditingService && currentServiceData) {
       // Handle editing existing service
       try {
-        // Map vehicle ID to backend format
-        const vehicleMap: { [key: string]: string } = {
-          'cars': 'cars',
-          'trucks': 'trucks',
-          'rvs': 'rvs',
-          'boats': 'boats',
-          'motorcycles': 'motorcycles',
-          'offroad': 'offroad',
-          'other': 'other'
-        };
+        // Map vehicle ID to backend format using shared utility
+        const { getBackendEndpoint } = await import('@/shared/utils/vehicleMapping');
         
         // Map category ID to backend format
         const categoryMap: { [key: string]: number } = {
@@ -360,7 +356,7 @@ const ServicesTab: React.FC = () => {
         
         const serviceData = {
           affiliate_id: affiliateId,
-          vehicle_id: vehicleMap[selectedVehicle] || 'cars',
+          vehicle_id: getBackendEndpoint(selectedVehicle),
           service_category_id: categoryMap[selectedCategory] || 3,
           name: serviceName,
           description: serviceName + ' service',
@@ -404,7 +400,7 @@ const ServicesTab: React.FC = () => {
                       duration: tier.duration,
                       features: tier.features || [], // Features are now stored as arrays
                       enabled: tier.enabled,
-                      popular: tier.popular
+                      popular: tier.popular || false
                     })) : []
                   };
                 });
@@ -471,7 +467,7 @@ const ServicesTab: React.FC = () => {
                     duration: tier.duration,
                     features: tier.features || [], // Features are now stored as arrays
                     enabled: tier.enabled,
-                    popular: tier.popular
+                    popular: tier.popular || false
                   })) : []
                 };
               });

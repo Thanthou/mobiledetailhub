@@ -1,7 +1,45 @@
-export { useVehicleData } from './useVehicleData';
-export { useServiceData } from './useServiceData';
-export { useServiceDataRQ } from './useServiceData';
-export { useTierSelection } from './useTierSelection';
-export { useAddonData } from './useAddonData';
-export { useReviews } from './useReviews';
-export { useReviewsRQ } from './useReviews';
+// Export booking hooks
+// export { useAffiliateServices } from './useAffiliateServices'; // Disabled affiliate services
+
+// Simple vehicle data for quote modal compatibility
+// This replaces the deleted useVehicleData hook
+
+import { useState, useCallback } from 'react';
+
+// Basic vehicle types
+const vehicleTypes = [
+  { id: 'cars', name: 'Cars' },
+  { id: 'trucks', name: 'Trucks' },
+  { id: 'suvs', name: 'SUVs' },
+  { id: 'vans', name: 'Vans' },
+  { id: 'motorcycles', name: 'Motorcycles' }
+];
+
+// Basic makes
+const vehicleMakes = [
+  'Honda', 'Toyota', 'Ford', 'Chevrolet', 'BMW', 'Mercedes-Benz', 
+  'Audi', 'Nissan', 'Hyundai', 'Kia', 'Mazda', 'Subaru'
+];
+
+export const useVehicleData = () => {
+  const [selectedVehicleType, setSelectedVehicleType] = useState<string>('');
+
+  const getMakes = useCallback((vehicleType: string) => {
+    // Return all makes for any vehicle type (simplified)
+    return vehicleMakes;
+  }, []);
+
+  const getModels = useCallback((vehicleType: string, make: string) => {
+    // Return some common models (simplified)
+    const commonModels = ['Sedan', 'SUV', 'Truck', 'Hatchback', 'Coupe'];
+    return commonModels;
+  }, []);
+
+  return {
+    vehicleTypes,
+    getMakes,
+    getModels,
+    selectedVehicleType,
+    setSelectedVehicleType
+  };
+};

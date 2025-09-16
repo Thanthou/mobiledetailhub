@@ -8,7 +8,7 @@ import OverviewTab from '../tabs/overview/OverviewTab';
 import PerformanceTab from '../tabs/performance/PerformanceTab';
 import ProfileTab from '../tabs/profile/ProfileTab';
 import ScheduleTab from '../tabs/schedule/ScheduleTab';
-import ServicesTab from '../tabs/services/ServicesTab';
+import ServicesTab from '../tabs/services/SimpleFixedServicesTab';
 
 interface TabContentProps {
   activeTab: DashboardTab;

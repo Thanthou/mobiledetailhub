@@ -1015,6 +1015,58 @@ router.get('/:slug/service_areas', asyncHandler(async (req, res) => {
   }
 }));
 
+// Get affiliate services by slug
+router.get('/:slug/services', asyncHandler(async (req, res) => {
+  const { slug } = req.params;
+  
+  try {
+    if (!pool) {
+      return res.status(500).json({ error: 'Database connection not available' });
+    }
+
+    // First get the business_id from the slug
+    const businessQuery = `
+      SELECT id FROM affiliates.business 
+      WHERE slug = $1 AND application_status = 'approved'
+    `;
+    const businessResult = await pool.query(businessQuery, [slug]);
+    
+    if (businessResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Affiliate not found' });
+    }
+    
+    const businessId = businessResult.rows[0].id;
+    
+    // Get all services for this affiliate
+    const servicesQuery = `
+      SELECT 
+        id,
+        business_id,
+        service_name,
+        service_description,
+        service_category,
+        service_type,
+        vehicle_types,
+        is_active,
+        is_featured,
+        sort_order,
+        created_at,
+        updated_at,
+        metadata
+      FROM affiliates.services 
+      WHERE business_id = $1 AND is_active = true
+      ORDER BY sort_order ASC, service_name ASC
+    `;
+    
+    const servicesResult = await pool.query(servicesQuery, [businessId]);
+    
+    res.json(servicesResult.rows);
+  } catch (err) {
+    logger.error('Error fetching affiliate services:', { error: err.message });
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}));
+
 // Add service area to affiliate
 router.post('/:slug/service_areas', asyncHandler(async (req, res) => {
   const { slug } = req.params;

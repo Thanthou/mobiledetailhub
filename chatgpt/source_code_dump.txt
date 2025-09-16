@@ -585,8 +585,9 @@ frontend/src/AffiliateContext.tsx
 
 // Exports: function: AffiliateContext, function: AffiliateProvider, component: AffiliateContext, component: AffiliateProvider
 
-import React, { createContext, type ReactNode, useEffect, useState } from 'react';
+import React, { createContext, type ReactNode, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 
 import { config } from '@/../config/env';
 import { useLocation } from '@/shared/hooks/useLocation';
@@ -634,58 +635,57 @@ interface AffiliateData {
   insurance_expiry: string;
   service_radius_miles: number;
   operating_hours: unknown;
-  emergency_contact: unknown;
 
-// ... (truncated 60 lines) ...
+// ... (truncated 42 lines) ...
 
+      if (!res.ok) throw new Error(`Failed to fetch affiliate data: ${res.status}`);
+      const json = (await res.json()) as { success: boolean; affiliate?: AffiliateData };
+      if (!json.success || !json.affiliate) throw new Error('Invalid affiliate data structure');
+      return json.affiliate;
+    },
+  });
 
-    void fetchAffiliateData();
-  }, [businessSlug]);
+  const affiliateData = data ?? null;
+  const ctxError = error ? (error as Error).message : null;
 
-  // Update location when affiliate data loads (only if no valid location is currently selected)
+  // Update location when affiliate data loads (only if no valid location is selected)
   useEffect(() => {
-    if (affiliateData?.service_areas) {
-      // Only update location if no valid location is currently selected
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      if (!selectedLocation?.city || !selectedLocation?.state) {
-        // Parse service areas to find the primary location
-        let serviceAreasData = affiliateData.service_areas;
-        if (typeof serviceAreasData === 'string') {
-          try {
-            serviceAreasData = JSON.parse(serviceAreasData) as ServiceArea[];
-          } catch (e) {
-            console.error('Error parsing service_areas JSON:', e);
-            return;
-          }
-        }
-        
-        if (Array.isArray(serviceAreasData)) {
-          // Find the primary service area (only elements with primary: true)
-          const primaryArea = serviceAreasData.find(area => area.primary);
-          
-          if (primaryArea && primaryArea.city && primaryArea.state) {
-            // Update location with affiliate's primary service area
-            if (typeof updateLocationWithState === 'function') {
-              updateLocationWithState(primaryArea.city, primaryArea.state);
-            }
-          }
-        }
+    if (!affiliateData?.service_areas) return;
+
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    const hasLocation = Boolean(selectedLocation?.city && selectedLocation?.state);
+    if (hasLocation) return;
+
+    let areas: ServiceArea[] | null = null;
+    if (Array.isArray(affiliateData.service_areas)) {
+      areas = affiliateData.service_areas as ServiceArea[];
+    } else if (typeof affiliateData.service_areas === 'string') {
+      try {
+        areas = JSON.parse(affiliateData.service_areas) as ServiceArea[];
+      } catch {
+        areas = null;
       }
     }
-  }, [affiliateData, updateLocationWithState, selectedLocation]);
 
-  const value: AffiliateContextType = {
-    affiliateData,
-    isLoading,
-    error,
-    businessSlug,
-  };
+    if (areas && areas.length) {
+      const primary = areas.find(a => a.primary);
+      if (primary?.city && primary?.state && typeof updateLocationWithState === 'function') {
+        updateLocationWithState(primary.city, primary.state);
+      }
+    }
+  }, [affiliateData, selectedLocation, updateLocationWithState]);
 
-  return (
-    <AffiliateContext.Provider value={value}>
-      {children}
-    </AffiliateContext.Provider>
+  const value: AffiliateContextType = useMemo(
+    () => ({
+      affiliateData,
+      isLoading: isLoading && !data, // initial load true only when no data yet
+      error: ctxError,
+      businessSlug: businessSlug ?? null,
+    }),
+    [affiliateData, isLoading, data, ctxError, businessSlug]
   );
+
+  return <AffiliateContext.Provider value={value}>{children}</AffiliateContext.Provider>;
 };
 
 
@@ -747,7 +747,7 @@ const mapBackendUserToFrontend = (backendUser: unknown): User => {
     id: user.id,
     name: user.name,
 
-// ... (truncated 117 lines) ...
+// ... (truncated 118 lines) ...
 
       }
       if (err.code === 'TIMEOUT') {
@@ -980,7 +980,7 @@ import React, { createContext, useCallback, useEffect, useState } from 'react';
 
 import { config } from '@/../config/env';
 
-import { getStaticMDHConfig, initializeGlobalConfig, type MDHConfig } from '../../../data/mdh';
+import { getStaticMDHConfig, initializeGlobalConfig, type MDHConfig } from '@/data/mdh';
 
 // Types are now imported from @/data/mdh/mdh-config
 
@@ -1086,8 +1086,9 @@ frontend/AffiliateContext.tsx
 
 // Exports: function: AffiliateContext, function: AffiliateProvider, component: AffiliateContext, component: AffiliateProvider
 
-import React, { createContext, type ReactNode, useEffect, useState } from 'react';
+import React, { createContext, type ReactNode, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 
 import { config } from '@/../config/env';
 import { useLocation } from '@/shared/hooks/useLocation';
@@ -1135,58 +1136,57 @@ interface AffiliateData {
   insurance_expiry: string;
   service_radius_miles: number;
   operating_hours: unknown;
-  emergency_contact: unknown;
 
-// ... (truncated 60 lines) ...
+// ... (truncated 42 lines) ...
 
+      if (!res.ok) throw new Error(`Failed to fetch affiliate data: ${res.status}`);
+      const json = (await res.json()) as { success: boolean; affiliate?: AffiliateData };
+      if (!json.success || !json.affiliate) throw new Error('Invalid affiliate data structure');
+      return json.affiliate;
+    },
+  });
 
-    void fetchAffiliateData();
-  }, [businessSlug]);
+  const affiliateData = data ?? null;
+  const ctxError = error ? (error as Error).message : null;
 
-  // Update location when affiliate data loads (only if no valid location is currently selected)
+  // Update location when affiliate data loads (only if no valid location is selected)
   useEffect(() => {
-    if (affiliateData?.service_areas) {
-      // Only update location if no valid location is currently selected
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      if (!selectedLocation?.city || !selectedLocation?.state) {
-        // Parse service areas to find the primary location
-        let serviceAreasData = affiliateData.service_areas;
-        if (typeof serviceAreasData === 'string') {
-          try {
-            serviceAreasData = JSON.parse(serviceAreasData) as ServiceArea[];
-          } catch (e) {
-            console.error('Error parsing service_areas JSON:', e);
-            return;
-          }
-        }
-        
-        if (Array.isArray(serviceAreasData)) {
-          // Find the primary service area (only elements with primary: true)
-          const primaryArea = serviceAreasData.find(area => area.primary);
-          
-          if (primaryArea && primaryArea.city && primaryArea.state) {
-            // Update location with affiliate's primary service area
-            if (typeof updateLocationWithState === 'function') {
-              updateLocationWithState(primaryArea.city, primaryArea.state);
-            }
-          }
-        }
+    if (!affiliateData?.service_areas) return;
+
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    const hasLocation = Boolean(selectedLocation?.city && selectedLocation?.state);
+    if (hasLocation) return;
+
+    let areas: ServiceArea[] | null = null;
+    if (Array.isArray(affiliateData.service_areas)) {
+      areas = affiliateData.service_areas as ServiceArea[];
+    } else if (typeof affiliateData.service_areas === 'string') {
+      try {
+        areas = JSON.parse(affiliateData.service_areas) as ServiceArea[];
+      } catch {
+        areas = null;
       }
     }
-  }, [affiliateData, updateLocationWithState, selectedLocation]);
 
-  const value: AffiliateContextType = {
-    affiliateData,
-    isLoading,
-    error,
-    businessSlug,
-  };
+    if (areas && areas.length) {
+      const primary = areas.find(a => a.primary);
+      if (primary?.city && primary?.state && typeof updateLocationWithState === 'function') {
+        updateLocationWithState(primary.city, primary.state);
+      }
+    }
+  }, [affiliateData, selectedLocation, updateLocationWithState]);
 
-  return (
-    <AffiliateContext.Provider value={value}>
-      {children}
-    </AffiliateContext.Provider>
+  const value: AffiliateContextType = useMemo(
+    () => ({
+      affiliateData,
+      isLoading: isLoading && !data, // initial load true only when no data yet
+      error: ctxError,
+      businessSlug: businessSlug ?? null,
+    }),
+    [affiliateData, isLoading, data, ctxError, businessSlug]
   );
+
+  return <AffiliateContext.Provider value={value}>{children}</AffiliateContext.Provider>;
 };
 
 
@@ -1248,7 +1248,7 @@ const mapBackendUserToFrontend = (backendUser: unknown): User => {
     id: user.id,
     name: user.name,
 
-// ... (truncated 117 lines) ...
+// ... (truncated 118 lines) ...
 
       }
       if (err.code === 'TIMEOUT') {
@@ -1481,7 +1481,7 @@ import React, { createContext, useCallback, useEffect, useState } from 'react';
 
 import { config } from '@/../config/env';
 
-import { getStaticMDHConfig, initializeGlobalConfig, type MDHConfig } from '../../../data/mdh';
+import { getStaticMDHConfig, initializeGlobalConfig, type MDHConfig } from '@/data/mdh';
 
 // Types are now imported from @/data/mdh/mdh-config
 

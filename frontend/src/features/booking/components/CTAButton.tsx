@@ -1,54 +1,74 @@
+// Simple CTA button component for compatibility
 import React from 'react';
-
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/shared/ui';
+import { useSiteContext } from '@/shared/hooks';
 
 interface CTAButtonProps {
   type: 'book' | 'quote';
   onClick?: () => void;
   onMouseEnter?: () => void;
   onFocus?: () => void;
+  variant?: 'primary' | 'secondary' | 'outlined';
   className?: string;
-  variant?: 'filled' | 'outlined';
-  loading?: boolean;
-  disabled?: boolean;
+  children?: React.ReactNode;
 }
 
-const CTAButton: React.FC<CTAButtonProps> = ({ 
-  type, 
-  onClick, 
-  onMouseEnter, 
-  onFocus, 
-  className = '', 
-  variant,
-  loading = false,
-  disabled = false
-}) => {
-  const isBookNow = type === 'book';
-  // Default to outlined for quote, filled for book
-  const isOutlined = variant === 'outlined' || (!isBookNow && !variant);
+const CTAButton: React.FC<CTAButtonProps> = ({
+  type,
+  onClick,
+  onMouseEnter,
+  onFocus,
+  variant = 'primary',
+  className = '',
+  children
+  }) => {
+    const navigate = useNavigate();
+    const { businessSlug } = useSiteContext();
 
-  // Map CTAButton variants to shared Button variants
-  const getButtonVariant = () => {
-    if (isBookNow) return 'primary';
-    if (isOutlined) return 'outline-white';
-    return 'secondary';
+    const handleClick = () => {
+      if (type === 'book') {
+        // Navigate to booking page, preserving business slug for affiliate sites
+        const bookingPath = businessSlug ? `/${businessSlug}/booking` : '/booking';
+        navigate(bookingPath);
+      } else {
+        // Use custom onClick for "Request Quote" buttons
+        onClick?.();
+      }
+    };
+  const getButtonText = () => {
+    if (children) return children;
+    switch (type) {
+      case 'book':
+        return 'Book Now';
+      case 'quote':
+        return 'Request Quote';
+      default:
+        return 'Click Me';
+    }
   };
 
-  // Custom styling for CTA buttons
-  const ctaClasses = "font-bold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg max-w-xs whitespace-nowrap";
+  const getVariant = () => {
+    switch (variant) {
+      case 'outlined':
+        return 'outline';
+      case 'secondary':
+        return 'secondary';
+      default:
+        return 'primary';
+    }
+  };
 
   return (
     <Button
-      onClick={onClick}
+      onClick={handleClick}
       onMouseEnter={onMouseEnter}
       onFocus={onFocus}
-      variant={getButtonVariant()}
-      size="xl"
-      loading={loading}
-      disabled={disabled}
-      className={`${ctaClasses} ${className}`}
+      variant={getVariant()}
+      size="lg"
+      className={`px-8 py-3 ${className}`}
     >
-      {isBookNow ? 'Book Now' : 'Request a Quote'}
+      {getButtonText()}
     </Button>
   );
 };

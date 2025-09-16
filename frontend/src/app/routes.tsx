@@ -62,16 +62,16 @@ export const AppRoutes: React.FC = () => {
               <ServicePage />
             </AffiliateProvider>
           } />
+          <Route path="/:businessSlug/dashboard" element={
+            <ProtectedRoute requiredRole={['admin', 'affiliate']} fallbackPath="/">
+              <DashboardPage />
+            </ProtectedRoute>
+          } />
           <Route path="/:businessSlug" element={
             <AffiliateProvider>
               <Header />
               <HomePage />
             </AffiliateProvider>
-          } />
-          <Route path="/:businessSlug/dashboard" element={
-            <ProtectedRoute requiredRole={['admin', 'affiliate']} fallbackPath="/">
-              <DashboardPage />
-            </ProtectedRoute>
           } />
           <Route path="/" element={
             <>

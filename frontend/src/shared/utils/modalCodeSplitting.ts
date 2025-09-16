@@ -103,7 +103,7 @@ class ModalPrefetchManager {
 
     switch (modalType) {
       case 'quote':
-        importPromise = import('@/features/booking/components/QuoteModal') as Promise<ModalModule>;
+        importPromise = import('@/features/quotes/components/RequestQuoteModal') as Promise<ModalModule>;
         break;
       case 'login':
         importPromise = import('@/features/auth/components/LoginModal') as Promise<ModalModule>;

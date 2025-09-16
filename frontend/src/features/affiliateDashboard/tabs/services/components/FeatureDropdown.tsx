@@ -4,14 +4,43 @@ import { ChevronDown } from 'lucide-react';
 
 import { Button } from '@/shared/ui';
 
-import { CAR_SERVICE_OPTIONS, type ServiceOption } from '@/data/affiliate-services/cars/features';
-import { 
-  CAR_ADDON_SERVICE_OPTIONS,
-  CAR_INTERIOR_TRIM_SERVICE_OPTIONS,
-  CAR_WINDOWS_SERVICE_OPTIONS,
-  CAR_WHEELS_SERVICE_OPTIONS,
-  type AddonServiceOption 
-} from '@/data/affiliate-services/cars/addons/features';
+// Disabled affiliate services imports
+// import { CAR_SERVICE_OPTIONS, type ServiceOption } from '@/data/affiliate-services/cars/service/features';
+// import { 
+//   CAR_ADDON_SERVICE_OPTIONS,
+//   CAR_INTERIOR_TRIM_SERVICE_OPTIONS,
+//   CAR_WINDOWS_SERVICE_OPTIONS,
+//   CAR_WHEELS_SERVICE_OPTIONS,
+//   type AddonServiceOption 
+// } from '@/data/affiliate-services/cars/addons/features';
+
+// Fallback types and data
+interface ServiceOption {
+  id: string;
+  name: string;
+  description: string;
+  explanation: string;
+  image: string;
+  duration: number;
+  features: string[];
+}
+
+interface AddonServiceOption {
+  id: string;
+  name: string;
+  description: string;
+  explanation: string;
+  image: string;
+  duration: number;
+  features: string[];
+}
+
+// Empty fallback data
+const CAR_SERVICE_OPTIONS: ServiceOption[] = [];
+const CAR_ADDON_SERVICE_OPTIONS: AddonServiceOption[] = [];
+const CAR_INTERIOR_TRIM_SERVICE_OPTIONS: AddonServiceOption[] = [];
+const CAR_WINDOWS_SERVICE_OPTIONS: AddonServiceOption[] = [];
+const CAR_WHEELS_SERVICE_OPTIONS: AddonServiceOption[] = [];
 
 // TODO: Add other vehicle types as they are implemented
 const VEHICLE_SERVICES = {

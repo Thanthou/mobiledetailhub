@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import { BookingModal, prefetchQuoteModal } from '@/features/booking';
+import { usePrefetch } from '@/shared/hooks';
 import { FAQ } from '@/features/faq';
 import { Footer } from '@/features/footer';
 import { Hero } from '@/features/hero';
@@ -13,10 +14,11 @@ import HomePageLayout from './HomePageLayout';
 
 const HomePage: React.FC = () => {
   const { isAffiliate, businessSlug } = useSiteContext();
+  const { prefetchQuoteModal } = usePrefetch();
+  const navigate = useNavigate();
   
   // Centralized modal state
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
-  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   
   // Centralized modal handlers with prefetching
   const handleOpenQuoteModal = () => {
@@ -29,18 +31,16 @@ const HomePage: React.FC = () => {
     setIsQuoteModalOpen(false);
   };
 
-  const handleOpenBookingModal = () => {
-    setIsBookingModalOpen(true);
-  };
-  
-  const handleCloseBookingModal = () => {
-    setIsBookingModalOpen(false);
+  const handleBookNow = () => {
+    // Navigate to booking page, preserving business slug for affiliate sites
+    const bookingPath = businessSlug ? `/${businessSlug}/booking` : '/booking';
+    navigate(bookingPath);
   };
 
   // Prefetch handlers for better performance
   const handleQuoteModalPrefetch = () => {
     if (isAffiliate) {
-      void prefetchQuoteModal();
+      prefetchQuoteModal();
     }
   };
   
@@ -49,7 +49,7 @@ const HomePage: React.FC = () => {
       <section id="hero">
         <Hero 
           onRequestQuote={handleOpenQuoteModal} 
-          onBookNow={handleOpenBookingModal}
+          onBookNow={handleBookNow}
           onQuoteHover={handleQuoteModalPrefetch}
         />
       </section>
@@ -68,7 +68,7 @@ const HomePage: React.FC = () => {
       <section id="footer">
         <Footer 
           onRequestQuote={handleOpenQuoteModal} 
-          onBookNow={handleOpenBookingModal}
+          onBookNow={handleBookNow}
           onQuoteHover={handleQuoteModalPrefetch}
         />
       </section>
@@ -80,11 +80,6 @@ const HomePage: React.FC = () => {
           onClose={handleCloseQuoteModal}
         />
       )}
-      {/* Note: BookingModal remains eager loaded for now - can be made lazy if needed */}
-      <BookingModal 
-        isOpen={isBookingModalOpen} 
-        onClose={handleCloseBookingModal} 
-      />
     </HomePageLayout>
   );
 };
