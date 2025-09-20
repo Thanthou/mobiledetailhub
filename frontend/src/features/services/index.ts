@@ -1,7 +1,9 @@
-// Re-export service detail components
-export * from './components/service-detail';
-
-// Re-export services components
-export { ProtectionComparisonChart } from './components/ProtectionComparisonChart';
-export { default as ServicePage } from './components/ServicePage';
-export { default as Services } from './components/Services';
+// Services feature public exports
+export { default as Services } from './components/ServicesGrid';
+export { default as ServicesGrid } from './components/ServicesGrid';
+export { default as ServiceCard } from './components/ServiceCard';
+export { default as ServiceHero } from './components/ServiceHero';
+export { default as WhatItIs } from './components/WhatItIs';
+export { default as Process } from './components/Process';
+export { default as Results } from './components/Results';
+export { default as ServiceCTA } from './components/ServiceCTA';

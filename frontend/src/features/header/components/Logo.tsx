@@ -1,24 +1,27 @@
 import React from 'react';
+import siteData from '@/data/mdh/site.json';
 
-interface LogoProps {
-  businessName: string;
-  isMDH: boolean;
-}
+const Logo: React.FC = () => {
+  const handleClick = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
-const Logo: React.FC<LogoProps> = ({ businessName, isMDH }) => {
   return (
-    <div className="flex items-center space-x-3">
-      {isMDH && (
-        <img 
-          src="/icons/favicon.webp" 
-          alt="Mobile Detail Hub Logo" 
-          className="h-8 w-8 md:h-10 md:w-10"
-        />
-      )}
-      <h1 className="text-2xl md:text-3xl font-bold text-white">
-        {businessName}
-      </h1>
-    </div>
+    <button 
+      onClick={handleClick}
+      className="flex items-center hover:opacity-80 transition-opacity"
+      aria-label="Mobile Detail Hub home"
+    >
+      <img 
+        src={siteData.logo.url} 
+        alt={siteData.logo.alt} 
+        className="h-10 w-10 md:h-12 md:w-12"
+        width={48}
+        height={48}
+        decoding="async"
+        loading="eager"
+      />
+    </button>
   );
 };
 

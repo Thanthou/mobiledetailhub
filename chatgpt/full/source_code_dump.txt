@@ -1,0 +1,1929 @@
+COMPREHENSIVE SOURCE CODE DUMP
+============================================================
+
+FRONTEND SOURCE CODE
+========================================
+
+HOOKS
+--------------------
+
+******
+useErrorBoundary.tsx
+frontend/src/useErrorBoundary.tsx
+******
+
+// Exports: function: useErrorBoundary
+
+import { useCallback, useEffect,useState } from 'react';
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error?: Error;
+}
+
+export const useErrorBoundary = () => {
+  const [errorState, setErrorState] = useState<ErrorBoundaryState>({ hasError: false });
+
+  const handleError = useCallback((error: Error, errorInfo?: { componentStack?: string; errorBoundary?: string }) => {
+    console.error('useErrorBoundary caught an error:', error, errorInfo);
+    
+    setErrorState({
+      hasError: true,
+      error
+    });
+
+    // Log to external service in production
+    if (import.meta.env.PROD) {
+      console.error('Production error:', { error, errorInfo });
+    }
+  }, []);
+
+  const resetError = useCallback(() => {
+    setErrorState({ hasError: false, error: undefined });
+  }, []);
+
+  // Global error handler
+  useEffect(() => {
+    const handleGlobalError = (event: ErrorEvent) => {
+      const error = event.error instanceof Error ? event.error : new Error(event.message);
+      handleError(error);
+    };
+
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      const reason = typeof event.reason === 'string' ? event.reason : String(event.reason);
+      handleError(new Error(reason));
+    };
+
+    window.addEventListener('error', handleGlobalError);
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+
+    return () => {
+      window.removeEventListener('error', handleGlobalError);
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+    };
+  }, [handleError]);
+
+  return {
+    ...errorState,
+    handleError,
+    resetError
+  };
+};
+
+
+******
+UserMenu.tsx
+frontend/src/UserMenu.tsx
+******
+
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ChevronDown, LogOut, Settings, User } from 'lucide-react';
+
+import { useAuth } from '@/shared/hooks';
+
+const UserMenu: React.FC = () => {
+  const authContext = useAuth();
+  const user = authContext.user;
+  const logout = authContext.logout;
+  const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => { document.removeEventListener('mousedown', handleClickOutside); };
+  }, []);
+
+  const handleLogout = useCallback(() => {
+    // Clear any stored tokens
+    localStorage.removeItem('token');
+    localStorage.removeItem('authToken'); // Remove old key if it exists
+    logout();
+    setIsOpen(false);
+  }, [logout]);
+
+  const handleAccountClick = useCallback(() => {
+    setIsOpen(false);
+    
+    if (!user) return;
+    
+    // Route based on user role (less restrictive for development)
+    if (user.role === 'admin') {
+      void navigate('/admin-dashboard');
+    } else if (user.role === 'affiliate') {
+      void navigate('/affiliate-dashboard');
+    } else {
+      // For now, redirect customers to home page since client dashboard is not implemented
+      // Fallback to home page for unknown roles
+      void navigate('/');
+    }
+  }, [user, navigate]);
+
+// ... (truncated 44 lines) ...
+
+                e.preventDefault();
+                handleAccountClick();
+              }
+            }}
+            className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+            role="menuitem"
+          >
+            <User className="h-4 w-4 mr-3" />
+            Account
+          </button>
+          
+          <button
+            onClick={() => { setIsOpen(false); }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setIsOpen(false);
+              }
+            }}
+            className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+            role="menuitem"
+          >
+            <Settings className="h-4 w-4 mr-3" />
+            Settings
+          </button>
+          
+          <hr className="my-1" />
+          
+          <button
+            onClick={handleLogout}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleLogout();
+              }
+            }}
+            className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
+            role="menuitem"
+          >
+            <LogOut className="h-4 w-4 mr-3" />
+            Logout
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default UserMenu;
+
+
+******
+UsersTab.tsx
+frontend/src/UsersTab.tsx
+******
+
+// Exports: function: UsersTab, component: UsersTab
+
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Loader2, Trash2, UserCheck, UserCog, UserPlus, Users, UserX } from 'lucide-react';
+
+import { ApplicationModal, Toast } from '@/features/adminDashboard/components/shared';
+import type { UserSubTab } from '@/features/adminDashboard/types';
+import { affiliateEventManager } from '@/features/affiliateDashboard/utils';
+import { apiService } from '@/shared/api/api';
+import { Button } from '@/shared/ui';
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  created_at: string;
+  business_name?: string;
+  slug?: string;
+}
+
+interface PendingApplication {
+  id: number;
+  slug: string;
+  business_name: string;
+  owner: string;
+  phone: string;
+  email: string;
+  city: string;
+  state_code: string;
+  postal_code: string;
+  has_insurance: boolean;
+  source: string;
+  notes?: string;
+  application_date: string;
+  created_at: string;
+}
+
+export const UsersTab: React.FC = () => {
+  const [activeSubTab, setActiveSubTab] = useState<UserSubTab>('all-users');
+  const [users, setUsers] = useState<User[]>([]);
+  const [pendingApplications, setPendingApplications] = useState<PendingApplication[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [modalState, setModalState] = useState<{
+    isOpen: boolean;
+    type: 'approve' | 'reject';
+    applicationId: number;
+    businessName: string;
+  } | null>(null);
+  const [processingApplication, setProcessingApplication] = useState(false);
+  const [toast, setToast] = useState<{
+
+// ... (truncated 434 lines) ...
+
+              const Icon = subTab.icon;
+              return (
+                <button
+                  key={subTab.id}
+                  onClick={() => { handleSubTabChange(subTab.id); }}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    activeSubTab === subTab.id
+                      ? 'bg-blue-900 text-blue-300 border-b-2 border-blue-400'
+                      : 'text-gray-300 hover:text-white hover:bg-gray-700'
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  {subTab.label}
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+        
+        <div className="p-6">
+          {renderSubTabContent(activeSubTab)}
+        </div>
+      </div>
+      
+      {/* Application Modal */}
+      {modalState && (
+        <ApplicationModal
+          isOpen={modalState.isOpen}
+          onClose={closeModal}
+          onSubmit={handleModalSubmit}
+          type={modalState.type}
+          applicationId={modalState.applicationId}
+          businessName={modalState.businessName}
+          isLoading={processingApplication}
+        />
+      )}
+      
+      {/* Toast Notifications */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          isVisible={toast.isVisible}
+          onClose={() => { setToast(null); }}
+        />
+      )}
+    </div>
+  );
+};
+
+
+******
+useErrorBoundary.tsx
+frontend/useErrorBoundary.tsx
+******
+
+// Exports: function: useErrorBoundary
+
+import { useCallback, useEffect,useState } from 'react';
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error?: Error;
+}
+
+export const useErrorBoundary = () => {
+  const [errorState, setErrorState] = useState<ErrorBoundaryState>({ hasError: false });
+
+  const handleError = useCallback((error: Error, errorInfo?: { componentStack?: string; errorBoundary?: string }) => {
+    console.error('useErrorBoundary caught an error:', error, errorInfo);
+    
+    setErrorState({
+      hasError: true,
+      error
+    });
+
+    // Log to external service in production
+    if (import.meta.env.PROD) {
+      console.error('Production error:', { error, errorInfo });
+    }
+  }, []);
+
+  const resetError = useCallback(() => {
+    setErrorState({ hasError: false, error: undefined });
+  }, []);
+
+  // Global error handler
+  useEffect(() => {
+    const handleGlobalError = (event: ErrorEvent) => {
+      const error = event.error instanceof Error ? event.error : new Error(event.message);
+      handleError(error);
+    };
+
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      const reason = typeof event.reason === 'string' ? event.reason : String(event.reason);
+      handleError(new Error(reason));
+    };
+
+    window.addEventListener('error', handleGlobalError);
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+
+    return () => {
+      window.removeEventListener('error', handleGlobalError);
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+    };
+  }, [handleError]);
+
+  return {
+    ...errorState,
+    handleError,
+    resetError
+  };
+};
+
+
+******
+UserMenu.tsx
+frontend/UserMenu.tsx
+******
+
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ChevronDown, LogOut, Settings, User } from 'lucide-react';
+
+import { useAuth } from '@/shared/hooks';
+
+const UserMenu: React.FC = () => {
+  const authContext = useAuth();
+  const user = authContext.user;
+  const logout = authContext.logout;
+  const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => { document.removeEventListener('mousedown', handleClickOutside); };
+  }, []);
+
+  const handleLogout = useCallback(() => {
+    // Clear any stored tokens
+    localStorage.removeItem('token');
+    localStorage.removeItem('authToken'); // Remove old key if it exists
+    logout();
+    setIsOpen(false);
+  }, [logout]);
+
+  const handleAccountClick = useCallback(() => {
+    setIsOpen(false);
+    
+    if (!user) return;
+    
+    // Route based on user role (less restrictive for development)
+    if (user.role === 'admin') {
+      void navigate('/admin-dashboard');
+    } else if (user.role === 'affiliate') {
+      void navigate('/affiliate-dashboard');
+    } else {
+      // For now, redirect customers to home page since client dashboard is not implemented
+      // Fallback to home page for unknown roles
+      void navigate('/');
+    }
+  }, [user, navigate]);
+
+// ... (truncated 44 lines) ...
+
+                e.preventDefault();
+                handleAccountClick();
+              }
+            }}
+            className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+            role="menuitem"
+          >
+            <User className="h-4 w-4 mr-3" />
+            Account
+          </button>
+          
+          <button
+            onClick={() => { setIsOpen(false); }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setIsOpen(false);
+              }
+            }}
+            className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+            role="menuitem"
+          >
+            <Settings className="h-4 w-4 mr-3" />
+            Settings
+          </button>
+          
+          <hr className="my-1" />
+          
+          <button
+            onClick={handleLogout}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleLogout();
+              }
+            }}
+            className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
+            role="menuitem"
+          >
+            <LogOut className="h-4 w-4 mr-3" />
+            Logout
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default UserMenu;
+
+
+******
+UsersTab.tsx
+frontend/UsersTab.tsx
+******
+
+// Exports: function: UsersTab, component: UsersTab
+
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Loader2, Trash2, UserCheck, UserCog, UserPlus, Users, UserX } from 'lucide-react';
+
+import { ApplicationModal, Toast } from '@/features/adminDashboard/components/shared';
+import type { UserSubTab } from '@/features/adminDashboard/types';
+import { affiliateEventManager } from '@/features/affiliateDashboard/utils';
+import { apiService } from '@/shared/api/api';
+import { Button } from '@/shared/ui';
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  created_at: string;
+  business_name?: string;
+  slug?: string;
+}
+
+interface PendingApplication {
+  id: number;
+  slug: string;
+  business_name: string;
+  owner: string;
+  phone: string;
+  email: string;
+  city: string;
+  state_code: string;
+  postal_code: string;
+  has_insurance: boolean;
+  source: string;
+  notes?: string;
+  application_date: string;
+  created_at: string;
+}
+
+export const UsersTab: React.FC = () => {
+  const [activeSubTab, setActiveSubTab] = useState<UserSubTab>('all-users');
+  const [users, setUsers] = useState<User[]>([]);
+  const [pendingApplications, setPendingApplications] = useState<PendingApplication[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [modalState, setModalState] = useState<{
+    isOpen: boolean;
+    type: 'approve' | 'reject';
+    applicationId: number;
+    businessName: string;
+  } | null>(null);
+  const [processingApplication, setProcessingApplication] = useState(false);
+  const [toast, setToast] = useState<{
+
+// ... (truncated 434 lines) ...
+
+              const Icon = subTab.icon;
+              return (
+                <button
+                  key={subTab.id}
+                  onClick={() => { handleSubTabChange(subTab.id); }}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    activeSubTab === subTab.id
+                      ? 'bg-blue-900 text-blue-300 border-b-2 border-blue-400'
+                      : 'text-gray-300 hover:text-white hover:bg-gray-700'
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  {subTab.label}
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+        
+        <div className="p-6">
+          {renderSubTabContent(activeSubTab)}
+        </div>
+      </div>
+      
+      {/* Application Modal */}
+      {modalState && (
+        <ApplicationModal
+          isOpen={modalState.isOpen}
+          onClose={closeModal}
+          onSubmit={handleModalSubmit}
+          type={modalState.type}
+          applicationId={modalState.applicationId}
+          businessName={modalState.businessName}
+          isLoading={processingApplication}
+        />
+      )}
+      
+      {/* Toast Notifications */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          isVisible={toast.isVisible}
+          onClose={() => { setToast(null); }}
+        />
+      )}
+    </div>
+  );
+};
+
+
+CONTEXTS
+--------------------
+
+******
+AffiliateContext.tsx
+frontend/src/AffiliateContext.tsx
+******
+
+// Exports: function: AffiliateContext, function: AffiliateProvider, component: AffiliateContext, component: AffiliateProvider
+
+import React, { createContext, type ReactNode, useEffect, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+
+import { config } from '@/../config/env';
+import { useLocation } from '@/shared/hooks/useLocation';
+
+interface ServiceArea {
+  city: string;
+  state: string;
+  zip?: number | null;
+  primary: boolean;
+  minimum: number;
+  multiplier: number;
+}
+
+interface AffiliateData {
+  id: number;
+  slug: string;
+  business_name: string;
+  owner: string;
+  email: string;
+  phone: string;
+  sms_phone: string;
+  base_location: {
+    city: string | null;
+    state_code: string | null;
+    state_name: string | null;
+    zip: string | null;
+    lat: number | null;
+    lng: number | null;
+  } | null;
+  service_areas: ServiceArea[] | string | null;
+  services: unknown;
+  website_url: string;
+  gbp_url: string;
+  facebook_url: string;
+  instagram_url: string;
+  youtube_url: string;
+  tiktok_url: string;
+  application_status: string;
+  has_insurance: boolean;
+  source: string;
+  notes: string;
+  uploads: unknown;
+  business_license: string;
+  insurance_provider: string;
+  insurance_expiry: string;
+  service_radius_miles: number;
+  operating_hours: unknown;
+
+// ... (truncated 45 lines) ...
+
+      if (!res.ok) throw new Error(`Failed to fetch affiliate data: ${res.status}`);
+      const json = (await res.json()) as { success: boolean; affiliate?: AffiliateData };
+      if (!json.success || !json.affiliate) throw new Error('Invalid affiliate data structure');
+      return json.affiliate;
+    },
+  });
+
+  const affiliateData = data ?? null;
+  const ctxError = error ? (error as Error).message : null;
+
+  // Update location when affiliate data loads (only if no valid location is selected)
+  useEffect(() => {
+    if (!affiliateData?.service_areas) return;
+
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    const hasLocation = Boolean(selectedLocation?.city && selectedLocation?.state);
+    if (hasLocation) return;
+
+    let areas: ServiceArea[] | null = null;
+    if (Array.isArray(affiliateData.service_areas)) {
+      areas = affiliateData.service_areas as ServiceArea[];
+    } else if (typeof affiliateData.service_areas === 'string') {
+      try {
+        areas = JSON.parse(affiliateData.service_areas) as ServiceArea[];
+      } catch {
+        areas = null;
+      }
+    }
+
+    if (areas && areas.length) {
+      const primary = areas.find(a => a.primary);
+      if (primary?.city && primary?.state && typeof updateLocationWithState === 'function') {
+        updateLocationWithState(primary.city, primary.state);
+      }
+    }
+  }, [affiliateData, selectedLocation, updateLocationWithState]);
+
+  const value: AffiliateContextType = useMemo(
+    () => ({
+      affiliateData,
+      isLoading: isLoading && !data, // initial load true only when no data yet
+      error: ctxError,
+      businessSlug: effectiveBusinessSlug ?? null,
+    }),
+    [affiliateData, isLoading, data, ctxError, effectiveBusinessSlug]
+  );
+
+  return <AffiliateContext.Provider value={value}>{children}</AffiliateContext.Provider>;
+};
+
+
+******
+AuthContext.tsx
+frontend/src/AuthContext.tsx
+******
+
+// Exports: function: AuthContext, function: AuthProvider, component: AuthContext, component: AuthProvider
+
+import React, { createContext, useCallback, useEffect, useState } from 'react';
+
+import { apiService } from '@/shared/api/api';
+import { apiClient } from '@/shared/api/apiClient';
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string | undefined;
+  role: 'user' | 'affiliate' | 'admin';
+  affiliate_id?: number | undefined;
+}
+
+export interface AuthContextType {
+  user: User | null;
+  isLoggedIn: boolean;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  register: (email: string, password: string, name: string, phone?: string) => Promise<{ success: boolean; error?: string }>;
+  logout: () => void;
+  loading: boolean;
+}
+
+export const AuthContext = createContext<AuthContextType | null>(null);
+
+// Helper function to map backend user data to frontend User interface
+const mapBackendUserToFrontend = (backendUser: unknown): User => {
+  const user = backendUser as {
+    id: string;
+    name: string;
+    email: string;
+    phone?: string;
+    role?: 'user' | 'affiliate' | 'admin';
+    is_admin?: boolean;
+    affiliate_id?: number;
+  };
+  // Handle both backend API response format and saved user format
+  let role: 'user' | 'affiliate' | 'admin' = 'user';
+  
+  if (user.role !== undefined) {
+    // If role is already set (from saved user data)
+    role = user.role;
+  } else if (user.is_admin) {
+    // If is_admin flag is present (from API response)
+    role = 'admin';
+  }
+  
+  return {
+    id: user.id,
+    name: user.name,
+
+// ... (truncated 118 lines) ...
+
+      }
+      if (err.code === 'TIMEOUT') {
+        return { success: false, error: 'Login request timed out. Please check your connection and try again.' };
+      }
+      if (err.code === 'NETWORK_ERROR') {
+        return { success: false, error: 'Network error. Please check your connection and try again.' };
+      }
+      
+      return { success: false, error: err.message || 'Network error occurred' };
+    }
+  };
+
+  const register = async (email: string, password: string, name: string, phone?: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const response = await apiService.register(email, password, name, phone);
+
+      if (response.success) {
+        const mappedUser = mapBackendUserToFrontend(response.user);
+        setUser(mappedUser);
+        localStorage.setItem('token', response.accessToken);
+        localStorage.setItem('refreshToken', response.refreshToken);
+        localStorage.setItem('user', JSON.stringify(mappedUser));
+        return { success: true };
+      } else {
+        return { success: false, error: response.message || 'Registration failed' };
+      }
+    } catch (error: unknown) {
+      const err = error as { code?: string; message?: string };
+      // Handle specific error codes
+      if (err.code === 'RATE_LIMITED') {
+        return { success: false, error: `Rate limited: ${err.message ?? 'Unknown error'}` };
+      }
+      if (err.code === 'VALIDATION_ERROR') {
+        return { success: false, error: err.message || 'Validation failed' };
+      }
+      
+      return { success: false, error: err.message || 'Network error occurred' };
+    }
+  };
+
+  const isLoggedIn = !!user;
+
+  return (
+    <AuthContext.Provider value={{ user, isLoggedIn, login, register, logout, loading }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+
+
+******
+FAQContext.tsx
+frontend/src/FAQContext.tsx
+******
+
+// Exports: function: FAQContext, function: FAQProvider, component: FAQContext, component: FAQProvider
+
+import type { ReactNode } from 'react';
+import React, { createContext, useState, useEffect, useRef } from 'react';
+
+export interface FAQContextType {
+  isExpanded: boolean;
+  setIsExpanded: (expanded: boolean) => void;
+  expandFAQ: () => void;
+  collapseFAQ: () => void;
+  toggleFAQ: () => void;
+}
+
+export const FAQContext = createContext<FAQContextType | null>(null);
+
+interface FAQProviderProps {
+  children: ReactNode;
+}
+
+export const FAQProvider: React.FC<FAQProviderProps> = ({ children }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastScrollY = useRef(0);
+
+  const expandFAQ = () => {
+    setIsExpanded(true);
+    // Scroll to FAQ section after a brief delay to ensure it's expanded
+    setTimeout(() => {
+      const faqSection = document.getElementById('faq');
+      if (faqSection) {
+        faqSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
+  };
+
+  const collapseFAQ = () => { setIsExpanded(false); };
+  
+  const toggleFAQ = () => { setIsExpanded(prev => !prev); };
+
+  // Add scroll detection to collapse FAQ when scrolling away
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!isExpanded) return;
+
+      const faqSection = document.getElementById('faq');
+      if (!faqSection) return;
+
+      const faqRect = faqSection.getBoundingClientRect();
+      const currentScrollY = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      
+
+// ... (truncated 11 lines) ...
+
+        // Clear any existing timeout
+        if (scrollTimeoutRef.current) {
+          clearTimeout(scrollTimeoutRef.current);
+        }
+        
+        // Add a small delay to prevent immediate collapse during smooth scrolling
+        scrollTimeoutRef.current = setTimeout(() => {
+          setIsExpanded(false);
+        }, 300);
+      }
+    };
+
+    // Throttle scroll events for better performance
+    let ticking = false;
+    const throttledHandleScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          handleScroll();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener('scroll', throttledHandleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', throttledHandleScroll);
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, [isExpanded]);
+
+  const value: FAQContextType = {
+    isExpanded,
+    setIsExpanded,
+    expandFAQ,
+    collapseFAQ,
+    toggleFAQ,
+  };
+
+  return (
+    <FAQContext.Provider value={value}>
+      {children}
+    </FAQContext.Provider>
+  );
+};
+
+
+
+******
+LocationContext.tsx
+frontend/src/LocationContext.tsx
+******
+
+// Exports: function: LocationContext, function: LocationProvider, component: LocationContext, component: LocationProvider
+
+import type { ReactNode } from 'react';
+import React, { createContext, useEffect, useState } from 'react';
+
+export interface LocationData {
+  city: string;
+  state: string;
+  zipCode: string;
+  fullLocation: string;
+}
+
+export interface LocationContextType {
+  selectedLocation: LocationData | null;
+  setSelectedLocation: (location: LocationData | null) => void;
+  clearLocation: () => void;
+  updateLocationWithState: (city: string, state: string) => void;
+  hasValidLocation: () => boolean;
+}
+
+export const LocationContext = createContext<LocationContextType | null>(null);
+
+interface LocationProviderProps {
+  children: ReactNode;
+}
+
+export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) => {
+  const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(() => {
+    try {
+      const saved = localStorage.getItem('selectedLocation');
+      if (saved) {
+        const parsed = JSON.parse(saved) as LocationData;
+        if (parsed.city && parsed.state) {
+          return parsed;
+        }
+      }
+    } catch (error) {
+      console.error('Error loading location from localStorage:', error);
+    }
+    return null;
+  });
+
+  // Persist to localStorage whenever location changes
+  useEffect(() => {
+    if (selectedLocation?.city && selectedLocation?.state) {
+      localStorage.setItem('selectedLocation', JSON.stringify(selectedLocation));
+    } else {
+      localStorage.removeItem('selectedLocation');
+    }
+  }, [selectedLocation]);
+
+  // Listen for localStorage changes from other components (like business config)
+
+// ... (truncated 24 lines) ...
+
+          // Only update if we have complete location data and it's different from current
+          if (parsed.city && parsed.state && 
+              (!selectedLocation || 
+               parsed.city !== selectedLocation.city || 
+               parsed.state !== selectedLocation.state || 
+               parsed.zipCode !== selectedLocation.zipCode)) {
+            setSelectedLocation(parsed);
+          }
+        }
+      } catch {
+        // Ignore errors
+      }
+    }, 5000); // Increased interval to 5 seconds to reduce frequency
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, [selectedLocation]); // Added selectedLocation as dependency to prevent stale closures
+
+  const clearLocation = () => {
+    setSelectedLocation(null);
+  };
+
+  const updateLocationWithState = (city: string, state: string) => {
+    if (city && state) {
+      // If no location is selected, or if the current location doesn't have a state, update it
+      if (!selectedLocation || !selectedLocation.state) {
+        const updatedLocation: LocationData = {
+          city: city,
+          state: state,
+          zipCode: selectedLocation?.zipCode ?? '',
+          fullLocation: `${city}, ${state}`
+        };
+        setSelectedLocation(updatedLocation);
+      }
+    }
+  };
+
+  const hasValidLocation = () => {
+    return !!(selectedLocation.city && selectedLocation.state);
+  };
+
+  return (
+    <LocationContext.Provider value={{ selectedLocation, setSelectedLocation, clearLocation, updateLocationWithState, hasValidLocation }}>
+      {children}
+    </LocationContext.Provider>
+  );
+};
+
+
+******
+MDHConfigContext.tsx
+frontend/src/MDHConfigContext.tsx
+******
+
+// Exports: function: MDHConfigContext, function: MDHConfigProvider, component: MDHConfigContext, component: MDHConfigProvider
+
+import type { ReactNode } from 'react';
+import React, { createContext, useCallback, useEffect, useState } from 'react';
+
+import siteData from '@/data/mdh/site.json';
+
+// Create a simple interface that matches what components expect
+interface MDHConfig {
+  business_name: string;
+  phone: string;
+  email: string;
+  logo_url: string;
+  facebook: string;
+  instagram: string;
+  tiktok: string;
+  youtube: string;
+  base_location: {
+    city: string;
+    state: string;
+  };
+}
+
+// Convert site.json to MDHConfig format
+const mdhConfig: MDHConfig = {
+  business_name: siteData.brand,
+  phone: siteData.contact.phone,
+  email: siteData.contact.email,
+  logo_url: siteData.logo,
+  facebook: siteData.socials.facebook,
+  instagram: siteData.socials.instagram,
+  tiktok: siteData.socials.tiktok,
+  youtube: siteData.socials.youtube,
+  base_location: {
+    city: "Los Angeles",
+    state: "California"
+  }
+};
+
+export interface MDHConfigContextType {
+  mdhConfig: MDHConfig | null;
+  isLoading: boolean;
+  error: string | null;
+  refreshMDHConfig: () => Promise<void>;
+}
+
+export const MDHConfigContext = createContext<MDHConfigContextType | null>(null);
+
+interface MDHConfigProviderProps {
+  children: ReactNode;
+}
+
+export const MDHConfigProvider: React.FC<MDHConfigProviderProps> = ({ children }) => {
+  const [mdhConfigState, setMdhConfigState] = useState<MDHConfig | null>(mdhConfig);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const refreshMDHConfig = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      // For now, we're using static data from mdh-config.ts
+      // In the future, this could be enhanced to load from an API
+      setMdhConfigState(mdhConfig);
+    } catch (err) {
+      console.error('Error refreshing MDH config:', err);
+      setError(err instanceof Error ? err.message : 'Failed to refresh MDH config');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Initialize with static data
+    if (!mdhConfigState) {
+      setMdhConfigState(mdhConfig);
+    }
+  }, [mdhConfigState]);
+
+  const value: MDHConfigContextType = {
+    mdhConfig: mdhConfigState,
+    isLoading,
+    error,
+    refreshMDHConfig,
+  };
+
+  return (
+    <MDHConfigContext.Provider value={value}>
+      {children}
+    </MDHConfigContext.Provider>
+  );
+};
+
+
+******
+SiteContext.tsx
+frontend/src/SiteContext.tsx
+******
+
+// Exports: function: SiteProvider, function: useSiteState, component: SiteProvider
+
+import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+
+import { getAreaBySlug } from '@/shared/utils';
+import { SiteContextType, SiteActions, SiteState } from '@/shared/types/site';
+
+// Action types
+type SiteAction = 
+  | { type: 'SET_LOCATION'; payload: { locationSlug: string } }
+  | { type: 'CLEAR_LOCATION' }
+  | { type: 'SET_LOADING'; payload: { loading: boolean } }
+  | { type: 'SET_ERROR'; payload: { error: boolean } }
+  | { type: 'SET_BUSINESS_DATA'; payload: { businessData: any } };
+
+// Initial state
+const initialState: SiteContextType = {
+  siteState: 'mdh',
+  currentLocation: null,
+  businessData: null,
+  isLoading: false,
+  hasError: false,
+};
+
+// Reducer
+function siteReducer(state: SiteContextType, action: SiteAction): SiteContextType {
+  switch (action.type) {
+    case 'SET_LOCATION':
+      return {
+        ...state,
+        siteState: 'affiliate',
+        currentLocation: {
+          slug: action.payload.locationSlug,
+          city: '',
+          state: '',
+          affiliate: '',
+        },
+        isLoading: true,
+        hasError: false,
+      };
+    
+    case 'CLEAR_LOCATION':
+      return {
+        ...state,
+        siteState: 'mdh',
+        currentLocation: null,
+        businessData: null,
+        isLoading: false,
+        hasError: false,
+      };
+    
+
+// ... (truncated 92 lines) ...
+
+    setLocation: (locationSlug: string) => {
+      dispatch({ type: 'SET_LOCATION', payload: { locationSlug } });
+    },
+    
+    clearLocation: () => {
+      dispatch({ type: 'CLEAR_LOCATION' });
+    },
+    
+    setLoading: (loading: boolean) => {
+      dispatch({ type: 'SET_LOADING', payload: { loading } });
+    },
+    
+    setError: (error: boolean) => {
+      dispatch({ type: 'SET_ERROR', payload: { error } });
+    },
+  };
+
+  const contextValue = {
+    ...state,
+    ...actions,
+  };
+
+  return (
+    <SiteContext.Provider value={contextValue}>
+      {children}
+    </SiteContext.Provider>
+  );
+};
+
+// Hook to use the context
+export const useSiteState = () => {
+  const context = useContext(SiteContext);
+  if (!context) {
+    console.error('useSiteState must be used within a SiteProvider');
+    // Return a safe fallback instead of throwing
+    return {
+      siteState: 'mdh' as const,
+      currentLocation: null,
+      businessData: null,
+      isLoading: false,
+      hasError: false,
+      setLocation: () => {},
+      clearLocation: () => {},
+      setLoading: () => {},
+      setError: () => {},
+    };
+  }
+  return context;
+};
+
+
+******
+AffiliateContext.tsx
+frontend/AffiliateContext.tsx
+******
+
+// Exports: function: AffiliateContext, function: AffiliateProvider, component: AffiliateContext, component: AffiliateProvider
+
+import React, { createContext, type ReactNode, useEffect, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+
+import { config } from '@/../config/env';
+import { useLocation } from '@/shared/hooks/useLocation';
+
+interface ServiceArea {
+  city: string;
+  state: string;
+  zip?: number | null;
+  primary: boolean;
+  minimum: number;
+  multiplier: number;
+}
+
+interface AffiliateData {
+  id: number;
+  slug: string;
+  business_name: string;
+  owner: string;
+  email: string;
+  phone: string;
+  sms_phone: string;
+  base_location: {
+    city: string | null;
+    state_code: string | null;
+    state_name: string | null;
+    zip: string | null;
+    lat: number | null;
+    lng: number | null;
+  } | null;
+  service_areas: ServiceArea[] | string | null;
+  services: unknown;
+  website_url: string;
+  gbp_url: string;
+  facebook_url: string;
+  instagram_url: string;
+  youtube_url: string;
+  tiktok_url: string;
+  application_status: string;
+  has_insurance: boolean;
+  source: string;
+  notes: string;
+  uploads: unknown;
+  business_license: string;
+  insurance_provider: string;
+  insurance_expiry: string;
+  service_radius_miles: number;
+  operating_hours: unknown;
+
+// ... (truncated 45 lines) ...
+
+      if (!res.ok) throw new Error(`Failed to fetch affiliate data: ${res.status}`);
+      const json = (await res.json()) as { success: boolean; affiliate?: AffiliateData };
+      if (!json.success || !json.affiliate) throw new Error('Invalid affiliate data structure');
+      return json.affiliate;
+    },
+  });
+
+  const affiliateData = data ?? null;
+  const ctxError = error ? (error as Error).message : null;
+
+  // Update location when affiliate data loads (only if no valid location is selected)
+  useEffect(() => {
+    if (!affiliateData?.service_areas) return;
+
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    const hasLocation = Boolean(selectedLocation?.city && selectedLocation?.state);
+    if (hasLocation) return;
+
+    let areas: ServiceArea[] | null = null;
+    if (Array.isArray(affiliateData.service_areas)) {
+      areas = affiliateData.service_areas as ServiceArea[];
+    } else if (typeof affiliateData.service_areas === 'string') {
+      try {
+        areas = JSON.parse(affiliateData.service_areas) as ServiceArea[];
+      } catch {
+        areas = null;
+      }
+    }
+
+    if (areas && areas.length) {
+      const primary = areas.find(a => a.primary);
+      if (primary?.city && primary?.state && typeof updateLocationWithState === 'function') {
+        updateLocationWithState(primary.city, primary.state);
+      }
+    }
+  }, [affiliateData, selectedLocation, updateLocationWithState]);
+
+  const value: AffiliateContextType = useMemo(
+    () => ({
+      affiliateData,
+      isLoading: isLoading && !data, // initial load true only when no data yet
+      error: ctxError,
+      businessSlug: effectiveBusinessSlug ?? null,
+    }),
+    [affiliateData, isLoading, data, ctxError, effectiveBusinessSlug]
+  );
+
+  return <AffiliateContext.Provider value={value}>{children}</AffiliateContext.Provider>;
+};
+
+
+******
+AuthContext.tsx
+frontend/AuthContext.tsx
+******
+
+// Exports: function: AuthContext, function: AuthProvider, component: AuthContext, component: AuthProvider
+
+import React, { createContext, useCallback, useEffect, useState } from 'react';
+
+import { apiService } from '@/shared/api/api';
+import { apiClient } from '@/shared/api/apiClient';
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string | undefined;
+  role: 'user' | 'affiliate' | 'admin';
+  affiliate_id?: number | undefined;
+}
+
+export interface AuthContextType {
+  user: User | null;
+  isLoggedIn: boolean;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  register: (email: string, password: string, name: string, phone?: string) => Promise<{ success: boolean; error?: string }>;
+  logout: () => void;
+  loading: boolean;
+}
+
+export const AuthContext = createContext<AuthContextType | null>(null);
+
+// Helper function to map backend user data to frontend User interface
+const mapBackendUserToFrontend = (backendUser: unknown): User => {
+  const user = backendUser as {
+    id: string;
+    name: string;
+    email: string;
+    phone?: string;
+    role?: 'user' | 'affiliate' | 'admin';
+    is_admin?: boolean;
+    affiliate_id?: number;
+  };
+  // Handle both backend API response format and saved user format
+  let role: 'user' | 'affiliate' | 'admin' = 'user';
+  
+  if (user.role !== undefined) {
+    // If role is already set (from saved user data)
+    role = user.role;
+  } else if (user.is_admin) {
+    // If is_admin flag is present (from API response)
+    role = 'admin';
+  }
+  
+  return {
+    id: user.id,
+    name: user.name,
+
+// ... (truncated 118 lines) ...
+
+      }
+      if (err.code === 'TIMEOUT') {
+        return { success: false, error: 'Login request timed out. Please check your connection and try again.' };
+      }
+      if (err.code === 'NETWORK_ERROR') {
+        return { success: false, error: 'Network error. Please check your connection and try again.' };
+      }
+      
+      return { success: false, error: err.message || 'Network error occurred' };
+    }
+  };
+
+  const register = async (email: string, password: string, name: string, phone?: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const response = await apiService.register(email, password, name, phone);
+
+      if (response.success) {
+        const mappedUser = mapBackendUserToFrontend(response.user);
+        setUser(mappedUser);
+        localStorage.setItem('token', response.accessToken);
+        localStorage.setItem('refreshToken', response.refreshToken);
+        localStorage.setItem('user', JSON.stringify(mappedUser));
+        return { success: true };
+      } else {
+        return { success: false, error: response.message || 'Registration failed' };
+      }
+    } catch (error: unknown) {
+      const err = error as { code?: string; message?: string };
+      // Handle specific error codes
+      if (err.code === 'RATE_LIMITED') {
+        return { success: false, error: `Rate limited: ${err.message ?? 'Unknown error'}` };
+      }
+      if (err.code === 'VALIDATION_ERROR') {
+        return { success: false, error: err.message || 'Validation failed' };
+      }
+      
+      return { success: false, error: err.message || 'Network error occurred' };
+    }
+  };
+
+  const isLoggedIn = !!user;
+
+  return (
+    <AuthContext.Provider value={{ user, isLoggedIn, login, register, logout, loading }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+
+
+******
+FAQContext.tsx
+frontend/FAQContext.tsx
+******
+
+// Exports: function: FAQContext, function: FAQProvider, component: FAQContext, component: FAQProvider
+
+import type { ReactNode } from 'react';
+import React, { createContext, useState, useEffect, useRef } from 'react';
+
+export interface FAQContextType {
+  isExpanded: boolean;
+  setIsExpanded: (expanded: boolean) => void;
+  expandFAQ: () => void;
+  collapseFAQ: () => void;
+  toggleFAQ: () => void;
+}
+
+export const FAQContext = createContext<FAQContextType | null>(null);
+
+interface FAQProviderProps {
+  children: ReactNode;
+}
+
+export const FAQProvider: React.FC<FAQProviderProps> = ({ children }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastScrollY = useRef(0);
+
+  const expandFAQ = () => {
+    setIsExpanded(true);
+    // Scroll to FAQ section after a brief delay to ensure it's expanded
+    setTimeout(() => {
+      const faqSection = document.getElementById('faq');
+      if (faqSection) {
+        faqSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
+  };
+
+  const collapseFAQ = () => { setIsExpanded(false); };
+  
+  const toggleFAQ = () => { setIsExpanded(prev => !prev); };
+
+  // Add scroll detection to collapse FAQ when scrolling away
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!isExpanded) return;
+
+      const faqSection = document.getElementById('faq');
+      if (!faqSection) return;
+
+      const faqRect = faqSection.getBoundingClientRect();
+      const currentScrollY = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      
+
+// ... (truncated 11 lines) ...
+
+        // Clear any existing timeout
+        if (scrollTimeoutRef.current) {
+          clearTimeout(scrollTimeoutRef.current);
+        }
+        
+        // Add a small delay to prevent immediate collapse during smooth scrolling
+        scrollTimeoutRef.current = setTimeout(() => {
+          setIsExpanded(false);
+        }, 300);
+      }
+    };
+
+    // Throttle scroll events for better performance
+    let ticking = false;
+    const throttledHandleScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          handleScroll();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener('scroll', throttledHandleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', throttledHandleScroll);
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, [isExpanded]);
+
+  const value: FAQContextType = {
+    isExpanded,
+    setIsExpanded,
+    expandFAQ,
+    collapseFAQ,
+    toggleFAQ,
+  };
+
+  return (
+    <FAQContext.Provider value={value}>
+      {children}
+    </FAQContext.Provider>
+  );
+};
+
+
+
+******
+LocationContext.tsx
+frontend/LocationContext.tsx
+******
+
+// Exports: function: LocationContext, function: LocationProvider, component: LocationContext, component: LocationProvider
+
+import type { ReactNode } from 'react';
+import React, { createContext, useEffect, useState } from 'react';
+
+export interface LocationData {
+  city: string;
+  state: string;
+  zipCode: string;
+  fullLocation: string;
+}
+
+export interface LocationContextType {
+  selectedLocation: LocationData | null;
+  setSelectedLocation: (location: LocationData | null) => void;
+  clearLocation: () => void;
+  updateLocationWithState: (city: string, state: string) => void;
+  hasValidLocation: () => boolean;
+}
+
+export const LocationContext = createContext<LocationContextType | null>(null);
+
+interface LocationProviderProps {
+  children: ReactNode;
+}
+
+export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) => {
+  const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(() => {
+    try {
+      const saved = localStorage.getItem('selectedLocation');
+      if (saved) {
+        const parsed = JSON.parse(saved) as LocationData;
+        if (parsed.city && parsed.state) {
+          return parsed;
+        }
+      }
+    } catch (error) {
+      console.error('Error loading location from localStorage:', error);
+    }
+    return null;
+  });
+
+  // Persist to localStorage whenever location changes
+  useEffect(() => {
+    if (selectedLocation?.city && selectedLocation?.state) {
+      localStorage.setItem('selectedLocation', JSON.stringify(selectedLocation));
+    } else {
+      localStorage.removeItem('selectedLocation');
+    }
+  }, [selectedLocation]);
+
+  // Listen for localStorage changes from other components (like business config)
+
+// ... (truncated 24 lines) ...
+
+          // Only update if we have complete location data and it's different from current
+          if (parsed.city && parsed.state && 
+              (!selectedLocation || 
+               parsed.city !== selectedLocation.city || 
+               parsed.state !== selectedLocation.state || 
+               parsed.zipCode !== selectedLocation.zipCode)) {
+            setSelectedLocation(parsed);
+          }
+        }
+      } catch {
+        // Ignore errors
+      }
+    }, 5000); // Increased interval to 5 seconds to reduce frequency
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, [selectedLocation]); // Added selectedLocation as dependency to prevent stale closures
+
+  const clearLocation = () => {
+    setSelectedLocation(null);
+  };
+
+  const updateLocationWithState = (city: string, state: string) => {
+    if (city && state) {
+      // If no location is selected, or if the current location doesn't have a state, update it
+      if (!selectedLocation || !selectedLocation.state) {
+        const updatedLocation: LocationData = {
+          city: city,
+          state: state,
+          zipCode: selectedLocation?.zipCode ?? '',
+          fullLocation: `${city}, ${state}`
+        };
+        setSelectedLocation(updatedLocation);
+      }
+    }
+  };
+
+  const hasValidLocation = () => {
+    return !!(selectedLocation.city && selectedLocation.state);
+  };
+
+  return (
+    <LocationContext.Provider value={{ selectedLocation, setSelectedLocation, clearLocation, updateLocationWithState, hasValidLocation }}>
+      {children}
+    </LocationContext.Provider>
+  );
+};
+
+
+******
+MDHConfigContext.tsx
+frontend/MDHConfigContext.tsx
+******
+
+// Exports: function: MDHConfigContext, function: MDHConfigProvider, component: MDHConfigContext, component: MDHConfigProvider
+
+import type { ReactNode } from 'react';
+import React, { createContext, useCallback, useEffect, useState } from 'react';
+
+import siteData from '@/data/mdh/site.json';
+
+// Create a simple interface that matches what components expect
+interface MDHConfig {
+  business_name: string;
+  phone: string;
+  email: string;
+  logo_url: string;
+  facebook: string;
+  instagram: string;
+  tiktok: string;
+  youtube: string;
+  base_location: {
+    city: string;
+    state: string;
+  };
+}
+
+// Convert site.json to MDHConfig format
+const mdhConfig: MDHConfig = {
+  business_name: siteData.brand,
+  phone: siteData.contact.phone,
+  email: siteData.contact.email,
+  logo_url: siteData.logo,
+  facebook: siteData.socials.facebook,
+  instagram: siteData.socials.instagram,
+  tiktok: siteData.socials.tiktok,
+  youtube: siteData.socials.youtube,
+  base_location: {
+    city: "Los Angeles",
+    state: "California"
+  }
+};
+
+export interface MDHConfigContextType {
+  mdhConfig: MDHConfig | null;
+  isLoading: boolean;
+  error: string | null;
+  refreshMDHConfig: () => Promise<void>;
+}
+
+export const MDHConfigContext = createContext<MDHConfigContextType | null>(null);
+
+interface MDHConfigProviderProps {
+  children: ReactNode;
+}
+
+export const MDHConfigProvider: React.FC<MDHConfigProviderProps> = ({ children }) => {
+  const [mdhConfigState, setMdhConfigState] = useState<MDHConfig | null>(mdhConfig);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const refreshMDHConfig = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      // For now, we're using static data from mdh-config.ts
+      // In the future, this could be enhanced to load from an API
+      setMdhConfigState(mdhConfig);
+    } catch (err) {
+      console.error('Error refreshing MDH config:', err);
+      setError(err instanceof Error ? err.message : 'Failed to refresh MDH config');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Initialize with static data
+    if (!mdhConfigState) {
+      setMdhConfigState(mdhConfig);
+    }
+  }, [mdhConfigState]);
+
+  const value: MDHConfigContextType = {
+    mdhConfig: mdhConfigState,
+    isLoading,
+    error,
+    refreshMDHConfig,
+  };
+
+  return (
+    <MDHConfigContext.Provider value={value}>
+      {children}
+    </MDHConfigContext.Provider>
+  );
+};
+
+
+******
+SiteContext.tsx
+frontend/SiteContext.tsx
+******
+
+// Exports: function: SiteProvider, function: useSiteState, component: SiteProvider
+
+import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+
+import { getAreaBySlug } from '@/shared/utils';
+import { SiteContextType, SiteActions, SiteState } from '@/shared/types/site';
+
+// Action types
+type SiteAction = 
+  | { type: 'SET_LOCATION'; payload: { locationSlug: string } }
+  | { type: 'CLEAR_LOCATION' }
+  | { type: 'SET_LOADING'; payload: { loading: boolean } }
+  | { type: 'SET_ERROR'; payload: { error: boolean } }
+  | { type: 'SET_BUSINESS_DATA'; payload: { businessData: any } };
+
+// Initial state
+const initialState: SiteContextType = {
+  siteState: 'mdh',
+  currentLocation: null,
+  businessData: null,
+  isLoading: false,
+  hasError: false,
+};
+
+// Reducer
+function siteReducer(state: SiteContextType, action: SiteAction): SiteContextType {
+  switch (action.type) {
+    case 'SET_LOCATION':
+      return {
+        ...state,
+        siteState: 'affiliate',
+        currentLocation: {
+          slug: action.payload.locationSlug,
+          city: '',
+          state: '',
+          affiliate: '',
+        },
+        isLoading: true,
+        hasError: false,
+      };
+    
+    case 'CLEAR_LOCATION':
+      return {
+        ...state,
+        siteState: 'mdh',
+        currentLocation: null,
+        businessData: null,
+        isLoading: false,
+        hasError: false,
+      };
+    
+
+// ... (truncated 92 lines) ...
+
+    setLocation: (locationSlug: string) => {
+      dispatch({ type: 'SET_LOCATION', payload: { locationSlug } });
+    },
+    
+    clearLocation: () => {
+      dispatch({ type: 'CLEAR_LOCATION' });
+    },
+    
+    setLoading: (loading: boolean) => {
+      dispatch({ type: 'SET_LOADING', payload: { loading } });
+    },
+    
+    setError: (error: boolean) => {
+      dispatch({ type: 'SET_ERROR', payload: { error } });
+    },
+  };
+
+  const contextValue = {
+    ...state,
+    ...actions,
+  };
+
+  return (
+    <SiteContext.Provider value={contextValue}>
+      {children}
+    </SiteContext.Provider>
+  );
+};
+
+// Hook to use the context
+export const useSiteState = () => {
+  const context = useContext(SiteContext);
+  if (!context) {
+    console.error('useSiteState must be used within a SiteProvider');
+    // Return a safe fallback instead of throwing
+    return {
+      siteState: 'mdh' as const,
+      currentLocation: null,
+      businessData: null,
+      isLoading: false,
+      hasError: false,
+      setLocation: () => {},
+      clearLocation: () => {},
+      setLoading: () => {},
+      setError: () => {},
+    };
+  }
+  return context;
+};
+
+
+
+
+BACKEND SOURCE CODE
+========================================
+
+
+
+DEPLOYMENT CONFIGURATIONS
+========================================
+
+--------------------
+Platform: unknown
+Config Files: package.json
+Platforms Detected: package
+
+BUILD SETTINGS
+--------------------
+FRONTEND:
+  dev: vite
+  build: vite build
+  lint: eslint .
+  lint:fix: eslint . --fix
+  preview: vite preview
+  test: vitest
+  test:ui: vitest --ui
+  optimize-images: node scripts/convert-images.js
+  prebuild: npm run optimize-images
+  check-pages: node scripts/check-pages-usage.js
+  lint:pages: eslint . --rule 'import/no-restricted-paths: error'
+
+BACKEND:
+  start: node server.js
+  start:prod: node server.js
+  dev: nodemon server.js
+  test: echo "Error: no test specified" && exit 1
+
+No deployment configuration files found.
+Checked for: vercel.json, render.yaml, Dockerfile, netlify.toml, etc.
+

@@ -6,6 +6,10 @@ export interface LocationData {
   state: string;
   zipCode: string;
   fullLocation: string;
+  hero?: {
+    h1: string;
+    sub: string;
+  };
 }
 
 export interface LocationContextType {
@@ -40,7 +44,7 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
 
   // Persist to localStorage whenever location changes
   useEffect(() => {
-    if (selectedLocation.city && selectedLocation.state) {
+    if (selectedLocation?.city && selectedLocation?.state) {
       localStorage.setItem('selectedLocation', JSON.stringify(selectedLocation));
     } else {
       localStorage.removeItem('selectedLocation');

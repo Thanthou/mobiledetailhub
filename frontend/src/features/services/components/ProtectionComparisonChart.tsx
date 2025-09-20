@@ -1,12 +1,11 @@
-// src/components/ProtectionComparisonChart.tsx
 import React from 'react';
 
-// Define types locally to avoid import resolution issues
+// Define types for the chart data
 type MetricKey = 'protection' | 'longevity' | 'ease' | 'chipResistance';
 type ProductKey = 'wax' | 'sealant' | 'ceramic' | 'ppf';
 type Ratings = Record<ProductKey, Record<MetricKey, 1|2|3|4|5>>;
 
-// Define constants locally with explicit types
+// Default ratings data
 const DEFAULT_RATINGS: Ratings = {
   wax:      { protection: 1, longevity: 1, ease: 2, chipResistance: 1 },
   sealant:  { protection: 2, longevity: 2, ease: 2, chipResistance: 1 },
@@ -31,6 +30,7 @@ const PRODUCT_LABELS: Record<ProductKey, string> = {
 export interface ProtectionComparisonChartProps {
   ratings?: Ratings;
   title?: string;
+  description?: string;
   className?: string;
 }
 
@@ -77,6 +77,7 @@ const RatingStars: React.FC<{
 export const ProtectionComparisonChart: React.FC<ProtectionComparisonChartProps> = ({
   ratings = DEFAULT_RATINGS,
   title = 'Protection Options Compared',
+  description,
   className = ''
 }) => {
   const metrics: MetricKey[] = ['protection', 'longevity', 'ease', 'chipResistance'];
@@ -91,6 +92,9 @@ export const ProtectionComparisonChart: React.FC<ProtectionComparisonChartProps>
         <figcaption className="text-lg md:text-xl font-semibold text-white">
           {title}
         </figcaption>
+        {description && (
+          <p className="text-sm text-slate-300 mt-2">{description}</p>
+        )}
       </div>
 
       {/* Mobile: Stacked layout */}

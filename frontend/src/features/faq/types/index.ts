@@ -1,15 +1,16 @@
-// FAQ Types
+// FAQ Types based on legacy structure
 export type FAQCategory =
-  | "Services"
-  | "Pricing & Quotes"
-  | "Scheduling & Weather"
+  | "Services & Packages"
+  | "Scheduling & Location"
+  | "Pricing & Payment"
+  | "Products & Process"
+  | "Preparation & Aftercare"
+  | "RV & Boat Services"
+  | "General"
   | "Locations"
-  | "Preparation"
   | "Payments & Deposits"
   | "Warranty & Guarantee"
-  | "Aftercare & Maintenance"
-  | "Fleet & Commercial"
-  | "General";
+  | "Location Specific";
 
 export type ServiceTag =
   | "Auto"
@@ -28,12 +29,21 @@ export interface FAQItem {
   services?: ServiceTag[];
 }
 
+export interface FAQCategoryData {
+  id: string;
+  title: FAQCategory;
+  icon: React.ComponentType<any>;
+  questions: FAQItem[];
+}
+
 export interface FAQItemWithIndex extends FAQItem {
   originalIndex: number;
 }
 
 export interface FAQProps {
   autoExpand?: boolean;
+  customFAQs?: Array<{ q: string; a: string }>;
+  customFAQIntro?: string;
 }
 
 export interface FAQRef {

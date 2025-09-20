@@ -1,117 +1,66 @@
 import type { ReactNode } from 'react';
 import React, { createContext, useCallback, useEffect, useState } from 'react';
 
-import { config } from '@/../config/env';
+import siteData from '@/data/mdh/site.json';
 
-import { getStaticMDHConfig, initializeGlobalConfig, type MDHConfig } from '@/data/mdh';
-
-// Types are now imported from @/data/mdh/mdh-config
-
-// Global window interface for JSON-LD loader compatibility
-declare global {
-  interface Window {
-    __MDH__?: {
-      name: string;
-      url: string;
-      logo: string;
-      phone: string;
-      email: string;
-      socials: {
-        facebook: string;
-        instagram: string;
-        youtube: string;
-        tiktok: string;
-      };
-      header_display: string;
-      tagline: string;
-      services_description: string;
-      logo_url: string;
-      favicon_url: string;
-      ogImage: string;
-      created_at: string;
-      updated_at: string;
-    };
-  }
+// Create a simple interface that matches what components expect
+interface MDHConfig {
+  business_name: string;
+  phone: string;
+  email: string;
+  logo_url: string;
+  facebook: string;
+  instagram: string;
+  tiktok: string;
+  youtube: string;
+  base_location: {
+    city: string;
+    state: string;
+  };
 }
+
+// Convert site.json to MDHConfig format
+const mdhConfig: MDHConfig = {
+  business_name: siteData.brand,
+  phone: siteData.contact.phone,
+  email: siteData.contact.email,
+  logo_url: siteData.logo,
+  facebook: siteData.socials.facebook,
+  instagram: siteData.socials.instagram,
+  tiktok: siteData.socials.tiktok,
+  youtube: siteData.socials.youtube,
+  base_location: {
+    city: "Los Angeles",
+    state: "California"
+  }
+};
 
 export interface MDHConfigContextType {
   mdhConfig: MDHConfig | null;
   isLoading: boolean;
   error: string | null;
-  refreshConfig: () => Promise<void>;
+  refreshMDHConfig: () => Promise<void>;
 }
 
 export const MDHConfigContext = createContext<MDHConfigContextType | null>(null);
-
 
 interface MDHConfigProviderProps {
   children: ReactNode;
 }
 
-// Global config cache to prevent duplicate fetches
-let globalConfigCache: MDHConfig | null = null;
-let globalConfigPromise: Promise<MDHConfig> | null = null;
-
 export const MDHConfigProvider: React.FC<MDHConfigProviderProps> = ({ children }) => {
-  const [mdhConfig, setMdhConfig] = useState<MDHConfig | null>(() => {
-    // Initialize with static config from TypeScript file
-    const staticConfig = getStaticMDHConfig();
-    
-    // Initialize global object for JSON-LD loader compatibility
-    initializeGlobalConfig();
-    
-    return staticConfig;
-  });
-  const [isLoading, setIsLoading] = useState(false); // Start with false since we have static data
+  const [mdhConfigState, setMdhConfigState] = useState<MDHConfig | null>(mdhConfig);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchMDHConfig = async (): Promise<MDHConfig> => {
-    try {
-      const response = await fetch(`${config.apiUrl}/api/mdh-config`);
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('❌ [MDHConfig] Response not OK:', errorText);
-        throw new Error(`Failed to fetch MDH config: ${response.status.toString()} - ${errorText}`);
-      }
-      
-      const data = await response.json() as MDHConfig;
-      return data;
-    } catch (err) {
-      console.error('❌ [MDHConfig] Error fetching MDH config:', err);
-      throw err;
-    }
-  };
-
-  const refreshConfig = useCallback(async () => {
+  const refreshMDHConfig = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
       
-      // Use global cache if available
-      if (globalConfigCache !== null) {
-        setMdhConfig(globalConfigCache);
-        setIsLoading(false);
-        return;
-      }
-
-      // Use global promise if already fetching
-      if (globalConfigPromise !== null) {
-        const data = await globalConfigPromise;
-        setMdhConfig(data);
-        setIsLoading(false);
-        return;
-      }
-
-      // Create new fetch promise
-      globalConfigPromise = fetchMDHConfig();
-      const data = await globalConfigPromise;
-      
-      // Cache the result globally
-      globalConfigCache = data;
-      globalConfigPromise = null;
-      
-      setMdhConfig(data);
+      // For now, we're using static data from mdh-config.ts
+      // In the future, this could be enhanced to load from an API
+      setMdhConfigState(mdhConfig);
     } catch (err) {
       console.error('Error refreshing MDH config:', err);
       setError(err instanceof Error ? err.message : 'Failed to refresh MDH config');
@@ -121,17 +70,17 @@ export const MDHConfigProvider: React.FC<MDHConfigProviderProps> = ({ children }
   }, []);
 
   useEffect(() => {
-    // Only fetch if we don't have static config and haven't cached anything
-    if (mdhConfig === null && globalConfigCache === null && globalConfigPromise === null) {
-      void refreshConfig();
+    // Initialize with static data
+    if (!mdhConfigState) {
+      setMdhConfigState(mdhConfig);
     }
-  }, [mdhConfig, refreshConfig]);
+  }, [mdhConfigState]);
 
   const value: MDHConfigContextType = {
-    mdhConfig,
+    mdhConfig: mdhConfigState,
     isLoading,
     error,
-    refreshConfig,
+    refreshMDHConfig,
   };
 
   return (

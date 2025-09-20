@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Header from './Header';
 import ServiceCarousel from './ServiceCarousel';
-import { useBookingStore } from '../../../state';
-import { getCardDescription } from '../../../utils/displayUtils';
+import { useBookingStore } from '@/features/booking/state';
+import { getCardDescription } from '@/features/booking/utils/displayUtils';
 
 interface ServiceTier {
   id: string;

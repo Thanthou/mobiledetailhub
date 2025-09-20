@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-import { AffiliateProvider, AuthProvider, FAQProvider, LocationProvider, MDHConfigProvider } from '@/shared/contexts';
+import { AffiliateProvider, AuthProvider, FAQProvider, LocationProvider, MDHConfigProvider, SiteProvider } from '@/shared/contexts';
 import { ErrorBoundary } from '@/shared/ui';
 
 // Create a client
@@ -47,7 +47,7 @@ export const AffiliateProviders: React.FC<ProvidersProps> = ({ children }) => {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <LocationProvider>
+          <SiteProvider>
             <MDHConfigProvider>
               <FAQProvider>
                 <Router>
@@ -57,7 +57,7 @@ export const AffiliateProviders: React.FC<ProvidersProps> = ({ children }) => {
                 </Router>
               </FAQProvider>
             </MDHConfigProvider>
-          </LocationProvider>
+          </SiteProvider>
         </AuthProvider>
       </QueryClientProvider>
     </ErrorBoundary>

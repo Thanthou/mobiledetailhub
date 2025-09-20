@@ -1,0 +1,291 @@
+
+*** FILE: package.json ***
+{
+  "name": "mobiledetailhub-frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "optimize-images": "node scripts/convert-images.js",
+    "prebuild": "npm run optimize-images",
+    "check-pages": "node scripts/check-pages-usage.js",
+    "lint:pages": "eslint . --rule 'import/no-restricted-paths: error'"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.87.4",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.344.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-icons": "^5.5.0",
+    "react-router-dom": "^7.7.1",
+    "tailwind-merge": "^3.3.1",
+    "zod": "^4.1.5",
+    "zustand": "^5.0.8"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.9.1",
+    "@types/google.maps": "^3.58.1",
+    "@types/node": "^24.3.1",
+    "@types/react": "^18.3.24",
+    "@types/react-dom": "^18.3.7",
+    "@typescript-eslint/eslint-plugin": "^8.8.1",
+    "@typescript-eslint/parser": "^8.8.1",
+    "@vitejs/plugin-react": "^4.3.1",
+    "@vitest/ui": "^3.2.4",
+    "autoprefixer": "^10.4.18",
+    "eslint": "^8.57.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react": "^7.34.3",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-react-refresh": "^0.4.7",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "globals": "^15.9.0",
+    "jsdom": "^26.1.0",
+    "postcss": "^8.4.35",
+    "sharp": "^0.33.0",
+    "tailwindcss": "^3.4.1",
+    "typescript": "~5.5.4",
+    "vite": "^5.4.2",
+    "vitest": "^3.2.4"
+  }
+}
+
+
+*** END FILE ***
+
+*** FILE: tsconfig.json ***
+{
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ]
+}
+
+
+*** END FILE ***
+
+*** FILE: vite.config.ts ***
+import react from '@vitejs/plugin-react';
+import { fileURLToPath } from 'node:url';
+import { URL } from 'node:url';
+import { defineConfig } from 'vite';
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [react()],
+  resolve: {
+    alias: {
+      'shared': fileURLToPath(new URL('./src/components/shared', import.meta.url)),
+      '@': fileURLToPath(new URL('./src', import.meta.url))
+    }
+  },
+  optimizeDeps: {
+    exclude: ['lucide-react'],
+  },
+  server: {
+    proxy: {
+      '/api': 'http://localhost:3001',
+      '/uploads': 'http://localhost:3001',
+    },
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: undefined,
+      },
+    },
+  },
+});
+
+
+*** END FILE ***
+
+*** FILE: tailwind.config.js ***
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+};
+
+
+*** END FILE ***
+
+*** FILE: postcss.config.js ***
+export default {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+};
+
+
+*** END FILE ***
+
+*** FILE: eslint.config.js ***
+import js from '@eslint/js';
+import globals from 'globals';
+import react from 'eslint-plugin-react';
+import reactHooks from 'eslint-plugin-react-hooks';
+import reactRefresh from 'eslint-plugin-react-refresh';
+import jsxA11y from 'eslint-plugin-jsx-a11y';
+import tseslint from '@typescript-eslint/eslint-plugin';
+import tsParser from '@typescript-eslint/parser';
+import simpleImportSort from 'eslint-plugin-simple-import-sort';
+import importPlugin from 'eslint-plugin-import';
+
+export default [
+  { ignores: ['dist', 'vitest.config.ts'] },
+  js.configs.recommended,
+  {
+    files: ['public/**/*.js'],
+    ignores: ['public/sw.js'],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.browser,
+      sourceType: 'script',
+    },
+  },
+  {
+    files: ['public/sw.js'],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: {
+        ...globals.browser,
+        ...globals.serviceworker,
+      },
+      sourceType: 'script',
+    },
+    rules: {
+      'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    },
+  },
+  {
+    files: ['scripts/**/*.js'],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: {
+        ...globals.node,
+      },
+      sourceType: 'module',
+    },
+  },
+  {
+    files: ['**/*.{ts,tsx}'],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: {
+        ...globals.browser,
+        google: 'readonly',
+      },
+      parser: tsParser,
+      parserOptions: {
+        project: './tsconfig.app.json',
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    plugins: {
+      '@typescript-eslint': tseslint,
+      'react': react,
+      'react-hooks': reactHooks,
+      'react-refresh': reactRefresh,
+      'jsx-a11y': jsxA11y,
+      'simple-import-sort': simpleImportSort,
+      'import': importPlugin,
+    },
+    settings: {
+      react: {
+        version: 'detect',
+      },
+    },
+    rules: {
+      ...tseslint.configs.recommended.rules,
+      ...tseslint.configs['strict-type-checked'].rules,
+      ...react.configs.recommended.rules,
+      ...reactHooks.configs.recommended.rules,
+      ...jsxA11y.configs.recommended.rules,
+      'react-refresh/only-export-components': [
+        'warn',
+        { allowConstantExport: true },
+      ],
+      // TypeScript strict+ rules
+      '@typescript-eslint/no-unsafe-assignment': 'error',
+      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/no-floating-promises': 'error',
+      
+      // Import sorting and cycle detection
+      'simple-import-sort/imports': ['error', {
+        groups: [
+          // 1) side-effect imports
+          ['^\\u0000'],
+          // 2) external packages
+          ['^react', '^@?\\w'],
+          // 3) internal @/ imports
+          ['^@/'],
+          // 4) relative imports
+          ['^\\.\\./', '^\\./'],
+          // 5) styles
+          ['^.+\\.(css|scss|sass|less)$'],
+        ],
+      }],
+      'simple-import-sort/exports': 'error',
+      'import/no-cycle': 'error',
+      'import/no-self-import': 'error',
+      
+      // Disable prop-types for TypeScript projects (we use interfaces instead)
+      'react/prop-types': 'off',
+    },
+  }
+];
+
+
+*** END FILE ***
+
+*** FILE: src\main.tsx ***
+import { createRoot } from 'react-dom/client';
+
+import App from './App.tsx';
+
+import './index.css';
+
+// Register Service Worker for PWA functionality (only in production and when explicitly enabled)
+if ('serviceWorker' in navigator && import.meta.env.PROD && import.meta.env.VITE_ENABLE_SW === '1') {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch((err) => {
+      console.warn('SW registration failed:', err);
+    });
+  });
+}
+
+const rootElement = document.getElementById('root');
+if (!rootElement) {
+  throw new Error('Root element not found');
+}
+
+createRoot(rootElement).render(
+  <>
+    <App />
+  </>
+);
+
+
+*** END FILE ***
+
+*** FILE: src\App.tsx ***
+import App from './app/App';
+
+export default App;
+
+*** END FILE ***

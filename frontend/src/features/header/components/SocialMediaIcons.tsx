@@ -1,5 +1,6 @@
 import React from 'react';
 import { SiFacebook, SiInstagram, SiYoutube } from 'react-icons/si';
+import siteData from '@/data/mdh/site.json';
 
 // Custom TikTok icon component
 const TikTokIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -16,18 +17,8 @@ const TikTokIcon: React.FC<{ className?: string }> = ({ className }) => (
   </svg>
 );
 
-interface SocialMediaConfig {
-  facebook?: string;
-  instagram?: string;
-  tiktok?: string;
-  youtube?: string;
-}
-
-interface SocialMediaIconsProps {
-  socialMedia: SocialMediaConfig;
-}
-
-const SocialMediaIcons: React.FC<SocialMediaIconsProps> = ({ socialMedia }) => {
+const SocialMediaIcons: React.FC = () => {
+  const socialMedia = siteData.socials;
   const socialLinks = [
     {
       platform: 'Facebook',

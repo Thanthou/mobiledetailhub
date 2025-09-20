@@ -1,80 +1,35 @@
-import React, { useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-
-import { Button } from '@/shared/ui';
-
+import React, { useState } from 'react';
+import { BackgroundCarousel } from '@/shared/ui';
+import { useSiteContext } from '@/shared/hooks';
+import siteData from '@/data/mdh/site.json';
 import { useReviews } from '../hooks/useReviews';
-import type { Review, ReviewsProps } from '../types/types';
-import { ReviewCard } from './ReviewCard';
-import { ReviewModal } from './ReviewModal';
-import { ReviewsHeader } from './ReviewsHeader';
+import ReviewsHeader from './ReviewsHeader';
+import ReviewsSubHeader from './ReviewsSubHeader';
+import ReviewsCarousel from './ReviewsCarousel';
+import ReviewModal from './ReviewModal';
 
-export const Reviews: React.FC<ReviewsProps> = ({ 
-  reviews: propReviews,
-  maxReviews = 3,
-  reviewType = 'mdh',
-  businessSlug,
-  featuredOnly = false,
-  verifiedOnly = false
-}) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedReview, setSelectedReview] = useState<Review | null>(null);
+const Reviews: React.FC = () => {
+  const [selectedReview, setSelectedReview] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
-  // Memoize the params object to prevent infinite loops
-  const reviewParams = useMemo(() => ({
-    type: reviewType,
-    business_slug: businessSlug,
-    featured_only: featuredOnly,
-    verified_only: verifiedOnly,
-    limit: 50 // Fetch more than needed for carousel
-  }), [reviewType, businessSlug, featuredOnly, verifiedOnly]);
-  
-  // Fetch reviews from API if not provided as props
-  const { 
-    reviews: apiReviews, 
-    loading, 
-    error 
-  } = useReviews(propReviews ? {} : reviewParams); // Don't fetch if we have prop reviews
+  const { isMainSite } = useSiteContext();
 
-  // Sort reviews: featured first, then 5-star reviews, then by date (newest first)
-  const sortedReviews = useMemo(() => {
-    // Use prop reviews if provided, otherwise use API reviews
-    const reviews: Review[] = propReviews ?? apiReviews;
-    
-    if (!Array.isArray(reviews) || reviews.length === 0) return [];
-    
-    return [...reviews].sort((a, b) => {
-      // First, sort by featured status
-      if (a.isFeatured !== b.isFeatured) {
-        return (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0);
-      }
-      // Then, sort by rating (5 stars first)
-      if (a.rating !== b.rating) {
-        return b.rating - a.rating;
-      }
-      // Finally, sort by date (newest first)
-      return new Date(b.date).getTime() - new Date(a.date).getTime();
-    });
-  }, [propReviews, apiReviews]);
-  
-  const displayedReviews = sortedReviews.slice(currentIndex, currentIndex + maxReviews);
-  const canGoLeft = currentIndex > 0;
-  const canGoRight = currentIndex + maxReviews < sortedReviews.length;
-  
-  const handlePrevious = () => {
-    if (canGoLeft) {
-      setCurrentIndex(Math.max(0, currentIndex - 1));
-    }
-  };
-  
-  const handleNext = () => {
-    if (canGoRight) {
-      setCurrentIndex(Math.min(sortedReviews.length - maxReviews, currentIndex + 1));
-    }
+  // Build query parameters based on site context
+  const queryParams: any = {
+    type: (isMainSite ? 'affiliate' : 'mdh') as 'affiliate' | 'mdh',
+    status: 'approved' as const,
+    limit: 50,
+    featured_only: false,
+    verified_only: false
   };
 
-  const handleReviewClick = (review: Review) => {
+  if (isMainSite) {
+    queryParams.business_slug = 'jps';
+  }
+
+  // Fetch reviews from database
+  const { reviews, loading, error } = useReviews(queryParams);
+
+  const handleReviewClick = (review: any) => {
     setSelectedReview(review);
     setIsModalOpen(true);
   };
@@ -83,15 +38,25 @@ export const Reviews: React.FC<ReviewsProps> = ({
     setIsModalOpen(false);
     setSelectedReview(null);
   };
-  
+
+  // Use hero images as background for now
+  const backgroundImages = siteData.hero.images.map(img => img.url);
+
   // Show loading state
   if (loading) {
     return (
-      <section className="bg-stone-800 py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
+      <section id="reviews" className="relative h-screen snap-start snap-always overflow-hidden">
+        <BackgroundCarousel
+          images={backgroundImages}
+          interval={8000}
+          overlay={true}
+          overlayOpacity={0.7}
+          altText="Customer reviews background"
+        />
+        <div className="relative z-10 h-full flex items-center justify-center">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-400 mx-auto mb-4"></div>
-            <p className="text-stone-300">Loading reviews...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+            <p className="text-white text-lg">Loading reviews...</p>
           </div>
         </div>
       </section>
@@ -101,22 +66,18 @@ export const Reviews: React.FC<ReviewsProps> = ({
   // Show error state
   if (error) {
     return (
-      <section className="bg-stone-800 py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
+      <section id="reviews" className="relative h-screen snap-start snap-always overflow-hidden">
+        <BackgroundCarousel
+          images={backgroundImages}
+          interval={8000}
+          overlay={true}
+          overlayOpacity={0.7}
+          altText="Customer reviews background"
+        />
+        <div className="relative z-10 h-full flex items-center justify-center">
           <div className="text-center">
-            <div className="text-red-400 mb-4">
-              <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold text-stone-300 mb-2">Failed to load reviews</h3>
-            <p className="text-stone-400 mb-4">{error}</p>
-            <button 
-              onClick={() => { window.location.reload(); }} 
-              className="bg-orange-400 text-stone-900 px-6 py-2 rounded-lg hover:bg-orange-300 transition-colors"
-            >
-              Try Again
-            </button>
+            <p className="text-red-400 text-lg mb-4">Error loading reviews</p>
+            <p className="text-white text-sm">{error}</p>
           </div>
         </div>
       </section>
@@ -124,18 +85,19 @@ export const Reviews: React.FC<ReviewsProps> = ({
   }
 
   // Show empty state
-  if (!sortedReviews.length) {
+  if (!reviews.length) {
     return (
-      <section className="bg-stone-800 py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
+      <section id="reviews" className="relative h-screen snap-start snap-always overflow-hidden">
+        <BackgroundCarousel
+          images={backgroundImages}
+          interval={8000}
+          overlay={true}
+          overlayOpacity={0.7}
+          altText="Customer reviews background"
+        />
+        <div className="relative z-10 h-full flex items-center justify-center">
           <div className="text-center">
-            <div className="text-stone-400 mb-4">
-              <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold text-stone-300 mb-2">No reviews yet</h3>
-            <p className="text-stone-400">Be the first to share your experience!</p>
+            <p className="text-white text-lg">No reviews available</p>
           </div>
         </div>
       </section>
@@ -143,90 +105,42 @@ export const Reviews: React.FC<ReviewsProps> = ({
   }
 
   return (
-    <section className="bg-stone-800 py-20 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header Section */}
-        <ReviewsHeader reviews={sortedReviews} />
-
-        {/* Reviews Carousel */}
-        <div className="relative mb-12">
-          {/* Navigation Arrows */}
-          <Button
-            onClick={handlePrevious}
-            variant="ghost"
-            size="sm"
-            disabled={!canGoLeft}
-            className={`absolute left-2 md:-left-12 top-1/2 -translate-y-1/2 z-10 transition-all duration-300 ${
-              canGoLeft
-                ? 'text-orange-400 hover:text-orange-300 hover:scale-125'
-                : 'text-stone-500 cursor-not-allowed'
-            }`}
-            aria-label="Previous reviews"
-            leftIcon={<ChevronLeft className="w-6 h-6 md:w-8 md:h-8" />}
+    <section id="reviews" className="relative h-screen snap-start snap-always overflow-hidden">
+      {/* Background Carousel */}
+      <BackgroundCarousel
+        images={backgroundImages}
+        interval={8000}
+        overlay={true}
+        overlayOpacity={0.7}
+        altText="Customer reviews background"
+      />
+      
+      {/* Content */}
+      <div className="relative z-10 h-full flex flex-col items-center justify-center px-4">
+        <div className="max-w-6xl mx-auto w-full">
+          <ReviewsHeader 
+            title={siteData.reviews.title}
+            subtitle={siteData.reviews.subtitle}
           />
-          
-          <Button
-            onClick={handleNext}
-            variant="ghost"
-            size="sm"
-            disabled={!canGoRight}
-            className={`absolute right-2 md:-right-12 top-1/2 -translate-y-1/2 z-10 transition-all duration-300 ${
-              canGoRight
-                ? 'text-orange-400 hover:text-orange-300 hover:scale-125'
-                : 'text-stone-500 cursor-not-allowed'
-            }`}
-            aria-label="Next reviews"
-            leftIcon={<ChevronRight className="w-6 h-6 md:w-8 md:h-8" />}
+                 <ReviewsSubHeader 
+                   averageRating={parseFloat(siteData.reviews.ratingValue)}
+                   totalReviews={siteData.reviews.reviewCount}
+                   googleBusinessUrl={siteData.socials.googleBusiness}
+                 />
+          <ReviewsCarousel 
+            reviews={reviews}
+            onReviewClick={handleReviewClick}
           />
-
-          {/* Reviews Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 transition-all duration-500 ease-in-out">
-            {displayedReviews.map((review, index) => (
-              <div
-                key={review.id}
-                className="transform transition-all duration-500 ease-in-out"
-                style={{
-                  animationDelay: `${(index * 100).toString()}ms`,
-                }}
-              >
-                <ReviewCard 
-                  review={review} 
-                  onReviewClick={handleReviewClick}
-                />
-              </div>
-            ))}
-          </div>
-          
-          {/* Pagination Dots */}
-          <div className="flex justify-center mt-8 gap-2">
-            {Array.from({ length: Math.ceil(sortedReviews.length / maxReviews) }, (_, index) => {
-              const isActive = Math.floor(currentIndex / maxReviews) === index;
-              return (
-                <button
-                  key={index}
-                  onClick={() => { setCurrentIndex(index * maxReviews); }}
-                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                    isActive
-                      ? 'bg-orange-400 scale-125'
-                      : 'bg-stone-500 hover:bg-stone-400'
-                  }`}
-                  aria-label={`Go to page ${(index + 1).toString()}`}
-                />
-              );
-            })}
-          </div>
         </div>
-
       </div>
 
-      {/* Review Modal - Rendered at root level */}
-      {selectedReview && (
-        <ReviewModal
-          review={selectedReview}
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-        />
-      )}
+      <ReviewModal
+        review={selectedReview}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+      />
     </section>
   );
 };
+
+export default Reviews;

@@ -1,21 +1,6 @@
 import React from 'react';
-import type { LucideIcon } from 'lucide-react';
 
-interface FormFieldProps {
-  id: string;
-  name: string;
-  label: string;
-  type: string;
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  placeholder: string;
-  icon: LucideIcon;
-  error?: string;
-  required?: boolean;
-  rightElement?: React.ReactNode;
-  autocomplete?: string;
-  disabled?: boolean;
-}
+import { FormFieldProps } from '../types';
 
 const FormField: React.FC<FormFieldProps> = ({
   id,

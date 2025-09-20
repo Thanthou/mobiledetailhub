@@ -1,24 +1,24 @@
-import { useMemo,useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { useSiteContext } from '@/shared/hooks';
 
-import { AFFILIATE_FAQ_ITEMS } from '../data/affiliate/data';
-import type { AffiliateConfig } from '../data/affiliate/types';
-import { MDH_FAQ_ITEMS } from '../data/mdh/data';
+import { MDH_FAQ_ITEMS } from '@/features/faq/utils';
+import type { GeoConfig } from '@/features/faq/types';
 
 interface UseFAQDataProps {
-  config?: AffiliateConfig;
+  config?: GeoConfig;
   autoExpand?: boolean;
 }
 
 export const useFAQData = ({ config, autoExpand = false }: UseFAQDataProps = {}) => {
   const { isMDH } = useSiteContext();
-  const [isExpanded, setIsExpanded] = useState(autoExpand);
   const [openItems, setOpenItems] = useState<Set<string>>(new Set());
 
   // Get FAQ data based on site context
   const faqData = useMemo(() => {
-    return isMDH ? MDH_FAQ_ITEMS : AFFILIATE_FAQ_ITEMS(config || {});
+    // For now, we only have MDH FAQ data
+    // In the future, you can add affiliate-specific FAQ data here
+    return isMDH ? MDH_FAQ_ITEMS : MDH_FAQ_ITEMS;
   }, [isMDH, config]);
 
   const toggleItem = (question: string) => {
@@ -34,14 +34,11 @@ export const useFAQData = ({ config, autoExpand = false }: UseFAQDataProps = {})
   };
 
   const resetState = () => {
-    setIsExpanded(false);
     setOpenItems(new Set());
   };
 
   return {
     faqData,
-    isExpanded,
-    setIsExpanded,
     openItems,
     toggleItem,
     resetState,

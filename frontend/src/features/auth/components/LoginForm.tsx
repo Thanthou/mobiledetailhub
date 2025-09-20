@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
 
 import { Button } from '@/shared/ui';
 
 import FormField from './FormField';
+import RememberForgotSection from './RememberForgotSection';
+import { useLoginFormValidation } from './LoginFormValidation';
+import { usePasswordVisibility } from '../hooks/usePasswordVisibility';
 
 interface LoginFormProps {
   onSubmit: (email: string, password: string) => Promise<void>;
@@ -13,57 +16,19 @@ interface LoginFormProps {
 }
 
 const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading, disabled = false }) => {
-  const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (disabled) return;
-    
-    setFieldErrors({});
-
-    // Basic validation
-    const errors: Record<string, string[]> = {};
-    
-    if (!formData.email) {
-      errors.email = ['Email is required'];
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      errors.email = ['Please enter a valid email'];
-    }
-    
-    if (!formData.password) {
-      errors.password = ['Password is required'];
-    }
-
-    if (Object.keys(errors).length > 0) {
-      setFieldErrors(errors);
-      return;
-    }
-
-    await onSubmit(formData.email, formData.password);
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (disabled) return;
-    
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const getFieldError = (fieldName: string): string | undefined => {
-    return fieldErrors[fieldName]?.[0];
-  };
+  const {
+    formData,
+    handleSubmit,
+    handleInputChange,
+    getFieldError
+  } = useLoginFormValidation({ onSubmit, disabled });
+  
+  const { showPassword, togglePasswordVisibility } = usePasswordVisibility();
 
   const passwordRightElement = (
     <Button
       type="button"
-      onClick={() => { setShowPassword(!showPassword); }}
+      onClick={togglePasswordVisibility}
       variant="ghost"
       size="sm"
       className="text-gray-500 hover:text-gray-300 p-1"
@@ -110,28 +75,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading, disabled = fal
         />
 
         {/* Remember & Forgot */}
-        <div className="flex items-center justify-between">
-          <label className="flex items-center">
-            <input
-              type="checkbox"
-              id="remember-me"
-              name="remember-me"
-              className="w-4 h-4 text-orange-500 bg-stone-950 border-stone-600 rounded focus:ring-orange-500 focus:ring-2"
-              disabled={disabled}
-              autoComplete="off"
-            />
-            <span className="text-sm text-gray-300 ml-2">Remember me</span>
-          </label>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="text-sm text-orange-400 hover:text-orange-300 disabled:opacity-50 disabled:cursor-not-allowed p-0 h-auto"
-            disabled={disabled}
-          >
-            Forgot password?
-          </Button>
-        </div>
+        <RememberForgotSection disabled={disabled} />
 
         {/* Submit Button */}
         <Button

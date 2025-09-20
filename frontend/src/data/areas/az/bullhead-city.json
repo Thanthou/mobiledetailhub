@@ -1,0 +1,87 @@
+{
+    "slug": "az-bullhead-city",
+    "city": "Bullhead City",
+    "stateCode": "AZ",
+    "state": "Arizona",
+    "urlPath": "/az/bullhead-city/",
+    "employee": "jps",
+    "seo": {
+      "title": "Mobile Detailing Bullhead City, AZ — Pro Car, Boat & RV Detailing",
+      "description": "On-site car, boat, and RV detailing in Bullhead City, AZ. Paint correction, ceramic coating, interior deep cleans. Desert-tested processes for dust, sun and hard water.",
+      "keywords": ["mobile detailing", "car detailing", "ceramic coating", "paint correction", "RV detailing", "boat detailing", "Bullhead City AZ", "Colorado River"],
+      "ogImage": "/images/locations/bullhead-city/hero-desert-sedan.webp"
+    },
+    "hero": {
+      "h1": "Mobile Detailing in Bullhead City, AZ",
+      "sub": "We come to you — desert-tested shine for cars, boats & RVs"
+    },
+    "faq-intro": "Professional mobile detailing serving Bullhead City and river communities. We handle desert dust, intense sun, and hard-water spotting with premium products and careful technique. Book paint correction, ceramic coating, interior restoration, and RV/boat packages — all at your home or dock.",
+    "neighborhoods": [
+      "Desert Foothills",
+      "Sunridge Estates",
+      "Riviera",
+      "Palo Verde Meadows",
+      "Hancock",
+      "Old Bullhead"
+    ],
+    "landmarks": [
+      "Colorado River",
+      "Laughlin Bridge",
+      "Rotary Park",
+      "Mission-style neighborhoods off Hwy 95"
+    ],
+    "localConditions": [
+      "Desert dust & windblown sand",
+      "Intense UV/sun exposure",
+      "Hard-water spotting from river & irrigation",
+      "High ambient temps (panel heat management)"
+    ],
+    "pricingModifierPct": 0,
+    "images": [
+      {
+        "url": "/images/locations/bullhead-city/hero-desert-sedan.webp",
+        "alt": "Mobile car detailing in Bullhead City desert scene",
+        "caption": "Desert-tested wash & protection in Bullhead City",
+        "role": "hero"
+      },
+      {
+        "url": "/images/locations/bullhead-city/mission-home-detail.webp",
+        "alt": "Detailing truck in front of a mission style home in Bullhead City",
+        "caption": "We come to your home — driveways & shade setups welcome",
+        "role": "gallery"
+      },
+      {
+        "url": "/images/locations/bullhead-city/river-boat-detail.webp",
+        "alt": "Boat detailing near the Colorado River in Bullhead City",
+        "caption": "Boat oxidation removal & coatings for river days",
+        "role": "gallery"
+      }
+    ],
+    "faqs": [
+      {
+        "q": "Do you handle hard-water spots common in Bullhead City?",
+        "a": "Yes. We pre-treat mineral deposits, measure paint safely, and finish with protection to reduce future spotting from sprinklers and river use."
+      },
+      {
+        "q": "Can you work in high heat and direct sun?",
+        "a": "We schedule smart and bring shade when needed. We use sun-safe products and manage panel temps to avoid staining or flashing."
+      },
+      {
+        "q": "Do you offer RV and boat detailing along the Colorado River?",
+        "a": "Absolutely. We do gelcoat oxidation removal, interior refreshes, and ceramic/graphene protection for RVs and boats."
+      }
+    ],
+    "reviewsSection": {
+      "heading": "What Our Bullhead City Customers Say",
+      "intro": "Don’t just take our word for it — see what Bullhead City drivers and boat owners are saying about our mobile detailing services."
+    },
+    "schemaOrg": {
+      "addressLocality": "Bullhead City",
+      "addressRegion": "AZ",
+      "postalCode": "86442",
+      "image": [
+        "/images/locations/bullhead-city/hero-desert-sedan.webp"
+      ]
+    }
+  }
+  

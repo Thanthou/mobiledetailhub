@@ -1,0 +1,13 @@
+META/OG/TWITTER PLACEHOLDERS
+========================================
+
+- meta-title: FOUND
+- meta-desc: FOUND
+- meta-keywords: FOUND
+- og-title: FOUND
+- og-desc: FOUND
+- og-image: FOUND
+- tw-title: FOUND
+- tw-desc: FOUND
+- tw-image: FOUND
+- canonical-link: FOUND

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import ServiceCard from './ServiceCard';
 import ServiceDetailsModal from './ServiceDetailsModal';
-import Carousel from '@/shared/ui/Carousel';
+import { Carousel } from '@/shared/ui';
 
 interface ServiceTier {
   id: string;
@@ -55,7 +55,7 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
     <>
       <Carousel
         items={services}
-        selectedItem={selectedService}
+        selectedItem={selectedService ?? ''}
         onItemSelect={onServiceSelect}
         renderItem={renderServiceCard}
         onItemClick={handleCardClick}

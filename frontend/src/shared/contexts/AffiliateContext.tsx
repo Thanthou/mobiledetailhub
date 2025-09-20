@@ -70,13 +70,16 @@ export const AffiliateContext = createContext<AffiliateContextType | null>(null)
 
 interface AffiliateProviderProps {
   children: ReactNode;
+  customBusinessSlug?: string;
 }
 
-export const AffiliateProvider: React.FC<AffiliateProviderProps> = ({ children }) => {
+export const AffiliateProvider: React.FC<AffiliateProviderProps> = ({ children, customBusinessSlug }) => {
   const { businessSlug } = useParams<{ businessSlug: string }>();
   const { updateLocationWithState, selectedLocation } = useLocation();
 
-  const enabled = !!businessSlug;
+  // Use custom business slug if provided, otherwise use URL param
+  const effectiveBusinessSlug = customBusinessSlug || businessSlug;
+  const enabled = !!effectiveBusinessSlug;
 
   const {
     data,
@@ -84,12 +87,12 @@ export const AffiliateProvider: React.FC<AffiliateProviderProps> = ({ children }
     isFetching,
     error,
   } = useQuery({
-    queryKey: ['affiliate', businessSlug],
+    queryKey: ['affiliate', effectiveBusinessSlug],
     enabled,
     keepPreviousData: true,
     staleTime: 5 * 60_000, // 5 minutes
     queryFn: async ({ signal }) => {
-      const res = await fetch(`${config.apiUrl}/api/affiliates/${businessSlug}`, { signal });
+      const res = await fetch(`${config.apiUrl}/api/affiliates/${effectiveBusinessSlug}`, { signal });
       if (!res.ok) throw new Error(`Failed to fetch affiliate data: ${res.status}`);
       const json = (await res.json()) as { success: boolean; affiliate?: AffiliateData };
       if (!json.success || !json.affiliate) throw new Error('Invalid affiliate data structure');
@@ -132,9 +135,9 @@ export const AffiliateProvider: React.FC<AffiliateProviderProps> = ({ children }
       affiliateData,
       isLoading: isLoading && !data, // initial load true only when no data yet
       error: ctxError,
-      businessSlug: businessSlug ?? null,
+      businessSlug: effectiveBusinessSlug ?? null,
     }),
-    [affiliateData, isLoading, data, ctxError, businessSlug]
+    [affiliateData, isLoading, data, ctxError, effectiveBusinessSlug]
   );
 
   return <AffiliateContext.Provider value={value}>{children}</AffiliateContext.Provider>;

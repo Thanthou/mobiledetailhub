@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { CheckCircle } from 'lucide-react';
-import { useBookingStore } from '../../../state';
-import { getCardDescription } from '../../../utils/displayUtils';
-import Carousel from '@/shared/ui/Carousel';
+import { useBookingStore } from '@/features/booking/state';
+import { getCardDescription } from '@/features/booking/utils/displayUtils';
+import { Carousel } from '@/shared/ui';
 import AddonDetailsModal from './AddonDetailsModal';
 import Header from './Header';
 import Tabs from './Tabs';

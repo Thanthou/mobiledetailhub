@@ -1,0 +1,141 @@
+# Project Structure
+
+## Summary
+```json
+{
+  "generated": "2025-09-18T22:25:15.127Z",
+  "projectRoot": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\frontend",
+  "targetFolder": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\frontend\\src\\features\\services",
+  "counts": {
+    "totalFilesInTarget": 13,
+    "byExtension": {
+      ".tsx": 9,
+      ".ts": 4
+    }
+  },
+  "bundles": {
+    "context": [
+      "00_CONTEXT.txt"
+    ],
+    "folderFiles": [
+      "01_FOLDER_FILES.txt"
+    ]
+  }
+}
+```
+
+## Project Root (limited depth)
+```
+frontend/
+  chatgpt/
+    folder-overview/
+      00_CONTEXT.txt
+      01_FOLDER_FILES.txt
+  config/
+    env.ts
+    index.ts
+  docs/
+    ASSET_OPTIMIZATION_PWA.md
+    CSP_SAFE_JSONLD_IMPLEMENTATION.md
+    MODAL_CODE_SPLITTING_IMPROVEMENTS.md
+    VITE_ALIAS_ALIGNMENT.md
+  eslint.config.js
+  index.html
+  MIGRATION_STATUS.md
+  package-lock.json
+  package.json
+  postcss.config.js
+  QUICK_START.md
+  scripts/
+    batch-refactor-buttons.js
+    check-pages-usage.js
+    convert-images.js
+    find-button-patterns.js
+    simple-button-refactor.js
+  src/
+    app/
+      App.tsx
+      pages/
+      providers.tsx
+      routes.tsx
+    App.tsx
+    data/
+      affiliate-services/
+      areas/
+      employee/
+      index.ts
+      locations/
+      mdh/
+      services/
+      vehicle_data/
+    env.d.ts
+    features/
+      adminDashboard/
+      affiliateDashboard/
+      affiliateOnboarding/
+      auth/
+      booking/
+      cta/
+      customers/
+      faq/
+      footer/
+      header/
+      hero/
+      locations/
+      quotes/
+      reviews/
+      services/
+    index.css
+    main.tsx
+    routes/
+      locationRoutes.tsx
+    shared/
+      api/
+      components/
+      contexts/
+      data
+      env.ts
+      hooks/
+      index.ts
+      lib/
+      schemas/
+      state/
+      types/
+      ui/
+      utils/
+    types/
+      global.d.ts
+      google-maps.d.ts
+      google.d.ts
+      google.maps.d.ts
+      vehicle.ts
+    vite-env.d.ts
+  tailwind.config.js
+  tsconfig.app.json
+  tsconfig.eslint.json
+  tsconfig.json
+  tsconfig.node.json
+  vite.config.ts
+  vitest.config.ts
+```
+
+## Target Folder (full tree)
+```
+services/
+  components/
+    BeforeAfterSlider.tsx
+    Process.tsx
+    ProtectionComparisonChart.tsx
+    Results.tsx
+    ServiceCTA.tsx
+    ServiceCard.tsx
+    ServiceHero.tsx
+    ServicesGrid.tsx
+    WhatItIs.tsx
+  hooks/
+    useServicePage.ts
+    useServices.ts
+  index.ts
+  types/
+    service.types.ts
+```

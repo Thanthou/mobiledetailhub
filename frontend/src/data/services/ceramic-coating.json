@@ -1,0 +1,264 @@
+{
+    "id": "ceramic-coating",
+    "slug": "ceramic-coating",
+    "route": "/service/ceramic-coating",
+    "title": "Ceramic Coating",
+    "shortDescription": "Long-term hydrophobic protection and gloss with professional SiO₂/ceramic coatings",
+  
+    "seo": {
+      "metaTitle": "Ceramic Coating for Cars | Mobile Detail Hub",
+      "metaDescription": "Professional ceramic coating service with proper paint prep and correction. Deep gloss, hydrophobics, and long-term protection (1–8 year options).",
+      "keywords": [
+        "ceramic coating",
+        "SiO2 coating",
+        "nano ceramic",
+        "graphene ceramic coating",
+        "paint protection",
+        "hydrophobic coating",
+        "car ceramic coating",
+        "professional ceramic coating"
+      ],
+      "canonicalPath": "/service/ceramic-coating",
+      "ogImage": "/images/services/ceramic-coating/hero.png",
+      "robots": "index,follow"
+    },
+  
+    "hero": {
+      "image": {
+        "src": "/images/services/ceramic-coating/hero.png",
+        "alt": "Professional ceramic coating being applied to vehicle paint",
+        "caption": "Pro-grade ceramic coatings installed with proper prep and correction"
+      },
+      "headline": "Ceramic Coating",
+      "subheadline": "Locked-in gloss, slickness, and easy maintenance—installed with proper decontamination and paint correction.",
+      "ctas": [
+        { "label": "Book Now", "href": "/book?service=ceramic-coating" },
+        { "label": "Get Quote", "href": "/quote?service=ceramic-coating" }
+      ]
+    },
+  
+    "overview": {
+      "summary": "Durable SiO₂/ceramic protection that bonds to paint, trim, and wheels for long-term gloss and easier washing.",
+      "benefits": [
+        "Long-term hydrophobic protection",
+        "Enhanced depth and gloss",
+        "UV resistance and chemical resistance",
+        "Easier washing and drying"
+      ],
+      "features": [
+        "Professional surface prep and panel wipe",
+        "Paint correction tailored to condition",
+        "Multi-year coating options (1–8 years)",
+        "Optional wheel/trim/glass coating add-ons"
+      ]
+    },
+  
+    "whatItIs": {
+      "description": "A pro-grade, nano-ceramic layer applied to your clear coat. It cures into a dense, slick barrier that boosts gloss, resists chemicals/UV, and keeps paint cleaner between washes.",
+      "benefits": [
+        "Deep, mirror-like gloss that makes color pop",
+        "Hydrophobic surface: water beads/sheets off to reduce spotting",
+        "Strong resistance to chemicals, UV, and road grime",
+        "Easier, faster maintenance with less dirt bonding",
+        "Durable, semi-permanent protection measured in years"
+      ],
+
+      "chart": {
+        "type": "protection-comparison",
+        "title": "How Ceramic Coating Compares",
+        "description": "See how ceramic coating stacks up against traditional protection methods",
+        "seo": {
+          "title": "Ceramic Coating vs Wax vs Sealant vs PPF Comparison",
+          "description": "Compare protection levels, longevity, ease of maintenance, and rock chip resistance across different paint protection options"
+        },
+        "data": {
+          "wax": { "protection": 1, "longevity": 1, "ease": 2, "chipResistance": 1 },
+          "sealant": { "protection": 2, "longevity": 2, "ease": 2, "chipResistance": 1 },
+          "ceramic": { "protection": 4, "longevity": 4, "ease": 4, "chipResistance": 1 },
+          "ppf": { "protection": 5, "longevity": 5, "ease": 3, "chipResistance": 5 }
+        }
+      }
+    },
+  
+    "process": {
+      "title": "Our Ceramic Coating Process",
+      "steps": [
+        {
+          "number": 1,
+          "title": "Deep Clean & Decontamination",
+          "bullets": [
+            "Foam pre-wash and contact wash",
+            "Iron/fallout removal and clay bar treatment",
+            "Thorough drying and masking of sensitive areas"
+          ],
+          "image": { "src": "/images/services/ceramic-coating/process-1.png", "alt": "Decontamination prior to coating" }
+        },
+        {
+          "number": 2,
+          "title": "Paint Correction",
+          "bullets": [
+            "Single or multi-stage correction based on condition",
+            "Gloss enhancement and defect reduction",
+            "Panel wipe to remove polishing oils"
+          ],
+          "image": { "src": "/images/services/ceramic-coating/process-2.png", "alt": "Paint correction step before coating" }
+        },
+        {
+          "number": 3,
+          "title": "Coating Application & Cure",
+          "bullets": [
+          "Even application per panel with proper leveling",
+          "IR/controlled cure where applicable",
+          "Final inspection and aftercare guidance"
+          ],
+          "image": { "src": "/images/services/ceramic-coating/process-3.png", "alt": "Applying ceramic coating and curing" }
+        }
+      ]
+    },
+  
+    "results": {
+      "bullets": [
+        "Deep, high-gloss finish with crisp reflections",
+        "Strong hydrophobics for faster, easier washes",
+        "Longer-lasting protection vs. waxes and sealants"
+      ],
+      "images": {
+        "before": { "src": "/images/services/ceramic-coating/before.png", "alt": "Before ceramic coating" },
+        "after": { "src": "/images/services/ceramic-coating/after.png", "alt": "After ceramic coating" }
+      },
+      "containerSize": "large"
+    },
+  
+    "gallery": {
+      "title": "Ceramic Coating Gallery",
+      "images": [
+        { "id": "1", "src": "/images/services/ceramic-coating/hero.png", "alt": "Ceramic coating high gloss finish", "caption": "Locked-in gloss and protection" }
+      ]
+    },
+  
+    "pricing": {
+      "title": "Ceramic Coating Packages",
+      "tiers": [
+        {
+          "id": "essential",
+          "name": "Essential (≈1–2 Year)",
+          "price": { "label": "From $700", "min": 700, "currency": "USD" },
+          "description": "Entry ceramic protection with single-stage correction.",
+          "popular": false,
+          "features": [
+            "Decon wash + clay + iron removal",
+            "Single-stage paint enhancement",
+            "1–2 year ceramic coating on paint",
+            "Basic aftercare kit"
+          ]
+        },
+        {
+          "id": "enduring",
+          "name": "Enduring (≈3–5 Year)",
+          "price": { "label": "From $1,200", "min": 1200, "currency": "USD" },
+          "description": "Multi-year coating with elevated correction and durability.",
+          "popular": true,
+          "features": [
+            "Enhanced decon and multi-stage correction (as needed)",
+            "3–5 year ceramic coating on paint",
+            "Coated trim & faces of wheels (light)",
+            "Aftercare kit + first-wash guidance"
+          ]
+        },
+        {
+          "id": "elite",
+          "name": "Elite (≈7–8 Year)",
+          "price": { "label": "From $1,800", "min": 1800, "currency": "USD" },
+          "description": "Maximum longevity and gloss with premium coating chemistry.",
+          "popular": false,
+          "features": [
+            "Comprehensive correction to high-gloss finish",
+            "7–8 year ceramic coating on paint",
+            "Optional wheel-off & glass coating add-ons",
+            "Maintenance plan & warranty requirements"
+          ]
+        }
+      ],
+      "notes": "Final price varies by vehicle size, paint condition, correction scope, and add-ons (wheels, glass, trim, interior, PPF synergy)."
+    },
+  
+    "faq": {
+      "title": "Ceramic Coating FAQ",
+      "items": [
+        {
+          "q": "Does ceramic coating replace PPF?",
+          "a": "No. Coatings add gloss, hydrophobics, and chemical resistance; PPF is a physical barrier that absorbs rock chips and impacts. Many owners choose both."
+        },
+        {
+          "q": "Is paint correction required?",
+          "a": "Yes. Coatings lock in the finish. We correct paint to a suitable level first so the coating bonds well and enhances a refined surface."
+        },
+        {
+          "q": "How long before I can wash the car?",
+          "a": "Avoid water for 12–24 hours if possible; avoid soaps/chemicals for 5–7 days while the coating fully cures. We’ll provide aftercare steps."
+        },
+        {
+          "q": "What maintenance is recommended?",
+          "a": "pH-neutral washes, proper towels/mitts, and periodic topper/booster after inspections. Annual maintenance helps preserve performance and warranties."
+        }
+      ]
+    },
+  
+    "cta": {
+      "title": "Ready for locked-in gloss?",
+      "description": "",
+      "primary": { "label": "Book Now", "href": "/book?service=ceramic-coating" },
+      "secondary": { "label": "Get Quote", "href": "/quote?service=ceramic-coating" }
+    },
+  
+    "jsonLd": {
+      "service": {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "Ceramic Coating",
+        "serviceType": "Automotive Ceramic Coating",
+        "provider": { "@type": "Organization", "name": "Mobile Detail Hub" },
+        "areaServed": { "@type": "Place", "name": "{CITY}, {STATE}" },
+        "description": "Professional ceramic coating with proper paint correction for long-term gloss, hydrophobics, and chemical resistance.",
+        "brand": "Mobile Detail Hub",
+        "offers": {
+          "@type": "AggregateOffer",
+          "priceCurrency": "USD",
+          "lowPrice": 700,
+          "highPrice": 1800,
+          "offerCount": 3
+        }
+      },
+      "faq": {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Does ceramic coating replace PPF?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. Coatings add gloss, hydrophobics, and chemical resistance; PPF is a physical barrier for rock chips and impacts. Many owners choose both."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is paint correction required?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Coatings lock in the finish. Correction ensures optimal bonding and a refined appearance before coating."
+            }
+          }
+        ]
+      },
+      "breadcrumbs": {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Services", "item": "{ORIGIN}/services" },
+          { "@type": "ListItem", "position": 2, "name": "Ceramic Coating", "item": "{ORIGIN}/service/ceramic-coating" }
+        ]
+      }
+    }
+  }
+  

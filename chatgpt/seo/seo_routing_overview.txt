@@ -1,0 +1,73 @@
+ROUTING OVERVIEW
+========================================
+
+FILE: frontend/src/App.tsx
+------------------------------
+import App from './app/App';
+
+export default App;
+
+FILE: frontend/src/main.tsx
+------------------------------
+import React, { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+
+import App from './App.tsx';
+
+import './index.css';
+
+// Register Service Worker for PWA functionality (only in production)
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(() => {
+        // Service worker registered successfully
+      })
+      .catch((registrationError: unknown) => {
+        // Service worker registration failed
+        console.warn('Service worker registration failed:', registrationError);
+      });
+  });
+}
+
+const rootElement = document.getElementById('root');
+if (!rootElement) {
+  throw new Error('Root element not found');
+}
+
+createRoot(rootElement).render(
+  <StrictMode>
+    <App />
+  </StrictMode>
+);
+
+
+FILE: frontend/src/locationRoutes.tsx
+------------------------------
+import React from "react";
+import { Header } from "@/features/header";
+import { HomePage } from "@/features/home";
+
+export const locationRoutes = [
+  // Location routes - use same components as main site
+  {
+    path: "/az/bullhead-city",
+    element: (
+      <>
+        <Header />
+        <HomePage />
+      </>
+    )
+  },
+  {
+    path: "/nv/las-vegas",
+    element: (
+      <>
+        <Header />
+        <HomePage />
+      </>
+    )
+  }
+];
+
+

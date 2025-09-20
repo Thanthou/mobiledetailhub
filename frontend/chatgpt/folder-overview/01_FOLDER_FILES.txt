@@ -1,0 +1,959 @@
+
+*** FILE: components\BeforeAfterSlider.tsx ***
+import React, { useEffect, useRef, useState } from 'react';
+
+interface BeforeAfterSliderProps {
+  beforeImage: string;
+  afterImage: string;
+  beforeLabel?: string;
+  afterLabel?: string;
+  className?: string;
+}
+
+const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
+  beforeImage,
+  afterImage,
+  beforeLabel = "BEFORE",
+  afterLabel = "AFTER",
+  className = ""
+}) => {
+  const [sliderPosition, setSliderPosition] = useState(50);
+  const [isDragging, setIsDragging] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !containerRef.current) return;
+    
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const percentage = (x / rect.width) * 100;
+    setSliderPosition(Math.max(0, Math.min(100, percentage)));
+  };
+
+  const handleMouseDown = () => {
+    setIsDragging(true);
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!containerRef.current) return;
+    
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = e.touches[0].clientX - rect.left;
+    const percentage = (x / rect.width) * 100;
+    setSliderPosition(Math.max(0, Math.min(100, percentage)));
+  };
+
+  useEffect(() => {
+    const handleGlobalMouseUp = () => { setIsDragging(false); };
+    const handleGlobalMouseMove = (e: MouseEvent) => {
+      if (!isDragging || !containerRef.current) return;
+      
+      const rect = containerRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const percentage = (x / rect.width) * 100;
+      setSliderPosition(Math.max(0, Math.min(100, percentage)));
+    };
+
+    if (isDragging) {
+      document.addEventListener('mousemove', handleGlobalMouseMove);
+      document.addEventListener('mouseup', handleGlobalMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleGlobalMouseMove);
+      document.removeEventListener('mouseup', handleGlobalMouseUp);
+    };
+  }, [isDragging]);
+
+  return (
+    <div className={`relative w-full aspect-[3/2] rounded-2xl overflow-hidden bg-stone-700 ring-1 ring-white/10 ${className}`}>
+      <div 
+        ref={containerRef}
+        className="relative w-full h-full cursor-col-resize select-none"
+        role="slider"
+        tabIndex={0}
+        aria-label="Before and after image slider"
+        aria-valuenow={sliderPosition}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        onMouseMove={handleMouseMove}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        onTouchMove={handleTouchMove}
+        onTouchStart={() => { setIsDragging(true); }}
+        onTouchEnd={() => { setIsDragging(false); }}
+        onKeyDown={(e) => {
+          if (e.key === 'ArrowLeft') {
+            setSliderPosition(Math.max(0, sliderPosition - 1));
+          } else if (e.key === 'ArrowRight') {
+            setSliderPosition(Math.min(100, sliderPosition + 1));
+          }
+        }}
+      >
+        {/* Before Image (Background) */}
+        <div className="absolute inset-0">
+          <img 
+            src={beforeImage} 
+            alt="Before" 
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute top-4 left-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium">
+            {beforeLabel}
+          </div>
+        </div>
+
+        {/* After Image (Clipped) */}
+        <div 
+          className="absolute inset-0 overflow-hidden"
+          style={{ clipPath: `inset(0 ${String(100 - sliderPosition)}% 0 0)` }}
+        >
+          <img 
+            src={afterImage} 
+            alt="After" 
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute top-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium">
+            {afterLabel}
+          </div>
+        </div>
+
+        {/* Slider Line */}
+        <div 
+          className="absolute top-0 bottom-0 w-1 bg-white shadow-lg z-10"
+          style={{ left: `${String(sliderPosition)}%` }}
+        >
+          {/* Slider Handle */}
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center cursor-col-resize">
+            <div className="w-1 h-4 bg-stone-300"></div>
+            <div className="w-1 h-4 bg-stone-300 ml-1"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default BeforeAfterSlider;
+
+
+*** END FILE ***
+
+*** FILE: components\Process.tsx ***
+import React from 'react';
+
+interface ProcessProps {
+  serviceData: any;
+}
+
+const ProcessStep = ({ 
+  step, 
+  isReversed = false 
+}: { 
+  step: any; 
+  isReversed?: boolean;
+}) => (
+  <div className={`grid gap-8 lg:grid-cols-2 items-center ${isReversed ? 'lg:grid-flow-col-dense' : ''}`}>
+    {/* Text Content */}
+    <div className={isReversed ? 'lg:col-start-2' : ''}>
+      <div className="flex items-center mb-4">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-500 text-white text-xl font-bold mr-4">
+          {step.number}
+        </div>
+        <h3 className="text-xl font-semibold text-white">{step.title}</h3>
+      </div>
+      {Array.isArray(step.bullets) ? (
+        <ul className="text-slate-300 leading-relaxed space-y-2 ml-13">
+          {step.bullets.map((item: string, index: number) => (
+            <li key={index} className="flex items-start">
+              <span className="text-orange-400 mr-3 text-lg">•</span>
+              <span className="text-slate-300 text-lg">{item}</span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-slate-300 leading-relaxed ml-13">{step.description}</p>
+      )}
+    </div>
+    
+    {/* Image */}
+    <div className={isReversed ? 'lg:col-start-1' : ''}>
+      <div className="aspect-[4/3] rounded-2xl bg-stone-700 ring-1 ring-white/10 overflow-hidden">
+        {step.image?.src ? (
+          <img 
+            src={step.image.src} 
+            alt={step.image.alt || step.title}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-white/50">
+            Step {step.number} Image
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+);
+
+const Process: React.FC<ProcessProps> = ({ serviceData }) => {
+  const steps = serviceData.process?.steps || [];
+
+  return (
+    <section className="bg-stone-900 py-16">
+      <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <h2 className="text-2xl sm:text-3xl font-bold text-white mb-12">
+          {serviceData.process?.title || "Process"}
+        </h2>
+        <div className="space-y-16">
+          {steps.map((step: any, index: number) => (
+            <ProcessStep 
+              key={step.number} 
+              step={step} 
+              isReversed={index % 2 === 1} 
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default Process;
+
+
+*** END FILE ***
+
+*** FILE: components\ProtectionComparisonChart.tsx ***
+import React from 'react';
+
+// Define types for the chart data
+type MetricKey = 'protection' | 'longevity' | 'ease' | 'chipResistance';
+type ProductKey = 'wax' | 'sealant' | 'ceramic' | 'ppf';
+type Ratings = Record<ProductKey, Record<MetricKey, 1|2|3|4|5>>;
+
+// Default ratings data
+const DEFAULT_RATINGS: Ratings = {
+  wax:      { protection: 1, longevity: 1, ease: 2, chipResistance: 1 },
+  sealant:  { protection: 2, longevity: 2, ease: 2, chipResistance: 1 },
+  ceramic:  { protection: 4, longevity: 4, ease: 4, chipResistance: 1 },
+  ppf:      { protection: 5, longevity: 5, ease: 3, chipResistance: 5 },
+};
+
+const METRIC_LABELS: Record<MetricKey, string> = {
+  protection: 'Protection',
+  longevity: 'Longevity',
+  ease: 'Ease of Wash',
+  chipResistance: 'Rock-Chip Resistance',
+};
+
+const PRODUCT_LABELS: Record<ProductKey, string> = {
+  wax: 'Wax',
+  sealant: 'Sealant',
+  ceramic: 'Ceramic',
+  ppf: 'PPF',
+};
+
+export interface ProtectionComparisonChartProps {
+  ratings?: Ratings;
+  title?: string;
+  description?: string;
+  className?: string;
+}
+
+const StarIcon: React.FC<{ filled: boolean; className?: string }> = ({ filled, className = '' }) => (
+  <svg 
+    viewBox="0 0 16 16" 
+    className={`w-4 h-4 ${className}`}
+    fill={filled ? 'currentColor' : 'none'}
+    stroke="currentColor"
+    strokeWidth="1"
+  >
+    <path d="M8 1l2 4h4l-3 3 1 4-4-2-4 2 1-4-3-3h4l2-4z" />
+  </svg>
+);
+
+// Helper functions for type-safe access
+const getProductLabel = (product: ProductKey): string => PRODUCT_LABELS[product];
+const getMetricLabel = (metric: MetricKey): string => METRIC_LABELS[metric];
+
+const RatingStars: React.FC<{ 
+  rating: number; 
+  product: ProductKey; 
+  metric: MetricKey;
+  className?: string;
+}> = ({ rating, product, metric, className = '' }) => {
+  return (
+    <div 
+      className={`flex items-center gap-1 ${className}`}
+      role="img"
+      aria-label={`${getProductLabel(product)} — ${getMetricLabel(metric)}: ${String(rating)} out of 5 stars`}
+    >
+      {[1, 2, 3, 4, 5].map((star) => (
+        <StarIcon 
+          key={star}
+          filled={star <= rating}
+          className={star <= rating ? 'text-orange-500' : 'text-stone-600'}
+        />
+      ))}
+      <span className="sr-only">{rating}/5</span>
+    </div>
+  );
+};
+
+export const ProtectionComparisonChart: React.FC<ProtectionComparisonChartProps> = ({
+  ratings = DEFAULT_RATINGS,
+  title = 'Protection Options Compared',
+  description,
+  className = ''
+}) => {
+  const metrics: MetricKey[] = ['protection', 'longevity', 'ease', 'chipResistance'];
+  const products: ProductKey[] = ['wax', 'sealant', 'ceramic', 'ppf'];
+  
+  // Type-safe accessor for ratings
+  const getRating = (product: ProductKey, metric: MetricKey): number => ratings[product][metric];
+
+  return (
+    <figure className={`rounded-2xl border border-stone-600 p-4 md:p-6 bg-stone-800 shadow-sm ${className}`}>
+      <div className="mb-6 text-center">
+        <figcaption className="text-lg md:text-xl font-semibold text-white">
+          {title}
+        </figcaption>
+        {description && (
+          <p className="text-sm text-slate-300 mt-2">{description}</p>
+        )}
+      </div>
+
+      {/* Mobile: Stacked layout */}
+      <div className="block md:hidden space-y-4">
+        {metrics.map((metric) => (
+          <div key={metric} className="border border-stone-600 rounded-lg p-3">
+            <h3 className="text-sm font-medium text-white mb-3">
+              {getMetricLabel(metric)}
+            </h3>
+            <div className="space-y-3">
+              {products.map((product) => (
+                <div key={product} className="flex items-center justify-between">
+                  <span className="text-sm text-slate-300 min-w-0 flex-shrink-0 mr-3">
+                    {getProductLabel(product)}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <RatingStars 
+                      rating={getRating(product, metric)} 
+                      product={product} 
+                      metric={metric}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop: Grid layout */}
+      <div className="hidden md:block">
+        {/* Header row */}
+        <div className="grid grid-cols-5 gap-6 mb-4">
+          <div className="text-sm font-medium text-slate-400"></div>
+          {products.map((product) => (
+            <div 
+              key={product}
+              className="text-sm font-medium text-center text-white"
+            >
+              {getProductLabel(product)}
+            </div>
+          ))}
+        </div>
+
+        {/* Metric rows */}
+        {metrics.map((metric) => (
+          <div key={metric} className="grid grid-cols-5 gap-6 items-center py-3 border-b border-stone-600 last:border-b-0">
+            <div className="text-sm font-medium text-slate-300">
+              {getMetricLabel(metric)}
+            </div>
+            {products.map((product) => (
+              <div key={product} className="flex justify-center">
+                <RatingStars 
+                  rating={getRating(product, metric)} 
+                  product={product} 
+                  metric={metric}
+                />
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </figure>
+  );
+};
+
+
+*** END FILE ***
+
+*** FILE: components\Results.tsx ***
+import React from 'react';
+import BeforeAfterSlider from './BeforeAfterSlider';
+
+interface ResultsProps {
+  serviceData: any;
+}
+
+const Results: React.FC<ResultsProps> = ({ serviceData }) => {
+  return (
+    <section className="bg-stone-800 py-16">
+      <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <h2 className="text-2xl sm:text-3xl font-bold text-white mb-12 text-center">
+          Results
+        </h2>
+        
+        <div className="grid gap-8 lg:grid-cols-2 items-center">
+          {/* Before/After Images or Video */}
+          {serviceData.results?.video ? (
+            <div className="text-center">
+              <div className="rounded-2xl bg-stone-700 ring-1 ring-white/10 overflow-hidden w-80 sm:w-[22.4rem] lg:w-[25.6rem] mx-auto">
+                <video 
+                  src={serviceData.results.video.src}
+                  controls
+                  className="w-full h-full object-cover"
+                  aria-label={serviceData.results.video.alt || "Results video"}
+                  playsInline
+                  style={{ aspectRatio: '2/3' }}
+                >
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+            </div>
+          ) : serviceData.results?.images ? (
+            <div className="w-full">
+              <BeforeAfterSlider
+                beforeImage={serviceData.results.images.before?.src || ''}
+                afterImage={serviceData.results.images.after?.src || ''}
+                beforeLabel="BEFORE"
+                afterLabel="AFTER"
+                className="w-full"
+              />
+            </div>
+          ) : null}
+          
+          {/* Results List */}
+          <div>
+            <h3 className="text-xl font-semibold text-white mb-6">What You'll Get</h3>
+            <ul className="space-y-4 text-slate-300">
+              {serviceData.results?.bullets?.map((bullet: string, index: number) => (
+                <li key={index} className="flex items-start">
+                  <span className="text-orange-400 mr-3 text-lg">•</span>
+                  <span className="text-lg text-slate-300">{bullet}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default Results;
+
+
+*** END FILE ***
+
+*** FILE: components\ServiceCard.tsx ***
+import React from 'react';
+import { ServiceCardProps } from '@/features/services/types/service.types';
+
+const ServiceCard: React.FC<ServiceCardProps> = ({ 
+  service, 
+  onNavigate, 
+  className = "" 
+}) => {
+  const handleClick = () => {
+    onNavigate(service.route);
+  };
+
+  return (
+    <div 
+      className={`group relative w-full rounded-lg overflow-hidden shadow-lg transition-transform duration-300 hover:-translate-y-2 hover:shadow-xl cursor-pointer ${className}`}
+      style={{ paddingBottom: '66.6667%' }}
+      onClick={handleClick}
+    >
+      {/* Image as the card background */}
+      <img 
+        src={service.imageUrl} 
+        alt={service.title}
+        className="absolute top-0 left-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+      />
+      
+      {/* Content Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent">
+        <div className="absolute bottom-0 left-0 right-0 p-4 text-white text-center">
+          <h3 className="text-lg font-semibold">
+            {service.title}
+          </h3>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ServiceCard;
+
+
+*** END FILE ***
+
+*** FILE: components\ServiceCTA.tsx ***
+import React from 'react';
+import { CTAButtons } from '@/shared/ui';
+
+interface ServiceCTAProps {
+  serviceData: any;
+}
+
+const ServiceCTA: React.FC<ServiceCTAProps> = ({ serviceData }) => {
+  return (
+    <section className="bg-stone-900 py-16">
+      <div className="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
+        <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">
+          {serviceData.cta?.title || "Ready to get started?"}
+        </h2>
+        {serviceData.cta?.description && (
+          <p className="text-slate-300 mb-8">
+            {serviceData.cta.description}
+          </p>
+        )}
+        
+        <CTAButtons 
+          layout="horizontal"
+          bookNowProps={{
+            children: serviceData.cta?.primary?.label || serviceData.hero?.ctas?.[0]?.label || "Book Now"
+          }}
+          getQuoteProps={{
+            children: serviceData.cta?.secondary?.label || serviceData.hero?.ctas?.[1]?.label || "Get Quote",
+            variant: "outline-white"
+          }}
+        />
+      </div>
+    </section>
+  );
+};
+
+export default ServiceCTA;
+
+
+*** END FILE ***
+
+*** FILE: components\ServiceHero.tsx ***
+import React from 'react';
+import { CTAButtons } from '@/shared/ui';
+
+interface ServiceHeroProps {
+  serviceData: any;
+}
+
+const ServiceHero: React.FC<ServiceHeroProps> = ({ serviceData }) => {
+  return (
+    <section className="bg-stone-900 py-16 sm:py-24">
+      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* Image and Content Grid */}
+        <div className="grid gap-8 lg:grid-cols-[3fr_2fr] items-center mb-8">
+          {/* Service Image */}
+          <div className="aspect-[3/2] rounded-2xl bg-stone-800/80 ring-1 ring-white/10 overflow-hidden">
+            {serviceData.hero.image?.src ? (
+              <img 
+                src={serviceData.hero.image.src} 
+                alt={serviceData.hero.image.alt}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-white/50">
+                Image Placeholder
+              </div>
+            )}
+          </div>
+          
+          {/* Content */}
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-white">
+              {serviceData.hero.headline || serviceData.title || "Service Title"}
+            </h1>
+            <p className="mt-3 text-slate-300 text-xl md:text-2xl">
+              {serviceData.hero.subheadline || serviceData.shortDescription || "Short subhead that sells the value. Placeholder copy."}
+            </p>
+            
+            {/* CTA Buttons */}
+            <div className="mt-6">
+              <CTAButtons 
+                layout="horizontal"
+                bookNowProps={{
+                  children: serviceData.hero.ctas?.[0]?.label || "Book Now"
+                }}
+                getQuoteProps={{
+                  children: serviceData.hero.ctas?.[1]?.label || "Get Quote",
+                  variant: "outline-white"
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default ServiceHero;
+
+
+*** END FILE ***
+
+*** FILE: components\ServicesGrid.tsx ***
+import React from 'react';
+import ServiceCard from './ServiceCard';
+import { useServices } from '@/features/services/hooks/useServices';
+
+const ServicesGrid: React.FC = () => {
+  const { services, handleServiceClick } = useServices();
+
+  return (
+    <section id="services" className="h-screen bg-stone-800 snap-start snap-always">
+      <div className="h-full grid grid-cols-3 grid-rows-2 gap-[20px] p-4 pt-[105px]">
+        {services.map((service) => (
+          <ServiceCard
+            key={service.id}
+            service={service}
+            onNavigate={(route) => handleServiceClick({ ...service, route })}
+            className="h-full w-full"
+          />
+        ))}
+      </div>
+    </section>
+  );
+};
+
+export default ServicesGrid;
+
+
+*** END FILE ***
+
+*** FILE: components\WhatItIs.tsx ***
+import React from 'react';
+import { ProtectionComparisonChart } from './ProtectionComparisonChart';
+
+interface WhatItIsProps {
+  serviceData: any;
+}
+
+const WhatItIs: React.FC<WhatItIsProps> = ({ serviceData }) => {
+  const hasChart = serviceData.whatItIs?.chart?.type === 'protection-comparison';
+  const isPaintCorrection = serviceData.slug === 'paint-correction';
+  const isCeramicCoating = serviceData.slug === 'ceramic-coating';
+  
+  return (
+    <section className="bg-stone-800 py-16">
+      <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        {/* Protection Comparison Chart - First */}
+        {hasChart && (
+          <div className="mb-12">
+            <ProtectionComparisonChart
+              ratings={serviceData.whatItIs.chart.data}
+              title={serviceData.whatItIs.chart.title}
+              description={serviceData.whatItIs.chart.description}
+            />
+          </div>
+        )}
+        
+        {/* Text Content - Second */}
+        {isPaintCorrection ? (
+          // Special two-column layout for paint correction
+          <div className="grid gap-10 lg:grid-cols-2">
+            <div className="space-y-10">
+              <div>
+                <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">What It Is</h2>
+                <p className="text-slate-300 mb-6 text-lg">
+                  {serviceData.whatItIs?.description || "Explain what the service is. Placeholder text."}
+                </p>
+              </div>
+              
+              <div>
+                <ul className="space-y-2 text-slate-300">
+                  {serviceData.whatItIs?.benefits?.map((benefit: string, index: number) => (
+                    <li key={index} className="flex items-start">
+                      <span className="text-orange-400 mr-3 text-lg">•</span>
+                      <span className="text-lg">{benefit}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            
+            <div className="flex flex-col justify-center">
+              {serviceData.whatItIs?.image?.src && (
+                <div className="rounded-2xl bg-stone-700 ring-1 ring-white/10 overflow-hidden w-full max-w-lg mx-auto">
+                  <img 
+                    src={serviceData.whatItIs.image.src} 
+                    alt={serviceData.whatItIs.image.alt || "Service illustration"}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              )}
+              {serviceData.whatItIs?.video?.src && (
+                <div className="rounded-2xl bg-stone-700 ring-1 ring-white/10 overflow-hidden w-80 sm:w-[22.4rem] lg:w-[25.6rem] mx-auto">
+                  <video 
+                    src={serviceData.whatItIs.video.src}
+                    controls
+                    className="w-full h-full object-cover"
+                    aria-label={serviceData.whatItIs.video.alt || "Service video"}
+                    playsInline
+                    style={{ aspectRatio: '2/3' }}
+                  >
+                    Your browser does not support the video tag.
+                  </video>
+                </div>
+              )}
+            </div>
+          </div>
+        ) : isCeramicCoating ? (
+          // Two column layout for ceramic coating (after chart)
+          <div className="grid gap-10 lg:grid-cols-2">
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">What It Is</h2>
+              <p className="text-slate-300 mb-6">
+                {serviceData.whatItIs?.description || "Explain what the service is. Placeholder text."}
+              </p>
+            </div>
+            
+            <div className="flex flex-col justify-center">
+              <ul className="space-y-2 text-slate-300">
+                {serviceData.whatItIs?.benefits?.map((benefit: string, index: number) => (
+                  <li key={index}>• {benefit}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        ) : (
+          // Two column layout for other services
+          <div className="grid gap-10 lg:grid-cols-2">
+            <div className={`space-y-6 ${serviceData.whatItIs?.video?.src ? 'flex flex-col justify-center' : ''}`}>
+              <div>
+                <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">What It Is</h2>
+                <p className="text-slate-300 mb-6 text-lg">
+                  {serviceData.whatItIs?.description || "Explain what the service is. Placeholder text."}
+                </p>
+              </div>
+              
+              <div>
+                <ul className="space-y-2 text-slate-300">
+                  {serviceData.whatItIs?.benefits?.map((benefit: string, index: number) => (
+                    <li key={index} className="flex items-start">
+                      <span className="text-orange-400 mr-3 text-lg">•</span>
+                      <span className="text-lg">{benefit}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            
+            <div className="flex flex-col justify-center">
+              {serviceData.whatItIs?.image?.src && (
+                <div className="rounded-2xl bg-stone-700 ring-1 ring-white/10 overflow-hidden w-full max-w-lg mx-auto">
+                  <img 
+                    src={serviceData.whatItIs.image.src} 
+                    alt={serviceData.whatItIs.image.alt || "Service illustration"}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              )}
+              {serviceData.whatItIs?.video?.src && (
+                <div className="rounded-2xl bg-stone-700 ring-1 ring-white/10 overflow-hidden w-80 sm:w-[22.4rem] lg:w-[25.6rem] mx-auto">
+                  <video 
+                    src={serviceData.whatItIs.video.src}
+                    controls
+                    className="w-full h-full object-cover"
+                    aria-label={serviceData.whatItIs.video.alt || "Service video"}
+                    playsInline
+                    style={{ aspectRatio: '2/3' }}
+                  >
+                    Your browser does not support the video tag.
+                  </video>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+};
+
+export default WhatItIs;
+
+
+*** END FILE ***
+
+*** FILE: hooks\useServicePage.ts ***
+import { useParams } from 'react-router-dom';
+import { useServices } from './useServices';
+
+export const useServicePage = () => {
+  const { slug } = useParams<{ slug: string }>();
+  const { getAutoDetailingData, getMarineDetailingData, getRvDetailingData, getCeramicCoatingData, getPaintCorrectionData, getPpfData } = useServices();
+  
+  // Load the appropriate service data based on slug
+  const getServiceData = () => {
+    switch (slug) {
+      case 'auto-detailing':
+        return getAutoDetailingData();
+      case 'marine-detailing':
+        return getMarineDetailingData();
+      case 'rv-detailing':
+        return getRvDetailingData();
+      case 'ceramic-coating':
+        return getCeramicCoatingData();
+      case 'paint-correction':
+        return getPaintCorrectionData();
+      case 'paint-protection-film':
+      case 'ppf-installation':
+        return getPpfData();
+      // Add other services as you create their JSON files
+      default:
+        // Fallback to auto-detailing for unknown services
+        return getAutoDetailingData();
+    }
+  };
+
+  const serviceData = getServiceData();
+
+  return {
+    slug,
+    serviceData,
+    isLoading: false,
+    error: null
+  };
+};
+
+
+*** END FILE ***
+
+*** FILE: hooks\useServices.ts ***
+import { useNavigate } from 'react-router-dom';
+import { Service } from '@/features/services/types/service.types';
+import siteData from '@/data/mdh/site.json';
+import autoDetailingData from '@/data/services/auto-detailing.json';
+import marineDetailingData from '@/data/services/marine-detailing.json';
+import rvDetailingData from '@/data/services/rv-detailing.json';
+import ceramicCoatingData from '@/data/services/ceramic-coating.json';
+import paintCorrectionData from '@/data/services/paint-correction.json';
+import ppfData from '@/data/services/ppf.json';
+
+// Transform site.json servicesGrid data to Service format
+const getServicesFromSiteData = (): Service[] => {
+  return siteData.servicesGrid.map((service, index) => ({
+    id: (index + 1).toString(),
+    title: service.title,
+    description: service.alt, // Using alt text as description
+    imageUrl: service.image,
+    route: service.href,
+    category: service.slug.split('-')[0] || 'general' // Extract category from slug
+  }));
+};
+
+export const useServices = () => {
+  const navigate = useNavigate();
+
+  const handleServiceClick = (service: Service) => {
+    navigate(service.route);
+  };
+
+  const getServices = () => {
+    return getServicesFromSiteData();
+  };
+
+  const getServiceById = (id: string) => {
+    return getServicesFromSiteData().find(service => service.id === id);
+  };
+
+  const getServicesByCategory = (category: string) => {
+    return getServicesFromSiteData().filter(service => service.category === category);
+  };
+
+  const getAutoDetailingData = () => {
+    return autoDetailingData;
+  };
+
+  const getMarineDetailingData = () => {
+    return marineDetailingData;
+  };
+
+  const getRvDetailingData = () => {
+    return rvDetailingData;
+  };
+
+  const getCeramicCoatingData = () => {
+    return ceramicCoatingData;
+  };
+
+  const getPaintCorrectionData = () => {
+    return paintCorrectionData;
+  };
+
+  const getPpfData = () => {
+    return ppfData;
+  };
+
+  return {
+    services: getServices(),
+    handleServiceClick,
+    getServiceById,
+    getServicesByCategory,
+    getAutoDetailingData,
+    getMarineDetailingData,
+    getRvDetailingData,
+    getCeramicCoatingData,
+    getPaintCorrectionData,
+    getPpfData
+  };
+};
+
+
+*** END FILE ***
+
+*** FILE: index.ts ***
+// Services feature public exports
+export { default as Services } from './components/ServicesGrid';
+export { default as ServicesGrid } from './components/ServicesGrid';
+export { default as ServiceCard } from './components/ServiceCard';
+export { default as ServiceHero } from './components/ServiceHero';
+export { default as WhatItIs } from './components/WhatItIs';
+export { default as Process } from './components/Process';
+export { default as Results } from './components/Results';
+export { default as ServiceCTA } from './components/ServiceCTA';
+
+
+*** END FILE ***
+
+*** FILE: types\service.types.ts ***
+export interface Service {
+  id: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  route: string;
+  category: string;
+}
+
+export interface ServiceCardProps {
+  service: Service;
+  onNavigate: (route: string) => void;
+  className?: string;
+}
+
+export interface ServicesGridProps {
+  services: Service[];
+  onServiceClick: (service: Service) => void;
+  className?: string;
+}
+
+
+*** END FILE ***

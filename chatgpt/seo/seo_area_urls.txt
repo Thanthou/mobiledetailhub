@@ -1,0 +1,5 @@
+AREA URLS
+====================
+
+- az/bullhead-city.json → /az/bullhead-city/
+- nv/las-vegas.json → /nv/las-vegas/

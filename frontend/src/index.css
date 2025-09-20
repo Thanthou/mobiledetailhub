@@ -2,6 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Smooth scrolling for anchor links only, not snap scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Disable smooth scrolling for snap containers */
+.snap-container {
+  scroll-behavior: auto;
+}
+
 /* Hero background base styles */
 .hero-background {
   /* Base styles - using default bg-cover behavior */

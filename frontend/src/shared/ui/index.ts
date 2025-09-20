@@ -1,23 +1,32 @@
-export type { BadgeProps } from './Badge';
-export { Badge } from './Badge';
-export type { ButtonProps } from './Button';
-export { Button } from './Button';
-export type { CardProps } from './Card';
-export { Card } from './Card';
-export type { InputProps } from './Input';
-export { Input } from './Input';
-export type { ModalProps } from './Modal';
-export { Modal } from './Modal';
-export type { SpinnerProps } from './Spinner';
-export { Spinner } from './Spinner';
-export type { ToastOptions, ToastProps } from './toast';
-export { Toast } from './toast';
+export type { BadgeProps } from './forms/Badge';
+export { Badge } from './forms/Badge';
+export type { FilterChipProps } from './forms/FilterChip';
+export { FilterChip } from './forms/FilterChip';
+export type { ButtonProps } from './buttons/Button';
+export { Button } from './buttons/Button';
+export type { CardProps } from './layout/Card';
+export { Card } from './layout/Card';
+export type { InputProps } from './forms/Input';
+export { Input } from './forms/Input';
+export type { ModalProps } from './modals/Modal';
+export { Modal } from './modals/Modal';
+export type { SpinnerProps } from './utility/Spinner';
+export { Spinner } from './utility/Spinner';
+export type { ToastOptions, ToastProps } from './utility/toast';
+export { Toast } from './utility/toast';
+
+// Background components
+export { default as BackgroundCarousel } from './carousel/BackgroundCarousel';
+export { default as Carousel } from './carousel/Carousel';
 
 // Shared UI components
-export { default as AdminNavigationContainer } from './AdminNavigationContainer';
-export { default as AffiliateNavigation } from './AffiliateNavigation';
-export { default as ErrorBoundary } from './ErrorBoundary';
-export { default as LocationEditModal } from './LocationEditModal';
-export { default as LocationSearchBar } from './LocationSearchBar';
-export { default as NotFoundPage } from './NotFoundPage';
-export { default as ProtectedRoute } from './ProtectedRoute';
+export { default as LocationsNavigation } from './navigation/LocationsNavigation';
+export { default as BookNow } from './buttons/BookNow';
+export { default as CTAButtons } from './buttons/CTAButtons';
+export { default as GetQuote } from './buttons/GetQuote';
+export { default as QuoteModal } from './modals/QuoteModal';
+export { default as ErrorBoundary } from './layout/ErrorBoundary';
+export { default as LocationEditModal } from './modals/LocationEditModal';
+export { default as LocationSearchBar } from './navigation/LocationSearchBar';
+export { default as NotFoundPage } from './layout/NotFoundPage';
+export { default as ProtectedRoute } from './layout/ProtectedRoute';

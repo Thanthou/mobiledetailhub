@@ -1,26 +1,28 @@
 import React from 'react';
-
-import { useSiteContext } from '@/shared/hooks';
-
-import AFFILIATE from './Hero/affiliate/Hero';
-import HeroBackground from './Hero/components/HeroBackground';
-import MDH from './Hero/mdh/Hero';
+import ImageCarousel from './ImageCarousel';
+import ContentContainer from './ContentContainer';
+import { useHeroContent } from '@/features/hero/hooks/useHeroContent';
 
 interface HeroProps {
-  onRequestQuote: () => void;
-  onBookNow: () => void;
-  onQuoteHover?: () => void;
+  locationData?: any; // Keep for backward compatibility but not used
 }
 
-const Hero: React.FC<HeroProps> = ({ onRequestQuote, onBookNow, onQuoteHover }) => {
-  const { isMDH } = useSiteContext();
+const Hero: React.FC<HeroProps> = () => {
+  const { title, subtitle, isLocation, locationName } = useHeroContent();
 
   return (
-    <section className="relative w-full min-h-screen flex flex-col items-center justify-end pb-12">
-      <HeroBackground />
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 w-full max-w-2xl px-4">
-        {isMDH ? <MDH /> : <AFFILIATE onBookNow={onBookNow} onRequestQuote={onRequestQuote} onQuoteHover={onQuoteHover} />}
-      </div>
+    <section id="top" className="relative h-dvh overflow-hidden snap-start snap-always">
+      <ImageCarousel />
+      
+      <main id="main" className="relative z-10 h-full">
+        <ContentContainer 
+          title={title} 
+          subtitle={subtitle} 
+          isLocation={isLocation}
+          locationName={locationName}
+          className="h-full"
+        />
+      </main>
     </section>
   );
 };

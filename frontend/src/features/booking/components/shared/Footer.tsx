@@ -67,7 +67,7 @@ const Footer: React.FC<FooterProps> = ({
     'payment': 'Payment',
   };
 
-  const getStepStatus = (step: string, index: number) => {
+  const getStepStatus = (step: string, _index: number) => {
     if (completedSteps.includes(step)) return 'completed';
     if (step === currentStep) return 'current';
     if (stepOrder.indexOf(step) < stepOrder.indexOf(currentStep || '')) return 'completed';

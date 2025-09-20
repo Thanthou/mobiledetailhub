@@ -1,84 +1,27 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Eye, EyeOff, Lock, Mail, Phone, User } from 'lucide-react';
 
 import { Button } from '@/shared/ui';
 
+import { useRegisterForm } from '../hooks/useRegisterForm';
+import { RegisterFormProps } from '../types';
 import FormField from './FormField';
 
-interface RegisterFormProps {
-  onSubmit: (email: string, password: string, name: string, phone: string) => Promise<void>;
-  loading: boolean;
-  error?: string;
-  disabled?: boolean;
-}
-
 const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, disabled = false }) => {
-  const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    name: '',
-    phone: ''
-  });
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
+  const {
+    formData,
+    showPassword,
+    handleSubmit,
+    handleInputChange,
+    getFieldError,
+    togglePasswordVisibility
+  } = useRegisterForm({ onSubmit, disabled });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (disabled) return;
-    
-    setFieldErrors({});
-
-    // Basic validation
-    const errors: Record<string, string[]> = {};
-    
-    if (!formData.name) {
-      errors.name = ['Name is required'];
-    } else if (formData.name.trim().length < 2) {
-      errors.name = ['Name must be at least 2 characters'];
-    }
-    
-    if (!formData.email) {
-      errors.email = ['Email is required'];
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      errors.email = ['Please enter a valid email'];
-    }
-    
-    if (!formData.password) {
-      errors.password = ['Password is required'];
-    } else if (formData.password.length < 6) {
-      errors.password = ['Password must be at least 6 characters'];
-    }
-
-    if (Object.keys(errors).length > 0) {
-      setFieldErrors(errors);
-      return;
-    }
-
-    try {
-      await onSubmit(formData.email, formData.password, formData.name, formData.phone);
-    } catch (err) {
-      // Error handling is done by the parent component
-      console.error('Registration failed:', err);
-    }
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (disabled) return;
-    
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const getFieldError = (fieldName: string): string | undefined => {
-    return fieldErrors[fieldName]?.[0];
-  };
 
   const passwordRightElement = (
     <Button
       type="button"
-      onClick={() => { setShowPassword(!showPassword); }}
+      onClick={togglePasswordVisibility}
       variant="ghost"
       size="sm"
       className="text-gray-500 hover:text-gray-300"

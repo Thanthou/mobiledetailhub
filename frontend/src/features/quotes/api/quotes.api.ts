@@ -12,7 +12,7 @@ export const quotesApi = {
     vehicleModel: string;
     vehicleYear: string;
     services: string[];
-    message: string;
+    message?: string;
     location: string;
     businessSlug?: string;
   }) => {

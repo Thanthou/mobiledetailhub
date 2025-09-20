@@ -1,69 +1,33 @@
-import React, { useEffect } from 'react';
-
-import { preloadCriticalModals } from '@/shared/utils/modalCodeSplitting';
-import { scrollRestoration } from '@/shared/utils/scrollRestoration';
-import { errorMonitor } from '@/shared/utils/errorMonitoring';
-
+import { Suspense, lazy } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { Providers } from './providers';
-import { AppRoutes } from './routes';
 
-function App() {
-  // Global scroll restoration effect
-  useEffect(() => {
-    // Disable browser's default scroll restoration
-    if ('scrollRestoration' in window.history) {
-      window.history.scrollRestoration = 'manual';
-    }
+const HomePage = lazy(() => import('./pages/HomePage'));
+const ServicePage = lazy(() => import('./pages/ServicePage'));
 
-    // Cleanup scroll positions on app unmount
-    return () => {
-      scrollRestoration.clearScrollPositions();
-    };
-  }, []);
+// Heavy modules are NOT imported here - they stay out of the initial bundle
+// When you're ready to re-enable booking, uncomment and add this route:
+// const Booking = lazy(() => import('../features/booking/BookingApp'));
 
-  // Preload critical modals for better performance
-  useEffect(() => {
-    // Start preloading after app initializes
-    const timer = setTimeout(() => {
-      void preloadCriticalModals().catch((error: unknown) => {
-        // Modal preloading failed
-        console.warn('Modal preloading failed:', error);
-      });
-    }, 1000);
-
-    return () => { clearTimeout(timer); };
-  }, []);
-
-  // Initialize error monitoring
-  useEffect(() => {
-    // Set up error monitoring
-    errorMonitor.enable();
-    
-    // Add error listener for real-time debugging
-    const unsubscribe = errorMonitor.addListener((error) => {
-      // In development, show a more detailed error notification
-      if (process.env.NODE_ENV === 'development') {
-        console.group(`🚨 New Error Captured`);
-        console.error('Type:', error.type);
-        console.error('Message:', error.message);
-        console.error('Time:', error.timestamp.toISOString());
-        console.error('URL:', error.url);
-        if (error.stack) console.error('Stack:', error.stack);
-        console.groupEnd();
-      }
-    });
-
-    // Cleanup
-    return () => {
-      unsubscribe();
-    };
-  }, []);
-
+export default function App() {
   return (
     <Providers>
-      <AppRoutes />
+      <Suspense fallback={<div className="p-8 text-white">Loading…</div>}>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/locations/:slug" element={<HomePage />} />
+          <Route path="/:state/:city" element={<HomePage />} />
+          <Route path="/service/:slug" element={<ServicePage />} />
+          <Route path="/services/:slug" element={<ServicePage />} />
+          
+          {/* Heavy modules - add back when ready:
+          <Route path="/locations/:slug/book" element={<Booking />} />
+          <Route path="/book" element={<Booking />} />
+          */}
+          
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
     </Providers>
   );
 }
-
-export default App;
