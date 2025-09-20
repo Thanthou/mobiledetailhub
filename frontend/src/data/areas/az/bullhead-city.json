@@ -22,7 +22,10 @@
       "Riviera",
       "Palo Verde Meadows",
       "Hancock",
-      "Old Bullhead"
+      "Old Bullhead",
+      "Laughlin Ranch",
+      "Arroya Vista",
+      "Chaparral"
     ],
     "landmarks": [
       "Colorado River",
@@ -73,7 +76,7 @@
     ],
     "reviewsSection": {
       "heading": "What Our Bullhead City Customers Say",
-      "intro": "Don’t just take our word for it — see what Bullhead City drivers and boat owners are saying about our mobile detailing services."
+      "intro": "Don’t just take our word for it — see what Bullhead City drivers, boat owners, and RV enthusiasts are saying about our mobile detailing services."
     },
     "schemaOrg": {
       "addressLocality": "Bullhead City",

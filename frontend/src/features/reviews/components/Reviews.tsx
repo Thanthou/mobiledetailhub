@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { BackgroundCarousel } from '@/shared/ui';
 import { useSiteContext } from '@/shared/hooks';
+import { getImageOpacityClasses, getTransitionStyles } from '@/shared/utils';
 import siteData from '@/data/mdh/site.json';
-import { useReviews } from '../hooks/useReviews';
+import { useReviews, useRotatingReviews } from '../hooks';
 import ReviewsHeader from './ReviewsHeader';
 import ReviewsSubHeader from './ReviewsSubHeader';
 import ReviewsCarousel from './ReviewsCarousel';
@@ -29,6 +29,9 @@ const Reviews: React.FC = () => {
   // Fetch reviews from database
   const { reviews, loading, error } = useReviews(queryParams);
 
+  // Use rotating review images as background
+  const { images: backgroundImages, currentIndex, loading: backgroundLoading } = useRotatingReviews(reviews);
+
   const handleReviewClick = (review: any) => {
     setSelectedReview(review);
     setIsModalOpen(true);
@@ -39,20 +42,26 @@ const Reviews: React.FC = () => {
     setSelectedReview(null);
   };
 
-  // Use hero images as background for now
-  const backgroundImages = siteData.hero.images.map(img => img.url);
-
   // Show loading state
   if (loading) {
     return (
       <section id="reviews" className="relative h-screen snap-start snap-always overflow-hidden">
-        <BackgroundCarousel
-          images={backgroundImages}
-          interval={8000}
-          overlay={true}
-          overlayOpacity={0.7}
-          altText="Customer reviews background"
-        />
+        {/* Rotating Background Images with Overlay */}
+        <div className="absolute inset-0 z-0">
+          {backgroundImages.map((image, index) => (
+            <img
+              key={image}
+              src={image}
+              alt={`Customer reviews background ${index + 1}`}
+              className={`absolute inset-0 w-full h-full object-cover ${getImageOpacityClasses(index, currentIndex, 2000)}`}
+              style={getTransitionStyles(2000)}
+              decoding={index === 0 ? 'sync' : 'async'}
+              loading={index === 0 ? 'eager' : 'lazy'}
+            />
+          ))}
+          {/* Dark overlay */}
+          <div className="absolute inset-0 bg-stone-900/85"></div>
+        </div>
         <div className="relative z-10 h-full flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
@@ -67,13 +76,22 @@ const Reviews: React.FC = () => {
   if (error) {
     return (
       <section id="reviews" className="relative h-screen snap-start snap-always overflow-hidden">
-        <BackgroundCarousel
-          images={backgroundImages}
-          interval={8000}
-          overlay={true}
-          overlayOpacity={0.7}
-          altText="Customer reviews background"
-        />
+        {/* Rotating Background Images with Overlay */}
+        <div className="absolute inset-0 z-0">
+          {backgroundImages.map((image, index) => (
+            <img
+              key={image}
+              src={image}
+              alt={`Customer reviews background ${index + 1}`}
+              className={`absolute inset-0 w-full h-full object-cover ${getImageOpacityClasses(index, currentIndex, 2000)}`}
+              style={getTransitionStyles(2000)}
+              decoding={index === 0 ? 'sync' : 'async'}
+              loading={index === 0 ? 'eager' : 'lazy'}
+            />
+          ))}
+          {/* Dark overlay */}
+          <div className="absolute inset-0 bg-stone-900/85"></div>
+        </div>
         <div className="relative z-10 h-full flex items-center justify-center">
           <div className="text-center">
             <p className="text-red-400 text-lg mb-4">Error loading reviews</p>
@@ -88,13 +106,22 @@ const Reviews: React.FC = () => {
   if (!reviews.length) {
     return (
       <section id="reviews" className="relative h-screen snap-start snap-always overflow-hidden">
-        <BackgroundCarousel
-          images={backgroundImages}
-          interval={8000}
-          overlay={true}
-          overlayOpacity={0.7}
-          altText="Customer reviews background"
-        />
+        {/* Rotating Background Images with Overlay */}
+        <div className="absolute inset-0 z-0">
+          {backgroundImages.map((image, index) => (
+            <img
+              key={image}
+              src={image}
+              alt={`Customer reviews background ${index + 1}`}
+              className={`absolute inset-0 w-full h-full object-cover ${getImageOpacityClasses(index, currentIndex, 2000)}`}
+              style={getTransitionStyles(2000)}
+              decoding={index === 0 ? 'sync' : 'async'}
+              loading={index === 0 ? 'eager' : 'lazy'}
+            />
+          ))}
+          {/* Dark overlay */}
+          <div className="absolute inset-0 bg-stone-900/85"></div>
+        </div>
         <div className="relative z-10 h-full flex items-center justify-center">
           <div className="text-center">
             <p className="text-white text-lg">No reviews available</p>
@@ -106,14 +133,22 @@ const Reviews: React.FC = () => {
 
   return (
     <section id="reviews" className="relative h-screen snap-start snap-always overflow-hidden">
-      {/* Background Carousel */}
-      <BackgroundCarousel
-        images={backgroundImages}
-        interval={8000}
-        overlay={true}
-        overlayOpacity={0.7}
-        altText="Customer reviews background"
-      />
+      {/* Rotating Background Images with Overlay */}
+      <div className="absolute inset-0 z-0">
+        {backgroundImages.map((image, index) => (
+          <img
+            key={image}
+            src={image}
+            alt={`Customer reviews background ${index + 1}`}
+            className={`absolute inset-0 w-full h-full object-cover ${getImageOpacityClasses(index, currentIndex, 2000)}`}
+            style={getTransitionStyles(2000)}
+            decoding={index === 0 ? 'sync' : 'async'}
+            loading={index === 0 ? 'eager' : 'lazy'}
+          />
+        ))}
+        {/* Dark overlay */}
+        <div className="absolute inset-0 bg-stone-900/85"></div>
+      </div>
       
       {/* Content */}
       <div className="relative z-10 h-full flex flex-col items-center justify-center px-4">

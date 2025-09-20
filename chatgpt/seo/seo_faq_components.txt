@@ -107,152 +107,6 @@ export const FAQProvider: React.FC<FAQProviderProps> = ({ children }) => {
 
 
 
-FILE: frontend/src/Information.tsx
-------------------------------
-import React from "react";
-
-import type { SectionProps } from "../../types/service";
-import { SECTION_IDS } from "../../utils/sectionIds";
-
-const Row = ({ q, a }: { q: string; a: string }) => (
-  <details className="rounded-2xl bg-stone-700 ring-1 ring-white/10 p-4 open:bg-stone-600/60">
-    <summary className="cursor-pointer text-white font-semibold">{q}</summary>
-    <p className="mt-2 text-slate-300">{a}</p>
-  </details>
-);
-
-const Information: React.FC<SectionProps> = ({ id = SECTION_IDS.INFO, className, serviceData }) => {
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  const faqs = serviceData.information.faqs || [
-    { question: "Do I need water or power?", answer: "Placeholder answer text for this FAQ item." },
-    { question: "How long does it take?", answer: "Placeholder answer text for this FAQ item." },
-    { question: "What prep is required?", answer: "Placeholder answer text for this FAQ item." }
-  ];
-
-  return (
-    <section id={id} className={`bg-stone-900 py-16 ${className || ""}`}>
-      <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <h2 className="text-2xl sm:text-3xl font-bold text-white">
-          {serviceData.information.title || "Information"}
-        </h2>
-        <div className="mt-6 space-y-3">
-          {faqs.map((faq, index) => (
-            <Row key={index} q={faq.question} a={faq.answer} />
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
-export default Information;
-
-
-FILE: frontend/src/ServiceFAQ.tsx
-------------------------------
-import React, { useState } from 'react';
-
-import { Button } from '@/shared/ui';
-
-import type { SectionProps } from '../../types/service';
-import { isServiceData, isServiceFAQ } from '../../utils/typeGuards';
-
-const ServiceFAQ: React.FC<SectionProps> = ({ serviceData }: SectionProps) => {
-  const [openItems, setOpenItems] = useState<Set<number>>(new Set());
-
-  const toggleItem = (id: number) => {
-    const newOpenItems = new Set(openItems);
-    if (newOpenItems.has(id)) {
-      newOpenItems.delete(id);
-    } else {
-      newOpenItems.add(id);
-    }
-    setOpenItems(newOpenItems);
-  };
-
-  // Type guard checks
-  if (!isServiceData(serviceData)) {
-    return null;
-  }
-
-  if (!isServiceFAQ(serviceData.faq)) {
-    return null;
-  }
-
-  return (
-    <section className="py-16 bg-white">
-      <div className="max-w-4xl mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            {serviceData.faq.title}
-          </h2>
-          <p className="text-lg text-gray-600">
-            Common questions about our {serviceData.title.toLowerCase()} services
-          </p>
-        </div>
-
-        <div className="space-y-4">
-          {serviceData.faq.questions.map((item) => (
-            <div key={item.id} className="bg-gray-50 rounded-lg">
-              <Button
-                variant="ghost"
-                size="lg"
-                className="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-100"
-                onClick={() => {
-                  toggleItem(item.id);
-
-// ... (truncated -15 lines) ...
-
-          </h2>
-          <p className="text-lg text-gray-600">
-            Common questions about our {serviceData.title.toLowerCase()} services
-          </p>
-        </div>
-
-        <div className="space-y-4">
-          {serviceData.faq.questions.map((item) => (
-            <div key={item.id} className="bg-gray-50 rounded-lg">
-              <Button
-                variant="ghost"
-                size="lg"
-                className="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-100"
-                onClick={() => {
-                  toggleItem(item.id);
-                }}
-                rightIcon={
-                  <svg
-                    className={`w-5 h-5 text-gray-500 transition-transform ${
-                      openItems.has(item.id) ? 'rotate-180' : ''
-                    }`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                }
-              >
-                <h3 className="text-lg font-semibold text-gray-900">
-                  {item.question}
-                </h3>
-              </Button>
-              {openItems.has(item.id) && (
-                <div className="px-6 pb-4">
-                  <p className="text-gray-700">
-                    {item.answer}
-                  </p>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
-
-export default ServiceFAQ;
-
-
 FILE: frontend/src/LocationPage.tsx
 ------------------------------
 import { useEffect } from "react";
@@ -306,8 +160,10 @@ export default function LocationPage({ area }: { area: Area }) {
     businessSlug,
     isQuoteModalOpen,
 
-// ... (truncated 31 lines) ...
+// ... (truncated 29 lines) ...
 
+  return (
+    <HomePageLayout>
       <section id="hero">
         <Hero 
           onRequestQuote={handleOpenQuoteModal} 
@@ -333,12 +189,10 @@ export default function LocationPage({ area }: { area: Area }) {
           {...(area["reviewsSection"]?.intro && { customIntro: area["reviewsSection"].intro })}
         />
       </section>
-      <section id="faq">
-        <FAQ 
-          {...(area.faqs && { customFAQs: area.faqs })}
-          {...(area["faq-intro"] && { customFAQIntro: area["faq-intro"] })}
-        />
-      </section>
+      <FAQ 
+        {...(area.faqs && { customFAQs: area.faqs })}
+        {...(area["faq-intro"] && { customFAQIntro: area["faq-intro"] })}
+      />
       <section id="footer">
         <Footer 
           onRequestQuote={handleOpenQuoteModal} 
@@ -359,203 +213,85 @@ export default function LocationPage({ area }: { area: Area }) {
 }
 
 
-FILE: frontend/src/HomePage.tsx
+FILE: frontend/src/Header.tsx
 ------------------------------
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { getContext } from '@/shared/utils/siteContext';
+import { Menu, X } from 'lucide-react';
 
-import { FAQ } from '@/features/faq';
-import { Footer } from '@/features/footer';
-import { Hero } from '@/features/hero';
-import { RequestQuoteModal } from '@/features/quotes';
-import { Reviews } from '@/features/reviews';
-import { Services } from '@/features/services';
-
-import { useHomePageState } from '../hooks';
-import HomePageLayout from './HomePageLayout';
-
-const HomePage: React.FC = () => {
-  const {
-    isAffiliate,
-    businessSlug,
-    isQuoteModalOpen,
-    handleOpenQuoteModal,
-    handleCloseQuoteModal,
-    handleBookNow,
-    handleQuoteModalPrefetch
-  } = useHomePageState();
-  
-  return (
-    <HomePageLayout>
-      <section id="hero">
-        <Hero 
-          onRequestQuote={handleOpenQuoteModal} 
-          onBookNow={handleBookNow}
-          onQuoteHover={handleQuoteModalPrefetch}
-        />
-      </section>
-      <section id="services">
-        <Services />
-      </section>
-      <section id="reviews">
-        <Reviews 
-          reviewType={isAffiliate ? 'affiliate' : 'mdh'}
-          businessSlug={businessSlug ?? ''}
-        />
-      </section>
-      <section id="faq">
-        <FAQ />
-      </section>
-      <section id="footer">
-        <Footer 
-          onRequestQuote={handleOpenQuoteModal} 
-          onBookNow={handleBookNow}
-          onQuoteHover={handleQuoteModalPrefetch}
-        />
-      </section>
-      
-      {/* Centralized Modals - Now using lazy loading */}
-      {isAffiliate && (
-        <RequestQuoteModal
-          isOpen={isQuoteModalOpen}
-          onClose={handleCloseQuoteModal}
-        />
-      )}
-    </HomePageLayout>
-  );
-};
-
-export default HomePage;
-
-
-FILE: frontend/src/HeaderAffiliate.tsx
-------------------------------
-import React from 'react';
-
-import { useBusinessData, useMDHConfig, useAuth } from '@/shared/hooks';
+import Logo from './Logo';
 import BusinessInfo from './BusinessInfo';
-import HeaderNavigation from './HeaderNavigation';
-import LoginButton from './LoginButton';
-import UserMenu from './UserMenu';
-
-const HeaderAffiliate: React.FC = () => {
-  // Get business data from employees.json for location-specific display
-  const { businessName, businessPhone, city, state } = useBusinessData();
-  const { mdhConfig } = useMDHConfig();
-  const { user } = useAuth();
-
-  console.log('🔍 HeaderAffiliate Debug:', {
-    businessName,
-    businessPhone,
-    city,
-    state,
-    mdhConfig: mdhConfig ? 'loaded' : 'not loaded'
-  });
-
-  // Check if we're on a service page
-  const isServicePage = window.location.pathname.includes('/service/');
-
-  return (
-    <header className="fixed top-0 z-50 bg-black/20 backdrop-blur-sm w-full">
-      <div className="w-full py-4">
-        <div className="max-w-7xl mx-auto flex items-center px-4">
-          {/* Logo/Business Name/Info */}
-          <BusinessInfo
-            logoUrl={mdhConfig?.logo_url}
-            businessName={businessName || 'Business Name'}
-            phone={businessPhone || 'No phone data'}
-            displayLocation={city && state ? {
-              city,
-              state,
-              zipCode: '',
-              fullLocation: `${city}, ${state}`
-            } : null}
-          />
-
-          {/* Navigation/Social Media */}
-          <HeaderNavigation
-            socialMedia={{
-              facebook: mdhConfig?.facebook || '',
-              instagram: mdhConfig?.instagram || '',
-              tiktok: mdhConfig?.tiktok || '',
-              youtube: mdhConfig?.youtube || '',
-            }}
-            onFAQClick={() => {}}
-          />
-
-          {/* Login/User */}
-          <div className="ml-6">
-            {user ? <UserMenu /> : <LoginButton />}
-          </div>
-        </div>
-      </div>
-    </header>
-  );
-};
-
-export default HeaderAffiliate;
-
-
-FILE: frontend/src/HeaderMDH.tsx
-------------------------------
-import React from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-
-import { useAuth, useFAQ } from '@/shared/hooks';
-import { Button } from '@/shared/ui';
-import { scrollToTop } from '@/shared/utils';
-import siteData from '@/data/mdh/site.json';
-
-import { NAV_LINKS } from '../constants';
-import LoginButton from './LoginButton';
+import Navigation from './Navigation';
 import SocialMediaIcons from './SocialMediaIcons';
+import LoginButton from './LoginButton';
 import UserMenu from './UserMenu';
+import { NAV_LINKS } from '@/features/header/utils/constants';
+import { handleSectionClick } from '@/features/header/utils/navigation';
 
-const HeaderMDH: React.FC = () => {
-  const authContext = useAuth();
-  const { user, loading: authLoading } = authContext;
-  
-  const faqContext = useFAQ();
-  const { expandFAQ } = faqContext;
-  const navigate = useNavigate();
-  const location = useLocation();
-  
-  // Check if we're on a service page
-  const isServicePage = location.pathname.includes('/service/');
-  
-  // Always render header immediately - never wait for network
-  return (
-    <header className="fixed top-0 z-50 bg-black/20 backdrop-blur-sm w-full">
-      <div className="w-full py-4">
-        <div className="max-w-7xl mx-auto flex items-center px-4">
-          {/* Back button for service pages */}
-          {isServicePage && (
-            <Button
-              onClick={() => {
-                void navigate('/');
-              }}
-              variant="ghost"
-              size="sm"
-              className="flex items-center text-white hover:text-orange-400 mr-4"
-              leftIcon={
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              }
-            >
-              Back
-            </Button>
-          )}
-          
-          {/* 1. Logo/Business Name - Always show immediately */}
+interface HeaderProps {
+  locationData?: any; // Will type this properly later
+  employeeData?: any; // Will type this properly later
+}
 
-// ... (truncated 30 lines) ...
+const Header: React.FC<HeaderProps> = ({ locationData, employeeData }) => {
+  // Get context for consistent behavior
+  const context = getContext(locationData);
+  const [activeSection, setActiveSection] = useState<string>('');
 
-              {NAV_LINKS.map(link => (
-                link.isFAQ ? (
+  // Determine which section is currently in view
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = ['top', 'services', 'reviews', 'faq', 'footer'];
+      const scrollPosition = window.scrollY + 100; // Offset for better detection
+      let currentSection = '';
+
+      for (const section of sections) {
+        const element = document.getElementById(section);
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          const elementTop = rect.top + window.scrollY;
+          const elementBottom = elementTop + rect.height;
+
+          if (scrollPosition >= elementTop && scrollPosition < elementBottom) {
+            currentSection = section;
+            break;
+          }
+        }
+      }
+
+      // If no section is found and we're at the top, default to 'top'
+      if (!currentSection && window.scrollY < 200) {
+        currentSection = 'top';
+      }
+      
+      setActiveSection(currentSection);
+
+// ... (truncated 136 lines) ...
+
+                    }`}
+                    aria-label={`Scroll to ${link.name} section`}
+                  >
+                    {link.name}
+                  </button>
+                ) : link.name === 'Home' ? (
                   <button
                     key={link.name}
-                    onClick={() => { expandFAQ(); }}
-                    className="text-white hover:text-orange-400 transition-colors duration-200 bg-transparent border-none p-0 font-inherit cursor-pointer"
+                    onClick={() => handleSectionClick('#top')}
+                    className={`nav-link w-full text-left px-4 py-3 rounded-lg hover:text-orange-400 hover:bg-orange-500/10 focus:text-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-black/20 transition-colors duration-200 ${
+                      isActive(link) ? 'text-orange-400 bg-transparent ring-2 ring-orange-400 ring-offset-2 ring-offset-black/20' : 'text-white bg-transparent'
+                    }`}
+                    aria-label={`Scroll to ${link.name} section`}
+                  >
+                    {link.name}
+                  </button>
+                ) : link.name === 'Services' ? (
+                  <button
+                    key={link.name}
+                    onClick={() => handleSectionClick('#services')}
+                    className={`nav-link w-full text-left px-4 py-3 rounded-lg hover:text-orange-400 hover:bg-orange-500/10 focus:text-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-black/20 transition-colors duration-200 ${
+                      isActive(link) ? 'text-orange-400 bg-transparent ring-2 ring-orange-400 ring-offset-2 ring-offset-black/20' : 'text-white bg-transparent'
+                    }`}
+                    aria-label={`Scroll to ${link.name} section`}
                   >
                     {link.name}
                   </button>
@@ -563,94 +299,415 @@ const HeaderMDH: React.FC = () => {
                   <a
                     key={link.name}
                     href={link.href}
-                    className="text-white hover:text-orange-400 transition-colors duration-200"
+                    className={`nav-link w-full text-left px-4 py-3 rounded-lg hover:text-orange-400 hover:bg-orange-500/10 focus:text-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-black/20 transition-colors duration-200 ${
+                      isActive(link) ? 'text-orange-400 bg-transparent ring-2 ring-orange-400 ring-offset-2 ring-offset-black/20' : 'text-white bg-transparent'
+                    }`}
+                    aria-label={`Navigate to ${link.name} page`}
                   >
                     {link.name}
                   </a>
                 )
               ))}
             </nav>
-            {/* Social media icons - show if available in site data */}
-            {(siteData?.socials?.facebook || siteData?.socials?.instagram || siteData?.socials?.tiktok || siteData?.socials?.youtube) && (
-              <SocialMediaIcons socialMedia={{
-                facebook: siteData?.socials?.facebook ?? '',
-                instagram: siteData?.socials?.instagram ?? '',
-                tiktok: siteData?.socials?.tiktok ?? '',
-                youtube: siteData?.socials?.youtube ?? '',
-              }} />
-            )}
           </div>
-
-          {/* 3. Login/User - Show loading state while auth is loading */}
-          <div className="ml-6">
-            {authLoading ? (
-              <div className="text-white text-sm">Loading...</div>
-            ) : user ? (
-              <UserMenu />
-            ) : (
-              <LoginButton />
-            )}
-          </div>
-
         </div>
-      </div>
+      )}
     </header>
   );
 };
 
-export default HeaderMDH;
+export default Header;
 
 
-FILE: frontend/src/HeaderNavigation.tsx
+FILE: frontend/src/Navigation.tsx
 ------------------------------
 import React from 'react';
+import { NAV_LINKS } from '@/features/header/utils/constants';
+import { handleSectionClick } from '@/features/header/utils/navigation';
 
-import { NAV_LINKS } from '../constants';
-import SocialMediaIcons from './SocialMediaIcons';
-
-interface SocialMediaConfig {
-  facebook?: string;
-  instagram?: string;
-  tiktok?: string;
-  youtube?: string;
+interface NavigationProps {
+  activeSection: string;
 }
 
-interface HeaderNavigationProps {
-  socialMedia?: SocialMediaConfig;
-  onFAQClick: () => void;
-}
+const Navigation: React.FC<NavigationProps> = ({ activeSection }) => {
+  // Determine if a nav item is active based on visible section
+  const isActive = (link: typeof NAV_LINKS[0]) => {
+    const isLinkActive = (
+      (link.name === 'Home' && activeSection === 'top') ||
+      (link.name === 'Services' && activeSection === 'services') ||
+      (link.name === 'Reviews' && activeSection === 'reviews') ||
+      (link.name === 'FAQ' && activeSection === 'faq') ||
+      (link.name === 'Gallery' && activeSection === 'footer')
+    );
+    
+    return isLinkActive;
+  };
 
-const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ socialMedia, onFAQClick }) => {
+  // Base classes for nav items
+  const getNavItemClasses = (link: typeof NAV_LINKS[0]) => {
+    const isLinkActive = isActive(link);
+    
+    const baseClasses = "nav-link hover:text-orange-400 focus:text-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-black/20 transition-colors duration-200 p-2 font-inherit cursor-pointer rounded";
+    
+    const finalClasses = isLinkActive 
+      ? `${baseClasses} text-orange-400 bg-transparent border-none ring-2 ring-orange-400 ring-offset-2 ring-offset-black/20` 
+      : `${baseClasses} text-white bg-transparent border-none`;
+    
+    return finalClasses;
+  };
+
   return (
-    <div className="flex items-center space-x-4 ml-auto">
-      <nav className="flex space-x-4">
-        {NAV_LINKS.map(link => (
-          link.isFAQ ? (
-            <button
-              key={link.name}
-              onClick={onFAQClick}
-              className="text-white hover:text-orange-400 transition-colors duration-200 bg-transparent border-none p-0 font-inherit cursor-pointer"
-            >
-              {link.name}
-            </button>
-          ) : (
-            <a
-              key={link.name}
-              href={link.href}
-              className="text-white hover:text-orange-400 transition-colors duration-200"
-            >
-              {link.name}
-            </a>
-          )
-        ))}
-      </nav>
-      {socialMedia && (socialMedia.facebook || socialMedia.instagram || socialMedia.tiktok || socialMedia.youtube) && (
-        <SocialMediaIcons socialMedia={socialMedia} />
-      )}
+    <nav aria-label="Primary navigation" className="hidden md:flex space-x-6">
+      {NAV_LINKS.map(link => (
+        link.isFAQ ? (
+          <button
+            key={link.name}
+            onClick={() => handleSectionClick('#faq')}
+            className={getNavItemClasses(link)}
+            aria-label={`Scroll to ${link.name} section`}
+          >
+            {link.name}
+          </button>
+        ) : link.isGallery ? (
+          <button
+            key={link.name}
+
+// ... (truncated 0 lines) ...
+
+            onClick={() => handleSectionClick('#footer')}
+            className={getNavItemClasses(link)}
+            aria-label={`Scroll to ${link.name} section`}
+          >
+            {link.name}
+          </button>
+        ) : link.name === 'Reviews' ? (
+          <button
+            key={link.name}
+            onClick={() => handleSectionClick('#reviews')}
+            className={getNavItemClasses(link)}
+            aria-label={`Scroll to ${link.name} section`}
+          >
+            {link.name}
+          </button>
+        ) : link.name === 'Home' ? (
+          <button
+            key={link.name}
+            onClick={() => handleSectionClick('#top')}
+            className={getNavItemClasses(link)}
+            aria-label={`Scroll to ${link.name} section`}
+          >
+            {link.name}
+          </button>
+        ) : link.name === 'Services' ? (
+          <button
+            key={link.name}
+            onClick={() => handleSectionClick('#services')}
+            className={getNavItemClasses(link)}
+            aria-label={`Scroll to ${link.name} section`}
+          >
+            {link.name}
+          </button>
+        ) : (
+          <a
+            key={link.name}
+            href={link.href}
+            className={getNavItemClasses(link)}
+            aria-label={`Navigate to ${link.name} page`}
+          >
+            {link.name}
+          </a>
+        )
+      ))}
+    </nav>
+  );
+};
+
+export default Navigation;
+
+
+FILE: frontend/src/faq.tsx
+------------------------------
+import React, { useState } from 'react';
+import { getImageOpacityClasses, getTransitionStyles } from '@/shared/utils';
+
+import { MDH_FAQ_ITEMS } from '@/features/faq/utils';
+import { useRotatingBackground } from '@/features/faq/hooks';
+import FAQSearchBar from './FAQSearchBar';
+import FAQCategoryFilter from './FAQCategoryFilter';
+import FAQList from './FAQList';
+import FAQEmptyState from './FAQEmptyState';
+
+const FAQ: React.FC = () => {
+  const [selectedCategory, setSelectedCategory] = useState('Services & Packages');
+  const [expandedFaq, setExpandedFaq] = useState<string | number | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  // Rotating background
+  const { images, currentIndex, loading: backgroundLoading, error: backgroundError } = useRotatingBackground();
+
+  // Extract unique categories from FAQ data
+  const categories = ['All', ...Array.from(new Set(MDH_FAQ_ITEMS.map(faq => faq.category)))];
+
+  // Filter FAQs based on category and search
+  const filteredFaqs = MDH_FAQ_ITEMS.filter(faq => {
+    const matchesCategory = selectedCategory === 'All' || faq.category === selectedCategory;
+    const matchesSearch = faq.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         faq.answer.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
+  const toggleFaq = (id: string | number) => {
+    setExpandedFaq(expandedFaq === id ? null : id);
+  };
+
+  return (
+    <section id="faq" className="relative h-screen snap-start snap-always overflow-hidden">
+      {/* Rotating Background Images with Overlay */}
+      <div className="absolute inset-0 z-0">
+        {/* Render all images to test if performance optimization causes the pop */}
+        {images.map((image, index) => {
+          return (
+            <img
+              key={image.id}
+              src={image.src}
+              alt={image.alt || `FAQ background image ${index + 1}`}
+              className={`absolute inset-0 w-full h-full object-cover ${getImageOpacityClasses(index, currentIndex, 2000)}`}
+              style={getTransitionStyles(2000)}
+              decoding={index === 0 ? 'sync' : 'async'}
+              loading={index === 0 ? 'eager' : 'lazy'}
+            />
+          );
+
+// ... (truncated 15 lines) ...
+
+        {/* Dark overlay */}
+        <div className="absolute inset-0 bg-stone-900/85"></div>
+      </div>
+
+      {/* Content */}
+      <div className="relative z-10 h-full overflow-y-auto pt-20">
+        <div className="max-w-6xl mx-auto w-full px-4 py-8">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-3 drop-shadow-lg">
+              Frequently Asked Questions
+            </h1>
+            <p className="text-stone-200 text-lg max-w-2xl mx-auto drop-shadow-md">
+              Find answers to common questions about our mobile detailing services
+            </p>
+          </div>
+
+          {/* Search and Filter Controls */}
+          <div className="mb-8">
+            <FAQSearchBar 
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+            />
+
+            <FAQCategoryFilter
+              selectedCategory={selectedCategory}
+              onCategoryChange={setSelectedCategory}
+            />
+          </div>
+
+          {/* FAQ Content */}
+          <div className="max-w-4xl mx-auto">
+            {filteredFaqs.length === 0 ? (
+              <FAQEmptyState />
+            ) : (
+              <FAQList
+                faqs={filteredFaqs}
+                expandedFaq={expandedFaq}
+                onToggleFaq={toggleFaq}
+              />
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default FAQ;
+
+
+FILE: frontend/src/FAQCategoryFilter.tsx
+------------------------------
+import React from 'react';
+import { Car, Settings, Shield, CreditCard } from 'lucide-react';
+
+import { FilterChip } from '@/shared/ui';
+
+interface FAQCategoryFilterProps {
+  selectedCategory: string;
+  onCategoryChange: (category: string) => void;
+}
+
+// Mapping from display names to actual category names
+const categoryMapping = {
+  'All': 'All',
+  'General': 'General',
+  'Services': 'Services & Packages',
+  'Scheduling': 'Scheduling & Location',
+  'Pricing': 'Pricing & Payment',
+  'Preparation': 'Preparation & Aftercare',
+  'RV': 'RV & Boat Services',
+  'Locations': 'Locations',
+  'Payments': 'Payments & Deposits',
+  'Warranty': 'Warranty & Guarantee',
+};
+
+const categoryIcons = {
+  All: Car,
+  General: Car,
+  Services: Car,
+  Scheduling: Settings,
+  Pricing: CreditCard,
+  Preparation: Shield,
+  RV: Car,
+  Locations: Settings,
+  Payments: CreditCard,
+  Warranty: Shield,
+};
+
+const FAQCategoryFilter: React.FC<FAQCategoryFilterProps> = ({ 
+  selectedCategory, 
+  onCategoryChange 
+}) => {
+  // Create display categories from the mapping
+  const displayCategories = Object.keys(categoryMapping);
+  
+  // Split into two rows: 5 in first row, 4 in second row
+  const firstRow = displayCategories.slice(0, 5);
+  const secondRow = displayCategories.slice(5);
+  
+  const renderChip = (displayName: string) => {
+    const actualCategory = categoryMapping[displayName as keyof typeof categoryMapping];
+
+// ... (truncated -17 lines) ...
+
+  Payments: CreditCard,
+  Warranty: Shield,
+};
+
+const FAQCategoryFilter: React.FC<FAQCategoryFilterProps> = ({ 
+  selectedCategory, 
+  onCategoryChange 
+}) => {
+  // Create display categories from the mapping
+  const displayCategories = Object.keys(categoryMapping);
+  
+  // Split into two rows: 5 in first row, 4 in second row
+  const firstRow = displayCategories.slice(0, 5);
+  const secondRow = displayCategories.slice(5);
+  
+  const renderChip = (displayName: string) => {
+    const actualCategory = categoryMapping[displayName as keyof typeof categoryMapping];
+    const IconComponent = categoryIcons[displayName as keyof typeof categoryIcons] || Car;
+    const isSelected = selectedCategory === actualCategory;
+    
+    return (
+      <FilterChip
+        key={displayName}
+        onClick={() => onCategoryChange(actualCategory)}
+        isSelected={isSelected}
+        icon={IconComponent}
+        className="transform hover:scale-105 backdrop-blur-sm"
+      >
+        {displayName}
+      </FilterChip>
+    );
+  };
+  
+  return (
+    <div className="flex flex-col items-center gap-3">
+      {/* First row - 5 chips */}
+      <div className="flex justify-center gap-3">
+        {firstRow.map(renderChip)}
+      </div>
+      
+      {/* Second row - 4 chips */}
+      <div className="flex justify-center gap-3">
+        {secondRow.map(renderChip)}
+      </div>
     </div>
   );
 };
 
-export default HeaderNavigation;
+export default FAQCategoryFilter;
+
+
+FILE: frontend/src/FAQEmptyState.tsx
+------------------------------
+import React from 'react';
+import { Search } from 'lucide-react';
+
+const FAQEmptyState: React.FC = () => {
+  return (
+    <div className="text-center py-12">
+      <div className="bg-stone-800/80 backdrop-blur-sm rounded-lg p-8 border border-stone-700/50 shadow-xl">
+        <Search className="h-12 w-12 text-stone-400 mx-auto mb-4" />
+        <h3 className="text-xl font-semibold text-white mb-2">No FAQs Found</h3>
+        <p className="text-stone-400">
+          Try adjusting your search or selecting a different category.
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default FAQEmptyState;
+
+
+FILE: frontend/src/FAQItem.tsx
+------------------------------
+import React from 'react';
+import { ChevronDown } from 'lucide-react';
+
+import type { FAQItem } from '@/features/faq/types';
+
+interface FAQItemProps {
+  faq: FAQItem;
+  isExpanded: boolean;
+  onToggle: () => void;
+}
+
+const FAQItem: React.FC<FAQItemProps> = ({ faq, isExpanded, onToggle }) => {
+  return (
+    <div className="bg-stone-800/80 backdrop-blur-sm rounded-lg border border-stone-700/50 overflow-hidden hover:shadow-xl hover:shadow-black/30 transition-all duration-300 h-fit">
+      <button
+        onClick={onToggle}
+        className="w-full px-4 py-4 text-left flex justify-between items-start hover:bg-stone-700/40 transition-colors duration-200 group"
+      >
+        <div className="flex-1 pr-2">
+          <h3 className="text-white font-semibold text-base group-hover:text-orange-400 transition-colors duration-200 leading-tight">
+            {faq.question}
+          </h3>
+        </div>
+        <ChevronDown
+          className={`h-4 w-4 text-stone-400 transition-transform duration-200 flex-shrink-0 mt-1 ${
+            isExpanded ? 'rotate-180 text-orange-400' : ''
+          }`}
+        />
+      </button>
+      
+      <div
+        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+          isExpanded ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0'
+        }`}
+      >
+        <div className="px-4 pb-4 border-t border-stone-700/30">
+          <div className="pt-3">
+            <p className="text-stone-300 text-sm leading-relaxed">
+              {faq.answer}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default FAQItem;
 
 

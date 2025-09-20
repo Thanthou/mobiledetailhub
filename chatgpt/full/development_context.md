@@ -1,6 +1,6 @@
 # Mobile Detail Hub - Development Context
 
-Generated: 2025-09-17T19:35:31.328Z
+Generated: 2025-09-20T05:50:22.704Z
 
 ## Project Overview
 
@@ -10,18 +10,18 @@ Generated: 2025-09-17T19:35:31.328Z
 
 ## File Structure Summary
 
-- **Total Files**: 895
-- **Frontend Files**: 290
+- **Total Files**: 860
+- **Frontend Files**: 272
 - **Backend Files**: 145
-- **Root Files**: 460
-- **Total Directories**: 795
+- **Root Files**: 443
+- **Total Directories**: 764
 
 ## Frontend Structure
 
 - **Pages**: 0
 - **Components**: 0
 - **Hooks**: 3
-- **Contexts**: 6
+- **Contexts**: 7
 - **Utils**: 0
 - **Config**: 0
 - **Types**: 0

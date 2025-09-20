@@ -76,109 +76,13 @@ UserMenu.tsx
 frontend/src/UserMenu.tsx
 ******
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ChevronDown, LogOut, Settings, User } from 'lucide-react';
-
-import { useAuth } from '@/shared/hooks';
+import React from 'react';
 
 const UserMenu: React.FC = () => {
-  const authContext = useAuth();
-  const user = authContext.user;
-  const logout = authContext.logout;
-  const navigate = useNavigate();
-  const [isOpen, setIsOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  // Close menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => { document.removeEventListener('mousedown', handleClickOutside); };
-  }, []);
-
-  const handleLogout = useCallback(() => {
-    // Clear any stored tokens
-    localStorage.removeItem('token');
-    localStorage.removeItem('authToken'); // Remove old key if it exists
-    logout();
-    setIsOpen(false);
-  }, [logout]);
-
-  const handleAccountClick = useCallback(() => {
-    setIsOpen(false);
-    
-    if (!user) return;
-    
-    // Route based on user role (less restrictive for development)
-    if (user.role === 'admin') {
-      void navigate('/admin-dashboard');
-    } else if (user.role === 'affiliate') {
-      void navigate('/affiliate-dashboard');
-    } else {
-      // For now, redirect customers to home page since client dashboard is not implemented
-      // Fallback to home page for unknown roles
-      void navigate('/');
-    }
-  }, [user, navigate]);
-
-// ... (truncated 44 lines) ...
-
-                e.preventDefault();
-                handleAccountClick();
-              }
-            }}
-            className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-            role="menuitem"
-          >
-            <User className="h-4 w-4 mr-3" />
-            Account
-          </button>
-          
-          <button
-            onClick={() => { setIsOpen(false); }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                setIsOpen(false);
-              }
-            }}
-            className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-            role="menuitem"
-          >
-            <Settings className="h-4 w-4 mr-3" />
-            Settings
-          </button>
-          
-          <hr className="my-1" />
-          
-          <button
-            onClick={handleLogout}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                handleLogout();
-              }
-            }}
-            className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
-            role="menuitem"
-          >
-            <LogOut className="h-4 w-4 mr-3" />
-            Logout
-          </button>
-        </div>
-      )}
-    </div>
-  );
+  return null; // Disabled for now
 };
 
 export default UserMenu;
-
 
 ******
 UsersTab.tsx
@@ -360,109 +264,13 @@ UserMenu.tsx
 frontend/UserMenu.tsx
 ******
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ChevronDown, LogOut, Settings, User } from 'lucide-react';
-
-import { useAuth } from '@/shared/hooks';
+import React from 'react';
 
 const UserMenu: React.FC = () => {
-  const authContext = useAuth();
-  const user = authContext.user;
-  const logout = authContext.logout;
-  const navigate = useNavigate();
-  const [isOpen, setIsOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  // Close menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => { document.removeEventListener('mousedown', handleClickOutside); };
-  }, []);
-
-  const handleLogout = useCallback(() => {
-    // Clear any stored tokens
-    localStorage.removeItem('token');
-    localStorage.removeItem('authToken'); // Remove old key if it exists
-    logout();
-    setIsOpen(false);
-  }, [logout]);
-
-  const handleAccountClick = useCallback(() => {
-    setIsOpen(false);
-    
-    if (!user) return;
-    
-    // Route based on user role (less restrictive for development)
-    if (user.role === 'admin') {
-      void navigate('/admin-dashboard');
-    } else if (user.role === 'affiliate') {
-      void navigate('/affiliate-dashboard');
-    } else {
-      // For now, redirect customers to home page since client dashboard is not implemented
-      // Fallback to home page for unknown roles
-      void navigate('/');
-    }
-  }, [user, navigate]);
-
-// ... (truncated 44 lines) ...
-
-                e.preventDefault();
-                handleAccountClick();
-              }
-            }}
-            className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-            role="menuitem"
-          >
-            <User className="h-4 w-4 mr-3" />
-            Account
-          </button>
-          
-          <button
-            onClick={() => { setIsOpen(false); }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                setIsOpen(false);
-              }
-            }}
-            className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-            role="menuitem"
-          >
-            <Settings className="h-4 w-4 mr-3" />
-            Settings
-          </button>
-          
-          <hr className="my-1" />
-          
-          <button
-            onClick={handleLogout}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                handleLogout();
-              }
-            }}
-            className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
-            role="menuitem"
-          >
-            <LogOut className="h-4 w-4 mr-3" />
-            Logout
-          </button>
-        </div>
-      )}
-    </div>
-  );
+  return null; // Disabled for now
 };
 
 export default UserMenu;
-
 
 ******
 UsersTab.tsx
@@ -926,6 +734,10 @@ export interface LocationData {
   state: string;
   zipCode: string;
   fullLocation: string;
+  hero?: {
+    h1: string;
+    sub: string;
+  };
 }
 
 export interface LocationContextType {
@@ -964,12 +776,8 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
       localStorage.setItem('selectedLocation', JSON.stringify(selectedLocation));
     } else {
       localStorage.removeItem('selectedLocation');
-    }
-  }, [selectedLocation]);
 
-  // Listen for localStorage changes from other components (like business config)
-
-// ... (truncated 24 lines) ...
+// ... (truncated 28 lines) ...
 
           // Only update if we have complete location data and it's different from current
           if (parsed.city && parsed.state && 
@@ -1581,6 +1389,10 @@ export interface LocationData {
   state: string;
   zipCode: string;
   fullLocation: string;
+  hero?: {
+    h1: string;
+    sub: string;
+  };
 }
 
 export interface LocationContextType {
@@ -1619,12 +1431,8 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
       localStorage.setItem('selectedLocation', JSON.stringify(selectedLocation));
     } else {
       localStorage.removeItem('selectedLocation');
-    }
-  }, [selectedLocation]);
 
-  // Listen for localStorage changes from other components (like business config)
-
-// ... (truncated 24 lines) ...
+// ... (truncated 28 lines) ...
 
           // Only update if we have complete location data and it's different from current
           if (parsed.city && parsed.state && 
@@ -1886,6 +1694,115 @@ export const useSiteState = () => {
   }
   return context;
 };
+
+
+******
+00_CONTEXT.txt
+frontend/00_CONTEXT.txt
+******
+
+
+*** FILE: package.json ***
+{
+  "name": "mobiledetailhub-frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "optimize-images": "node scripts/convert-images.js",
+    "prebuild": "npm run optimize-images",
+    "check-pages": "node scripts/check-pages-usage.js",
+    "lint:pages": "eslint . --rule 'import/no-restricted-paths: error'"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.87.4",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.344.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-icons": "^5.5.0",
+    "react-router-dom": "^7.7.1",
+    "tailwind-merge": "^3.3.1",
+    "zod": "^4.1.5",
+    "zustand": "^5.0.8"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.9.1",
+    "@types/google.maps": "^3.58.1",
+    "@types/node": "^24.3.1",
+    "@types/react": "^18.3.24",
+    "@types/react-dom": "^18.3.7",
+    "@typescript-eslint/eslint-plugin": "^8.8.1",
+    "@typescript-eslint/parser": "^8.8.1",
+    "@vitejs/plugin-react": "^4.3.1",
+    "@vitest/ui": "^3.2.4",
+    "autoprefixer": "^10.4.18",
+    "eslint": "^8.57.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react": "^7.34.3",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-react-refresh": "^0.4.7",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+
+// ... (truncated 192 lines) ...
+
+      'simple-import-sort/exports': 'error',
+      'import/no-cycle': 'error',
+      'import/no-self-import': 'error',
+      
+      // Disable prop-types for TypeScript projects (we use interfaces instead)
+      'react/prop-types': 'off',
+    },
+  }
+];
+
+
+*** END FILE ***
+
+*** FILE: src\main.tsx ***
+import { createRoot } from 'react-dom/client';
+
+import App from './App.tsx';
+
+import './index.css';
+
+// Register Service Worker for PWA functionality (only in production and when explicitly enabled)
+if ('serviceWorker' in navigator && import.meta.env.PROD && import.meta.env.VITE_ENABLE_SW === '1') {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch((err) => {
+      console.warn('SW registration failed:', err);
+    });
+  });
+}
+
+const rootElement = document.getElementById('root');
+if (!rootElement) {
+  throw new Error('Root element not found');
+}
+
+createRoot(rootElement).render(
+  <>
+    <App />
+  </>
+);
+
+
+*** END FILE ***
+
+*** FILE: src\App.tsx ***
+import App from './app/App';
+
+export default App;
+
+*** END FILE ***
 
 
 

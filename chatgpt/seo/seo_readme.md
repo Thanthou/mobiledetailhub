@@ -7,6 +7,6 @@ Files here focus ONLY on SEO auditing:
 - robots.txt + sitemap.xml samples
 
 Total source files scanned:
-- Frontend: 290
+- Frontend: 272
 - Backend:  145
-Generated: 2025-09-17T19:35:31.526Z
+Generated: 2025-09-20T05:50:22.897Z

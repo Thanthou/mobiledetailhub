@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getImageOpacityClasses, getTransitionStyles } from '@/shared/utils';
 
 import { MDH_FAQ_ITEMS } from '@/features/faq/utils';
 import { useRotatingBackground } from '@/features/faq/hooks';
@@ -34,28 +35,17 @@ const FAQ: React.FC = () => {
     <section id="faq" className="relative h-screen snap-start snap-always overflow-hidden">
       {/* Rotating Background Images with Overlay */}
       <div className="absolute inset-0 z-0">
-        {/* Render all images but only show current and next for performance */}
+        {/* Render all images to test if performance optimization causes the pop */}
         {images.map((image, index) => {
-          // Only render current and next image (if there is a next)
-          const hasNext = images.length > 1;
-          const nextIndex = hasNext ? (currentIndex + 1) % images.length : 0;
-          if (index !== currentIndex && (!hasNext || index !== nextIndex)) return null;
-          
-          const isCurrent = index === currentIndex;
-          
           return (
-            <div
+            <img
               key={image.id}
-              className={`absolute inset-0 transition-opacity ${
-                isCurrent ? 'opacity-100' : 'opacity-0'
-              }`}
-              style={{
-                backgroundImage: `url(${image.src})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundAttachment: 'fixed',
-                transitionDuration: '2s'
-              }}
+              src={image.src}
+              alt={image.alt || `FAQ background image ${index + 1}`}
+              className={`absolute inset-0 w-full h-full object-cover ${getImageOpacityClasses(index, currentIndex, 2000)}`}
+              style={getTransitionStyles(2000)}
+              decoding={index === 0 ? 'sync' : 'async'}
+              loading={index === 0 ? 'eager' : 'lazy'}
             />
           );
         })}

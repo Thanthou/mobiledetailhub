@@ -37,7 +37,7 @@ const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || !e.touches[0]) return;
     
     const rect = containerRef.current.getBoundingClientRect();
     const x = e.touches[0].clientX - rect.left;
