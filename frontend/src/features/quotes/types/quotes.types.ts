@@ -12,7 +12,9 @@ export const quoteRequestSchema = z.object({
   vehicleYear: z.string().min(4, 'Vehicle year must be 4 digits'),
   services: z.array(z.string()).min(1, 'At least one service must be selected'),
   message: z.string().optional(),
-  location: z.string().min(1, 'Location is required'),
+  city: z.string().min(1, 'City is required'),
+  state: z.string().min(2, 'State is required'),
+  zipCode: z.string().min(5, 'Zip code must be at least 5 digits'),
   businessSlug: z.string().optional()
 });
 
@@ -36,7 +38,9 @@ export const quoteResponseSchema = z.object({
   vehicleYear: z.string(),
   services: z.array(z.string()),
   message: z.string().optional(),
-  location: z.string(),
+  city: z.string(),
+  state: z.string(),
+  zipCode: z.string(),
   businessSlug: z.string().optional(),
   status: z.enum(['pending', 'in_progress', 'completed', 'cancelled']),
   createdAt: z.string(),
@@ -89,7 +93,9 @@ export interface QuoteFormData {
   name: string;
   email: string;
   phone: string;
-  location: string;
+  city: string;
+  state: string;
+  zipCode: string;
   services: string[];
   vehicleType: string;
   vehicleMake: string;

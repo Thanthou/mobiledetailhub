@@ -33,7 +33,7 @@
       "subheadline": "Salt removal, oxidation treatment, and marine-grade UV protection—engineered for harsh marine environments.",
       "ctas": [
         { "label": "Book Now", "href": "/book?service=marine-detailing" },
-        { "label": "Get Quote", "href": "/quote?service=marine-detailing" }
+        { "label": "Request Quote", "href": "/quote?service=marine-detailing" }
       ]
     },
   
@@ -171,7 +171,7 @@
       "title": "Ready to protect your vessel?",
       "description": "",
       "primary": { "label": "Book Now", "href": "/book?service=marine-detailing" },
-      "secondary": { "label": "Get Quote", "href": "/quote?service=marine-detailing" }
+      "secondary": { "label": "Request Quote", "href": "/quote?service=marine-detailing" }
     },
   
     "jsonLd": {

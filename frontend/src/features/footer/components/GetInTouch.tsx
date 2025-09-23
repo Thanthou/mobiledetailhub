@@ -11,11 +11,13 @@ interface GetInTouchProps {
     };
   };
   onRequestQuote?: () => void;
+  showLocationSetter?: boolean;
 }
 
 const GetInTouch: React.FC<GetInTouchProps> = ({ 
   config, 
-  onRequestQuote 
+  onRequestQuote,
+  showLocationSetter = false
 }) => {
   const contactInfo = {
     phone: config?.phone || '(555) 123-4567',
@@ -53,6 +55,17 @@ const GetInTouch: React.FC<GetInTouchProps> = ({
             <span className="text-lg text-white">
               {contactInfo.location}
             </span>
+          </div>
+        )}
+        {showLocationSetter && !contactInfo.location && (
+          <div className="flex items-center justify-center md:justify-start space-x-3">
+            <MapPin className="h-5 w-5 flex-shrink-0 text-orange-400" />
+            <a 
+              href="/locations" 
+              className="text-lg text-orange-400 hover:text-orange-300 transition-colors duration-200"
+            >
+              Set Your Location
+            </a>
           </div>
         )}
       </div>

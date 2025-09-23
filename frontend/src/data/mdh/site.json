@@ -37,7 +37,7 @@
     ],
     "ctas": [
       { "label": "Book Now", "href": "/book" },
-      { "label": "Get Quote", "href": "/quote" }
+      { "label": "Request Quote", "href": "/quote" }
     ]
   },
 

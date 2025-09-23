@@ -4,9 +4,10 @@ import { ServiceData } from '@/features/services/types/service.types';
 
 interface ServiceHeroProps {
   serviceData: ServiceData;
+  onRequestQuote?: () => void;
 }
 
-const ServiceHero: React.FC<ServiceHeroProps> = ({ serviceData }) => {
+const ServiceHero: React.FC<ServiceHeroProps> = ({ serviceData, onRequestQuote }) => {
   return (
     <section className="bg-stone-900 py-16 sm:py-24">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -48,8 +49,9 @@ const ServiceHero: React.FC<ServiceHeroProps> = ({ serviceData }) => {
                   children: serviceData.hero.ctas?.[0]?.label || "Book Now"
                 }}
                 getQuoteProps={{
-                  children: serviceData.hero.ctas?.[1]?.label || "Get Quote",
-                  variant: "outline-white"
+                  children: serviceData.hero.ctas?.[1]?.label || "Request Quote",
+                  variant: "outline-white",
+                  onClick: onRequestQuote
                 }}
               />
             </div>

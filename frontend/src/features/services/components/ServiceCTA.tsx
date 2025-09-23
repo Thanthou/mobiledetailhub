@@ -26,9 +26,9 @@ const ServiceCTA: React.FC<ServiceCTAProps> = ({ serviceData, onRequestQuote }) 
             children: serviceData.cta?.primary?.label || serviceData.hero?.ctas?.[0]?.label || "Book Now"
           }}
           getQuoteProps={{
-            children: serviceData.cta?.secondary?.label || serviceData.hero?.ctas?.[1]?.label || "Get Quote",
+            children: serviceData.cta?.secondary?.label || serviceData.hero?.ctas?.[1]?.label || "Request Quote",
             variant: "outline-white",
-            onClick: onRequestQuote
+            onClick: onRequestQuote || (() => console.log('Request Quote clicked - no handler provided'))
           }}
         />
       </div>

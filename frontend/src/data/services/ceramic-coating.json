@@ -33,7 +33,7 @@
       "subheadline": "Locked-in gloss, slickness, and easy maintenance—installed with proper decontamination and paint correction.",
       "ctas": [
         { "label": "Book Now", "href": "/book?service=ceramic-coating" },
-        { "label": "Get Quote", "href": "/quote?service=ceramic-coating" }
+        { "label": "Request Quote", "href": "/quote?service=ceramic-coating" }
       ]
     },
   
@@ -208,7 +208,7 @@
       "title": "Ready for locked-in gloss?",
       "description": "",
       "primary": { "label": "Book Now", "href": "/book?service=ceramic-coating" },
-      "secondary": { "label": "Get Quote", "href": "/quote?service=ceramic-coating" }
+      "secondary": { "label": "Request Quote", "href": "/quote?service=ceramic-coating" }
     },
   
     "jsonLd": {

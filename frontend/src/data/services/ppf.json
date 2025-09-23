@@ -34,7 +34,7 @@
       "subheadline": "Clear, self-healing urethane that absorbs rock chips and road rash—keep your finish looking new.",
       "ctas": [
         { "label": "Book Now", "href": "/book?service=ppf" },
-        { "label": "Get Quote", "href": "/quote?service=ppf" }
+        { "label": "Request Quote", "href": "/quote?service=ppf" }
       ]
     },
   
@@ -208,7 +208,7 @@
       "title": "Ready to shield your paint?",
       "description": "",
       "primary": { "label": "Book Now", "href": "/book?service=ppf" },
-      "secondary": { "label": "Get Quote", "href": "/quote?service=ppf" }
+      "secondary": { "label": "Request Quote", "href": "/quote?service=ppf" }
     },
   
     "jsonLd": {

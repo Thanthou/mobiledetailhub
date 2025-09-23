@@ -33,7 +33,7 @@
       "subheadline": "Remove swirls, haze, and oxidation with single- or multi-stage polishing—perfect prep for ceramic coating or film.",
       "ctas": [
         { "label": "Book Now", "href": "/book?service=paint-correction" },
-        { "label": "Get Quote", "href": "/quote?service=paint-correction" }
+        { "label": "Request Quote", "href": "/quote?service=paint-correction" }
       ]
     },
   
@@ -190,7 +190,7 @@
       "title": "Ready to restore your gloss?",
       "description": "",
       "primary": { "label": "Book Now", "href": "/book?service=paint-correction" },
-      "secondary": { "label": "Get Quote", "href": "/quote?service=paint-correction" }
+      "secondary": { "label": "Request Quote", "href": "/quote?service=paint-correction" }
     },
   
     "jsonLd": {

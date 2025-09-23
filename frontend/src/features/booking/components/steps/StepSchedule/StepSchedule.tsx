@@ -101,7 +101,7 @@ const StepSchedule: React.FC<StepScheduleProps> = ({ onScheduleSelected }) => {
       
       <div className="max-w-4xl mx-auto">
         {/* Date Selection - Calendar */}
-        <div className="mb-8 mt-48">
+        <div className="mb-8 mt-36">
           <div className="bg-gray-800/90 backdrop-blur-sm rounded-lg p-6 max-w-2xl mx-auto border border-gray-600/50">
             {/* Month Navigation */}
             <div className="flex items-center justify-between mb-6">
@@ -155,8 +155,18 @@ const StepSchedule: React.FC<StepScheduleProps> = ({ onScheduleSelected }) => {
                   for (let day = 0; day < 7; day++) {
                     const dateStr = currentDate.toISOString().split('T')[0];
                     const isCurrentMonth = currentDate.getMonth() === month;
-                    const isPast = currentDate < today;
-                    const isAvailable = scheduleOptions?.some(option => option.date === dateStr && option.available) || false;
+                    // Compare dates only (ignore time) to properly handle same-day availability
+                    const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                    const currentDateOnly = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+                    const isPast = currentDateOnly < todayDateOnly;
+                    // A date is available if it's in the future (not past) and either:
+                    // 1. Has schedule options with availability, OR
+                    // 2. Is a future date without specific schedule data (default to available)
+                    const hasScheduleData = scheduleOptions?.some(option => option.date === dateStr);
+                    const isAvailableFromSchedule = hasScheduleData 
+                        ? scheduleOptions?.some(option => option.date === dateStr && option.available) || false
+                        : true; // Default to available for future dates without schedule data
+                    const isAvailable = isAvailableFromSchedule;
                     const isSelected = selectedDates.includes(dateStr);
                     
                     calendarDays.push(
@@ -187,11 +197,21 @@ const StepSchedule: React.FC<StepScheduleProps> = ({ onScheduleSelected }) => {
           </div>
           
           {/* Arrival Time Information */}
-          <div className="text-center text-gray-300 mt-6">
-            <ul className="inline-block text-left list-disc list-inside space-y-1 text-lg md:text-xl">
-              <li>Arrival times are typically between 6am - 9am.</li>
-              <li>You do not need to be present for vehicle service.</li>
-              <li>We will contact you to discuss the specifics about your service.</li>
+          <div className="bg-gray-800/90 backdrop-blur-sm rounded-lg p-6 max-w-2xl mx-auto border border-gray-600/50 mt-6">
+            <h3 className="text-lg font-semibold text-white mb-4 text-center">Service Information</h3>
+            <ul className="text-gray-300 space-y-2 text-base md:text-lg">
+              <li className="flex items-start">
+                <span className="text-orange-400 mr-2">•</span>
+                <span>Arrival times are typically between 6am - 9am.</span>
+              </li>
+              <li className="flex items-start">
+                <span className="text-orange-400 mr-2">•</span>
+                <span>You do not need to be present for vehicle service.</span>
+              </li>
+              <li className="flex items-start">
+                <span className="text-orange-400 mr-2">•</span>
+                <span>We will contact you to discuss the specifics about your service.</span>
+              </li>
             </ul>
           </div>
         </div>

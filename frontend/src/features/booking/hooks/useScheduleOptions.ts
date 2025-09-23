@@ -25,15 +25,14 @@ export const useScheduleOptions = (locationId?: string, serviceId?: string, date
       const today = new Date();
       const mockScheduleOptions: ScheduleOption[] = [];
       
-      // Generate available dates for the next 30 days
+      // Generate available dates for the next 30 days (calendar will default future dates to available)
       for (let i = 0; i < 30; i++) {
         const date = new Date(today);
         date.setDate(today.getDate() + i);
         const dateStr = date.toISOString().split('T')[0];
         
-        // Skip weekends for demo purposes (make some dates unavailable)
-        const isWeekend = date.getDay() === 0 || date.getDay() === 6;
-        const isAvailable = !isWeekend || i % 3 === 0; // Make some weekends available
+        // Make all future dates available (past dates are handled by calendar component)
+        const isAvailable = true;
         
         mockScheduleOptions.push({
           date: dateStr,

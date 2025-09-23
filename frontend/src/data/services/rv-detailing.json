@@ -33,7 +33,7 @@
       "subheadline": "Roof to wheels: oxidation care, black streak removal, and UV protection designed for large-format vehicles.",
       "ctas": [
         { "label": "Book Now", "href": "/book?service=rv-detailing" },
-        { "label": "Get Quote", "href": "/quote?service=rv-detailing" }
+        { "label": "Request Quote", "href": "/quote?service=rv-detailing" }
       ]
     },
   
@@ -182,7 +182,7 @@
       "title": "Ready to refresh your RV?",
       "description": "",
       "primary": { "label": "Book Now", "href": "/book?service=rv-detailing" },
-      "secondary": { "label": "Get Quote", "href": "/quote?service=rv-detailing" }
+      "secondary": { "label": "Request Quote", "href": "/quote?service=rv-detailing" }
     },
   
     "jsonLd": {

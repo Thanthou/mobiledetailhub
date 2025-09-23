@@ -104,6 +104,15 @@ export {
   type StateInfo
 } from './areasUtils';
 
+// Locations data utilities (simplified locations.json format)
+export {
+  getLocationsByState,
+  getAllLocations,
+  getFooterLocations,
+  type LocationInfo,
+  type LocationStateInfo
+} from './locationsUtils';
+
 // Image rotation utilities
 export {
   type ImageRotationConfig,

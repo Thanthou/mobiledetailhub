@@ -42,18 +42,19 @@ export function useSiteContext(): ContextData {
     const loadLocationData = async () => {
       if (state && city) {
         // Check if location exists in locations.json (URL validation)
-        const locationKey = `${state}/${city}`;
-        const foundLocation = allLocations[locationKey as keyof typeof allLocations];
+        const stateUpper = state.toUpperCase();
+        const stateCities = allLocations[stateUpper as keyof typeof allLocations];
+        const locationExists = stateCities && Array.isArray(stateCities) && stateCities.includes(city);
         
-        if (foundLocation) {
+        if (locationExists) {
           setIsLoading(true);
           try {
             // Dynamically load the full data from /data/areas/{state}/{city}.json
             const fullData = await import(`@/data/areas/${state}/${city}.json`);
             setLocationData(fullData.default);
             
-            // Get employee data
-            const employeeId = foundLocation.employee;
+            // Get employee data from the location file
+            const employeeId = fullData.default.employee;
             setEmployee(employeeData[employeeId as keyof typeof employeeData]);
           } catch (error) {
             console.error('Failed to load location data:', error);
@@ -87,8 +88,8 @@ export function useSiteContext(): ContextData {
     employeeData: employee,
     siteData: isMainSite ? siteData : undefined,
     pathname: location.pathname,
-    city,
-    state
+    city: locationData?.city || city,
+    state: locationData?.stateCode || state
   };
 }
 

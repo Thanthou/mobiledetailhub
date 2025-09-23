@@ -29,7 +29,9 @@ export const useQuoteFormLogic = () => {
     name: '',
     email: '',
     phone: '',
-    location: '',
+    city: '',
+    state: '',
+    zipCode: '',
     services: [],
     vehicleType: '',
     vehicleMake: '',
@@ -163,9 +165,23 @@ export const useQuoteFormLogic = () => {
           errors.push('Please enter a valid 10-digit phone number.');
         }
         break;
-      case 'location':
+      case 'city':
         if (!value.trim()) {
-          errors.push('Location is required.');
+          errors.push('City is required.');
+        }
+        break;
+      case 'state':
+        if (!value.trim()) {
+          errors.push('State is required.');
+        } else if (value.length !== 2) {
+          errors.push('State must be 2 characters.');
+        }
+        break;
+      case 'zipCode':
+        if (!value.trim()) {
+          errors.push('Zip code is required.');
+        } else if (!/^\d{5}$/.test(value)) {
+          errors.push('Zip code must be 5 digits.');
         }
         break;
       case 'vehicleType':
@@ -218,7 +234,7 @@ export const useQuoteFormLogic = () => {
     let isValid = true;
     
     // Validate required fields
-    const requiredFields: Array<keyof QuoteFormData> = ['name', 'email', 'phone', 'location', 'vehicleType', 'vehicleMake', 'vehicleModel', 'vehicleYear'];
+    const requiredFields: Array<keyof QuoteFormData> = ['name', 'email', 'phone', 'city', 'state', 'zipCode', 'vehicleType', 'vehicleMake', 'vehicleModel', 'vehicleYear'];
     for (const field of requiredFields) {
       const fieldErrors = validateField(field, formData[field] as string);
       if (fieldErrors.length > 0) {
@@ -269,7 +285,9 @@ export const useQuoteFormLogic = () => {
         vehicleYear: formData.vehicleYear,
         services: formData['services'],
         message: formData['message'] ?? '',
-        location: formData.location,
+        city: formData.city,
+        state: formData.state,
+        zipCode: formData.zipCode,
         businessSlug: businessSlug || undefined
       };
 
@@ -296,7 +314,7 @@ export const useQuoteFormLogic = () => {
 
   const resetForm = useCallback(() => {
     setFormData({
-      name: '', email: '', phone: '', location: '', services: [],
+      name: '', email: '', phone: '', city: '', state: '', zipCode: '', services: [],
       vehicleType: '', vehicleMake: '', vehicleModel: '', vehicleYear: '', message: ''
     });
     setFieldErrors({});

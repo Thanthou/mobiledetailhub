@@ -80,33 +80,39 @@ const Footer: React.FC<FooterProps> = ({
       {/* Step Progress */}
       {showStepProgress && (
         <div className="mb-8">
-          <div className="flex items-center justify-center space-x-6">
+          <div className="flex items-center justify-center space-x-4">
             {stepOrder.map((step, index) => {
               const status = getStepStatus(step, index);
               const isLast = index === stepOrder.length - 1;
 
               return (
                 <div key={step} className="flex items-center">
-                  {/* Step Label */}
-                  <p
+                  {/* Step Label with Focus Ring */}
+                  <div
                     className={`
-                      text-lg font-medium
+                      px-4 py-2 rounded-lg transition-all duration-200
                       ${
-                        status === 'completed' || status === 'current'
-                          ? 'text-orange-500'
-                          : 'text-gray-400'
+                        status === 'current'
+                          ? 'ring-2 ring-orange-500 ring-offset-2 ring-offset-stone-900 bg-orange-500/10'
+                          : status === 'completed'
+                          ? 'bg-orange-500/5'
+                          : 'hover:bg-gray-800/30'
                       }
                     `}
                   >
-                    {stepLabels[step as keyof typeof stepLabels]}
-                  </p>
-
-                  {/* Connector Dot */}
-                  {!isLast && (
-                    <div className="mx-4">
-                      <div className="w-1 h-1 bg-gray-600 rounded-full" />
-                    </div>
-                  )}
+                    <p
+                      className={`
+                        text-lg font-medium
+                        ${
+                          status === 'completed' || status === 'current'
+                            ? 'text-orange-500'
+                            : 'text-gray-400'
+                        }
+                      `}
+                    >
+                      {stepLabels[step as keyof typeof stepLabels]}
+                    </p>
+                  </div>
                 </div>
               );
             })}

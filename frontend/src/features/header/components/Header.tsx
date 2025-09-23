@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getContext } from '@/shared/utils/siteContext';
+import { useSiteContext } from '@/shared/utils/siteContext';
 import { Menu, X } from 'lucide-react';
 
 import Logo from './Logo';
@@ -18,7 +18,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ locationData, employeeData }) => {
   // Get context for consistent behavior
-  const context = getContext(locationData);
+  const context = useSiteContext();
   const [activeSection, setActiveSection] = useState<string>('');
 
   // Determine which section is currently in view

@@ -1,14 +1,5 @@
 {
-    "az/bullhead-city": {
-      "city": "Bullhead City",
-      "state": "Arizona",
-      "stateCode": "AZ",
-      "employee": "jps"
-    },
-    "nv/las-vegas": {
-      "city": "Las Vegas", 
-      "state": "Nevada",
-      "stateCode": "NV",
-      "employee": "jps"
-    }
+  "states": ["AZ", "NV", "CA"],
+  "AZ": ["bullhead-city"],
+  "NV": ["las-vegas"]
   }

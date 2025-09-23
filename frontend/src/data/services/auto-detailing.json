@@ -24,7 +24,7 @@
       "subheadline": "Thorough interior and exterior detailing that restores clarity, cleanliness, and protection—setting the stage for coatings and film.",
       "ctas": [
         { "label": "Book Now", "href": "/book?service=auto-detailing" },
-        { "label": "Get Quote", "href": "/quote?service=auto-detailing" }
+        { "label": "Request Quote", "href": "/quote?service=auto-detailing" }
       ]
     },
   
@@ -162,7 +162,7 @@
       "title": "Ready to get started?",
       "description": "",
       "primary": { "label": "Book Now", "href": "/book?service=auto-detailing" },
-      "secondary": { "label": "Get Quote", "href": "/quote?service=auto-detailing" }
+      "secondary": { "label": "Request Quote", "href": "/quote?service=auto-detailing" }
     },
   
     "jsonLd": {

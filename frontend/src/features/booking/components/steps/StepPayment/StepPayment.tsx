@@ -156,25 +156,25 @@ const StepPayment: React.FC<StepPaymentProps> = ({ onPaymentComplete }) => {
         {/* Vehicle Details */}
         {(vehicleDetails?.make || vehicle) && (
           <div className="bg-gray-800/50 rounded-lg p-6">
-            <h4 className="text-lg font-semibold text-white mb-4">Selected Vehicle</h4>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <h4 className="text-xl font-semibold text-white mb-4">Selected Vehicle</h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-base">
               <div>
                 <span className="text-gray-400">Make:</span>
-                <div className="text-white font-medium">{vehicleDetails?.make || 'N/A'}</div>
+                <div className="text-white text-lg font-semibold">{vehicleDetails?.make || 'N/A'}</div>
               </div>
               <div>
                 <span className="text-gray-400">Model:</span>
-                <div className="text-white font-medium">{vehicleDetails?.model || 'N/A'}</div>
+                <div className="text-white text-lg font-semibold">{vehicleDetails?.model || 'N/A'}</div>
               </div>
               <div>
                 <span className="text-gray-400">Year:</span>
-                <div className="text-white font-medium">{vehicleDetails?.year || 'N/A'}</div>
+                <div className="text-white text-lg font-semibold">{vehicleDetails?.year || 'N/A'}</div>
               </div>
               <div>
                 <span className="text-gray-400">
                   {vehicleDetails?.color ? 'Color:' : 'Length:'}
                 </span>
-                <div className="text-white font-medium">
+                <div className="text-white text-lg font-semibold">
                   {vehicleDetails?.color ? 
                     vehicleDetails.color.charAt(0).toUpperCase() + vehicleDetails.color.slice(1) : 
                     vehicleDetails?.length || 'N/A'
@@ -356,7 +356,7 @@ const StepPayment: React.FC<StepPaymentProps> = ({ onPaymentComplete }) => {
                 )}
               </button>
               {expandedSections.cardInfo && (
-                <div className="px-4 pb-4">
+                <div className="px-4 pt-2 pb-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="md:col-span-2">
                       <input
@@ -413,7 +413,7 @@ const StepPayment: React.FC<StepPaymentProps> = ({ onPaymentComplete }) => {
                 )}
               </button>
               {expandedSections.contactInfo && (
-                <div className="px-4 pb-4">
+                <div className="px-4 pt-2 pb-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <input
@@ -452,7 +452,7 @@ const StepPayment: React.FC<StepPaymentProps> = ({ onPaymentComplete }) => {
                 )}
               </button>
               {expandedSections.billingAddress && (
-                <div className="px-4 pb-4">
+                <div className="px-4 pt-2 pb-4">
                   <div className="space-y-4">
                     <div>
                       <input
@@ -599,22 +599,22 @@ const StepPayment: React.FC<StepPaymentProps> = ({ onPaymentComplete }) => {
                   <h3 className="text-2xl font-bold text-white mb-6">Service Location</h3>
                 </div>
                 <div className="bg-gray-800/50 rounded-lg p-6">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-base">
                     <div>
                       <span className="text-gray-400">Address:</span>
-                      <div className="text-white font-medium">{bookingData.location?.address || 'N/A'}</div>
+                      <div className="text-white text-lg font-semibold">{bookingData.location?.address || 'N/A'}</div>
                     </div>
                     <div>
                       <span className="text-gray-400">City:</span>
-                      <div className="text-white font-medium">{bookingData.location?.city || 'N/A'}</div>
+                      <div className="text-white text-lg font-semibold">{bookingData.location?.city || 'N/A'}</div>
                     </div>
                     <div>
                       <span className="text-gray-400">State:</span>
-                      <div className="text-white font-medium">{bookingData.location?.state || 'N/A'}</div>
+                      <div className="text-white text-lg font-semibold">{bookingData.location?.state || 'N/A'}</div>
                     </div>
                     <div>
                       <span className="text-gray-400">ZIP:</span>
-                      <div className="text-white font-medium">{bookingData.location?.zip || 'N/A'}</div>
+                      <div className="text-white text-lg font-semibold">{bookingData.location?.zip || 'N/A'}</div>
                     </div>
                     {bookingData.location?.notes ? (
                       <div className="md:col-span-3">

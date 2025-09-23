@@ -13,6 +13,7 @@ interface GetStartedProps {
   placeholder?: string;
   className?: string;
   id?: string;
+  value?: string;
 }
 
 const GetStarted: React.FC<GetStartedProps> = ({
@@ -20,9 +21,10 @@ const GetStarted: React.FC<GetStartedProps> = ({
   placeholder = 'Enter your zip code or city',
   className = '',
   id,
+  value = '',
 }) => {
-  const [inputValue, setInputValue] = useState('');
-  const [predictions, setPredictions] = useState<Array<{ placePrediction?: { text?: { toString?: () => string }; toPlace?: () => unknown } }>>([]);
+  const [inputValue, setInputValue] = useState(value);
+  const [predictions, setPredictions] = useState<unknown[]>([]);
   const [showPredictions, setShowPredictions] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [apiLoaded, setApiLoaded] = useState(false);
@@ -40,6 +42,11 @@ const GetStarted: React.FC<GetStartedProps> = ({
   
   // Generate unique ID if none provided
   const inputId = id || `location-search-${Math.random().toString(36).substring(2, 11)}`;
+
+  // Sync internal state with value prop
+  useEffect(() => {
+    setInputValue(value);
+  }, [value]);
 
   // Load Google Places API
   useEffect(() => {

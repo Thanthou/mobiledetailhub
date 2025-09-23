@@ -39,13 +39,10 @@ const Addons: React.FC<AddonsProps> = ({ onAddonsSelected }) => {
   }
 
   const handleAddonToggle = useCallback((addonId: string) => {
-    const newSelection = addons.includes(addonId)
-      ? addons.filter(id => id !== addonId) // Remove if already selected
-      : [...addons, addonId]; // Add if not selected
-    
-    // Update Zustand store immediately
+    // Enforce single selection: selecting a new addon replaces any existing selection.
+    const newSelection = addons.includes(addonId) ? [] : [addonId];
+
     setAddons(newSelection);
-    // Call parent callback if provided
     onAddonsSelected?.(newSelection);
   }, [addons, setAddons, onAddonsSelected]);
 

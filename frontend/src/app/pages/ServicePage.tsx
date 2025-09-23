@@ -24,7 +24,7 @@ const ServicePage: React.FC<ServicePageProps> = ({ onRequestQuote }) => {
   return (
     <main className="bg-stone-900 text-white">
       <Header />
-      <ServiceHero serviceData={serviceData} />
+      <ServiceHero serviceData={serviceData} onRequestQuote={onRequestQuote} />
       <WhatItIs serviceData={serviceData} />
       <Process serviceData={serviceData} />
       <Results serviceData={serviceData} />
