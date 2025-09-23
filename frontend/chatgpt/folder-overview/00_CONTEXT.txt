@@ -85,7 +85,6 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      'shared': fileURLToPath(new URL('./src/components/shared', import.meta.url)),
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
@@ -101,7 +100,30 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: undefined,
+        manualChunks: (id) => {
+          // Vendor chunk for node_modules
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
+          
+          // Feature chunks - split by top-level feature folder
+          if (id.includes('src/features/') && /src\/features\/([^/]+)/.test(id)) {
+            const match = id.match(/src\/features\/([^/]+)/);
+            if (match) {
+              return `feature-${match[1]}`;
+            }
+          }
+          
+          // Shared UI components
+          if (id.includes('shared/ui')) {
+            return 'shared-ui';
+          }
+          
+          // Shared utilities and hooks
+          if (id.includes('shared/utils') || id.includes('shared/hooks')) {
+            return 'shared-utils';
+          }
+        },
       },
     },
   },
@@ -225,6 +247,9 @@ export default [
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-floating-promises': 'error',
       
+      // Console logging rules
+      'no-console': ['error', { 'allow': ['warn', 'error'] }],
+      
       // Import sorting and cycle detection
       'simple-import-sort/imports': ['error', {
         groups: [
@@ -244,6 +269,50 @@ export default [
       'import/no-cycle': 'error',
       'import/no-self-import': 'error',
       
+      // Import boundary rules for feature-first architecture
+      'import/no-restricted-paths': [
+        'error',
+        {
+          zones: [
+            // Features cannot import from other features directly (no exceptions)
+            {
+              target: './src/features/*/',
+              from: './src/features/*/',
+              message: 'Features cannot import from other features directly. Use shared modules or communicate via props/context.'
+            },
+            // Allow same-feature imports (components can import from hooks/state in same feature)
+            // Only block cross-feature imports
+            // Utils cannot import from components or hooks
+            {
+              target: './src/features/*/utils/',
+              from: './src/features/*/components/',
+              message: 'Utils cannot import from components. Utils should be pure functions.'
+            },
+            {
+              target: './src/features/*/utils/',
+              from: './src/features/*/hooks/',
+              message: 'Utils cannot import from hooks. Utils should be pure functions.'
+            },
+            // Types cannot import from runtime code
+            {
+              target: './src/features/*/types/',
+              from: './src/features/*/components/',
+              message: 'Types cannot import from components. Types should only contain type definitions.'
+            },
+            {
+              target: './src/features/*/types/',
+              from: './src/features/*/hooks/',
+              message: 'Types cannot import from hooks. Types should only contain type definitions.'
+            },
+            {
+              target: './src/features/*/types/',
+              from: './src/features/*/utils/',
+              message: 'Types cannot import from utils. Types should only contain type definitions.'
+            }
+          ]
+        }
+      ],
+      
       // Disable prop-types for TypeScript projects (we use interfaces instead)
       'react/prop-types': 'off',
     },
@@ -256,7 +325,7 @@ export default [
 *** FILE: src\main.tsx ***
 import { createRoot } from 'react-dom/client';
 
-import App from './App.tsx';
+import App from './app/App';
 
 import './index.css';
 

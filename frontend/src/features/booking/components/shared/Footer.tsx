@@ -58,9 +58,10 @@ const Footer: React.FC<FooterProps> = ({
   
   className = '',
 }) => {
-  const stepOrder = ['vehicle-selection', 'service-tier', 'addons', 'schedule', 'payment'];
+  const stepOrder = ['vehicle-selection', 'location', 'service-tier', 'addons', 'schedule', 'payment'];
   const stepLabels = {
     'vehicle-selection': 'Vehicle',
+    'location': 'Location',
     'service-tier': 'Service',
     'addons': 'Addons',
     'schedule': 'Schedule',
@@ -117,12 +118,22 @@ const Footer: React.FC<FooterProps> = ({
       {showNavigation && (
         <div className="flex justify-center items-center gap-4 mb-8">
           <button
-            onClick={canGoBack ? onBack : onCancel}
+            onClick={onCancel}
             disabled={isLoading}
             className="px-6 py-3 border border-gray-600 hover:border-gray-500 text-white rounded-lg transition-colors disabled:opacity-50"
           >
-            {canGoBack ? backLabel : 'Exit'}
+            Exit
           </button>
+          
+          {canGoBack && onBack && (
+            <button
+              onClick={onBack}
+              disabled={isLoading}
+              className="px-6 py-3 border border-gray-600 hover:border-gray-500 text-white rounded-lg transition-colors disabled:opacity-50"
+            >
+              Back
+            </button>
+          )}
           
           {canSkip && onSkip && (
             <button

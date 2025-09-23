@@ -3,14 +3,19 @@ import { CTAButtons } from '@/shared/ui';
 
 interface CTAProps {
   className?: string;
+  onRequestQuote?: () => void;
 }
 
 const CTA: React.FC<CTAProps> = ({ 
-  className = "" 
+  className = "",
+  onRequestQuote 
 }) => {
   return (
     <CTAButtons 
       className={className}
+      getQuoteProps={{
+        onClick: onRequestQuote
+      }}
     />
   );
 };

@@ -1,16 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { getMakesForType, getModelsForMake, getVehicleYears } from '@/data/vehicle_data';
 
 interface VehicleSelectionProps {
   selectedVehicle: string;
+  vehicleDetails: { make: string; model: string; year: string; color: string; length: string };
+  onVehicleDetailsSelect?: (details: { make: string; model: string; year: string; color: string; length: string }) => void;
 }
 
-const VehicleSelection: React.FC<VehicleSelectionProps> = ({ selectedVehicle }) => {
-  const [make, setMake] = useState('');
-  const [model, setModel] = useState('');
-  const [year, setYear] = useState('');
-  const [color, setColor] = useState('');
-  const [length, setLength] = useState('');
+const VehicleSelection: React.FC<VehicleSelectionProps> = ({ selectedVehicle, vehicleDetails, onVehicleDetailsSelect }) => {
+  const [make, setMake] = useState(vehicleDetails.make || '');
+  const [model, setModel] = useState(vehicleDetails.model || '');
+  const [year, setYear] = useState(vehicleDetails.year || '');
+  const [color, setColor] = useState(vehicleDetails.color || '');
+  const [length, setLength] = useState(vehicleDetails.length || '');
+  const lastDetailsRef = useRef<string>('');
 
   // Vehicle ID is now already the correct vehicle type name (no mapping needed)
   const vehicleTypeName = selectedVehicle;
@@ -24,18 +27,46 @@ const VehicleSelection: React.FC<VehicleSelectionProps> = ({ selectedVehicle }) 
   // Get available years
   const availableYears = getVehicleYears();
 
-  // Reset dependent fields when vehicle type or make changes
+  // Update local state when vehicleDetails prop changes
   useEffect(() => {
-    setModel('');
-  }, [selectedVehicle, make]);
+    setMake(vehicleDetails.make || '');
+    setModel(vehicleDetails.model || '');
+    setYear(vehicleDetails.year || '');
+    setColor(vehicleDetails.color || '');
+    setLength(vehicleDetails.length || '');
+  }, [vehicleDetails]);
 
-  useEffect(() => {
-    setMake('');
-    setModel('');
-    setYear('');
-    setColor('');
-    setLength('');
-  }, [selectedVehicle]);
+
+
+  // Helper function to update vehicle details
+  const updateVehicleDetails = (newMake?: string, newModel?: string, newYear?: string, newColor?: string, newLength?: string) => {
+    const currentMake = newMake !== undefined ? newMake : make;
+    const currentModel = newModel !== undefined ? newModel : model;
+    const currentYear = newYear !== undefined ? newYear : year;
+    const currentColor = newColor !== undefined ? newColor : color;
+    const currentLength = newLength !== undefined ? newLength : length;
+    
+    if (currentMake && currentModel && currentYear) {
+      const currentDetails = JSON.stringify({ 
+        make: currentMake, 
+        model: currentModel, 
+        year: currentYear, 
+        color: currentColor || '', 
+        length: currentLength || '' 
+      });
+      
+      if (currentDetails !== lastDetailsRef.current) {
+        lastDetailsRef.current = currentDetails;
+        onVehicleDetailsSelect?.({
+          make: currentMake,
+          model: currentModel,
+          year: currentYear,
+          color: currentColor || '',
+          length: currentLength || ''
+        });
+      }
+    }
+  };
 
   return (
     <div className="mb-8 absolute top-[45%] left-1/2 transform -translate-x-1/2 w-full max-w-xl">
@@ -45,7 +76,10 @@ const VehicleSelection: React.FC<VehicleSelectionProps> = ({ selectedVehicle }) 
           <label className="block text-white font-medium text-sm">Make</label>
           <select 
             value={make}
-            onChange={(e) => setMake(e.target.value)}
+            onChange={(e) => {
+              setMake(e.target.value);
+              updateVehicleDetails(e.target.value);
+            }}
             className="w-full py-3 px-1.5 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-orange-500"
             disabled={!selectedVehicle}
           >
@@ -63,7 +97,10 @@ const VehicleSelection: React.FC<VehicleSelectionProps> = ({ selectedVehicle }) 
           <label className="block text-white font-medium text-sm">Model</label>
           <select 
             value={model}
-            onChange={(e) => setModel(e.target.value)}
+            onChange={(e) => {
+              setModel(e.target.value);
+              updateVehicleDetails(undefined, e.target.value);
+            }}
             className="w-full py-3 px-1.5 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-orange-500"
             disabled={!make}
           >
@@ -81,7 +118,10 @@ const VehicleSelection: React.FC<VehicleSelectionProps> = ({ selectedVehicle }) 
           <label className="block text-white font-medium text-sm">Year</label>
           <select 
             value={year}
-            onChange={(e) => setYear(e.target.value)}
+            onChange={(e) => {
+              setYear(e.target.value);
+              updateVehicleDetails(undefined, undefined, e.target.value);
+            }}
             className="w-full py-3 px-1.5 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-orange-500"
           >
             <option value="">Select Year</option>
@@ -101,7 +141,10 @@ const VehicleSelection: React.FC<VehicleSelectionProps> = ({ selectedVehicle }) 
             <input 
               type="number"
               value={length}
-              onChange={(e) => setLength(e.target.value)}
+              onChange={(e) => {
+                setLength(e.target.value);
+                updateVehicleDetails(undefined, undefined, undefined, undefined, e.target.value);
+              }}
               placeholder="Enter length in feet"
               className="w-full py-3 px-1.5 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-orange-500"
               min="1"
@@ -114,7 +157,10 @@ const VehicleSelection: React.FC<VehicleSelectionProps> = ({ selectedVehicle }) 
             <label className="block text-white font-medium text-sm">Color</label>
             <select 
               value={color}
-              onChange={(e) => setColor(e.target.value)}
+              onChange={(e) => {
+                setColor(e.target.value);
+                updateVehicleDetails(undefined, undefined, undefined, e.target.value);
+              }}
               className="w-full py-3 px-1.5 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-orange-500"
             >
               <option value="">Select Color</option>

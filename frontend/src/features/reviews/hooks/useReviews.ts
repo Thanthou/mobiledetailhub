@@ -60,7 +60,6 @@ export const useReviews = (params: ReviewQueryParams = {}) => {
       setLoading(true);
       setError(null);
 
-      console.log('Fetching reviews with params:', { ...params, ...queryParams });
 
       // Try to fetch from API first with timeout
       try {
@@ -69,7 +68,6 @@ export const useReviews = (params: ReviewQueryParams = {}) => {
         
         const response = await reviewsApi.getReviews({ ...params, ...queryParams });
         clearTimeout(timeoutId);
-        console.log('API response:', response);
         
         if (!response.success) {
           throw new Error(response.error || 'Failed to fetch reviews');
@@ -81,7 +79,6 @@ export const useReviews = (params: ReviewQueryParams = {}) => {
         setHasFetched(true);
         return;
       } catch (apiError) {
-        console.warn('API call failed, using mock data:', apiError);
         
         // Fallback to mock data for now
         const mockReviews: DatabaseReview[] = [
@@ -171,7 +168,6 @@ export const useReviews = (params: ReviewQueryParams = {}) => {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An error occurred while fetching reviews';
       setError(errorMessage);
-      console.error('Error fetching reviews:', err);
     } finally {
       setLoading(false);
     }

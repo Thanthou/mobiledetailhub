@@ -1,5 +1,5 @@
 import React from 'react';
-import { useBookingStore } from '@/features/booking/state';
+import { useBookingVehicle } from '@/features/booking/state';
 import DetailsModal from '../../shared/DetailsModal';
 
 interface ServiceTier {
@@ -23,14 +23,14 @@ const ServiceDetailsModal: React.FC<ServiceDetailsModalProps> = ({
   isOpen,
   onClose
 }) => {
-  const { bookingData } = useBookingStore();
+  const { vehicle } = useBookingVehicle();
 
   return (
     <DetailsModal
       item={service}
       isOpen={isOpen}
       onClose={onClose}
-      vehicleType={bookingData.vehicle}
+      vehicleType={vehicle}
       itemType="service"
     />
   );

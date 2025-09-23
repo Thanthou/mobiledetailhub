@@ -1,20 +1,36 @@
 import { create } from 'zustand';
-import { devtools } from 'zustand/middleware';
+import { devtools, subscribeWithSelector } from 'zustand/middleware';
+import { useMemo } from 'react';
 import { BookingState, BookingActions, BookingData, BookingStep } from './types';
 
 const initialBookingData: BookingData = {
   vehicle: '',
+  vehicleDetails: {
+    make: '',
+    model: '',
+    year: '',
+    color: '',
+    length: ''
+  },
+  location: {
+    address: '',
+    city: '',
+    state: '',
+    zip: '',
+    notes: ''
+  },
   serviceTier: '',
   addons: [],
   schedule: { date: '', time: '' },
   paymentMethod: ''
 };
 
-const stepOrder: BookingStep[] = ['vehicle-selection', 'service-tier', 'addons', 'schedule', 'payment'];
+const stepOrder: BookingStep[] = ['vehicle-selection', 'location', 'service-tier', 'addons', 'schedule', 'payment'];
 
 export const useBookingStore = create<BookingState & BookingActions>()(
-  devtools(
-    (set, get) => ({
+  subscribeWithSelector(
+    devtools(
+      (set, get) => ({
       // Initial state
       currentStep: 'vehicle-selection',
       bookingData: initialBookingData,
@@ -27,61 +43,65 @@ export const useBookingStore = create<BookingState & BookingActions>()(
         const currentIndex = stepOrder.indexOf(step);
         const completedSteps = stepOrder.slice(0, currentIndex);
         
-        set({
-          currentStep: step,
-          completedSteps,
-          errors: [] // Clear errors when changing steps
-        });
-        
-        console.log('🔄 Step changed to:', step);
+            set({
+              currentStep: step,
+              completedSteps,
+              errors: [] // Clear errors when changing steps
+            });
       },
 
       updateBookingData: (data) => {
         set((state) => ({
           bookingData: { ...state.bookingData, ...data }
         }));
-        
-        console.log('📊 Booking data updated:', data);
       },
 
       setVehicle: (vehicle) => {
         set((state) => ({
           bookingData: { ...state.bookingData, vehicle }
         }));
-        
-        console.log('🚗 Vehicle selected:', vehicle);
+      },
+
+      setVehicleDetails: (details) => {
+        set((state) => ({
+          bookingData: {
+            ...state.bookingData,
+            vehicleDetails: { ...state.bookingData.vehicleDetails, ...details }
+          }
+        }));
+      },
+
+      setLocation: (location) => {
+        set((state) => ({
+          bookingData: {
+            ...state.bookingData,
+            location: { ...state.bookingData.location, ...location }
+          }
+        }));
       },
 
       setServiceTier: (tier) => {
         set((state) => ({
           bookingData: { ...state.bookingData, serviceTier: tier }
         }));
-        
-        console.log('🎯 Service tier selected:', tier);
       },
 
       setAddons: (addons) => {
         set((state) => ({
           bookingData: { ...state.bookingData, addons }
         }));
-        
-        console.log('➕ Addons selected:', addons);
       },
 
       setSchedule: (schedule) => {
         set((state) => ({
           bookingData: { ...state.bookingData, schedule }
         }));
-        
-        console.log('📅 Schedule selected:', schedule);
       },
 
       setPaymentMethod: (method) => {
         set((state) => ({
           bookingData: { ...state.bookingData, paymentMethod: method }
         }));
-        
-        console.log('💳 Payment method selected:', method);
       },
 
       nextStep: () => {
@@ -91,12 +111,18 @@ export const useBookingStore = create<BookingState & BookingActions>()(
         if (currentIndex < stepOrder.length - 1) {
           const nextStep = stepOrder[currentIndex + 1];
           if (nextStep) {
-            get().setCurrentStep(nextStep);
-            console.log('🔄 Moving to next step:', nextStep);
-          }
-        } else {
-          console.log('🎉 Booking completed!');
-        }
+            // Direct state update instead of calling setCurrentStep to avoid circular dependency
+                  set(() => {
+                    const newIndex = stepOrder.indexOf(nextStep);
+                    const completedSteps = stepOrder.slice(0, newIndex);
+                    return {
+                      currentStep: nextStep,
+                      completedSteps,
+                      errors: [] // Clear errors when changing steps
+                    };
+                  });
+                }
+              }
       },
 
       previousStep: () => {
@@ -106,9 +132,17 @@ export const useBookingStore = create<BookingState & BookingActions>()(
         if (currentIndex > 0) {
           const prevStep = stepOrder[currentIndex - 1];
           if (prevStep) {
-            get().setCurrentStep(prevStep);
-            console.log('🔄 Moving to previous step:', prevStep);
-          }
+            // Direct state update instead of calling setCurrentStep to avoid circular dependency
+                  set(() => {
+                    const newIndex = stepOrder.indexOf(prevStep);
+                    const completedSteps = stepOrder.slice(0, newIndex);
+                    return {
+                      currentStep: prevStep,
+                      completedSteps,
+                      errors: [] // Clear errors when changing steps
+                    };
+                  });
+                }
         }
       },
 
@@ -120,8 +154,6 @@ export const useBookingStore = create<BookingState & BookingActions>()(
           isLoading: false,
           errors: []
         });
-        
-        console.log('🔄 Booking reset');
       },
 
       setLoading: (loading) => {
@@ -141,9 +173,121 @@ export const useBookingStore = create<BookingState & BookingActions>()(
       clearErrors: () => {
         set({ errors: [] });
       }
-    }),
-    {
-      name: 'booking-store', // Unique name for devtools
-    }
+      }),
+      {
+        name: 'booking-store', // Unique name for devtools
+      }
+    )
   )
 );
+
+// Narrow selectors for better performance
+export const useBookingStep = () => {
+  const currentStep = useBookingStore((state) => state.currentStep);
+  const completedSteps = useBookingStore((state) => state.completedSteps);
+  const nextStep = useBookingStore((state) => state.nextStep);
+  const previousStep = useBookingStore((state) => state.previousStep);
+  const setCurrentStep = useBookingStore((state) => state.setCurrentStep);
+  
+  return useMemo(() => ({
+    currentStep,
+    completedSteps,
+    nextStep,
+    previousStep,
+    setCurrentStep
+  }), [currentStep, completedSteps, nextStep, previousStep, setCurrentStep]);
+};
+
+export const useBookingData = () => {
+  const bookingData = useBookingStore((state) => state.bookingData);
+  const setVehicle = useBookingStore((state) => state.setVehicle);
+  const setVehicleDetails = useBookingStore((state) => state.setVehicleDetails);
+  const setLocation = useBookingStore((state) => state.setLocation);
+  const setServiceTier = useBookingStore((state) => state.setServiceTier);
+  const setAddons = useBookingStore((state) => state.setAddons);
+  const setSchedule = useBookingStore((state) => state.setSchedule);
+  const setPaymentMethod = useBookingStore((state) => state.setPaymentMethod);
+  
+  return useMemo(() => ({
+    bookingData,
+    setVehicle,
+    setVehicleDetails,
+    setLocation,
+    setServiceTier,
+    setAddons,
+    setSchedule,
+    setPaymentMethod
+  }), [bookingData, setVehicle, setVehicleDetails, setLocation, setServiceTier, setAddons, setSchedule, setPaymentMethod]);
+};
+
+export const useBookingVehicle = () => {
+  const vehicle = useBookingStore((state) => state.bookingData.vehicle);
+  const vehicleDetails = useBookingStore((state) => state.bookingData.vehicleDetails);
+  const setVehicle = useBookingStore((state) => state.setVehicle);
+  const setVehicleDetails = useBookingStore((state) => state.setVehicleDetails);
+  
+  return useMemo(() => ({
+    vehicle,
+    vehicleDetails,
+    setVehicle,
+    setVehicleDetails
+  }), [vehicle, vehicleDetails, setVehicle, setVehicleDetails]);
+};
+
+export const useBookingService = () => {
+  const serviceTier = useBookingStore((state) => state.bookingData.serviceTier);
+  const setServiceTier = useBookingStore((state) => state.setServiceTier);
+  
+  return useMemo(() => ({
+    serviceTier,
+    setServiceTier
+  }), [serviceTier, setServiceTier]);
+};
+
+export const useBookingAddons = () => {
+  const addons = useBookingStore((state) => state.bookingData.addons);
+  const setAddons = useBookingStore((state) => state.setAddons);
+  
+  return useMemo(() => ({
+    addons,
+    setAddons
+  }), [addons, setAddons]);
+};
+
+export const useBookingSchedule = () => {
+  const schedule = useBookingStore((state) => state.bookingData.schedule);
+  const setSchedule = useBookingStore((state) => state.setSchedule);
+  
+  return useMemo(() => ({
+    schedule,
+    setSchedule
+  }), [schedule, setSchedule]);
+};
+
+export const useBookingPayment = () => {
+  const paymentMethod = useBookingStore((state) => state.bookingData.paymentMethod);
+  const setPaymentMethod = useBookingStore((state) => state.setPaymentMethod);
+  
+  return useMemo(() => ({
+    paymentMethod,
+    setPaymentMethod
+  }), [paymentMethod, setPaymentMethod]);
+};
+
+export const useBookingErrors = () => {
+  const errors = useBookingStore((state) => state.errors);
+  const isLoading = useBookingStore((state) => state.isLoading);
+  const setErrors = useBookingStore((state) => state.setErrors);
+  const addError = useBookingStore((state) => state.addError);
+  const clearErrors = useBookingStore((state) => state.clearErrors);
+  const setLoading = useBookingStore((state) => state.setLoading);
+  
+  return useMemo(() => ({
+    errors,
+    isLoading,
+    setErrors,
+    addError,
+    clearErrors,
+    setLoading
+  }), [errors, isLoading, setErrors, addError, clearErrors, setLoading]);
+};

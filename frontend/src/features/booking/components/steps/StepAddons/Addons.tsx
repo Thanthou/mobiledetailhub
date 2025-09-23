@@ -1,157 +1,55 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { CheckCircle } from 'lucide-react';
-import { useBookingStore } from '@/features/booking/state';
-import { getCardDescription } from '@/features/booking/utils/displayUtils';
+import { useBookingAddons, useBookingVehicle } from '@/features/booking/state';
+import { useAddons, type AddonItem } from '@/features/booking/hooks';
 import { Carousel } from '@/shared/ui';
 import AddonDetailsModal from './AddonDetailsModal';
-import Header from './Header';
 import Tabs from './Tabs';
-
-interface AddonItem {
-  id: string;
-  name: string;
-  price: number;
-  description: string;
-  features: string[];
-  featureIds: string[];
-  popular?: boolean;
-}
 
 interface AddonsProps {
   onAddonsSelected?: (addons: string[]) => void;
 }
 
+interface CarouselAddonItem extends AddonItem {
+  position: 'center' | 'left' | 'right';
+}
+
 const Addons: React.FC<AddonsProps> = ({ onAddonsSelected }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('windows');
-  const [availableAddons, setAvailableAddons] = useState<AddonItem[]>([]);
-  const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
   const [modalAddon, setModalAddon] = useState<AddonItem | null>(null);
-  const { bookingData, setAddons } = useBookingStore();
+  // Get data from narrow selectors
+  const { vehicle } = useBookingVehicle();
+  const { addons, setAddons } = useBookingAddons();
 
-  console.log('🔍 Addons component render:', { selectedCategory, vehicle: bookingData.vehicle });
+  // Use the data hook for addons
+  const { availableAddons, isLoading, error } = useAddons(
+    vehicle || '', 
+    selectedCategory
+  );
 
-  // Load addons based on vehicle type and category
-  useEffect(() => {
-    console.log('🔍 useEffect triggered:', { selectedCategory, vehicle: bookingData.vehicle });
-    if (selectedCategory && bookingData.vehicle) {
-      console.log('🔍 Calling loadAddonsForCategory');
-      loadAddonsForCategory(bookingData.vehicle, selectedCategory);
-    } else {
-      console.log('🔍 Missing required data:', { selectedCategory, vehicle: bookingData.vehicle });
-    }
-  }, [selectedCategory, bookingData.vehicle]);
+  // Guard against missing vehicle selection
+  if (!vehicle) {
+    return (
+      <div className="w-full max-w-4xl mx-auto">
+        <div className="text-center py-8">
+          <p className="text-white text-lg">Please select a vehicle first.</p>
+        </div>
+      </div>
+    );
+  }
 
-  const loadAddonsForCategory = async (vehicleType: string, category: string) => {
-    try {
-      console.log('🔍 Loading addons for:', { vehicleType, category });
-      
-      const vehicleFolderMap: Record<string, string> = {
-        'car': 'cars',
-        'truck': 'trucks',
-        'suv': 'suvs',
-        'boat': 'boats',
-        'rv': 'rvs'
-      };
-
-      const folderName = vehicleFolderMap[vehicleType];
-      console.log('🔍 Mapped folder name:', folderName);
-      
-      if (!folderName) {
-        console.log('❌ No folder mapping found for vehicle type:', vehicleType);
-        setAvailableAddons([]);
-        return;
-      }
-
-      // Try to load service.json first (for windows), then fall back to category-specific files
-      let processedAddons: AddonItem[] = [];
-      
-      try {
-        // Try to load service.json (windows structure)
-        const addonsData = await import(`@/data/affiliate-services/${folderName}/addons/${category}/service.json`);
-        const featuresData = await import(`@/data/affiliate-services/${folderName}/addons/${category}/features.json`);
-        
-        console.log('🔍 Raw addons data (service.json):', addonsData.default);
-        console.log('🔍 Raw features data:', featuresData.default);
-        
-        // Process addons object (windows data structure)
-        processedAddons = Object.entries(addonsData.default).map(([name, addon]: [string, any]) => {
-          const featureNames = addon.features.map((featureId: string) => getFeatureName(featureId, featuresData.default));
-          console.log('🔍 Processing addon:', name, 'features:', addon.features, 'featureNames:', featureNames);
-          
-          // Use description from addon data, with fallback to feature names
-          const description = getCardDescription(addon, addon.features, featuresData.default);
-          
-          return {
-            id: name.toLowerCase().replace(/\s+/g, '-'),
-            name: name,
-            price: addon.cost || 0,
-            description: description,
-            features: featureNames,
-            featureIds: addon.features || [],
-            popular: addon.popular || false
-          };
-        });
-      } catch (serviceError) {
-        console.log('🔍 No service.json found, trying category-specific file');
-        
-        try {
-          // Try to load category-specific file (wheels.json, trim.json, etc.)
-          const categoryData = await import(`@/data/affiliate-services/${folderName}/addons/${category}/${category}.json`);
-          
-          console.log('🔍 Raw category data:', categoryData.default);
-          
-          // Convert features object to addon array format
-          const features = Object.keys(categoryData.default);
-          processedAddons = features.map((featureKey: string, index: number) => {
-            const feature = categoryData.default[featureKey];
-            return {
-              id: featureKey,
-              name: feature.name,
-              price: 0, // No pricing in features-only files
-              description: feature.description || getCardDescription(feature, [featureKey], {}),
-              features: [feature.name], // Use the feature name as the single feature
-              featureIds: [featureKey],
-              popular: index === 0 // Make first item popular
-            };
-          });
-        } catch (categoryError) {
-          console.log('🔍 No category-specific file found, no addons available');
-          processedAddons = [];
-        }
-      }
-      
-      setAvailableAddons(processedAddons);
-      console.log(`📊 Loaded ${category} addons for ${vehicleType}:`, processedAddons);
-      
-      // Carousel will automatically center on popular item
-    } catch (error) {
-      console.error(`❌ Error loading ${category} addons for ${vehicleType}:`, error);
-      setAvailableAddons([]);
-    }
-  };
-
-    // Helper function to get feature name from feature ID
-    const getFeatureName = (featureId: string, featuresData: any): string => {
-      return featuresData[featureId]?.name || featureId;
-    };
-
-
-  const handleAddonToggle = (addonId: string) => {
-    setSelectedAddons(prev => {
-      const newSelection = prev.includes(addonId)
-        ? prev.filter(id => id !== addonId) // Remove if already selected
-        : [...prev, addonId]; // Add if not selected
-      
-      // Update Zustand store
-      setAddons(newSelection);
-      // Call parent callback if provided
-      onAddonsSelected?.(newSelection);
-      return newSelection;
-    });
-  };
+  const handleAddonToggle = useCallback((addonId: string) => {
+    const newSelection = addons.includes(addonId)
+      ? addons.filter(id => id !== addonId) // Remove if already selected
+      : [...addons, addonId]; // Add if not selected
+    
+    // Update Zustand store immediately
+    setAddons(newSelection);
+    // Call parent callback if provided
+    onAddonsSelected?.(newSelection);
+  }, [addons, setAddons, onAddonsSelected]);
 
   const handleCategorySelect = (categoryId: string) => {
-    console.log('🔍 Tab clicked:', categoryId);
     setSelectedCategory(categoryId);
   };
 
@@ -163,8 +61,8 @@ const Addons: React.FC<AddonsProps> = ({ onAddonsSelected }) => {
     setModalAddon(null);
   };
 
-  const renderAddonCard = (addon: AddonItem & { position: 'center' | 'left' | 'right' }, _isSelected: boolean) => {
-    const isAddonSelected = selectedAddons.includes(addon.id);
+      const renderAddonCard = (addon: CarouselAddonItem, _isSelected: boolean) => {
+        const isAddonSelected = addons.includes(addon.id);
     
     return (
       <div
@@ -199,19 +97,16 @@ const Addons: React.FC<AddonsProps> = ({ onAddonsSelected }) => {
           <p className="text-stone-300 text-base mb-5">{addon.description}</p>
           
           {/* Features List */}
-          {(() => {
-            console.log('🔍 Rendering addon card for:', addon.name, 'features:', addon.features);
-            return addon.features && addon.features.length > 0 ? (
-              <div className="space-y-3">
-                {addon.features.map((feature: string, index: number) => (
-                  <div key={index} className="flex items-center text-base text-stone-300">
-                    <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-                    <span className="truncate">{feature}</span>
-                  </div>
-                ))}
-              </div>
-            ) : null;
-          })()}
+          {addon.features && addon.features.length > 0 ? (
+            <div className="space-y-3">
+              {addon.features.map((feature: string, index: number) => (
+                <div key={index} className="flex items-center text-base text-stone-300">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                  <span className="truncate">{feature}</span>
+                </div>
+              ))}
+            </div>
+          ) : null}
         </div>
 
         {/* Selection Button */}
@@ -233,14 +128,35 @@ const Addons: React.FC<AddonsProps> = ({ onAddonsSelected }) => {
     );
   };
 
+  if (isLoading) {
+    return (
+      <div className="w-full max-w-4xl mx-auto">
+        <div className="text-center py-8">
+          <p className="text-white">Loading addons...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="w-full max-w-4xl mx-auto">
+        <div className="text-center py-8">
+          <p className="text-red-500">Error loading addons: {error}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      <Header />
+    <div className="w-full max-w-6xl mx-auto relative">
+      {/* Category Tabs - Positioned between header and cards */}
       <Tabs 
         selectedCategory={selectedCategory}
         onCategorySelect={handleCategorySelect}
       />
       
+      {/* Addon Carousel */}
       <Carousel
         items={availableAddons}
         selectedItem=""
@@ -256,7 +172,7 @@ const Addons: React.FC<AddonsProps> = ({ onAddonsSelected }) => {
           addon={modalAddon}
           isOpen={!!modalAddon}
           onClose={handleCloseModal}
-          vehicleType={bookingData.vehicle}
+          vehicleType={vehicle}
           category={selectedCategory}
         />
       )}

@@ -30,7 +30,7 @@ class ErrorMonitor {
   private maxErrors = 1000; // Keep last 1000 errors
   private sessionId: string;
   private userId?: string;
-  private isEnabled = true;
+  private isEnabled = false; // Disabled to see actual console errors
   private listeners: ((error: ErrorEvent) => void)[] = [];
 
   constructor() {

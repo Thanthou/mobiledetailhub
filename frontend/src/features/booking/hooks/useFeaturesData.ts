@@ -107,7 +107,6 @@ export const useFeaturesData = ({ isOpen, vehicleType, category, itemType }: Use
         }
       }
     } catch (error) {
-      console.error(`❌ Error loading features for ${vehicleType}/${category || 'service'}:`, error);
     }
   };
 

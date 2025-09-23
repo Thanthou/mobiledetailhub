@@ -24,7 +24,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   isSelected,
   onSelect,
   onCardClick
-}) => {
+  }) => {
   const getPositionClasses = () => {
     const baseClasses = "bg-stone-800/80 backdrop-blur-sm rounded-xl p-8 text-center transition-all duration-300 transform cursor-pointer w-[416px] flex-shrink-0";
     

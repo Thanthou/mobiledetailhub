@@ -7,7 +7,11 @@ import { FAQ } from '@/features/faq';
 import { Gallery } from '@/features/gallery';
 import { useSiteContext } from '@/shared/hooks';
 
-const HomePage: React.FC = () => {
+interface HomePageProps {
+  onRequestQuote?: () => void;
+}
+
+const HomePage: React.FC<HomePageProps> = ({ onRequestQuote }) => {
   const context = useSiteContext();
 
   return (
@@ -16,7 +20,10 @@ const HomePage: React.FC = () => {
         locationData={context.locationData} 
         employeeData={context.employeeData} 
       />
-      <Hero locationData={context.locationData} />
+      <Hero 
+        locationData={context.locationData} 
+        {...(onRequestQuote && { onRequestQuote })}
+      />
       
       <ServicesGrid />
       
@@ -24,7 +31,7 @@ const HomePage: React.FC = () => {
       
       <FAQ />
       
-      <Gallery onRequestQuote={() => console.log('Request Quote clicked')} />
+      <Gallery {...(onRequestQuote && { onRequestQuote })} />
     </div>
   );
 };

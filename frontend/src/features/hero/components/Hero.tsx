@@ -5,9 +5,10 @@ import { useHeroContent } from '@/features/hero/hooks/useHeroContent';
 
 interface HeroProps {
   locationData?: any; // Keep for backward compatibility but not used
+  onRequestQuote?: () => void;
 }
 
-const Hero: React.FC<HeroProps> = () => {
+const Hero: React.FC<HeroProps> = ({ onRequestQuote }) => {
   const { title, subtitle, isLocation, locationName } = useHeroContent();
 
   return (
@@ -20,6 +21,7 @@ const Hero: React.FC<HeroProps> = () => {
           subtitle={subtitle} 
           isLocation={isLocation}
           locationName={locationName}
+          onRequestQuote={onRequestQuote}
           className="h-full"
         />
       </main>

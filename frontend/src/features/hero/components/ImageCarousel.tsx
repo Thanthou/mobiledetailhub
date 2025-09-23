@@ -1,6 +1,7 @@
 import React from 'react';
 import siteData from '@/data/mdh/site.json';
-import { useImageRotation, getVisibleImageIndices, getImageOpacityClasses, getTransitionStyles } from '@/shared/utils';
+import { useImageRotation } from '@/shared/hooks';
+import { getVisibleImageIndices, getImageOpacityClasses, getTransitionStyles } from '@/shared/utils';
 
 interface ImageCarouselProps {
   autoRotate?: boolean;

@@ -2,8 +2,9 @@ import React from 'react';
 
 const Header: React.FC = () => {
   return (
-    <div className="text-center mb-12 absolute top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full">
-      <h1 className="text-6xl font-bold text-white mb-6">Service Selection</h1>
+    <div className="text-center mb-8">
+      <h2 className="text-3xl font-bold text-white mb-4">Choose Your Service</h2>
+      <p className="text-gray-300">Select the service tier that best fits your needs</p>
     </div>
   );
 };

@@ -8,7 +8,6 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      'shared': fileURLToPath(new URL('./src/components/shared', import.meta.url)),
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
@@ -24,7 +23,30 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: undefined,
+        manualChunks: (id) => {
+          // Vendor chunk for node_modules
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
+          
+          // Feature chunks - split by top-level feature folder
+          if (id.includes('src/features/') && /src\/features\/([^/]+)/.test(id)) {
+            const match = id.match(/src\/features\/([^/]+)/);
+            if (match) {
+              return `feature-${match[1]}`;
+            }
+          }
+          
+          // Shared UI components
+          if (id.includes('shared/ui')) {
+            return 'shared-ui';
+          }
+          
+          // Shared utilities and hooks
+          if (id.includes('shared/utils') || id.includes('shared/hooks')) {
+            return 'shared-utils';
+          }
+        },
       },
     },
   },

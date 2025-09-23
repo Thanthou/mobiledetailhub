@@ -88,6 +88,9 @@ export default [
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-floating-promises': 'error',
       
+      // Console logging rules
+      'no-console': ['error', { 'allow': ['warn', 'error'] }],
+      
       // Import sorting and cycle detection
       'simple-import-sort/imports': ['error', {
         groups: [
@@ -106,6 +109,50 @@ export default [
       'simple-import-sort/exports': 'error',
       'import/no-cycle': 'error',
       'import/no-self-import': 'error',
+      
+      // Import boundary rules for feature-first architecture
+      'import/no-restricted-paths': [
+        'error',
+        {
+          zones: [
+            // Features cannot import from other features directly (no exceptions)
+            {
+              target: './src/features/*/',
+              from: './src/features/*/',
+              message: 'Features cannot import from other features directly. Use shared modules or communicate via props/context.'
+            },
+            // Allow same-feature imports (components can import from hooks/state in same feature)
+            // Only block cross-feature imports
+            // Utils cannot import from components or hooks
+            {
+              target: './src/features/*/utils/',
+              from: './src/features/*/components/',
+              message: 'Utils cannot import from components. Utils should be pure functions.'
+            },
+            {
+              target: './src/features/*/utils/',
+              from: './src/features/*/hooks/',
+              message: 'Utils cannot import from hooks. Utils should be pure functions.'
+            },
+            // Types cannot import from runtime code
+            {
+              target: './src/features/*/types/',
+              from: './src/features/*/components/',
+              message: 'Types cannot import from components. Types should only contain type definitions.'
+            },
+            {
+              target: './src/features/*/types/',
+              from: './src/features/*/hooks/',
+              message: 'Types cannot import from hooks. Types should only contain type definitions.'
+            },
+            {
+              target: './src/features/*/types/',
+              from: './src/features/*/utils/',
+              message: 'Types cannot import from utils. Types should only contain type definitions.'
+            }
+          ]
+        }
+      ],
       
       // Disable prop-types for TypeScript projects (we use interfaces instead)
       'react/prop-types': 'off',

@@ -122,10 +122,7 @@ export {
   getAccessibilityAttributes
 } from './imageRotation';
 
-export {
-  type UseImageRotationReturn,
-  useImageRotation,
-  useImageRotationHover
-} from './useImageRotation';
+// Image rotation hooks moved to @/shared/hooks
 
-export { default as ImageCarousel } from './ImageCarousel';
+// Logger utility
+export { default as logger } from './logger';

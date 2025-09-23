@@ -4,9 +4,10 @@ import { ServiceData } from '@/features/services/types/service.types';
 
 interface ServiceCTAProps {
   serviceData: ServiceData;
+  onRequestQuote?: () => void;
 }
 
-const ServiceCTA: React.FC<ServiceCTAProps> = ({ serviceData }) => {
+const ServiceCTA: React.FC<ServiceCTAProps> = ({ serviceData, onRequestQuote }) => {
   return (
     <section className="bg-stone-900 py-16">
       <div className="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
@@ -26,7 +27,8 @@ const ServiceCTA: React.FC<ServiceCTAProps> = ({ serviceData }) => {
           }}
           getQuoteProps={{
             children: serviceData.cta?.secondary?.label || serviceData.hero?.ctas?.[1]?.label || "Get Quote",
-            variant: "outline-white"
+            variant: "outline-white",
+            onClick: onRequestQuote
           }}
         />
       </div>

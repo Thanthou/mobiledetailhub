@@ -3,14 +3,14 @@
 ## Summary
 ```json
 {
-  "generated": "2025-09-18T22:25:15.127Z",
+  "generated": "2025-09-22T21:20:00.175Z",
   "projectRoot": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\frontend",
-  "targetFolder": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\frontend\\src\\features\\services",
+  "targetFolder": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\frontend\\src\\features\\booking",
   "counts": {
-    "totalFilesInTarget": 13,
+    "totalFilesInTarget": 44,
     "byExtension": {
-      ".tsx": 9,
-      ".ts": 4
+      ".ts": 20,
+      ".tsx": 24
     }
   },
   "bundles": {
@@ -79,6 +79,7 @@ frontend/
       customers/
       faq/
       footer/
+      gallery/
       header/
       hero/
       locations/
@@ -92,6 +93,7 @@ frontend/
     shared/
       api/
       components/
+      constants/
       contexts/
       data
       env.ts
@@ -121,21 +123,62 @@ frontend/
 
 ## Target Folder (full tree)
 ```
-services/
+booking/
+  BookingApp.tsx
+  __tests__/
+    displayUtils.test.ts
+    useAddons.test.ts
+    useServiceTiers.test.ts
+    vehicleMapping.test.ts
   components/
-    BeforeAfterSlider.tsx
-    Process.tsx
-    ProtectionComparisonChart.tsx
-    Results.tsx
-    ServiceCTA.tsx
-    ServiceCard.tsx
-    ServiceHero.tsx
-    ServicesGrid.tsx
-    WhatItIs.tsx
+    BookingFlowController.tsx
+    BookingLayout.tsx
+    BookingPage.tsx
+    BookingSteps.tsx
+    index.ts
+    shared/
+      DetailsModal.tsx
+      Footer.tsx
+      HeroBackground.tsx
+      index.ts
+    steps/
+      StepAddons/
+        AddonDetailsModal.tsx
+        Addons.tsx
+        Header.tsx
+        StepAddons.tsx
+        Tabs.tsx
+      StepPayment/
+        StepPayment.tsx
+      StepSchedule/
+        StepSchedule.tsx
+      StepService/
+        Header.tsx
+        ServiceCard.tsx
+        ServiceCarousel.tsx
+        ServiceDetailsModal.tsx
+        StepService.tsx
+      StepVehicleSelection/
+        Header.tsx
+        StepVehicleSelection.tsx
+        Tabs.tsx
+        VehicleType.tsx
+      index.ts
+  constants/
+    hero.ts
   hooks/
-    useServicePage.ts
-    useServices.ts
+    index.ts
+    useAddons.ts
+    useFeaturesData.ts
+    usePaymentMethods.ts
+    useScheduleOptions.ts
+    useServiceTiers.ts
+    useVehicleData.ts
   index.ts
-  types/
-    service.types.ts
+  state/
+    bookingStore.ts
+    index.ts
+    types.ts
+  utils/
+    displayUtils.ts
 ```

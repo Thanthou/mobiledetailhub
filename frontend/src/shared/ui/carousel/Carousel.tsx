@@ -33,15 +33,14 @@ const Carousel = <T extends CarouselItem>({
   containerTop = "top-[36.5%]"
 }: CarouselProps<T>) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  
 
   // Update index when items load to show most popular item in center
   useEffect(() => {
     if (items.length > 0) {
-      console.log('🎯 Items loaded:', items.map(item => ({ name: item.name, popular: item.popular })));
       const popularIndex = items.findIndex(item => item.popular);
       const initialIndex = popularIndex !== -1 ? popularIndex : 0;
       setCurrentIndex(initialIndex);
-      console.log('🎯 Setting initial carousel index to:', initialIndex, 'for popular item');
     }
   }, [items]);
 

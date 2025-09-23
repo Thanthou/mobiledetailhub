@@ -30,3 +30,6 @@ export { default as LocationEditModal } from './modals/LocationEditModal';
 export { default as LocationSearchBar } from './navigation/LocationSearchBar';
 export { default as NotFoundPage } from './layout/NotFoundPage';
 export { default as ProtectedRoute } from './layout/ProtectedRoute';
+
+// Image Carousel
+export { default as ImageCarousel } from './ImageCarousel';

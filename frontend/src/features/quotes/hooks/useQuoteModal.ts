@@ -42,9 +42,9 @@ export const useQuoteModal = ({ isOpen, onClose }: RequestQuoteModalProps) => {
   }, [isOpen]);
 
   const handleClose = useCallback(() => {
-    if (isAnimating) return; // Prevent double-closing during animation
+    // Close immediately; parent controls visibility. Do not block while opening.
     onClose();
-  }, [onClose, isAnimating]);
+  }, [onClose]);
 
   const handleBackdropClick = useCallback((e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {

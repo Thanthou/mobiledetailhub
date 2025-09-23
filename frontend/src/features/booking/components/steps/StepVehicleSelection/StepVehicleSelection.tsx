@@ -1,28 +1,40 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Header from './Header';
 import Tabs from './Tabs';
 import VehicleSelection from './VehicleType';
+import { useBookingVehicle } from '@/features/booking/state';
 
 interface StepVehicleSelectionProps {
   onVehicleSelected?: (vehicle: string) => void;
+  onVehicleDetailsSelected?: (details: { make: string; model: string; year: string; color: string; length: string }) => void;
 }
 
-const StepVehicleSelection: React.FC<StepVehicleSelectionProps> = ({ onVehicleSelected }) => {
-  const [selectedVehicle, setSelectedVehicle] = useState<string>('');
+const StepVehicleSelection: React.FC<StepVehicleSelectionProps> = ({ onVehicleSelected, onVehicleDetailsSelected }) => {
+  // Get vehicle data from narrow selector
+  const { vehicle, vehicleDetails, setVehicle, setVehicleDetails } = useBookingVehicle();
+  const selectedVehicle = vehicle;
 
   const handleVehicleSelect = (vehicleId: string) => {
-    setSelectedVehicle(vehicleId);
+    setVehicle(vehicleId);
     onVehicleSelected?.(vehicleId);
+  };
+
+  const handleVehicleDetailsSelect = (details: { make: string; model: string; year: string; color: string; length: string }) => {
+    setVehicleDetails(details);
+    onVehicleDetailsSelected?.(details);
   };
 
   return (
     <div className="w-full max-w-4xl mx-auto">
-      <Header />
       <Tabs 
         selectedVehicle={selectedVehicle}
         onVehicleSelect={handleVehicleSelect}
       />
-      <VehicleSelection selectedVehicle={selectedVehicle} />
+      <VehicleSelection
+        selectedVehicle={selectedVehicle}
+        vehicleDetails={vehicleDetails}
+        onVehicleDetailsSelect={handleVehicleDetailsSelect}
+      />
     </div>
   );
 };

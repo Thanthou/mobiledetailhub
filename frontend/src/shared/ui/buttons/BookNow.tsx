@@ -37,13 +37,9 @@ const BookNow = React.forwardRef<HTMLButtonElement, BookNowProps>(
     const getDestination = () => {
       if (to) return to; // Use custom destination if provided
       
-      if (context.isLocation) {
-        // Location site: Go directly to booking
-        return '/booking';
-      } else {
-        // Main site: Go to city selection first
-        return '/locations';
-      }
+      // Always go directly to booking for now
+      // TODO: Add location selection page if needed
+      return '/booking';
     };
 
     const buttonProps = {

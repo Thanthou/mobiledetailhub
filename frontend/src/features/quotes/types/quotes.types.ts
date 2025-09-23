@@ -95,6 +95,8 @@ export interface QuoteFormData {
   vehicleMake: string;
   vehicleModel: string;
   vehicleYear: string;
+  vehicleColor?: string;
+  vehicleLength?: string;
   message?: string;
 }
 

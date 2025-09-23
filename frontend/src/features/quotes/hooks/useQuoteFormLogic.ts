@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { useAffiliate } from '@/features/affiliateDashboard/hooks';
+// import { useAffiliate } from '@/features/affiliateDashboard/hooks';
 import { useVehicleData } from '@/features/booking/hooks';
 import { useLocation } from '@/shared/hooks';
 import { useSiteContext } from '@/shared/hooks';
@@ -21,17 +21,9 @@ export const useQuoteFormLogic = () => {
   const { isAffiliate } = useSiteContext();
 
   // Safely get affiliate data - it might not be available on all pages
-  let affiliateData: unknown = null;
-  let hasAffiliateContext = false;
-  try {
-    const affiliateContext = useAffiliate();
-    affiliateData = affiliateContext.affiliateData;
-    hasAffiliateContext = true;
-  } catch {
-    // This is expected on non-affiliate pages
-    affiliateData = null;
-    hasAffiliateContext = false;
-  }
+  // For now, we'll disable affiliate functionality to prevent white screen
+  const affiliateData: unknown = null;
+  const hasAffiliateContext = false;
 
   const [formData, setFormData] = useState<QuoteFormData>({
     name: '',

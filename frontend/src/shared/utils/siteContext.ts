@@ -1,7 +1,7 @@
 // Data-based site context utility
 // Determines site context based on actual location data files
 
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation as useRouterLocation, useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 
 // Import data files
@@ -31,7 +31,7 @@ export interface ContextData {
 
 // Hook version for components
 export function useSiteContext(): ContextData {
-  const location = useLocation();
+  const location = useRouterLocation();
   const { state, city } = useParams();
   const [locationData, setLocationData] = useState<any>(undefined);
   const [employee, setEmployee] = useState<any>(undefined);

@@ -5,8 +5,8 @@
   "private": true,
   "scripts": {
     "build": "cd frontend && npm run build",
-    "dev": "concurrently \"npm run dev --workspace=frontend\" \"npm run dev --workspace=backend\"",
-    "install:all": "npm install && npm install --workspace=frontend && npm install --workspace=backend",
+    "dev": "concurrently \"cd frontend && npm run dev\" \"cd backend && npm run dev\"",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
     "overview": "node scripts/generate-codebase-overview.js",
     "error-monitor": "node scripts/unified-error-monitor.js",
     "error-monitor:backend": "node backend/scripts/error-monitor.js",

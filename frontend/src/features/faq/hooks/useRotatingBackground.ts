@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useImageRotation } from '@/shared/utils';
+import { useImageRotation } from '@/shared/hooks';
 import { GalleryImage } from '@/features/gallery/types';
 
 // Fisher-Yates shuffle algorithm

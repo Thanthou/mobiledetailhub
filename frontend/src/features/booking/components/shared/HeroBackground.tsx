@@ -1,6 +1,7 @@
 // Hero background with rotating images for booking flow
 import React from 'react';
-import { useImageRotation, getVisibleImageIndices, getImageOpacityClasses, getTransitionStyles } from '@/shared/utils';
+import { useImageRotation } from '@/shared/hooks';
+import { getVisibleImageIndices, getImageOpacityClasses, getTransitionStyles } from '@/shared/utils';
 
 import { BOOKING_HERO_CONSTANTS } from '../../constants/hero';
 
@@ -24,7 +25,7 @@ const HeroBackground: React.FC<HeroBackgroundProps> = ({
     pauseOnHover: false // Background doesn't need hover pause
   });
 
-  const { currentIndex: currentImageIndex, hasMultipleImages } = rotation;
+  const { currentIndex: currentImageIndex } = rotation;
   
   // Get visible image indices for performance optimization
   const visibleIndices = getVisibleImageIndices(currentImageIndex, images.length, true);

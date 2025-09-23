@@ -19,5 +19,8 @@ export { usePerformanceMonitor } from './usePerformanceMonitor';
 export { useModalPrefetch, usePrefetch } from './usePrefetch';
 export { useScrollToTop } from './useScrollToTop';
 
+// Image rotation hooks
+export { useImageRotation, useImageRotationHover } from './useImageRotation';
+
 // Business data hooks
 export { useBusinessData, useBusinessDataBySlug } from './useBusinessData';

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useImageRotation } from '@/shared/utils';
+import { useImageRotation } from '@/shared/hooks';
 import type { Review } from '../types';
 
 // Fisher-Yates shuffle algorithm
@@ -48,7 +48,6 @@ export function useRotatingReviews(reviews: Review[]) {
             images = shuffleArray([...images, ...defaultImages]);
           }
         } catch (galleryError) {
-          console.warn('Failed to load gallery images:', galleryError);
           // Fallback to default images only
           images = ['/images/gallery/dodge-viper-gts-grigio-telesto-studio.png'];
         }

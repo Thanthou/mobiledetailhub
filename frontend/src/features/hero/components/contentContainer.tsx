@@ -7,6 +7,7 @@ interface ContentContainerProps {
   subtitle: string;
   isLocation: boolean;
   locationName: string;
+  onRequestQuote?: () => void;
   className?: string;
 }
 
@@ -15,6 +16,7 @@ const ContentContainer: React.FC<ContentContainerProps> = ({
   subtitle, 
   isLocation,
   locationName,
+  onRequestQuote,
   className = "" 
 }) => {
   return (
@@ -26,7 +28,7 @@ const ContentContainer: React.FC<ContentContainerProps> = ({
         locationName={locationName}
         className="mb-8" 
       />
-      <CTA />
+      <CTA onRequestQuote={onRequestQuote} />
     </div>
   );
 };

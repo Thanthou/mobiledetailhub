@@ -1,8 +1,22 @@
 // Booking state types
-export type BookingStep = 'vehicle-selection' | 'service-tier' | 'addons' | 'schedule' | 'payment';
+export type BookingStep = 'vehicle-selection' | 'location' | 'service-tier' | 'addons' | 'schedule' | 'payment';
 
 export interface BookingData {
   vehicle: string;
+  vehicleDetails: {
+    make: string;
+    model: string;
+    year: string;
+    color: string;
+    length: string;
+  };
+  location: {
+    address: string;
+    city: string;
+    state: string;
+    zip: string;
+    notes: string;
+  };
   serviceTier: string;
   addons: string[];
   schedule: { date: string; time: string };
@@ -21,6 +35,8 @@ export interface BookingActions {
   setCurrentStep: (step: BookingStep) => void;
   updateBookingData: (data: Partial<BookingData>) => void;
   setVehicle: (vehicle: string) => void;
+  setVehicleDetails: (details: Partial<BookingData['vehicleDetails']>) => void;
+  setLocation: (location: Partial<BookingData['location']>) => void;
   setServiceTier: (tier: string) => void;
   setAddons: (addons: string[]) => void;
   setSchedule: (schedule: { date: string; time: string }) => void;

@@ -3,7 +3,11 @@ import { Header } from '@/features/header';
 import { useServicePage } from '@/features/services/hooks/useServicePage';
 import { ServiceHero, WhatItIs, Process, Results, ServiceCTA } from '@/features/services';
 
-const ServicePage: React.FC = () => {
+interface ServicePageProps {
+  onRequestQuote?: () => void;
+}
+
+const ServicePage: React.FC<ServicePageProps> = ({ onRequestQuote }) => {
   const { serviceData } = useServicePage();
 
   if (!serviceData) {
@@ -24,7 +28,7 @@ const ServicePage: React.FC = () => {
       <WhatItIs serviceData={serviceData} />
       <Process serviceData={serviceData} />
       <Results serviceData={serviceData} />
-      <ServiceCTA serviceData={serviceData} />
+      <ServiceCTA serviceData={serviceData} onRequestQuote={onRequestQuote} />
     </main>
   );
 };
