@@ -23,6 +23,7 @@ export type ServiceTag =
   | "Odor Removal";
 
 export interface FAQItem {
+  id?: string; // for analytics and A/B testing
   question: string;
   answer: string;
   category: FAQCategory;
@@ -42,7 +43,7 @@ export interface FAQItemWithIndex extends FAQItem {
 
 export interface FAQProps {
   autoExpand?: boolean;
-  customFAQs?: Array<{ q: string; a: string }>;
+  customFAQs?: Array<{ id?: string; q: string; a: string }>;
   customFAQIntro?: string;
 }
 

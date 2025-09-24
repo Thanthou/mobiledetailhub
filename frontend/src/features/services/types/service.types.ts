@@ -5,6 +5,9 @@ export interface Service {
   imageUrl: string;
   route: string;
   category: string;
+  imageWidth?: number;
+  imageHeight?: number;
+  imagePriority?: boolean;
 }
 
 export interface ServiceCardProps {
@@ -13,9 +16,10 @@ export interface ServiceCardProps {
 }
 
 export interface ServicesGridProps {
-  services: Service[];
-  onServiceClick: (service: Service) => void;
+  services?: Service[];
+  onServiceClick?: (service: Service) => void;
   className?: string;
+  locationData?: any;
 }
 
 // Re-export ServiceData from service-data.ts

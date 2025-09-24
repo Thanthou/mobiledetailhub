@@ -177,6 +177,56 @@
   ],
   "hash": "sha256-3fef780e678ac399…"
 },
+{"alt": "Viola Pasifae Cirrus SR20 in a professional studio, front-right three-quarter view with studio cross-light with glossy highlights, satin paint",
+ "author": "Mobile Detail Hub",
+ "caption": "Viola Pasifae • Satin finish",
+ "dateModified": "2025-09-24",
+ "datePublished": "2025-09-24",
+ "fetchPriority": "high",
+ "hash": "sha256-ad7ee8e83e720136…",
+ "height": 768,
+ "id": "cirrus-sr20-viola-pasifae-studio",
+ "license": "https://mobiledetailhub.com/license",
+ "loading": "eager",
+ "src": "/images/gallery/cirrus-sr20-viola-pasifae-studio.PNG",
+ "tags": ["ai generated", "studio", "Viola Pasifae", "Cirrus SR20"],
+ "thumbnailUrl": "https://mobiledetailhub.com/paint-correction/thumbs/cirrus-sr20-viola-pasifae-studio.webp",
+ "title": "Cirrus SR20 – Studio Render",
+ "type": "image/png",
+ "variants": [{"height": 768,
+               "type": "image/avif",
+               "url": "https://mobiledetailhub.com/paint-correction/cirrus-sr20-viola-pasifae-studio.avif",
+               "width": 768},
+              {"height": 512,
+               "type": "image/webp",
+               "url": "https://mobiledetailhub.com/paint-correction/cirrus-sr20-viola-pasifae-studio.webp",
+               "width": 512}],
+ "width": 768},
+ {"alt": "Daytona Yellow TBM 940 in a professional studio, front-right three-quarter view with dramatic softbox reflections, satin paint",
+ "author": "Mobile Detail Hub",
+ "caption": "Daytona Yellow • Satin finish",
+ "dateModified": "2025-09-24",
+ "datePublished": "2025-09-24",
+ "fetchPriority": "high",
+ "hash": "sha256-d11f9954716ecfd2…",
+ "height": 768,
+ "id": "tbm-940-daytona-yellow-studio",
+ "license": "https://mobiledetailhub.com/license",
+ "loading": "eager",
+ "src": "/images/gallery/tbm-940-daytona-yellow-studio.png",
+ "tags": ["ai generated", "studio", "Daytona Yellow", "TBM 940"],
+ "thumbnailUrl": "https://mobiledetailhub.com/paint-correction/thumbs/tbm-940-daytona-yellow-studio.webp",
+ "title": "TBM 940 – Studio Render",
+ "type": "image/png",
+ "variants": [{"height": 768,
+               "type": "image/avif",
+               "url": "https://mobiledetailhub.com/paint-correction/tbm-940-daytona-yellow-studio.avif",
+               "width": 768},
+              {"height": 512,
+               "type": "image/webp",
+               "url": "https://mobiledetailhub.com/paint-correction/tbm-940-daytona-yellow-studio.webp",
+               "width": 512}],
+ "width": 768},
 {
   "id": "1967-chevy-camaro-rsss-350-magnetic-black-studio",
   "src": "/images/gallery/1967-chevy-camaro-rsss-350-magnetic-black-studio.PNG",
@@ -1699,6 +1749,424 @@
     "Lexus LC 500"
   ],
   "hash": "sha256-376a8a71c887f21e\u2026"
+},
+{
+  "id": "beechcraft-king-air-200-liquid-silver-hangar",
+  "src": "/images/gallery/beechcraft-king-air-200-liquid-silver-hangar.png",
+  "type": "image/png",
+  "alt": "Liquid Silver Beechcraft King Air 200 in an aircraft hangar, front-right three-quarter view with studio cross-light with glossy highlights, glossy paint",
+  "width": 768,
+  "height": 768,
+  "caption": "Liquid Silver • Glossy finish",
+  "title": "Beechcraft King Air 200 – Hangar Render",
+  "thumbnailUrl": "https://mobiledetailhub.com/paint-correction/thumbs/beechcraft-king-air-200-liquid-silver-hangar.webp",
+  "variants": [
+    {
+      "url": "https://mobiledetailhub.com/paint-correction/beechcraft-king-air-200-liquid-silver-hangar.avif",
+      "width": 768,
+      "height": 768,
+      "type": "image/avif"
+    },
+    {
+      "url": "https://mobiledetailhub.com/paint-correction/beechcraft-king-air-200-liquid-silver-hangar.webp",
+      "width": 512,
+      "height": 512,
+      "type": "image/webp"
+    }
+  ],
+  "loading": "eager",
+  "fetchPriority": "high",
+  "datePublished": "2025-09-24",
+  "dateModified": "2025-09-24",
+  "author": "Mobile Detail Hub",
+  "license": "https://mobiledetailhub.com/license",
+  "tags": [
+    "ai generated",
+    "hangar",
+    "Liquid Silver",
+    "Beechcraft King Air 200"
+  ],
+  "hash": "sha256-30433a214760337e…"
+},
+{
+  "id": "cessna-340-giallo-modena-hangar",
+  "src": "/images/gallery/cessna-340-giallo-modena-hangar.png",
+  "type": "image/png",
+  "alt": "Giallo Modena Cessna 340 in an aircraft hangar, front-right three-quarter view with studio cross-light with glossy highlights, glossy paint",
+  "width": 768,
+  "height": 768,
+  "caption": "Giallo Modena • Glossy finish",
+  "title": "Cessna 340 – Hangar Render",
+  "thumbnailUrl": "https://mobiledetailhub.com/paint-correction/thumbs/cessna-340-giallo-modena-hangar.webp",
+  "variants": [
+    {
+      "url": "https://mobiledetailhub.com/paint-correction/cessna-340-giallo-modena-hangar.avif",
+      "width": 768,
+      "height": 768,
+      "type": "image/avif"
+    },
+    {
+      "url": "https://mobiledetailhub.com/paint-correction/cessna-340-giallo-modena-hangar.webp",
+      "width": 512,
+      "height": 512,
+      "type": "image/webp"
+    }
+  ],
+  "loading": "eager",
+  "fetchPriority": "high",
+  "datePublished": "2025-09-24",
+  "dateModified": "2025-09-24",
+  "author": "Mobile Detail Hub",
+  "license": "https://mobiledetailhub.com/license",
+  "tags": [
+    "ai generated",
+    "hangar",
+    "Giallo Modena",
+    "Cessna 340"
+  ],
+  "hash": "sha256-8e13223f36b027d3…"
+},
+{
+  "id": "piper-arrow-shadow-grey-hangar",
+  "src": "/images/gallery/piper-arrow-shadow-grey-hangar.png",
+  "type": "image/png",
+  "alt": "Shadow Grey Piper Arrow in an aircraft hangar, front-right three-quarter view with studio cross-light with glossy highlights, matte paint",
+  "width": 768,
+  "height": 768,
+  "caption": "Shadow Grey • Matte finish",
+  "title": "Piper Arrow – Hangar Render",
+  "thumbnailUrl": "https://mobiledetailhub.com/paint-correction/thumbs/piper-arrow-shadow-grey-hangar.webp",
+  "variants": [
+    {
+      "url": "https://mobiledetailhub.com/paint-correction/piper-arrow-shadow-grey-hangar.avif",
+      "width": 768,
+      "height": 768,
+      "type": "image/avif"
+    },
+    {
+      "url": "https://mobiledetailhub.com/paint-correction/piper-arrow-shadow-grey-hangar.webp",
+      "width": 512,
+      "height": 512,
+      "type": "image/webp"
+    }
+  ],
+  "loading": "eager",
+  "fetchPriority": "high",
+  "datePublished": "2025-09-24",
+  "dateModified": "2025-09-24",
+  "author": "Mobile Detail Hub",
+  "license": "https://mobiledetailhub.com/license",
+  "tags": [
+    "ai generated",
+    "hangar",
+    "Shadow Grey",
+    "Piper Arrow"
+  ],
+  "hash": "sha256-de6fab9397d9775f…"
+},
+{
+  "id": "embraer-phenom-100-magnetic-black-hangar",
+  "src": "/images/gallery/embraer-phenom-100-magnetic-black-hangar.png",
+  "type": "image/png",
+  "alt": "Magnetic Black Embraer Phenom 100 in an aircraft hangar, front-right three-quarter view with cinematic softbox and rim lighting, glossy paint",
+  "width": 768,
+  "height": 768,
+  "caption": "Magnetic Black • Glossy finish",
+  "title": "Embraer Phenom 100 – Hangar Render",
+  "thumbnailUrl": "https://mobiledetailhub.com/paint-correction/thumbs/embraer-phenom-100-magnetic-black-hangar.webp",
+  "variants": [
+    {
+      "url": "https://mobiledetailhub.com/paint-correction/embraer-phenom-100-magnetic-black-hangar.avif",
+      "width": 768,
+      "height": 768,
+      "type": "image/avif"
+    },
+    {
+      "url": "https://mobiledetailhub.com/paint-correction/embraer-phenom-100-magnetic-black-hangar.webp",
+      "width": 512,
+      "height": 512,
+      "type": "image/webp"
+    }
+  ],
+  "loading": "eager",
+  "fetchPriority": "high",
+  "datePublished": "2025-09-24",
+  "dateModified": "2025-09-24",
+  "author": "Mobile Detail Hub",
+  "license": "https://mobiledetailhub.com/license",
+  "tags": [
+    "ai generated",
+    "hangar",
+    "Magnetic Black",
+    "Embraer Phenom 100"
+  ],
+  "hash": "sha256-98e5ddfe85017725…"
+},
+{
+  "id": "diamond-da42-twin-star-blu-tour-de-france-hangar",
+  "src": "/images/gallery/diamond-da42-twin-star-blu-tour-de-france-hangar.png",
+  "type": "image/png",
+  "alt": "Blu Tour de France Diamond DA42 Twin Star in an aircraft hangar, front-right three-quarter view with dramatic softbox reflections, satin paint",
+  "width": 768,
+  "height": 768,
+  "caption": "Blu Tour de France • Satin finish",
+  "title": "Diamond DA42 Twin Star – Hangar Render",
+  "thumbnailUrl": "https://mobiledetailhub.com/paint-correction/thumbs/diamond-da42-twin-star-blu-tour-de-france-hangar.webp",
+  "variants": [
+    {
+      "url": "https://mobiledetailhub.com/paint-correction/diamond-da42-twin-star-blu-tour-de-france-hangar.avif",
+      "width": 768,
+      "height": 768,
+      "type": "image/avif"
+    },
+    {
+      "url": "https://mobiledetailhub.com/paint-correction/diamond-da42-twin-star-blu-tour-de-france-hangar.webp",
+      "width": 512,
+      "height": 512,
+      "type": "image/webp"
+    }
+  ],
+  "loading": "eager",
+  "fetchPriority": "high",
+  "datePublished": "2025-09-24",
+  "dateModified": "2025-09-24",
+  "author": "Mobile Detail Hub",
+  "license": "https://mobiledetailhub.com/license",
+  "tags": [
+    "ai generated",
+    "hangar",
+    "Blu Tour de France",
+    "Diamond DA42 Twin Star"
+  ],
+  "hash": "sha256-13deac0cd3cdbed1…"
+},
+{
+  "id": "tbm-960-black-stripe-hangar",
+  "src": "/images/gallery/tbm-960-black-stripe-hangar.png",
+  "type": "image/png",
+  "alt": "Black Stripe TBM 960 in an aircraft hangar, front-right three-quarter view with cinematic softbox and rim lighting, satin paint",
+  "width": 768,
+  "height": 768,
+  "caption": "Black Stripe • Satin finish",
+  "title": "TBM 960 – Hangar Render",
+  "thumbnailUrl": "https://mobiledetailhub.com/paint-correction/thumbs/tbm-960-black-stripe-hangar.webp",
+  "variants": [
+    {
+      "url": "https://mobiledetailhub.com/paint-correction/tbm-960-black-stripe-hangar.avif",
+      "width": 768,
+      "height": 768,
+      "type": "image/avif"
+    },
+    {
+      "url": "https://mobiledetailhub.com/paint-correction/tbm-960-black-stripe-hangar.webp",
+      "width": 512,
+      "height": 512,
+      "type": "image/webp"
+    }
+  ],
+  "loading": "eager",
+  "fetchPriority": "high",
+  "datePublished": "2025-09-24",
+  "dateModified": "2025-09-24",
+  "author": "Mobile Detail Hub",
+  "license": "https://mobiledetailhub.com/license",
+  "tags": [
+    "ai generated",
+    "hangar",
+    "Black Stripe",
+    "TBM 960"
+  ],
+  "hash": "sha256-ca5d839567e72268…"
+},
+{
+  "id": "piper-pa-34-seneca-arctic-white-hangar",
+  "src": "/images/gallery/piper-pa-34-seneca-arctic-white-hangar.png",
+  "type": "image/png",
+  "alt": "Arctic White Piper PA-34 Seneca in an aircraft hangar, front-right three-quarter view with dramatic softbox reflections, satin paint",
+  "width": 768,
+  "height": 768,
+  "caption": "Arctic White • Satin finish",
+  "title": "Piper PA-34 Seneca – Hangar Render",
+  "thumbnailUrl": "https://mobiledetailhub.com/paint-correction/thumbs/piper-pa-34-seneca-arctic-white-hangar.webp",
+  "variants": [
+    {
+      "url": "https://mobiledetailhub.com/paint-correction/piper-pa-34-seneca-arctic-white-hangar.avif",
+      "width": 768,
+      "height": 768,
+      "type": "image/avif"
+    },
+    {
+      "url": "https://mobiledetailhub.com/paint-correction/piper-pa-34-seneca-arctic-white-hangar.webp",
+      "width": 512,
+      "height": 512,
+      "type": "image/webp"
+    }
+  ],
+  "loading": "eager",
+  "fetchPriority": "high",
+  "datePublished": "2025-09-24",
+  "dateModified": "2025-09-24",
+  "author": "Mobile Detail Hub",
+  "license": "https://mobiledetailhub.com/license",
+  "tags": [
+    "ai generated",
+    "hangar",
+    "Arctic White",
+    "Piper PA-34 Seneca"
+  ],
+  "hash": "sha256-f98405e024613701…"
+},
+{
+  "id": "cessna-172-skyhawk-burgundy-hangar",
+  "src": "/images/gallery/cessna-172-skyhawk-burgundy-hangar.png",
+  "type": "image/png",
+  "alt": "Burgundy Cessna 172 Skyhawk in an aircraft hangar, front-right three-quarter view with dramatic softbox reflections, matte paint",
+  "width": 768,
+  "height": 768,
+  "caption": "Burgundy • Matte finish",
+  "title": "Cessna 172 Skyhawk – Hangar Render",
+  "thumbnailUrl": "https://mobiledetailhub.com/paint-correction/thumbs/cessna-172-skyhawk-burgundy-hangar.webp",
+  "variants": [
+    {
+      "url": "https://mobiledetailhub.com/paint-correction/cessna-172-skyhawk-burgundy-hangar.avif",
+      "width": 768,
+      "height": 768,
+      "type": "image/avif"
+    },
+    {
+      "url": "https://mobiledetailhub.com/paint-correction/cessna-172-skyhawk-burgundy-hangar.webp",
+      "width": 512,
+      "height": 512,
+      "type": "image/webp"
+    }
+  ],
+  "loading": "eager",
+  "fetchPriority": "high",
+  "datePublished": "2025-09-24",
+  "dateModified": "2025-09-24",
+  "author": "Mobile Detail Hub",
+  "license": "https://mobiledetailhub.com/license",
+  "tags": [
+    "ai generated",
+    "hangar",
+    "Burgundy",
+    "Cessna 172 Skyhawk"
+  ],
+  "hash": "sha256-696f8145c3502979…"
+},
+{
+  "id": "tbm-960-matterhorn-grey-hangar",
+  "src": "/images/gallery/tbm-960-matterhorn-grey-hangar.png",
+  "type": "image/png",
+  "alt": "Matterhorn Grey TBM 960 in an aircraft hangar, front-right three-quarter view with studio cross-light with glossy highlights, matte paint",
+  "width": 768,
+  "height": 768,
+  "caption": "Matterhorn Grey • Matte finish",
+  "title": "TBM 960 – Hangar Render",
+  "thumbnailUrl": "https://mobiledetailhub.com/paint-correction/thumbs/tbm-960-matterhorn-grey-hangar.webp",
+  "variants": [
+    {
+      "url": "https://mobiledetailhub.com/paint-correction/tbm-960-matterhorn-grey-hangar.avif",
+      "width": 768,
+      "height": 768,
+      "type": "image/avif"
+    },
+    {
+      "url": "https://mobiledetailhub.com/paint-correction/tbm-960-matterhorn-grey-hangar.webp",
+      "width": 512,
+      "height": 512,
+      "type": "image/webp"
+    }
+  ],
+  "loading": "eager",
+  "fetchPriority": "high",
+  "datePublished": "2025-09-24",
+  "dateModified": "2025-09-24",
+  "author": "Mobile Detail Hub",
+  "license": "https://mobiledetailhub.com/license",
+  "tags": [
+    "ai generated",
+    "hangar",
+    "Matterhorn Grey",
+    "TBM 960"
+  ],
+  "hash": "sha256-3d6214e3609bc63b…"
+},
+{
+  "id": "beechcraft-king-air-200-silver-stripe-hangar",
+  "src": "/images/gallery/beechcraft-king-air-200-silver-stripe-hangar.png",
+  "type": "image/png",
+  "alt": "Silver Stripe Beechcraft King Air 200 in an aircraft hangar, front-right three-quarter view with dramatic softbox reflections, satin paint",
+  "width": 768,
+  "height": 768,
+  "caption": "Silver Stripe • Satin finish",
+  "title": "Beechcraft King Air 200 – Hangar Render",
+  "thumbnailUrl": "https://mobiledetailhub.com/paint-correction/thumbs/beechcraft-king-air-200-silver-stripe-hangar.webp",
+  "variants": [
+    {
+      "url": "https://mobiledetailhub.com/paint-correction/beechcraft-king-air-200-silver-stripe-hangar.avif",
+      "width": 768,
+      "height": 768,
+      "type": "image/avif"
+    },
+    {
+      "url": "https://mobiledetailhub.com/paint-correction/beechcraft-king-air-200-silver-stripe-hangar.webp",
+      "width": 512,
+      "height": 512,
+      "type": "image/webp"
+    }
+  ],
+  "loading": "eager",
+  "fetchPriority": "high",
+  "datePublished": "2025-09-24",
+  "dateModified": "2025-09-24",
+  "author": "Mobile Detail Hub",
+  "license": "https://mobiledetailhub.com/license",
+  "tags": [
+    "ai generated",
+    "hangar",
+    "Silver Stripe",
+    "Beechcraft King Air 200"
+  ],
+  "hash": "sha256-daf8d114d38207be…"
+},
+{
+  "id": "diamond-da42-twin-star-matterhorn-white-hangar",
+  "src": "/images/gallery/diamond-da42-twin-star-matterhorn-white-hangar.png",
+  "type": "image/png",
+  "alt": "Matterhorn White Diamond DA42 Twin Star in an aircraft hangar, front-right three-quarter view with dramatic softbox reflections, glossy paint",
+  "width": 768,
+  "height": 768,
+  "caption": "Matterhorn White • Glossy finish",
+  "title": "Diamond DA42 Twin Star – Hangar Render",
+  "thumbnailUrl": "https://mobiledetailhub.com/paint-correction/thumbs/diamond-da42-twin-star-matterhorn-white-hangar.webp",
+  "variants": [
+    {
+      "url": "https://mobiledetailhub.com/paint-correction/diamond-da42-twin-star-matterhorn-white-hangar.avif",
+      "width": 768,
+      "height": 768,
+      "type": "image/avif"
+    },
+    {
+      "url": "https://mobiledetailhub.com/paint-correction/diamond-da42-twin-star-matterhorn-white-hangar.webp",
+      "width": 512,
+      "height": 512,
+      "type": "image/webp"
+    }
+  ],
+  "loading": "eager",
+  "fetchPriority": "high",
+  "datePublished": "2025-09-24",
+  "dateModified": "2025-09-24",
+  "author": "Mobile Detail Hub",
+  "license": "https://mobiledetailhub.com/license",
+  "tags": [
+    "ai generated",
+    "hangar",
+    "Matterhorn White",
+    "Diamond DA42 Twin Star"
+  ],
+  "hash": "sha256-8e5080d6be9747a0…"
 }
       
   ]

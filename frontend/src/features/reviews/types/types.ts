@@ -87,4 +87,6 @@ export interface ReviewsProps {
   verifiedOnly?: boolean;
   customHeading?: string;
   customIntro?: string;
+  feedKey?: string; // for future GBP/Yelp integration
+  locationData?: any; // location-specific data
 }

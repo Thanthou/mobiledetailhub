@@ -1,0 +1,77 @@
+{
+    "Cessna": [
+      "172 Skyhawk",
+      "182 Skylane",
+      "206 Stationair",
+      "210 Centurion",
+      "310 Twin",
+      "Custom"
+    ],
+    "Cirrus": [
+      "SR20",
+      "SR22",
+      "SR22T",
+      "Vision Jet SF50",
+      "Custom"
+    ],
+    "Piper": [
+      "PA-28 Cherokee/Archer",
+      "PA-32 Saratoga/Lance",
+      "PA-34 Seneca",
+      "PA-44 Seminole",
+      "PA-46 Malibu/Meridian",
+      "Custom"
+    ],
+    "Beechcraft": [
+      "Bonanza G36",
+      "Baron G58",
+      "King Air C90",
+      "King Air 250",
+      "King Air 350i",
+      "Custom"
+    ],
+    "Mooney": [
+      "M20J 201",
+      "M20K 231",
+      "M20M Bravo",
+      "M20R Ovation",
+      "M20V Acclaim Ultra",
+      "Custom"
+    ],
+    "Diamond": [
+      "DA20 Katana",
+      "DA40 Diamond Star",
+      "DA42 Twin Star",
+      "DA62",
+      "Custom"
+    ],
+    "Pilatus": [
+      "PC-12",
+      "PC-12 NGX",
+      "PC-24",
+      "Custom"
+    ],
+    "TBM": [
+      "700",
+      "850",
+      "910",
+      "940",
+      "960",
+      "Custom"
+    ],
+    "Embraer": [
+      "Phenom 100",
+      "Phenom 300",
+      "Custom"
+    ],
+    "Citation": [
+      "Mustang 510",
+      "CJ1/CJ2/CJ3",
+      "Citation M2",
+      "Citation XLS+",
+      "Citation Latitude",
+      "Custom"
+    ],
+    "Custom": ["Custom"]
+  }
+  

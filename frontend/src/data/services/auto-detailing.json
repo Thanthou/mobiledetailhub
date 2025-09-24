@@ -114,28 +114,6 @@
       ]
     },
   
-    "pricing": {
-      "title": "Auto Detailing Pricing",
-      "tiers": [
-        {
-          "id": "basic",
-          "name": "Basic Detail",
-          "price": { "label": "$150", "min": 150, "currency": "USD" },
-          "description": "Standard interior and exterior cleaning",
-          "popular": false,
-          "features": ["Exterior wash", "Interior vacuum", "Basic protection"]
-        },
-        {
-          "id": "premium",
-          "name": "Premium Detail",
-          "price": { "label": "$250", "min": 250, "currency": "USD" },
-          "description": "Complete detailing with decontamination",
-          "popular": true,
-          "features": ["Full decontamination", "Clay treatment", "Protective sealant"]
-        }
-      ]
-    },
-  
     "faq": {
       "title": "Auto Detailing FAQ",
       "items": [

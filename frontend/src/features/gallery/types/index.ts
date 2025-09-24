@@ -29,4 +29,5 @@ export interface ImageVariant {
 
 export interface GalleryProps {
   onRequestQuote?: () => void;
+  locationData?: any;
 }

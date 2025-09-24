@@ -3,24 +3,49 @@ import { useSiteContext } from '@/shared/hooks';
 import { getImageOpacityClasses, getTransitionStyles } from '@/shared/utils';
 import siteData from '@/data/mdh/site.json';
 import { useReviews, useRotatingReviews } from '../hooks';
+import { ReviewsProps } from '../types/types';
 import ReviewsHeader from './ReviewsHeader';
 import ReviewsSubHeader from './ReviewsSubHeader';
 import ReviewsCarousel from './ReviewsCarousel';
 import ReviewModal from './ReviewModal';
 
-const Reviews: React.FC = () => {
+const Reviews: React.FC<ReviewsProps> = ({
+  maxReviews = 50,
+  reviewType,
+  businessSlug,
+  featuredOnly = false,
+  verifiedOnly = false,
+  customHeading,
+  customIntro,
+  feedKey,
+  locationData
+}) => {
   const [selectedReview, setSelectedReview] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { isMainSite } = useSiteContext();
 
-  // Build query parameters based on site context
+  // Build query parameters based on props and site context
   const queryParams: any = {
-    type: (isMainSite ? 'affiliate' : 'mdh') as 'affiliate' | 'mdh',
+    type: reviewType || (isMainSite ? 'affiliate' : 'mdh') as 'affiliate' | 'mdh',
     status: 'approved' as const,
-    limit: 50,
-    featured_only: false,
-    verified_only: false
+    limit: maxReviews,
+    featured_only: featuredOnly,
+    verified_only: verifiedOnly
   };
+
+  // Add business slug if provided
+  if (businessSlug) {
+    queryParams.business_slug = businessSlug;
+  }
+
+  // TODO: Implement feedKey for GBP/Yelp integration
+  // The feedKey prop is available for future implementation of external review feeds
+  // Example: feedKey: "gbp:bullhead-city-az" for Google Business Profile
+  // Example: feedKey: "yelp:las-vegas-nv" for Yelp integration
+  const finalFeedKey = feedKey || locationData?.reviewsSection?.feedKey;
+  if (finalFeedKey) {
+    console.log('FeedKey available for future implementation:', finalFeedKey);
+  }
 
   if (isMainSite) {
     queryParams.business_slug = 'jps';
@@ -154,8 +179,8 @@ const Reviews: React.FC = () => {
       <div className="relative z-10 h-full flex flex-col items-center justify-center px-4">
         <div className="max-w-6xl mx-auto w-full">
           <ReviewsHeader 
-            title={siteData.reviews.title}
-            subtitle={siteData.reviews.subtitle}
+            title={customHeading || locationData?.reviewsSection?.heading || siteData.reviews.title}
+            subtitle={customIntro || locationData?.reviewsSection?.intro || siteData.reviews.subtitle}
           />
                  <ReviewsSubHeader 
                    averageRating={parseFloat(siteData.reviews.ratingValue)}

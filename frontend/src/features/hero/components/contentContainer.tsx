@@ -1,6 +1,7 @@
 import React from 'react';
 import TextDisplay from './TextDisplay';
 import CTA from './CTA';
+import { ReviewsSummary } from '@/shared/ui';
 
 interface ContentContainerProps {
   title: string;
@@ -29,6 +30,10 @@ const ContentContainer: React.FC<ContentContainerProps> = ({
         className="mb-8" 
       />
       <CTA onRequestQuote={onRequestQuote} />
+      <ReviewsSummary 
+        variant="compact" 
+        className="mt-6 text-xl" 
+      />
     </div>
   );
 };

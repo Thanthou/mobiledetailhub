@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getMakesForType, getModelsForMake, getVehicleYears } from '@/data/vehicle_data';
+import siteData from '@/data/mdh/site.json';
 
 interface VehicleSelectionProps {
   selectedVehicle: string;
@@ -67,6 +68,46 @@ const VehicleSelection: React.FC<VehicleSelectionProps> = ({ selectedVehicle, ve
       }
     }
   };
+
+  // Show phone message for airplane selection
+  if (selectedVehicle === 'airplane') {
+    return (
+      <div className="mb-8 absolute top-[45%] left-1/2 transform -translate-x-1/2 w-full max-w-xl">
+        <div className="px-4">
+          <div className="bg-gray-800 border border-gray-600 rounded-lg p-6 text-center">
+            <p className="text-white text-lg font-medium mb-2">
+              Please call us at <span className="text-orange-500">{siteData.contact.phone}</span>
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show additional details field for "Other" vehicle type
+  if (selectedVehicle === 'other') {
+    return (
+      <div className="mb-8 absolute top-[45%] left-1/2 transform -translate-x-1/2 w-full max-w-xl">
+        <div className="px-4">
+          <div className="space-y-2">
+            <label className="block text-white font-medium text-sm">Additional Details</label>
+            <textarea 
+              value={make} // Using make field to store the additional details
+              onChange={(e) => {
+                setMake(e.target.value);
+                // For "other" vehicles, we'll store the details in the make field
+                // and call updateVehicleDetails with the details as make
+                updateVehicleDetails(e.target.value);
+              }}
+              placeholder="Please describe your vehicle (e.g., 'Custom motorcycle - Harley Davidson 2020, Black')"
+              className="w-full py-3 px-1.5 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-orange-500 resize-none"
+              rows={4}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mb-8 absolute top-[45%] left-1/2 transform -translate-x-1/2 w-full max-w-xl">

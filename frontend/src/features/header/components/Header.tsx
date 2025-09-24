@@ -111,7 +111,7 @@ const Header: React.FC<HeaderProps> = ({ locationData, employeeData }) => {
       <div className="w-full py-4">
         <div className="max-w-7xl mx-auto flex items-center px-4">
           <Logo />
-          <BusinessInfo context={context} employeeData={employeeData} />
+          <BusinessInfo context={context} employeeData={employeeData} locationData={locationData} />
           <div className="flex items-center space-x-4 ml-auto">
             <Navigation activeSection={activeSection} />
             <SocialMediaIcons />

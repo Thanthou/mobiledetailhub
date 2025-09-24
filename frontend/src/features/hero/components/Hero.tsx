@@ -4,16 +4,16 @@ import ContentContainer from './ContentContainer';
 import { useHeroContent } from '@/features/hero/hooks/useHeroContent';
 
 interface HeroProps {
-  locationData?: any; // Keep for backward compatibility but not used
+  locationData?: any; // Location-specific data including images and content
   onRequestQuote?: () => void;
 }
 
-const Hero: React.FC<HeroProps> = ({ onRequestQuote }) => {
-  const { title, subtitle, isLocation, locationName } = useHeroContent();
+const Hero: React.FC<HeroProps> = ({ locationData, onRequestQuote }) => {
+  const { title, subtitle, isLocation, locationName } = useHeroContent({ locationData });
 
   return (
     <section id="top" className="relative h-dvh overflow-hidden snap-start snap-always">
-      <ImageCarousel />
+      <ImageCarousel locationData={locationData} />
       
       <main id="main" className="relative z-10 h-full">
         <ContentContainer 

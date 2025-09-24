@@ -16,6 +16,7 @@ export interface BookingData {
     state: string;
     zip: string;
     notes: string;
+    locationType: string; // Comma-separated string for multiple selections
   };
   serviceTier: string;
   addons: string[];

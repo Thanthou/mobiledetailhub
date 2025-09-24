@@ -1,5 +1,5 @@
 import React from 'react';
-import { Car, CarFront, Truck, Bike, Ship, Sailboat, Home, MoreHorizontal } from 'lucide-react';
+import { Car, CarFront, Truck, Bike, Ship, Sailboat, Home, MoreHorizontal, Plane } from 'lucide-react';
 
 interface TabsProps {
   selectedVehicle: string;
@@ -14,12 +14,14 @@ const Tabs: React.FC<TabsProps> = ({ selectedVehicle, onVehicleSelect }) => {
     { id: 'suv', name: 'SUV', icon: Car }, // SUV keeps Car icon
     { id: 'boat', name: 'Boat', icon: Ship },
     { id: 'rv', name: 'RV', icon: 'custom-rv' }, // Custom RV icon
+    { id: 'airplane', name: 'Airplane', icon: Plane },
+    { id: 'motorcycle', name: 'Motorcycle', icon: Bike },
     { id: 'other', name: 'Other', icon: MoreHorizontal },
   ];
 
   return (
-    <div className="mb-8 absolute top-[30%] left-1/2 transform -translate-x-1/2 w-full">
-      <div className="flex flex-wrap justify-center gap-3 max-w-4xl mx-auto">
+    <div className="mb-8 absolute top-[20%] left-1/2 transform -translate-x-1/2 w-full">
+      <div className="grid grid-cols-4 grid-rows-2 gap-0 w-fit mx-auto">
         {vehicleTypes.map((vehicle) => {
           return (
             <button
@@ -28,7 +30,7 @@ const Tabs: React.FC<TabsProps> = ({ selectedVehicle, onVehicleSelect }) => {
               className={`p-2 rounded-lg border-2 transition-all w-24 h-24 ${
                 selectedVehicle === vehicle.id
                   ? 'border-orange-500 bg-orange-500/20'
-                  : 'border-gray-600 hover:border-gray-500'
+                  : 'border-gray-600 hover:border-gray-500 bg-stone-800/20'
               }`}
             >
               {vehicle.icon === 'custom-rv' ? (

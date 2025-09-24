@@ -6,9 +6,10 @@ import { ContextData } from '@/shared/utils/siteContext';
 interface BusinessInfoProps {
   context: ContextData;
   employeeData?: any;
+  locationData?: any;
 }
 
-const BusinessInfo: React.FC<BusinessInfoProps> = ({ context, employeeData }) => {
+const BusinessInfo: React.FC<BusinessInfoProps> = ({ context, employeeData, locationData }) => {
   const handleClick = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -45,9 +46,10 @@ const BusinessInfo: React.FC<BusinessInfoProps> = ({ context, employeeData }) =>
     );
   }
   
-  const businessName = employeeData?.['business-name'];
-  const businessPhone = formatPhoneNumber(employeeData?.['business-phone']);
-  const cityState = `${context.city}, ${context.state}`;
+  // Use location data if available, otherwise fall back to employee data
+  const businessName = locationData?.header?.businessName || employeeData?.['business-name'];
+  const businessPhone = locationData?.header?.phoneDisplay || formatPhoneNumber(employeeData?.['business-phone']);
+  const cityState = locationData?.header?.cityStateLabel || `${context.city}, ${context.state}`;
   
   return (
     <div className="flex flex-col space-y-2 ml-4">

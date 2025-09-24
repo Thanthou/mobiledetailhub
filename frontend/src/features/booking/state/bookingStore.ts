@@ -17,7 +17,8 @@ const initialBookingData: BookingData = {
     city: '',
     state: '',
     zip: '',
-    notes: ''
+    notes: '',
+    locationType: ''
   },
   serviceTier: '',
   addons: [],

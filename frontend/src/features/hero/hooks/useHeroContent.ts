@@ -7,8 +7,15 @@ interface UseHeroContentReturn {
   locationName: string;
 }
 
-export const useHeroContent = (): UseHeroContentReturn => {
-  const { isLocation, locationData, siteData } = useSiteContext();
+interface UseHeroContentProps {
+  locationData?: any;
+}
+
+export const useHeroContent = (props?: UseHeroContentProps): UseHeroContentReturn => {
+  const { isLocation, locationData: contextLocationData, siteData } = useSiteContext();
+  
+  // Use passed locationData as fallback
+  const locationData = props?.locationData || contextLocationData;
   
   // Determine content based on context
   const title = isLocation 

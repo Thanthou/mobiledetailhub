@@ -4,7 +4,7 @@ import { useRotatingGallery } from '../hooks/useRotatingGallery';
 import RotatingGalleryItem from './RotatingGalleryItem';
 import { GalleryProps } from '../types';
 
-const Gallery: React.FC<GalleryProps> = ({ onRequestQuote }) => {
+const Gallery: React.FC<GalleryProps> = ({ onRequestQuote, locationData }) => {
   const { currentImages, nextImages, loading, error, fadingIndex } = useRotatingGallery();
 
   return (
@@ -41,7 +41,7 @@ const Gallery: React.FC<GalleryProps> = ({ onRequestQuote }) => {
 
         {/* Bottom Half - Footer Content */}
         <div className="h-1/2 flex flex-col justify-center border-t border-stone-700">
-          <Footer onRequestQuote={onRequestQuote || (() => {})} />
+          <Footer onRequestQuote={onRequestQuote || (() => {})} locationData={locationData} />
         </div>
       </div>
     </section>

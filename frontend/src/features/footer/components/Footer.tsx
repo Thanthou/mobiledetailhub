@@ -10,9 +10,10 @@ import siteData from '@/data/mdh/site.json';
 
 interface FooterProps {
   onRequestQuote?: () => void;
+  locationData?: any;
 }
 
-const Footer: React.FC<FooterProps> = ({ onRequestQuote }) => {
+const Footer: React.FC<FooterProps> = ({ onRequestQuote, locationData }) => {
   const context = useSiteContext();
   
   // Determine config based on site type
@@ -22,8 +23,9 @@ const Footer: React.FC<FooterProps> = ({ onRequestQuote }) => {
     email: context.siteData?.contact?.email
     // No base_location for main site
   } : {
-    // Location site - use employee phone but keep main site email
-    phone: context.employeeData?.['business-phone'] ? formatPhoneNumber(context.employeeData['business-phone']) : '(555) 123-4567',
+    // Location site - use location data if available, otherwise fall back to employee data
+    phone: locationData?.header?.phoneDisplay || 
+           (context.employeeData?.['business-phone'] ? formatPhoneNumber(context.employeeData['business-phone']) : '(555) 123-4567'),
     email: context.siteData?.contact?.email || 'service@mobiledetailhub.com',
     base_location: {
       city: context.locationData?.city,
@@ -43,7 +45,7 @@ const Footer: React.FC<FooterProps> = ({ onRequestQuote }) => {
   const businessInfo = {
     name: context.isMainSite 
       ? (context.siteData?.brand || 'Mobile Detail Hub')
-      : (context.employeeData?.['business-name'] || 'Mobile Detail Hub')
+      : (locationData?.header?.businessName || context.employeeData?.['business-name'] || 'Mobile Detail Hub')
   };
 
   return (

@@ -10,6 +10,7 @@ import { Services } from '@/features/services';
 import { useHomePageState } from '@/features/home/hooks';
 import HomePageLayout from '@/features/home/components/HomePageLayout';
 import { getAbsoluteUrl } from '@/shared/utils';
+import { generateAllSchemas, injectAllSchemas } from '@/shared/utils/schemaUtils';
 
 type AreaImage = { 
   url: string; 
@@ -58,7 +59,7 @@ export default function LocationPage({ area }: { area: Area }) {
   useEffect(() => {
     // canonical
     const canonical = document.getElementById("canonical-link") as HTMLLinkElement | null;
-    if (canonical) canonical.href = area.urlPath;
+    if (canonical) canonical.href = `https://mobiledetailhub.com${area.seo?.canonicalPath || area.urlPath}`;
 
     // title
     const title = area?.seo?.title ?? `Mobile Detailing ${area.city}, ${area.stateCode}`;
@@ -71,10 +72,16 @@ export default function LocationPage({ area }: { area: Area }) {
     // OG/Twitter images
     const ogImage = document.getElementById("og-image") as HTMLMetaElement | null;
     const twImage = document.getElementById("tw-image") as HTMLMetaElement | null;
-    const img = area?.seo?.ogImage ?? area.images?.[0]?.url;
-    const absoluteImg = img ? getAbsoluteUrl(img) : '';
-    if (absoluteImg && ogImage) ogImage.setAttribute("content", absoluteImg);
-    if (absoluteImg && twImage) twImage.setAttribute("content", absoluteImg);
+    const ogImg = area?.seo?.ogImage ?? area.images?.[0]?.url;
+    const twImg = area?.seo?.twitterImage ?? ogImg;
+    const absoluteOgImg = ogImg ? getAbsoluteUrl(ogImg) : '';
+    const absoluteTwImg = twImg ? getAbsoluteUrl(twImg) : '';
+    if (absoluteOgImg && ogImage) ogImage.setAttribute("content", absoluteOgImg);
+    if (absoluteTwImg && twImage) twImage.setAttribute("content", absoluteTwImg);
+
+    // Generate and inject all Schema.org JSON-LD schemas dynamically
+    const schemas = generateAllSchemas(area, 'location');
+    injectAllSchemas(schemas);
   }, [area]);
 
   return (
@@ -102,6 +109,7 @@ export default function LocationPage({ area }: { area: Area }) {
           businessSlug={businessSlug ?? ''}
           {...(area["reviewsSection"]?.heading && { customHeading: area["reviewsSection"].heading })}
           {...(area["reviewsSection"]?.intro && { customIntro: area["reviewsSection"].intro })}
+          {...(area["reviewsSection"]?.feedKey && { feedKey: area["reviewsSection"].feedKey })}
         />
       </section>
       <FAQ 

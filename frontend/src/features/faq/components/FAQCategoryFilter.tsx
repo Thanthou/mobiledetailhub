@@ -1,11 +1,12 @@
 import React from 'react';
-import { Car, Settings, Shield, CreditCard } from 'lucide-react';
+import { Car, Settings, Shield, CreditCard, MapPin } from 'lucide-react';
 
 import { FilterChip } from '@/shared/ui';
 
 interface FAQCategoryFilterProps {
   selectedCategory: string;
   onCategoryChange: (category: string) => void;
+  categories: string[];
 }
 
 // Mapping from display names to actual category names
@@ -37,29 +38,29 @@ const categoryIcons = {
 
 const FAQCategoryFilter: React.FC<FAQCategoryFilterProps> = ({ 
   selectedCategory, 
-  onCategoryChange 
+  onCategoryChange,
+  categories
 }) => {
-  // Create display categories from the mapping
-  const displayCategories = Object.keys(categoryMapping);
+  // Split into two rows: 5 in first row, remaining in second row
+  const firstRow = categories.slice(0, 5);
+  const secondRow = categories.slice(5);
   
-  // Split into two rows: 5 in first row, 4 in second row
-  const firstRow = displayCategories.slice(0, 5);
-  const secondRow = displayCategories.slice(5);
-  
-  const renderChip = (displayName: string) => {
-    const actualCategory = categoryMapping[displayName as keyof typeof categoryMapping];
-    const IconComponent = categoryIcons[displayName as keyof typeof categoryIcons] || Car;
+  const renderChip = (categoryName: string) => {
+    // For categories not in mapping (like location-specific ones), use the category name as-is
+    const actualCategory = categoryMapping[categoryName as keyof typeof categoryMapping] || categoryName;
+    // Use MapPin icon for location categories (city names or 'Location')
+    const IconComponent = (categoryName !== 'All' && categoryName !== 'General' && categoryName !== 'Services' && categoryName !== 'Scheduling' && categoryName !== 'Pricing' && categoryName !== 'Preparation' && categoryName !== 'RV' && categoryName !== 'Locations' && categoryName !== 'Payments' && categoryName !== 'Warranty') ? MapPin : (categoryIcons[categoryName as keyof typeof categoryIcons] || Car);
     const isSelected = selectedCategory === actualCategory;
     
     return (
       <FilterChip
-        key={displayName}
+        key={categoryName}
         onClick={() => onCategoryChange(actualCategory)}
         isSelected={isSelected}
         icon={IconComponent}
         className="transform hover:scale-105 backdrop-blur-sm"
       >
-        {displayName}
+        {categoryName}
       </FilterChip>
     );
   };

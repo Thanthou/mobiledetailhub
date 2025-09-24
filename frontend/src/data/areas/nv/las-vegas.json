@@ -3,13 +3,74 @@
     "city": "Las Vegas",
     "stateCode": "NV",
     "state": "Nevada",
+    "postalCode": "89109",
+  "latitude": 36.1699,
+  "longitude": -115.1398,
+  "openingHours": [
+    "Mo-Fr 06:00-19:00",
+    "Sa 07:00-17:00",
+    "Su 08:00-16:00"
+  ],
+  "ops": {
+    "acceptsSameDay": false,
+    "leadTimeDays": 2,
+    "serviceRadiusMiles": 35
+  },
+  "serviceArea": {
+    "postalCodes": [
+      "89101",
+      "89102",
+      "89103",
+      "89104",
+      "89106",
+      "89107",
+      "89108",
+      "89109",
+      "89110",
+      "89113",
+      "89117",
+      "89118",
+      "89119",
+      "89120",
+      "89121",
+      "89122",
+      "89123",
+      "89128",
+      "89129",
+      "89130",
+      "89131",
+      "89134",
+      "89135",
+      "89138",
+      "89139",
+      "89141",
+      "89142",
+      "89143",
+      "89144",
+      "89145",
+      "89146",
+      "89147",
+      "89148",
+      "89149",
+      "89183",
+      "89185"
+    ]
+  },
     "urlPath": "/nv/las-vegas/",
-    "employee": "jps",
+    "header": {
+      "businessName": "JP's Mobile Detailing",
+      "phoneDisplay": "(702) 420-3151",
+      "phoneE164": "+17024203151",
+      "cityStateLabel": "Las Vegas, NV"
+    },
     "seo": {
       "title": "Mobile Detailing Las Vegas, NV — Paint Correction & Ceramic Coating",
       "description": "Premium mobile auto detailing across Las Vegas. Swirl-free paint correction, ceramic coating, interior deep cleans. We service the Strip, Summerlin, Henderson & more.",
       "keywords": ["mobile detailing", "car detailing", "ceramic coating", "paint correction", "interior detailing", "Las Vegas NV", "Summerlin", "Henderson", "The Strip"],
-      "ogImage": "/images/locations/las-vegas/hero-strip-detail.webp"
+      "canonicalPath": "/nv/las-vegas/",
+      "ogImage": "/images/locations/las-vegas/hero-strip-detail.webp",
+      "twitterImage": "/images/locations/las-vegas/hero-strip-detail.webp",
+      "robots": "index,follow"
     },
     "hero": {
       "h1": "Mobile Detailing in Las Vegas, NV",
@@ -37,50 +98,60 @@
       "Frequent garage or valet micro-marring",
       "Sprinkler hard-water spotting"
     ],
-    "pricingModifierPct": 10,
+    "pricingModifierPct": 0.10,
     "images": [
       {
         "url": "/images/locations/las-vegas/hero-strip-detail.webp",
         "alt": "Mobile detailing with Las Vegas Strip skyline in background",
         "caption": "On-site detailing for residences, towers, and garages",
-        "role": "hero"
+        "role": "hero",
+        "width": 1536,
+        "height": 1024,
+        "priority": true
       },
       {
         "url": "/images/locations/las-vegas/casino-lot-detail.webp",
         "alt": "Detailing in a Las Vegas casino parking lot",
         "caption": "Flexible setups for high-rise and commercial properties",
-        "role": "gallery"
+        "role": "gallery",
+        "width": 1024,
+        "height": 768,
+        "priority": false
       },
       {
         "url": "/images/locations/las-vegas/desert-sunset-coupe.webp",
         "alt": "Ceramic coated coupe at desert edge near Las Vegas",
         "caption": "Ceramic coatings that fight UV, dust, and spotting",
-        "role": "gallery"
+        "role": "gallery",
+        "width": 1024,
+        "height": 768,
+        "priority": false
       }
     ],
-    "faq-intro": "Concierge-level mobile detailing for Vegas drivers. From Strip dust to garage-kept exotics, we correct paint, protect with pro-grade coatings, and deliver showroom interiors. We service homes, towers, and commercial garages across the Valley.",
+    "faqIntro": "Concierge-level mobile detailing for Vegas drivers. From Strip dust to garage-kept exotics, we correct paint, protect with pro-grade coatings, and deliver showroom interiors. We service homes, towers, and commercial garages across the Valley.",
 
     "faqs": [
       {
+        "id": "strip-garage-detail",
         "q": "Can you detail in high-rise or tower garages on the Strip?",
         "a": "Yes. We coordinate with building rules, use contained setups, and protect surrounding vehicles and finishes."
       },
       {
+        "id": "vegas-coating-recommendation",
         "q": "What coating is best for Vegas sun and dust?",
         "a": "We recommend a multi-year ceramic or graphene coating for UV resistance and easier dust removal between washes."
       },
       {
+        "id": "evening-scheduling",
         "q": "Do you service late evenings to avoid heat?",
         "a": "We offer flexible scheduling, including mornings and evenings, to manage heat and panel temperatures safely."
       }
     ],
-    "schemaOrg": {
-      "addressLocality": "Las Vegas",
-      "addressRegion": "NV",
-      "postalCode": "89109",
-      "image": [
-        "/images/locations/las-vegas/hero-strip-detail.webp"
-      ]
-    }
+    "reviewsSection": {
+      "heading": "What Our Las Vegas Customers Say",
+      "intro": "Don't just take our word for it — see what Las Vegas drivers, residents, and business owners are saying about our mobile detailing services.",
+      "feedKey": "gbp:las-vegas-nv"
+    },
+    "schemaOrg": {}
   }
   

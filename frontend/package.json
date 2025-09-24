@@ -14,7 +14,9 @@
     "optimize-images": "node scripts/convert-images.js",
     "prebuild": "npm run optimize-images",
     "check-pages": "node scripts/check-pages-usage.js",
-    "lint:pages": "eslint . --rule 'import/no-restricted-paths: error'"
+    "lint:pages": "eslint . --rule 'import/no-restricted-paths: error'",
+    "validate-location-data": "node scripts/validate-location-data.js",
+    "prebuild:validate": "npm run validate-location-data"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.87.4",

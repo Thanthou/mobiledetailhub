@@ -10,10 +10,29 @@ interface FAQItemProps {
 }
 
 const FAQItem: React.FC<FAQItemProps> = ({ faq, isExpanded, onToggle }) => {
+  const handleToggle = () => {
+    // Analytics tracking for FAQ interactions
+    if (faq.id && !isExpanded) {
+      // Track FAQ expansion for analytics and A/B testing
+      if (typeof window !== 'undefined' && window.gtag) {
+        window.gtag('event', 'faq_expanded', {
+          faq_id: faq.id,
+          faq_question: faq.question,
+          faq_category: faq.category
+        });
+      }
+    }
+    onToggle();
+  };
+
   return (
-    <div className="bg-stone-800/80 backdrop-blur-sm rounded-lg border border-stone-700/50 overflow-hidden hover:shadow-xl hover:shadow-black/30 transition-all duration-300 h-fit">
+    <div 
+      className="bg-stone-800/80 backdrop-blur-sm rounded-lg border border-stone-700/50 overflow-hidden hover:shadow-xl hover:shadow-black/30 transition-all duration-300 h-fit"
+      data-faq-id={faq.id}
+      data-faq-category={faq.category}
+    >
       <button
-        onClick={onToggle}
+        onClick={handleToggle}
         className="w-full px-4 py-4 text-left flex justify-between items-start hover:bg-stone-700/40 transition-colors duration-200 group"
       >
         <div className="flex-1 pr-2">

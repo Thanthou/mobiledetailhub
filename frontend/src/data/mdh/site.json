@@ -11,7 +11,7 @@
   },
 
   "seo": {
-    "title": "Premium Mobile Detailing — Cars, Boats & RVs",
+    "title": "Premium Mobile Detailing — Cars, Boats, RVs, & Aircraft",
     "description": "Company-operated mobile detailing. Paint correction, ceramic coating, PPF, and deep interior cleaning for cars, boats, and RVs.",
     "keywords": [
       "mobile detailing",
@@ -21,19 +21,33 @@
       "ceramic coating",
       "paint correction",
       "paint protection film",
-      "ppf"
+      "ppf",
+      "aircraft detailing"
     ],
-    "canonical": "https://mobiledetailhub.com/",
+    "canonicalPath": "/",
     "ogImage": "/images/hero/hero1.png",
+    "twitterImage": "/images/hero/hero1.png",
     "robots": "index,follow"
   },
 
   "hero": {
     "h1": "Professional Mobile Detailing",
-    "sub": "Mobile detailing for cars, boats & RVs.",
+    "sub": "Mobile detailing for cars, boats, RVs, & aircraft.",
     "images": [
-      { "url": "/images/hero/hero1.png", "alt": "Professional mobile detailing service in action" },
-      { "url": "/images/hero/hero2.png", "alt": "High-quality car detailing and ceramic coating" }
+      { 
+        "url": "/images/hero/hero1.png", 
+        "alt": "Professional mobile detailing service in action",
+        "width": 1920,
+        "height": 1080,
+        "priority": true
+      },
+      { 
+        "url": "/images/hero/hero2.png", 
+        "alt": "High-quality car detailing and ceramic coating",
+        "width": 1920,
+        "height": 1080,
+        "priority": true
+      }
     ],
     "ctas": [
       { "label": "Book Now", "href": "/book" },
@@ -49,45 +63,73 @@
   "servicesGrid": [
     {
       "slug": "auto-detailing",
-      "title": "Auto Detailing",
+      "title": "Auto",
       "image": "/images/services/thumbnails/auto.png",
       "alt": "Professional auto detailing service",
-      "href": "/services/auto-detailing"
+      "href": "/services/auto-detailing",
+      "width": 400,
+      "height": 300,
+      "priority": false
     },
     {
       "slug": "marine-detailing",
-      "title": "Marine Detailing",
+      "title": "Marine",
       "image": "/images/services/thumbnails/boat.png",
       "alt": "Professional boat and marine detailing service",
-      "href": "/services/marine-detailing"
+      "href": "/services/marine-detailing",
+      "width": 400,
+      "height": 300,
+      "priority": false
     },
     {
       "slug": "rv-detailing",
-      "title": "RV Detailing",
+      "title": "RV",
       "image": "/images/services/thumbnails/rv.png",
       "alt": "Professional RV and motorhome detailing service",
-      "href": "/services/rv-detailing"
+      "href": "/services/rv-detailing",
+      "width": 400,
+      "height": 300,
+      "priority": false
+    },
+    {
+      "slug": "aircraft-detailing",
+      "title": "Aircraft",
+      "image": "/images/services/thumbnails/airplane.png",
+      "alt": "Professional Aircraft Correction, Protection, and Detailing service",
+      "href": "/service/aircraft-detailing",
+      "width": 400,
+      "height": 300,
+      "priority": false
     },
     {
       "slug": "ceramic-coating",
       "title": "Ceramic Coating",
       "image": "/images/services/thumbnails/ceramic.png",
       "alt": "Ceramic coating application",
-      "href": "/services/ceramic-coating"
+      "href": "/services/ceramic-coating",
+      "width": 400,
+      "height": 300,
+      "priority": false
     },
     {
       "slug": "paint-correction",
       "title": "Paint Correction",
       "image": "/images/services/thumbnails/paint.png",
       "alt": "Professional paint correction and restoration service",
-      "href": "/services/paint-correction"
+      "href": "/services/paint-correction",
+      "width": 400,
+      "height": 300,
+      "priority": false
     },
     {
       "slug": "paint-protection-film",
       "title": "Paint Protection Film",
       "image": "/images/services/thumbnails/ppf.png",
       "alt": "Paint protection film installation",
-      "href": "/services/paint-protection-film"
+      "href": "/services/paint-protection-film",
+      "width": 400,
+      "height": 300,
+      "priority": false
     }
   ],
 
@@ -101,12 +143,12 @@
 
   "faq": {
     "title": "Frequently Asked Questions",
-    "subtitle": ""
+    "subtitle": "Find answers to common questions about our mobile detailing services"
   },
 
   "contact": {
     "email": "service@mobiledetailhub.com",
-    "phone": "(555) 123-4580"
+    "phone": "(555) 123-4581"
   },
 
   "socials": {
@@ -115,45 +157,6 @@
     "tiktok": "https://www.tiktok.com/@mobiledetailhub",
     "youtube": "https://www.youtube.com/@mobiledetailhub",
     "googleBusiness": "https://share.google/fx8oPIguzvJmTarrl"
-  },
-
-  "jsonLd": {
-    "organization": {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "Mobile Detail Hub",
-      "url": "https://mobiledetailhub.com/",
-      "logo": "https://mobiledetailhub.com/images/brand/logo.png",
-      "sameAs": [
-        "https://www.facebook.com/mobiledetailhub",
-        "https://www.instagram.com/mobiledetailhub",
-        "https://www.youtube.com/@mobiledetailhub",
-        "https://share.google/fx8oPIguzvJmTarrl"
-      ],
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "4.9",
-        "reviewCount": "112",
-        "bestRating": "5",
-        "worstRating": "1"
-      },
-      "contactPoint": [{
-        "@type": "ContactPoint",
-        "contactType": "customer service",
-        "telephone": "+1-555-123-4567",
-        "areaServed": "US"
-      }]
-    },
-    "website": {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "url": "https://mobiledetailhub.com/",
-      "name": "Mobile Detail Hub",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "https://mobiledetailhub.com/search?q={query}",
-        "query-input": "required name=query"
-      }
-    }
   }
+
 }

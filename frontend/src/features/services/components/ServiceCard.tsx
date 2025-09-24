@@ -17,10 +17,11 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
           <img 
             src={service.imageUrl} 
             alt="" /* decorative; title is visible text */
-            loading="lazy"
-            decoding="async"
-            width={600}
-            height={400}
+            loading={service.imagePriority ? "eager" : "lazy"}
+            decoding={service.imagePriority ? "sync" : "async"}
+            fetchPriority={service.imagePriority ? "high" : "low"}
+            width={service.imageWidth || 600}
+            height={service.imageHeight || 400}
             className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         </div>

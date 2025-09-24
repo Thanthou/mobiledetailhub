@@ -67,14 +67,15 @@ export const useSEO = () => {
     // Update Twitter image
     const twImageElement = document.getElementById('tw-image');
     if (twImageElement) {
-      const absoluteImageUrl = getAbsoluteUrl(siteData.seo.ogImage);
+      const twitterImage = siteData.seo.twitterImage || siteData.seo.ogImage;
+      const absoluteImageUrl = getAbsoluteUrl(twitterImage);
       twImageElement.setAttribute('content', absoluteImageUrl);
     }
 
     // Update canonical URL
     const canonicalElement = document.getElementById('canonical-link');
     if (canonicalElement) {
-      canonicalElement.setAttribute('href', siteData.seo.canonical);
+      canonicalElement.setAttribute('href', `https://mobiledetailhub.com${siteData.seo.canonicalPath}`);
     }
 
   }, []);

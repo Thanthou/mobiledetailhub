@@ -56,7 +56,7 @@ export function formatSEO(siteData: any) {
     title: siteData.seo?.title || siteData.brand || 'Mobile Detail Hub',
     description: siteData.seo?.description || '',
     keywords: siteData.seo?.keywords || [],
-    canonical: siteData.seo?.canonical || '',
+    canonical: `https://mobiledetailhub.com${siteData.seo?.canonicalPath || '/'}`,
     ogImage: getAbsoluteUrl(siteData.seo?.ogImage || ''),
   };
 }

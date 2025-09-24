@@ -1,17 +1,19 @@
 // Import vehicle data
+import airplaneData from './AirplaneMakeModel.json';
 import boatData from './BoatMakeModel.json';
 import carData from './CarMakeModel.json';
 import motorcycleData from './MotorcycleMakeModel.json';
 import rvData from './RvMakeModel.json';
 
 // Export individual data sets
-export { boatData, carData, motorcycleData, rvData };
+export { airplaneData, boatData, carData, motorcycleData, rvData };
 
 // Export years dropdown utilities
 export { getVehicleYears, getFormattedYears, yearsConfig } from './years-dropdown';
 
 // Export combined data
 export const vehicleData = {
+  airplane: airplaneData,
   boat: boatData,
   car: carData,
   rv: rvData,
@@ -24,6 +26,7 @@ export const vehicleTypes = [
   { id: 'truck', name: 'Truck', data: [] },
   { id: 'boat', name: 'Boat', data: boatData },
   { id: 'rv', name: 'RV', data: rvData },
+  { id: 'airplane', name: 'Airplane', data: airplaneData },
   { id: 'motorcycle', name: 'Motorcycle', data: motorcycleData },
   { id: 'off-road', name: 'Off-Road', data: [] },
   { id: 'other', name: 'Other', data: [] },
@@ -59,6 +62,10 @@ export const getMakesForType = (vehicleType: string) => {
     }
     case 'motorcycle': {
       makes = Object.keys(motorcycleData);
+      break;
+    }
+    case 'airplane': {
+      makes = Object.keys(airplaneData);
       break;
     }
     default: {
@@ -114,6 +121,14 @@ export const getModelsForMake = (vehicleType: string, make: string) => {
     case 'motorcycle': {
       if (make in motorcycleData) {
         models = motorcycleData[make as keyof typeof motorcycleData];
+      } else {
+        models = [];
+      }
+      break;
+    }
+    case 'airplane': {
+      if (make in airplaneData) {
+        models = airplaneData[make as keyof typeof airplaneData];
       } else {
         models = [];
       }

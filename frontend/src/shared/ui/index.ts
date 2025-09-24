@@ -33,3 +33,8 @@ export { default as ProtectedRoute } from './layout/ProtectedRoute';
 
 // Image Carousel
 export { default as ImageCarousel } from './ImageCarousel';
+
+// Reviews Summary
+export { default as ReviewsSummary } from './ReviewsSummary';
+export { default as ValidationStatus } from '../components/ValidationStatus';
+export type { ReviewsSummaryProps } from '@/shared/types/reviews';

@@ -8,6 +8,7 @@ const StepLocation: React.FC = () => {
   const [state, setState] = useState(bookingData.location?.state || '');
   const [zip, setZip] = useState(bookingData.location?.zip || '');
   const [notes, setNotes] = useState(bookingData.location?.notes || '');
+  const [locationTypes, setLocationTypes] = useState<string[]>(bookingData.location?.locationType ? bookingData.location.locationType.split(',') : []);
 
   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setAddress(e.target.value);
@@ -34,8 +35,46 @@ const StepLocation: React.FC = () => {
     setLocation({ ...bookingData.location, notes: e.target.value });
   };
 
+  const handleLocationTypeChange = (type: string) => {
+    const updatedTypes = locationTypes.includes(type)
+      ? locationTypes.filter(t => t !== type) // Remove if already selected
+      : [...locationTypes, type]; // Add if not selected
+    
+    setLocationTypes(updatedTypes);
+    setLocation({ ...bookingData.location, locationType: updatedTypes.join(',') });
+  };
+
+  const availableLocationTypes = ['Garage', 'Driveway', 'Business', 'Hangar', 'Street', 'Other'];
+
   return (
     <div className="space-y-6">
+      {/* Location Type Checkboxes */}
+      <div className="space-y-4">
+        <h3 className="text-white font-medium text-lg">Please tell us where your vehicle will be serviced</h3>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          {availableLocationTypes.map((type) => (
+            <label
+              key={type}
+              className={`flex items-center space-x-3 p-3 rounded-lg border-2 cursor-pointer transition-all ${
+                locationTypes.includes(type)
+                  ? 'border-orange-500 bg-orange-500/20'
+                  : 'border-gray-600 hover:border-gray-500 bg-gray-700'
+              }`}
+            >
+              <input
+                type="checkbox"
+                value={type}
+                checked={locationTypes.includes(type)}
+                onChange={() => handleLocationTypeChange(type)}
+                className="w-4 h-4 text-orange-500 bg-gray-700 border-gray-600 focus:ring-orange-500 focus:ring-2"
+              />
+              <span className="text-white font-medium">{type}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* Address Fields */}
       <div className="space-y-4">
         <div>
           <input
