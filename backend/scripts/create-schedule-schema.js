@@ -45,7 +45,7 @@ async function createScheduleSchema() {
     // Insert default schedule settings for existing affiliates
     const insertSettingsQuery = `
       INSERT INTO schedule.schedule_settings (affiliate_id)
-      SELECT id FROM affiliates.business
+      SELECT id FROM tenants.business
       WHERE id NOT IN (SELECT affiliate_id FROM schedule.schedule_settings)
       ON CONFLICT (affiliate_id) DO NOTHING;
     `;

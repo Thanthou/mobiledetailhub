@@ -13,17 +13,24 @@ const logger = require('./utils/logger');
 
 // Import route modules
 const healthRoutes = require('./routes/health');
+const healthMonitoringRoutes = require('./routes/healthMonitoring');
 const serviceAreasRoutes = require('./routes/serviceAreas');
 const authRoutes = require('./routes/auth');
-const affiliatesRoutes = require('./routes/affiliates');
+const tenantsRoutes = require('./routes/tenants');
 const mdhConfigRoutes = require('./routes/mdhConfig');
 const customersRoutes = require('./routes/customers');
 const adminRoutes = require('./routes/admin');
 const uploadRoutes = require('./routes/upload');
 const servicesRoutes = require('./routes/services');
 const reviewsRoutes = require('./routes/reviews');
+const tenantReviewsRoutes = require('./routes/tenantReviews');
 const avatarRoutes = require('./routes/avatar');
 const scheduleRoutes = require('./routes/schedule');
+const galleryRoutes = require('./routes/gallery');
+const stockImagesRoutes = require('./routes/stockImages');
+const tenantImagesRoutes = require('./routes/tenantImages');
+const locationsRoutes = require('./routes/locations');
+const websiteContentRoutes = require('./routes/websiteContent');
 
 // Get the update function from health routes
 const { updateShutdownStatus } = healthRoutes;
@@ -340,18 +347,25 @@ app.use('/api/auth', authLimiter, authRoutes); // Auth-specific rate limiting
 app.use('/api/admin', adminLimiter, adminRoutes); // Admin-specific rate limiting
 
 // Apply general API rate limiting to other routes
-app.use('/api/affiliates', apiLimiter, affiliatesRoutes); // Mixed read/write
+app.use('/api/tenants', apiLimiter, tenantsRoutes); // Mixed read/write
 app.use('/api/customers', apiLimiter, customersRoutes); // Mixed read/write
 app.use('/api/services', servicesRoutes); // Mixed read/write - temporarily removed rate limiter
 app.use('/api/reviews', apiLimiter, reviewsRoutes); // Mixed read/write
+app.use('/api/tenant-reviews', apiLimiter, tenantReviewsRoutes); // Tenant dashboard reviews (no auth required)
 app.use('/api/upload', apiLimiter, uploadRoutes); // Upload routes
 app.use('/api/avatar', apiLimiter, avatarRoutes); // Avatar routes
 app.use('/api/schedule', apiLimiter, scheduleRoutes); // Schedule routes
 
 // Read-only endpoints (no rate limiting to prevent slow header/footer performance)
 app.use('/api/health', healthRoutes); // Health checks
+app.use('/api/health-monitoring', apiLimiter, healthMonitoringRoutes); // Website health monitoring
 app.use('/api/service_areas', serviceAreasRoutes); // Service areas data
 app.use('/api/mdh-config', mdhConfigRoutes); // Configuration data
+app.use('/api/gallery', galleryRoutes); // Gallery images (legacy)
+app.use('/api/stock-images', stockImagesRoutes); // Stock images
+app.use('/api/tenant-images', tenantImagesRoutes); // Tenant-specific images
+app.use('/api/locations', locationsRoutes); // Service areas and locations
+app.use('/api/website-content', apiLimiter, websiteContentRoutes); // Website content
 
 // Error handling middleware (must be last)
 app.use(notFoundHandler);

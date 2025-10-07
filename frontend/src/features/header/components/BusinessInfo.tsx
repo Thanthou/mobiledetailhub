@@ -46,10 +46,12 @@ const BusinessInfo: React.FC<BusinessInfoProps> = ({ context, employeeData, loca
     );
   }
   
-  // Use location data if available, otherwise fall back to employee data
-  const businessName = locationData?.header?.businessName || employeeData?.['business-name'];
-  const businessPhone = locationData?.header?.phoneDisplay || formatPhoneNumber(employeeData?.['business-phone']);
-  const cityState = locationData?.header?.cityStateLabel || `${context.city}, ${context.state}`;
+  // Use direct fields from location data
+  const businessName = locationData?.businessName;
+  const businessPhone = locationData?.phone;
+  const cityState = locationData?.city && locationData?.stateCode 
+    ? `${locationData.city}, ${locationData.stateCode}` 
+    : `${context.city}, ${context.state}`;
   
   return (
     <div className="flex flex-col space-y-2 ml-4">
@@ -64,7 +66,7 @@ const BusinessInfo: React.FC<BusinessInfoProps> = ({ context, employeeData, loca
       
       <div className="flex items-center space-x-2">
         <span className="text-lg text-stone-300">
-          {businessPhone}
+          {formatPhoneNumber(businessPhone)}
         </span>
         <span className="text-stone-400">•</span>
         <span className="text-lg text-stone-300">

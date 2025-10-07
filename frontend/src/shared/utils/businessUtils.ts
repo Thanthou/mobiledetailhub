@@ -1,27 +1,26 @@
 import type { BusinessData, EmployeesData } from '@/shared/types/business';
 
-// Import employees data
-import employeesData from '@/data/employee/employees.json';
+// Note: Employee data is now stored in the database
+// These functions should be updated to use API calls
 
 /**
  * Get business data by affiliate slug
+ * TODO: Update to use API call to database
  */
 export function getBusinessBySlug(affiliateSlug: string): BusinessData | null {
-  try {
-    const employees = employeesData as EmployeesData;
-    return employees[affiliateSlug] || null;
-  } catch (error) {
-    console.error('Error getting business by slug:', error);
-    return null;
-  }
+  console.warn('getBusinessBySlug is using legacy JSON data. Should be updated to use database API.');
+  // TODO: Replace with API call
+  return null;
 }
 
 /**
  * Get all available business slugs
+ * TODO: Update to use API call to database
  */
 export function getAllBusinessSlugs(): string[] {
-  const employees = employeesData as EmployeesData;
-  return Object.keys(employees);
+  console.warn('getAllBusinessSlugs is using legacy JSON data. Should be updated to use database API.');
+  // TODO: Replace with API call
+  return [];
 }
 
 /**

@@ -1,14 +1,34 @@
 import React from 'react';
 import { Star, Users } from 'lucide-react';
 import type { ReviewsSummaryProps } from '@/shared/types/reviews';
+import { useReviewsRating } from '@/features/reviews/hooks';
 
 const ReviewsSummary: React.FC<ReviewsSummaryProps> = ({ 
-  averageRating = 4.9, 
-  totalReviews = 112,
-  googleBusinessUrl = 'https://share.google/fx8oPIguzvJmTarrl',
+  averageRating: propAverageRating, 
+  totalReviews: propTotalReviews,
+  googleBusinessUrl: propGoogleBusinessUrl,
   className = '',
   variant = 'default'
 }) => {
+  // Get data from database (with fallbacks to site.json)
+  const dbData = useReviewsRating();
+  
+  // Use props if provided, otherwise use database/site data
+  // Ensure averageRating is a number (convert if string)
+  const averageRating = typeof propAverageRating === 'number' 
+    ? propAverageRating 
+    : (typeof dbData.averageRating === 'number' 
+      ? dbData.averageRating 
+      : parseFloat(String(dbData.averageRating)) || 4.9);
+      
+  // Ensure totalReviews is a number (convert if string)
+  const totalReviews = typeof propTotalReviews === 'number'
+    ? propTotalReviews
+    : (typeof dbData.totalReviews === 'number'
+      ? dbData.totalReviews
+      : parseInt(String(dbData.totalReviews), 10) || 112);
+      
+  const googleBusinessUrl = propGoogleBusinessUrl ?? dbData.googleBusinessUrl;
   const isCompact = variant === 'compact';
   
   const containerClasses = isCompact 

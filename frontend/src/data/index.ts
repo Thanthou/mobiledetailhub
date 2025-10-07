@@ -1,5 +1,5 @@
 // Export all vehicle data
-export * from './vehicle_data';
+export * from './mobile-detailing/vehicle_data';
 
 // Export MDH configuration
 export * from './mdh';

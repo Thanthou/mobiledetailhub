@@ -1,12 +1,24 @@
 import React from 'react';
 import { NAV_LINKS } from '@/features/header/utils/constants';
 import { handleSectionClick } from '@/features/header/utils/navigation';
+import { useReviewsAvailability } from '@/features/reviews/hooks/useReviewsAvailability';
 
 interface NavigationProps {
   activeSection: string;
 }
 
 const Navigation: React.FC<NavigationProps> = ({ activeSection }) => {
+  // Check if reviews are available
+  const hasReviews = useReviewsAvailability();
+
+  // Filter navigation links based on reviews availability
+  const filteredNavLinks = NAV_LINKS.filter(link => {
+    if (link.name === 'Reviews') {
+      return hasReviews; // Only show reviews if there are reviews available
+    }
+    return true; // Show all other links
+  });
+
   // Determine if a nav item is active based on visible section
   const isActive = (link: typeof NAV_LINKS[0]) => {
     const isLinkActive = (
@@ -35,7 +47,7 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection }) => {
 
   return (
     <nav aria-label="Primary navigation" className="hidden md:flex space-x-6">
-      {NAV_LINKS.map(link => (
+      {filteredNavLinks.map(link => (
         link.isFAQ ? (
           <button
             key={link.name}

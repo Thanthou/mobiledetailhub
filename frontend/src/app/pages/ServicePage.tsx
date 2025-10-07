@@ -1,5 +1,5 @@
 import React from 'react';
-import { Header } from '@/features/header';
+import { Header, DataProvider } from '@/features/header';
 import { useServicePage } from '@/features/services/hooks/useServicePage';
 import { ServiceHero, WhatItIs, Process, Results, ServiceCTA } from '@/features/services';
 
@@ -9,6 +9,7 @@ interface ServicePageProps {
 
 const ServicePage: React.FC<ServicePageProps> = ({ onRequestQuote }) => {
   const { serviceData } = useServicePage();
+
 
   if (!serviceData) {
     return (
@@ -22,14 +23,16 @@ const ServicePage: React.FC<ServicePageProps> = ({ onRequestQuote }) => {
   }
 
   return (
-    <main className="bg-stone-900 text-white">
-      <Header />
-      <ServiceHero serviceData={serviceData} onRequestQuote={onRequestQuote} />
-      <WhatItIs serviceData={serviceData} />
-      <Process serviceData={serviceData} />
-      <Results serviceData={serviceData} />
-      <ServiceCTA serviceData={serviceData} onRequestQuote={onRequestQuote} />
-    </main>
+    <DataProvider>
+      <main className="bg-stone-900 text-white">
+        <Header />
+        <ServiceHero serviceData={serviceData} onRequestQuote={onRequestQuote} />
+        <WhatItIs serviceData={serviceData} />
+        <Process serviceData={serviceData} />
+        <Results serviceData={serviceData} />
+        <ServiceCTA serviceData={serviceData} onRequestQuote={onRequestQuote} />
+      </main>
+    </DataProvider>
   );
 };
 

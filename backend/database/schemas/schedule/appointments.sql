@@ -1,7 +1,7 @@
 -- Appointments table for scheduling system
 CREATE TABLE IF NOT EXISTS schedule.appointments (
     id SERIAL PRIMARY KEY,
-    affiliate_id INTEGER NOT NULL REFERENCES affiliates.business(id) ON DELETE CASCADE,
+    affiliate_id INTEGER NOT NULL REFERENCES tenants.business(id) ON DELETE CASCADE,
     customer_id INTEGER REFERENCES auth.users(id) ON DELETE SET NULL,
     
     -- Appointment details

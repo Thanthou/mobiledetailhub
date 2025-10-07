@@ -1,8 +1,6 @@
 // Context hooks
 export { useAuth } from './useAuth';
-export { useFAQ } from './useFAQ';
-export { useLocation } from './useLocation';
-export { useMDHConfig } from './useMDHConfig';
+export { useTenantConfig } from './useTenantConfig';
 export { useSEO } from './useSEO';
 export { useSiteContext } from '../utils/siteContext';
 export { useToast } from './useToast';

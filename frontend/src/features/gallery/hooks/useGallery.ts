@@ -12,7 +12,7 @@ export const useGallery = () => {
         setLoading(true);
         setError(null);
         
-        const response = await fetch('/data/gallery.json');
+        const response = await fetch('/mobile-detailing/data/gallery.json');
         
         if (!response.ok) {
           throw new Error(`Failed to fetch gallery data: ${response.status}`);

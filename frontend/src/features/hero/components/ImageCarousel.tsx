@@ -1,5 +1,5 @@
 import React from 'react';
-import siteData from '@/data/mdh/site.json';
+import siteData from '@/data/mobile-detailing/site.json';
 import { useImageRotation } from '@/shared/hooks';
 import { getVisibleImageIndices, getImageOpacityClasses, getTransitionStyles } from '@/shared/utils';
 import { useSiteContext } from '@/shared/utils/siteContext';
@@ -27,7 +27,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
     images = imageData.map((img: any) => img.url);
   } else {
     // Fall back to main site hero images
-    imageData = siteData.hero.images || [];
+    imageData = siteData.hero.Images || [];
     images = imageData.map((img: any) => img.url);
   }
   
@@ -67,7 +67,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
             style={getTransitionStyles(2000)}
             decoding={isPriority ? 'sync' : 'async'}
             loading={isPriority ? 'eager' : 'lazy'}
-            fetchPriority={isPriority ? 'high' : 'low'}
+            fetchpriority={isPriority ? 'high' : 'low'}
           />
         );
       })}

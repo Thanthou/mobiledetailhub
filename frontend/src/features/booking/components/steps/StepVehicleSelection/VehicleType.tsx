@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { getMakesForType, getModelsForMake, getVehicleYears } from '@/data/vehicle_data';
-import siteData from '@/data/mdh/site.json';
+import { getMakesForType, getModelsForMake, getVehicleYears } from '@/data/mobile-detailing/vehicle_data';
+import siteData from '@/data/mobile-detailing/site.json';
 
 interface VehicleSelectionProps {
   selectedVehicle: string;

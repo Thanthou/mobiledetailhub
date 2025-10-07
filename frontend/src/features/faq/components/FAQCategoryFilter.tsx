@@ -9,21 +9,7 @@ interface FAQCategoryFilterProps {
   categories: string[];
 }
 
-// Mapping from display names to actual category names
-const categoryMapping = {
-  'All': 'All',
-  'General': 'General',
-  'Services': 'Services & Packages',
-  'Scheduling': 'Scheduling & Location',
-  'Pricing': 'Pricing & Payment',
-  'Preparation': 'Preparation & Aftercare',
-  'RV': 'RV & Boat Services',
-  'Locations': 'Locations',
-  'Payments': 'Payments & Deposits',
-  'Warranty': 'Warranty & Guarantee',
-};
-
-const categoryIcons = {
+const categoryIcons: Record<string, React.ComponentType<any>> = {
   All: Car,
   General: Car,
   Services: Car,
@@ -31,9 +17,10 @@ const categoryIcons = {
   Pricing: CreditCard,
   Preparation: Shield,
   RV: Car,
-  Locations: Settings,
+  Locations: MapPin,
   Payments: CreditCard,
   Warranty: Shield,
+  Aftercare: Shield,
 };
 
 const FAQCategoryFilter: React.FC<FAQCategoryFilterProps> = ({ 
@@ -46,16 +33,15 @@ const FAQCategoryFilter: React.FC<FAQCategoryFilterProps> = ({
   const secondRow = categories.slice(5);
   
   const renderChip = (categoryName: string) => {
-    // For categories not in mapping (like location-specific ones), use the category name as-is
-    const actualCategory = categoryMapping[categoryName as keyof typeof categoryMapping] || categoryName;
-    // Use MapPin icon for location categories (city names or 'Location')
-    const IconComponent = (categoryName !== 'All' && categoryName !== 'General' && categoryName !== 'Services' && categoryName !== 'Scheduling' && categoryName !== 'Pricing' && categoryName !== 'Preparation' && categoryName !== 'RV' && categoryName !== 'Locations' && categoryName !== 'Payments' && categoryName !== 'Warranty') ? MapPin : (categoryIcons[categoryName as keyof typeof categoryIcons] || Car);
-    const isSelected = selectedCategory === actualCategory;
+    // No mapping needed - use category names directly from database
+    const isSelected = selectedCategory === categoryName;
+    // Get appropriate icon for this category
+    const IconComponent = categoryIcons[categoryName] || MapPin;
     
     return (
       <FilterChip
         key={categoryName}
-        onClick={() => onCategoryChange(actualCategory)}
+        onClick={() => onCategoryChange(categoryName)}
         isSelected={isSelected}
         icon={IconComponent}
         className="transform hover:scale-105 backdrop-blur-sm"

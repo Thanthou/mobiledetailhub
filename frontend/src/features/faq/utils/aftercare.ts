@@ -1,34 +1,40 @@
-import type { FAQItem } from '@/features/faq/types';
+import type { FAQItem } from "@/features/faq/types";
 
 export const MDH_FAQ_AFTERCARE: FAQItem[] = [
   {
-    category: "Preparation & Aftercare",
+    category: "Aftercare",
     question: "How should I maintain my vehicle after a detail?",
     answer:
-    "We recommend regular maintenance washes using pH-neutral car shampoo, microfiber mitts, and drying towels to preserve your finish. Avoid automated car washes with brushes, as they can introduce scratches and swirl marks.",
-},
-{
-    category: "Preparation & Aftercare",
+      "To keep your vehicle looking its best, wash it regularly using a pH-neutral shampoo, clean microfiber mitts, and soft drying towels. Avoid automatic car washes with brushes, as they can introduce swirl marks and micro-scratches.",
+  },
+  {
+    category: "Aftercare",
     question: "How do I care for a ceramic-coated vehicle?",
     answer:
-    "Wash with a pH-balanced soap, avoid harsh chemicals, and dry thoroughly after each wash. Boost hydrophobic performance with a ceramic spray topper every 3–6 months. Many providers offer discounted maintenance plans.",
-},
-{
-    category: "Preparation & Aftercare",
-    question: "How do I care for Paint Protection Film (PPF)?",
+      "Always use pH-balanced soaps and clean microfiber towels. Avoid harsh degreasers or abrasive sponges. For best results, apply a ceramic spray topper every few months to maintain gloss and hydrophobic performance.",
+  },
+  {
+    category: "Aftercare",
+    question: "What’s the best way to care for Paint Protection Film (PPF)?",
     answer:
-    "Use gentle wash methods, avoid high-pressure nozzles directly at film edges, and apply a ceramic coating or sealant to extend the film's life. PPF can be hand-waxed with non-abrasive products if desired.",
-},
-{
-    category: "Preparation & Aftercare",
+      "Wash gently using a microfiber wash mitt and avoid directing high-pressure water at the film edges. You can apply a wax or ceramic coating made for PPF to enhance shine and make cleaning easier.",
+  },
+  {
+    category: "Aftercare",
     question: "When should I schedule my next detail?",
     answer:
-    "We recommend a professional maintenance detail every 2–3 months, depending on driving habits and environment. Regular upkeep helps protect your investment and keeps your vehicle looking showroom-ready.",
-},
-{
-    category: "Preparation & Aftercare",
+      "We recommend a maintenance detail every 2–3 months depending on your driving habits, storage conditions, and local environment. Regular upkeep helps protect finishes and maintain resale value.",
+  },
+  {
+    category: "Aftercare",
+    question: "Can I wax or polish my vehicle after detailing?",
+    answer:
+      "You can apply a non-abrasive wax or sealant once the existing protection begins to fade. However, if you have a ceramic coating or PPF, confirm with your detailer before adding additional products.",
+  },
+  {
+    category: "Aftercare",
     question: "Do you offer maintenance plans?",
     answer:
-    "Yes. Many MDH providers offer ongoing maintenance packages that include scheduled washes, light interior cleaning, and periodic protective treatments at discounted rates.",
-},
+      "Many providers offer recurring maintenance packages that include regular washes, interior cleaning, and protective treatments at a discounted rate. These plans help preserve your vehicle year-round.",
+  },
 ];

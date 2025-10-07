@@ -4,7 +4,7 @@
  */
 
 import type { LocationPage } from '@/shared/types/location';
-import siteData from '@/data/mdh/site.json';
+import siteData from '@/data/mobile-detailing/site.json';
 
 /**
  * Automatically generate Schema.org image array from location images
@@ -167,6 +167,22 @@ export function generateFAQSchema(faqs: Array<{ id?: string; q: string; a: strin
       }
     }))
   };
+}
+
+/**
+ * Convert FAQItem format to generateFAQSchema format
+ */
+export function convertFAQItemsToSchemaFormat(faqItems: Array<{ 
+  id?: string; 
+  question: string; 
+  answer: string; 
+  category?: string; 
+}>): Array<{ id?: string; q: string; a: string }> {
+  return faqItems.map(item => ({
+    id: item.id,
+    q: item.question,
+    a: item.answer
+  }));
 }
 
 /**
@@ -469,7 +485,8 @@ export function generateWebPageSchema(
  */
 export function generateAllSchemas(
   pageData: any,
-  pageType: 'home' | 'location' = 'home'
+  pageType: 'home' | 'location' = 'home',
+  additionalFAQs?: Array<{ id?: string; q: string; a: string }>
 ): Record<string, unknown>[] {
   const schemas: Record<string, unknown>[] = [];
 
@@ -477,6 +494,12 @@ export function generateAllSchemas(
     // Main site gets Organization and Website schemas
     schemas.push(generateOrganizationSchema(pageData));
     schemas.push(generateWebsiteSchema(pageData));
+    schemas.push(generateWebPageSchema(pageData, 'home'));
+    
+    // Add FAQPage schema if additional FAQs are provided (from general FAQ utils)
+    if (additionalFAQs && additionalFAQs.length > 0) {
+      schemas.push(generateFAQSchema(additionalFAQs));
+    }
   } else {
     // Location pages get LocalBusiness, FAQPage, BreadcrumbList, and WebPage schemas
     schemas.push(generateLocationSchema(pageData));

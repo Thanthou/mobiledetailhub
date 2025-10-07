@@ -11,7 +11,7 @@
         "Wheel, tire, and wheel-well deep clean",
         "Surface prep for polishing or coating"
       ],
-      "duration": 180
+      "duration": 120
     },
   
     "full-interior-detail": {
@@ -25,7 +25,7 @@
         "UV-protective interior dressing",
         "Streak-free glass cleaning inside and out"
       ],
-      "duration": 180
+      "duration": 120
     },
   
     "fallout-removal": {
@@ -37,7 +37,7 @@
         "Safe for paint, glass, and wheels",
         "Restores smoothness before correction"
       ],
-      "duration": 60
+      "duration": 45
     },
   
     "preparation-detail": {
@@ -49,7 +49,7 @@
         "Tape masking of sensitive edges and trim",
         "Lighting inspection for hidden defects"
       ],
-      "duration": 60
+      "duration": 30
     },
   
     "paint-enhancement": {
@@ -61,7 +61,7 @@
         "Removes micro-marring and light oxidation",
         "Enhances color depth and reflection"
       ],
-      "duration": 120
+      "duration": 90
     },
   
     "1-stage-paint-correction": {
@@ -73,7 +73,7 @@
         "Removes light swirl marks and oxidation",
         "Enhances color vibrancy and gloss"
       ],
-      "duration": 240
+      "duration": 90
     },
   
     "2-stage-paint-correction": {
@@ -85,7 +85,7 @@
         "Finishing polish for mirror-like gloss",
         "Removes most wash-induced marring"
       ],
-      "duration": 360
+      "duration": 180
     },
   
     "3-stage-paint-correction": {
@@ -97,7 +97,7 @@
         "Intermediate polish for refined leveling",
         "Final jeweling polish for maximum depth and reflection"
       ],
-      "duration": 480
+      "duration": 270
     },
   
     "essential-ceramic-coating": {
@@ -110,7 +110,7 @@
         "UV and chemical resistance",
         "Easier washing and drying"
       ],
-      "duration": 120
+      "duration": 45
     },
   
     "enduring-ceramic-coating": {
@@ -123,7 +123,7 @@
         "Superior UV and chemical resistance",
         "Extreme water beading"
       ],
-      "duration": 180
+      "duration": 45
     },
   
     "platinum-ceramic-coating": {
@@ -137,7 +137,7 @@
         "Advanced hydrophobic and self-cleaning properties",
         "High chemical and light scratch resistance"
       ],
-      "duration": 240
+      "duration": 45
     },
   
     "elite-ceramic-coating": {
@@ -150,7 +150,7 @@
         "Highest UV, chemical, and abrasion resistance",
         "Ultra-slick, self-cleaning surface"
       ],
-      "duration": 300
+      "duration": 45
     }
   }
   

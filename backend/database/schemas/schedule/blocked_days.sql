@@ -1,7 +1,7 @@
 -- Blocked days table for disabling specific dates
 CREATE TABLE IF NOT EXISTS schedule.blocked_days (
     id SERIAL PRIMARY KEY,
-    affiliate_id INTEGER NOT NULL REFERENCES affiliates.business(id) ON DELETE CASCADE,
+    affiliate_id INTEGER NOT NULL REFERENCES tenants.business(id) ON DELETE CASCADE,
     blocked_date DATE NOT NULL,
     reason VARCHAR(255), -- Optional reason for blocking (e.g., "Holiday", "Maintenance", "Personal")
     is_recurring BOOLEAN DEFAULT FALSE, -- For recurring blocked days (e.g., every Sunday)

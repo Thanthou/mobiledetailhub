@@ -1,7 +1,7 @@
 -- Schedule settings table for affiliate-specific scheduling configuration
 CREATE TABLE IF NOT EXISTS schedule.schedule_settings (
     id SERIAL PRIMARY KEY,
-    affiliate_id INTEGER NOT NULL UNIQUE REFERENCES affiliates.business(id) ON DELETE CASCADE,
+    affiliate_id INTEGER NOT NULL UNIQUE REFERENCES tenants.business(id) ON DELETE CASCADE,
     
     -- Business hours (stored as JSON for flexibility)
     business_hours JSONB NOT NULL DEFAULT '{

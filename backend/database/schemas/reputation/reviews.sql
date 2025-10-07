@@ -5,7 +5,7 @@ CREATE TABLE reputation.reviews (
     id SERIAL PRIMARY KEY,
     
     -- Review target (either affiliate or MDH site)
-    review_type VARCHAR(20) NOT NULL CHECK (review_type IN ('affiliate', 'mdh')),
+    review_type VARCHAR(20) NOT NULL CHECK (review_type IN ('tenant')),
     
     -- For affiliate reviews - link to business
     affiliate_id INTEGER NULL,
@@ -89,29 +89,28 @@ CREATE TRIGGER trigger_reviews_updated_at
 -- Add foreign key constraints
 ALTER TABLE reputation.reviews 
     ADD CONSTRAINT fk_reviews_affiliate_id 
-    FOREIGN KEY (affiliate_id) REFERENCES affiliates.business(id) ON DELETE CASCADE;
+    FOREIGN KEY (affiliate_id) REFERENCES tenants.business(id) ON DELETE CASCADE;
 
 ALTER TABLE reputation.reviews 
     ADD CONSTRAINT fk_reviews_moderated_by 
     FOREIGN KEY (moderated_by) REFERENCES auth.users(id) ON DELETE SET NULL;
 
--- Add constraint to ensure business_slug matches affiliate when affiliate_id is set
+-- Add constraint to ensure business_slug matches tenant when business_slug is set
 ALTER TABLE reputation.reviews 
     ADD CONSTRAINT fk_reviews_business_slug 
-    FOREIGN KEY (business_slug) REFERENCES affiliates.business(slug) ON DELETE CASCADE;
+    FOREIGN KEY (business_slug) REFERENCES tenants.business(slug) ON DELETE CASCADE;
 
 -- Add constraint to ensure affiliate_id and business_slug are consistent
 ALTER TABLE reputation.reviews 
-    ADD CONSTRAINT chk_reviews_affiliate_consistency 
+    ADD CONSTRAINT chk_reviews_tenant_consistency 
     CHECK (
         (affiliate_id IS NULL AND business_slug IS NULL) OR 
         (affiliate_id IS NOT NULL AND business_slug IS NOT NULL)
     );
 
--- Add constraint to ensure affiliate reviews have required fields
+-- Add constraint to ensure tenant reviews have required fields
 ALTER TABLE reputation.reviews 
-    ADD CONSTRAINT chk_reviews_affiliate_required 
+    ADD CONSTRAINT chk_reviews_tenant_required 
     CHECK (
-        (review_type = 'affiliate' AND affiliate_id IS NOT NULL AND business_slug IS NOT NULL) OR
-        (review_type = 'mdh' AND affiliate_id IS NULL AND business_slug IS NULL)
+        review_type = 'tenant' AND affiliate_id IS NOT NULL AND business_slug IS NOT NULL
     );

@@ -22,7 +22,7 @@ router.get('/footer', asyncHandler(async (req, res) => {
     // First, check if we have any approved affiliates
     const countResult = await pool.query(`
       SELECT COUNT(*) as count
-      FROM affiliates.business 
+      FROM tenants.business 
       WHERE approved_date IS NOT NULL
     `);
     
@@ -42,7 +42,7 @@ router.get('/footer', asyncHandler(async (req, res) => {
     // Get all approved affiliates with their service areas
     const result = await pool.query(`
       SELECT id, slug, service_areas
-      FROM affiliates.business 
+      FROM tenants.business 
       WHERE approved_date IS NOT NULL 
         AND service_areas IS NOT NULL
     `);
@@ -112,7 +112,7 @@ router.get('/', asyncHandler(async (req, res) => {
       SELECT DISTINCT 
         JSONB_ARRAY_ELEMENTS(a.service_areas)->>'state' as state_code,
         JSONB_ARRAY_ELEMENTS(a.service_areas)->>'state' as name
-      FROM affiliates.business a
+      FROM tenants.business a
       WHERE a.approved_date IS NOT NULL 
         AND a.service_areas IS NOT NULL
         AND JSONB_ARRAY_LENGTH(a.service_areas) > 0
@@ -146,7 +146,7 @@ router.get('/:state_code',
         JSONB_ARRAY_ELEMENTS(a.service_areas)->>'city' as city,
         JSONB_ARRAY_ELEMENTS(a.service_areas)->>'state' as state_code,
         JSONB_ARRAY_ELEMENTS(a.service_areas)->>'zip' as zip
-      FROM affiliates.business a
+      FROM tenants.business a
       WHERE a.approved_date IS NOT NULL 
         AND a.service_areas IS NOT NULL
         AND JSONB_ARRAY_LENGTH(a.service_areas) > 0

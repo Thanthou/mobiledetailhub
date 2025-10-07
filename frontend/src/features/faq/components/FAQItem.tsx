@@ -2,6 +2,7 @@ import React from 'react';
 import { ChevronDown } from 'lucide-react';
 
 import type { FAQItem } from '@/features/faq/types';
+import ServiceAreasLink from './ServiceAreasLink';
 
 interface FAQItemProps {
   faq: FAQItem;
@@ -54,9 +55,20 @@ const FAQItem: React.FC<FAQItemProps> = ({ faq, isExpanded, onToggle }) => {
       >
         <div className="px-4 pb-4 border-t border-stone-700/30">
           <div className="pt-3">
-            <p className="text-stone-300 text-sm leading-relaxed">
-              {faq.answer}
-            </p>
+            <div className="text-stone-300 text-sm leading-relaxed">
+              {faq.question === 'What areas do you service?' ? (
+                <>
+                  {faq.answer.split('We proudly serve')[0]}
+                  We proudly serve{' '}
+                  <ServiceAreasLink>our service areas</ServiceAreasLink>
+                  {faq.answer.includes('We proudly serve.') 
+                    ? faq.answer.split('We proudly serve.')[1]
+                    : faq.answer.split('We proudly serve')[1] || ''}
+                </>
+              ) : (
+                faq.answer
+              )}
+            </div>
           </div>
         </div>
       </div>

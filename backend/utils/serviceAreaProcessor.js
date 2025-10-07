@@ -55,7 +55,7 @@ async function processAffiliateServiceAreas(affiliateId, serviceAreas) {
     // Update the business record with validated service areas
     if (validatedAreas.length > 0) {
       await client.query(
-        'UPDATE affiliates.business SET service_areas = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
+        'UPDATE tenants.business SET service_areas = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
         [JSON.stringify(validatedAreas), affiliateId]
       );
       
@@ -87,7 +87,7 @@ async function getMDHServiceAreas() {
     SELECT DISTINCT 
       JSONB_ARRAY_ELEMENTS(a.service_areas)->>'state' as state_code,
       JSONB_ARRAY_ELEMENTS(a.service_areas)->>'city' as city_name
-    FROM affiliates.business a
+    FROM tenants.business a
     WHERE a.approved_date IS NOT NULL 
       AND a.service_areas IS NOT NULL
       AND JSONB_ARRAY_LENGTH(a.service_areas) > 0
@@ -112,7 +112,7 @@ async function getAffiliatesForCity(slug) {
       a.business_name,
       JSONB_ARRAY_ELEMENTS(a.service_areas)->>'city' as city,
       JSONB_ARRAY_ELEMENTS(a.service_areas)->>'state' as state_code
-    FROM affiliates.business a
+    FROM tenants.business a
     WHERE a.approved_date IS NOT NULL 
       AND a.service_areas IS NOT NULL
       AND JSONB_ARRAY_LENGTH(a.service_areas) > 0

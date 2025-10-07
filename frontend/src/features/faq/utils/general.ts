@@ -1,38 +1,40 @@
-import type { FAQItem } from '@/features/faq/types';
+import type { FAQItem } from "@/features/faq/types";
 
 export const MDH_FAQ_GENERAL: FAQItem[] = [
   {
-    id: "what-is-mobile-detail-hub",
     category: "General",
-    question: "What is Mobile Detail Hub?",
+    question: "What is mobile detailing?",
     answer:
-      "Mobile Detail Hub is an online platform that connects customers with trusted, vetted mobile detailing professionals. We make it easy to compare services, read reviews, get transparent pricing, and book detailing right to your location.",
-  },
-  {
-    id: "how-does-mobile-detail-hub-work",
-    category: "General",
-    question: "How does Mobile Detail Hub work?",
-    answer:
-      "Simply select your location, choose a service package, and pick a time that works for you. We match you with a verified mobile detailer who arrives with professional equipment and products to service your vehicle on-site.",
-  },
-  {
-    id: "why-choose-mobile-detail-hub",
-    category: "General",
-    question: "Why choose Mobile Detail Hub over booking directly?",
-    answer:
-      "We verify each detailing partner for quality, reliability, and professionalism. Our platform ensures transparent pricing, secure booking, and a consistent customer experience across all providers.",
+      "Mobile detailing brings the car wash and detailing service directly to you. We come equipped with professional tools, products, and water (if needed) to clean and protect your vehicle at your home, office, or other convenient location.",
   },
   {
     category: "General",
-    question: "Is Mobile Detail Hub available nationwide?",
+    question: "What types of vehicles do you detail?",
     answer:
-      "We're rapidly expanding. Enter your ZIP code on our homepage to see available detailers in your area. If we're not there yet, you can request to be notified when services launch nearby.",
+      "We detail cars, trucks, SUVs, motorcycles, boats, and RVs. Each type of vehicle can be customized with the appropriate service package.",
   },
   {
     category: "General",
-    question: "Are Mobile Detail Hub services insured?",
+    question: "Do you need access to water or electricity?",
     answer:
-      "Yes. We require our detailing partners to carry appropriate insurance coverage for their services, giving you peace of mind when booking through our platform.",
+      "In most cases, no. Our mobile units are self-contained and equipped with water and power. If we ever need to connect to your utilities, we’ll let you know ahead of time.",
   },
-  // Add more general FAQs here...
+  {
+    category: "General",
+    question: "How long does a typical detail take?",
+    answer:
+      "Most standard details take 2–4 hours depending on vehicle size, condition, and selected service. Premium services such as paint correction or ceramic coating may take longer.",
+  },
+  {
+    category: "General",
+    question: "Do you use professional products?",
+    answer:
+      "Absolutely. We only use high-quality, industry-approved detailing products that are safe for your paint, interior surfaces, and the environment.",
+  },
+  {
+    category: "General",
+    question: "How can I book an appointment?",
+    answer:
+      "You can book by calling or texting us, or send a message through our website. We’ll confirm your appointment and arrival window right away.",
+  },
 ];

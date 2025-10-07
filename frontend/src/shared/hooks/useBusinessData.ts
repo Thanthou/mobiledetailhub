@@ -39,7 +39,8 @@ export const useBusinessData = () => {
       if (areaData && areaData.employee) {
         console.log('🔍 Employee slug:', areaData.employee);
         
-        // Get business data from employees.json using the employee slug
+        // Get business data from database using the employee slug
+        // TODO: Replace with API call to get employee data from database
         const employeeData = getBusinessBySlug(areaData.employee);
         
         console.log('🔍 Employee data found:', employeeData);

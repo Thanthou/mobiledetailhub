@@ -107,6 +107,218 @@ export const FAQProvider: React.FC<FAQProviderProps> = ({ children }) => {
 
 
 
+FILE: frontend/src/FAQSchemaDemo.tsx
+------------------------------
+/**
+ * Demo component for FAQ schema functionality
+ * Shows FAQ schema generation and statistics
+ */
+
+import React, { useState } from 'react';
+import { useFAQSchema, useFAQSchemaStats } from '@/shared/hooks/useFAQSchema';
+import { MDH_FAQ_ITEMS } from '@/features/faq/utils';
+import bullheadCityData from '@/data/locations/az/bullhead-city.json';
+import lasVegasData from '@/data/locations/nv/las-vegas.json';
+
+interface FAQSchemaDemoProps {
+  className?: string;
+}
+
+export const FAQSchemaDemo: React.FC<FAQSchemaDemoProps> = ({ className = '' }) => {
+  const [selectedDataset, setSelectedDataset] = useState<'general' | 'bullhead' | 'lasvegas'>('general');
+  
+  const currentFAQs = selectedDataset === 'general' 
+    ? MDH_FAQ_ITEMS 
+    : selectedDataset === 'bullhead' 
+      ? (bullheadCityData.faqs || []).map(faq => ({
+          id: faq.id,
+          category: 'Location',
+          question: faq.q,
+          answer: faq.a
+        }))
+      : (lasVegasData.faqs || []).map(faq => ({
+          id: faq.id,
+          category: 'Location',
+          question: faq.q,
+          answer: faq.a
+        }));
+
+  const { schema, hasSchema, faqCount, method } = useFAQSchema(currentFAQs);
+  const stats = useFAQSchemaStats(currentFAQs);
+
+  if (process.env.NODE_ENV === 'production') {
+    return null;
+  }
+
+  return (
+    <div className={`p-6 bg-gray-50 border rounded-lg ${className}`}>
+      <h3 className="text-lg font-semibold mb-4">🔧 FAQ Schema Demo</h3>
+      
+      {/* Dataset Selector */}
+      <div className="mb-4">
+        <label className="block text-sm font-medium mb-2">Select FAQ Dataset:</label>
+        <div className="flex gap-2">
+          <button
+
+// ... (truncated 120 lines) ...
+
+      )}
+
+      {/* Generated Schema */}
+      {hasSchema && schema && (
+        <div>
+          <h4 className="font-medium mb-2">Generated FAQPage Schema:</h4>
+          <div className="bg-white p-3 rounded border">
+            <pre className="text-xs overflow-auto max-h-64 bg-gray-50 p-2 rounded">
+              {JSON.stringify(schema, null, 2)}
+            </pre>
+          </div>
+        </div>
+      )}
+
+      {/* FAQ Preview */}
+      <div className="mt-4">
+        <h4 className="font-medium mb-2">FAQ Preview:</h4>
+        <div className="bg-white p-3 rounded border">
+          <div className="space-y-3 max-h-64 overflow-auto">
+            {currentFAQs.slice(0, 3).map((faq, index) => (
+              <div key={index} className="border-b border-gray-100 pb-2">
+                <div className="flex items-start gap-2">
+                  <span className="text-gray-500 text-sm">#{index + 1}</span>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-mono text-xs bg-gray-100 px-1 rounded">{faq.id || 'no-id'}</span>
+                      {faq.category && (
+                        <span className="text-xs bg-blue-100 text-blue-800 px-1 rounded">{faq.category}</span>
+                      )}
+                    </div>
+                    <div className="font-medium text-sm">{faq.question}</div>
+                    <div className="text-gray-600 text-xs mt-1 line-clamp-2">{faq.answer}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {currentFAQs.length > 3 && (
+              <div className="text-center text-gray-500 text-sm">
+                ... and {currentFAQs.length - 3} more FAQs
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default FAQSchemaDemo;
+
+
+FILE: frontend/src/MergeDemo.tsx
+------------------------------
+/**
+ * Demo component showing deep merge functionality
+ * Useful for development and testing merge behavior
+ */
+
+import React, { useState } from 'react';
+import { useMergedLocationData, useMergedLocationDataDebug } from '@/shared/hooks/useMergedLocationData';
+import { ValidationStatus } from '@/shared/ui';
+import siteData from '@/data/mdh/site.json';
+import bullheadCityData from '@/data/locations/az/bullhead-city.json';
+import lasVegasData from '@/data/locations/nv/las-vegas.json';
+import type { LocationPage } from '@/shared/types/location';
+
+interface MergeDemoProps {
+  className?: string;
+}
+
+export const MergeDemo: React.FC<MergeDemoProps> = ({ className = '' }) => {
+  const [selectedLocation, setSelectedLocation] = useState<'bullhead' | 'lasvegas'>('bullhead');
+  
+  const currentLocationData: LocationPage = selectedLocation === 'bullhead' 
+    ? bullheadCityData 
+    : lasVegasData;
+  
+  const { mergedData, validation, statistics, wasMerged } = useMergedLocationDataDebug(
+    siteData,
+    currentLocationData,
+    `Merge Demo - ${selectedLocation === 'bullhead' ? 'Bullhead City' : 'Las Vegas'}`
+  );
+
+  if (process.env.NODE_ENV === 'production') {
+    return null;
+  }
+
+  return (
+    <div className={`p-6 bg-gray-50 border rounded-lg ${className}`}>
+      <h3 className="text-lg font-semibold mb-4">🔧 Deep Merge Demo</h3>
+      
+      {/* Location Selector */}
+      <div className="mb-4">
+        <label className="block text-sm font-medium mb-2">Select Location:</label>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setSelectedLocation('bullhead')}
+            className={`px-3 py-1 rounded text-sm ${
+              selectedLocation === 'bullhead'
+                ? 'bg-blue-500 text-white'
+                : 'bg-white border border-gray-300'
+            }`}
+          >
+
+// ... (truncated 76 lines) ...
+
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h4 className="font-medium mb-2">FAQs (Deduplicated):</h4>
+          <div className="bg-white p-3 rounded border">
+            <div className="text-sm space-y-1">
+              {mergedData.faqs?.map((faq, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <span className="text-gray-500">#{index + 1}</span>
+                  <span className="font-mono text-xs bg-gray-100 px-1 rounded">{faq.id || 'no-id'}</span>
+                  <span className="text-gray-700">{faq.q}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h4 className="font-medium mb-2">Location-Specific Fields:</h4>
+          <div className="bg-white p-3 rounded border">
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div><span className="text-gray-600">City:</span> {mergedData.city}</div>
+              <div><span className="text-gray-600">State:</span> {mergedData.stateCode}</div>
+              <div><span className="text-gray-600">Postal Code:</span> {mergedData.postalCode}</div>
+              <div><span className="text-gray-600">URL Path:</span> {mergedData.urlPath}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Raw Data (Collapsible) */}
+      <details className="mt-4">
+        <summary className="cursor-pointer font-medium text-sm text-gray-600 hover:text-gray-800">
+          Show Raw Merged Data
+        </summary>
+        <div className="mt-2 bg-white p-3 rounded border">
+          <pre className="text-xs overflow-auto max-h-64">
+            {JSON.stringify(mergedData, null, 2)}
+          </pre>
+        </div>
+      </details>
+    </div>
+  );
+};
+
+export default MergeDemo;
+
+
 FILE: frontend/src/LocationPage.tsx
 ------------------------------
 import { useEffect } from "react";
@@ -121,6 +333,7 @@ import { Services } from '@/features/services';
 import { useHomePageState } from '@/features/home/hooks';
 import HomePageLayout from '@/features/home/components/HomePageLayout';
 import { getAbsoluteUrl } from '@/shared/utils';
+import { generateAllSchemas, injectAllSchemas } from '@/shared/utils/schemaUtils';
 
 type AreaImage = { 
   url: string; 
@@ -158,11 +371,9 @@ export default function LocationPage({ area }: { area: Area }) {
   const {
     isAffiliate,
     businessSlug,
-    isQuoteModalOpen,
 
-// ... (truncated 29 lines) ...
+// ... (truncated 37 lines) ...
 
-  return (
     <HomePageLayout>
       <section id="hero">
         <Hero 
@@ -187,6 +398,7 @@ export default function LocationPage({ area }: { area: Area }) {
           businessSlug={businessSlug ?? ''}
           {...(area["reviewsSection"]?.heading && { customHeading: area["reviewsSection"].heading })}
           {...(area["reviewsSection"]?.intro && { customIntro: area["reviewsSection"].intro })}
+          {...(area["reviewsSection"]?.feedKey && { feedKey: area["reviewsSection"].feedKey })}
         />
       </section>
       <FAQ 
@@ -216,7 +428,7 @@ export default function LocationPage({ area }: { area: Area }) {
 FILE: frontend/src/Header.tsx
 ------------------------------
 import React, { useState, useEffect } from 'react';
-import { getContext } from '@/shared/utils/siteContext';
+import { useSiteContext } from '@/shared/utils/siteContext';
 import { Menu, X } from 'lucide-react';
 
 import Logo from './Logo';
@@ -235,7 +447,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ locationData, employeeData }) => {
   // Get context for consistent behavior
-  const context = getContext(locationData);
+  const context = useSiteContext();
   const [activeSection, setActiveSection] = useState<string>('');
 
   // Determine which section is currently in view
@@ -437,7 +649,11 @@ import FAQCategoryFilter from './FAQCategoryFilter';
 import FAQList from './FAQList';
 import FAQEmptyState from './FAQEmptyState';
 
-const FAQ: React.FC = () => {
+interface FAQProps {
+  locationData?: any;
+}
+
+const FAQ: React.FC<FAQProps> = ({ locationData }) => {
   const [selectedCategory, setSelectedCategory] = useState('Services & Packages');
   const [expandedFaq, setExpandedFaq] = useState<string | number | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -445,42 +661,37 @@ const FAQ: React.FC = () => {
   // Rotating background
   const { images, currentIndex, loading: backgroundLoading, error: backgroundError } = useRotatingBackground();
 
-  // Extract unique categories from FAQ data
-  const categories = ['All', ...Array.from(new Set(MDH_FAQ_ITEMS.map(faq => faq.category)))];
+  // Convert location FAQs to FAQItem format if available
+  const locationFAQs = locationData?.faqs?.map((faq: any) => ({
+    id: faq.id,
+    question: faq.q,
+    answer: faq.a,
+    category: locationData.city ? locationData.city : 'Location'
+  })) || [];
 
-  // Filter FAQs based on category and search
-  const filteredFaqs = MDH_FAQ_ITEMS.filter(faq => {
-    const matchesCategory = selectedCategory === 'All' || faq.category === selectedCategory;
-    const matchesSearch = faq.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         faq.answer.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  // Combine location FAQs with existing FAQs
+  const allFAQs = [...MDH_FAQ_ITEMS, ...locationFAQs];
 
-  const toggleFaq = (id: string | number) => {
-    setExpandedFaq(expandedFaq === id ? null : id);
+  // Extract unique categories from combined FAQ data
+  const allCategories = ['All', ...Array.from(new Set(allFAQs.map(faq => faq.category)))];
+  
+  // Map full category names to short display names
+  const categoryDisplayMapping = {
+    'All': 'All',
+    'General': 'General',
+    'Services & Packages': 'Services',
+    'Scheduling & Location': 'Scheduling',
+    'Pricing & Payment': 'Pricing',
+    'Preparation & Aftercare': 'Preparation',
+    'RV & Boat Services': 'RV',
+    'Locations': 'Locations',
+    'Payments & Deposits': 'Payments',
+    'Warranty & Guarantee': 'Warranty',
   };
+  
 
-  return (
-    <section id="faq" className="relative h-screen snap-start snap-always overflow-hidden">
-      {/* Rotating Background Images with Overlay */}
-      <div className="absolute inset-0 z-0">
-        {/* Render all images to test if performance optimization causes the pop */}
-        {images.map((image, index) => {
-          return (
-            <img
-              key={image.id}
-              src={image.src}
-              alt={image.alt || `FAQ background image ${index + 1}`}
-              className={`absolute inset-0 w-full h-full object-cover ${getImageOpacityClasses(index, currentIndex, 2000)}`}
-              style={getTransitionStyles(2000)}
-              decoding={index === 0 ? 'sync' : 'async'}
-              loading={index === 0 ? 'eager' : 'lazy'}
-            />
-          );
+// ... (truncated 74 lines) ...
 
-// ... (truncated 15 lines) ...
-
-        {/* Dark overlay */}
         <div className="absolute inset-0 bg-stone-900/85"></div>
       </div>
 
@@ -493,7 +704,7 @@ const FAQ: React.FC = () => {
               Frequently Asked Questions
             </h1>
             <p className="text-stone-200 text-lg max-w-2xl mx-auto drop-shadow-md">
-              Find answers to common questions about our mobile detailing services
+              {locationData?.faqIntro || "Find answers to common questions about our mobile detailing services"}
             </p>
           </div>
 
@@ -507,6 +718,7 @@ const FAQ: React.FC = () => {
             <FAQCategoryFilter
               selectedCategory={selectedCategory}
               onCategoryChange={setSelectedCategory}
+              categories={categories}
             />
           </div>
 
@@ -534,13 +746,14 @@ export default FAQ;
 FILE: frontend/src/FAQCategoryFilter.tsx
 ------------------------------
 import React from 'react';
-import { Car, Settings, Shield, CreditCard } from 'lucide-react';
+import { Car, Settings, Shield, CreditCard, MapPin } from 'lucide-react';
 
 import { FilterChip } from '@/shared/ui';
 
 interface FAQCategoryFilterProps {
   selectedCategory: string;
   onCategoryChange: (category: string) => void;
+  categories: string[];
 }
 
 // Mapping from display names to actual category names
@@ -572,19 +785,18 @@ const categoryIcons = {
 
 const FAQCategoryFilter: React.FC<FAQCategoryFilterProps> = ({ 
   selectedCategory, 
-  onCategoryChange 
+  onCategoryChange,
+  categories
 }) => {
-  // Create display categories from the mapping
-  const displayCategories = Object.keys(categoryMapping);
+  // Split into two rows: 5 in first row, remaining in second row
+  const firstRow = categories.slice(0, 5);
+  const secondRow = categories.slice(5);
   
-  // Split into two rows: 5 in first row, 4 in second row
-  const firstRow = displayCategories.slice(0, 5);
-  const secondRow = displayCategories.slice(5);
-  
-  const renderChip = (displayName: string) => {
-    const actualCategory = categoryMapping[displayName as keyof typeof categoryMapping];
+  const renderChip = (categoryName: string) => {
+    // For categories not in mapping (like location-specific ones), use the category name as-is
+    const actualCategory = categoryMapping[categoryName as keyof typeof categoryMapping] || categoryName;
 
-// ... (truncated -17 lines) ...
+// ... (truncated -16 lines) ...
 
   Payments: CreditCard,
   Warranty: Shield,
@@ -592,29 +804,29 @@ const FAQCategoryFilter: React.FC<FAQCategoryFilterProps> = ({
 
 const FAQCategoryFilter: React.FC<FAQCategoryFilterProps> = ({ 
   selectedCategory, 
-  onCategoryChange 
+  onCategoryChange,
+  categories
 }) => {
-  // Create display categories from the mapping
-  const displayCategories = Object.keys(categoryMapping);
+  // Split into two rows: 5 in first row, remaining in second row
+  const firstRow = categories.slice(0, 5);
+  const secondRow = categories.slice(5);
   
-  // Split into two rows: 5 in first row, 4 in second row
-  const firstRow = displayCategories.slice(0, 5);
-  const secondRow = displayCategories.slice(5);
-  
-  const renderChip = (displayName: string) => {
-    const actualCategory = categoryMapping[displayName as keyof typeof categoryMapping];
-    const IconComponent = categoryIcons[displayName as keyof typeof categoryIcons] || Car;
+  const renderChip = (categoryName: string) => {
+    // For categories not in mapping (like location-specific ones), use the category name as-is
+    const actualCategory = categoryMapping[categoryName as keyof typeof categoryMapping] || categoryName;
+    // Use MapPin icon for location categories (city names or 'Location')
+    const IconComponent = (categoryName !== 'All' && categoryName !== 'General' && categoryName !== 'Services' && categoryName !== 'Scheduling' && categoryName !== 'Pricing' && categoryName !== 'Preparation' && categoryName !== 'RV' && categoryName !== 'Locations' && categoryName !== 'Payments' && categoryName !== 'Warranty') ? MapPin : (categoryIcons[categoryName as keyof typeof categoryIcons] || Car);
     const isSelected = selectedCategory === actualCategory;
     
     return (
       <FilterChip
-        key={displayName}
+        key={categoryName}
         onClick={() => onCategoryChange(actualCategory)}
         isSelected={isSelected}
         icon={IconComponent}
         className="transform hover:scale-105 backdrop-blur-sm"
       >
-        {displayName}
+        {categoryName}
       </FilterChip>
     );
   };
@@ -635,79 +847,5 @@ const FAQCategoryFilter: React.FC<FAQCategoryFilterProps> = ({
 };
 
 export default FAQCategoryFilter;
-
-
-FILE: frontend/src/FAQEmptyState.tsx
-------------------------------
-import React from 'react';
-import { Search } from 'lucide-react';
-
-const FAQEmptyState: React.FC = () => {
-  return (
-    <div className="text-center py-12">
-      <div className="bg-stone-800/80 backdrop-blur-sm rounded-lg p-8 border border-stone-700/50 shadow-xl">
-        <Search className="h-12 w-12 text-stone-400 mx-auto mb-4" />
-        <h3 className="text-xl font-semibold text-white mb-2">No FAQs Found</h3>
-        <p className="text-stone-400">
-          Try adjusting your search or selecting a different category.
-        </p>
-      </div>
-    </div>
-  );
-};
-
-export default FAQEmptyState;
-
-
-FILE: frontend/src/FAQItem.tsx
-------------------------------
-import React from 'react';
-import { ChevronDown } from 'lucide-react';
-
-import type { FAQItem } from '@/features/faq/types';
-
-interface FAQItemProps {
-  faq: FAQItem;
-  isExpanded: boolean;
-  onToggle: () => void;
-}
-
-const FAQItem: React.FC<FAQItemProps> = ({ faq, isExpanded, onToggle }) => {
-  return (
-    <div className="bg-stone-800/80 backdrop-blur-sm rounded-lg border border-stone-700/50 overflow-hidden hover:shadow-xl hover:shadow-black/30 transition-all duration-300 h-fit">
-      <button
-        onClick={onToggle}
-        className="w-full px-4 py-4 text-left flex justify-between items-start hover:bg-stone-700/40 transition-colors duration-200 group"
-      >
-        <div className="flex-1 pr-2">
-          <h3 className="text-white font-semibold text-base group-hover:text-orange-400 transition-colors duration-200 leading-tight">
-            {faq.question}
-          </h3>
-        </div>
-        <ChevronDown
-          className={`h-4 w-4 text-stone-400 transition-transform duration-200 flex-shrink-0 mt-1 ${
-            isExpanded ? 'rotate-180 text-orange-400' : ''
-          }`}
-        />
-      </button>
-      
-      <div
-        className={`overflow-hidden transition-all duration-300 ease-in-out ${
-          isExpanded ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0'
-        }`}
-      >
-        <div className="px-4 pb-4 border-t border-stone-700/30">
-          <div className="pt-3">
-            <p className="text-stone-300 text-sm leading-relaxed">
-              {faq.answer}
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default FAQItem;
 
 

@@ -1,40 +1,40 @@
-import type { FAQItem } from '@/features/faq/types';
+import type { FAQItem } from "@/features/faq/types";
 
 export const MDH_FAQ_LOCATIONS: FAQItem[] = [
   {
     category: "Locations",
-    question: "Where does Mobile Detail Hub operate?",
+    question: "What areas do you service?",
     answer:
-    "Mobile Detail Hub connects you with professional detailers in multiple cities and regions across the U.S. Enter your zip code on our booking page to see available mobile detailing near you.",
-},
-{
+      "We proudly serve the following. If you’re located just outside our standard service area, contact us — we can often accommodate for a small travel fee.",
+  },
+  {
     category: "Locations",
     question: "Can you detail my car at my home or workplace?",
     answer:
-    "Yes. Our providers can perform detailing at your driveway, garage, or office parking lot — anywhere with safe, legal access to your vehicle.",
-},
-{
+      "Yes. We offer fully mobile service and can perform detailing at your home, workplace, or any location with safe and legal access to your vehicle.",
+  },
+  {
     category: "Locations",
     question: "Do you charge travel fees?",
     answer:
-    "Travel is typically included within a provider's service radius. If you are outside that range, a small travel fee may apply, which will be shown during booking.",
-},
-{
+      "Travel within our main service area is included. A small fee may apply for locations beyond our normal radius, and we’ll always let you know upfront before confirming your appointment.",
+  },
+  {
     category: "Locations",
     question: "Do you service apartment complexes or gated communities?",
     answer:
-    "Yes, as long as the property allows mobile detailing and grants our providers access. Please confirm with your property manager before booking.",
-},
-{
+      "Yes, as long as the property allows mobile detailing and grants access to water or parking space as needed. We recommend confirming with your property manager before booking.",
+  },
+  {
     category: "Locations",
-    question: "Can you service vehicles in public parking lots?",
+    question: "Can you detail vehicles in public parking lots?",
     answer:
-    "In most cases, mobile detailing in public lots is not permitted unless prior authorization is obtained. We recommend a private or residential location for best results.",
-},
-{
+      "In most cases, public parking areas require prior permission. We recommend scheduling at a private residence, business lot, or another approved location for best results.",
+  },
+  {
     category: "Locations",
     question: "How can I check if you serve my area?",
     answer:
-    "Simply enter your address or zip code during the online booking process. The system will instantly confirm availability and show estimated travel times.",
-},
+      "Simply enter your address or ZIP code during booking. Our system will instantly confirm availability and show the nearest available time slots for your location.",
+  },
 ];

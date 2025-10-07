@@ -6,9 +6,9 @@
 import React, { useState } from 'react';
 import { useMergedLocationData, useMergedLocationDataDebug } from '@/shared/hooks/useMergedLocationData';
 import { ValidationStatus } from '@/shared/ui';
-import siteData from '@/data/mdh/site.json';
-import bullheadCityData from '@/data/areas/az/bullhead-city.json';
-import lasVegasData from '@/data/areas/nv/las-vegas.json';
+import siteData from '@/data/mobile-detailing/site.json';
+import bullheadCityData from '@/data/locations/az/bullhead-city.json';
+import lasVegasData from '@/data/locations/nv/las-vegas.json';
 import type { LocationPage } from '@/shared/types/location';
 
 interface MergeDemoProps {

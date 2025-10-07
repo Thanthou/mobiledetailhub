@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 // import { useAffiliate } from '@/features/affiliateDashboard/hooks';
 import { useVehicleData } from '@/features/booking/hooks';
-import { useLocation } from '@/shared/hooks';
+// import { useLocation } from '@/shared/hooks'; // Removed - using tenant data instead
 import { useSiteContext } from '@/shared/hooks';
 import {
   validateEmail,
@@ -17,7 +17,7 @@ import { type QuoteRequest, quoteRequestSchema, type QuoteFormData } from '../ty
 
 export const useQuoteFormLogic = () => {
   const { vehicleTypes, getMakes, getModels } = useVehicleData();
-  const { selectedLocation } = useLocation();
+  // const { selectedLocation } = useLocation(); // Removed - using tenant data instead
   const { isAffiliate } = useSiteContext();
 
   // Safely get affiliate data - it might not be available on all pages
@@ -326,10 +326,11 @@ export const useQuoteFormLogic = () => {
   useEffect(() => {
     if (isAffiliate && businessLocation) {
       setFormData(prev => ({ ...prev, location: businessLocation }));
-    } else if (selectedLocation?.city && selectedLocation?.state) {
-      setFormData(prev => ({ ...prev, location: `${selectedLocation.city}, ${selectedLocation.state}` }));
+    } else {
+      // Use tenant location data if available
+      setFormData(prev => ({ ...prev, location: 'Service Area' }));
     }
-  }, [isAffiliate, businessLocation, selectedLocation]);
+  }, [isAffiliate, businessLocation]);
 
   return {
     formData,

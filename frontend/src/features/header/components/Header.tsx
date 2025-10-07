@@ -6,10 +6,10 @@ import Logo from './Logo';
 import BusinessInfo from './BusinessInfo';
 import Navigation from './Navigation';
 import SocialMediaIcons from './SocialMediaIcons';
-import LoginButton from './LoginButton';
-import UserMenu from './UserMenu';
+import { useData } from '../contexts/DataProvider';
 import { NAV_LINKS } from '@/features/header/utils/constants';
 import { handleSectionClick } from '@/features/header/utils/navigation';
+import { useReviewsAvailability } from '@/features/reviews/hooks/useReviewsAvailability';
 
 interface HeaderProps {
   locationData?: any; // Will type this properly later
@@ -20,11 +20,16 @@ const Header: React.FC<HeaderProps> = ({ locationData, employeeData }) => {
   // Get context for consistent behavior
   const context = useSiteContext();
   const [activeSection, setActiveSection] = useState<string>('');
+  
+  // Get data (either from database for tenants or static for main site)
+  const { businessName, phone, owner, location, isTenant } = useData();
+  const hasReviews = useReviewsAvailability();
+  
 
   // Determine which section is currently in view
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ['top', 'services', 'reviews', 'faq', 'footer'];
+      const sections = hasReviews ? ['top', 'services', 'reviews', 'faq', 'footer'] : ['top', 'services', 'faq', 'footer'];
       const scrollPosition = window.scrollY + 100; // Offset for better detection
       let currentSection = '';
 
@@ -64,7 +69,7 @@ const Header: React.FC<HeaderProps> = ({ locationData, employeeData }) => {
     
     scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
     return () => scrollContainer.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [hasReviews]); // Add hasReviews as dependency so effect re-runs when reviews availability changes
 
   // Determine if a nav item is active based on visible section
   const isActive = (link: typeof NAV_LINKS[0]) => {
@@ -90,6 +95,14 @@ const Header: React.FC<HeaderProps> = ({ locationData, employeeData }) => {
     
     return false;
   };
+
+  // Filter navigation links based on reviews availability
+  const filteredNavLinks = NAV_LINKS.filter(link => {
+    if (link.name === 'Reviews') {
+      return hasReviews; // Only show reviews if there are reviews available
+    }
+    return true; // Show all other links
+  });
   
   // Mobile menu state
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -99,7 +112,7 @@ const Header: React.FC<HeaderProps> = ({ locationData, employeeData }) => {
   };
 
   return (
-    <header role="banner" className="fixed top-0 z-50 bg-black/20 backdrop-blur-sm w-full">
+    <header role="banner" className="fixed top-0 z-50 bg-black/20 w-full">
       {/* Skip to content link for keyboard users */}
       <a 
         href="#main" 
@@ -108,19 +121,35 @@ const Header: React.FC<HeaderProps> = ({ locationData, employeeData }) => {
         Skip to content
       </a>
       
-      <div className="w-full py-4">
+      <div className="w-full py-4 relative">
         <div className="max-w-7xl mx-auto flex items-center px-4">
           <Logo />
-          <BusinessInfo context={context} employeeData={employeeData} locationData={locationData} />
-          <div className="flex items-center space-x-4 ml-auto">
+          {/* Use original BusinessInfo component with data from context */}
+          <BusinessInfo 
+            context={{
+              ...context,
+              siteData: {
+                ...context.siteData,
+                brand: businessName,
+                contact: {
+                  ...context.siteData?.contact,
+                  phone: phone
+                }
+              },
+              city: location.split(', ')[0] || context.city,
+              state: location.split(', ')[1] || context.state,
+              isLocation: isTenant
+            }}
+            locationData={isTenant ? {
+              businessName,
+              phone,
+              city: location.split(', ')[0],
+              stateCode: location.split(', ')[1]
+            } : undefined}
+          />
+          <div className="flex items-center space-x-6 ml-auto">
             <Navigation activeSection={activeSection} />
             <SocialMediaIcons />
-            
-            {/* Auth Section */}
-            <div className="flex items-center space-x-3 ml-4">
-              <LoginButton />
-              <UserMenu />
-            </div>
             
             {/* Mobile menu button */}
             <button
@@ -139,13 +168,14 @@ const Header: React.FC<HeaderProps> = ({ locationData, employeeData }) => {
             </button>
           </div>
         </div>
+        
       </div>
       
       {/* Mobile menu panel */}
       {isMobileMenuOpen && (
         <div 
           id="mobile-menu" 
-          className="md:hidden bg-black/90 backdrop-blur-sm border-t border-white/20"
+          className="md:hidden bg-black/90 border-t border-white/20"
           role="dialog"
           aria-modal="true"
           aria-labelledby="mobile-menu-title"
@@ -155,7 +185,7 @@ const Header: React.FC<HeaderProps> = ({ locationData, employeeData }) => {
             
             {/* Mobile Navigation Links */}
             <nav aria-label="Mobile navigation" className="space-y-2">
-              {NAV_LINKS.map(link => (
+              {filteredNavLinks.map(link => (
                 link.isFAQ ? (
                   <button
                     key={link.name}

@@ -1,155 +1,229 @@
+/**
+ * System Health Check Routes
+ * Provides endpoints for system health monitoring (liveness, readiness, etc.)
+ */
+
 const express = require('express');
 const router = express.Router();
-const { asyncHandler } = require('../middleware/errorHandler');
-const logger = require('../utils/logger');
 const { pool } = require('../database/pool');
+const logger = require('../utils/logger');
 
-// Get shutdown status from server.js (will be set by server)
-let shutdownStatus = {
-  isShuttingDown: false,
-  activeRequests: 0
-};
+// Track shutdown status for graceful shutdown
+let isShuttingDown = false;
 
-// Function to update shutdown status (called from server.js)
-const updateShutdownStatus = (status) => {
-  shutdownStatus = status;
-};
+/**
+ * GET /api/health
+ * Comprehensive health check with database status
+ */
+router.get('/', async (req, res) => {
+  try {
+    const startTime = Date.now();
+    
+    // Check database connectivity
+    let dbStatus = { connected: false, status: 'Disconnected', queryTime: null, dbTime: null };
+    
+    if (pool) {
+      try {
+        const dbStartTime = Date.now();
+        const result = await pool.query('SELECT NOW() as current_time');
+        const dbEndTime = Date.now();
+        
+        dbStatus = {
+          connected: true,
+          status: 'Connected',
+          queryTime: `${dbEndTime - dbStartTime}ms`,
+          dbTime: result.rows[0].current_time
+        };
+      } catch (dbError) {
+        dbStatus = {
+          connected: false,
+          status: 'Error',
+          queryTime: null,
+          dbTime: null,
+          error: dbError.message
+        };
+      }
+    }
 
+    const responseTime = Date.now() - startTime;
 
+    res.json({
+      status: 'OK',
+      timestamp: new Date().toISOString(),
+      database: dbStatus,
+      uptime: process.uptime(),
+      memory: {
+        rss: process.memoryUsage().rss,
+        heapTotal: process.memoryUsage().heapTotal,
+        heapUsed: process.memoryUsage().heapUsed,
+        external: process.memoryUsage().external
+      },
+      responseTime: `${responseTime}ms`,
+      pid: process.pid,
+      nodeVersion: process.version,
+      shutdown: isShuttingDown
+    });
 
-// Liveness endpoint - only checks if process is responsive
-// Always returns 200 if event loop is working (for Kubernetes/container orchestration)
+  } catch (error) {
+    logger.error('Health check error:', error);
+    res.status(500).json({
+      status: 'ERROR',
+      timestamp: new Date().toISOString(),
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/health/live
+ * Liveness check - always returns 200 if process is responsive
+ */
 router.get('/live', (req, res) => {
-  res.status(200).json({
+  res.json({
     status: 'alive',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     pid: process.pid,
     memory: {
-      used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
-      total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
-      external: Math.round(process.memoryUsage().external / 1024 / 1024)
+      rss: process.memoryUsage().rss,
+      heapUsed: process.memoryUsage().heapUsed
     }
   });
 });
 
-// Readiness endpoint - checks if service is ready to receive traffic
-router.get('/ready', asyncHandler(async (req, res) => {
-  let dbReady = false;
-  let dbError = null;
-  
+/**
+ * GET /api/health/ready
+ * Readiness check - returns 200 if ready to receive traffic, 503 if not
+ */
+router.get('/ready', async (req, res) => {
   try {
-    // Quick database ping with 250ms timeout
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Database readiness timeout')), 250)
-    );
-    
-    await Promise.race([
-      pool.query('SELECT 1'),
-      timeoutPromise
-    ]);
-    
-    dbReady = true;
-  } catch (error) {
-    dbError = error.message;
-  }
-  
-  if (dbReady) {
-    res.status(200).json({
-      status: 'ready',
-      timestamp: new Date().toISOString(),
-      database: {
-        connected: true
+    // Check if we're shutting down
+    if (isShuttingDown) {
+      return res.status(503).json({
+        status: 'not_ready',
+        reason: 'shutting_down',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Check database connectivity
+    if (!pool) {
+      return res.status(503).json({
+        status: 'not_ready',
+        reason: 'database_pool_unavailable',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    try {
+      // Quick database ping
+      const startTime = Date.now();
+      await pool.query('SELECT 1');
+      const responseTime = Date.now() - startTime;
+
+      if (responseTime > 5000) { // 5 second timeout
+        return res.status(503).json({
+          status: 'not_ready',
+          reason: 'database_slow',
+          responseTime: `${responseTime}ms`,
+          timestamp: new Date().toISOString()
+        });
       }
-    });
-  } else {
+
+      res.json({
+        status: 'ready',
+        timestamp: new Date().toISOString(),
+        database: {
+          connected: true,
+          responseTime: `${responseTime}ms`
+        },
+        uptime: process.uptime()
+      });
+
+    } catch (dbError) {
+      return res.status(503).json({
+        status: 'not_ready',
+        reason: 'database_error',
+        error: dbError.message,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+  } catch (error) {
+    logger.error('Readiness check error:', error);
     res.status(503).json({
       status: 'not_ready',
-      timestamp: new Date().toISOString(),
-      database: {
-        connected: false,
-        error: dbError
-      }
+      reason: 'internal_error',
+      error: error.message,
+      timestamp: new Date().toISOString()
     });
   }
-}));
+});
 
-// Health check route (comprehensive health information)
-router.get('/', asyncHandler(async (req, res) => {
-  // Test database connection and performance
-  let dbConnected = false;
-  let queryTime = null;
-  let dbTime = null;
-  
+/**
+ * GET /api/health/db-status
+ * Database connection status only
+ */
+router.get('/db-status', async (req, res) => {
+  try {
+    if (!pool) {
+      return res.status(503).json({
+        status: 'disconnected',
+        message: 'Database pool not available'
+      });
+    }
+
+    const startTime = Date.now();
+    const result = await pool.query('SELECT NOW() as current_time, version() as db_version');
+    const responseTime = Date.now() - startTime;
+
+    res.json({
+      status: 'connected',
+      responseTime: `${responseTime}ms`,
+      currentTime: result.rows[0].current_time,
+      dbVersion: result.rows[0].db_version
+    });
+
+  } catch (error) {
+    res.status(503).json({
+      status: 'error',
+      message: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/health/test-db
+ * Simple database connection test
+ */
+router.get('/test-db', async (req, res) => {
   try {
     const startTime = Date.now();
-    const result = await pool.query('SELECT NOW()');
-    queryTime = Date.now() - startTime;
-    dbTime = result.rows[0].now;
-    dbConnected = true;
-  } catch (error) {
-    logger.error('Health check database query failed:', { error: error.message });
-  }
-  
-  if (dbConnected) {
-    res.json({ 
-      status: 'OK', 
-      timestamp: new Date().toISOString(),
-      database: {
-        connected: true,
-        status: 'Connected',
-        queryTime: `${queryTime}ms`,
-        dbTime: dbTime
-      },
-      uptime: process.uptime(),
-      memory: process.memoryUsage()
+    await pool.query('SELECT 1 as test');
+    const responseTime = Date.now() - startTime;
+
+    res.json({
+      success: true,
+      message: 'Database connection successful',
+      responseTime: `${responseTime}ms`
     });
-  } else {
-    const error = new Error('Database connection not available');
-    error.statusCode = 503;
-    throw error;
-  }
-}));
 
-// Test endpoint for debugging
-router.get('/test', (req, res) => {
-  res.json({ message: 'Test endpoint working', timestamp: new Date().toISOString() });
-});
-
-// Test DB connection route
-router.get('/test-db', asyncHandler(async (req, res) => {
-  const result = await pool.query('SELECT NOW()');
-  res.json(result.rows[0]);
-}));
-
-// Database connection status route
-router.get('/db-status', asyncHandler(async (req, res) => {
-  let connected = false;
-  try {
-    await pool.query('SELECT 1');
-    connected = true;
   } catch (error) {
-    connected = false;
+    res.status(500).json({
+      success: false,
+      message: 'Database connection failed',
+      error: error.message
+    });
   }
-  
-  res.json({
-    timestamp: new Date().toISOString(),
-    connected,
-    totalCount: pool.totalCount,
-    idleCount: pool.idleCount,
-    waitingCount: pool.waitingCount
-  });
-}));
-
-
-
-// Shutdown status endpoint
-router.get('/shutdown-status', (req, res) => {
-  res.json({
-    timestamp: new Date().toISOString(),
-    ...shutdownStatus
-  });
 });
 
-// Export both the router and the updateShutdownStatus function
-module.exports = Object.assign(router, { updateShutdownStatus });
+/**
+ * Update shutdown status for graceful shutdown
+ */
+function updateShutdownStatus(shuttingDown) {
+  isShuttingDown = shuttingDown;
+}
+
+// Export the router and the updateShutdownStatus function
+module.exports = router;
+module.exports.updateShutdownStatus = updateShutdownStatus;

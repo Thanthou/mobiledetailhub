@@ -105,8 +105,7 @@ export default function LocationPage({ area }: { area: Area }) {
       </section>
       <section id="reviews">
         <Reviews 
-          reviewType={isAffiliate ? 'affiliate' : 'mdh'}
-          businessSlug={businessSlug ?? ''}
+          tenantSlug={businessSlug ?? ''}
           {...(area["reviewsSection"]?.heading && { customHeading: area["reviewsSection"].heading })}
           {...(area["reviewsSection"]?.intro && { customIntro: area["reviewsSection"].intro })}
           {...(area["reviewsSection"]?.feedKey && { feedKey: area["reviewsSection"].feedKey })}

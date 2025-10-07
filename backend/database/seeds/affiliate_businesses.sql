@@ -2,7 +2,7 @@
 -- These are sample affiliate businesses for testing and development
 
 -- Insert sample affiliate business 1
-INSERT INTO affiliates.business (
+INSERT INTO tenants.business (
     slug,
     business_name,
     first_name,
@@ -116,7 +116,7 @@ INSERT INTO affiliates.business (
     updated_at = EXCLUDED.updated_at;
 
 -- Insert sample affiliate business 2
-INSERT INTO affiliates.business (
+INSERT INTO tenants.business (
     slug,
     business_name,
     first_name,
@@ -210,7 +210,7 @@ INSERT INTO affiliates.business (
     updated_at = EXCLUDED.updated_at;
 
 -- Insert sample affiliate business 3 (pending approval)
-INSERT INTO affiliates.business (
+INSERT INTO tenants.business (
     slug,
     business_name,
     first_name,
@@ -299,7 +299,7 @@ INSERT INTO affiliates.business (
     updated_at = EXCLUDED.updated_at;
 
 -- Insert sample affiliate business 4 (approved with minimal data)
-INSERT INTO affiliates.business (
+INSERT INTO tenants.business (
     slug,
     business_name,
     first_name,

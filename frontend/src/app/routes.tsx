@@ -1,14 +1,13 @@
 import React from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, Navigate, useParams } from 'react-router-dom';
 
 import { DashboardPage as AdminDashboard } from '@/features/adminDashboard';
-import { DashboardPage } from '@/features/affiliateDashboard';
+import { DashboardPage } from '@/features/tenantDashboard';
 import { AffiliateApplicationPage } from '@/features/affiliateOnboarding';
 import { BookingPage } from '@/features/booking';
 import { Header } from '@/features/header';
 import HomePage from '@/app/pages/HomePage';
 import { ServicesGrid as ServicePage } from '@/features/services';
-import { AffiliateProvider } from '@/shared/contexts';
 import { useScrollToTop } from '@/shared/hooks';
 import { NotFoundPage, ProtectedRoute } from '@/shared/ui';
 import { locationRoutes } from '@/routes/locationRoutes';
@@ -17,6 +16,12 @@ import { locationRoutes } from '@/routes/locationRoutes';
 const ScrollToTop = () => {
   useScrollToTop();
   return null;
+};
+
+// Component to redirect old service routes to tenant-based structure
+const ServiceRedirect = () => {
+  const { serviceType } = useParams<{ serviceType: string }>();
+  return <Navigate to={`/jps/services/${serviceType}`} replace />;
 };
 
 // Simple login page component
@@ -44,37 +49,40 @@ export const AppRoutes: React.FC = () => {
               <AdminDashboard />
             </ProtectedRoute>
           } />
-          <Route path="/affiliate-dashboard" element={
+          <Route path="/tenant-dashboard" element={
             <ProtectedRoute requiredRole="affiliate" fallbackPath="/">
               <DashboardPage />
             </ProtectedRoute>
           } />
           <Route path="/affiliate-onboarding" element={<AffiliateApplicationPage />} />
           <Route path="/booking" element={<BookingPage />} />
-          <Route path="/:businessSlug/booking" element={
-            <AffiliateProvider>
-              <BookingPage />
-            </AffiliateProvider>
-          } />
-          <Route path="/service/:serviceType" element={<ServicePage />} />
-          <Route path="/:businessSlug/service/:serviceType" element={
-            <AffiliateProvider>
-              <ServicePage />
-            </AffiliateProvider>
-          } />
+          
+          {/* Redirect old service routes to tenant-based structure */}
+          <Route path="/services/:serviceType" element={<ServiceRedirect />} />
+          
+          {/* Service routes - must come before generic businessSlug route */}
+          <Route path="/:businessSlug/services/:serviceType" element={<ServicePage />} />
+          
           <Route path="/:businessSlug/dashboard" element={
-            <ProtectedRoute requiredRole={['admin', 'affiliate']} fallbackPath="/">
-              <DashboardPage />
-            </ProtectedRoute>
+            <div style={{ padding: '20px', background: 'red', color: 'white' }}>
+              <h1>DASHBOARD ROUTE MATCHED!</h1>
+              <p>Business Slug: {window.location.pathname.split('/')[1]}</p>
+              <ProtectedRoute requiredRole={['admin', 'affiliate']} fallbackPath="/">
+                  <DashboardPage />
+              </ProtectedRoute>
+            </div>
+          } />
+          <Route path="/:businessSlug/booking" element={
+              <BookingPage />
           } />
           {locationRoutes.map(r => (
             <Route key={r.path} path={r.path} element={r.element} />
           ))}
           <Route path="/:businessSlug" element={
-            <AffiliateProvider>
+            <>
               <Header />
               <HomePage />
-            </AffiliateProvider>
+            </>
           } />
           <Route path="/" element={
             <>

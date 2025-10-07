@@ -27,7 +27,7 @@ export { default as GetQuote } from './buttons/GetQuote';
 export { default as QuoteModal } from './modals/QuoteModal';
 export { default as ErrorBoundary } from './layout/ErrorBoundary';
 export { default as LocationEditModal } from './modals/LocationEditModal';
-export { default as LocationSearchBar } from './navigation/LocationSearchBar';
+// export { default as LocationSearchBar } from './navigation/LocationSearchBar'; // Removed - unused
 export { default as NotFoundPage } from './layout/NotFoundPage';
 export { default as ProtectedRoute } from './layout/ProtectedRoute';
 

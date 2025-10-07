@@ -24,7 +24,7 @@ export function useRotatingBackground() {
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch('/data/gallery.json');
+        const res = await fetch('/mobile-detailing/data/gallery.json');
         if (!res.ok) throw new Error(`Failed to fetch gallery data: ${res.status}`);
         const data: GalleryImage[] = await res.json();
 

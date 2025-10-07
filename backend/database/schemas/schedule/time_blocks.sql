@@ -1,7 +1,7 @@
 -- Time blocks table for blocking out unavailable time slots
 CREATE TABLE IF NOT EXISTS schedule.time_blocks (
     id SERIAL PRIMARY KEY,
-    affiliate_id INTEGER NOT NULL REFERENCES affiliates.business(id) ON DELETE CASCADE,
+    affiliate_id INTEGER NOT NULL REFERENCES tenants.business(id) ON DELETE CASCADE,
     
     -- Block details
     title VARCHAR(255) NOT NULL,

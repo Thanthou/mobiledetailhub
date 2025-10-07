@@ -31,7 +31,7 @@ export function useRotatingReviews(reviews: Review[]) {
 
         // Load gallery images for background rotation (no avatar images)
         try {
-          const res = await fetch('/data/gallery.json');
+          const res = await fetch('/mobile-detailing/data/gallery.json');
           if (!res.ok) throw new Error(`Failed to fetch gallery data: ${res.status}`);
           const galleryData = await res.json();
           const galleryImages = galleryData.map((img: any) => img.src).filter(Boolean);
@@ -42,14 +42,14 @@ export function useRotatingReviews(reviews: Review[]) {
           // If we still don't have enough images, add some defaults
           if (images.length < 3) {
             const defaultImages = [
-              '/images/gallery/dodge-viper-gts-grigio-telesto-studio.png',
-              '/images/gallery/bmw-m4-competition-grigio-telesto-studio.png'
+              '/mobile-detailing/images/gallery/dodge-viper-gts-grigio-telesto-studio.png',
+              '/mobile-detailing/images/gallery/bmw-m4-competition-grigio-telesto-studio.png'
             ];
             images = shuffleArray([...images, ...defaultImages]);
           }
         } catch (galleryError) {
           // Fallback to default images only
-          images = ['/images/gallery/dodge-viper-gts-grigio-telesto-studio.png'];
+          images = ['/mobile-detailing/images/gallery/dodge-viper-gts-grigio-telesto-studio.png'];
         }
 
         if (cancelled) return;

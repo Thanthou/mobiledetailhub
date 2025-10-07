@@ -196,7 +196,7 @@ router.get('/service-areas', asyncHandler(async (req, res) => {
     // Get all approved affiliates with service areas
     const query = `
       SELECT service_areas
-      FROM affiliates.business
+      FROM tenants.business
       WHERE application_status = 'approved'
         AND service_areas IS NOT NULL
         AND jsonb_array_length(service_areas) > 0

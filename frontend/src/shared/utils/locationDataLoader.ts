@@ -240,7 +240,7 @@ export function createLocationDataLoader(
 /**
  * Utility to get all location file paths
  */
-export function getLocationFilePaths(basePath: string = '/src/data/areas'): string[] {
+export function getLocationFilePaths(basePath: string = '/src/data/locations'): string[] {
   // This would typically be generated at build time or read from a manifest
   // For now, return the known paths
   return [
@@ -254,7 +254,7 @@ export function getLocationFilePaths(basePath: string = '/src/data/areas'): stri
  */
 export async function preloadAllLocationData(
   mainConfigPath: string = '/src/data/mdh/site.json',
-  locationBasePath: string = '/src/data/areas',
+  locationBasePath: string = '/src/data/locations',
   options?: Partial<DeepMergeOptions>
 ): Promise<Array<{
   path: string;

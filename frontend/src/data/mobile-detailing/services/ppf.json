@@ -1,0 +1,264 @@
+{
+    "id": "ppf",
+    "slug": "paint-protection-film",
+    "route": "/service/ppf-installation",
+    "title": "Paint Protection Film (PPF)",
+    "shortDescription": "Self-healing urethane film that guards against rock chips, abrasion, and road rash",
+  
+    "seo": {
+      "metaTitle": "Paint Protection Film (PPF) | Mobile Detail Hub",
+      "metaDescription": "Professional PPF installation: self-healing, stain-resistant urethane film to protect high-impact areas or the entire vehicle. Options: Partial Front, Full Front, Track Pack, Full Body.",
+      "keywords": [
+        "paint protection film",
+        "PPF",
+        "clear bra",
+        "self-healing film",
+        "rock chip protection",
+        "front bumper protection",
+        "full front PPF",
+        "track package PPF",
+        "full body PPF"
+      ],
+      "canonicalPath": "/service/ppf-installation",
+      "ogImage": "/mobile-detailing/images/services/ppf/hero.png",
+      "robots": "index,follow"
+    },
+  
+    "hero": {
+      "image": {
+        "src": "/mobile-detailing/images/services/ppf-installation/hero.jpg",
+        "alt": "Installing clear paint protection film on a vehicle panel",
+        "caption": "Invisible, self-healing protection for your paint"
+      },
+      "headline": "Paint Protection Film (PPF)",
+      "subheadline": "Clear, self-healing urethane that absorbs rock chips and road rash—keep your finish looking new.",
+      "ctas": [
+        { "label": "Book Now", "href": "/book?service=ppf" },
+        { "label": "Request Quote", "href": "/quote?service=ppf" }
+      ]
+    },
+  
+    "overview": {
+      "summary": "Premium PPF installed with precision patterns and expert edge work. Choose targeted coverage like Full Front or protect the entire vehicle.",
+      "benefits": [
+        "Absorbs rock chips and abrasion",
+        "Self-healing top coat reduces swirls",
+        "UV and chemical resistance",
+        "Enhances resale value by preserving paint"
+      ],
+      "features": [
+        "Pre-cut pattern library with custom bulk options",
+        "Wrapped edges where eligible panels allow",
+        "Seam planning for clean aesthetics",
+        "Compatible with ceramic-topper for easier washing"
+      ]
+    },
+  
+    "whatItIs": {
+      "description": "Paint Protection Film is a thick, optically clear aliphatic polyurethane layer applied to painted panels to absorb impact and abrasion. Its self-healing top coat reduces light marring with heat or sun exposure.",
+      "benefits": [
+        "Physical barrier against chips, sandblasting, and road debris",
+        "Self-healing surface helps keep a swirl-free look",
+        "Stain resistance against bugs, tar, and road salts",
+        "Pairs well with ceramic coating for slickness and easier maintenance"
+      ],
+      "video": {
+        "src": "/mobile-detailing/video/ppf-what-it-is.mp4",
+        "alt": "Video showcasing the benefits and durability of paint protection film (ppf)"
+      }
+    },
+  
+    "process": {
+      "title": "Our PPF Installation Process",
+      "steps": [
+        {
+          "number": 1,
+          "title": "Prep & Panel Mapping",
+          "bullets": [
+            "Decon wash, iron removal, and clay bar",
+            "Panel wipe to remove oils and residues",
+            "Pattern selection or bulk templating; seam/edge planning"
+          ],
+          "image": { "src": "/mobile-detailing/images/services/ppf-installation/process-1.png", "alt": "Vehicle decontamination and surface preparation for PPF" }
+        },
+        {
+          "number": 2,
+          "title": "Precision Install",
+          "bullets": [
+            "Slip solution application and film positioning",
+            "Squeegee set, edge wrapping where applicable",
+            "Heat-set and micro-bubble inspection"
+          ],
+          "image": { "src": "/mobile-detailing/images/services/ppf-installation/process-2.png", "alt": "Careful squeegee work during PPF installation" }
+        },
+        {
+          "number": 3,
+          "title": "Cure & Quality Check",
+          "bullets": [
+            "Final alignment and edge checks",
+            "Cure time guidance and first-wash instructions",
+            "Optional ceramic topper for easier cleaning"
+          ],
+          "image": { "src": "/mobile-detailing/images/services/ppf-installation/process-3.png", "alt": "PPF curing and final inspection" }
+        }
+      ]
+    },
+  
+    "results": {
+      "bullets": [
+        "High-impact zones shielded from chips and pitting",
+        "Self-healing clarity with reduced swirl appearance",
+        "Clean seams and wrapped edges for a near-invisible install"
+      ],
+      "video": {
+        "src": "/mobile-detailing/video/ppf-results.mp4",
+        "alt": "Video showcasing the benefits and durability of paint protection film (ppf)"
+      }
+    },
+  
+    "gallery": {
+      "title": "PPF Gallery",
+      "images": [
+        { "id": "1", "src": "/mobile-detailing/images/services/ppf-installation/hero.png", "alt": "PPF on front end with wrapped edges", "caption": "Invisible coverage, maximum protection" }
+      ]
+    },
+  
+    "pricing": {
+      "title": "PPF Coverage Options",
+      "tiers": [
+        {
+          "id": "partial-front",
+          "name": "Partial Front",
+          "price": { "label": "From $900", "min": 900, "currency": "USD" },
+          "description": "Front bumper + ~18–24\" hood/fenders + mirrors.",
+          "popular": false,
+          "features": [
+            "Front bumper coverage",
+            "Partial hood & fender leading edges",
+            "Mirror caps",
+            "Wrapped edges where applicable"
+          ]
+        },
+        {
+          "id": "full-front",
+          "name": "Full Front",
+          "price": { "label": "From $1,800", "min": 1800, "currency": "USD" },
+          "description": "Full hood, full fenders, bumper, headlights, and mirrors.",
+          "popular": true,
+          "features": [
+            "Full hood & full fenders",
+            "Front bumper & headlights",
+            "Mirrors, badges trimmed cleanly",
+            "Expanded wrapped edges where panels allow"
+          ]
+        },
+        {
+          "id": "track-pack",
+          "name": "Track Pack",
+          "price": { "label": "From $2,400", "min": 2400, "currency": "USD" },
+          "description": "Adds rocker panels and splash zones for spirited driving.",
+          "popular": false,
+          "features": [
+            "Full Front package",
+            "Rockers / lower doors",
+            "Rear impact areas behind wheels",
+            "Optional luggage strip"
+          ]
+        },
+        {
+          "id": "full-body",
+          "name": "Full Body",
+          "price": { "label": "From $4,500", "min": 4500, "currency": "USD" },
+          "description": "Ultimate protection for every painted panel.",
+          "popular": false,
+          "features": [
+            "All painted panels protected",
+            "Advanced seam planning",
+            "Extensive wrapped edges",
+            "New-car preservation or show-car builds"
+          ]
+        }
+      ],
+      "notes": "Pricing varies by vehicle size/complexity, panel shapes, badge/vent count, and film selection. In-person inspection recommended."
+    },
+  
+    "faq": {
+      "title": "PPF FAQ",
+      "items": [
+        {
+          "q": "PPF vs. Ceramic Coating—what’s the difference?",
+          "a": "PPF is a physical urethane barrier that absorbs impacts from debris and prevents chips; ceramic adds slickness, gloss, and chemical resistance. Many owners combine both for maximum results."
+        },
+        {
+          "q": "Is PPF really self-healing?",
+          "a": "Yes—light swirls and marks in the top coat reduce with heat from the sun, warm water, or gentle heat sources. Deep gouges or impacts may not heal."
+        },
+        {
+          "q": "How long does PPF last?",
+          "a": "Quality films typically last 5–10 years depending on environment and care. Regular washes and safe products help maintain clarity."
+        },
+        {
+          "q": "Will I see edges or seams?",
+          "a": "We use precise patterns and wrap edges where panels allow. Some seams are necessary for complex shapes; we place them discreetly for a clean look."
+        }
+      ]
+    },
+  
+    "cta": {
+      "title": "Ready to shield your paint?",
+      "description": "",
+      "primary": { "label": "Book Now", "href": "/book?service=ppf" },
+      "secondary": { "label": "Request Quote", "href": "/quote?service=ppf" }
+    },
+  
+    "jsonLd": {
+      "service": {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "Paint Protection Film (PPF)",
+        "serviceType": "Automotive Paint Protection Film",
+        "provider": { "@type": "Organization", "name": "Mobile Detail Hub" },
+        "areaServed": { "@type": "Place", "name": "{CITY}, {STATE}" },
+        "description": "Professional PPF installation using self-healing, stain-resistant urethane film to protect high-impact areas or the entire vehicle.",
+        "brand": "Mobile Detail Hub",
+        "offers": {
+          "@type": "AggregateOffer",
+          "priceCurrency": "USD",
+          "lowPrice": 900,
+          "highPrice": 4500,
+          "offerCount": 4
+        }
+      },
+      "faq": {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "PPF vs. Ceramic Coating—what’s the difference?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "PPF is a physical barrier that absorbs impacts and prevents chips; ceramic adds slickness, gloss, and chemical resistance. Many owners choose both."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is PPF really self-healing?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Light swirls in the PPF top coat reduce with heat from the sun, warm water, or gentle heat sources. Deep gouges may not heal."
+            }
+          }
+        ]
+      },
+      "breadcrumbs": {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Services", "item": "{ORIGIN}/services" },
+          { "@type": "ListItem", "position": 2, "name": "Paint Protection Film (PPF)", "item": "{ORIGIN}/service/ppf-installation" }
+        ]
+      }
+    }
+  }
+  

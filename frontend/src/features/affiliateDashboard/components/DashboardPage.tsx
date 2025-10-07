@@ -27,7 +27,7 @@ const DashboardPage: React.FC = () => {
       try {
         setLoading(true);
         const token = localStorage.getItem('token');
-        const url = `/api/affiliates/${businessSlug}`;
+        const url = `/api/affiliates/tenant/${businessSlug}`;
         const response = await fetch(url, {
           headers: {
             'Content-Type': 'application/json',
@@ -66,13 +66,13 @@ const DashboardPage: React.FC = () => {
             };
             setDetailerData(transformedData);
           } else {
-            setError('Affiliate not found');
+            setError('Business not found');
           }
         } else {
-          setError('Failed to fetch affiliate data');
+          setError('Failed to fetch business data');
         }
       } catch {
-        setError('Failed to fetch affiliate data');
+        setError('Failed to fetch business data');
       } finally {
         setLoading(false);
       }
@@ -96,7 +96,7 @@ const DashboardPage: React.FC = () => {
       <DashboardLayout>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
-            <p className="text-lg text-gray-600">Loading affiliate dashboard...</p>
+            <p className="text-lg text-gray-600">Loading business dashboard...</p>
           </div>
         </div>
       </DashboardLayout>
@@ -108,7 +108,7 @@ const DashboardPage: React.FC = () => {
       <DashboardLayout>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
-            <p className="text-lg text-red-600">Error: {error || 'Failed to load affiliate data'}</p>
+            <p className="text-lg text-red-600">Error: {error || 'Failed to load business data'}</p>
           </div>
         </div>
       </DashboardLayout>

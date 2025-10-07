@@ -42,7 +42,7 @@ async function seedAffiliates() {
     logger.info('✅ Services seeds executed successfully');
     
     // Verify the data was inserted
-    const businessCount = await client.query('SELECT COUNT(*) as count FROM affiliates.business');
+    const businessCount = await client.query('SELECT COUNT(*) as count FROM tenants.business');
     const servicesCount = await client.query('SELECT COUNT(*) as count FROM affiliates.services');
     
     logger.info(`✅ Seeding complete! Created ${businessCount.rows[0].count} businesses and ${servicesCount.rows[0].count} services`);

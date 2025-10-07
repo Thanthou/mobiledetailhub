@@ -1,7 +1,7 @@
 -- Business table for affiliate businesses
-DROP TABLE IF EXISTS affiliates.business CASCADE;
+DROP TABLE IF EXISTS tenants.business CASCADE;
 
-CREATE TABLE affiliates.business (
+CREATE TABLE tenants.business (
     id SERIAL PRIMARY KEY,
     slug VARCHAR(255) UNIQUE NOT NULL,
     business_name VARCHAR(255) NOT NULL,
@@ -51,10 +51,10 @@ CREATE TABLE affiliates.business (
 );
 
 -- Create indexes for better performance
-CREATE INDEX IF NOT EXISTS idx_business_slug ON affiliates.business(slug);
-CREATE INDEX IF NOT EXISTS idx_business_user_id ON affiliates.business(user_id);
-CREATE INDEX IF NOT EXISTS idx_business_application_status ON affiliates.business(application_status);
-CREATE INDEX IF NOT EXISTS idx_business_created_at ON affiliates.business(created_at);
+CREATE INDEX IF NOT EXISTS idx_business_slug ON tenants.business(slug);
+CREATE INDEX IF NOT EXISTS idx_business_user_id ON tenants.business(user_id);
+CREATE INDEX IF NOT EXISTS idx_business_application_status ON tenants.business(application_status);
+CREATE INDEX IF NOT EXISTS idx_business_created_at ON tenants.business(created_at);
 
 -- Create trigger to automatically update updated_at timestamp
 CREATE OR REPLACE FUNCTION affiliates.update_business_updated_at()
@@ -66,6 +66,6 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trigger_business_updated_at
-    BEFORE UPDATE ON affiliates.business
+    BEFORE UPDATE ON tenants.business
     FOR EACH ROW
     EXECUTE FUNCTION affiliates.update_business_updated_at();

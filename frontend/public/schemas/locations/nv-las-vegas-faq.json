@@ -1,0 +1,30 @@
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can you detail in high-rise or tower garages on the Strip?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. We coordinate with building rules, use contained setups, and protect surrounding vehicles and finishes."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What coating is best for Vegas sun and dust?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "We recommend a multi-year ceramic or graphene coating for UV resistance and easier dust removal between washes."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do you service late evenings to avoid heat?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "We offer flexible scheduling, including mornings and evenings, to manage heat and panel temperatures safely."
+      }
+    }
+  ]
+}

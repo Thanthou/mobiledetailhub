@@ -19,9 +19,9 @@ COMMENT ON COLUMN affiliates.affiliates.first_name IS 'Affiliate first name';
 COMMENT ON COLUMN affiliates.affiliates.last_name IS 'Affiliate last name';
 COMMENT ON COLUMN affiliates.affiliates.personal_phone IS 'Personal phone number';
 COMMENT ON COLUMN affiliates.affiliates.personal_email IS 'Personal email address';
-COMMENT ON COLUMN affiliates.affiliates.business_email IS 'Business email address';
-COMMENT ON COLUMN affiliates.affiliates.business_phone IS 'Business phone number';
-COMMENT ON COLUMN affiliates.affiliates.business_start_date IS 'Date when business started';
+COMMENT ON COLUMN affiliates.tenants.business_email IS 'Business email address';
+COMMENT ON COLUMN affiliates.tenants.business_phone IS 'Business phone number';
+COMMENT ON COLUMN affiliates.tenants.business_start_date IS 'Date when business started';
 
 -- Add constraints for data integrity
 ALTER TABLE affiliates.affiliates 

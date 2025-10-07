@@ -1,68 +1,83 @@
-import React, { useCallback, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useData } from '@/features/header';
+import ServiceAreasModal from '../modals/ServiceAreasModal';
 
-import { getFooterLocations } from '@/shared/utils/locationsUtils';
+interface ServiceArea {
+  city: string;
+  state: string;
+  zip?: string;
+  primary?: boolean;
+  minimum?: number;
+  multiplier?: number;
+}
 
-const FooterLocations: React.FC = () => {
-  const navigate = useNavigate();
-  const [expandedStates, setExpandedStates] = useState<Set<string>>(new Set());
+interface FooterLocationsProps {
+  serviceAreas?: ServiceArea[];
+}
+
+const FooterLocations: React.FC<FooterLocationsProps> = ({ serviceAreas }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   
-  const locationsByState = getFooterLocations(8); // Limit to 8 states for footer
-
-  const handleNavigation = useCallback((path: string) => {
-    void navigate(path);
-  }, [navigate]);
-
-  const handleStateToggle = useCallback((stateCode: string) => {
-    setExpandedStates(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(stateCode)) {
-        newSet.delete(stateCode);
-      } else {
-        newSet.add(stateCode);
-      }
-      return newSet;
-    });
-  }, []);
-
+  // Try to get tenant data, fall back to static locations if not available
+  let tenantData;
+  try {
+    tenantData = useData();
+  } catch {
+    tenantData = null;
+  }
+  
+  // Use tenant service areas if available, otherwise show default message
+  const shouldUseTenantData = tenantData?.isTenant && serviceAreas && serviceAreas.length > 0;
+  
+  // Always show first 4 cities
+  const displayAreas = shouldUseTenantData ? serviceAreas.slice(0, 4) : [];
+  const hasMore = shouldUseTenantData && serviceAreas.length > 4;
+  
+  const handleViewMore = () => {
+    setIsModalOpen(true);
+  };
+  
   return (
-    <div className="text-center md:text-right">
-      <h3 className="font-bold text-orange-400 text-xl mb-6">Service Areas</h3>
-      <div className="flex flex-col space-y-3">
-        {/* States and Cities */}
-        {locationsByState.map((state) => (
-          <div key={state.code} className="space-y-1">
-            {/* State Header */}
-            <button
-              onClick={() => { handleStateToggle(state.code); }}
-              className="text-lg text-white hover:text-orange-400 transition-colors duration-200 bg-transparent border-none p-0 font-inherit cursor-pointer flex items-center justify-end w-full"
-            >
-              <span className="text-right">{state.name}</span>
-              <span className={`text-xs transition-transform duration-200 ml-2 ${
-                expandedStates.has(state.code) ? 'rotate-180' : ''
-              }`}>
-                ▼
-              </span>
-            </button>
-
-            {/* Cities List */}
-            {expandedStates.has(state.code) && (
-              <div className="ml-4 space-y-1">
-                {state.cities.map((city) => (
+    <>
+      <div className="text-center md:text-right">
+        <h3 className="font-bold text-orange-400 text-xl mb-6">Service Areas</h3>
+        <div className="flex flex-col space-y-3">
+          {shouldUseTenantData ? (
+            <>
+              {displayAreas.map((area, index) => (
+                <div key={index} className="text-white text-lg">
+                  {area.city}, {area.state}
+                </div>
+              ))}
+              {hasMore && (
+                <div className="flex justify-end">
                   <button
-                    key={city.slug}
-                    onClick={() => { handleNavigation(city.urlPath); }}
-                    className="text-lg text-white hover:text-orange-400 transition-colors duration-200 bg-transparent border-none p-0 font-inherit cursor-pointer block w-full text-right"
+                    onClick={handleViewMore}
+                    className="text-orange-400 hover:text-orange-300 transition-colors duration-200 text-lg bg-transparent border-none p-0 font-inherit cursor-pointer"
                   >
-                    {city.city}
+                    View More
                   </button>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="text-white text-lg">
+              Multiple Service Areas
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+
+      {/* Service Areas Modal */}
+      {shouldUseTenantData && serviceAreas && (
+        <ServiceAreasModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          serviceAreas={serviceAreas}
+          businessName={tenantData?.businessName}
+        />
+      )}
+    </>
   );
 };
 

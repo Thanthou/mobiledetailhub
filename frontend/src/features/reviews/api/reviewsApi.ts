@@ -36,20 +36,17 @@ export const reviewsApi = {
 
   // Submit a new review
   submitReview: async (reviewData: {
-    review_type: 'affiliate' | 'mdh';
-    affiliate_id?: number;
-    business_slug?: string;
+    tenant_slug: string;
+    customer_name: string;
     rating: number;
-    title?: string;
-    content: string;
-    reviewer_name: string;
-    reviewer_email?: string;
-    reviewer_phone?: string;
-    reviewer_avatar_url?: string;
-    review_source?: 'website' | 'google' | 'yelp' | 'facebook' | 'imported';
-    service_category?: string;
-    service_date?: string;
-    booking_id?: number;
+    comment: string;
+    reviewer_url?: string;
+    vehicle_type?: 'car' | 'truck' | 'suv' | 'boat' | 'rv' | 'motorcycle';
+    paint_correction?: boolean;
+    ceramic_coating?: boolean;
+    paint_protection_film?: boolean;
+    source?: 'website' | 'google' | 'yelp' | 'facebook';
+    avatar_filename?: string;
   }): Promise<{ success: boolean; data: DatabaseReview }> => {
     const response = await fetch(API_BASE_URL, {
       method: 'POST',
@@ -66,26 +63,4 @@ export const reviewsApi = {
     return response.json();
   },
 
-  // Vote on a review
-  voteOnReview: async (reviewId: string, voteType: 'helpful' | 'not_helpful'): Promise<{
-    success: boolean;
-    data: { helpful_votes: number; total_votes: number };
-  }> => {
-    const response = await fetch(`${API_BASE_URL}/${reviewId}/vote`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        vote_type: voteType,
-        user_ip: '127.0.0.1', // TODO: Get actual user IP
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to vote on review: ${response.statusText}`);
-    }
-
-    return response.json();
-  },
 };

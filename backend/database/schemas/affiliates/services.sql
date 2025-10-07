@@ -43,4 +43,4 @@ CREATE TRIGGER trigger_services_updated_at
 -- Add foreign key constraint to business table
 ALTER TABLE affiliates.services 
 ADD CONSTRAINT fk_services_business_id 
-FOREIGN KEY (business_id) REFERENCES affiliates.business(id) ON DELETE CASCADE;
+FOREIGN KEY (business_id) REFERENCES tenants.business(id) ON DELETE CASCADE;

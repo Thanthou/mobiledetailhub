@@ -1,40 +1,40 @@
-import type { FAQItem } from '@/features/faq/types';
+import type { FAQItem } from "@/features/faq/types";
 
 export const MDH_FAQ_PRICING: FAQItem[] = [
   {
-    category: "Pricing & Payment",
-    question: "How do I get a quote?",
+    category: "Pricing",
+    question: "How can I get a quote?",
     answer:
-      "You can request a quote online by selecting your vehicle type, service package, and location. The system instantly shows estimated mobile detailing prices or connects you with a verified provider for a custom quote.",
+      "You can request a quote online by selecting your vehicle type and services you need. We'll respond with a quick custom quote based on your needs.",
   },
   {
-    category: "Pricing & Payment",
+    category: "Pricing",
     question: "How much does mobile detailing cost?",
     answer:
-      "Prices vary based on vehicle size, condition, and chosen services. Basic exterior or interior details start around $75–$150, full details typically range from $150–$300, and premium services like ceramic coating or paint protection film are priced separately.",
+      "Pricing depends on your vehicle size, condition, and the services selected. Basic interior or exterior details typically start around $75–$150, while full details usually range from $150–$300. Premium services like ceramic coating or paint protection film are quoted separately.",
   },
   {
-    category: "Pricing & Payment",
+    category: "Pricing",
     question: "Are ceramic coating and paint protection film priced differently?",
     answer:
-      "Yes. Ceramic coating packages usually range from $500–$2,000 depending on the number of prep steps, coating durability, and warranty. Paint protection film (PPF) is priced by coverage area — from partial front-end packages to full-vehicle wraps.",
+      "Yes. Ceramic coating packages often range from $500–$2,000 depending on prep work, coating type, and warranty length. Paint protection film (PPF) pricing is based on coverage area — from partial front-end protection to full-vehicle wraps.",
   },
   {
-    category: "Pricing & Payment",
+    category: "Pricing",
     question: "Do you offer fleet or commercial discounts?",
     answer:
-      "Yes. We provide competitive rates and volume discounts for fleets, dealerships, and commercial clients. Multi-vehicle packages can be customized to your needs with one invoice and centralized scheduling.",
+      "Absolutely. We offer competitive rates for fleets, dealerships, and commercial clients. Multi-vehicle packages can be customized to your needs with simplified scheduling and billing.",
   },
   {
-    category: "Pricing & Payment",
+    category: "Pricing",
     question: "Are there any extra fees I should know about?",
     answer:
-      "Some providers may charge extra for excessive dirt, pet hair, biohazard cleanup, or long-distance travel outside their service area. All potential fees are shown before you confirm your booking.",
+      "In rare cases, additional fees may apply for excessive dirt, pet hair, biohazard cleanup, or extended travel outside our normal service area. Any applicable fees are always discussed before your appointment is confirmed.",
   },
   {
-    category: "Pricing & Payment",
+    category: "Pricing",
     question: "Do you offer package deals or bundled services?",
     answer:
-      "Yes. You can bundle interior and exterior detailing, add headlight restoration, odor removal, or polishing, and save compared to booking each service separately. Seasonal promotions may also be available.",
+      "Yes. You can combine interior and exterior services, add extras like headlight restoration or odor removal, and save compared to booking separately. We also run seasonal promotions throughout the year.",
   },
 ];

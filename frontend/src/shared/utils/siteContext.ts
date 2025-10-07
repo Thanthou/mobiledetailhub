@@ -5,9 +5,8 @@ import { useLocation as useRouterLocation, useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 
 // Import data files
-import siteData from '@/data/mdh/site.json';
-import employeeData from '@/data/employee/employees.json';
-import allLocations from '@/data/locations/locations.json';
+import siteData from '@/data/mobile-detailing/site.json';
+// Note: Location data is now stored in the database
 
 export interface ContextData {
   // Site type flags
@@ -34,32 +33,32 @@ export function useSiteContext(): ContextData {
   const location = useRouterLocation();
   const { state, city } = useParams();
   const [locationData, setLocationData] = useState<any>(undefined);
-  const [employee, setEmployee] = useState<any>(undefined);
   const [isLoading, setIsLoading] = useState(false);
   
   // Load location data dynamically
   useEffect(() => {
     const loadLocationData = async () => {
       if (state && city) {
-        // Check if location exists in locations.json (URL validation)
-        const stateUpper = state.toUpperCase();
-        const stateCities = allLocations[stateUpper as keyof typeof allLocations];
-        const locationExists = stateCities && Array.isArray(stateCities) && stateCities.includes(city);
+        // TODO: Check if location exists in database (URL validation)
+        // For now, assume location exists and try to load data
+        const locationExists = true; // TODO: Replace with database check
         
         if (locationExists) {
           setIsLoading(true);
           try {
-            // Dynamically load the full data from /data/areas/{state}/{city}.json
-            const fullData = await import(`@/data/areas/${state}/${city}.json`);
-            setLocationData(fullData.default);
+            // TODO: Load location data from database API instead of JSON file
+            // For now, set empty location data
+            setLocationData({
+              city: city,
+              stateCode: state,
+              // Add other required fields as needed
+            });
             
-            // Get employee data from the location file
-            const employeeId = fullData.default.employee;
-            setEmployee(employeeData[employeeId as keyof typeof employeeData]);
+            // Note: Employee data should be loaded from database via API calls
+            // when needed by components
           } catch (error) {
             console.error('Failed to load location data:', error);
             setLocationData(undefined);
-            setEmployee(undefined);
           } finally {
             setIsLoading(false);
           }
@@ -67,7 +66,6 @@ export function useSiteContext(): ContextData {
       } else {
         // Main site - no location data
         setLocationData(undefined);
-        setEmployee(undefined);
       }
     };
 
@@ -85,7 +83,7 @@ export function useSiteContext(): ContextData {
     isAffiliate,
     isMDH: isMainSite, // Legacy alias
     locationData,
-    employeeData: employee,
+    employeeData: undefined, // Employee data should be loaded from database when needed
     siteData: isMainSite ? siteData : undefined,
     pathname: location.pathname,
     city: locationData?.city || city,

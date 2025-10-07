@@ -1,0 +1,15 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2025-09-24T23:03:17.123Z",
+  "statistics": {
+    "totalLocations": 2,
+    "locationsWithFAQs": 2,
+    "totalLocationFAQs": 6,
+    "mainSiteFAQs": 0,
+    "totalSchemas": 2
+  },
+  "schemas": [
+    "locations/az-bullhead-city-faq.json",
+    "locations/nv-las-vegas-faq.json"
+  ]
+}

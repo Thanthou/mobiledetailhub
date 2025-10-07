@@ -4,7 +4,7 @@
  */
 
 // Get all area data files using Vite's glob import
-const areaModules = import.meta.glob('@/data/areas/**/*.json', { eager: true });
+const areaModules = import.meta.glob('@/data/locations/**/*.json', { eager: true });
 
 export interface AreaInfo {
   slug: string;

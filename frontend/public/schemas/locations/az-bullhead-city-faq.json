@@ -1,0 +1,30 @@
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Do you handle hard-water spots common in Bullhead City?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. We pre-treat mineral deposits, measure paint safely, and finish with protection to reduce future spotting from sprinklers and river use."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can you work in high heat and direct sun?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "We schedule smart and bring shade when needed. We use sun-safe products and manage panel temps to avoid staining or flashing."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do you offer RV and boat detailing along the Colorado River?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Absolutely. We do gelcoat oxidation removal, interior refreshes, and ceramic/graphene protection for RVs and boats."
+      }
+    }
+  ]
+}

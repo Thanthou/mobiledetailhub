@@ -1,20 +1,16 @@
 import React, { useState } from 'react';
-import { useSiteContext } from '@/shared/hooks';
+import { useData } from '@/features/header';
 import { getImageOpacityClasses, getTransitionStyles } from '@/shared/utils';
-import siteData from '@/data/mdh/site.json';
-import { useReviews, useRotatingReviews } from '../hooks';
+import { useReviews, useRotatingReviews, useReviewsContent } from '../hooks';
 import { ReviewsProps } from '../types/types';
 import ReviewsHeader from './ReviewsHeader';
-import ReviewsSubHeader from './ReviewsSubHeader';
+import ReviewsSummary from '@/shared/ui/ReviewsSummary';
 import ReviewsCarousel from './ReviewsCarousel';
 import ReviewModal from './ReviewModal';
 
 const Reviews: React.FC<ReviewsProps> = ({
   maxReviews = 50,
-  reviewType,
-  businessSlug,
-  featuredOnly = false,
-  verifiedOnly = false,
+  tenantSlug,
   customHeading,
   customIntro,
   feedKey,
@@ -22,20 +18,28 @@ const Reviews: React.FC<ReviewsProps> = ({
 }) => {
   const [selectedReview, setSelectedReview] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { isMainSite } = useSiteContext();
+  
+  // Get content from database (with fallbacks)
+  const { title, subtitle } = useReviewsContent({ locationData, customHeading, customIntro });
+  
+  // Get tenant context
+  let isTenant = false;
+  try {
+    const tenantData = useData();
+    isTenant = tenantData?.isTenant || false;
+  } catch {
+    // Not in tenant context, so it's main site
+    isTenant = false;
+  }
 
   // Build query parameters based on props and site context
   const queryParams: any = {
-    type: reviewType || (isMainSite ? 'affiliate' : 'mdh') as 'affiliate' | 'mdh',
-    status: 'approved' as const,
-    limit: maxReviews,
-    featured_only: featuredOnly,
-    verified_only: verifiedOnly
+    limit: maxReviews
   };
 
-  // Add business slug if provided
-  if (businessSlug) {
-    queryParams.business_slug = businessSlug;
+  // Add tenant slug if provided
+  if (tenantSlug) {
+    queryParams.tenant_slug = tenantSlug;
   }
 
   // TODO: Implement feedKey for GBP/Yelp integration
@@ -47,12 +51,17 @@ const Reviews: React.FC<ReviewsProps> = ({
     console.log('FeedKey available for future implementation:', finalFeedKey);
   }
 
-  if (isMainSite) {
-    queryParams.business_slug = 'jps';
+  if (isTenant) {
+    // For tenant sites, use the tenant slug from the URL
+    const urlSlug = window.location.pathname.split('/')[1];
+    if (urlSlug) {
+      queryParams.tenant_slug = urlSlug;
+    }
   }
 
   // Fetch reviews from database
   const { reviews, loading, error } = useReviews(queryParams);
+  
 
   // Use rotating review images as background
   const { images: backgroundImages, currentIndex, loading: backgroundLoading } = useRotatingReviews(reviews);
@@ -179,14 +188,10 @@ const Reviews: React.FC<ReviewsProps> = ({
       <div className="relative z-10 h-full flex flex-col items-center justify-center px-4">
         <div className="max-w-6xl mx-auto w-full">
           <ReviewsHeader 
-            title={customHeading || locationData?.reviewsSection?.heading || siteData.reviews.title}
-            subtitle={customIntro || locationData?.reviewsSection?.intro || siteData.reviews.subtitle}
+            title={title}
+            subtitle={subtitle}
           />
-                 <ReviewsSubHeader 
-                   averageRating={parseFloat(siteData.reviews.ratingValue)}
-                   totalReviews={siteData.reviews.reviewCount}
-                   googleBusinessUrl={siteData.socials.googleBusiness}
-                 />
+          <ReviewsSummary className="mb-8" />
           <ReviewsCarousel 
             reviews={reviews}
             onReviewClick={handleReviewClick}

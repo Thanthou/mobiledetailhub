@@ -3,12 +3,13 @@ import { useServices } from './useServices';
 import { ServiceData } from '@/features/services/types/service.types';
 
 export const useServicePage = () => {
-  const { slug } = useParams<{ slug: string }>();
-  const { getAutoDetailingData, getMarineDetailingData, getRvDetailingData, getCeramicCoatingData, getPaintCorrectionData, getPpfData, getAircraftDetailingData } = useServices();
+  const { serviceType } = useParams<{ serviceType: string }>();
+  const { getAutoDetailingData, getMarineDetailingData, getRvDetailingData, getCeramicCoatingData, getPaintCorrectionData, getPpfData } = useServices();
   
-  // Load the appropriate service data based on slug
+  
+  // Load the appropriate service data based on serviceType
   const getServiceData = (): ServiceData | null => {
-    switch (slug) {
+    switch (serviceType) {
       case 'auto-detailing':
         return getAutoDetailingData();
       case 'marine-detailing':
@@ -23,7 +24,8 @@ export const useServicePage = () => {
       case 'ppf-installation':
         return getPpfData();
       case 'aircraft-detailing':
-        return getAircraftDetailingData();
+        // Aircraft detailing not implemented yet, fallback to auto-detailing
+        return getAutoDetailingData();
       // Add other services as you create their JSON files
       default:
         // Fallback to auto-detailing for unknown services
@@ -34,7 +36,7 @@ export const useServicePage = () => {
   const serviceData = getServiceData();
 
   return {
-    slug,
+    serviceType,
     serviceData,
     isLoading: false,
     error: null

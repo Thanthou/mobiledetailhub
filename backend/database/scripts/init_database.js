@@ -151,6 +151,10 @@ async function initializeDatabase() {
       path.join(__dirname, '../schemas/system/system_config.sql'),
       'Creating system_config table'
     );
+    await executeSqlFile(
+      path.join(__dirname, '../schemas/system/health_monitoring.sql'),
+      'Creating health_monitoring table'
+    );
     
     // 5. Create reputation tables
     console.log('\n⭐ Creating reputation tables...');

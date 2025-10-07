@@ -1,5 +1,5 @@
 import React from 'react';
-import siteData from '@/data/mdh/site.json';
+import siteData from '@/data/mobile-detailing/site.json';
 
 const Logo: React.FC = () => {
   const handleClick = () => {

@@ -2,12 +2,15 @@ import React from 'react';
 
 import { useSiteState } from '@/shared/contexts';
 import { CTAButtons } from '@/shared/ui';
+import MobileCTAButtons from './MobileCTAButtons';
+import { useBookingCapabilities } from '../hooks/useBookingCapabilities';
 
 interface SmartCTAButtonsProps {
   onRequestQuote?: () => void;
   onBookNow?: () => void;
   onQuoteHover?: () => void;
   className?: string;
+  forceMobile?: boolean; // Force mobile layout even on desktop
 }
 
 /**
@@ -19,9 +22,14 @@ const SmartCTAButtons: React.FC<SmartCTAButtonsProps> = ({
   onRequestQuote, 
   onBookNow, 
   onQuoteHover,
-  className 
+  className,
+  forceMobile = false
 }) => {
   const { siteState, currentLocation, businessData } = useSiteState();
+  const bookingCapabilities = useBookingCapabilities();
+  
+  // Detect if we're on mobile or should use mobile layout
+  const isMobile = forceMobile || (typeof window !== 'undefined' && window.innerWidth < 768);
 
   // Default CTA configuration for MDH state
   const mdhButtons = [
@@ -60,6 +68,19 @@ const SmartCTAButtons: React.FC<SmartCTAButtonsProps> = ({
   // Choose buttons based on site state
   const buttons = siteState === 'affiliate' ? affiliateButtons : mdhButtons;
 
+  // Use mobile-optimized CTAs for mobile devices or when forced
+  if (isMobile) {
+    return (
+      <MobileCTAButtons
+        className={className}
+        onRequestQuote={onRequestQuote}
+        onBookNow={onBookNow}
+        layout="stacked"
+      />
+    );
+  }
+
+  // Desktop layout
   return (
     <CTAButtons 
       className={className}

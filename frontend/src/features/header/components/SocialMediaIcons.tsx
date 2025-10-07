@@ -1,6 +1,7 @@
 import React from 'react';
 import { SiFacebook, SiInstagram, SiYoutube } from 'react-icons/si';
-import siteData from '@/data/mdh/site.json';
+import siteData from '@/data/mobile-detailing/site.json';
+import { useData } from '../contexts/DataProvider';
 
 // Custom TikTok icon component
 const TikTokIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -18,35 +19,45 @@ const TikTokIcon: React.FC<{ className?: string }> = ({ className }) => (
 );
 
 const SocialMediaIcons: React.FC = () => {
-  const socialMedia = siteData.socials;
+  // Try to get tenant data, fall back to static data if not available
+  let tenantData;
+  try {
+    tenantData = useData();
+  } catch {
+    tenantData = null;
+  }
+  
+  // Use tenant social media if available, otherwise use static data
+  const socialMedia = tenantData?.isTenant ? tenantData.socialMedia : siteData.socials;
+  
   const socialLinks = [
     {
       platform: 'Facebook',
-      url: socialMedia.facebook,
+      url: socialMedia?.facebook,
       icon: SiFacebook,
       ariaLabel: 'Visit our Facebook page'
     },
     {
       platform: 'Instagram',
-      url: socialMedia.instagram,
+      url: socialMedia?.instagram,
       icon: SiInstagram,
       ariaLabel: 'Visit our Instagram page'
     },
     {
       platform: 'TikTok',
-      url: socialMedia.tiktok,
+      url: socialMedia?.tiktok,
       icon: TikTokIcon,
       ariaLabel: 'Visit our TikTok page'
     },
     {
       platform: 'YouTube',
-      url: socialMedia.youtube,
+      url: socialMedia?.youtube,
       icon: SiYoutube,
       ariaLabel: 'Visit our YouTube channel'
     }
   ];
 
-  const visibleLinks = socialLinks.filter(link => link.url);
+  const visibleLinks = socialLinks.filter(link => link.url && link.url !== null && link.url.trim() !== '');
 
   if (visibleLinks.length === 0) {
     return null;

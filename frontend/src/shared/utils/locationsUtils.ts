@@ -1,9 +1,11 @@
 /**
  * Locations Data Utilities
- * Functions to work with the simplified locations.json structure for footer display
+ * Functions to work with location data from the database
+ * TODO: Update to use API calls instead of JSON imports
  */
 
-import locationsData from '@/data/locations/locations.json';
+// Note: Location data is now stored in the database
+// These functions should be updated to use API calls
 
 export interface LocationInfo {
   slug: string;
@@ -34,41 +36,13 @@ const STATE_NAMES: Record<string, string> = {
 };
 
 /**
- * Get locations grouped by state from locations.json
+ * Get locations grouped by state from database
+ * TODO: Update to use API call to database
  */
 export function getLocationsByState(): LocationStateInfo[] {
-  try {
-    const stateMap = new Map<string, LocationStateInfo>();
-    
-    // Process each state from the locations.json
-    locationsData.states.forEach((stateCode: string) => {
-      const cities = locationsData[stateCode] || [];
-      
-      stateMap.set(stateCode, {
-        code: stateCode,
-        name: STATE_NAMES[stateCode] || stateCode,
-        cities: cities.map((citySlug: string) => ({
-          slug: citySlug,
-          city: citySlug.split('-').map(word => 
-            word.charAt(0).toUpperCase() + word.slice(1)
-          ).join(' '),
-          stateCode,
-          state: STATE_NAMES[stateCode] || stateCode,
-          urlPath: `/${stateCode.toLowerCase()}/${citySlug}`
-        }))
-      });
-    });
-    
-    // Sort cities within each state
-    stateMap.forEach(state => {
-      state.cities.sort((a, b) => a.city.localeCompare(b.city));
-    });
-    
-    return Array.from(stateMap.values()).sort((a, b) => a.name.localeCompare(b.name));
-  } catch (error) {
-    console.error('Error getting locations by state:', error);
-    return [];
-  }
+  console.warn('getLocationsByState is using legacy JSON data. Should be updated to use database API.');
+  // TODO: Replace with API call to get locations from database
+  return [];
 }
 
 /**

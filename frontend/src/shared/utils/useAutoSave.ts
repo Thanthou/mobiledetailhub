@@ -15,11 +15,16 @@ export function useAutoSave<T>(
   const [error, setError] = useState<string | null>(null);
   const timeoutRef = useRef<number | null>(null);
   const isFirstRender = useRef(true);
+  const previousInitialValue = useRef<T>(initialValue);
 
   // Reset value and first run flag if initialValue changes (e.g., after async load)
+  // Only reset if the initialValue is actually different to prevent infinite loops
   useEffect(() => {
-    setValue(initialValue);
-    isFirstRender.current = true;
+    if (previousInitialValue.current !== initialValue) {
+      setValue(initialValue);
+      isFirstRender.current = true;
+      previousInitialValue.current = initialValue;
+    }
   }, [initialValue]);
 
   useEffect(() => {

@@ -13,7 +13,7 @@ const getAffiliateId = async (userId, isAdmin = false) => {
   if (isAdmin) {
     // For now, let's get the first business for admin users
     const affiliateQuery = `
-      SELECT id FROM affiliates.business ORDER BY id LIMIT 1
+      SELECT id FROM tenants.business ORDER BY id LIMIT 1
     `;
     const affiliateResult = await pool.query(affiliateQuery);
     
@@ -26,7 +26,7 @@ const getAffiliateId = async (userId, isAdmin = false) => {
   
   // For regular users, get their specific business
   const affiliateQuery = `
-    SELECT id FROM affiliates.business WHERE user_id = $1
+    SELECT id FROM tenants.business WHERE user_id = $1
   `;
   const affiliateResult = await pool.query(affiliateQuery, [userId]);
   

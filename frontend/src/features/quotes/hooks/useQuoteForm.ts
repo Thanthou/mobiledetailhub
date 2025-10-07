@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { useAffiliate } from '@/features/affiliateDashboard/hooks';
+// import { useAffiliate } from '@/features/affiliateDashboard/hooks'; // Removed - using shared hook instead
 import { useVehicleData } from '@/features/booking/hooks';
 // import { useLocation } from '@/shared/hooks';
 import { useSiteContext } from '@/shared/hooks';

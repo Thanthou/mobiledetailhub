@@ -7,35 +7,22 @@ import type { Review, ReviewQueryParams, DatabaseReview } from '../types';
 const convertDatabaseReviewToReview = (dbReview: DatabaseReview): Review => {
   const review: Review = {
     id: dbReview.id.toString(),
-    customerName: dbReview.reviewer_name,
+    customerName: dbReview.customer_name,
     rating: dbReview.rating,
-    reviewText: dbReview.content,
+    reviewText: dbReview.comment,
     date: dbReview.published_at || dbReview.created_at,
-    isVerified: dbReview.is_verified,
-    isFeatured: dbReview.is_featured,
-    helpfulVotes: dbReview.helpful_votes,
-    totalVotes: dbReview.total_votes,
-    reviewSource: dbReview.review_source,
+    reviewSource: dbReview.source,
   };
 
   // Add optional fields only if they exist
-  if (dbReview.reviewer_avatar_url) {
-    review.profileImage = dbReview.reviewer_avatar_url;
-  }
-  if (dbReview.title) {
-    review.title = dbReview.title;
-  }
-  if (dbReview.service_category) {
-    review.serviceCategory = dbReview.service_category;
-  }
-  if (dbReview.business_name) {
-    review.businessName = dbReview.business_name;
-  }
-  if (dbReview.business_slug_actual) {
-    review.businessSlug = dbReview.business_slug_actual;
+  if (dbReview.avatar_filename) {
+    review.profileImage = `/uploads/avatars/${dbReview.avatar_filename}`;
   }
   if (dbReview.reviewer_url) {
     review.reviewerUrl = dbReview.reviewer_url;
+  }
+  if (dbReview.vehicle_type) {
+    review.serviceCategory = dbReview.vehicle_type;
   }
 
   return review;
@@ -84,23 +71,16 @@ export const useReviews = (params: ReviewQueryParams = {}) => {
         const mockReviews: DatabaseReview[] = [
           {
             id: 115,
-            review_type: 'affiliate',
-            affiliate_id: 1,
-            business_slug: 'jps',
+            tenant_slug: 'jps',
+            customer_name: "Cassie Pegg",
             rating: 5,
-            title: "I can't say enough good things about this business!",
-            content: "They ceramic coated my boyfriend's Harley, and the results were absolutely stunning. The shine is flawless, and you can tell the quality of the work is top-notch. They paid such close attention to detail, were professional from start to finish, and clearly take pride in their craft.",
-            reviewer_name: "Cassie Pegg",
-            reviewer_email: "cassie.pegg@email.com",
-            reviewer_avatar_url: "/uploads/avatars/cassie_pegg_115_20250905015259.png",
-            review_source: "google",
-            status: "approved",
-            is_verified: true,
-            service_category: "motorcycle",
-            service_date: "2025-09-01",
-            helpful_votes: 0,
-            total_votes: 0,
-            is_featured: true,
+            comment: "They ceramic coated my boyfriend's Harley, and the results were absolutely stunning. The shine is flawless, and you can tell the quality of the work is top-notch. They paid such close attention to detail, were professional from start to finish, and clearly take pride in their craft.",
+            vehicle_type: 'motorcycle',
+            paint_correction: false,
+            ceramic_coating: true,
+            paint_protection_film: false,
+            source: "google",
+            avatar_filename: "/uploads/avatars/cassie_pegg_115_20250905015259.png",
             created_at: "2025-09-04 18:52:59.620885-07",
             updated_at: "2025-09-04 19:00:21.407044-07",
             published_at: "2025-08-31 18:52:59.623-07",
@@ -108,22 +88,15 @@ export const useReviews = (params: ReviewQueryParams = {}) => {
           },
           {
             id: 116,
-            review_type: 'affiliate',
-            affiliate_id: 1,
-            business_slug: 'jps',
+            tenant_slug: 'jps',
+            customer_name: "Moni Marhaba",
             rating: 5,
-            title: "I had a great experience with JP's Mobile Detailing",
-            content: "They did a great job on my Tritoon boat, looks brand new. JP and Ozgy were great, can't say enough about them. They taught me a great deal on how to keep up that shine. There is more to it than you'd think. Their work ethic is amazing. Will definitely use them in the future.",
-            reviewer_name: "Moni Marhaba",
-            reviewer_email: "moni.marhaba@email.com",
-            review_source: "google",
-            status: "approved",
-            is_verified: true,
-            service_category: "boat",
-            service_date: "2025-08-22",
-            helpful_votes: 0,
-            total_votes: 0,
-            is_featured: true,
+            comment: "They did a great job on my Tritoon boat, looks brand new. JP and Ozgy were great, can't say enough about them. They taught me a great deal on how to keep up that shine. There is more to it than you'd think. Their work ethic is amazing. Will definitely use them in the future.",
+            vehicle_type: 'boat',
+            paint_correction: false,
+            ceramic_coating: true,
+            paint_protection_film: false,
+            source: "google",
             created_at: "2025-09-04 19:04:16.949176-07",
             updated_at: "2025-09-04 19:07:56.34953-07",
             published_at: "2025-08-21 19:04:16.952-07",
@@ -131,23 +104,16 @@ export const useReviews = (params: ReviewQueryParams = {}) => {
           },
           {
             id: 117,
-            review_type: 'affiliate',
-            affiliate_id: 1,
-            business_slug: 'jps',
+            tenant_slug: 'jps',
+            customer_name: "Heidi Zenefski",
             rating: 5,
-            title: "We have been using JP's Mobile Detailing for about four years now",
-            content: "We keep coming back because they are the best. Our car looks brand new. Every time they finish. They are very knowledgeable and have the ability to do extra things that other companies may not do such as dying, our black trim, back to black after it's faded in the sun.",
-            reviewer_name: "Heidi Zenefski",
-            reviewer_email: "heidi.zenefski@email.com",
-            reviewer_avatar_url: "/uploads/avatars/heidi_zenefski_117_20250905020942.png",
-            review_source: "google",
-            status: "approved",
-            is_verified: true,
-            service_category: "car",
-            service_date: "2025-08-08",
-            helpful_votes: 0,
-            total_votes: 0,
-            is_featured: true,
+            comment: "We keep coming back because they are the best. Our car looks brand new. Every time they finish. They are very knowledgeable and have the ability to do extra things that other companies may not do such as dying, our black trim, back to black after it's faded in the sun.",
+            vehicle_type: 'car',
+            paint_correction: true,
+            ceramic_coating: false,
+            paint_protection_film: false,
+            source: "google",
+            avatar_filename: "/uploads/avatars/heidi_zenefski_117_20250905020942.png",
             created_at: "2025-09-04 19:09:42.339714-07",
             updated_at: "2025-09-04 19:09:42.371283-07",
             published_at: "2025-08-07 19:09:42.343-07",

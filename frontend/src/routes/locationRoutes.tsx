@@ -1,9 +1,9 @@
 import { Header } from "@/features/header";
 import { HomePage } from "@/features/home";
 import { loadMergedLocationDataSync } from "@/shared/utils/locationDataLoader";
-import siteData from "@/data/mdh/site.json";
-import bullheadCityData from "@/data/areas/az/bullhead-city.json";
-import lasVegasData from "@/data/areas/nv/las-vegas.json";
+import siteData from "@/data/mobile-detailing/site.json";
+import bullheadCityData from "@/data/locations/az/bullhead-city.json";
+import lasVegasData from "@/data/locations/nv/las-vegas.json";
 
 // Merge location data with main site config
 const mergedBullheadCityData = loadMergedLocationDataSync(siteData, bullheadCityData);

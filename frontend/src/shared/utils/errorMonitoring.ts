@@ -117,8 +117,8 @@ class ErrorMonitor {
         const response = await originalFetch(...args);
         const responseTime = Date.now() - startTime;
 
-        // Log failed requests
-        if (!response.ok) {
+        // Log failed requests (but ignore localhost connection refused errors)
+        if (!response.ok && !(url.includes('localhost:5173') && response.status === 0)) {
           this.captureError({
             type: 'network',
             message: `HTTP ${response.status}: ${response.statusText}`,
@@ -134,15 +134,20 @@ class ErrorMonitor {
         return response;
       } catch (error) {
         const responseTime = Date.now() - startTime;
-        this.captureError({
-          type: 'network',
-          message: `Network error: ${error instanceof Error ? error.message : String(error)}`,
-          networkInfo: {
-            url,
-            method,
-            responseTime,
-          },
-        });
+        
+        // Don't log connection refused errors to localhost:5173 (Vite dev server pings)
+        if (!(url.includes('localhost:5173') && error instanceof TypeError && error.message.includes('ERR_CONNECTION_REFUSED'))) {
+          this.captureError({
+            type: 'network',
+            message: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            networkInfo: {
+              url,
+              method,
+              responseTime,
+            },
+          });
+        }
+        
         throw error;
       }
     };

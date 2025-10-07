@@ -15,3 +15,6 @@ export * from './hooks';
 
 // Shared utilities
 export * from './utils';
+
+// Shared data
+export * from './data';

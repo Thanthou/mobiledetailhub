@@ -38,7 +38,7 @@ const FollowUs: React.FC<FollowUsProps> = ({ socialMedia }) => {
     }
   ];
 
-  const visibleLinks = socialLinks.filter(link => link.url);
+  const visibleLinks = socialLinks.filter(link => link.url && link.url !== null && link.url.trim() !== '');
 
   return (
     <div className="text-center">

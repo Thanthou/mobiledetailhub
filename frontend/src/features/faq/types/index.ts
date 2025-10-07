@@ -1,15 +1,16 @@
 // FAQ Types based on legacy structure
 export type FAQCategory =
-  | "Services & Packages"
-  | "Scheduling & Location"
-  | "Pricing & Payment"
-  | "Products & Process"
-  | "Preparation & Aftercare"
-  | "RV & Boat Services"
   | "General"
+  | "Services"
+  | "Scheduling"
+  | "Pricing"
+  | "Preparation"
+  | "Aftercare"
+  | "RV"
+  | "Marine"
   | "Locations"
-  | "Payments & Deposits"
-  | "Warranty & Guarantee"
+  | "Payments"
+  | "Warranty"
   | "Location Specific";
 
 export type ServiceTag =
@@ -17,9 +18,9 @@ export type ServiceTag =
   | "Marine"
   | "RV"
   | "Motorcycle"
+  | "Paint Correction"
   | "Ceramic Coating"
-  | "PPF"
-  | "Headlight Restore"
+  | "Paint Protection Film"
   | "Odor Removal";
 
 export interface FAQItem {

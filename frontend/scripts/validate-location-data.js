@@ -148,7 +148,7 @@ function validateLocationData(data, filename) {
 }
 
 function findLocationFiles() {
-  const locationDir = path.join(__dirname, '../src/data/areas');
+  const locationDir = path.join(__dirname, '../src/data/locations');
   const files = [];
   
   function scanDirectory(dir) {
@@ -160,7 +160,7 @@ function findLocationFiles() {
       
       if (stat.isDirectory()) {
         scanDirectory(fullPath);
-      } else if (item.endsWith('.json')) {
+      } else if (item.endsWith('.json') && item !== 'locations.json') {
         files.push(fullPath);
       }
     });
@@ -180,7 +180,7 @@ function validateAllLocationFiles() {
   console.log(`Found ${locationFiles.length} location files:`, locationFiles.map(f => path.basename(f)));
   
   if (locationFiles.length === 0) {
-    console.log('⚠️  No location files found in src/data/areas/');
+    console.log('⚠️  No location files found in src/data/locations/');
     return;
   }
   

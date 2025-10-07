@@ -115,7 +115,7 @@ const sampleReviews = [
 
 // Function to get affiliate_id from business_slug
 async function getAffiliateId(businessSlug) {
-    const query = 'SELECT id FROM affiliates.business WHERE slug = $1';
+    const query = 'SELECT id FROM tenants.business WHERE slug = $1';
     const result = await pool.query(query, [businessSlug]);
     return result.rows[0]?.id || null;
 }

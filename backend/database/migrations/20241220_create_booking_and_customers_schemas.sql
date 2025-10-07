@@ -148,7 +148,7 @@ CREATE TABLE IF NOT EXISTS customers.customer_communications (
 -- Create availability table
 CREATE TABLE IF NOT EXISTS booking.availability (
     id SERIAL PRIMARY KEY,
-    affiliate_id INTEGER NOT NULL REFERENCES affiliates.business(id) ON DELETE CASCADE,
+    affiliate_id INTEGER NOT NULL REFERENCES tenants.business(id) ON DELETE CASCADE,
     date DATE NOT NULL,
     start_time TIME NOT NULL,
     end_time TIME NOT NULL,
@@ -162,7 +162,7 @@ CREATE TABLE IF NOT EXISTS booking.availability (
 -- Create quotes table
 CREATE TABLE IF NOT EXISTS booking.quotes (
     id SERIAL PRIMARY KEY,
-    affiliate_id INTEGER NOT NULL REFERENCES affiliates.business(id) ON DELETE CASCADE,
+    affiliate_id INTEGER NOT NULL REFERENCES tenants.business(id) ON DELETE CASCADE,
     customer_id INTEGER REFERENCES customers.customers(id) ON DELETE SET NULL,
     address_json JSONB NOT NULL DEFAULT '{}'::jsonb,
     requested_start TIMESTAMPTZ,
@@ -177,7 +177,7 @@ CREATE TABLE IF NOT EXISTS booking.quotes (
 -- Create bookings table
 CREATE TABLE IF NOT EXISTS booking.bookings (
     id SERIAL PRIMARY KEY,
-    affiliate_id INTEGER NOT NULL REFERENCES affiliates.business(id) ON DELETE CASCADE,
+    affiliate_id INTEGER NOT NULL REFERENCES tenants.business(id) ON DELETE CASCADE,
     customer_id INTEGER REFERENCES customers.customers(id) ON DELETE SET NULL,
     service_id INTEGER REFERENCES affiliates.services(id) ON DELETE SET NULL,
     tier_id INTEGER REFERENCES affiliates.service_tiers(id) ON DELETE SET NULL,

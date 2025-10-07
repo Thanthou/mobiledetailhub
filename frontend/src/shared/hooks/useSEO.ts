@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 import { getAbsoluteUrl } from '@/shared/utils';
-import siteData from '@/data/mdh/site.json';
+import siteData from '@/data/mobile-detailing/site.json';
 
 /**
  * Hook to manage SEO metadata for the homepage

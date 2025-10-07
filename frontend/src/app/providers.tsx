@@ -2,7 +2,8 @@ import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-import { AffiliateProvider, AuthProvider, FAQProvider, LocationProvider, MDHConfigProvider, SiteProvider } from '@/shared/contexts';
+import { AuthProvider, TenantConfigProvider } from '@/shared/contexts';
+import { WebsiteContentProvider } from '@/shared/contexts/WebsiteContentContext';
 import { ErrorBoundary } from '@/shared/ui';
 
 // Create a client
@@ -27,40 +28,16 @@ export const Providers: React.FC<ProvidersProps> = ({ children }) => {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <LocationProvider>
-            <MDHConfigProvider>
-              <FAQProvider>
-                <Router>
-                  {children}
-                </Router>
-              </FAQProvider>
-            </MDHConfigProvider>
-          </LocationProvider>
+          <TenantConfigProvider>
+            <Router>
+              <WebsiteContentProvider>
+                {children}
+              </WebsiteContentProvider>
+            </Router>
+          </TenantConfigProvider>
         </AuthProvider>
       </QueryClientProvider>
     </ErrorBoundary>
   );
 };
 
-// Specialized provider for affiliate-specific routes
-export const AffiliateProviders: React.FC<ProvidersProps> = ({ children }) => {
-  return (
-    <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <SiteProvider>
-            <MDHConfigProvider>
-              <FAQProvider>
-                <Router>
-                  <AffiliateProvider>
-                    {children}
-                  </AffiliateProvider>
-                </Router>
-              </FAQProvider>
-            </MDHConfigProvider>
-          </SiteProvider>
-        </AuthProvider>
-      </QueryClientProvider>
-    </ErrorBoundary>
-  );
-};

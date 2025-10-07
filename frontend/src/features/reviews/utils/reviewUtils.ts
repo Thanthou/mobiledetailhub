@@ -4,21 +4,14 @@ import type { Review, DatabaseReview } from '../types';
 // Convert database review to frontend review format
 export const convertDatabaseReviewToReview = (dbReview: DatabaseReview): Review => ({
   id: dbReview.id.toString(),
-  customerName: dbReview.reviewer_name,
-  profileImage: dbReview.reviewer_avatar_url,
+  customerName: dbReview.customer_name,
+  profileImage: dbReview.avatar_filename ? `/uploads/avatars/${dbReview.avatar_filename}` : undefined,
   rating: dbReview.rating,
-  reviewText: dbReview.content,
-  title: dbReview.title,
+  reviewText: dbReview.comment,
   date: dbReview.published_at || dbReview.created_at,
-  isVerified: dbReview.is_verified,
-  isFeatured: dbReview.is_featured,
-  helpfulVotes: dbReview.helpful_votes,
-  totalVotes: dbReview.total_votes,
-  serviceCategory: dbReview.service_category,
-  businessName: dbReview.business_name,
-  businessSlug: dbReview.business_slug_actual,
-  reviewSource: dbReview.review_source,
+  reviewSource: dbReview.source,
   reviewerUrl: dbReview.reviewer_url,
+  serviceCategory: dbReview.vehicle_type,
 });
 
 // Sort reviews by featured status, rating, and date
