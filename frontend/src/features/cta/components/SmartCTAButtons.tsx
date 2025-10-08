@@ -14,9 +14,8 @@ interface SmartCTAButtonsProps {
 }
 
 /**
- * Smart CTA buttons component that changes based on site state:
- * - MDH state: Generic "Request a Quote" and "Book Now" buttons
- * - Affiliate state: Location-specific buttons with business context
+ * Smart CTA buttons component for tenant-based sites:
+ * - All sites are now tenant-based with business-specific context
  */
 const SmartCTAButtons: React.FC<SmartCTAButtonsProps> = ({ 
   onRequestQuote, 
@@ -25,34 +24,13 @@ const SmartCTAButtons: React.FC<SmartCTAButtonsProps> = ({
   className,
   forceMobile = false
 }) => {
-  const { siteState, currentLocation, businessData } = useSiteState();
   const bookingCapabilities = useBookingCapabilities();
   
   // Detect if we're on mobile or should use mobile layout
   const isMobile = forceMobile || (typeof window !== 'undefined' && window.innerWidth < 768);
 
-  // Default CTA configuration for MDH state
-  const mdhButtons = [
-    {
-      text: 'Request a Quote',
-      onClick: onRequestQuote || (() => {}),
-      variant: 'primary' as const,
-    },
-    {
-      text: 'Find Location',
-      onClick: () => {
-        // Scroll to location search or open location modal
-        const locationSection = document.getElementById('location-search');
-        if (locationSection) {
-          locationSection.scrollIntoView({ behavior: 'smooth' });
-        }
-      },
-      variant: 'secondary' as const,
-    },
-  ];
-
-  // Location-specific CTA configuration for affiliate state
-  const affiliateButtons = [
+  // Tenant-specific CTA configuration (all sites are now tenant-based)
+  const tenantButtons = [
     {
       text: 'Request a Quote',
       onClick: onRequestQuote || (() => {}),
@@ -65,8 +43,8 @@ const SmartCTAButtons: React.FC<SmartCTAButtonsProps> = ({
     },
   ];
 
-  // Choose buttons based on site state
-  const buttons = siteState === 'affiliate' ? affiliateButtons : mdhButtons;
+  // Use tenant buttons (all sites are tenant-based now)
+  const buttons = tenantButtons;
 
   // Use mobile-optimized CTAs for mobile devices or when forced
   if (isMobile) {

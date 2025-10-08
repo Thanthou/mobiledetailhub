@@ -4,6 +4,7 @@ import { ChevronDown, Home, Shield, Building2, ExternalLink } from 'lucide-react
 import { useTenants } from '../hooks/useTenants';
 
 const UserMenu: React.FC = () => {
+  // Admin dropdown with Tenant Onboarding link
   const navigate = useNavigate();
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isTenantsOpen, setIsTenantsOpen] = useState(false);
@@ -125,10 +126,11 @@ const UserMenu: React.FC = () => {
         <button
           id="admin-menu-button"
           onClick={() => { 
+            console.log('🔍 Admin button clicked, isAdminOpen:', !isAdminOpen);
             setIsAdminOpen(!isAdminOpen);
             setIsTenantsOpen(false); // Close other menus
           }}
-          className="flex items-center space-x-1 bg-gray-600 hover:bg-gray-700 text-white px-2 py-1.5 rounded-md text-xs font-medium transition-colors"
+          className="flex items-center space-x-1 bg-blue-600 hover:bg-blue-700 text-white px-2 py-1.5 rounded-md text-xs font-medium transition-colors"
           aria-expanded={isAdminOpen}
           aria-haspopup="true"
         >
@@ -144,6 +146,7 @@ const UserMenu: React.FC = () => {
             role="menu"
             aria-orientation="vertical"
             aria-labelledby="admin-menu-button"
+            onLoad={() => console.log('🔍 Admin dropdown menu rendered')}
           >
             <button
               onClick={() => { handleNavigation('/'); }}
@@ -155,12 +158,27 @@ const UserMenu: React.FC = () => {
             </button>
             
             <button
-              onClick={() => { handleNavigation('/admin-dashboard'); }}
+              onClick={() => { 
+                console.log('🔍 Admin Dashboard clicked');
+                handleNavigation('/admin-dashboard'); 
+              }}
               className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
               role="menuitem"
             >
               <Shield className="h-4 w-4 mr-3" />
               Admin Dashboard
+            </button>
+            
+            <button
+              onClick={() => { 
+                console.log('🔍 Tenant Onboarding clicked');
+                handleNavigation('/tenant-onboarding'); 
+              }}
+              className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+              role="menuitem"
+            >
+              <Building2 className="h-4 w-4 mr-3" />
+              Tenant Onboarding
             </button>
           </div>
         )}

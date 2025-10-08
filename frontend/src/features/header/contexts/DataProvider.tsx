@@ -49,6 +49,7 @@ interface DataContextType {
   email: string;
   owner: string;
   location: string;
+  industry: string;
   serviceAreas: Array<{city: string, state: string, zip?: string, primary?: boolean, minimum?: number, multiplier?: number}>;
   socialMedia: {
     facebook?: string;
@@ -95,6 +96,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     owner: businessData?.owner || '',
     location: businessData?.service_areas?.[0] ? 
       `${businessData.service_areas[0].city}, ${businessData.service_areas[0].state}` : '',
+    industry: businessData?.industry || 'mobile-detailing',
     serviceAreas: businessData?.service_areas || [],
     socialMedia: {
       facebook: businessData?.facebook_url && businessData.facebook_url !== null && businessData.facebook_url.trim() !== '' ? businessData.facebook_url : undefined,

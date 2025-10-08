@@ -1,4 +1,4 @@
-import { useSiteContext } from '@/shared/utils/siteContext';
+import siteData from '@/data/mobile-detailing/site.json';
 import { useWebsiteContent } from '@/shared/contexts/WebsiteContentContext';
 
 interface UseReviewsRatingReturn {
@@ -8,7 +8,7 @@ interface UseReviewsRatingReturn {
 }
 
 export const useReviewsRating = (): UseReviewsRatingReturn => {
-  const { siteData } = useSiteContext();
+  // Use static site data since we're now tenant-based
   
   // Try to get website content, but handle cases where provider isn't available
   let websiteContent = null;

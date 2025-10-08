@@ -3,8 +3,8 @@
 
 import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useParams } from 'react-router-dom';
 import { websiteContentApi, WebsiteContentData } from '../api/websiteContent.api';
-import { useSiteContext } from '../utils/siteContext';
 
 interface WebsiteContentContextType {
   content: WebsiteContentData | null;
@@ -20,19 +20,9 @@ interface WebsiteContentProviderProps {
 }
 
 export const WebsiteContentProvider: React.FC<WebsiteContentProviderProps> = ({ children }) => {
-  const { isMainSite, locationData } = useSiteContext();
-  
-  // Determine which tenant slug to use
-  const tenantSlug = useMemo(() => {
-    if (isMainSite) {
-      return 'jps'; // Main site uses 'jps' as tenant slug (based on database data)
-    }
-    
-    // For location sites, we need to determine the tenant slug
-    // This could be based on location data or some other logic
-    // For now, we'll use a placeholder that needs to be implemented
-    return locationData?.tenantSlug || 'jps';
-  }, [isMainSite, locationData]);
+  // Get tenant slug from URL params (same logic as DataProvider)
+  const params = useParams();
+  const slug = params.businessSlug || params.tenantSlug || params.slug || 'jps';
 
   const {
     data: content,
@@ -40,16 +30,16 @@ export const WebsiteContentProvider: React.FC<WebsiteContentProviderProps> = ({ 
     error,
     refetch,
   } = useQuery({
-    queryKey: ['website-content', tenantSlug],
+    queryKey: ['website-content', slug],
     queryFn: async () => {
       // Always use the tenant-specific endpoint since main site uses 'jps' tenant
-      const result = await websiteContentApi.getWebsiteContent(tenantSlug);
+      const result = await websiteContentApi.getWebsiteContent(slug);
       return result;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     cacheTime: 10 * 60 * 1000, // 10 minutes
     retry: 2,
-    enabled: !!tenantSlug,
+    enabled: !!slug,
   });
 
   const contextValue: WebsiteContentContextType = {

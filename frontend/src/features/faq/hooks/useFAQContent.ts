@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import { useSiteContext } from '@/shared/utils/siteContext';
 import { useWebsiteContent } from '@/shared/contexts/WebsiteContentContext';
+import { useIndustrySiteData } from '@/shared/hooks/useIndustrySiteData';
 import { MDH_FAQ_ITEMS } from '../utils';
 import type { FAQItem as BaseFAQItem } from '../types';
 
@@ -21,7 +21,8 @@ interface UseFAQContentProps {
 }
 
 export const useFAQContent = (props?: UseFAQContentProps): UseFAQContentReturn => {
-  const { siteData } = useSiteContext();
+  // Get industry-specific site data
+  const { siteData } = useIndustrySiteData();
   const locationData = props?.locationData;
   
   // Try to get website content, but handle cases where provider isn't available
@@ -34,7 +35,7 @@ export const useFAQContent = (props?: UseFAQContentProps): UseFAQContentReturn =
     websiteContent = null;
   }
   
-  // Get FAQ title and subtitle from database or fallbacks
+  // Get FAQ title and subtitle from database or industry-specific fallbacks
   const faqTitle = websiteContent?.faq_title 
     ?? siteData?.faq?.title 
     ?? 'Frequently Asked Questions';

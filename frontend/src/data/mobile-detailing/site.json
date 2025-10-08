@@ -8,10 +8,10 @@
     "urlPath": "/",
   
     "logo": {
-      "url": "/mobile-detailing/icons/logo.webp",
+      "url": "/mobile-detailing/icons/logo.png",
       "alt": "Mobile Detail Hub Logo",
-      "darkUrl": "/mobile-detailing/icons/logo-dark.webp",
-      "lightUrl": "/mobile-detailing/icons/logo.webp"
+      "darkUrl": "/mobile-detailing/icons/logo-dark.png",
+      "lightUrl": "/mobile-detailing/icons/logo.png"
     },
   
     "seo": {

@@ -20,6 +20,7 @@ export interface Business {
   youtube_url: string;
   tiktok_url: string;
   instagram_url: string;
+  industry: string;
   created_at: string;
   updated_at: string;
 }

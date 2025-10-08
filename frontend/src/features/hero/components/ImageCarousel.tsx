@@ -2,7 +2,7 @@ import React from 'react';
 import siteData from '@/data/mobile-detailing/site.json';
 import { useImageRotation } from '@/shared/hooks';
 import { getVisibleImageIndices, getImageOpacityClasses, getTransitionStyles } from '@/shared/utils';
-import { useSiteContext } from '@/shared/utils/siteContext';
+import { useData } from '@/features/header/contexts/DataProvider';
 
 interface ImageCarouselProps {
   autoRotate?: boolean;
@@ -15,13 +15,13 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
   interval = 7000,
   locationData
 }) => {
-  const { isLocation } = useSiteContext();
+  const { isTenant } = useData();
   
   // Determine which images to use
   let images: string[];
   let imageData: any[] = [];
   
-  if (isLocation && locationData?.images) {
+  if (isTenant && locationData?.images) {
     // Use location-specific hero images
     imageData = locationData.images.filter((img: any) => img.role === 'hero');
     images = imageData.map((img: any) => img.url);

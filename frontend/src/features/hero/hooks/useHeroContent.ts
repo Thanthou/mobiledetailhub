@@ -1,5 +1,5 @@
-import { useSiteContext } from '@/shared/utils/siteContext';
 import { useWebsiteContent } from '@/shared/contexts/WebsiteContentContext';
+import { useIndustrySiteData } from '@/shared/hooks/useIndustrySiteData';
 
 interface UseHeroContentReturn {
   title: string;
@@ -13,7 +13,8 @@ interface UseHeroContentProps {
 }
 
 export const useHeroContent = (props?: UseHeroContentProps): UseHeroContentReturn => {
-  const { isLocation, locationData: contextLocationData, siteData } = useSiteContext();
+  // Get industry-specific site data
+  const { siteData } = useIndustrySiteData();
   
   // Try to get website content, but handle cases where provider isn't available
   let websiteContent = null;
@@ -26,22 +27,17 @@ export const useHeroContent = (props?: UseHeroContentProps): UseHeroContentRetur
   }
   
   // Use passed locationData as fallback
-  const locationData = props?.locationData || contextLocationData;
+  const locationData = props?.locationData;
   
-  // Determine content based on context
-  // Priority: Database content > Location data > Site data > Fallback
-  const title = isLocation 
-    ? websiteContent?.hero_title ?? locationData?.hero?.h1 ?? siteData?.hero?.h1 ?? 'Mobile Detailing'
-    : websiteContent?.hero_title ?? siteData?.hero?.h1 ?? 'Mobile Detailing';
-    
-  const subtitle = isLocation
-    ? websiteContent?.hero_subtitle ?? locationData?.hero?.sub ?? siteData?.hero?.sub ?? 'Professional mobile detailing services'
-    : websiteContent?.hero_subtitle ?? siteData?.hero?.sub ?? 'Professional mobile detailing services';
+  // All sites are now tenant-based, so use database content or industry-specific site data
+  // Priority: Database content > Industry-specific site data > Fallback
+  const title = websiteContent?.hero_title ?? siteData?.hero?.h1 ?? 'Mobile Detailing';
+  const subtitle = websiteContent?.hero_subtitle ?? siteData?.hero?.subTitle ?? 'Professional mobile detailing services';
 
   return {
     title,
     subtitle,
-    isLocation: Boolean(isLocation),
+    isLocation: false, // All sites are now tenant-based
     locationName: locationData?.city ?? ''
   };
 };

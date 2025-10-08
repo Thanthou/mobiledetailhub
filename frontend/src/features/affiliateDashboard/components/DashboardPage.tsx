@@ -27,7 +27,7 @@ const DashboardPage: React.FC = () => {
       try {
         setLoading(true);
         const token = localStorage.getItem('token');
-        const url = `/api/affiliates/tenant/${businessSlug}`;
+        const url = `/api/tenants/${businessSlug}`;
         const response = await fetch(url, {
           headers: {
             'Content-Type': 'application/json',

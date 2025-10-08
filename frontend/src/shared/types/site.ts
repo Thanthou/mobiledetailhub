@@ -1,4 +1,4 @@
-export type SiteState = 'mdh' | 'affiliate';
+export type SiteState = 'tenant';
 
 export interface SiteContextType {
   siteState: SiteState;

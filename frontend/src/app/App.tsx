@@ -6,6 +6,7 @@ import HomePage from './pages/HomePage';
 import ServicePage from './pages/ServicePage';
 import { TenantPage, DataProvider } from '@/features/header';
 import { DashboardPage } from '@/features/tenantDashboard';
+import { TenantApplicationPage } from '@/features/tenantOnboarding';
 import DevNavigation from '@/features/header/components/DevNavigation';
 
 // Heavy modules are NOT imported here - they stay out of the initial bundle
@@ -40,6 +41,9 @@ export default function App() {
           <Route path="/locations/:slug/book" element={<Booking />} />
           <Route path="/book" element={<Booking />} />
           <Route path="/booking" element={<Booking />} />
+          
+          {/* Tenant Onboarding route */}
+          <Route path="/tenant-onboarding" element={<TenantApplicationPage />} />
           
           {/* Tenant routes - now no conflicts! */}
           <Route path="/:slug/dashboard" element={

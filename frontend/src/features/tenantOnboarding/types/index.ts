@@ -22,6 +22,34 @@ export interface UploadFile {
   url: string;
 }
 
+// New simplified tenant application interface
+export interface TenantApplication {
+  firstName: string;
+  lastName: string;
+  personalPhone: string;
+  personalEmail: string;
+  businessName: string;
+  businessPhone: string;
+  businessEmail: string;
+  businessAddress: {
+    address: string;
+    city: string;
+    state: string;
+    zip: string;
+  };
+  paymentMethod: string;
+  cardNumber: string;
+  expiryDate: string;
+  cvv: string;
+  billingAddress: {
+    address: string;
+    city: string;
+    state: string;
+    zip: string;
+  };
+}
+
+// Legacy interface for backward compatibility
 export interface AffiliateApplication {
   legal_name: string;
   primary_contact: string;
@@ -68,6 +96,34 @@ export const SOURCES = [
   'Other'
 ];
 
+// Default values for new simplified tenant application
+export const tenantApplicationDefaultValues: TenantApplication = {
+  firstName: '',
+  lastName: '',
+  personalPhone: '',
+  personalEmail: '',
+  businessName: '',
+  businessPhone: '',
+  businessEmail: '',
+  businessAddress: {
+    address: '',
+    city: '',
+    state: '',
+    zip: ''
+  },
+  paymentMethod: '',
+  cardNumber: '',
+  expiryDate: '',
+  cvv: '',
+  billingAddress: {
+    address: '',
+    city: '',
+    state: '',
+    zip: ''
+  }
+};
+
+// Legacy default values for backward compatibility
 export const defaultValues: AffiliateApplication = {
   legal_name: '',
   primary_contact: '',

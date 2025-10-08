@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 
 import { Button } from './Button';
 import { cn } from '@/shared/utils/cn';
-import { useSiteContext } from '@/shared/hooks';
 
 interface BookNowProps {
   to?: string;
@@ -30,7 +29,6 @@ const BookNow = React.forwardRef<HTMLButtonElement, BookNowProps>(
     children,
     ...props
   }, ref) => {
-    const context = useSiteContext();
     const buttonText = children || 'Book Now';
 
     // Determine destination based on context

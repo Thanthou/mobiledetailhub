@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 // import { useAffiliate } from '@/features/affiliateDashboard/hooks'; // Removed - using shared hook instead
 import { useVehicleData } from '@/features/booking/hooks';
 // import { useLocation } from '@/shared/hooks';
-import { useSiteContext } from '@/shared/hooks';
+// Legacy useSiteContext removed - now using tenant-based routing
 import { 
   sanitizeText, 
   validateEmail, 
@@ -19,7 +19,8 @@ import { type QuoteFormData, type ServiceArea, type QuoteRequest, quoteRequestSc
 export const useQuoteForm = () => {
   const { vehicleTypes, getMakes, getModels } = useVehicleData();
   // const { selectedLocation } = useLocation();
-  const { isAffiliate } = useSiteContext();
+  // Legacy useSiteContext removed - now using tenant-based routing
+  const isAffiliate = false; // All sites are now tenant-based
   
   // Safely get affiliate data - it might not be available on all pages
   let affiliateData: unknown = null;

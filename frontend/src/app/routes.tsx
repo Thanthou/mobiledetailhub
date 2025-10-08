@@ -3,7 +3,7 @@ import { Route, Routes, Navigate, useParams } from 'react-router-dom';
 
 import { DashboardPage as AdminDashboard } from '@/features/adminDashboard';
 import { DashboardPage } from '@/features/tenantDashboard';
-import { AffiliateApplicationPage } from '@/features/affiliateOnboarding';
+import { TenantApplicationPage } from '@/features/tenantOnboarding';
 import { BookingPage } from '@/features/booking';
 import { Header } from '@/features/header';
 import HomePage from '@/app/pages/HomePage';
@@ -54,7 +54,7 @@ export const AppRoutes: React.FC = () => {
               <DashboardPage />
             </ProtectedRoute>
           } />
-          <Route path="/affiliate-onboarding" element={<AffiliateApplicationPage />} />
+          <Route path="/tenant-onboarding" element={<TenantApplicationPage />} />
           <Route path="/booking" element={<BookingPage />} />
           
           {/* Redirect old service routes to tenant-based structure */}

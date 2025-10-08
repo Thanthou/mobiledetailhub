@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useSiteContext } from '@/shared/utils/siteContext';
 import { Menu, X } from 'lucide-react';
 
 import Logo from './Logo';
@@ -17,11 +16,9 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ locationData, employeeData }) => {
-  // Get context for consistent behavior
-  const context = useSiteContext();
   const [activeSection, setActiveSection] = useState<string>('');
   
-  // Get data (either from database for tenants or static for main site)
+  // Get data from tenant database via DataProvider
   const { businessName, phone, owner, location, isTenant } = useData();
   const hasReviews = useReviewsAvailability();
   
@@ -124,28 +121,10 @@ const Header: React.FC<HeaderProps> = ({ locationData, employeeData }) => {
       <div className="w-full py-4 relative">
         <div className="max-w-7xl mx-auto flex items-center px-4">
           <Logo />
-          {/* Use original BusinessInfo component with data from context */}
+          {/* BusinessInfo now gets data directly from DataProvider */}
           <BusinessInfo 
-            context={{
-              ...context,
-              siteData: {
-                ...context.siteData,
-                brand: businessName,
-                contact: {
-                  ...context.siteData?.contact,
-                  phone: phone
-                }
-              },
-              city: location.split(', ')[0] || context.city,
-              state: location.split(', ')[1] || context.state,
-              isLocation: isTenant
-            }}
-            locationData={isTenant ? {
-              businessName,
-              phone,
-              city: location.split(', ')[0],
-              stateCode: location.split(', ')[1]
-            } : undefined}
+            employeeData={employeeData}
+            locationData={locationData}
           />
           <div className="flex items-center space-x-6 ml-auto">
             <Navigation activeSection={activeSection} />

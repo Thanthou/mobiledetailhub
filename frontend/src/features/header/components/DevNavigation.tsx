@@ -62,7 +62,9 @@ const DevNavigation: React.FC = () => {
       {/* Admin Dropdown */}
       <div className="relative" ref={adminRef}>
         <button
-          onClick={() => setIsAdminOpen(!isAdminOpen)}
+          onClick={() => {
+            setIsAdminOpen(!isAdminOpen);
+          }}
           className="flex items-center space-x-1 px-3 py-2 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors duration-200"
         >
           <Settings className="h-3 w-3" />
@@ -88,6 +90,17 @@ const DevNavigation: React.FC = () => {
               >
                 <Settings className="h-4 w-4 mr-3" />
                 Admin Dashboard
+              </button>
+              <button
+                onClick={() => {
+                  navigate('/tenant-onboarding');
+                  setIsAdminOpen(false);
+                }}
+                className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                role="menuitem"
+              >
+                <Users className="h-4 w-4 mr-3" />
+                Tenant Onboarding
               </button>
             </div>
           </div>

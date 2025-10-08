@@ -61,20 +61,7 @@ export {
 export { findBusinessByLocation } from './findBusinessByLocation';
 
 
-// Business utilities
-export {
-  getBusinessBySlug,
-  getAllBusinessSlugs,
-  getBusinessName,
-  getBusinessPhone,
-  getBusinessEmail,
-  getBusinessUrl,
-  getBusinessLogo,
-  getBusinessDescription,
-  getBusinessServices,
-  getBusinessHours,
-  getBusinessServiceAreas
-} from './businessUtils';
+// Legacy business utilities removed - now using DataProvider for tenant-based routing
 
 // Site data utilities
 export {
@@ -90,19 +77,7 @@ export {
   getAbsoluteUrl
 } from './siteUtils';
 
-// Areas data utilities
-export {
-  getAllAreas,
-  getAreasByState,
-  getAreasStates,
-  getCitiesForState,
-  getAreaBySlug,
-  getAreaByCityState,
-  searchAreasByCity,
-  getFooterAreas,
-  type AreaInfo,
-  type StateInfo
-} from './areasUtils';
+// Legacy areas utilities removed - no longer needed for tenant-based routing
 
 // Locations data utilities (simplified locations.json format)
 export {

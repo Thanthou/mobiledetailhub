@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 
-import { useSiteContext } from '@/shared/hooks';
+// Legacy useSiteContext removed - now using tenant-based routing
 
 import { MDH_FAQ_ITEMS } from '@/features/faq/utils';
 import type { GeoConfig } from '@/features/faq/types';
@@ -11,7 +11,8 @@ interface UseFAQDataProps {
 }
 
 export const useFAQData = ({ config, autoExpand = false }: UseFAQDataProps = {}) => {
-  const { isMDH } = useSiteContext();
+  // Legacy useSiteContext removed - all sites are now tenant-based
+  const isMDH = false;
   const [openItems, setOpenItems] = useState<Set<string>>(new Set());
 
   // Get FAQ data based on site context

@@ -2,7 +2,7 @@
 export { useAuth } from './useAuth';
 export { useTenantConfig } from './useTenantConfig';
 export { useSEO } from './useSEO';
-export { useSiteContext } from '../utils/siteContext';
+// Legacy useSiteContext removed - use DataProvider instead for tenant-based sites
 export { useToast } from './useToast';
 
 // Error boundary hooks
@@ -20,5 +20,7 @@ export { useScrollToTop } from './useScrollToTop';
 // Image rotation hooks
 export { useImageRotation, useImageRotationHover } from './useImageRotation';
 
-// Business data hooks
-export { useBusinessData, useBusinessDataBySlug } from './useBusinessData';
+// Industry-specific site data hook
+export { useIndustrySiteData } from './useIndustrySiteData';
+
+// Legacy business data hooks removed - now using DataProvider for tenant-based routing

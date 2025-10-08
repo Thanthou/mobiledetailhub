@@ -1,11 +1,11 @@
-# Affiliate Onboarding
+# Tenant Onboarding
 
-This directory contains the affiliate onboarding system for Mobile Detail Hub.
+This directory contains the tenant onboarding system for Mobile Detail Hub.
 
 ## Structure
 
 ```
-affiliateOnboarding/
+tenantOnboarding/
 ├── components/           # Reusable UI components
 │   ├── ApplicationHeader.tsx      # Header with back button
 │   ├── IdentityContactSection.tsx # Business identity and contact info
@@ -26,7 +26,7 @@ affiliateOnboarding/
 │   └── onboarding.schemas.ts
 ├── types.ts             # TypeScript interfaces and constants
 ├── useLocalDraft.ts     # Local storage for draft saving
-├── AffiliateApplicationPage.tsx   # Main page component
+├── TenantApplicationPage.tsx   # Main page component
 └── README.md            # This file
 ```
 

@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-import { onboardingApi } from '@/features/affiliateOnboarding/api/onboarding.api';
-import { useFileUpload, useFormHandlers, useLocalDraft } from '@/features/affiliateOnboarding/hooks';
-import type { AffiliateApplication } from '@/features/affiliateOnboarding/types';
-import { defaultValues } from '@/features/affiliateOnboarding/types';
+import { onboardingApi } from '@/features/tenantOnboarding/api/onboarding.api';
+import { useFileUpload, useFormHandlers, useLocalDraft } from '@/features/tenantOnboarding/hooks';
+import type { AffiliateApplication } from '@/features/tenantOnboarding/types';
+import { defaultValues } from '@/features/tenantOnboarding/types';
 import { Button } from '@/shared/ui';
 
 import {
@@ -17,7 +17,7 @@ import {
   SuccessPage
 } from './index';
 
-const AffiliateApplicationPage: React.FC = () => {
+const TenantApplicationPage: React.FC = () => {
   const [formData, setFormData] = useState<AffiliateApplication>(defaultValues);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -265,4 +265,4 @@ const AffiliateApplicationPage: React.FC = () => {
   );
 };
 
-export default AffiliateApplicationPage;
+export default TenantApplicationPage;

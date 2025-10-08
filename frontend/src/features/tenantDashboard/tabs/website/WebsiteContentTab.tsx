@@ -94,10 +94,6 @@ const WebsiteContentTab: React.FC<WebsiteContentTabProps> = ({ tenantSlug }) => 
         throw new Error('No tenant selected');
       }
 
-      console.log('💾 Saving website content...', { 
-        faq_content_count: data.faq_content?.length,
-        data_keys: Object.keys(data) 
-      });
 
       // Clean up FAQ content - remove empty FAQs
       const cleanedFaqContent = (data.faq_content || []).filter((faq: any) => 
@@ -111,11 +107,9 @@ const WebsiteContentTab: React.FC<WebsiteContentTabProps> = ({ tenantSlug }) => 
         faq_content: cleanedFaqContent
       };
 
-      console.log('💾 Cleaned FAQ content:', cleanedFaqContent.length);
 
       const result = await saveWebsiteContent(tenantSlug, cleanedData);
       
-      console.log('✅ Save result:', result);
       
       // Show visual feedback for all fields that were just saved
       const allFields = ['hero_title', 'hero_subtitle', 'reviews_title', 'reviews_subtitle', 'faq_title', 'faq_subtitle'];

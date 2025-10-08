@@ -20,7 +20,7 @@ export { default as BackgroundCarousel } from './carousel/BackgroundCarousel';
 export { default as Carousel } from './carousel/Carousel';
 
 // Shared UI components
-export { default as LocationsNavigation } from './navigation/LocationsNavigation';
+// LocationsNavigation removed - no longer needed for tenant-based routing
 export { default as BookNow } from './buttons/BookNow';
 export { default as CTAButtons } from './buttons/CTAButtons';
 export { default as GetQuote } from './buttons/GetQuote';

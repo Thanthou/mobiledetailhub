@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 // import { useAffiliate } from '@/features/affiliateDashboard/hooks';
 import { useVehicleData } from '@/features/booking/hooks';
 // import { useLocation } from '@/shared/hooks'; // Removed - using tenant data instead
-import { useSiteContext } from '@/shared/hooks';
+// Legacy useSiteContext removed - now using tenant-based routing
 import {
   validateEmail,
   validateMessage,
@@ -18,7 +18,8 @@ import { type QuoteRequest, quoteRequestSchema, type QuoteFormData } from '../ty
 export const useQuoteFormLogic = () => {
   const { vehicleTypes, getMakes, getModels } = useVehicleData();
   // const { selectedLocation } = useLocation(); // Removed - using tenant data instead
-  const { isAffiliate } = useSiteContext();
+  // Legacy useSiteContext removed - now using tenant-based routing
+  const isAffiliate = false; // All sites are now tenant-based
 
   // Safely get affiliate data - it might not be available on all pages
   // For now, we'll disable affiliate functionality to prevent white screen

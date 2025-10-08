@@ -1,5 +1,5 @@
-import { useSiteContext } from '@/shared/utils/siteContext';
 import { useWebsiteContent } from '@/shared/contexts/WebsiteContentContext';
+import { useIndustrySiteData } from '@/shared/hooks/useIndustrySiteData';
 
 interface UseReviewsContentReturn {
   title: string;
@@ -13,7 +13,8 @@ interface UseReviewsContentProps {
 }
 
 export const useReviewsContent = (props?: UseReviewsContentProps): UseReviewsContentReturn => {
-  const { isLocation, locationData: contextLocationData, siteData } = useSiteContext();
+  // Get industry-specific site data
+  const { siteData } = useIndustrySiteData();
   
   // Try to get website content, but handle cases where provider isn't available
   let websiteContent = null;
@@ -26,19 +27,17 @@ export const useReviewsContent = (props?: UseReviewsContentProps): UseReviewsCon
   }
   
   // Use passed locationData as fallback
-  const locationData = props?.locationData || contextLocationData;
+  const locationData = props?.locationData;
   
-  // Determine content based on context
-  // Priority: Custom props > Database content > Location data > Site data > Fallback
+  // All sites are now tenant-based, so use database content or industry-specific site data
+  // Priority: Custom props > Database content > Industry-specific site data > Fallback
   const title = props?.customHeading
-    || (isLocation 
-      ? websiteContent?.reviews_title ?? locationData?.reviewsSection?.heading ?? siteData?.reviews?.title ?? 'Customer Reviews'
-      : websiteContent?.reviews_title ?? siteData?.reviews?.title ?? 'Customer Reviews');
+    || websiteContent?.reviews_title
+    || (siteData?.reviews?.title ?? 'Customer Reviews');
     
   const subtitle = props?.customIntro
-    || (isLocation
-      ? websiteContent?.reviews_subtitle ?? locationData?.reviewsSection?.intro ?? siteData?.reviews?.subtitle ?? 'What our customers say'
-      : websiteContent?.reviews_subtitle ?? siteData?.reviews?.subtitle ?? 'What our customers say');
+    || websiteContent?.reviews_subtitle
+    || (siteData?.reviews?.subtitle ?? 'What our customers say');
 
   return {
     title,

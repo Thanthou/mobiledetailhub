@@ -1,5 +1,5 @@
 {
-  "name": "Mobile Detail Hub – Cursor Rules",
+  "name": "Go Snap Site - Cursor Rules",
   "description": "Feature-first architecture. Strong TS + linting discipline. Clear import boundaries. Clean UI with Tailwind + shadcn/ui.",
   "rules": [
     {
