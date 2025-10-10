@@ -55,12 +55,11 @@ export const locationsApi = {
   },
 
   // Get location by coordinates (reverse geocoding)
-  getLocationByCoordinates: async (lat: number, lng: number): Promise<LocationData | null> => {
+  getLocationByCoordinates: async (_lat: number, _lng: number): Promise<LocationData | null> => {
     // Mock implementation - in real app, would call reverse geocoding API
     await new Promise(resolve => setTimeout(resolve, 300));
     
     // Return a mock location based on coordinates
-    console.log('Getting location for coordinates:', lat, lng);
     return {
       city: 'Sample City',
       state: 'SC',

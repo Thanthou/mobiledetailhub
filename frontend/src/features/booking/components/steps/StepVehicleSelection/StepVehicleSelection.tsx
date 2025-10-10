@@ -1,8 +1,9 @@
 import React from 'react';
-import Header from './Header';
+
+import { useBookingVehicle } from '@/features/booking/state';
+
 import Tabs from './Tabs';
 import VehicleSelection from './VehicleType';
-import { useBookingVehicle } from '@/features/booking/state';
 
 interface StepVehicleSelectionProps {
   onVehicleSelected?: (vehicle: string) => void;

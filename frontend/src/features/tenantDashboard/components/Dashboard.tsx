@@ -16,9 +16,9 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch affiliate data based on business slug
+  // Fetch tenant data based on business slug
   useEffect(() => {
-    const fetchAffiliateData = async () => {
+    const fetchTenantData = async () => {
       if (!businessSlug) {
         setError('No business slug provided');
         setLoading(false);
@@ -28,7 +28,8 @@ const Dashboard: React.FC = () => {
       try {
         setLoading(true);
         const token = localStorage.getItem('token');
-        const url = `/api/affiliates/${businessSlug}`;
+        const url = `/api/tenants/${businessSlug}`;
+        // eslint-disable-next-line no-restricted-globals, no-restricted-syntax -- Dashboard component needs direct fetch for initialization
         const response = await fetch(url, {
           headers: {
             'Content-Type': 'application/json',
@@ -37,9 +38,9 @@ const Dashboard: React.FC = () => {
         });
 
         if (response.ok) {
-          const data = await response.json() as { success: boolean; affiliate?: unknown };
-          if (data.success && data.affiliate) {
-            const affiliate = data.affiliate as {
+          const data = await response.json() as { success: boolean; data?: unknown };
+          if (data.success && data.data) {
+            const tenant = data.data as {
               business_name?: string;
               first_name?: string;
               last_name?: string;
@@ -50,36 +51,36 @@ const Dashboard: React.FC = () => {
               service_areas?: Array<{ city: string; state: string }>;
               created_at?: string;
             };
-            // Transform affiliate data to DetailerData format
+            // Transform tenant data to DetailerData format
             const transformedData: DetailerData = {
-              business_name: affiliate.business_name || 'Unknown Business',
-              first_name: affiliate.first_name || (affiliate.owner ? affiliate.owner.split(' ')[0] : '') || 'Unknown',
-              last_name: affiliate.last_name || (affiliate.owner ? affiliate.owner.split(' ').slice(1).join(' ') : '') || 'Unknown',
-              email: affiliate.business_email || affiliate.personal_email || 'No email',
-              phone: affiliate.phone || 'No phone',
-              location: affiliate.service_areas && Array.isArray(affiliate.service_areas) && affiliate.service_areas.length > 0 
-                ? `${affiliate.service_areas[0]?.city ?? ''}, ${affiliate.service_areas[0]?.state ?? ''}` 
+              business_name: tenant.business_name || 'Unknown Business',
+              first_name: tenant.first_name || (tenant.owner ? tenant.owner.split(' ')[0] : '') || 'Unknown',
+              last_name: tenant.last_name || (tenant.owner ? tenant.owner.split(' ').slice(1).join(' ') : '') || 'Unknown',
+              email: tenant.business_email || tenant.personal_email || 'No email',
+              phone: tenant.phone || 'No phone',
+              location: tenant.service_areas && Array.isArray(tenant.service_areas) && tenant.service_areas.length > 0 
+                ? `${tenant.service_areas[0]?.city ?? ''}, ${tenant.service_areas[0]?.state ?? ''}` 
                 : 'No location',
-              services: affiliate.service_areas && Array.isArray(affiliate.service_areas) && affiliate.service_areas.length > 0 
-                ? affiliate.service_areas.map((area: { city: string }) => area.city).slice(0, 4)
+              services: tenant.service_areas && Array.isArray(tenant.service_areas) && tenant.service_areas.length > 0 
+                ? tenant.service_areas.map((area: { city: string }) => area.city).slice(0, 4)
                 : ['Mobile Detailing'],
-              memberSince: affiliate.created_at ? new Date(affiliate.created_at).getFullYear().toString() : 'Unknown'
+              memberSince: tenant.created_at ? new Date(tenant.created_at).getFullYear().toString() : 'Unknown'
             };
             setDetailerData(transformedData);
           } else {
-            setError('Affiliate not found');
+            setError('Tenant not found');
           }
         } else {
-          setError('Failed to fetch affiliate data');
+          setError('Failed to fetch tenant data');
         }
       } catch {
-        setError('Failed to fetch affiliate data');
+        setError('Failed to fetch tenant data');
       } finally {
         setLoading(false);
       }
     };
 
-    void fetchAffiliateData();
+    void fetchTenantData();
   }, [businessSlug]);
 
   const handleDataUpdate = (data: Partial<DetailerData>) => {
@@ -97,7 +98,7 @@ const Dashboard: React.FC = () => {
       <DashboardLayout>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
-            <p className="text-lg text-gray-600">Loading affiliate dashboard...</p>
+            <p className="text-lg text-gray-600">Loading tenant dashboard...</p>
           </div>
         </div>
       </DashboardLayout>
@@ -109,7 +110,7 @@ const Dashboard: React.FC = () => {
       <DashboardLayout>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
-            <p className="text-lg text-red-600">Error: {error || 'Failed to load affiliate data'}</p>
+            <p className="text-lg text-red-600">Error: {error || 'Failed to load tenant data'}</p>
           </div>
         </div>
       </DashboardLayout>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Building2 } from 'lucide-react';
+
 import { Input } from '@/shared/ui';
 
 interface BusinessInformationSectionProps {
@@ -44,7 +45,7 @@ const BusinessInformationSection: React.FC<BusinessInformationSectionProps> = ({
             id="businessName"
             type="text"
             value={formData.businessName}
-            onChange={(e) => handleInputChange('businessName', e.target.value)}
+            onChange={(e) => { handleInputChange('businessName', e.target.value); }}
             placeholder="Enter your business name"
             required
             className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -60,7 +61,7 @@ const BusinessInformationSection: React.FC<BusinessInformationSectionProps> = ({
             id="businessPhone"
             type="tel"
             value={formData.businessPhone}
-            onChange={(e) => handleInputChange('businessPhone', e.target.value)}
+            onChange={(e) => { handleInputChange('businessPhone', e.target.value); }}
             placeholder="(555) 123-4567"
             required
             className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -76,7 +77,7 @@ const BusinessInformationSection: React.FC<BusinessInformationSectionProps> = ({
             id="businessEmail"
             type="email"
             value={formData.businessEmail}
-            onChange={(e) => handleInputChange('businessEmail', e.target.value)}
+            onChange={(e) => { handleInputChange('businessEmail', e.target.value); }}
             placeholder="business@example.com"
             required
             className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -96,7 +97,7 @@ const BusinessInformationSection: React.FC<BusinessInformationSectionProps> = ({
                 id="businessAddress"
                 type="text"
                 value={formData.businessAddress.address}
-                onChange={(e) => handleAddressChange('address', e.target.value)}
+                onChange={(e) => { handleAddressChange('address', e.target.value); }}
                 placeholder="123 Main Street"
                 required
                 className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -112,7 +113,7 @@ const BusinessInformationSection: React.FC<BusinessInformationSectionProps> = ({
                 id="businessCity"
                 type="text"
                 value={formData.businessAddress.city}
-                onChange={(e) => handleAddressChange('city', e.target.value)}
+                onChange={(e) => { handleAddressChange('city', e.target.value); }}
                 placeholder="Phoenix"
                 required
                 className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -128,7 +129,7 @@ const BusinessInformationSection: React.FC<BusinessInformationSectionProps> = ({
                 id="businessState"
                 type="text"
                 value={formData.businessAddress.state}
-                onChange={(e) => handleAddressChange('state', e.target.value)}
+                onChange={(e) => { handleAddressChange('state', e.target.value); }}
                 placeholder="AZ"
                 required
                 className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -145,7 +146,7 @@ const BusinessInformationSection: React.FC<BusinessInformationSectionProps> = ({
                 id="businessZip"
                 type="text"
                 value={formData.businessAddress.zip}
-                onChange={(e) => handleAddressChange('zip', e.target.value)}
+                onChange={(e) => { handleAddressChange('zip', e.target.value); }}
                 placeholder="85001"
                 required
                 className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"

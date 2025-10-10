@@ -38,7 +38,7 @@ export const useFormValidation = () => {
 
     // Phone validation (optional)
     if (formData.phone && formData.phone.trim()) {
-      const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
+      const phoneRegex = /^[+]?[1-9][\d]{0,15}$/;
       if (!phoneRegex.test(formData.phone.replace(/\s/g, ''))) {
         errors.phone = ['Please enter a valid phone number'];
       }

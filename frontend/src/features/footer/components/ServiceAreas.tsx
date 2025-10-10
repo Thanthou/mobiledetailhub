@@ -37,10 +37,11 @@ const ServiceAreas: React.FC<ServiceAreasProps> = ({
           const displayText = item.city ? `${item.city}, ${item.state}` : item.state;
           
           return (
-            <div 
-              key={`${item.city}-${item.state}-${index}`}
-              className={`text-lg cursor-pointer transition-colors duration-200 hover:text-orange-400 block w-full text-center md:text-right ${
-                item.primary ? 'text-orange-400 font-semibold' : 'text-white'
+            <button 
+              key={`${item.city}-${item.state}-${String(index)}`}
+              type="button"
+              className={`text-lg cursor-pointer transition-colors duration-200 hover:text-orange-400 block w-full text-center md:text-right bg-transparent border-none p-0 font-inherit ${
+                item.primary === true ? 'text-orange-400 font-semibold' : 'text-white'
               }`}
               onClick={() => {
                 if (onServiceAreaClick && item.city) {
@@ -49,7 +50,7 @@ const ServiceAreas: React.FC<ServiceAreasProps> = ({
               }}
             >
               {displayText}
-            </div>
+            </button>
           );
         })}
       </div>

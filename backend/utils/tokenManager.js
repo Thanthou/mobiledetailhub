@@ -6,7 +6,7 @@
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const logger = require('./logger');
-const { env } = require('../src/shared/env');
+const { env } = require('../config/env');
 const { pool } = require('../database/pool');
 
 /**

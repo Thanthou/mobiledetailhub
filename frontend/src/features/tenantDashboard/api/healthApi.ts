@@ -41,7 +41,7 @@ export interface PerformanceData {
   checkedAt: string;
   opportunities: OptimizationOpportunity[];
   diagnostics: DiagnosticItem[];
-  cruxData?: any;
+  cruxData?: Record<string, unknown>;
 }
 
 export interface OptimizationOpportunity {
@@ -110,11 +110,11 @@ export const getHealthStatus = async (tenantSlug: string): Promise<{ success: bo
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
+    const errorData = await response.json().catch(() => ({})) as { error?: string };
     throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
   }
 
-  return response.json();
+  return response.json() as Promise<{ success: boolean; data: HealthData }>;
 };
 
 /**
@@ -129,11 +129,11 @@ export const triggerHealthScan = async (tenantSlug: string): Promise<HealthScanR
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
+    const errorData = await response.json().catch(() => ({})) as { error?: string };
     throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
   }
 
-  return response.json();
+  return response.json() as Promise<HealthScanResponse>;
 };
 
 /**
@@ -156,11 +156,11 @@ export const getHealthHistory = async (
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
+    const errorData = await response.json().catch(() => ({})) as { error?: string };
     throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
   }
 
-  return response.json();
+  return response.json() as Promise<HealthHistoryResponse>;
 };
 
 /**

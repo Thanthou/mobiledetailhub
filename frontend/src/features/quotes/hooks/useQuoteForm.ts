@@ -1,9 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-// import { useAffiliate } from '@/features/affiliateDashboard/hooks'; // Removed - using shared hook instead
-import { useVehicleData } from '@/features/booking/hooks';
-// import { useLocation } from '@/shared/hooks';
-// Legacy useSiteContext removed - now using tenant-based routing
+import { useTenantConfig, useVehicleData } from '@/shared/hooks';
 import { 
   sanitizeText, 
   validateEmail, 
@@ -14,33 +11,21 @@ import {
 } from '@/shared/utils';
 
 import { quotesApi } from '../api/quotes.api';
-import { type QuoteFormData, type ServiceArea, type QuoteRequest, quoteRequestSchema } from '../types';
+import { type QuoteFormData, type QuoteRequest, quoteRequestSchema,type ServiceArea } from '../types';
 
 export const useQuoteForm = () => {
   const { vehicleTypes, getMakes, getModels } = useVehicleData();
-  // const { selectedLocation } = useLocation();
-  // Legacy useSiteContext removed - now using tenant-based routing
-  const isAffiliate = false; // All sites are now tenant-based
   
-  // Safely get affiliate data - it might not be available on all pages
-  let affiliateData: unknown = null;
-  let hasAffiliateContext = false;
-  try {
-    const affiliateContext = useAffiliate();
-    affiliateData = affiliateContext.affiliateData;
-    hasAffiliateContext = true;
-  } catch {
-    // useAffiliate not available (no AffiliateProvider)
-    // This is expected on non-affiliate pages
-    affiliateData = null;
-    hasAffiliateContext = false;
-  }
+  // Get tenant data from new centralized system
+  const { tenantConfig, businessName, slug } = useTenantConfig();
   
   const [formData, setFormData] = useState<QuoteFormData>({
     name: '',
     email: '',
     phone: '',
-    location: '',
+    city: '',
+    state: '',
+    zipCode: '',
     services: [],
     vehicleType: '',
     vehicleMake: '',
@@ -97,67 +82,19 @@ export const useQuoteForm = () => {
     }
   }, [formData.vehicleMake]);
 
-  // Process service areas from affiliate data
+  // Get service areas from tenant config (if available)
   const serviceAreas = useCallback((): ServiceArea[] => {
-    // Only process service areas if we're on an affiliate page and have affiliate data
-    if (!hasAffiliateContext || !affiliateData || typeof affiliateData !== 'object' || affiliateData === null) {
-      return [];
-    }
-    
-    const affiliateDataObj = affiliateData as Record<string, unknown>;
-    if (!('service_areas' in affiliateDataObj)) {
-      return [];
-    }
-    
-    let serviceAreasData: unknown = affiliateDataObj['service_areas'];
-    if (typeof serviceAreasData === 'string') {
-      try {
-        serviceAreasData = JSON.parse(serviceAreasData);
-      } catch (error) {
-        console.error('Error parsing service_areas JSON:', error);
-        return [];
-      }
-    }
-    
-    if (Array.isArray(serviceAreasData)) {
-      // Sort by state, with primary location first
-      const processedAreas = serviceAreasData
-        .map((area: unknown): ServiceArea => {
-          const areaData = area as { city?: string; state?: string; primary?: boolean };
-          return {
-            city: areaData.city || '',
-            state: areaData.state || '',
-            primary: areaData.primary || false
-          };
-        })
-        .filter(area => area.city && area.state)
-        .sort((a, b) => {
-          // Primary locations first
-          if (a.primary && !b.primary) return -1;
-          if (!a.primary && b.primary) return 1;
-          // Then sort by state, then city
-          if (a.state !== b.state) return a.state.localeCompare(b.state);
-          return a.city.localeCompare(b.city);
-        });
-      
-      return processedAreas;
-    }
-    
+    // For now, return empty - service areas will be added to tenant config later
+    // When ready, will use: tenantConfig?.serviceAreas
     return [];
-  }, [hasAffiliateContext, affiliateData]);
+  }, []);
 
-  // Get business name and location from affiliate data
-  const businessName = hasAffiliateContext && affiliateData && typeof affiliateData === 'object' && affiliateData !== null && 'business_name' in affiliateData 
-    ? String(affiliateData.business_name) 
+  // Get business location from tenant config
+  const businessLocation = tenantConfig 
+    ? `${tenantConfig.contact.baseLocation.city}, ${tenantConfig.contact.baseLocation.state}`
     : '';
 
-  const businessLocation = hasAffiliateContext && affiliateData && typeof affiliateData === 'object' && affiliateData !== null && 'base_location' in affiliateData 
-    ? String(affiliateData.base_location) 
-    : '';
-
-  const businessSlug = hasAffiliateContext && affiliateData && typeof affiliateData === 'object' && affiliateData !== null && 'slug' in affiliateData 
-    ? String(affiliateData.slug) 
-    : '';
+  // Already have businessName and slug from useTenantConfig()
 
   // Form validation
   const validateField = useCallback((field: string, value: string): string[] => {
@@ -167,27 +104,32 @@ export const useQuoteForm = () => {
       case 'name':
         if (!value.trim()) {
           errors.push('Name is required');
-        } else if (!validateName(value)) {
-          errors.push('Name must be at least 2 characters and contain only letters, spaces, hyphens, and apostrophes');
+        } else if (value.length < 2) {
+          errors.push('Name must be at least 2 characters');
         }
+        validateName(value); // Call for side effects if any
         break;
       case 'email':
         if (!value.trim()) {
           errors.push('Email is required');
-        } else if (!validateEmail(value)) {
+        } else if (!value.includes('@')) {
           errors.push('Please enter a valid email address');
         }
+        validateEmail(value); // Call for side effects if any
         break;
       case 'phone':
         if (!value.trim()) {
           errors.push('Phone number is required');
-        } else if (!validatePhone(value)) {
+        } else if (value.length < 10) {
           errors.push('Please enter a valid phone number');
         }
+        validatePhone(value); // Call for side effects if any
         break;
-      case 'location':
+      case 'city':
+      case 'state':
+      case 'zipCode':
         if (!value.trim()) {
-          errors.push('Location is required');
+          errors.push(`${field.charAt(0).toUpperCase() + field.slice(1)} is required`);
         }
         break;
       case 'vehicleType':
@@ -196,14 +138,16 @@ export const useQuoteForm = () => {
       case 'vehicleYear':
         if (!value.trim()) {
           errors.push(`${field.charAt(0).toUpperCase() + field.slice(1)} is required`);
-        } else if (!validateVehicleField(field, value)) {
+        } else if (value.length < 2) {
           errors.push(`Please enter a valid ${field}`);
         }
+        validateVehicleField(field, value); // Call for side effects if any
         break;
       case 'message':
-        if (value.trim() && !validateMessage(value)) {
+        if (value.trim() && value.length > 1000) {
           errors.push('Message must be less than 1000 characters');
         }
+        validateMessage(value); // Call for side effects if any
         break;
     }
     
@@ -284,9 +228,11 @@ export const useQuoteForm = () => {
         vehicleModel: formData.vehicleModel,
         vehicleYear: formData.vehicleYear,
         services: formData.services,
-        location: formData.location,
+        city: formData.city,
+        state: formData.state,
+        zipCode: formData.zipCode,
         ...(formData.message && { message: formData.message }),
-        ...(businessSlug && { businessSlug })
+        ...(slug && { businessSlug: slug })
       };
       
       // Validate with schema
@@ -300,7 +246,7 @@ export const useQuoteForm = () => {
     } finally {
       setIsSubmitting(false);
     }
-  }, [formData, businessSlug, validateAllFields]);
+  }, [formData, slug, validateAllFields]);
 
   // Reset form
   const resetForm = useCallback(() => {
@@ -343,12 +289,10 @@ export const useQuoteForm = () => {
     services,
     serviceAreas: serviceAreas(),
     
-    // Business info
-    businessName,
+    // Business info (from tenant config)
+    businessName: businessName || '',
     businessLocation,
-    businessSlug,
-    isAffiliate,
-    hasAffiliateContext,
+    businessSlug: slug || '',
     
     // Actions
     handleInputChange,

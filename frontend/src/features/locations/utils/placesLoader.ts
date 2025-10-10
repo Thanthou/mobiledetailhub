@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unnecessary-condition */
+/* eslint-disable @typescript-eslint/no-unnecessary-condition -- Google Maps API checks require optional chaining that TypeScript thinks is unnecessary */
 // A small, typed loader around the new importLibrary('places') API.
 
 const MAPS_SRC_MATCH = 'maps.googleapis.com';
@@ -50,3 +50,4 @@ export async function ensurePlacesReady(): Promise<boolean> {
   const lib = await importPlacesLib();
   return !!lib;
 }
+/* eslint-enable @typescript-eslint/no-unnecessary-condition -- Re-enable after Google Maps API checks */

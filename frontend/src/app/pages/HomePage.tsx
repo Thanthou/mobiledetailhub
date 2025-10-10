@@ -1,22 +1,26 @@
 import React, { useEffect } from 'react';
+
+import { FAQ } from '@/features/faq';
+import { MDH_FAQ_ITEMS } from '@/features/faq/utils';
+import { Gallery } from '@/features/gallery';
 import { Header } from '@/features/header';
 import { Hero } from '@/features/hero';
-import { ServicesGrid } from '@/features/services';
 import { Reviews } from '@/features/reviews';
-import { FAQ } from '@/features/faq';
-import { Gallery } from '@/features/gallery';
-// Legacy useSiteContext removed - now using tenant-based routing
-import { generateAllSchemas, injectAllSchemas, convertFAQItemsToSchemaFormat } from '@/shared/utils/schemaUtils';
-import { MDH_FAQ_ITEMS } from '@/features/faq/utils';
 import { useReviewsAvailability } from '@/features/reviews/hooks/useReviewsAvailability';
+import { ServicesGrid } from '@/features/services';
+import { useSEO } from '@/shared/hooks/useSEO';
+import { convertFAQItemsToSchemaFormat, injectAllSchemas } from '@/shared/utils/schemaUtils';
 
 interface HomePageProps {
   onRequestQuote?: () => void;
-  locationData?: any;
+  locationData?: unknown;
 }
 
 const HomePage: React.FC<HomePageProps> = ({ onRequestQuote, locationData }) => {
   // Legacy useSiteContext removed - now using tenant-based routing
+  
+  // Update SEO metadata (title, description, etc.)
+  useSEO();
   
   // Check if reviews are available for this site
   const hasReviews = useReviewsAvailability();

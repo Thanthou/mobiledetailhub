@@ -1,5 +1,6 @@
 import React from 'react';
 import { CreditCard } from 'lucide-react';
+
 import { Input } from '@/shared/ui';
 
 interface PaymentSectionProps {
@@ -43,7 +44,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
             <select
               id="paymentMethod"
               value={formData.paymentMethod}
-              onChange={(e) => handleInputChange('paymentMethod', e.target.value)}
+              onChange={(e) => { handleInputChange('paymentMethod', e.target.value); }}
               className="w-full bg-stone-700 border border-stone-600 text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
               required
             >
@@ -63,7 +64,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
               id="cardNumber"
               type="text"
               value={formData.cardNumber}
-              onChange={(e) => handleInputChange('cardNumber', e.target.value)}
+              onChange={(e) => { handleInputChange('cardNumber', e.target.value); }}
               placeholder="1234 5678 9012 3456"
               required
               className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -79,7 +80,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
               id="expiryDate"
               type="text"
               value={formData.expiryDate}
-              onChange={(e) => handleInputChange('expiryDate', e.target.value)}
+              onChange={(e) => { handleInputChange('expiryDate', e.target.value); }}
               placeholder="MM/YY"
               required
               className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -95,7 +96,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
               id="cvv"
               type="text"
               value={formData.cvv}
-              onChange={(e) => handleInputChange('cvv', e.target.value)}
+              onChange={(e) => { handleInputChange('cvv', e.target.value); }}
               placeholder="123"
               required
               className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -115,7 +116,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                   id="billingAddress"
                   type="text"
                   value={formData.billingAddress.address}
-                  onChange={(e) => handleAddressChange('address', e.target.value)}
+                  onChange={(e) => { handleAddressChange('address', e.target.value); }}
                   placeholder="123 Main Street"
                   required
                   className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -131,7 +132,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                   id="billingCity"
                   type="text"
                   value={formData.billingAddress.city}
-                  onChange={(e) => handleAddressChange('city', e.target.value)}
+                  onChange={(e) => { handleAddressChange('city', e.target.value); }}
                   placeholder="Phoenix"
                   required
                   className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -147,7 +148,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                   id="billingState"
                   type="text"
                   value={formData.billingAddress.state}
-                  onChange={(e) => handleAddressChange('state', e.target.value)}
+                  onChange={(e) => { handleAddressChange('state', e.target.value); }}
                   placeholder="AZ"
                   required
                   className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -164,7 +165,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                   id="billingZip"
                   type="text"
                   value={formData.billingAddress.zip}
-                  onChange={(e) => handleAddressChange('zip', e.target.value)}
+                  onChange={(e) => { handleAddressChange('zip', e.target.value); }}
                   placeholder="85001"
                   required
                   className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"

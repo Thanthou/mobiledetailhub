@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { Car } from 'lucide-react';
 
 import { getMakesForType, getModelsForMake, getVehicleYears } from '@/data/mobile-detailing/vehicle_data';
+
 import { type QuoteFormData } from '../types';
 
 interface VehicleSectionProps {
@@ -50,7 +51,7 @@ const VehicleSection: React.FC<VehicleSectionProps> = ({
         <select
           id="vehicleType"
           value={formData.vehicleType}
-          onChange={(e) => onInputChange('vehicleType', e.target.value)}
+          onChange={(e) => { onInputChange('vehicleType', e.target.value); }}
           className={`w-full px-3 py-2 bg-stone-700 border rounded-lg text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${
             fieldErrors.vehicleType ? 'border-red-500' : 'border-stone-600'
           }`}
@@ -77,7 +78,7 @@ const VehicleSection: React.FC<VehicleSectionProps> = ({
           <select
             id="vehicleMake"
             value={formData.vehicleMake}
-            onChange={(e) => onInputChange('vehicleMake', e.target.value)}
+            onChange={(e) => { onInputChange('vehicleMake', e.target.value); }}
             className={`w-full px-3 py-2 bg-stone-700 border rounded-lg text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${
               fieldErrors.vehicleMake ? 'border-red-500' : 'border-stone-600'
             }`}
@@ -97,7 +98,7 @@ const VehicleSection: React.FC<VehicleSectionProps> = ({
           <select
             id="vehicleModel"
             value={formData.vehicleModel}
-            onChange={(e) => onInputChange('vehicleModel', e.target.value)}
+            onChange={(e) => { onInputChange('vehicleModel', e.target.value); }}
             className={`w-full px-3 py-2 bg-stone-700 border rounded-lg text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${
               fieldErrors.vehicleModel ? 'border-red-500' : 'border-stone-600'
             }`}
@@ -121,7 +122,7 @@ const VehicleSection: React.FC<VehicleSectionProps> = ({
           <select
             id="vehicleYear"
             value={formData.vehicleYear}
-            onChange={(e) => onInputChange('vehicleYear', e.target.value)}
+            onChange={(e) => { onInputChange('vehicleYear', e.target.value); }}
             className={`w-full px-3 py-2 bg-stone-700 border rounded-lg text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${
               fieldErrors.vehicleYear ? 'border-red-500' : 'border-stone-600'
             }`}
@@ -144,7 +145,7 @@ const VehicleSection: React.FC<VehicleSectionProps> = ({
             type={showLength ? 'number' : 'text'}
             id={lengthOrColorField}
             value={lengthOrColorValue}
-            onChange={(e) => onInputChange(lengthOrColorField as keyof QuoteFormData, e.target.value)}
+            onChange={(e) => { onInputChange(lengthOrColorField as keyof QuoteFormData, e.target.value); }}
             className={`w-full px-3 py-2 bg-stone-700 border rounded-lg text-white placeholder-stone-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${
               fieldErrors[lengthOrColorField] ? 'border-red-500' : 'border-stone-600'
             }`}

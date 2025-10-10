@@ -49,7 +49,18 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   };
 
   return (
-    <div className={getPositionClasses()} onClick={onCardClick}>
+    <div 
+      className={getPositionClasses()} 
+      onClick={onCardClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onCardClick();
+        }
+      }}
+      role="button"
+      tabIndex={0}
+    >
       {/* Popular Badge */}
       {service.popular && (
         <div className="absolute -top-4 left-1/2 -translate-x-1/2">
@@ -75,7 +86,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
         <p className="text-stone-300 text-base mb-5">{service.description}</p>
         
         {/* Features List */}
-        {service.features && service.features.length > 0 && (
+        {service.features.length > 0 && (
           <div className="space-y-3">
             {service.features.map((feature, index) => (
               <div key={index} className="flex items-center text-base text-stone-300">

@@ -1,3 +1,4 @@
+import type { UseQueryResult } from '@tanstack/react-query';
 import { useQuery } from '@tanstack/react-query';
 
 export interface TimeSlot {
@@ -16,8 +17,8 @@ export interface ScheduleOption {
 /**
  * Hook to load schedule options for a specific location and service
  */
-export const useScheduleOptions = (locationId?: string, serviceId?: string, dateRange?: { start: string; end: string }) => {
-  return useQuery({
+export const useScheduleOptions = (locationId?: string, serviceId?: string, dateRange?: { start: string; end: string }): UseQueryResult<ScheduleOption[]> => {
+  return useQuery<ScheduleOption[]>({
     queryKey: ['scheduleOptions', locationId, serviceId, dateRange],
     queryFn: async (): Promise<ScheduleOption[]> => {
       // TODO: Replace with actual API call
@@ -38,12 +39,12 @@ export const useScheduleOptions = (locationId?: string, serviceId?: string, date
           date: dateStr,
           available: isAvailable,
           timeSlots: [
-            { id: `${i}-1`, time: '9:00 AM', available: true },
-            { id: `${i}-2`, time: '10:00 AM', available: true },
-            { id: `${i}-3`, time: '11:00 AM', available: i % 4 !== 0 }, // Some unavailable
-            { id: `${i}-4`, time: '1:00 PM', available: true },
-            { id: `${i}-5`, time: '2:00 PM', available: true },
-            { id: `${i}-6`, time: '3:00 PM', available: i % 5 !== 0 } // Some unavailable
+            { id: `${String(i)}-1`, time: '9:00 AM', available: true },
+            { id: `${String(i)}-2`, time: '10:00 AM', available: true },
+            { id: `${String(i)}-3`, time: '11:00 AM', available: i % 4 !== 0 }, // Some unavailable
+            { id: `${String(i)}-4`, time: '1:00 PM', available: true },
+            { id: `${String(i)}-5`, time: '2:00 PM', available: true },
+            { id: `${String(i)}-6`, time: '3:00 PM', available: i % 5 !== 0 } // Some unavailable
           ]
         });
       }
@@ -65,7 +66,8 @@ export const useScheduleOptions = (locationId?: string, serviceId?: string, date
 export const useTimeSlots = (date: string, locationId?: string, serviceId?: string) => {
   const { data: scheduleOptions, ...rest } = useScheduleOptions(locationId, serviceId);
   
-  const timeSlots = scheduleOptions?.find(option => option.date === date)?.timeSlots || [];
+  const foundOption = scheduleOptions?.find((option: ScheduleOption) => option.date === date);
+  const timeSlots: TimeSlot[] = foundOption?.timeSlots ?? [];
   
   return {
     timeSlots,

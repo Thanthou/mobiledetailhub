@@ -19,7 +19,7 @@ const fetchTenants = async (): Promise<Tenant[]> => {
     throw new Error('Failed to fetch tenants');
   }
   
-  const result: TenantsResponse = await response.json();
+  const result = await response.json() as TenantsResponse;
   
   if (!result.success) {
     throw new Error('API returned error');

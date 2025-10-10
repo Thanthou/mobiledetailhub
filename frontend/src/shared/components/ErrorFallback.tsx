@@ -5,7 +5,7 @@ interface ErrorFallbackProps {
   resetError?: () => void;
 }
 
-const ErrorFallback: React.FC<ErrorFallbackProps> = ({ error, resetError }) => {
+const ErrorFallback: React.FC<ErrorFallbackProps> = ({ error, resetError: _resetError }) => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="text-center p-8">
@@ -14,7 +14,7 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({ error, resetError }) => {
           <p className="text-red-600 mb-4">{error.message}</p>
         )}
         <button
-          onClick={() => window.location.reload()}
+          onClick={() => { window.location.reload(); }}
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
         >
           Reload Page

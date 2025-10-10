@@ -5,7 +5,7 @@ const helmet = require('helmet');
 const path = require('path');
 
 // Import typed environment variables
-const { env } = require('./src/shared/env');
+const { env } = require('./config/env');
 
 // Import environment validator
 const { validateEnvironment } = require('./utils/envValidator');
@@ -31,6 +31,7 @@ const stockImagesRoutes = require('./routes/stockImages');
 const tenantImagesRoutes = require('./routes/tenantImages');
 const locationsRoutes = require('./routes/locations');
 const websiteContentRoutes = require('./routes/websiteContent');
+const previewsRoutes = require('./routes/previews');
 
 // Get the update function from health routes
 const { updateShutdownStatus } = healthRoutes;
@@ -96,11 +97,11 @@ const ALLOWED_ORIGINS = {
   ],
   staging: [
     // Staging domains from environment + localhost for testing
-    ...(env.ALLOWED_ORIGINS?.split(',').filter(origin => origin.trim()) || []),
+    ...(Array.isArray(env.ALLOWED_ORIGINS) ? env.ALLOWED_ORIGINS : []),
     'http://localhost:3000',
     'http://localhost:5173'
   ],
-  production: env.ALLOWED_ORIGINS?.split(',').filter(origin => origin.trim()) || []
+  production: Array.isArray(env.ALLOWED_ORIGINS) ? env.ALLOWED_ORIGINS : []
 };
 
 // Validate CORS configuration
@@ -366,6 +367,8 @@ app.use('/api/stock-images', stockImagesRoutes); // Stock images
 app.use('/api/tenant-images', tenantImagesRoutes); // Tenant-specific images
 app.use('/api/locations', locationsRoutes); // Service areas and locations
 app.use('/api/website-content', apiLimiter, websiteContentRoutes); // Website content
+app.use('/api/previews', apiLimiter, previewsRoutes); // Preview token generation
+app.use('/api/preview', previewsRoutes); // Preview verification (no rate limit for link opens)
 
 // Error handling middleware (must be last)
 app.use(notFoundHandler);

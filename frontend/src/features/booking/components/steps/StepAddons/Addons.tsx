@@ -1,8 +1,11 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { CheckCircle } from 'lucide-react';
+
+import type { AddonItem } from '@/features/booking/hooks';
+import { useAddons } from '@/features/booking/hooks';
 import { useBookingAddons, useBookingVehicle } from '@/features/booking/state';
-import { useAddons, type AddonItem } from '@/features/booking/hooks';
 import { Carousel } from '@/shared/ui';
+
 import AddonDetailsModal from './AddonDetailsModal';
 import Tabs from './Tabs';
 
@@ -22,22 +25,12 @@ const Addons: React.FC<AddonsProps> = ({ onAddonsSelected }) => {
   const { addons, setAddons } = useBookingAddons();
 
   // Use the data hook for addons
-  const { availableAddons, isLoading, error } = useAddons(
+  const { availableAddons, isLoading: _isLoading, error } = useAddons(
     vehicle || '', 
     selectedCategory
   );
 
-  // Guard against missing vehicle selection
-  if (!vehicle) {
-    return (
-      <div className="w-full max-w-4xl mx-auto">
-        <div className="text-center py-8">
-          <p className="text-white text-lg">Please select a vehicle first.</p>
-        </div>
-      </div>
-    );
-  }
-
+  // Define handlers before any conditional returns to follow hooks rules
   const handleAddonToggle = useCallback((addonId: string) => {
     // Enforce single selection: selecting a new addon replaces any existing selection.
     const newSelection = addons.includes(addonId) ? [] : [addonId];
@@ -58,8 +51,8 @@ const Addons: React.FC<AddonsProps> = ({ onAddonsSelected }) => {
     setModalAddon(null);
   };
 
-      const renderAddonCard = (addon: CarouselAddonItem, _isSelected: boolean) => {
-        const isAddonSelected = addons.includes(addon.id);
+  const renderAddonCard = (addon: CarouselAddonItem) => {
+    const isAddonSelected = addons.includes(addon.id);
     
     return (
       <div
@@ -70,7 +63,17 @@ const Addons: React.FC<AddonsProps> = ({ onAddonsSelected }) => {
             ? 'scale-90 -translate-x-4 opacity-70'
             : 'scale-90 translate-x-4 opacity-70'
         }`}
-        onClick={() => handleCardClick(addon)}
+        onClick={() => {
+          handleCardClick(addon);
+        }}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleCardClick(addon);
+          }
+        }}
       >
         {/* Popular Badge */}
         {addon.popular && (
@@ -85,7 +88,7 @@ const Addons: React.FC<AddonsProps> = ({ onAddonsSelected }) => {
         <div className="mb-5">
           <h3 className="text-3xl font-bold text-white mb-3">{addon.name}</h3>
           <p className="text-4xl font-bold text-orange-500">
-            ${addon.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            ${Number(addon.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
         </div>
 
@@ -94,7 +97,7 @@ const Addons: React.FC<AddonsProps> = ({ onAddonsSelected }) => {
           <p className="text-stone-300 text-base mb-5">{addon.description}</p>
           
           {/* Features List */}
-          {addon.features && addon.features.length > 0 ? (
+          {addon.features.length > 0 && (
             <div className="space-y-3">
               {addon.features.map((feature: string, index: number) => (
                 <div key={index} className="flex items-center text-base text-stone-300">
@@ -103,7 +106,7 @@ const Addons: React.FC<AddonsProps> = ({ onAddonsSelected }) => {
                 </div>
               ))}
             </div>
-          ) : null}
+          )}
         </div>
 
         {/* Selection Button */}
@@ -125,11 +128,12 @@ const Addons: React.FC<AddonsProps> = ({ onAddonsSelected }) => {
     );
   };
 
-  if (isLoading) {
+  // Guard against missing vehicle selection
+  if (!vehicle) {
     return (
       <div className="w-full max-w-4xl mx-auto">
         <div className="text-center py-8">
-          <p className="text-white">Loading addons...</p>
+          <p className="text-white text-lg">Please select a vehicle first.</p>
         </div>
       </div>
     );

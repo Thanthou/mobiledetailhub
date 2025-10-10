@@ -1,16 +1,16 @@
 import React from 'react';
-import { Route, Routes, Navigate, useParams } from 'react-router-dom';
+import { Navigate, Route, Routes, useParams } from 'react-router-dom';
 
+import HomePage from '@/app/pages/HomePage';
 import { DashboardPage as AdminDashboard } from '@/features/adminDashboard';
-import { DashboardPage } from '@/features/tenantDashboard';
-import { TenantApplicationPage } from '@/features/tenantOnboarding';
 import { BookingPage } from '@/features/booking';
 import { Header } from '@/features/header';
-import HomePage from '@/app/pages/HomePage';
 import { ServicesGrid as ServicePage } from '@/features/services';
+import { DashboardPage } from '@/features/tenantDashboard';
+import { TenantApplicationPage } from '@/features/tenantOnboarding';
+import { locationRoutes } from '@/routes/locationRoutes';
 import { useScrollToTop } from '@/shared/hooks';
 import { NotFoundPage, ProtectedRoute } from '@/shared/ui';
-import { locationRoutes } from '@/routes/locationRoutes';
 
 // Component to handle scroll-to-top functionality
 const ScrollToTop = () => {
@@ -21,7 +21,7 @@ const ScrollToTop = () => {
 // Component to redirect old service routes to tenant-based structure
 const ServiceRedirect = () => {
   const { serviceType } = useParams<{ serviceType: string }>();
-  return <Navigate to={`/jps/services/${serviceType}`} replace />;
+  return <Navigate to={`/jps/services/${serviceType ?? ''}`} replace />;
 };
 
 // Simple login page component

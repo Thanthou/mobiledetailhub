@@ -36,6 +36,38 @@ export {
 // Auto-save utility
 export { useAutoSave } from './useAutoSave';
 
+// Date formatting utilities
+export {
+  addDays,
+  addMonths,
+  formatDateCompact,
+  formatDateForDisplay,
+  formatDateShort,
+  formatDateToYYYYMMDD,
+  formatMonthYear,
+  formatWeekRange,
+  getDayName,
+  getDayNameShort,
+  getToday,
+  getWeekDates,
+  isFuture,
+  isPast,
+  isToday,
+  parseLocalDate} from './dateFormatter';
+
+// Currency formatting utilities
+export {
+  formatCurrency,
+  formatCurrencyCompact,
+  formatDiscount,
+  formatDollars,
+  formatPercentage,
+  formatPrice,
+  formatPriceNoSymbol,
+  formatPriceRange,
+  formatPriceWithTax,
+  parseCurrency} from './currencyFormatter';
+
 // Modal code-splitting utilities
 export {
   getModalPrefetchManager,
@@ -66,47 +98,64 @@ export { findBusinessByLocation } from './findBusinessByLocation';
 // Site data utilities
 export {
   formatContactInfo,
-  formatSocialMedia,
-  formatSEO,
-  formatHero,
-  formatServices,
-  formatReviews,
   formatFAQ,
-  getBusinessInfo,
+  formatHero,
+  formatReviews,
+  formatSEO,
+  formatServices,
   formatSiteData,
-  getAbsoluteUrl
-} from './siteUtils';
+  formatSocialMedia,
+  getAbsoluteUrl,
+  getBusinessInfo} from './siteUtils';
 
 // Legacy areas utilities removed - no longer needed for tenant-based routing
 
 // Locations data utilities (simplified locations.json format)
 export {
-  getLocationsByState,
   getAllLocations,
   getFooterLocations,
+  getLocationsByState,
   type LocationInfo,
   type LocationStateInfo
 } from './locationsUtils';
 
 // Image rotation utilities
 export {
-  type ImageRotationConfig,
-  type ImageRotationState,
-  type ImageRotationActions,
+  createDebouncedRotation,
+  getAccessibilityAttributes,
+  getImageOpacityClasses,
   getNextImageIndex,
   getPreviousImageIndex,
-  preloadImage,
-  preloadImages,
   getTransitionDuration,
-  getImageOpacityClasses,
   getTransitionStyles,
   getVisibleImageIndices,
-  validateImageRotationConfig,
-  createDebouncedRotation,
-  getAccessibilityAttributes
-} from './imageRotation';
+  type ImageRotationActions,
+  type ImageRotationConfig,
+  type ImageRotationState,
+  preloadImage,
+  preloadImages,
+  validateImageRotationConfig} from './imageRotation';
 
 // Image rotation hooks moved to @/shared/hooks
 
 // Logger utility
 export { default as logger } from './logger';
+
+// Tenant config migration utilities
+export {
+  affiliateToTenantConfig,
+  type LegacyTenantConfig,
+  legacyToTenantConfig,
+  tenantConfigToLegacy} from './tenantConfigMigration';
+
+// Tenant asset locator utilities
+export {
+  type AssetExtension,
+  type AssetLocatorOptions,
+  type AssetType,
+  getTenantAssetUrl,
+  getTenantAssetUrls,
+  getTenantLogoUrls,
+  hasFileExtension,
+  type LogoUrls,
+  normalizeAssetUrl} from './assetLocator';

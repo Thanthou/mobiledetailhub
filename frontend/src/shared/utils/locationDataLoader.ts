@@ -3,12 +3,11 @@
  * Handles loading and merging main site config with location-specific data
  */
 
+import type { LocationPage, MainSiteConfig } from '@/shared/types/location';
 import { 
   createMergedLocationData, 
-  validateMergedData,
-  type DeepMergeOptions 
-} from '@/shared/utils/deepMerge';
-import type { LocationPage, MainSiteConfig } from '@/shared/types/location';
+  type DeepMergeOptions, 
+  validateMergedData} from '@/shared/utils/deepMerge';
 
 /**
  * Load and merge location data
@@ -28,6 +27,7 @@ export async function loadMergedLocationData(
     if (!mainConfigResponse.ok) {
       throw new Error(`Failed to load main config: ${mainConfigResponse.statusText}`);
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- response.json() returns any
     const mainConfig: MainSiteConfig = await mainConfigResponse.json();
 
     // Load location config
@@ -35,6 +35,7 @@ export async function loadMergedLocationData(
     if (!locationConfigResponse.ok) {
       throw new Error(`Failed to load location config: ${locationConfigResponse.statusText}`);
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- response.json() returns any
     const locationData: LocationPage = await locationConfigResponse.json();
 
     // Merge the data
@@ -73,6 +74,7 @@ export async function loadAllMergedLocations(
     if (!mainConfigResponse.ok) {
       throw new Error(`Failed to load main config: ${mainConfigResponse.statusText}`);
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- response.json() returns any
     const mainConfig: MainSiteConfig = await mainConfigResponse.json();
 
     // Load and merge all location configs
@@ -83,6 +85,7 @@ export async function loadAllMergedLocations(
           if (!locationConfigResponse.ok) {
             throw new Error(`Failed to load location config: ${locationConfigResponse.statusText}`);
           }
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- response.json() returns any
           const locationData: LocationPage = await locationConfigResponse.json();
 
           const mergedData = createMergedLocationData(mainConfig, locationData, options);
@@ -156,6 +159,7 @@ export class LocationDataLoader {
       throw new Error(`Failed to load main config: ${response.statusText}`);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- response.json() returns any
     this.mainConfigCache = await response.json();
     return this.mainConfigCache;
   }
@@ -171,10 +175,13 @@ export class LocationDataLoader {
     const cacheKey = locationConfigPath;
     
     // Check cache
-    if (this.cache.has(cacheKey) && this.validationCache.has(cacheKey)) {
+    const cachedData = this.cache.get(cacheKey);
+    const cachedValidation = this.validationCache.get(cacheKey);
+    
+    if (cachedData && cachedValidation) {
       return {
-        data: this.cache.get(cacheKey)!,
-        validation: this.validationCache.get(cacheKey)!,
+        data: cachedData,
+        validation: cachedValidation,
         wasMerged: true
       };
     }
@@ -186,6 +193,7 @@ export class LocationDataLoader {
     if (!locationResponse.ok) {
       throw new Error(`Failed to load location config: ${locationResponse.statusText}`);
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- response.json() returns any
     const locationData: LocationPage = await locationResponse.json();
 
     const mergedData = createMergedLocationData(mainConfig, locationData, this.options);

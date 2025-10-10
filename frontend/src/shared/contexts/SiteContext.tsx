@@ -1,5 +1,6 @@
 import React, { createContext, useContext } from 'react';
-import { SiteContextType, SiteActions } from '@/shared/types/site';
+
+import { SiteActions,SiteContextType } from '@/shared/types/site';
 
 // Simplified context for tenant-based sites
 // All sites are now tenant-based, so we don't need complex location detection
@@ -34,6 +35,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
 };
 
 // Hook to use the context
+// eslint-disable-next-line react-refresh/only-export-components -- Standard context pattern: hook and provider together
 export const useSiteState = () => {
   const context = useContext(SiteContext);
   if (!context) {

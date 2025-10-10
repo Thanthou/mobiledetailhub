@@ -1,13 +1,12 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useCallback,useEffect, useRef, useState } from 'react';
+
 import { 
-  type ImageRotationConfig, 
-  type ImageRotationState, 
-  type ImageRotationActions,
   getNextImageIndex,
   getPreviousImageIndex,
-  preloadImage,
+  type ImageRotationActions,
+  type ImageRotationConfig, 
+  type ImageRotationState, 
   preloadImages,
-  getTransitionDuration,
   validateImageRotationConfig
 } from '@/shared/utils/imageRotation';
 
@@ -26,7 +25,7 @@ export interface UseImageRotationReturn extends ImageRotationState, ImageRotatio
  * Hook for managing image rotation with automatic transitions
  */
 export const useImageRotation = (config: ImageRotationConfig): UseImageRotationReturn => {
-  const { images, autoRotate, interval, preloadNext, pauseOnHover } = config;
+  const { images, autoRotate, interval, preloadNext } = config;
 
   // Validate config
   const { isValid, errors } = validateImageRotationConfig(config);
@@ -41,7 +40,7 @@ export const useImageRotation = (config: ImageRotationConfig): UseImageRotationR
   // Preload images
   useEffect(() => {
     if (preloadNext && totalImages > 1) {
-      preloadImages(images);
+      void preloadImages(images);
     }
   }, [images, preloadNext, totalImages]);
 
@@ -133,7 +132,7 @@ export const useImageRotationHover = (rotation: UseImageRotationReturn) => {
     } else {
       rotation.setPaused(false);
     }
-  }, [isHovered, rotation.isValid, rotation.setPaused]);
+  }, [isHovered, rotation]);
 
   return {
     isHovered,

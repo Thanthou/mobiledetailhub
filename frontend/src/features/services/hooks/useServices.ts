@@ -1,16 +1,18 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { Service } from '@/features/services/types/service.types';
-import { getServiceImageFromLocation } from '@/shared/utils/schemaUtils';
-import siteData from '@/data/mobile-detailing/site.json';
+
 import autoDetailingData from '@/data/mobile-detailing/services/auto-detailing.json';
-import marineDetailingData from '@/data/mobile-detailing/services/marine-detailing.json';
-import rvDetailingData from '@/data/mobile-detailing/services/rv-detailing.json';
 import ceramicCoatingData from '@/data/mobile-detailing/services/ceramic-coating.json';
+import marineDetailingData from '@/data/mobile-detailing/services/marine-detailing.json';
 import paintCorrectionData from '@/data/mobile-detailing/services/paint-correction.json';
 import ppfData from '@/data/mobile-detailing/services/ppf.json';
+import rvDetailingData from '@/data/mobile-detailing/services/rv-detailing.json';
+import siteData from '@/data/mobile-detailing/site.json';
+import { Service } from '@/features/services/types/service.types';
+import type { LocationPage } from '@/shared/types/location';
+import { getServiceImageFromLocation } from '@/shared/utils/schemaUtils';
 
 // Transform site.json servicesGrid data to Service format with location-specific images
-const getServicesFromSiteData = (locationData?: any, tenantSlug?: string): Service[] => {
+const getServicesFromSiteData = (locationData: LocationPage | null | undefined, tenantSlug?: string): Service[] => {
   return siteData.servicesGrid.map((service, index) => {
     // Determine service role for location-specific images
     let serviceRole: "auto" | "marine" | "rv" | null = null;
@@ -55,13 +57,12 @@ const getServicesFromSiteData = (locationData?: any, tenantSlug?: string): Servi
   });
 };
 
-export const useServices = (locationData?: any) => {
+export const useServices = (locationData: LocationPage | null | undefined) => {
   const navigate = useNavigate();
   const { slug } = useParams<{ slug?: string }>();
 
   const handleServiceClick = (service: Service) => {
-    console.log('Service clicked, navigating to:', service.route);
-    navigate(service.route);
+    void navigate(service.route);
   };
 
   const getServices = () => {

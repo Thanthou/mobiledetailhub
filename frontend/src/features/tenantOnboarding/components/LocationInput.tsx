@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { MapPin, Search, X } from 'lucide-react';
 
-import { type AutocompleteSessionToken, type AutocompleteSuggestion, type PlacesLibrary } from '@/features/locations';
+import { type AutocompleteSessionToken, type AutocompleteSuggestion, type PlacesLibrary } from '@/shared';
 import { Button } from '@/shared/ui';
 
 // interface AutocompleteResponse {

@@ -1,9 +1,8 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { MapPin, X } from 'lucide-react';
 
 import { Button } from '@/shared/ui';
 
-import { parsePlace } from '@/features/locations';
 import { useLocationSearch } from '../hooks/useLocationSearch';
 
 interface LocationSearchProps {
@@ -63,21 +62,41 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
         });
       }
     }
-  }, [showPredictions, setDropdownStyle]);
+  }, [showPredictions, setDropdownStyle, inputRef, predictionsRef]);
 
-  const handlePredictionClick = async (prediction: google.maps.places.AutocompleteSuggestion) => {
+  const handlePredictionClick = (prediction: google.maps.places.AutocompleteSuggestion) => {
     try {
-      const place = await parsePlace(prediction);
-      if (place) {
-        onLocationSelect({
-          city: place.city,
-          state: place.state,
-          zipCode: place.zipCode,
-        });
-        reset();
+      // Extract location data from the AutocompleteSuggestion
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access -- Google Maps types are incomplete
+      const structuredFormat = prediction.placePrediction?.structuredFormat;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access -- Google Maps types are incomplete
+      const mainText: string = (structuredFormat?.mainText?.text as string | undefined) ?? '';
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access -- Google Maps types are incomplete
+      const secondaryText: string = (structuredFormat?.secondaryText?.text as string | undefined) ?? '';
+      
+      // Parse the location data
+      // For postal_code type: mainText is ZIP, secondaryText is "City, State"
+      // For locality type: mainText is City, secondaryText is "State, Country"
+      const types = prediction.placePrediction?.types ?? [];
+      let city = '';
+      let state = '';
+      let zipCode = '';
+
+      if (types.includes('postal_code')) {
+        zipCode = mainText;
+        const parts = secondaryText.split(',').map((s: string) => s.trim());
+        city = parts[0] ?? '';
+        state = parts[1] ?? '';
+      } else if (types.includes('locality')) {
+        city = mainText;
+        const parts = secondaryText.split(',').map((s: string) => s.trim());
+        state = parts[0] ?? '';
       }
-    } catch (error) {
-      console.error('Error parsing place:', error);
+
+      onLocationSelect({ city, state, zipCode });
+      reset();
+    } catch (err: unknown) {
+      console.error('Error parsing place:', err);
     }
   };
 
@@ -138,25 +157,27 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
           style={dropdownStyle}
           className="bg-stone-800 border border-stone-700 rounded-md shadow-lg max-h-60 overflow-y-auto"
         >
-          {predictions.map((prediction, index) => (
-            <button
-              key={index}
-              onClick={() => { void handlePredictionClick(prediction); }}
-              className="w-full px-4 py-3 text-left hover:bg-stone-700 transition-colors border-b border-stone-700 last:border-b-0"
-            >
-              <div className="text-white text-sm">{prediction.text.text}</div>
-              {prediction.text.matches && prediction.text.matches.length > 0 && (
-                <div className="text-gray-400 text-xs mt-1">
-                  {prediction.text.matches.map((match, matchIndex) => (
-                    <span key={matchIndex}>
-                      {matchIndex > 0 && ', '}
-                      {match.text}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </button>
-          ))}
+          {predictions.map((prediction, index) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access -- Google Maps types are incomplete
+            const structuredFormat = prediction.placePrediction?.structuredFormat;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access -- Google Maps types are incomplete
+            const mainText: string = (structuredFormat?.mainText?.text as string | undefined) ?? '';
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access -- Google Maps types are incomplete
+            const secondaryText: string = (structuredFormat?.secondaryText?.text as string | undefined) ?? '';
+            
+            return (
+              <button
+                key={index}
+                onClick={() => { handlePredictionClick(prediction); }}
+                className="w-full px-4 py-3 text-left hover:bg-stone-700 transition-colors border-b border-stone-700 last:border-b-0"
+              >
+                <div className="text-white text-sm">{mainText}</div>
+                {secondaryText && (
+                  <div className="text-gray-400 text-xs mt-1">{secondaryText}</div>
+                )}
+              </button>
+            );
+          })}
         </div>
       )}
     </div>

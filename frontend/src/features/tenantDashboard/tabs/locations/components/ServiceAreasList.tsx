@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronRight, MapPin, Plus, Trash2, X } from 'lucide-react';
+import { ChevronDown, ChevronRight, MapPin, Plus, Trash2 } from 'lucide-react';
 
-import { Button } from '@/shared/ui';
 import { isValidStateCode } from '@/shared';
+import { Button } from '@/shared/ui';
 
 import type { ServiceArea } from '../types';
 
@@ -28,7 +28,7 @@ const ServiceAreasList: React.FC<ServiceAreasListProps> = ({
   expandedStates,
   isEditMode,
   editingLocationId,
-  apiLoaded,
+  apiLoaded: _apiLoaded,
   onToggleStateExpansion,
   onEditModeChange,
   onStartEditingLocation,
@@ -76,13 +76,12 @@ const ServiceAreasList: React.FC<ServiceAreasListProps> = ({
     
     // Clear errors and stop editing
     setErrors(prev => {
-      const newErrors = { ...prev };
-      delete newErrors[locationId];
+      const { [locationId]: _removed, ...newErrors } = prev;
       return newErrors;
     });
     onStopEditingLocation();
   };
-  const handleLocationSelect = (place: { city: string; state: string; zipCode: string }) => {
+  const _handleLocationSelect = (place: { city: string; state: string; zipCode: string }) => {
     onLocationSelect(place);
     onEditModeChange(false);
   };
@@ -101,7 +100,7 @@ const ServiceAreasList: React.FC<ServiceAreasListProps> = ({
           {stateNames.length > 0 && (
             <div className="flex items-center space-x-2">
               <Button
-                onClick={() => onToggleStateExpansion('expand-all')}
+                onClick={() => { onToggleStateExpansion('expand-all'); }}
                 variant="ghost"
                 size="sm"
                 className="text-xs text-gray-500 hover:text-orange-500"
@@ -110,7 +109,7 @@ const ServiceAreasList: React.FC<ServiceAreasListProps> = ({
               </Button>
               <span className="text-gray-300">|</span>
               <Button
-                onClick={() => onToggleStateExpansion('collapse-all')}
+                onClick={() => { onToggleStateExpansion('collapse-all'); }}
                 variant="ghost"
                 size="sm"
                 className="text-xs text-gray-500 hover:text-orange-500"
@@ -122,7 +121,7 @@ const ServiceAreasList: React.FC<ServiceAreasListProps> = ({
         </div>
         {!isEditMode && (
           <Button
-            onClick={() => onEditModeChange(true)}
+            onClick={() => { onEditModeChange(true); }}
             variant="primary"
             size="md"
             className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-sm font-medium rounded-lg"
@@ -138,32 +137,35 @@ const ServiceAreasList: React.FC<ServiceAreasListProps> = ({
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">City *</label>
+                <label htmlFor="new-location-city" className="block text-sm font-medium text-gray-300 mb-1">City *</label>
                 <input
+                  id="new-location-city"
                   type="text"
                   value={newLocationForm.city}
-                  onChange={(e) => handleNewLocationInputChange('city', e.target.value)}
+                  onChange={(e) => { handleNewLocationInputChange('city', e.target.value); }}
                   className="w-full px-3 py-2 border border-stone-700 bg-stone-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                   placeholder="Enter city name"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">State *</label>
+                <label htmlFor="new-location-state" className="block text-sm font-medium text-gray-300 mb-1">State *</label>
                 <input
+                  id="new-location-state"
                   type="text"
                   value={newLocationForm.state}
-                  onChange={(e) => handleNewLocationInputChange('state', e.target.value)}
+                  onChange={(e) => { handleNewLocationInputChange('state', e.target.value); }}
                   className="w-full px-3 py-2 border border-stone-700 bg-stone-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                   placeholder="CA, NY, TX"
                   maxLength={2}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">ZIP Code</label>
+                <label htmlFor="new-location-zip" className="block text-sm font-medium text-gray-300 mb-1">ZIP Code</label>
                 <input
+                  id="new-location-zip"
                   type="text"
                   value={newLocationForm.zip}
-                  onChange={(e) => handleNewLocationInputChange('zip', e.target.value)}
+                  onChange={(e) => { handleNewLocationInputChange('zip', e.target.value); }}
                   className="w-full px-3 py-2 border border-stone-700 bg-stone-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                   placeholder="12345 or 12345-6789"
                 />
@@ -228,7 +230,7 @@ const ServiceAreasList: React.FC<ServiceAreasListProps> = ({
               <div key={state} className="bg-stone-800 border border-stone-700 rounded-lg overflow-hidden">
                 {/* State Header */}
                 <button
-                  onClick={() => onToggleStateExpansion(state)}
+                  onClick={() => { onToggleStateExpansion(state); }}
                   className="w-full px-6 py-4 flex items-center justify-between hover:bg-stone-700 transition-colors"
                 >
                   <div className="flex items-center space-x-3">
@@ -258,21 +260,23 @@ const ServiceAreasList: React.FC<ServiceAreasListProps> = ({
                               <div className="space-y-4">
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                   <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-1">City *</label>
+                                    <label htmlFor={`edit-city-${locationId}`} className="block text-sm font-medium text-gray-300 mb-1">City *</label>
                                     <input
+                                      id={`edit-city-${locationId}`}
                                       type="text"
                                       value={location.city}
-                                      onChange={(e) => onLocationUpdate(locationId, 'city', e.target.value)}
+                                      onChange={(e) => { onLocationUpdate(locationId, 'city', e.target.value); }}
                                       className="w-full px-3 py-2 border border-stone-700 bg-stone-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                                       placeholder="Enter city name"
                                     />
                                   </div>
                                   <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-1">State *</label>
+                                    <label htmlFor={`edit-state-${locationId}`} className="block text-sm font-medium text-gray-300 mb-1">State *</label>
                                     <input
+                                      id={`edit-state-${locationId}`}
                                       type="text"
                                       value={location.state}
-                                      onChange={(e) => handleStateChange(locationId, e.target.value)}
+                                      onChange={(e) => { handleStateChange(locationId, e.target.value); }}
                                       className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ${
                                         errors[locationId]?.state ? 'border-red-500 bg-red-900/20' : 'border-stone-700 bg-stone-700'
                                       } text-white`}
@@ -284,11 +288,12 @@ const ServiceAreasList: React.FC<ServiceAreasListProps> = ({
                                     )}
                                   </div>
                                   <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-1">ZIP Code</label>
+                                    <label htmlFor={`edit-zip-${locationId}`} className="block text-sm font-medium text-gray-300 mb-1">ZIP Code</label>
                                     <input
+                                      id={`edit-zip-${locationId}`}
                                       type="text"
                                       value={location.zip || ''}
-                                      onChange={(e) => onLocationUpdate(locationId, 'zip', e.target.value)}
+                                      onChange={(e) => { onLocationUpdate(locationId, 'zip', e.target.value); }}
                                       className="w-full px-3 py-2 border border-stone-700 bg-stone-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                                       placeholder="12345 or 12345-6789"
                                     />
@@ -304,7 +309,7 @@ const ServiceAreasList: React.FC<ServiceAreasListProps> = ({
                                     Cancel
                                   </Button>
                                   <Button
-                                    onClick={() => handleSave(locationId, location)}
+                                    onClick={() => { handleSave(locationId, location); }}
                                     variant="primary"
                                     size="sm"
                                     className="px-4 py-2"
@@ -316,41 +321,44 @@ const ServiceAreasList: React.FC<ServiceAreasListProps> = ({
                             ) : (
                               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                                 <div>
-                                  <label className="block text-sm font-medium text-gray-300 mb-1">City</label>
+                                  <label htmlFor={`readonly-city-${locationId}`} className="block text-sm font-medium text-gray-300 mb-1">City</label>
                                   <input
+                                    id={`readonly-city-${locationId}`}
                                     type="text"
                                     value={location.city}
                                     readOnly
-                                    onClick={() => onStartEditingLocation(locationId)}
+                                    onClick={() => { onStartEditingLocation(locationId); }}
                                     className="w-full px-3 py-2 border border-stone-600 rounded-md bg-stone-600 text-white cursor-pointer hover:bg-stone-500 transition-colors"
                                     title="Click to edit location"
                                   />
                                 </div>
                                 <div>
-                                  <label className="block text-sm font-medium text-gray-300 mb-1">State</label>
+                                  <label htmlFor={`readonly-state-${locationId}`} className="block text-sm font-medium text-gray-300 mb-1">State</label>
                                   <input
+                                    id={`readonly-state-${locationId}`}
                                     type="text"
                                     value={location.state}
                                     readOnly
-                                    onClick={() => onStartEditingLocation(locationId)}
+                                    onClick={() => { onStartEditingLocation(locationId); }}
                                     className="w-full px-3 py-2 border border-stone-600 rounded-md bg-stone-600 text-white cursor-pointer hover:bg-stone-500 transition-colors"
                                     title="Click to edit location"
                                   />
                                 </div>
                                 <div>
-                                  <label className="block text-sm font-medium text-gray-300 mb-1">ZIP Code</label>
+                                  <label htmlFor={`readonly-zip-${locationId}`} className="block text-sm font-medium text-gray-300 mb-1">ZIP Code</label>
                                   <input
+                                    id={`readonly-zip-${locationId}`}
                                     type="text"
                                     value={location.zip || 'N/A'}
                                     readOnly
-                                    onClick={() => onStartEditingLocation(locationId)}
+                                    onClick={() => { onStartEditingLocation(locationId); }}
                                     className="w-full px-3 py-2 border border-stone-600 rounded-md bg-stone-600 text-white cursor-pointer hover:bg-stone-500 transition-colors"
                                     title="Click to edit location"
                                   />
                                 </div>
                                 <div className="lg:col-span-2 flex items-end">
                                   <Button
-                                    onClick={() => onDeleteLocation(location)}
+                                    onClick={() => { onDeleteLocation(location); }}
                                     variant="ghost"
                                     size="sm"
                                     className="text-red-400 hover:text-red-300 hover:bg-red-900/20 p-2"

@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+
 import type { Business, BusinessResponse } from '../types/business.types';
 
 const fetchBusiness = async (slug: string): Promise<Business> => {
@@ -8,7 +9,7 @@ const fetchBusiness = async (slug: string): Promise<Business> => {
     throw new Error('Failed to fetch business data');
   }
   
-  const result: BusinessResponse = await response.json();
+  const result = await response.json() as BusinessResponse;
   
   if (!result.success) {
     throw new Error('API returned error');

@@ -1,9 +1,10 @@
-import { Plus, Settings, Trash2 } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { Plus, Settings, Trash2 } from 'lucide-react';
 
-import { Button } from '@/shared/ui';
 import { useAuth } from '@/shared/hooks';
+import { Button } from '@/shared/ui';
+
 import { CategorySelector } from './components/CategorySelector';
 import { DeleteServiceModal } from './components/DeleteServiceModal';
 import { MultiTierPricingModal } from './components/MultiTierPricingModal';
@@ -29,7 +30,7 @@ const SimpleFixedServicesTab: React.FC = () => {
   
   // Get affiliate ID from AuthContext or URL params for admin users
   const authContext = useAuth();
-  const user = authContext?.user;
+  const user = authContext.user;
   const { businessSlug } = useParams<{ businessSlug: string }>();
   
   // For affiliate users, get ID from auth context
@@ -70,7 +71,7 @@ const SimpleFixedServicesTab: React.FC = () => {
   const { vehicles } = useServicesData();
   
   // Direct API call function to avoid hook dependency issues
-  const fetchServicesDirect = async (vehicleId: string, categoryId: string) => {
+  const fetchServicesDirect = useCallback(async (vehicleId: string, categoryId: string) => {
     if (!affiliateId) return null;
     
     setLoading(true);
@@ -119,7 +120,7 @@ const SimpleFixedServicesTab: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [affiliateId]);
   
   // Effect to fetch services when vehicle or category changes
   useEffect(() => {
@@ -132,8 +133,6 @@ const SimpleFixedServicesTab: React.FC = () => {
       }
       
       lastFetchRef.current = fetchKey;
-      
-      console.log('Fetching services for:', { selectedVehicle, selectedCategory, affiliateId });
       
       void fetchServicesDirect(selectedVehicle, selectedCategory).then((data: unknown) => {
         if (data && Array.isArray(data) && data.length > 0) {
@@ -197,7 +196,7 @@ const SimpleFixedServicesTab: React.FC = () => {
         }
       });
     }
-  }, [selectedVehicle, selectedCategory, affiliateId]);
+  }, [selectedVehicle, selectedCategory, affiliateId, fetchServicesDirect, selectedService]);
 
   // Effect to handle service selection changes
   useEffect(() => {
@@ -348,7 +347,7 @@ const SimpleFixedServicesTab: React.FC = () => {
                     </div>
                     <div className="space-y-2">
                       <div className="text-2xl font-bold text-green-400">
-                        ${tier.price.toFixed(2)}
+                        ${Number(tier.price).toFixed(2)}
                       </div>
                       <div className="text-sm text-gray-400">
                         {tier.duration} minutes
@@ -419,8 +418,7 @@ const SimpleFixedServicesTab: React.FC = () => {
           setIsMultiTierModalOpen(false);
           setIsEditingService(false);
         }}
-        onSubmit={(serviceName, tiers) => {
-          console.log('Service submitted:', { serviceName, tiers });
+        onSubmit={(_serviceName, _tiers) => {
           setIsMultiTierModalOpen(false);
           setIsEditingService(false);
         }}
@@ -437,7 +435,6 @@ const SimpleFixedServicesTab: React.FC = () => {
         isOpen={isDeleteServiceModalOpen}
         onClose={() => { setIsDeleteServiceModalOpen(false); }}
         onConfirm={() => {
-          console.log('Service deleted');
           setIsDeleteServiceModalOpen(false);
         }}
         serviceName={currentServiceData?.name || ''}

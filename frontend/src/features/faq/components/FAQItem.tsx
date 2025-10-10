@@ -1,11 +1,12 @@
 import React from 'react';
 import { ChevronDown } from 'lucide-react';
 
-import type { FAQItem } from '@/features/faq/types';
+import type { FAQItem as FAQItemType } from '@/features/faq/types';
+
 import ServiceAreasLink from './ServiceAreasLink';
 
 interface FAQItemProps {
-  faq: FAQItem;
+  faq: FAQItemType;
   isExpanded: boolean;
   onToggle: () => void;
 }
@@ -16,6 +17,7 @@ const FAQItem: React.FC<FAQItemProps> = ({ faq, isExpanded, onToggle }) => {
     if (faq.id && !isExpanded) {
       // Track FAQ expansion for analytics and A/B testing
       if (typeof window !== 'undefined' && window.gtag) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call -- gtag is from external Google Analytics script
         window.gtag('event', 'faq_expanded', {
           faq_id: faq.id,
           faq_question: faq.question,

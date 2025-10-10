@@ -1,8 +1,8 @@
 import React from 'react';
 
 import type { DashboardTab, DetailerData } from '@/features/tenantDashboard/types';
-import { getTabConfig } from '../config/tabConfig';
 
+import { getTabConfig } from '../config/tabConfig';
 import CustomersTab from '../tabs/customers/CustomersTab';
 import LocationsTab from '../tabs/locations/LocationsTab';
 import OverviewTab from '../tabs/overview/OverviewTab';

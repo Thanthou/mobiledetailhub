@@ -1,10 +1,11 @@
 /**
  * Utility functions for generating Schema.org structured data
  * from location configuration data
+ * 
+ * Industry-agnostic: All functions accept site config as parameter
  */
 
-import type { LocationPage } from '@/shared/types/location';
-import siteData from '@/data/mobile-detailing/site.json';
+import type { LocationPage, MainSiteConfig } from '@/shared/types/location';
 
 /**
  * Automatically generate Schema.org image array from location images
@@ -27,7 +28,10 @@ export function generateSchemaImages(
  * Generate complete Schema.org LocalBusiness structure
  * from location data with automatic image population and enhanced fields
  */
-export function generateLocationSchema(locationData: LocationPage): Record<string, unknown> {
+export function generateLocationSchema(
+  locationData: LocationPage,
+  siteConfig: MainSiteConfig
+): Record<string, unknown> {
   // Get hero images automatically
   const heroImages = generateSchemaImages(locationData, ['hero']);
   
@@ -39,17 +43,19 @@ export function generateLocationSchema(locationData: LocationPage): Record<strin
   ];
 
   // Base schema structure with auto-generated fields
+  const domain = window.location.host;
+  
   const baseSchema = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
-    "name": locationData.header?.businessName || `${locationData.city} Mobile Detailing`,
-    "url": `https://mobiledetailhub.com${locationData.urlPath}`,
-    "telephone": locationData.header?.phoneE164,
+    "name": locationData.header?.businessName || `${locationData.city} ${siteConfig.brand}`,
+    "url": `https://${domain}${locationData.urlPath}`,
+    "telephone": locationData.header?.phoneE164 || siteConfig.contact?.phone,
     "address": {
       "@type": "PostalAddress",
       "addressLocality": locationData.city,  // Auto-generated
       "addressRegion": locationData.stateCode,  // Auto-generated
-      "postalCode": locationData.postalCode || "86442"  // Auto-generated from location data
+      "postalCode": locationData.postalCode || ""  // Auto-generated from location data
     },
     "areaServed": areaServed,  // Auto-generated
     "geo": {
@@ -58,22 +64,16 @@ export function generateLocationSchema(locationData: LocationPage): Record<strin
       "longitude": locationData.longitude
     },
     "sameAs": [
-      "https://www.facebook.com/mobiledetailhub",
-      "https://www.instagram.com/mobiledetailhub"
-    ],
-    "description": locationData.seo?.description || `Professional mobile detailing services in ${locationData.city}, ${locationData.stateCode}`,
+      siteConfig.socials?.facebook,
+      siteConfig.socials?.instagram,
+      siteConfig.socials?.youtube,
+      siteConfig.socials?.googleBusiness
+    ].filter(Boolean),
+    "description": locationData.seo.description || `Professional ${siteConfig.brand} services in ${locationData.city}, ${locationData.stateCode}`,
     "priceRange": "$$",
     "currenciesAccepted": "USD",
     "paymentAccepted": ["Cash", "Credit Card", "Debit Card", "Check"],
-    "serviceType": [
-      "Mobile Car Detailing",
-      "Paint Correction",
-      "Ceramic Coating",
-      "Interior Detailing",
-      "RV Detailing",
-      "Boat Detailing",
-      "Aircraft Detailing"
-    ]
+    "serviceType": siteConfig.servicesGrid?.map(s => s.title) || []
   };
 
   // Add images if available
@@ -83,11 +83,11 @@ export function generateLocationSchema(locationData: LocationPage): Record<strin
   }
 
   // Add aggregate rating from site.json (global reviews)
-  if (siteData.reviews?.ratingValue && siteData.reviews?.reviewCount) {
+  if (siteConfig.reviews?.ratingValue && siteConfig.reviews.reviewCount) {
     schema.aggregateRating = {
       "@type": "AggregateRating",
-      "ratingValue": siteData.reviews.ratingValue,
-      "reviewCount": siteData.reviews.reviewCount.toString(),
+      "ratingValue": siteConfig.reviews.ratingValue,
+      "reviewCount": siteConfig.reviews.reviewCount.toString(),
       "bestRating": "5",
       "worstRating": "1"
     };
@@ -388,47 +388,57 @@ export function generateBreadcrumbSchema(locationData: LocationPage): Record<str
 /**
  * Generate Organization Schema for main site
  */
-export function generateOrganizationSchema(siteData: any): Record<string, unknown> {
-  return {
+export function generateOrganizationSchema(siteConfig: MainSiteConfig): Record<string, unknown> {
+  const domain = window.location.host;
+  
+  const schema: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": siteData.brand || "Mobile Detail Hub",
-    "url": "https://mobiledetailhub.com/",
-    "logo": "https://mobiledetailhub.com/images/brand/logo.png",
+    "name": siteConfig.brand,
+    "url": `https://${domain}/`,
+    "logo": `https://${domain}${siteConfig.logo.url}`,
     "sameAs": [
-      "https://www.facebook.com/mobiledetailhub",
-      "https://www.instagram.com/mobiledetailhub",
-      "https://www.youtube.com/@mobiledetailhub",
-      "https://share.google/fx8oPIguzvJmTarrl"
-    ],
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": siteData.reviews?.ratingValue || "4.9",
-      "reviewCount": siteData.reviews?.reviewCount?.toString() || "112",
-      "bestRating": "5",
-      "worstRating": "1"
-    },
+      siteConfig.socials?.facebook,
+      siteConfig.socials?.instagram,
+      siteConfig.socials?.youtube,
+      siteConfig.socials?.googleBusiness
+    ].filter(Boolean),
     "contactPoint": [{
       "@type": "ContactPoint",
       "contactType": "customer service",
-      "telephone": siteData.contact?.phone || "+1-555-123-4567",
+      "telephone": siteConfig.contact?.phone || "",
       "areaServed": "US"
     }]
   };
+  
+  // Add aggregate rating if available
+  if (siteConfig.reviews?.ratingValue && siteConfig.reviews.reviewCount) {
+    schema.aggregateRating = {
+      "@type": "AggregateRating",
+      "ratingValue": siteConfig.reviews.ratingValue,
+      "reviewCount": siteConfig.reviews.reviewCount.toString(),
+      "bestRating": "5",
+      "worstRating": "1"
+    };
+  }
+  
+  return schema;
 }
 
 /**
  * Generate Website Schema for main site
  */
-export function generateWebsiteSchema(siteData: any): Record<string, unknown> {
+export function generateWebsiteSchema(siteConfig: MainSiteConfig): Record<string, unknown> {
+  const domain = window.location.host;
+  
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "url": "https://mobiledetailhub.com/",
-    "name": siteData.brand || "Mobile Detail Hub",
+    "url": `https://${domain}/`,
+    "name": siteConfig.brand,
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "https://mobiledetailhub.com/search?q={query}",
+      "target": `https://${domain}/search?q={query}`,
       "query-input": "required name=query"
     }
   };
@@ -438,36 +448,38 @@ export function generateWebsiteSchema(siteData: any): Record<string, unknown> {
  * Generate WebPage Schema for any page
  */
 export function generateWebPageSchema(
-  pageData: any, 
+  pageData: MainSiteConfig | LocationPage, 
+  siteConfig: MainSiteConfig,
   pageType: 'home' | 'location' = 'home'
 ): Record<string, unknown> {
-  const baseUrl = 'https://mobiledetailhub.com';
+  const domain = window.location.host;
+  const baseUrl = `https://${domain}`;
   
   const schema: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    "url": `${baseUrl}${pageData.urlPath || '/'}`,
-    "name": pageData.seo?.title || pageData.brand || "Mobile Detail Hub",
-    "description": pageData.seo?.description || "Premium mobile detailing services",
+    "url": `${baseUrl}${'urlPath' in pageData ? pageData.urlPath : '/'}`,
+    "name": pageData.seo.title || siteConfig.brand,
+    "description": pageData.seo.description,
     "isPartOf": {
       "@type": "WebSite",
-      "name": "Mobile Detail Hub",
+      "name": siteConfig.brand,
       "url": baseUrl
     }
   };
 
-  if (pageData.seo?.keywords && Array.isArray(pageData.seo.keywords)) {
+  if (pageData.seo.keywords && Array.isArray(pageData.seo.keywords)) {
     schema.keywords = pageData.seo.keywords.join(', ');
   }
 
-  if (pageData.seo?.ogImage) {
+  if (pageData.seo.ogImage) {
     schema.image = pageData.seo.ogImage;
   }
 
-  if (pageType === 'location') {
+  if (pageType === 'location' && 'city' in pageData) {
     schema.about = {
       "@type": "LocalBusiness",
-      "name": pageData.header?.businessName || `${pageData.city} Mobile Detailing`,
+      "name": pageData.header?.businessName || `${pageData.city} ${siteConfig.brand}`,
       "address": {
         "@type": "PostalAddress",
         "addressLocality": pageData.city,
@@ -484,7 +496,8 @@ export function generateWebPageSchema(
  * Generate all JSON-LD schemas for a page
  */
 export function generateAllSchemas(
-  pageData: any,
+  pageData: MainSiteConfig | LocationPage,
+  siteConfig: MainSiteConfig,
   pageType: 'home' | 'location' = 'home',
   additionalFAQs?: Array<{ id?: string; q: string; a: string }>
 ): Record<string, unknown>[] {
@@ -492,9 +505,9 @@ export function generateAllSchemas(
 
   if (pageType === 'home') {
     // Main site gets Organization and Website schemas
-    schemas.push(generateOrganizationSchema(pageData));
-    schemas.push(generateWebsiteSchema(pageData));
-    schemas.push(generateWebPageSchema(pageData, 'home'));
+    schemas.push(generateOrganizationSchema(siteConfig));
+    schemas.push(generateWebsiteSchema(siteConfig));
+    schemas.push(generateWebPageSchema(pageData, siteConfig, 'home'));
     
     // Add FAQPage schema if additional FAQs are provided (from general FAQ utils)
     if (additionalFAQs && additionalFAQs.length > 0) {
@@ -502,12 +515,14 @@ export function generateAllSchemas(
     }
   } else {
     // Location pages get LocalBusiness, FAQPage, BreadcrumbList, and WebPage schemas
-    schemas.push(generateLocationSchema(pageData));
-    schemas.push(generateWebPageSchema(pageData, 'location'));
-    schemas.push(generateBreadcrumbSchema(pageData));
-    
-    if (pageData.faqs && pageData.faqs.length > 0) {
-      schemas.push(generateFAQSchema(pageData.faqs));
+    if ('city' in pageData) {
+      schemas.push(generateLocationSchema(pageData, siteConfig));
+      schemas.push(generateWebPageSchema(pageData, siteConfig, 'location'));
+      schemas.push(generateBreadcrumbSchema(pageData));
+      
+      if (pageData.faqs && pageData.faqs.length > 0) {
+        schemas.push(generateFAQSchema(pageData.faqs));
+      }
     }
   }
 
@@ -520,7 +535,7 @@ export function generateAllSchemas(
 export function injectAllSchemas(schemas: Record<string, unknown>[]): void {
   // Remove existing schema scripts
   const existingSchemas = document.querySelectorAll('script[type="application/ld+json"]');
-  existingSchemas.forEach(schema => schema.remove());
+  existingSchemas.forEach(schema => { schema.remove(); });
 
   // Inject new schemas
   schemas.forEach((schema, index) => {

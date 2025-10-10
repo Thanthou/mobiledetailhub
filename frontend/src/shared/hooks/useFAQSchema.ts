@@ -4,8 +4,9 @@
  */
 
 import { useMemo } from 'react';
-import { generateFAQSchema } from '@/shared/utils/schemaUtils';
+
 import type { FAQItem } from '@/features/faq/types';
+import { generateFAQSchema } from '@/shared/utils/schemaUtils';
 
 interface UseFAQSchemaResult {
   /** Generated FAQ schema */
@@ -23,7 +24,7 @@ interface UseFAQSchemaResult {
  */
 export function useFAQSchema(faqs: FAQItem[]): UseFAQSchemaResult {
   return useMemo(() => {
-    if (!faqs || faqs.length === 0) {
+    if (faqs.length === 0) {
       return {
         schema: null,
         hasSchema: false,
@@ -64,29 +65,19 @@ export function usePrebuiltFAQSchema(locationSlug: string): UseFAQSchemaResult {
       };
     }
 
-    try {
-      // In a real implementation, you would fetch the pre-built schema
-      // For now, we'll simulate this with a dynamic import
-      const schemaPath = `/schemas/locations/${locationSlug}-faq.json`;
-      
-      // This would be replaced with actual fetching in production
-      // const schema = await fetch(schemaPath).then(r => r.json());
-      
-      return {
-        schema: null, // Would be the actual schema
-        hasSchema: false, // Would be true if schema exists
-        faqCount: 0, // Would be parsed from schema
-        method: 'prebuilt'
-      };
-    } catch (error) {
-      console.warn(`Could not load pre-built FAQ schema for ${locationSlug}:`, error);
-      return {
-        schema: null,
-        hasSchema: false,
-        faqCount: 0,
-        method: 'none'
-      };
-    }
+    // In a real implementation, you would fetch the pre-built schema
+    // For now, we'll simulate this with a dynamic import
+    // const schemaPath = `/schemas/locations/${locationSlug}-faq.json`;
+    
+    // This would be replaced with actual fetching in production
+    // const schema = await fetch(schemaPath).then(r => r.json());
+    
+    return {
+      schema: null, // Would be the actual schema
+      hasSchema: false, // Would be true if schema exists
+      faqCount: 0, // Would be parsed from schema
+      method: 'prebuilt'
+    };
   }, [locationSlug]);
 }
 
@@ -125,7 +116,7 @@ export function useFAQSchemaStats(faqs: FAQItem[]): {
   recommendations: string[];
 } {
   return useMemo(() => {
-    if (!faqs || faqs.length === 0) {
+    if (faqs.length === 0) {
       return {
         totalFAQs: 0,
         faqsWithIds: 0,

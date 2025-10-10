@@ -1,0 +1,87 @@
+# GitLab CI Configuration (Alternative to GitHub Actions)
+
+stages:
+  - install
+  - lint
+  - test
+  - build
+
+variables:
+  NODE_VERSION: "20"
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/
+    - frontend/node_modules/
+
+install:
+  stage: install
+  image: node:${NODE_VERSION}
+  script:
+    - npm ci
+    - cd frontend && npm ci
+  artifacts:
+    paths:
+      - node_modules/
+      - frontend/node_modules/
+    expire_in: 1 hour
+
+lint-frontend:
+  stage: lint
+  image: node:${NODE_VERSION}
+  dependencies:
+    - install
+  script:
+    - cd frontend
+    - npm run lint
+    - echo "📊 Component Size Report"
+    - echo "========================"
+    - npm run check:sizes:report || true
+    - npm run check:sizes:ci
+  allow_failure: false
+
+lint-backend:
+  stage: lint
+  image: node:${NODE_VERSION}
+  dependencies:
+    - install
+  script:
+    - npm run lint
+  allow_failure: false
+
+format-check:
+  stage: lint
+  image: node:${NODE_VERSION}
+  dependencies:
+    - install
+  script:
+    - npm run format:check
+  allow_failure: false
+
+test:
+  stage: test
+  image: node:${NODE_VERSION}
+  dependencies:
+    - install
+  script:
+    - cd frontend
+    - npm run test -- --run
+  allow_failure: false
+
+build:
+  stage: build
+  image: node:${NODE_VERSION}
+  dependencies:
+    - install
+  script:
+    - cd frontend
+    - npm run build
+  artifacts:
+    paths:
+      - frontend/dist/
+    expire_in: 1 week
+  only:
+    - main
+    - develop
+

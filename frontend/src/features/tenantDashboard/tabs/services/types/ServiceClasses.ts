@@ -1,3 +1,20 @@
+// JSON representation interfaces
+interface TierJSON {
+  id: string;
+  name: string;
+  price: number;
+  duration: number;
+  serviceOptions?: string[];
+  enabled: boolean;
+  popular: boolean;
+}
+
+interface ServiceJSON {
+  id: string;
+  name: string;
+  tiers: TierJSON[];
+}
+
 export class Tier {
   id: string;
   name: string;
@@ -77,9 +94,9 @@ export class Service {
     };
   }
 
-  static fromJSON(data: any): Service {
+  static fromJSON(data: ServiceJSON): Service {
     const service = new Service(data.id, data.name);
-    service.tiers = data.tiers.map((tierData: any) => {
+    service.tiers = data.tiers.map((tierData: TierJSON) => {
       const tier = new Tier(tierData.id, tierData.name, tierData.price, tierData.duration);
       tier.enabled = tierData.enabled;
       tier.popular = tierData.popular;

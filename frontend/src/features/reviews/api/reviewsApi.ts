@@ -10,7 +10,7 @@ export const reviewsApi = {
     
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== '') {
-        searchParams.append(key, value.toString());
+        searchParams.append(key, String(value));
       }
     });
 
@@ -31,7 +31,7 @@ export const reviewsApi = {
       throw new Error(`Failed to fetch review: ${response.statusText}`);
     }
 
-    return response.json();
+    return response.json() as Promise<{ success: boolean; data: DatabaseReview }>;
   },
 
   // Submit a new review
@@ -60,7 +60,7 @@ export const reviewsApi = {
       throw new Error(`Failed to submit review: ${response.statusText}`);
     }
 
-    return response.json();
+    return response.json() as Promise<{ success: boolean; data: DatabaseReview }>;
   },
 
 };

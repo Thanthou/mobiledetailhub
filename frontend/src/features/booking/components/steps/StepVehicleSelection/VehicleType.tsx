@@ -1,6 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+
+import siteDataImport from '@/data/mobile-detailing/site.json';
 import { getMakesForType, getModelsForMake, getVehicleYears } from '@/data/mobile-detailing/vehicle_data';
-import siteData from '@/data/mobile-detailing/site.json';
+
+interface SiteData {
+  contact?: {
+    phone?: string;
+  };
+}
+
+const siteData = siteDataImport as SiteData;
 
 interface VehicleSelectionProps {
   selectedVehicle: string;
@@ -71,12 +80,13 @@ const VehicleSelection: React.FC<VehicleSelectionProps> = ({ selectedVehicle, ve
 
   // Show phone message for airplane selection
   if (selectedVehicle === 'airplane') {
+    const phoneNumber = siteData.contact?.phone ?? 'us';
     return (
       <div className="mb-8 absolute top-[45%] left-1/2 transform -translate-x-1/2 w-full max-w-xl">
         <div className="px-4">
           <div className="bg-gray-800 border border-gray-600 rounded-lg p-6 text-center">
             <p className="text-white text-lg font-medium mb-2">
-              Please call us at <span className="text-orange-500">{siteData.contact.phone}</span>
+              Please call us at <span className="text-orange-500">{phoneNumber}</span>
             </p>
           </div>
         </div>
@@ -90,8 +100,9 @@ const VehicleSelection: React.FC<VehicleSelectionProps> = ({ selectedVehicle, ve
       <div className="mb-8 absolute top-[45%] left-1/2 transform -translate-x-1/2 w-full max-w-xl">
         <div className="px-4">
           <div className="space-y-2">
-            <label className="block text-white font-medium text-sm">Additional Details</label>
+            <label htmlFor="additional-details" className="block text-white font-medium text-sm">Additional Details</label>
             <textarea 
+              id="additional-details"
               value={make} // Using make field to store the additional details
               onChange={(e) => {
                 setMake(e.target.value);
@@ -114,8 +125,9 @@ const VehicleSelection: React.FC<VehicleSelectionProps> = ({ selectedVehicle, ve
       <div className="grid grid-cols-2 gap-4 px-4">
         {/* Make Dropdown */}
         <div className="space-y-2">
-          <label className="block text-white font-medium text-sm">Make</label>
+          <label htmlFor="vehicle-make" className="block text-white font-medium text-sm">Make</label>
           <select 
+            id="vehicle-make"
             value={make}
             onChange={(e) => {
               setMake(e.target.value);
@@ -135,8 +147,9 @@ const VehicleSelection: React.FC<VehicleSelectionProps> = ({ selectedVehicle, ve
 
         {/* Model Dropdown */}
         <div className="space-y-2">
-          <label className="block text-white font-medium text-sm">Model</label>
+          <label htmlFor="vehicle-model" className="block text-white font-medium text-sm">Model</label>
           <select 
+            id="vehicle-model"
             value={model}
             onChange={(e) => {
               setModel(e.target.value);
@@ -156,8 +169,9 @@ const VehicleSelection: React.FC<VehicleSelectionProps> = ({ selectedVehicle, ve
 
         {/* Year Dropdown */}
         <div className="space-y-2">
-          <label className="block text-white font-medium text-sm">Year</label>
+          <label htmlFor="vehicle-year" className="block text-white font-medium text-sm">Year</label>
           <select 
+            id="vehicle-year"
             value={year}
             onChange={(e) => {
               setYear(e.target.value);
@@ -178,8 +192,9 @@ const VehicleSelection: React.FC<VehicleSelectionProps> = ({ selectedVehicle, ve
         {selectedVehicle === 'boat' || selectedVehicle === 'rv' ? (
           /* Length Input for Boat/RV */
           <div className="space-y-2">
-            <label className="block text-white font-medium text-sm">Length (ft)</label>
+            <label htmlFor="vehicle-length" className="block text-white font-medium text-sm">Length (ft)</label>
             <input 
+              id="vehicle-length"
               type="number"
               value={length}
               onChange={(e) => {
@@ -195,8 +210,9 @@ const VehicleSelection: React.FC<VehicleSelectionProps> = ({ selectedVehicle, ve
         ) : (
           /* Color Dropdown for other vehicles */
           <div className="space-y-2">
-            <label className="block text-white font-medium text-sm">Color</label>
+            <label htmlFor="vehicle-color" className="block text-white font-medium text-sm">Color</label>
             <select 
+              id="vehicle-color"
               value={color}
               onChange={(e) => {
                 setColor(e.target.value);

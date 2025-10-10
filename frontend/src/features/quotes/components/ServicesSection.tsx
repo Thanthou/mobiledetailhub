@@ -1,5 +1,5 @@
 import React from 'react';
-import { Wrench, MessageSquare } from 'lucide-react';
+import { MessageSquare,Wrench } from 'lucide-react';
 
 import { sanitizeText } from '@/shared/utils';
 
@@ -9,7 +9,6 @@ interface ServicesSectionProps {
   formData: QuoteFormData;
   fieldErrors: Record<string, string[]>;
   isSubmitting: boolean;
-  services: string[];
   onServiceToggle: (serviceName: string) => void;
   onInputChange: (field: keyof QuoteFormData, value: string) => void;
 }
@@ -18,7 +17,6 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({
   formData,
   fieldErrors,
   isSubmitting,
-  services,
   onServiceToggle,
   onInputChange
 }) => {
@@ -45,7 +43,7 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({
               <input
                 type="checkbox"
                 checked={formData.services.includes(service.value)}
-                onChange={() => onServiceToggle(service.value)}
+                onChange={() => { onServiceToggle(service.value); }}
                 className="h-5 w-5 text-orange-600 rounded focus:ring-orange-500 bg-stone-700 border-stone-600"
                 disabled={isSubmitting}
               />
@@ -66,7 +64,7 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({
         <textarea
           id="message"
           value={formData.message}
-          onChange={(e) => onInputChange('message', sanitizeText(e.target.value))}
+          onChange={(e) => { onInputChange('message', sanitizeText(e.target.value)); }}
           rows={4}
           className={`w-full px-3 py-2 bg-stone-700 border rounded-lg text-white placeholder-stone-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${
             fieldErrors.message ? 'border-red-500' : 'border-stone-600'

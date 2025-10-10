@@ -40,7 +40,7 @@ export interface ExpandedTier {
  */
 export const convertToTierFeatureGroups = (
   features: string[],
-  tiers: Array<{ id: string; name: string; features: TierFeatureGroup[] }>
+  _tiers: Array<{ id: string; name: string; features: TierFeatureGroup[] }>
 ): TierFeatureGroup[] => {
   // For now, just create a single group with the current tier's services
   // This will be expanded when we add tier references
@@ -57,14 +57,14 @@ export const expandTierFeatures = (
   featureGroups: TierFeatureGroup[],
   serviceOptions: Array<{ id: string; name: string }>
 ): ServiceFeature[] => {
-  if (!featureGroups || !Array.isArray(featureGroups)) {
+  if (!Array.isArray(featureGroups)) {
     return [];
   }
   
   // If only one group (Tier 1), show flat features
   if (featureGroups.length === 1) {
     const group = featureGroups[0];
-    return (group.services || []).map(serviceId => {
+    return group.services.map(serviceId => {
       const service = serviceOptions.find(s => s.id === serviceId);
       return {
         id: serviceId,
@@ -80,7 +80,7 @@ export const expandTierFeatures = (
     
     if (isLastGroup) {
       // Current tier - show flat features
-      return (group.services || []).map(serviceId => {
+      return group.services.map(serviceId => {
         const service = serviceOptions.find(s => s.id === serviceId);
         return {
           id: serviceId,
@@ -90,7 +90,7 @@ export const expandTierFeatures = (
       });
     } else {
       // Previous tier - show as dropdown
-      const children = (group.services || []).map(serviceId => {
+      const children = group.services.map(serviceId => {
         const service = serviceOptions.find(s => s.id === serviceId);
         return {
           id: serviceId,
@@ -123,7 +123,8 @@ export const resolveServiceNames = (
         ...feature,
         name: service?.name || feature.name
       };
-    } else if (feature.type === 'tier' && feature.children) {
+    } else if (feature.children) {
+      // Type must be 'tier' if not 'service'
       return {
         ...feature,
         children: resolveServiceNames(feature.children, serviceOptions)

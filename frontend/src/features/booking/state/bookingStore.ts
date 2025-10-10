@@ -1,7 +1,8 @@
+import { useMemo } from 'react';
 import { create } from 'zustand';
 import { devtools, subscribeWithSelector } from 'zustand/middleware';
-import { useMemo } from 'react';
-import { BookingState, BookingActions, BookingData, BookingStep } from './types';
+
+import { BookingActions, BookingData, BookingState, BookingStep } from './types';
 
 const initialBookingData: BookingData = {
   vehicle: '',
@@ -22,7 +23,7 @@ const initialBookingData: BookingData = {
   },
   serviceTier: '',
   addons: [],
-  schedule: { date: '', time: '' },
+  schedule: { dates: [], time: '' },
   paymentMethod: ''
 };
 

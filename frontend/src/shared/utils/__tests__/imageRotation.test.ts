@@ -3,14 +3,13 @@
  */
 
 import {
+  getAccessibilityAttributes,
+  getImageOpacityClasses,
   getNextImageIndex,
   getPreviousImageIndex,
   getTransitionDuration,
-  getImageOpacityClasses,
   getVisibleImageIndices,
-  validateImageRotationConfig,
-  getAccessibilityAttributes
-} from '../imageRotation';
+  validateImageRotationConfig} from '../imageRotation';
 
 describe('Image Rotation Utilities', () => {
   describe('getNextImageIndex', () => {

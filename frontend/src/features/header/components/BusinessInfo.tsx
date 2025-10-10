@@ -1,14 +1,11 @@
 import React from 'react';
 import { MapPin } from 'lucide-react';
+
 import { formatPhoneNumber } from '@/shared/utils/phoneFormatter';
+
 import { useData } from '../contexts/DataProvider';
 
-interface BusinessInfoProps {
-  employeeData?: any;
-  locationData?: any;
-}
-
-const BusinessInfo: React.FC<BusinessInfoProps> = ({ employeeData, locationData }) => {
+const BusinessInfo: React.FC = () => {
   const { businessName, phone, location, isTenant } = useData();
   
   const handleClick = () => {

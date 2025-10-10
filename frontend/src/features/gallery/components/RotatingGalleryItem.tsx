@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { GalleryImage } from '../types';
 
 // Gallery item component with crossfade support
@@ -9,7 +10,7 @@ interface RotatingGalleryItemProps {
   index: number;
 }
 
-const RotatingGalleryItem: React.FC<RotatingGalleryItemProps> = ({ image, nextImage, isTransitioning, index }) => {
+const RotatingGalleryItem: React.FC<RotatingGalleryItemProps> = ({ image, nextImage, isTransitioning, index: _index }) => {
   // Fallback to current image if no next image
   const next = nextImage ?? image;
   

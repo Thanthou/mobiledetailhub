@@ -1,24 +1,53 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Check } from 'lucide-react';
+
+import type { TenantApplication } from '@/features/tenantOnboarding/types';
+import { tenantApplicationDefaultValues } from '@/features/tenantOnboarding/types';
 import { Button } from '@/shared/ui';
 
 import {
   ApplicationHeader,
-  PersonalInformationSection,
   BusinessInformationSection,
+  PersonalInformationSection,
   SuccessPage
 } from './index';
-import StepProgress from './StepProgress';
 import PaymentSection from './PaymentSection';
-import type { TenantApplication } from '@/features/tenantOnboarding/types';
-import { tenantApplicationDefaultValues } from '@/features/tenantOnboarding/types';
+
+interface PreviewState {
+  fromPreview?: boolean;
+  businessName?: string;
+  phone?: string;
+  city?: string;
+  state?: string;
+  industry?: string;
+}
 
 const TenantApplicationPage: React.FC = () => {
+  const location = useLocation();
+  const previewData = location.state as PreviewState | null;
+  
   const [formData, setFormData] = useState<TenantApplication>(tenantApplicationDefaultValues);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
+
+  // Pre-fill form if coming from preview
+  useEffect(() => {
+    if (previewData?.fromPreview) {
+      setFormData(prev => ({
+        ...prev,
+        businessName: previewData.businessName || prev.businessName,
+        businessPhone: previewData.phone || prev.businessPhone,
+        businessAddress: {
+          ...prev.businessAddress,
+          city: previewData.city || prev.businessAddress.city,
+          state: previewData.state || prev.businessAddress.state,
+        },
+      }));
+    }
+  }, [previewData]);
 
   const steps = ['Personal', 'Business', 'Payment'];
 
@@ -110,7 +139,6 @@ const TenantApplicationPage: React.FC = () => {
 
     try {
       // TODO: Implement actual submission logic
-      console.log('Form submitted:', formData);
       
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
@@ -161,7 +189,7 @@ const TenantApplicationPage: React.FC = () => {
       </div>
       
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
-        <form onSubmit={handleSubmit} className="space-y-8" id="tenant-form">
+        <form onSubmit={(e) => { void handleSubmit(e); }} className="space-y-8" id="tenant-form">
           {/* Step Container with Fixed Height */}
           <div className="h-[700px] flex flex-col justify-start">
             {/* Step 1: Personal Information */}

@@ -225,11 +225,9 @@ export interface MainSiteConfig {
 /**
  * Merged configuration type
  * Result of merging MainSiteConfig with LocationPage overrides
+ * Currently identical to LocationPage but kept as a separate type for future extensions
  */
-export interface MergedLocationConfig extends LocationPage {
-  // Inherits all LocationPage properties
-  // Additional merged properties can be added here
-}
+export type MergedLocationConfig = LocationPage;
 
 /**
  * Utility types for type safety

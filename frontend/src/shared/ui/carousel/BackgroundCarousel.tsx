@@ -1,6 +1,7 @@
 import React from 'react';
+
 import { useImageRotation } from '@/shared/hooks';
-import { getVisibleImageIndices, getImageOpacityClasses, getTransitionStyles } from '@/shared/utils';
+import { getImageOpacityClasses, getTransitionStyles,getVisibleImageIndices } from '@/shared/utils';
 
 interface BackgroundCarouselProps {
   images: string[];
@@ -30,7 +31,7 @@ const BackgroundCarousel: React.FC<BackgroundCarouselProps & React.HTMLAttribute
     pauseOnHover: false // Background carousel doesn't need hover pause
   });
 
-  const { currentIndex: currentImageIndex, hasMultipleImages } = rotation;
+  const { currentIndex: currentImageIndex } = rotation;
   
   // Get visible image indices for performance optimization
   const visibleIndices = getVisibleImageIndices(currentImageIndex, images.length, true);

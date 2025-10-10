@@ -3,8 +3,8 @@
  * Use these functions to validate location data at build time or runtime
  */
 
-import { validateLocationData, validateMainSiteConfig, type ValidationResult } from '@/shared/validation/locationSchema';
 import type { LocationPage, MainSiteConfig } from '@/shared/types/location';
+import { validateLocationData, validateMainSiteConfig, type ValidationResult } from '@/shared/validation/locationSchema';
 
 /**
  * Validate a single location file
@@ -12,11 +12,12 @@ import type { LocationPage, MainSiteConfig } from '@/shared/types/location';
 export function validateLocationFile(locationData: unknown, filename?: string): ValidationResult<LocationPage> {
   const result = validateLocationData(locationData);
   
-  if (!result.success && filename) {
+  if (!result.success && filename && result.errors) {
     console.error(`❌ Validation failed for ${filename}:`);
-    result.errors?.forEach(error => {
-      console.error(`  - ${error.path}: ${error.message}`);
-    });
+    const validationErrors = result.errors as Array<{ path: string; message: string; code: string }>;
+    for (const issue of validationErrors) {
+      console.error(`  - ${issue.path}: ${issue.message}`);
+    }
   }
   
   return result;
@@ -51,11 +52,12 @@ export function validateAllLocationFiles(locationFiles: Array<{ data: unknown; f
 export function validateMainSiteFile(siteData: unknown, filename?: string): ValidationResult<MainSiteConfig> {
   const result = validateMainSiteConfig(siteData);
   
-  if (!result.success && filename) {
+  if (!result.success && filename && result.errors) {
     console.error(`❌ Validation failed for ${filename}:`);
-    result.errors?.forEach(error => {
-      console.error(`  - ${error.path}: ${error.message}`);
-    });
+    const validationErrors = result.errors as Array<{ path: string; message: string; code: string }>;
+    for (const issue of validationErrors) {
+      console.error(`  - ${issue.path}: ${issue.message}`);
+    }
   }
   
   return result;
@@ -75,9 +77,10 @@ export function validateLocationWithDetails(locationData: unknown): {
   const warnings: string[] = [];
   
   if (!result.success && result.errors) {
-    result.errors.forEach(error => {
-      errors.push(`${error.path}: ${error.message}`);
-    });
+    const validationErrors = result.errors as Array<{ path: string; message: string; code: string }>;
+    for (const issue of validationErrors) {
+      errors.push(`${issue.path}: ${issue.message}`);
+    }
   }
   
   // Additional business logic validations
@@ -125,7 +128,7 @@ export function validateLocationWithDetails(locationData: unknown): {
       warnings.push('No phone display format in header - using fallback');
     }
     
-    if (!data.seo?.canonicalPath) {
+    if (!data.seo.canonicalPath) {
       warnings.push('No canonical path specified - using urlPath as fallback');
     }
   }
@@ -158,7 +161,7 @@ export function formatValidationErrors(errors: Array<{ path: string; message: st
 /**
  * Get validation summary
  */
-export function getValidationSummary(validationResult: ValidationResult<any>): string {
+export function getValidationSummary(validationResult: ValidationResult<unknown>): string {
   if (validationResult.success) {
     return '✅ Validation passed';
   }

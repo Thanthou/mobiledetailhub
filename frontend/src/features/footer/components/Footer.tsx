@@ -1,42 +1,41 @@
 import React from 'react';
-import GetInTouch from './GetInTouch';
-import FollowUs from './FollowUs';
-import FooterLocations from '@/shared/ui/navigation/FooterLocations';
-import Disclaimer from './Disclaimer';
+
+import { useData } from '@/shared/contexts';
 import CTAButtons from '@/shared/ui/buttons/CTAButtons';
-// Legacy useSiteContext removed - now using tenant-based routing
-import { useData } from '@/features/header';
+import FooterLocations from '@/shared/ui/navigation/FooterLocations';
 import { formatPhoneNumber } from '@/shared/utils/phoneFormatter';
-import siteData from '@/data/mobile-detailing/site.json';
+
+import Disclaimer from './Disclaimer';
+import FollowUs from './FollowUs';
+import GetInTouch from './GetInTouch';
 
 interface FooterProps {
   onRequestQuote?: () => void;
-  locationData?: any;
 }
 
-const Footer: React.FC<FooterProps> = ({ onRequestQuote, locationData }) => {
+const Footer: React.FC<FooterProps> = ({ onRequestQuote }) => {
   const tenantData = useData();
   
   // All sites are now tenant-based, so use tenant data
   const config = {
-    phone: formatPhoneNumber(tenantData.phone || '(555) 123-4567'),
-    email: tenantData.email || 'service@mobiledetailhub.com',
+    phone: formatPhoneNumber(tenantData.phone),
+    email: tenantData.email,
     base_location: {
-      city: tenantData.location?.split(', ')[0] || '',
-      state_name: tenantData.location?.split(', ')[1] || ''
+      city: tenantData.location.split(', ')[0] ?? '',
+      state_name: tenantData.location.split(', ')[1] ?? ''
     }
   };
 
   // Use tenant social media
   const socialMedia = {
-    facebook: tenantData.socialMedia?.facebook,
-    instagram: tenantData.socialMedia?.instagram,
-    tiktok: tenantData.socialMedia?.tiktok,
-    youtube: tenantData.socialMedia?.youtube
+    facebook: tenantData.socialMedia.facebook,
+    instagram: tenantData.socialMedia.instagram,
+    tiktok: tenantData.socialMedia.tiktok,
+    youtube: tenantData.socialMedia.youtube
   };
 
   const businessInfo = {
-    name: tenantData.businessName || 'Mobile Detail Hub'
+    name: tenantData.businessName
   };
 
 

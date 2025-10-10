@@ -1,15 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+
 import { useImageRotation } from '@/shared/hooks';
-import { GalleryImage } from '@/features/gallery/types';
+import { GalleryImage } from '@/shared/types';
 
 // Fisher-Yates shuffle algorithm
 function shuffleArray<T>(array: T[]): T[] {
   const shuffled = [...array];
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    const temp = shuffled[i]!;
-    shuffled[i] = shuffled[j]!;
-    shuffled[j] = temp;
+    const temp = shuffled[i];
+    const itemAtJ = shuffled[j];
+    if (temp !== undefined && itemAtJ !== undefined) {
+      shuffled[i] = itemAtJ;
+      shuffled[j] = temp;
+    }
   }
   return shuffled;
 }
@@ -22,12 +26,13 @@ export function useRotatingBackground() {
   // Load gallery data
   useEffect(() => {
     let cancelled = false;
-    (async () => {
+    void (async () => {
       try {
         const res = await fetch('/mobile-detailing/data/gallery.json');
-        if (!res.ok) throw new Error(`Failed to fetch gallery data: ${res.status}`);
-        const data: GalleryImage[] = await res.json();
+        if (!res.ok) throw new Error(`Failed to fetch gallery data: ${String(res.status)}`);
+        const data = await res.json() as GalleryImage[];
 
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- cancelled flag is set in cleanup
         if (cancelled) return;
 
         // Shuffle the images for random order
@@ -60,17 +65,9 @@ export function useRotatingBackground() {
   });
 
   const { currentIndex, hasMultipleImages } = rotation;
-  
-  // Temporarily removed performance optimization to test if it causes the sudden pop
-
-  // Return the original GalleryImage objects for compatibility
-  const images = galleryImages;
-  const currentImage = images[currentIndex] || null;
-  const nextIndex = hasMultipleImages ? (currentIndex + 1) % images.length : 0;
-  const nextImage = images[nextIndex] || null;
 
   return {
-    images,
+    images: galleryImages,
     currentIndex,
     loading,
     error,

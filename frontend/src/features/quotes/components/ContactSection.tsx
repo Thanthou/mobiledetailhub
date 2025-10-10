@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, MapPin,Phone, User } from 'lucide-react';
 
 import { formatPhoneNumberAsTyped } from '@/shared/utils';
 
@@ -9,9 +9,6 @@ interface ContactSectionProps {
   formData: QuoteFormData;
   fieldErrors: Record<string, string[]>;
   isSubmitting: boolean;
-  isAffiliate: boolean;
-  businessLocation: string;
-  serviceAreas: Array<{ city: string; state: string; primary?: boolean }>;
   onInputChange: (field: keyof QuoteFormData, value: string) => void;
 }
 
@@ -19,9 +16,6 @@ const ContactSection: React.FC<ContactSectionProps> = ({
   formData,
   fieldErrors,
   isSubmitting,
-  isAffiliate,
-  businessLocation,
-  serviceAreas,
   onInputChange
 }) => {
   return (
@@ -38,7 +32,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
               type="text"
               id="name"
               value={formData.name}
-              onChange={(e) => onInputChange('name', e.target.value)}
+              onChange={(e) => { onInputChange('name', e.target.value); }}
               className={`w-full pl-10 pr-3 py-2 bg-stone-700 border rounded-lg text-white placeholder-stone-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${
                 fieldErrors.name ? 'border-red-500' : 'border-stone-600'
               }`}
@@ -58,7 +52,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
               type="email"
               id="email"
               value={formData.email}
-              onChange={(e) => onInputChange('email', e.target.value)}
+              onChange={(e) => { onInputChange('email', e.target.value); }}
               className={`w-full pl-10 pr-3 py-2 bg-stone-700 border rounded-lg text-white placeholder-stone-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${
                 fieldErrors.email ? 'border-red-500' : 'border-stone-600'
               }`}
@@ -94,7 +88,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
           )}
         </div>
         <div className="col-span-1 md:col-span-2">
-          <label className="block text-sm font-medium text-white mb-1">Location</label>
+          <div className="block text-sm font-medium text-white mb-1">Location</div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
               <label htmlFor="city" className="block text-xs font-medium text-stone-300 mb-1">City</label>
@@ -104,7 +98,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
                   type="text"
                   id="city"
                   value={formData.city || ''}
-                  onChange={(e) => onInputChange('city', e.target.value)}
+                  onChange={(e) => { onInputChange('city', e.target.value); }}
                   className={`w-full pl-9 pr-3 py-2 bg-stone-700 border rounded-lg text-white placeholder-stone-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${
                     fieldErrors.city ? 'border-red-500' : 'border-stone-600'
                   }`}
@@ -123,7 +117,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
                   type="text"
                   id="state"
                   value={formData.state || ''}
-                  onChange={(e) => onInputChange('state', e.target.value)}
+                  onChange={(e) => { onInputChange('state', e.target.value); }}
                   className={`w-full px-3 py-2 bg-stone-700 border rounded-lg text-white placeholder-stone-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${
                     fieldErrors.state ? 'border-red-500' : 'border-stone-600'
                   }`}
@@ -143,7 +137,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
                   type="text"
                   id="zipCode"
                   value={formData.zipCode || ''}
-                  onChange={(e) => onInputChange('zipCode', e.target.value)}
+                  onChange={(e) => { onInputChange('zipCode', e.target.value); }}
                   className={`w-full px-3 py-2 bg-stone-700 border rounded-lg text-white placeholder-stone-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${
                     fieldErrors.zipCode ? 'border-red-500' : 'border-stone-600'
                   }`}

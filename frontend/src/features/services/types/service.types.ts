@@ -1,3 +1,5 @@
+import type { LocationPage } from '@/shared/types/location';
+
 export interface Service {
   id: string;
   title: string;
@@ -19,7 +21,7 @@ export interface ServicesGridProps {
   services?: Service[];
   onServiceClick?: (service: Service) => void;
   className?: string;
-  locationData?: any;
+  locationData?: LocationPage | null;
 }
 
 // Re-export ServiceData from service-data.ts

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Car, Settings, Shield, CreditCard, MapPin } from 'lucide-react';
+import { Car, CreditCard, MapPin,Settings, Shield } from 'lucide-react';
 
 import { FilterChip } from '@/shared/ui';
 
@@ -9,7 +9,7 @@ interface FAQCategoryFilterProps {
   categories: string[];
 }
 
-const categoryIcons: Record<string, React.ComponentType<any>> = {
+const categoryIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   All: Car,
   General: Car,
   Services: Car,
@@ -41,7 +41,9 @@ const FAQCategoryFilter: React.FC<FAQCategoryFilterProps> = ({
     return (
       <FilterChip
         key={categoryName}
-        onClick={() => onCategoryChange(categoryName)}
+        onClick={() => {
+          onCategoryChange(categoryName);
+        }}
         isSelected={isSelected}
         icon={IconComponent}
         className="transform hover:scale-105 backdrop-blur-sm"

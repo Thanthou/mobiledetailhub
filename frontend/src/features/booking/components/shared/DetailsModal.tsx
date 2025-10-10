@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { X, ChevronDown, ChevronUp } from 'lucide-react';
-import { generateFeatureDetails } from '../../utils/displayUtils';
+import { ChevronDown, ChevronUp,X } from 'lucide-react';
+
 import { useFeaturesData } from '../../hooks';
+import { generateFeatureDetails } from '../../utils/displayUtils';
 
 interface DetailsItem {
   id: string;
@@ -81,7 +82,7 @@ const DetailsModal: React.FC<DetailsModalProps> = ({
 
           {/* Features */}
           <div className="space-y-4">
-            <h3 className="text-xl font-semibold text-white mb-4">What's Included:</h3>
+            <h3 className="text-xl font-semibold text-white mb-4">What&apos;s Included:</h3>
             {item.featureIds.map((featureId) => {
               const featureDetails = getFeatureDetails(featureId);
               const isExpanded = expandedFeatures.has(featureId);
@@ -89,7 +90,9 @@ const DetailsModal: React.FC<DetailsModalProps> = ({
               return (
                 <div key={featureId} className="border border-stone-700 rounded-lg overflow-hidden">
                   <button
-                    onClick={() => toggleFeature(featureId)}
+                    onClick={() => {
+                      toggleFeature(featureId);
+                    }}
                     className="w-full p-4 text-left bg-stone-800 hover:bg-stone-700 transition-colors flex justify-between items-center"
                   >
                     <span className="text-white font-medium">
@@ -129,7 +132,7 @@ const DetailsModal: React.FC<DetailsModalProps> = ({
                       )}
                       
                       {/* Features */}
-                      {featureDetails.features && featureDetails.features.length > 0 && (
+                      {featureDetails.features.length > 0 && (
                         <div>
                           <h4 className="text-sm font-semibold text-orange-400 uppercase tracking-wide mb-2">
                             Features:

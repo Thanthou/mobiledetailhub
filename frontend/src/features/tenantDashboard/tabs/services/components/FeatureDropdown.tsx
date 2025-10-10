@@ -1,8 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronDown } from 'lucide-react';
-
-import { Button } from '@/shared/ui';
 
 // Disabled affiliate services imports
 // import { CAR_SERVICE_OPTIONS, type ServiceOption } from '@/data/affiliate-services/cars/service/features';
@@ -117,8 +115,8 @@ export const FeatureDropdown: React.FC<FeatureDropdownProps> = ({
 
   // Get services for the current vehicle type and category
   const availableServices = categoryType === 'addons' 
-    ? (serviceName ? getAddonServicesForService(serviceName) : VEHICLE_ADDON_SERVICES[vehicleType as keyof typeof VEHICLE_ADDON_SERVICES] || [])
-    : VEHICLE_SERVICES[vehicleType as keyof typeof VEHICLE_SERVICES] || CAR_SERVICE_OPTIONS;
+    ? (serviceName ? getAddonServicesForService(serviceName) : VEHICLE_ADDON_SERVICES[vehicleType as keyof typeof VEHICLE_ADDON_SERVICES])
+    : VEHICLE_SERVICES[vehicleType as keyof typeof VEHICLE_SERVICES];
 
   // Use all available services since we removed search
   const filteredServices = availableServices;
@@ -130,7 +128,6 @@ export const FeatureDropdown: React.FC<FeatureDropdownProps> = ({
 
   // Handle service selection
   const handleServiceToggle = (serviceId: string) => {
-    console.log('Service toggle clicked:', serviceId);
     if (selectedFeatures.includes(serviceId)) {
       // Remove service
       onFeaturesChange(selectedFeatures.filter(id => id !== serviceId));
@@ -224,7 +221,7 @@ export const FeatureDropdown: React.FC<FeatureDropdownProps> = ({
             }}
           >
             {/* Services List */}
-            <div onClick={(e) => e.stopPropagation()}>
+            <div>
               {filteredServices.length > 0 ? (
                 <div className="py-1">
                   <div className="grid grid-cols-2 gap-0">

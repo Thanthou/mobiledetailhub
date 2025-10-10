@@ -3,10 +3,10 @@ import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
 
 import { Button } from '@/shared/ui';
 
-import FormField from './FormField';
-import RememberForgotSection from './RememberForgotSection';
-import { useLoginFormValidation } from './LoginFormValidation';
 import { usePasswordVisibility } from '../hooks/usePasswordVisibility';
+import FormField from './FormField';
+import { useLoginFormValidation } from './LoginFormValidation';
+import RememberForgotSection from './RememberForgotSection';
 
 interface LoginFormProps {
   onSubmit: (email: string, password: string) => Promise<void>;

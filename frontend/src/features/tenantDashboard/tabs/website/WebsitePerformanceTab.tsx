@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BarChart3, TrendingUp, Users, Eye, Clock, Globe, Smartphone, Monitor } from 'lucide-react';
+import { BarChart3, Clock, Eye, Globe, Monitor,Smartphone, TrendingUp, Users } from 'lucide-react';
 
 const WebsitePerformanceTab: React.FC = () => {
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('30d');
@@ -93,7 +93,7 @@ const WebsitePerformanceTab: React.FC = () => {
           {(['7d', '30d', '90d'] as const).map((range) => (
             <button
               key={range}
-              onClick={() => setTimeRange(range)}
+              onClick={() => { setTimeRange(range); }}
               className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                 timeRange === range
                   ? 'bg-orange-500 text-white'

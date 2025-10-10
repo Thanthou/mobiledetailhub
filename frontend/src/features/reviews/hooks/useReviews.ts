@@ -1,7 +1,11 @@
 // Hook for fetching reviews
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback,useEffect, useState } from 'react';
+
+import { useDataOptional } from '@/shared/contexts/DataContext';
+
 import { reviewsApi } from '../api';
-import type { Review, ReviewQueryParams, DatabaseReview } from '../types';
+import type { DatabaseReview,Review, ReviewQueryParams } from '../types';
+import dummyReviewsData from '../../preview/data/dummyReviews.json';
 
 // Convert database review to frontend review format
 const convertDatabaseReviewToReview = (dbReview: DatabaseReview): Review => {
@@ -29,6 +33,9 @@ const convertDatabaseReviewToReview = (dbReview: DatabaseReview): Review => {
 };
 
 export const useReviews = (params: ReviewQueryParams = {}) => {
+  const data = useDataOptional();
+  const isPreview = data?.isPreview || false;
+
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -47,11 +54,29 @@ export const useReviews = (params: ReviewQueryParams = {}) => {
       setLoading(true);
       setError(null);
 
+      // In preview mode, use dummy reviews
+      if (isPreview) {
+        // Convert dummy reviews to Review format
+        const previewReviews: Review[] = dummyReviewsData.map(review => ({
+          ...review,
+          reviewText: review.reviewText,
+        }));
+        setReviews(previewReviews);
+        setPagination({
+          total: previewReviews.length,
+          limit: previewReviews.length,
+          offset: 0,
+          hasMore: false,
+        });
+        setHasFetched(true);
+        setLoading(false);
+        return;
+      }
 
       // Try to fetch from API first with timeout
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+        const timeoutId = setTimeout(() => { controller.abort(); }, 5000); // 5 second timeout
         
         const response = await reviewsApi.getReviews({ ...params, ...queryParams });
         clearTimeout(timeoutId);
@@ -65,9 +90,8 @@ export const useReviews = (params: ReviewQueryParams = {}) => {
         setPagination(response.pagination || null);
         setHasFetched(true);
         return;
-      } catch (apiError) {
-        
-        // Fallback to mock data for now
+      } catch {
+        // API failed, fallback to mock data for now
         const mockReviews: DatabaseReview[] = [
           {
             id: 115,
@@ -137,15 +161,21 @@ export const useReviews = (params: ReviewQueryParams = {}) => {
     } finally {
       setLoading(false);
     }
-  }, [params, loading]);
+  }, [params, loading, isPreview]);
 
   useEffect(() => {
+    // In preview mode, always fetch dummy reviews immediately
+    if (isPreview && !hasFetched && !loading) {
+      void fetchReviews();
+      return;
+    }
+    
     // Only fetch if we have meaningful params and haven't fetched yet
     const hasParams = Object.values(params).some(value => value !== undefined && value !== '');
     if (hasParams && !hasFetched && !loading) {
       void fetchReviews();
     }
-  }, [params, hasFetched, loading]);
+  }, [params, hasFetched, loading, fetchReviews, isPreview]);
 
   const refetch = useCallback(() => {
     void fetchReviews();

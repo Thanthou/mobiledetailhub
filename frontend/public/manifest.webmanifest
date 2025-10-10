@@ -1,7 +1,7 @@
 {
-  "name": "Mobile Detail Hub",
-  "short_name": "MDH",
-  "description": "Find trusted mobile detailers for cars, boats, and RVs with Mobile Detail Hub",
+  "name": "That Smart Site",
+  "short_name": "TSS",
+  "description": "Smart websites for smart businesses",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0b0b0b",
@@ -9,18 +9,18 @@
   "orientation": "portrait-primary",
   "scope": "/",
   "lang": "en",
-  "categories": ["business", "automotive"],
+  "categories": ["business", "productivity"],
   "icons": [
     {
-      "src": "/assets/favicon.webp",
-      "sizes": "64x64",
-      "type": "image/webp",
+      "src": "/shared/icons/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "/assets/favicon.webp",
-      "sizes": "64x64", 
-      "type": "image/webp",
+      "src": "/shared/icons/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
       "purpose": "maskable"
     }
   ]

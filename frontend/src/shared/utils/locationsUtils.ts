@@ -22,6 +22,7 @@ export interface LocationStateInfo {
 }
 
 // State code to full name mapping
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- Reserved for future use
 const STATE_NAMES: Record<string, string> = {
   'AZ': 'Arizona',
   'NV': 'Nevada', 

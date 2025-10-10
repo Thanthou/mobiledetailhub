@@ -66,5 +66,5 @@ export interface ReviewsProps {
   customHeading?: string;
   customIntro?: string;
   feedKey?: string; // for future GBP/Yelp integration
-  locationData?: any; // location-specific data
+  locationData?: Record<string, unknown>; // location-specific data
 }

@@ -41,6 +41,7 @@ export function runPhoneFormatterTests() {
     const digits = getPhoneDigits(input);
     
     if (import.meta.env.DEV) {
+      // eslint-disable-next-line no-console -- Debug output for manual test execution
       console.log(`Test ${(index + 1).toString()}:`, {
         input,
         expected,

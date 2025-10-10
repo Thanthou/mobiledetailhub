@@ -1,10 +1,13 @@
 import React from 'react';
-import ImageCarousel from './ImageCarousel';
-import ContentContainer from './ContentContainer';
+
 import { useHeroContent } from '@/features/hero/hooks/useHeroContent';
+import type { LocationPage } from '@/shared/types/location';
+
+import ContentContainer from './ContentContainer';
+import ImageCarousel from './ImageCarousel';
 
 interface HeroProps {
-  locationData?: any; // Location-specific data including images and content
+  locationData?: LocationPage;
   onRequestQuote?: () => void;
 }
 

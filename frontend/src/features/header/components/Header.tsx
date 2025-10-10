@@ -1,25 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect,useState } from 'react';
 import { Menu, X } from 'lucide-react';
 
-import Logo from './Logo';
-import BusinessInfo from './BusinessInfo';
-import Navigation from './Navigation';
-import SocialMediaIcons from './SocialMediaIcons';
-import { useData } from '../contexts/DataProvider';
 import { NAV_LINKS } from '@/features/header/utils/constants';
 import { handleSectionClick } from '@/features/header/utils/navigation';
-import { useReviewsAvailability } from '@/features/reviews/hooks/useReviewsAvailability';
+import { useReviewsAvailability } from '@/shared/hooks';
+
+import BusinessInfo from './BusinessInfo';
+import Logo from './Logo';
+import Navigation from './Navigation';
+import SocialMediaIcons from './SocialMediaIcons';
 
 interface HeaderProps {
-  locationData?: any; // Will type this properly later
-  employeeData?: any; // Will type this properly later
+  locationData?: unknown; // Location-specific data (reserved for future use)
+  employeeData?: unknown; // Employee-specific data (reserved for future use)
 }
 
-const Header: React.FC<HeaderProps> = ({ locationData, employeeData }) => {
+const Header: React.FC<HeaderProps> = () => {
   const [activeSection, setActiveSection] = useState<string>('');
-  
-  // Get data from tenant database via DataProvider
-  const { businessName, phone, owner, location, isTenant } = useData();
   const hasReviews = useReviewsAvailability();
   
 
@@ -53,8 +50,10 @@ const Header: React.FC<HeaderProps> = ({ locationData, employeeData }) => {
       
       // Clear focus from all navigation items when scrolling
       const activeElement = document.activeElement;
-      if (activeElement && activeElement.classList.contains('nav-link')) {
-        activeElement.blur();
+      if (activeElement instanceof HTMLElement) {
+        if (activeElement.classList.contains('nav-link')) {
+          activeElement.blur();
+        }
       }
     };
 
@@ -65,7 +64,7 @@ const Header: React.FC<HeaderProps> = ({ locationData, employeeData }) => {
     const scrollContainer = document.querySelector('.snap-container') || document.documentElement;
     
     scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
-    return () => scrollContainer.removeEventListener('scroll', handleScroll);
+    return () => { scrollContainer.removeEventListener('scroll', handleScroll); };
   }, [hasReviews]); // Add hasReviews as dependency so effect re-runs when reviews availability changes
 
   // Determine if a nav item is active based on visible section
@@ -122,10 +121,7 @@ const Header: React.FC<HeaderProps> = ({ locationData, employeeData }) => {
         <div className="max-w-7xl mx-auto flex items-center px-4">
           <Logo />
           {/* BusinessInfo now gets data directly from DataProvider */}
-          <BusinessInfo 
-            employeeData={employeeData}
-            locationData={locationData}
-          />
+          <BusinessInfo />
           <div className="flex items-center space-x-6 ml-auto">
             <Navigation activeSection={activeSection} />
             <SocialMediaIcons />
@@ -168,7 +164,7 @@ const Header: React.FC<HeaderProps> = ({ locationData, employeeData }) => {
                 link.isFAQ ? (
                   <button
                     key={link.name}
-                    onClick={() => handleSectionClick('#faq')}
+                    onClick={() => { handleSectionClick('#faq'); }}
                     className={`nav-link w-full text-left px-4 py-3 rounded-lg hover:text-orange-400 hover:bg-orange-500/10 focus:text-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-black/20 transition-colors duration-200 ${
                       isActive(link) ? 'text-orange-400 bg-transparent ring-2 ring-orange-400 ring-offset-2 ring-offset-black/20' : 'text-white bg-transparent'
                     }`}
@@ -179,7 +175,7 @@ const Header: React.FC<HeaderProps> = ({ locationData, employeeData }) => {
                 ) : link.isGallery ? (
                   <button
                     key={link.name}
-                    onClick={() => handleSectionClick('#footer')}
+                    onClick={() => { handleSectionClick('#footer'); }}
                     className={`nav-link w-full text-left px-4 py-3 rounded-lg hover:text-orange-400 hover:bg-orange-500/10 focus:text-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-black/20 transition-colors duration-200 ${
                       isActive(link) ? 'text-orange-400 bg-transparent ring-2 ring-orange-400 ring-offset-2 ring-offset-black/20' : 'text-white bg-transparent'
                     }`}
@@ -190,7 +186,7 @@ const Header: React.FC<HeaderProps> = ({ locationData, employeeData }) => {
                 ) : link.name === 'Reviews' ? (
                   <button
                     key={link.name}
-                    onClick={() => handleSectionClick('#reviews')}
+                    onClick={() => { handleSectionClick('#reviews'); }}
                     className={`nav-link w-full text-left px-4 py-3 rounded-lg hover:text-orange-400 hover:bg-orange-500/10 focus:text-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-black/20 transition-colors duration-200 ${
                       isActive(link) ? 'text-orange-400 bg-transparent ring-2 ring-orange-400 ring-offset-2 ring-offset-black/20' : 'text-white bg-transparent'
                     }`}
@@ -201,7 +197,7 @@ const Header: React.FC<HeaderProps> = ({ locationData, employeeData }) => {
                 ) : link.name === 'Home' ? (
                   <button
                     key={link.name}
-                    onClick={() => handleSectionClick('#top')}
+                    onClick={() => { handleSectionClick('#top'); }}
                     className={`nav-link w-full text-left px-4 py-3 rounded-lg hover:text-orange-400 hover:bg-orange-500/10 focus:text-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-black/20 transition-colors duration-200 ${
                       isActive(link) ? 'text-orange-400 bg-transparent ring-2 ring-orange-400 ring-offset-2 ring-offset-black/20' : 'text-white bg-transparent'
                     }`}
@@ -212,7 +208,7 @@ const Header: React.FC<HeaderProps> = ({ locationData, employeeData }) => {
                 ) : link.name === 'Services' ? (
                   <button
                     key={link.name}
-                    onClick={() => handleSectionClick('#services')}
+                    onClick={() => { handleSectionClick('#services'); }}
                     className={`nav-link w-full text-left px-4 py-3 rounded-lg hover:text-orange-400 hover:bg-orange-500/10 focus:text-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-black/20 transition-colors duration-200 ${
                       isActive(link) ? 'text-orange-400 bg-transparent ring-2 ring-orange-400 ring-offset-2 ring-offset-black/20' : 'text-white bg-transparent'
                     }`}

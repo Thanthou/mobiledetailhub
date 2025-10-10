@@ -7,7 +7,7 @@ interface UseReviewsContentReturn {
 }
 
 interface UseReviewsContentProps {
-  locationData?: any;
+  locationData?: unknown;
   customHeading?: string;
   customIntro?: string;
 }
@@ -16,18 +16,12 @@ export const useReviewsContent = (props?: UseReviewsContentProps): UseReviewsCon
   // Get industry-specific site data
   const { siteData } = useIndustrySiteData();
   
-  // Try to get website content, but handle cases where provider isn't available
-  let websiteContent = null;
-  try {
-    const { content } = useWebsiteContent();
-    websiteContent = content;
-  } catch {
-    // WebsiteContentProvider not available, use fallbacks
-    websiteContent = null;
-  }
+  // Always call hooks unconditionally
+  const { content: websiteContent } = useWebsiteContent();
   
-  // Use passed locationData as fallback
-  const locationData = props?.locationData;
+  // Use passed locationData as fallback (reserved for future use)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Reserved for future location-specific data
+  const _locationData = props?.locationData;
   
   // All sites are now tenant-based, so use database content or industry-specific site data
   // Priority: Custom props > Database content > Industry-specific site data > Fallback

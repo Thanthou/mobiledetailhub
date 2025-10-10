@@ -4,14 +4,20 @@
  */
 
 import React, { useState } from 'react';
-import { useFAQSchema, useFAQSchemaStats } from '@/shared/hooks/useFAQSchema';
-import { MDH_FAQ_ITEMS } from '@/features/faq/utils';
+
 import bullheadCityData from '@/data/locations/az/bullhead-city.json';
 import lasVegasData from '@/data/locations/nv/las-vegas.json';
+import { MDH_FAQ_ITEMS } from '@/features/faq/utils';
+import { useFAQSchema, useFAQSchemaStats } from '@/shared/hooks/useFAQSchema';
+import type { LocationPage } from '@/shared/types/location';
 
 interface FAQSchemaDemoProps {
   className?: string;
 }
+
+// Type the imported JSON data
+const typedBullheadData = bullheadCityData as LocationPage;
+const typedLasVegasData = lasVegasData as LocationPage;
 
 export const FAQSchemaDemo: React.FC<FAQSchemaDemoProps> = ({ className = '' }) => {
   const [selectedDataset, setSelectedDataset] = useState<'general' | 'bullhead' | 'lasvegas'>('general');
@@ -19,15 +25,15 @@ export const FAQSchemaDemo: React.FC<FAQSchemaDemoProps> = ({ className = '' }) 
   const currentFAQs = selectedDataset === 'general' 
     ? MDH_FAQ_ITEMS 
     : selectedDataset === 'bullhead' 
-      ? (bullheadCityData.faqs || []).map(faq => ({
+      ? (typedBullheadData.faqs || []).map(faq => ({
           id: faq.id,
-          category: 'Location',
+          category: 'Location' as const,
           question: faq.q,
           answer: faq.a
         }))
-      : (lasVegasData.faqs || []).map(faq => ({
+      : (typedLasVegasData.faqs || []).map(faq => ({
           id: faq.id,
-          category: 'Location',
+          category: 'Location' as const,
           question: faq.q,
           answer: faq.a
         }));
@@ -45,10 +51,10 @@ export const FAQSchemaDemo: React.FC<FAQSchemaDemoProps> = ({ className = '' }) 
       
       {/* Dataset Selector */}
       <div className="mb-4">
-        <label className="block text-sm font-medium mb-2">Select FAQ Dataset:</label>
+        <div className="block text-sm font-medium mb-2">Select FAQ Dataset:</div>
         <div className="flex gap-2">
           <button
-            onClick={() => setSelectedDataset('general')}
+            onClick={() => { setSelectedDataset('general'); }}
             className={`px-3 py-1 rounded text-sm ${
               selectedDataset === 'general'
                 ? 'bg-blue-500 text-white'
@@ -58,24 +64,24 @@ export const FAQSchemaDemo: React.FC<FAQSchemaDemoProps> = ({ className = '' }) 
             General FAQs ({MDH_FAQ_ITEMS.length})
           </button>
           <button
-            onClick={() => setSelectedDataset('bullhead')}
+            onClick={() => { setSelectedDataset('bullhead'); }}
             className={`px-3 py-1 rounded text-sm ${
               selectedDataset === 'bullhead'
                 ? 'bg-blue-500 text-white'
                 : 'bg-white border border-gray-300'
             }`}
           >
-            Bullhead City ({bullheadCityData.faqs?.length || 0})
+            Bullhead City ({typedBullheadData.faqs?.length || 0})
           </button>
           <button
-            onClick={() => setSelectedDataset('lasvegas')}
+            onClick={() => { setSelectedDataset('lasvegas'); }}
             className={`px-3 py-1 rounded text-sm ${
               selectedDataset === 'lasvegas'
                 ? 'bg-blue-500 text-white'
                 : 'bg-white border border-gray-300'
             }`}
           >
-            Las Vegas ({lasVegasData.faqs?.length || 0})
+            Las Vegas ({typedLasVegasData.faqs?.length || 0})
           </button>
         </div>
       </div>
@@ -187,23 +193,24 @@ export const FAQSchemaDemo: React.FC<FAQSchemaDemoProps> = ({ className = '' }) 
         <h4 className="font-medium mb-2">FAQ Preview:</h4>
         <div className="bg-white p-3 rounded border">
           <div className="space-y-3 max-h-64 overflow-auto">
-            {currentFAQs.slice(0, 3).map((faq, index) => (
-              <div key={index} className="border-b border-gray-100 pb-2">
-                <div className="flex items-start gap-2">
-                  <span className="text-gray-500 text-sm">#{index + 1}</span>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-mono text-xs bg-gray-100 px-1 rounded">{faq.id || 'no-id'}</span>
-                      {faq.category && (
+            {currentFAQs.slice(0, 3).map((faq, index) => {
+              const faqId = String(faq.id || 'no-id');
+              return (
+                <div key={faqId + String(index)} className="border-b border-gray-100 pb-2">
+                  <div className="flex items-start gap-2">
+                    <span className="text-gray-500 text-sm">#{String(index + 1)}</span>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-mono text-xs bg-gray-100 px-1 rounded">{faqId}</span>
                         <span className="text-xs bg-blue-100 text-blue-800 px-1 rounded">{faq.category}</span>
-                      )}
+                      </div>
+                      <div className="font-medium text-sm">{faq.question}</div>
+                      <div className="text-gray-600 text-xs mt-1 line-clamp-2">{faq.answer}</div>
                     </div>
-                    <div className="font-medium text-sm">{faq.question}</div>
-                    <div className="text-gray-600 text-xs mt-1 line-clamp-2">{faq.answer}</div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
             {currentFAQs.length > 3 && (
               <div className="text-center text-gray-500 text-sm">
                 ... and {currentFAQs.length - 3} more FAQs

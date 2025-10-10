@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { config } from '@/../config/env';
@@ -46,7 +46,7 @@ export const useTenantBusinessData = () => {
   
   const { slug } = useParams<{ slug: string }>();
 
-  const fetchBusinessData = async () => {
+  const fetchBusinessData = useCallback(async () => {
     if (!slug) {
       setError('No business slug provided');
       setLoading(false);
@@ -89,11 +89,11 @@ export const useTenantBusinessData = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [slug]);
 
   useEffect(() => {
     void fetchBusinessData();
-  }, [slug, refreshTrigger]);
+  }, [fetchBusinessData, refreshTrigger]);
 
   // Get service areas with first entry as primary
   const serviceAreas = businessData?.service_areas || [];

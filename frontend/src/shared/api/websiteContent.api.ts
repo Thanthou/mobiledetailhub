@@ -1,5 +1,4 @@
 // Website content API calls
-import { apiService } from './api';
 
 export interface FAQItem {
   question: string;

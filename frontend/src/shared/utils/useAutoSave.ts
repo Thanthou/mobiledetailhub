@@ -51,7 +51,7 @@ export function useAutoSave<T>(
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Only re-run when value changes, not when saveFunction changes
   }, [value]);
 
   return { value, setValue, isSaving, error };

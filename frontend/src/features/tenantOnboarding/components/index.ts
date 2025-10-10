@@ -1,9 +1,9 @@
 // Re-export onboarding components
-export { default as TenantApplicationPage } from './TenantApplicationPage';
 export { default as ApplicationHeader } from './ApplicationHeader';
-export { default as PersonalInformationSection } from './PersonalInformationSection';
 export { default as BusinessInformationSection } from './BusinessInformationSection';
+export { default as PersonalInformationSection } from './PersonalInformationSection';
 export { default as SuccessPage } from './SuccessPage';
+export { default as TenantApplicationPage } from './TenantApplicationPage';
 
 // Legacy components (kept for backward compatibility)
 export { default as AffiliatePrivacyModal } from './AffiliatePrivacyModal';

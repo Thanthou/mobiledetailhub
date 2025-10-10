@@ -4,13 +4,14 @@
  */
 
 import { useMemo } from 'react';
+
+import type { LocationPage, MainSiteConfig } from '@/shared/types/location';
 import { 
   createMergedLocationData, 
-  validateMergedData, 
+  type DeepMergeOptions, 
   getMergeStatistics,
-  type DeepMergeOptions 
-} from '@/shared/utils/deepMerge';
-import type { LocationPage, MainSiteConfig } from '@/shared/types/location';
+  type MergeStatistics,
+  validateMergedData} from '@/shared/utils/deepMerge';
 
 interface UseMergedLocationDataResult {
   /** Merged location data */
@@ -22,13 +23,7 @@ interface UseMergedLocationDataResult {
     warnings: string[];
   };
   /** Merge statistics */
-  statistics: {
-    fieldsFromMain: string[];
-    fieldsFromLocation: string[];
-    fieldsMerged: string[];
-    arraysConcatenated: string[];
-    arraysDeduplicated: string[];
-  };
+  statistics: MergeStatistics;
   /** Whether data was actually merged */
   wasMerged: boolean;
 }
@@ -91,11 +86,13 @@ export function useMultipleMergedLocations(
   totalWarnings: number;
   summary: string;
 } {
+  // Merge each location individually - hooks must be called unconditionally
+  const mergedLocations = locationDataArray.map(locationData => 
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- This is called in a loop at the same level, safe for React
+    useMergedLocationData(mainConfig, locationData, customOptions)
+  );
+  
   return useMemo(() => {
-    const mergedLocations = locationDataArray.map(locationData => 
-      useMergedLocationData(mainConfig, locationData, customOptions)
-    );
-    
     const totalErrors = mergedLocations.reduce((sum, result) => sum + result.validation.errors.length, 0);
     const totalWarnings = mergedLocations.reduce((sum, result) => sum + result.validation.warnings.length, 0);
     const overallValid = totalErrors === 0;
@@ -121,7 +118,7 @@ export function useMultipleMergedLocations(
       totalWarnings,
       summary
     };
-  }, [mainConfig, locationDataArray, customOptions]);
+  }, [mergedLocations]);
 }
 
 /**
@@ -147,7 +144,8 @@ export function useMergedLocationDataDebug(
         console.warn(`${prefix}Location merge warnings:`, result.validation.warnings);
       }
       
-      if (result.wasMerged) {
+      if (result.wasMerged && import.meta.env.DEV) {
+        // eslint-disable-next-line no-console -- Debug logging in development only
         console.log(`${prefix}Merge statistics:`, {
           fieldsFromMain: result.statistics.fieldsFromMain.length,
           fieldsFromLocation: result.statistics.fieldsFromLocation.length,
@@ -168,7 +166,7 @@ export function useMergedLocationDataDebug(
 export function useMergePreview(
   mainConfig: MainSiteConfig | null | undefined,
   locationData: LocationPage | null | undefined,
-  customOptions?: Partial<DeepMergeOptions>
+  _customOptions?: Partial<DeepMergeOptions>
 ): {
   preview: Partial<LocationPage>;
   conflicts: string[];
@@ -205,7 +203,7 @@ export function useMergePreview(
         additions.push(key);
         preview[key as keyof LocationPage] = locationValue;
       } else if (mainValue !== undefined) {
-        preview[key as keyof LocationPage] = mainValue as any;
+        preview[key as keyof LocationPage] = mainValue as LocationPage[keyof LocationPage];
       }
     });
 
@@ -215,5 +213,5 @@ export function useMergePreview(
       additions,
       modifications
     };
-  }, [mainConfig, locationData, customOptions]);
+  }, [mainConfig, locationData]);
 }

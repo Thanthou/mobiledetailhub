@@ -1,7 +1,10 @@
 import React from 'react';
+
+import { useDataOptional } from '@/shared/contexts/DataContext';
+import { cn } from '@/shared/utils/cn';
+
 import BookNow from './BookNow';
 import GetQuote from './GetQuote';
-import { cn } from '@/shared/utils/cn';
 
 interface CTAButtonsProps {
   layout?: 'horizontal' | 'vertical';
@@ -29,6 +32,21 @@ const CTAButtons: React.FC<CTAButtonsProps> = ({
   bookNowProps = {},
   getQuoteProps = {}
 }) => {
+  // Check if in preview mode
+  const data = useDataOptional();
+  const isPreview = data?.isPreview || false;
+  
+  // In preview mode, disable Book Now
+  const handleBookNowClick = (e: React.MouseEvent) => {
+    if (isPreview) {
+      e.preventDefault();
+      // Do nothing - button is disabled in preview
+      return;
+    }
+    if (bookNowProps.onClick) {
+      bookNowProps.onClick();
+    }
+  };
   const containerClasses = layout === 'vertical' 
     ? 'flex flex-col space-y-4' 
     : 'flex flex-col sm:flex-row gap-4 justify-center';
@@ -37,8 +55,13 @@ const CTAButtons: React.FC<CTAButtonsProps> = ({
     <div className={cn(containerClasses, className)}>
       <BookNow 
         variant="primary"
-        className="w-full sm:w-auto"
+        className={cn(
+          'w-full sm:w-auto',
+          isPreview && 'opacity-50 cursor-not-allowed'
+        )}
         {...bookNowProps}
+        onClick={isPreview ? handleBookNowClick : bookNowProps.onClick}
+        to={isPreview ? undefined : bookNowProps.to}
       />
       <GetQuote 
         variant="outline-white"

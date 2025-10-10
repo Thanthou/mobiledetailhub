@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { X, MapPin } from 'lucide-react';
+import { MapPin,X } from 'lucide-react';
 
 interface ServiceArea {
   city: string;

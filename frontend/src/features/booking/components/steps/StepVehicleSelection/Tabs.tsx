@@ -1,5 +1,5 @@
 import React from 'react';
-import { Car, CarFront, Truck, Bike, Ship, Sailboat, Home, MoreHorizontal, Plane } from 'lucide-react';
+import { Bike, Car, CarFront, MoreHorizontal, Plane, Ship, Truck } from 'lucide-react';
 
 interface TabsProps {
   selectedVehicle: string;
@@ -26,7 +26,9 @@ const Tabs: React.FC<TabsProps> = ({ selectedVehicle, onVehicleSelect }) => {
           return (
             <button
               key={vehicle.id}
-              onClick={() => onVehicleSelect(vehicle.id)}
+              onClick={() => {
+                onVehicleSelect(vehicle.id);
+              }}
               className={`p-2 rounded-lg border-2 transition-all w-24 h-24 ${
                 selectedVehicle === vehicle.id
                   ? 'border-orange-500 bg-orange-500/20'

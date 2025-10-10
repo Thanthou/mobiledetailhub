@@ -3,9 +3,9 @@ import { Loader2, Trash2, UserCheck, UserCog, UserPlus, Users, UserX } from 'luc
 
 import { ApplicationModal, Toast } from '@/features/adminDashboard/components/shared';
 import type { UserSubTab } from '@/features/adminDashboard/types';
-import { affiliateEventManager } from '@/features/affiliateDashboard/utils';
 import { apiService } from '@/shared/api/api';
 import { Button } from '@/shared/ui';
+import { tenantEventManager } from '@/shared/utils/tenantEventManager';
 
 interface User {
   id: number;
@@ -191,8 +191,8 @@ export const UsersTab: React.FC = () => {
       // Refresh the pending applications list
       fetchUsers('pending', true);
       
-      // Notify other components that an affiliate was updated
-      affiliateEventManager.notify();
+      // Notify other components that a tenant was updated
+      tenantEventManager.notify();
       
       // Close modal
       setModalState(null);
@@ -246,8 +246,8 @@ export const UsersTab: React.FC = () => {
         });
         fetchUsers('affiliates', true); // Refresh affiliates list
         
-        // Notify other components that an affiliate was deleted
-        affiliateEventManager.notify();
+        // Notify other components that a tenant was deleted
+        tenantEventManager.notify();
       } else {
         throw new Error(response.message || 'Failed to delete affiliate');
       }

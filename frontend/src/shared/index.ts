@@ -18,3 +18,7 @@ export * from './utils';
 
 // Shared data
 export * from './data';
+
+// Google Maps utilities and types
+export * from './types/googlePlaces.types';
+export * from './utils/googleMaps.helpers';

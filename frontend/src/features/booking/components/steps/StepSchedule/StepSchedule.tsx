@@ -1,60 +1,31 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useScheduleOptions, useTimeSlots } from '@/features/booking/hooks';
-import { useBookingSchedule, useBookingData } from '@/features/booking/state';
 
-interface StepScheduleProps {
-  onScheduleSelected?: (schedule: { date: string; time: string }) => void;
-}
+import { useScheduleOptions } from '@/features/booking/hooks';
+import type { ScheduleOption } from '@/features/booking/hooks/useScheduleOptions';
+import { useBookingSchedule } from '@/features/booking/state';
 
-const StepSchedule: React.FC<StepScheduleProps> = ({ onScheduleSelected }) => {
+const StepSchedule: React.FC = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   
-  // Get booking data from narrow selectors
-  const { bookingData } = useBookingData();
   const { schedule, setSchedule } = useBookingSchedule();
   
   // Extract dates and time from schedule
-  const selectedDates = schedule.dates || [];
-  const selectedTime = schedule.time || '';
+  const selectedDates = schedule.dates;
+  const selectedTime = schedule.time;
   
   // Load schedule options (using mock location/service IDs for now)
-  const { data: scheduleOptions, isLoading, error } = useScheduleOptions('mock-location', 'mock-service');
-  
-  // Get time slots for first selected date (if any)
-  const { timeSlots } = useTimeSlots(selectedDates[0] || '', 'mock-location', 'mock-service');
-  
-  // Convert schedule options to date options
-  const availableDates = useMemo(() => {
-    if (!scheduleOptions) return [];
-    
-    return scheduleOptions
-      .filter(option => option.available)
-      .map(option => ({
-        value: option.date,
-        label: new Date(option.date).toLocaleDateString('en-US', { 
-          weekday: 'short', 
-          month: 'short', 
-          day: 'numeric' 
-        })
-      }));
-  }, [scheduleOptions]);
+  const { data: scheduleOptions, isPending, error } = useScheduleOptions('mock-location', 'mock-service');
 
   const handleDateSelect = (date: string) => {
     // Toggle selection - if already selected, remove it; if not selected, add it
     const newDates = selectedDates.includes(date)
-      ? selectedDates.filter(d => d !== date) // Remove date from selection
+      ? selectedDates.filter((d: string) => d !== date) // Remove date from selection
       : [...selectedDates, date].sort(); // Add date to selection
     
     // Update store immediately
     setSchedule({ dates: newDates, time: selectedTime });
   };
-
-  const handleTimeSelect = (time: string) => {
-    // Update store immediately
-    setSchedule({ dates: selectedDates, time });
-  };
-
 
   const navigateMonth = (direction: 'prev' | 'next') => {
     setCurrentMonth(prev => {
@@ -76,7 +47,7 @@ const StepSchedule: React.FC<StepScheduleProps> = ({ onScheduleSelected }) => {
     return currentMonthYear > todayMonthYear;
   };
 
-  if (isLoading) {
+  if (isPending) {
     return (
       <div className="text-center">
         <p className="text-xl text-gray-300 mb-8">Loading available times...</p>
@@ -85,7 +56,7 @@ const StepSchedule: React.FC<StepScheduleProps> = ({ onScheduleSelected }) => {
     );
   }
 
-  if (error) {
+  if (error !== null) {
     return (
       <div className="text-center">
         <p className="text-xl text-red-400 mb-8">Error loading schedule options</p>
@@ -106,7 +77,9 @@ const StepSchedule: React.FC<StepScheduleProps> = ({ onScheduleSelected }) => {
             {/* Month Navigation */}
             <div className="flex items-center justify-between mb-6">
               <button
-                onClick={() => navigateMonth('prev')}
+                onClick={() => {
+                  navigateMonth('prev');
+                }}
                 disabled={!canNavigatePrev()}
                 className={`p-2 rounded-lg border transition-all ${
                   canNavigatePrev()
@@ -122,7 +95,9 @@ const StepSchedule: React.FC<StepScheduleProps> = ({ onScheduleSelected }) => {
               </h2>
               
               <button
-                onClick={() => navigateMonth('next')}
+                onClick={() => {
+                  navigateMonth('next');
+                }}
                 className="p-2 rounded-lg border border-gray-600 hover:border-gray-500 text-white transition-all"
               >
                 <ChevronRight className="h-5 w-5" />
@@ -143,11 +118,10 @@ const StepSchedule: React.FC<StepScheduleProps> = ({ onScheduleSelected }) => {
                 const month = currentMonth.getMonth();
                 const year = currentMonth.getFullYear();
                 const firstDay = new Date(year, month, 1);
-                const lastDay = new Date(year, month + 1, 0);
                 const startDate = new Date(firstDay);
                 startDate.setDate(startDate.getDate() - firstDay.getDay());
                 
-                const calendarDays = [];
+                const calendarDays: React.JSX.Element[] = [];
                 const currentDate = new Date(startDate);
                 
                 // Generate 6 weeks of calendar
@@ -162,9 +136,10 @@ const StepSchedule: React.FC<StepScheduleProps> = ({ onScheduleSelected }) => {
                     // A date is available if it's in the future (not past) and either:
                     // 1. Has schedule options with availability, OR
                     // 2. Is a future date without specific schedule data (default to available)
-                    const hasScheduleData = scheduleOptions?.some(option => option.date === dateStr);
+                    const options = scheduleOptions as ScheduleOption[] | undefined;
+                    const hasScheduleData = options?.some((option: ScheduleOption) => option.date === dateStr);
                     const isAvailableFromSchedule = hasScheduleData 
-                        ? scheduleOptions?.some(option => option.date === dateStr && option.available) || false
+                        ? options?.some((option: ScheduleOption) => option.date === dateStr && option.available) ?? false
                         : true; // Default to available for future dates without schedule data
                     const isAvailable = isAvailableFromSchedule;
                     const isSelected = selectedDates.includes(dateStr);
@@ -172,7 +147,11 @@ const StepSchedule: React.FC<StepScheduleProps> = ({ onScheduleSelected }) => {
                     calendarDays.push(
                       <button
                         key={dateStr}
-                        onClick={() => isAvailable && !isPast && handleDateSelect(dateStr)}
+                        onClick={() => {
+                          if (isAvailable && !isPast) {
+                            handleDateSelect(dateStr);
+                          }
+                        }}
                         disabled={!isAvailable || isPast}
                         className={`p-3 rounded-lg border-2 transition-all text-sm ${
                           isSelected

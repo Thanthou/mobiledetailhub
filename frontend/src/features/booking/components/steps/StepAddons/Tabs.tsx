@@ -1,5 +1,5 @@
 import React from 'react';
-import { Wrench, Droplets, Sparkles, Shield, Zap, Plus } from 'lucide-react';
+import { Droplets, Shield, Sparkles, Wrench } from 'lucide-react';
 
 interface TabsProps {
   selectedCategory: string;
@@ -24,7 +24,9 @@ const Tabs: React.FC<TabsProps> = ({ selectedCategory, onCategorySelect }) => {
             return (
               <button
                 key={category.id}
-                onClick={() => onCategorySelect(category.id)}
+                onClick={() => {
+                  onCategorySelect(category.id);
+                }}
                 className={`p-2 rounded-lg border-2 transition-all w-24 h-24 ${
                   selectedCategory === category.id
                     ? 'border-orange-500 bg-orange-500/20'

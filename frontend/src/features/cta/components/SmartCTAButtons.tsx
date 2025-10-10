@@ -1,14 +1,13 @@
 import React from 'react';
 
-import { useSiteState } from '@/shared/contexts';
 import { CTAButtons } from '@/shared/ui';
-import MobileCTAButtons from './MobileCTAButtons';
+
 import { useBookingCapabilities } from '../hooks/useBookingCapabilities';
+import MobileCTAButtons from './MobileCTAButtons';
 
 interface SmartCTAButtonsProps {
   onRequestQuote?: () => void;
   onBookNow?: () => void;
-  onQuoteHover?: () => void;
   className?: string;
   forceMobile?: boolean; // Force mobile layout even on desktop
 }
@@ -20,11 +19,11 @@ interface SmartCTAButtonsProps {
 const SmartCTAButtons: React.FC<SmartCTAButtonsProps> = ({ 
   onRequestQuote, 
   onBookNow, 
-  onQuoteHover,
   className,
   forceMobile = false
 }) => {
-  const bookingCapabilities = useBookingCapabilities();
+  // Hook call kept for future use when booking capabilities are needed
+  useBookingCapabilities();
   
   // Detect if we're on mobile or should use mobile layout
   const isMobile = forceMobile || (typeof window !== 'undefined' && window.innerWidth < 768);

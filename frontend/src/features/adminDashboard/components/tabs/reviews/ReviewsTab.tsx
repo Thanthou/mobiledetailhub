@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { AlertCircle,CheckCircle, Star } from 'lucide-react';
+import { AlertCircle, CheckCircle, Star } from 'lucide-react';
+
+import { useSeedReview } from '@/features/adminDashboard/hooks/useSeedReview';
 
 interface ReviewFormData {
   name: string;
@@ -34,9 +36,7 @@ const ReviewsTab: React.FC = () => {
     reviewerUrl: ''
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
-  const [submitMessage, setSubmitMessage] = useState('');
+  const { isSubmitting, submitStatus, submitMessage, submitReview } = useSeedReview();
 
   // Sample business slugs for affiliate reviews
   const businessSlugs = [
@@ -54,90 +54,9 @@ const ReviewsTab: React.FC = () => {
   };
 
   const handleSubmitReview = async () => {
-    if (!formData.name || !formData.title || !formData.content) {
-      setSubmitMessage('Please fill in all required fields');
-      setSubmitStatus('error');
-      return;
-    }
+    const success = await submitReview(formData);
 
-    if (formData.type === 'affiliate' && !formData.businessSlug) {
-      setSubmitMessage('Please select a business for affiliate reviews');
-      setSubmitStatus('error');
-      return;
-    }
-
-    setIsSubmitting(true);
-    setSubmitStatus('idle');
-    setSubmitMessage('Sending request...');
-
-    try {
-      
-      // Add timeout to prevent infinite hanging
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => { controller.abort(); }, 10000); // 10 second timeout
-      
-      const response = await fetch('/api/admin/seed-reviews', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token') ?? ''}` // Add auth header
-        },
-        body: JSON.stringify({ reviews: [formData] }),
-        signal: controller.signal
-      });
-      
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Error response:', errorText);
-        throw new Error(`Server error: ${String(response.status)} - ${errorText}`);
-      }
-
-      const result = await response.json() as {
-        errorDetails?: unknown[];
-        count?: number;
-        reviewIds?: string[];
-      };
-      
-      // Log error details if there are any
-      if (result.errorDetails && result.errorDetails.length > 0) {
-        console.error('Review creation errors:', result.errorDetails);
-      }
-      
-      // If there's an avatar file and the review was created successfully, upload the avatar
-      if (formData.avatarFile && result.count && result.count > 0) {
-        setSubmitMessage('Review created! Uploading avatar...');
-        
-        try {
-          const formData_upload = new FormData();
-          formData_upload.append('avatar', formData.avatarFile);
-          formData_upload.append('reviewerName', formData.name);
-          formData_upload.append('reviewId', result.reviewIds?.[0] ?? '1'); // Use the first created review ID
-          
-          const avatarResponse = await fetch('/api/avatar/upload', {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token') ?? ''}`
-            },
-            body: formData_upload
-          });
-          
-          if (avatarResponse.ok) {
-            await avatarResponse.json();
-            setSubmitMessage(`Successfully added review with avatar: "${formData.title}"`);
-          } else {
-            console.warn('Avatar upload failed, but review was created');
-            setSubmitMessage(`Review created (avatar upload failed): "${formData.title}"`);
-          }
-        } catch (avatarError) {
-          console.warn('Avatar upload error:', avatarError);
-          setSubmitMessage(`Review created (avatar upload failed): "${formData.title}"`);
-        }
-      } else {
-        setSubmitMessage(`Successfully added review: "${formData.title}"`);
-      }
-      
+    if (success) {
       // Reset form
       setFormData({
         name: '',
@@ -153,17 +72,6 @@ const ReviewsTab: React.FC = () => {
         serviceCategory: 'none',
         reviewerUrl: ''
       });
-    } catch (error) {
-      console.error('Submit error:', error);
-      setSubmitStatus('error');
-      
-      if (error instanceof Error && error.name === 'AbortError') {
-        setSubmitMessage('Request timed out after 10 seconds. Please check if the backend server is running.');
-      } else {
-        setSubmitMessage(error instanceof Error ? error.message : 'Failed to seed review');
-      }
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -405,8 +313,8 @@ const ReviewsTab: React.FC = () => {
                 if (file) {
                   // Validate file size (5MB limit)
                   if (file.size > 5 * 1024 * 1024) {
-                    setSubmitMessage('Avatar file must be less than 5MB');
-                    setSubmitStatus('error');
+                    alert('Avatar file must be less than 5MB');
+                    e.target.value = ''; // Clear the file input
                     return;
                   }
                   handleInputChange('avatarFile', file);

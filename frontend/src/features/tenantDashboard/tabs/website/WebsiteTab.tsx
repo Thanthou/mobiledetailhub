@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { FileText, BarChart3, Heart, Globe } from 'lucide-react';
+import { BarChart3, FileText, Globe,Heart } from 'lucide-react';
 
 import WebsiteContentTab from './WebsiteContentTab';
-import WebsitePerformanceTab from './WebsitePerformanceTab';
-import WebsiteHealthTab from './WebsiteHealthTab';
 import WebsiteDomainTab from './WebsiteDomainTab';
+import WebsiteHealthTab from './WebsiteHealthTab';
+import WebsitePerformanceTab from './WebsitePerformanceTab';
 
 type WebsiteSubTab = 'content' | 'performance' | 'health' | 'domain';
 
@@ -32,7 +32,7 @@ const WebsiteTab: React.FC<WebsiteTabProps> = ({ tenantSlug }) => {
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveSubTab(tab.id)}
+                onClick={() => { setActiveSubTab(tab.id); }}
                 className={`flex items-center px-1 py-4 text-sm font-medium border-b-2 transition-colors duration-200 ${
                   activeSubTab === tab.id
                     ? 'border-orange-500 text-orange-400'

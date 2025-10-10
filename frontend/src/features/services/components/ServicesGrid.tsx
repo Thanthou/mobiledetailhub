@@ -1,7 +1,9 @@
 import React from 'react';
-import ServiceCard from './ServiceCard';
+
 import { useServices } from '@/features/services/hooks/useServices';
 import { ServicesGridProps } from '@/features/services/types/service.types';
+
+import ServiceCard from './ServiceCard';
 
 const ServicesGrid: React.FC<ServicesGridProps> = ({ locationData }) => {
   const { services } = useServices(locationData);

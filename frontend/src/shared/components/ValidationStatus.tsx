@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+
 import { useLocationValidation } from '@/shared/hooks/useLocationValidation';
 import type { LocationPage } from '@/shared/types/location';
 

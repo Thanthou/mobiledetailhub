@@ -19,6 +19,7 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children, slug }
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components -- Context hook must be in same file as provider
 export const useTenant = (): TenantContextType => {
   const context = useContext(TenantContext);
   if (!context) {

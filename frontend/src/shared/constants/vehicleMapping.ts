@@ -31,7 +31,7 @@ export const isValidVehicleType = (vehicleType: string): vehicleType is VehicleT
  * Get all available vehicle types
  */
 export const getAvailableVehicleTypes = (): VehicleType[] => {
-  return Object.keys(VEHICLE_FOLDER_MAP) as VehicleType[];
+  return Object.keys(VEHICLE_FOLDER_MAP);
 };
 
 /**

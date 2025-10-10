@@ -1,9 +1,0 @@
-DEPLOYMENT SEO NOTES
-====================
-- CSR SPA detected unless SSR/SSG configured in build.
-- Prefer prerender or SSG so meta/JSON-LD render in initial HTML.
-- Ensure sitemap.xml is hosted at /sitemap.xml and referenced in robots.txt.
-- Canonical tags must update per route; verify via meta placeholders.
-
-Host: unknown
-Config files: package.json

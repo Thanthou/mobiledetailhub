@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { useData } from '@/features/header';
-import { getImageOpacityClasses, getTransitionStyles } from '@/shared/utils';
-import { useReviews, useRotatingReviews, useReviewsContent } from '../hooks';
-import { ReviewsProps } from '../types/types';
-import ReviewsHeader from './ReviewsHeader';
+
+import { useData } from '@/shared/contexts';
 import ReviewsSummary from '@/shared/ui/ReviewsSummary';
-import ReviewsCarousel from './ReviewsCarousel';
+import { getImageOpacityClasses, getTransitionStyles } from '@/shared/utils';
+
+import { useReviews, useReviewsContent, useRotatingReviews } from '../hooks';
+import type { Review, ReviewQueryParams, ReviewsProps } from '../types/types';
 import ReviewModal from './ReviewModal';
+import ReviewsCarousel from './ReviewsCarousel';
+import ReviewsHeader from './ReviewsHeader';
 
 const Reviews: React.FC<ReviewsProps> = ({
   maxReviews = 50,
@@ -16,7 +18,7 @@ const Reviews: React.FC<ReviewsProps> = ({
   feedKey,
   locationData
 }) => {
-  const [selectedReview, setSelectedReview] = useState<any>(null);
+  const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
   // Get content from database (with fallbacks)
@@ -26,14 +28,14 @@ const Reviews: React.FC<ReviewsProps> = ({
   let isTenant = false;
   try {
     const tenantData = useData();
-    isTenant = tenantData?.isTenant || false;
+    isTenant = tenantData.isTenant || false;
   } catch {
     // Not in tenant context, so it's main site
     isTenant = false;
   }
 
   // Build query parameters based on props and site context
-  const queryParams: any = {
+  const queryParams: ReviewQueryParams = {
     limit: maxReviews
   };
 
@@ -46,10 +48,10 @@ const Reviews: React.FC<ReviewsProps> = ({
   // The feedKey prop is available for future implementation of external review feeds
   // Example: feedKey: "gbp:bullhead-city-az" for Google Business Profile
   // Example: feedKey: "yelp:las-vegas-nv" for Yelp integration
-  const finalFeedKey = feedKey || locationData?.reviewsSection?.feedKey;
-  if (finalFeedKey) {
-    console.log('FeedKey available for future implementation:', finalFeedKey);
-  }
+  const finalFeedKey = feedKey || (locationData as { reviewsSection?: { feedKey?: string } } | undefined)?.reviewsSection?.feedKey;
+  // FeedKey available for future implementation
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Reserved for future use
+  const _feedKey = finalFeedKey;
 
   if (isTenant) {
     // For tenant sites, use the tenant slug from the URL
@@ -64,9 +66,9 @@ const Reviews: React.FC<ReviewsProps> = ({
   
 
   // Use rotating review images as background
-  const { images: backgroundImages, currentIndex, loading: backgroundLoading } = useRotatingReviews(reviews);
+  const { images: backgroundImages, currentIndex, loading: _backgroundLoading } = useRotatingReviews(reviews);
 
-  const handleReviewClick = (review: any) => {
+  const handleReviewClick = (review: Review) => {
     setSelectedReview(review);
     setIsModalOpen(true);
   };

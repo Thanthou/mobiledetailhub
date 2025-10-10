@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Footer } from './shared';
-import { GalleryImage } from '@/features/gallery/types';
+import React from 'react';
+
 import { useImageRotation } from '@/shared/hooks';
 import { getImageOpacityClasses, getTransitionStyles } from '@/shared/utils';
+
+import { useBookingGallery } from '../hooks/useBookingGallery';
+import { Footer } from './shared';
 
 interface BookingLayoutProps {
   children: React.ReactNode;
@@ -48,31 +50,7 @@ const BookingLayout: React.FC<BookingLayoutProps> = ({
   className = ''
 }) => {
   // Load gallery images for background carousel
-  const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch('/mobile-detailing/data/gallery.json');
-        if (!res.ok) throw new Error(`Failed to fetch gallery data: ${res.status}`);
-        const data: GalleryImage[] = await res.json();
-
-        if (cancelled) return;
-
-        setGalleryImages(data);
-        setLoading(false);
-      } catch (err) {
-        setLoading(false);
-        console.error('Failed to load gallery images:', err);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const { images: galleryImages, isLoading: loading } = useBookingGallery();
 
   // Extract image URLs for the rotation utility
   const imageUrls = galleryImages.map(img => img.src).filter(Boolean);
@@ -87,7 +65,7 @@ const BookingLayout: React.FC<BookingLayoutProps> = ({
     pauseOnHover: false // Background doesn't need hover pause
   });
 
-  const { currentIndex, hasMultipleImages } = rotation;
+  const { currentIndex } = rotation;
 
   const getStepTitle = (step: string) => {
     const titles = {
@@ -101,27 +79,6 @@ const BookingLayout: React.FC<BookingLayoutProps> = ({
     return titles[step as keyof typeof titles] || 'Booking Step';
   };
 
-  const getStepNumber = (step: string) => {
-    const numbers = {
-      'vehicle-selection': 1,
-      'location': 2,
-      'service-tier': 3,
-      'addons': 4,
-      'schedule': 5,
-      'payment': 6
-    };
-    return numbers[step as keyof typeof numbers] || 1;
-  };
-
-  const steps = [
-    { number: 1, title: 'Vehicle Details', step: 'vehicle-selection' },
-    { number: 2, title: 'Location', step: 'location' },
-    { number: 3, title: 'Service Selection', step: 'service-tier' },
-    { number: 4, title: 'Add-ons', step: 'addons' },
-    { number: 5, title: 'Schedule', step: 'schedule' },
-    { number: 6, title: 'Payment', step: 'payment' }
-  ];
-
 
   return (
     <section className={`relative w-full min-h-screen bg-stone-900 overflow-hidden ${className}`}>
@@ -132,7 +89,7 @@ const BookingLayout: React.FC<BookingLayoutProps> = ({
           <img
             key={image.id}
             src={image.src}
-            alt={image.alt || `Booking background image ${index + 1}`}
+            alt={image.alt || `Booking background image ${String(index + 1)}`}
             className={`absolute inset-0 w-full h-full object-cover ${getImageOpacityClasses(index, currentIndex, 2000)}`}
             style={getTransitionStyles(2000)}
             decoding={index === 0 ? 'sync' : 'async'}

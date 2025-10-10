@@ -59,7 +59,7 @@ export interface ContactPreferences {
 export interface ServicePreferences {
   preferred_services: string[];
   preferred_affiliates: string[];
-  vehicle_preferences: Record<string, any>;
+  vehicle_preferences: Record<string, unknown>;
   service_notes: string;
 }
 

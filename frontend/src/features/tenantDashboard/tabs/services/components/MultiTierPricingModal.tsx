@@ -2,22 +2,35 @@ import React, { useEffect,useRef, useState } from 'react';
 import { Edit2, Plus, Save, Trash2, X } from 'lucide-react';
 
 import { Button } from '@/shared/ui';
+
 import { FeatureDropdown } from './FeatureDropdown';
-import { FeatureList } from './FeatureList';
 // Disabled affiliate services import
 // import { CAR_SERVICE_OPTIONS } from '@/data/affiliate-services/cars/service/features';
 
 // Fallback empty data
-const CAR_SERVICE_OPTIONS = [];
+const CAR_SERVICE_OPTIONS: Array<{ id: string; name: string }> = [];
 import { Service, Tier } from '../types/ServiceClasses';
 
 // Using Service and Tier classes from ServiceClasses.ts
+
+// Plain tier object structure (for deserialization)
+interface TierData {
+  id: string;
+  name: string;
+  price: number;
+  duration: number;
+  features?: string[];
+  serviceOptions?: string[];
+  tierCopies?: Record<string, string>;
+  enabled: boolean;
+  popular: boolean;
+}
 
 interface MultiTierPricingModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (serviceName: string, tiers: Tier[]) => void;
-  initialTiers?: Tier[] | undefined;
+  initialTiers?: TierData[];
   initialServiceName?: string;
   loading?: boolean;
   error?: string | null;
@@ -40,14 +53,13 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
   const [service, setService] = useState<Service>(() => {
     if (initialTiers.length > 0) {
       const service = new Service('temp-id', initialServiceName);
-      initialTiers.forEach(tierData => {
-        const tier = new Tier(tierData.id, tierData.name, tierData.price, tierData.duration);
-        // Convert features to serviceOptions for the new structure
-        tier.serviceOptions = tierData.features || tierData.serviceOptions || [];
-        tier.enabled = tierData.enabled;
-        tier.popular = tierData.popular;
-        service.addTier(tier);
-      });
+        initialTiers.forEach(tierData => {
+          const tier = new Tier(tierData.id, tierData.name, tierData.price, tierData.duration);
+          tier.serviceOptions = tierData.serviceOptions || [];
+          tier.enabled = tierData.enabled;
+          tier.popular = tierData.popular;
+          service.addTier(tier);
+        });
       return service;
     } else {
       const service = new Service('temp-id', initialServiceName);
@@ -57,15 +69,14 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
   });
   const [editingTierId, setEditingTierId] = useState<string | null>(null);
   const [editingTier, setEditingTier] = useState<Tier | null>(null);
-  const [expandedTiers, setExpandedTiers] = useState<Record<string, boolean>>({});
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const prevInitialTiersRef = useRef<Tier[] | undefined>(initialTiers);
+  const prevInitialTiersRef = useRef<TierData[] | undefined>(initialTiers);
   const prevInitialServiceNameRef = useRef<string | undefined>(initialServiceName);
 
   // Update tiers and service name when initial values change (for editing existing services)
   useEffect(() => {
     // Force update when initialTiers has data, regardless of comparison
-    const hasInitialTiers = initialTiers && initialTiers.length > 0;
+    const hasInitialTiers = initialTiers.length > 0;
     const tiersChanged = JSON.stringify(prevInitialTiersRef.current) !== JSON.stringify(initialTiers);
     const serviceNameChanged = prevInitialServiceNameRef.current !== initialServiceName;
     
@@ -76,7 +87,7 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
         initialTiers.forEach(tierData => {
           const tier = new Tier(tierData.id, tierData.name, tierData.price, tierData.duration);
           // Convert features to serviceOptions for the new structure
-          tier.serviceOptions = tierData.features || tierData.serviceOptions || [];
+          tier.serviceOptions = tierData.serviceOptions || [];
           tier.enabled = tierData.enabled;
           tier.popular = tierData.popular;
           service.addTier(tier);
@@ -109,7 +120,7 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
   }
 
   // Helper function to ensure tier is a Tier class instance
-  const ensureTierInstance = (tier: any): Tier => {
+  const ensureTierInstance = (tier: Tier | TierData): Tier => {
     if (tier instanceof Tier) {
       return tier;
     } else {
@@ -192,14 +203,6 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
     }
   };
 
-  const toggleTierExpansion = (tierName: string) => {
-    setExpandedTiers(prev => ({
-      ...prev,
-      [tierName]: !prev[tierName]
-    }));
-  };
-
-
 
   const handleSubmit = () => {
     // Validate service name
@@ -231,7 +234,7 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
       const service = new Service('temp-id', initialServiceName);
       initialTiers.forEach(tierData => {
         const tier = new Tier(tierData.id, tierData.name, tierData.price, tierData.duration);
-        tier.serviceOptions = tierData.features || tierData.serviceOptions || [];
+        tier.serviceOptions = tierData.serviceOptions || [];
         tier.enabled = tierData.enabled;
         tier.popular = tierData.popular;
         service.addTier(tier);
@@ -441,7 +444,7 @@ export const MultiTierPricingModal: React.FC<MultiTierPricingModalProps> = ({
                       {/* Features */}
                       <FeatureDropdown
                         selectedFeatures={editingTier.serviceOptions}
-                        onFeaturesChange={(features) => updateEditingTier('serviceOptions', features)}
+                        onFeaturesChange={(features) => { updateEditingTier('serviceOptions', features); }}
                         vehicleType={vehicleType}
                         categoryType={categoryType}
                         serviceName={serviceName}

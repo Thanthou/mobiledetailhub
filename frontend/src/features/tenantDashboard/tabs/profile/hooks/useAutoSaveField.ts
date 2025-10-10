@@ -65,7 +65,7 @@ export function useAutoSaveField(options: UseAutoSaveFieldOptions) {
   const { updateBusiness, businessData } = useProfileData();
   
   // Get the initial value for this field
-  const getInitialValue = () => {
+  const getInitialValue = (): string => {
     if (!businessData) return '';
     
     switch (field) {
@@ -77,8 +77,10 @@ export function useAutoSaveField(options: UseAutoSaveFieldOptions) {
       case 'business_start_date':
         return businessData[field] ? 
           new Date(businessData[field]).toISOString().split('T')[0] : '';
-      default:
-        return businessData[field] || '';
+      default: {
+        const value = businessData[field] as string | number | unknown[];
+        return typeof value === 'string' ? value : String(value);
+      }
     }
   };
 

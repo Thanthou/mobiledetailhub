@@ -1,11 +1,11 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect,it } from 'vitest';
+
 import { 
-  VEHICLE_FOLDER_MAP, 
-  toFolderName, 
-  isValidVehicleType, 
+  getAvailableFolderNames, 
   getAvailableVehicleTypes, 
-  getAvailableFolderNames 
-} from '@/shared/constants/vehicleMapping';
+  isValidVehicleType, 
+  toFolderName, 
+  VEHICLE_FOLDER_MAP} from '@/shared/constants/vehicleMapping';
 
 describe('vehicleMapping', () => {
   describe('VEHICLE_FOLDER_MAP', () => {

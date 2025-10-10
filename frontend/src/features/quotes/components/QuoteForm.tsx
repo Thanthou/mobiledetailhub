@@ -35,7 +35,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({
   handleSubmit
 }) => {
   return (
-    <form onSubmit={(e) => void handleSubmit(e)} className="space-y-6">
+    <form onSubmit={(e) => { handleSubmit(e); }} className="space-y-6">
       {error && (
         <div className="bg-red-900 border border-red-600 text-red-300 px-4 py-3 rounded relative" role="alert">
           <strong className="font-bold">Error:</strong>

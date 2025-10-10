@@ -1,7 +1,8 @@
 // Export booking hooks
-export { useFeaturesData } from './useFeaturesData';
-export { useVehicleData } from './useVehicleData';
-export { useServiceTiers } from './useServiceTiers';
+export type { AddonItem } from './useAddons';
 export { useAddons } from './useAddons';
-export { useScheduleOptions, useTimeSlots } from './useScheduleOptions';
+export { useFeaturesData } from './useFeaturesData';
 export { usePaymentMethods, usePaymentTokens } from './usePaymentMethods';
+export { useScheduleOptions, useTimeSlots } from './useScheduleOptions';
+export { useServiceTiers } from './useServiceTiers';
+export { useVehicleData } from './useVehicleData';

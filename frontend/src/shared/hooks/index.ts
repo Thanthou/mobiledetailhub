@@ -1,7 +1,13 @@
 // Context hooks
 export { useAuth } from './useAuth';
 export { useTenantConfig } from './useTenantConfig';
+
+// Tenant config loader (React Query based)
 export { useSEO } from './useSEO';
+export {
+  prefetchTenantConfig,
+  useTenantConfigLoader,
+  useTenantsList} from './useTenantConfigLoader';
 // Legacy useSiteContext removed - use DataProvider instead for tenant-based sites
 export { useToast } from './useToast';
 
@@ -22,5 +28,11 @@ export { useImageRotation, useImageRotationHover } from './useImageRotation';
 
 // Industry-specific site data hook
 export { useIndustrySiteData } from './useIndustrySiteData';
+
+// Vehicle data hook
+export { useVehicleData } from './useVehicleData';
+
+// Reviews availability hook
+export { useReviewsAvailability } from './useReviewsAvailability';
 
 // Legacy business data hooks removed - now using DataProvider for tenant-based routing

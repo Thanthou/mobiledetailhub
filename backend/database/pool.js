@@ -1,6 +1,6 @@
 const { Pool } = require('pg');
 const logger = require('../utils/logger');
-const { env } = require('../src/shared/env');
+const { env } = require('../config/env');
 
 // Create a single global pool instance with improved configuration
 const pool = new Pool({
@@ -60,21 +60,14 @@ const checkPoolHealth = async () => {
   }
 };
 
-// Periodic health check every 5 minutes
-setInterval(checkPoolHealth, 5 * 60 * 1000);
+// Periodic health check every 5 minutes (singleton guard prevents duplicates on hot reload)
+if (!global.__POOL_HEALTH_INTERVAL__) {
+  global.__POOL_HEALTH_INTERVAL__ = setInterval(checkPoolHealth, 5 * 60 * 1000);
+  logger.debug('Database pool health check interval started');
+}
 
-// Graceful shutdown
-process.on('SIGINT', async () => {
-  logger.info('Shutting down database pool gracefully...');
-  await pool.end();
-  process.exit(0);
-});
-
-process.on('SIGTERM', async () => {
-  logger.info('Shutting down database pool gracefully...');
-  await pool.end();
-  process.exit(0);
-});
+// Note: Graceful shutdown is handled by server.js to avoid duplicate handlers
+// The server will call pool.end() during its shutdown sequence
 
 // Export the pool and health check function
 module.exports = { pool, checkPoolHealth };

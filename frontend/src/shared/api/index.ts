@@ -15,3 +15,11 @@ export { apiService } from './api';
 export { ApiClient,apiClient } from './apiClient';
 export { ApiClient as ApiClientClass, apiClient as apiClientInstance } from './client';
 export * from './errors';
+
+// Tenant config API
+export {
+  fetchTenantConfigById,
+  fetchTenantConfigBySlug,
+  fetchTenants,
+  tenantConfigKeys
+} from './tenantConfig.api';

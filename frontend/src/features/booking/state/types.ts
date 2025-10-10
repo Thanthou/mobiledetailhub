@@ -20,7 +20,7 @@ export interface BookingData {
   };
   serviceTier: string;
   addons: string[];
-  schedule: { date: string; time: string };
+  schedule: { dates: string[]; time: string };
   paymentMethod: string;
 }
 
@@ -40,7 +40,7 @@ export interface BookingActions {
   setLocation: (location: Partial<BookingData['location']>) => void;
   setServiceTier: (tier: string) => void;
   setAddons: (addons: string[]) => void;
-  setSchedule: (schedule: { date: string; time: string }) => void;
+  setSchedule: (schedule: { dates: string[]; time: string }) => void;
   setPaymentMethod: (method: string) => void;
   nextStep: () => void;
   previousStep: () => void;

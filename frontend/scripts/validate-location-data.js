@@ -18,7 +18,7 @@ const __dirname = path.dirname(__filename);
 
 // Import validation functions (this will be compiled from TypeScript)
 // For now, we'll use a simplified validation approach
-function validateLocationData(data, filename) {
+function validateLocationData(data) {
   const errors = [];
   const warnings = [];
   
@@ -195,7 +195,7 @@ function validateAllLocationFiles() {
       const fileContent = fs.readFileSync(filePath, 'utf8');
       const data = JSON.parse(fileContent);
       
-      const { errors, warnings } = validateLocationData(data, filename);
+      const { errors, warnings } = validateLocationData(data);
       
       if (errors.length === 0) {
         console.log(`✅ ${filename}`);

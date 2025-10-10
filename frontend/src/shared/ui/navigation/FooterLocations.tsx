@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+
 import { useData } from '@/features/header';
+
 import ServiceAreasModal from '../modals/ServiceAreasModal';
 
 interface ServiceArea {
@@ -18,16 +20,11 @@ interface FooterLocationsProps {
 const FooterLocations: React.FC<FooterLocationsProps> = ({ serviceAreas }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   
-  // Try to get tenant data, fall back to static locations if not available
-  let tenantData;
-  try {
-    tenantData = useData();
-  } catch {
-    tenantData = null;
-  }
+  // Get tenant data - component should always be used in a valid context
+  const tenantData = useData();
   
   // Use tenant service areas if available, otherwise show default message
-  const shouldUseTenantData = tenantData?.isTenant && serviceAreas && serviceAreas.length > 0;
+  const shouldUseTenantData = tenantData.isTenant && serviceAreas && serviceAreas.length > 0;
   
   // Always show first 4 cities
   const displayAreas = shouldUseTenantData ? serviceAreas.slice(0, 4) : [];
@@ -69,12 +66,12 @@ const FooterLocations: React.FC<FooterLocationsProps> = ({ serviceAreas }) => {
       </div>
 
       {/* Service Areas Modal */}
-      {shouldUseTenantData && serviceAreas && (
+      {shouldUseTenantData && (
         <ServiceAreasModal
           isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          onClose={() => { setIsModalOpen(false); }}
           serviceAreas={serviceAreas}
-          businessName={tenantData?.businessName}
+          businessName={tenantData.businessName}
         />
       )}
     </>

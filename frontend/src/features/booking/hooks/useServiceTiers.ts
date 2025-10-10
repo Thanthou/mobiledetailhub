@@ -1,25 +1,29 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+
 import { toFolderName } from '@/shared/constants';
+
 import { getCardDescription } from '../utils/displayUtils';
 
+/**
+ * Service tier for booking flow (price in dollars for compatibility)
+ * Note: The centralized type uses priceCents
+ */
 export interface ServiceTier {
   id: string;
   name: string;
-  price: number;
+  price: number;                   // Price in dollars (legacy format)
   description: string;
   features: string[];
   featureIds: string[];
   popular?: boolean;
 }
 
-interface ServiceData {
-  [key: string]: {
-    cost: number;
-    features: string[];
-    popular?: boolean;
-    description?: string;
-  };
+interface ServiceEntry {
+  cost: number;
+  features: string[];
+  popular?: boolean;
+  description?: string;
 }
 
 interface FeatureData {
@@ -36,11 +40,15 @@ interface FeatureData {
 /**
  * Hook to load service tiers for a specific vehicle type
  */
-export const useServiceTiers = (vehicleType: string) => {
+export const useServiceTiers = (vehicleType: string): {
+  serviceTiers: ServiceTier[];
+  isLoading: boolean;
+  error: string | null;
+} => {
   const [serviceTiers, setServiceTiers] = useState<ServiceTier[]>([]);
 
 
-  const { data, isLoading, error, isFetching, isSuccess, isError } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['serviceTiers', vehicleType],
     queryFn: async () => {
       const folderName = toFolderName(vehicleType);
@@ -50,13 +58,16 @@ export const useServiceTiers = (vehicleType: string) => {
       }
 
       // Dynamically import the services data for the specific vehicle type
-      const [servicesData, featuresData] = await Promise.all([
+      const [servicesModule, featuresModule] = await Promise.all([
         import(`@/data/affiliate-services/${folderName}/service/services.json`),
         import(`@/data/affiliate-services/${folderName}/service/features.json`)
-      ]);
+      ]) as [{ default: Record<string, ServiceEntry> }, { default: FeatureData }];
 
       
-      return { services: servicesData.default, features: featuresData.default };
+      return { 
+        services: servicesModule.default, 
+        features: featuresModule.default 
+      };
     },
     enabled: !!vehicleType && !!toFolderName(vehicleType),
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -74,32 +85,31 @@ export const useServiceTiers = (vehicleType: string) => {
   useEffect(() => {
     if (data) {
       try {
-        const processedServices = Object.entries(data.services).map(([name, service]: [string, any]) => {
+        const services = data.services as Record<string, ServiceEntry>;
+        const features = data.features as FeatureData;
+        
+        const processedServices = Object.entries(services).map(([name, service]) => {
           return {
             id: name.toLowerCase().replace(/\s+/g, '-'),
             name: name,
             price: service.cost,
-            description: getCardDescription(service, service.features, data.features),
-            features: service.features.map((featureId: string) => getFeatureName(featureId, data.features)),
+            description: getCardDescription(service, service.features, features),
+            features: service.features.map((featureId: string) => getFeatureName(featureId, features)),
             featureIds: service.features,
             popular: service.popular || false
           };
         });
         
         setServiceTiers(processedServices);
-      } catch (error) {
+      } catch {
         setServiceTiers([]);
       }
     }
   }, [data]);
 
-  // Consider loading if query is loading OR if we have data but haven't processed it yet
-  const isActuallyLoading = isLoading || (data && serviceTiers.length === 0);
-  
-  
   return {
     serviceTiers,
-    isLoading: isActuallyLoading,
+    isLoading,
     error: error?.message || null
   };
 };

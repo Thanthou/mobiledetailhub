@@ -1,5 +1,6 @@
 import React from 'react';
 import { User } from 'lucide-react';
+
 import { Input } from '@/shared/ui';
 
 interface PersonalInformationSectionProps {
@@ -36,7 +37,7 @@ const PersonalInformationSection: React.FC<PersonalInformationSectionProps> = ({
             id="firstName"
             type="text"
             value={formData.firstName}
-            onChange={(e) => handleInputChange('firstName', e.target.value)}
+            onChange={(e) => { handleInputChange('firstName', e.target.value); }}
             placeholder="Enter your first name"
             required
             className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -52,7 +53,7 @@ const PersonalInformationSection: React.FC<PersonalInformationSectionProps> = ({
             id="lastName"
             type="text"
             value={formData.lastName}
-            onChange={(e) => handleInputChange('lastName', e.target.value)}
+            onChange={(e) => { handleInputChange('lastName', e.target.value); }}
             placeholder="Enter your last name"
             required
             className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -68,7 +69,7 @@ const PersonalInformationSection: React.FC<PersonalInformationSectionProps> = ({
             id="personalPhone"
             type="tel"
             value={formData.personalPhone}
-            onChange={(e) => handleInputChange('personalPhone', e.target.value)}
+            onChange={(e) => { handleInputChange('personalPhone', e.target.value); }}
             placeholder="(555) 123-4567"
             required
             className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -84,7 +85,7 @@ const PersonalInformationSection: React.FC<PersonalInformationSectionProps> = ({
             id="personalEmail"
             type="email"
             value={formData.personalEmail}
-            onChange={(e) => handleInputChange('personalEmail', e.target.value)}
+            onChange={(e) => { handleInputChange('personalEmail', e.target.value); }}
             placeholder="your.email@example.com"
             required
             className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"

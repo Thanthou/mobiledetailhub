@@ -1,6 +1,6 @@
 // Footer component for booking flow
 import React from 'react';
-import { Star, Lock } from 'lucide-react';
+import { Lock,Star } from 'lucide-react';
 
 interface FooterProps {
   // Step progress props
@@ -52,7 +52,6 @@ const Footer: React.FC<FooterProps> = ({
   canSkip = false,
   isLoading = false,
   nextLabel = 'Continue',
-  backLabel = 'Back',
   skipLabel = 'Skip',
   showNavigation = true,
   
@@ -68,7 +67,7 @@ const Footer: React.FC<FooterProps> = ({
     'payment': 'Payment',
   };
 
-  const getStepStatus = (step: string, _index: number) => {
+  const getStepStatus = (step: string) => {
     if (completedSteps.includes(step)) return 'completed';
     if (step === currentStep) return 'current';
     if (stepOrder.indexOf(step) < stepOrder.indexOf(currentStep || '')) return 'completed';
@@ -81,9 +80,8 @@ const Footer: React.FC<FooterProps> = ({
       {showStepProgress && (
         <div className="mb-8">
           <div className="flex items-center justify-center space-x-4">
-            {stepOrder.map((step, index) => {
-              const status = getStepStatus(step, index);
-              const isLast = index === stepOrder.length - 1;
+            {stepOrder.map((step) => {
+              const status = getStepStatus(step);
 
               return (
                 <div key={step} className="flex items-center">

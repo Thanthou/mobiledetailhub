@@ -7,7 +7,7 @@ import './index.css';
 // Register Service Worker for PWA functionality (only in production and when explicitly enabled)
 if ('serviceWorker' in navigator && import.meta.env.PROD && import.meta.env['VITE_ENABLE_SW'] === '1') {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch((err) => {
+    navigator.serviceWorker.register('/sw.js').catch((err: unknown) => {
       console.warn('SW registration failed:', err);
     });
   });

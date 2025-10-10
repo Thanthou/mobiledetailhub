@@ -13,22 +13,27 @@ interface FeatureData {
   };
 }
 
+interface ServiceData {
+  description?: string;
+  [key: string]: unknown;
+}
+
 /**
  * Get description from service/addon data, with fallback to feature names
  */
 export const getCardDescription = (
-  serviceData: any,
+  serviceData: ServiceData,
   featureKeys: string[], 
   featuresData: FeatureData,
   maxFeatures: number = 3
 ): string => {
   // First priority: use description field from service/addon data
-  if (serviceData?.description) {
+  if (serviceData.description) {
     return serviceData.description;
   }
 
   // Fallback: generate from feature names
-  if (!featureKeys || featureKeys.length === 0 || !featuresData) {
+  if (featureKeys.length === 0) {
     return 'No features available';
   }
 
@@ -53,7 +58,7 @@ export const generateFeatureDetails = (
   featureKey: string,
   featuresData: FeatureData
 ) => {
-  return featuresData?.[featureKey] || null;
+  return featuresData[featureKey] || null;
 };
 
 /**
@@ -71,10 +76,6 @@ export const getAllFeatureDetails = (
 
 /**
  * Format price for display
+ * @deprecated Use formatPrice from @/shared/utils instead
  */
-export const formatPrice = (price: number): string => {
-  return price.toLocaleString('en-US', { 
-    minimumFractionDigits: 2, 
-    maximumFractionDigits: 2 
-  });
-};
+export { formatPrice } from '@/shared/utils';

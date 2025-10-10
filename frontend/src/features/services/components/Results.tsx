@@ -1,6 +1,8 @@
 import React from 'react';
-import BeforeAfterSlider from './BeforeAfterSlider';
+
 import { ServiceData } from '@/features/services/types/service.types';
+
+import BeforeAfterSlider from './BeforeAfterSlider';
 
 interface ResultsProps {
   serviceData: ServiceData;
@@ -30,6 +32,7 @@ const Results: React.FC<ResultsProps> = ({ serviceData }) => {
                   playsInline
                   style={{ aspectRatio: '2/3' }}
                 >
+                  <track kind="captions" />
                   Your browser does not support the video tag.
                 </video>
               </div>
@@ -48,7 +51,7 @@ const Results: React.FC<ResultsProps> = ({ serviceData }) => {
           
           {/* Results List */}
           <div>
-            <h3 className="text-xl font-semibold text-white mb-6">What You'll Get</h3>
+            <h3 className="text-xl font-semibold text-white mb-6">What You&apos;ll Get</h3>
             <ul className="space-y-4 text-slate-300">
               {serviceData.results?.bullets?.map((bullet: string, index: number) => (
                 <li key={index} className="flex items-start">

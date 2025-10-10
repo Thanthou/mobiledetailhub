@@ -1,11 +1,22 @@
 /**
  * React hook for managing affiliate data with industry context
+ * 
+ * @deprecated This hook is LEGACY and should not be used in new code
+ * Use useTenantConfig() from '@/shared/hooks' instead
+ * 
+ * Migration:
+ * - Old: const { affiliate, industry } = useAffiliate();
+ * - New: const { tenantConfig, vertical } = useTenantConfig();
+ * 
+ * This hook is only used internally by TenantConfigContext
+ * Direct usage in features is deprecated
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback,useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Affiliate, IndustryType } from '../types/affiliate.types';
+
 import { fetchAffiliateBySlug } from '../api/affiliateApi';
+import { Affiliate, IndustryType } from '../types/affiliate.types';
 
 export interface UseAffiliateReturn {
   affiliate: Affiliate | null;
@@ -17,7 +28,9 @@ export interface UseAffiliateReturn {
 
 /**
  * Hook to fetch and manage affiliate data based on URL slug
- * Automatically determines industry context for white-labeling
+ * 
+ * @deprecated Use useTenantConfig() instead
+ * This is now only used internally by TenantConfigContext
  */
 export function useAffiliate(): UseAffiliateReturn {
   const { slug } = useParams<{ slug: string }>();
@@ -58,7 +71,7 @@ export function useAffiliate(): UseAffiliateReturn {
   }, [slug]);
 
   useEffect(() => {
-    fetchAffiliate();
+    void fetchAffiliate();
   }, [fetchAffiliate]);
 
   return {
@@ -80,6 +93,7 @@ export function useIndustryContext(): {
   isLawncare: boolean;
   isMaidService: boolean;
 } {
+  // eslint-disable-next-line @typescript-eslint/no-deprecated -- This hook is also deprecated and internally uses deprecated useAffiliate
   const { industry } = useAffiliate();
 
   return {

@@ -1,6 +1,6 @@
 import type {
-  TimeBlock,
   CreateTimeBlockRequest,
+  TimeBlock,
   UpdateTimeBlockRequest,
 } from '../types';
 
@@ -31,7 +31,7 @@ async function makeRequest<T>(endpoint: string, options: RequestInit = {}): Prom
     clearTimeout(timeoutId);
     
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ error: 'Request failed' }));
+      const errorData = await response.json().catch(() => ({ error: 'Request failed' })) as { error?: string };
       throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
     }
     
@@ -88,7 +88,7 @@ export const updateTimeBlock = async (
 
 // Delete a time block
 export const deleteTimeBlock = async (id: number): Promise<void> => {
-  await makeRequest<void>(`/time-blocks/${id}`, {
+  await makeRequest<{ message?: string }>(`/time-blocks/${id}`, {
     method: 'DELETE',
   });
 };

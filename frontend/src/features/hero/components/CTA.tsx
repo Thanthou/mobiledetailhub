@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { CTAButtons } from '@/shared/ui';
 
 interface CTAProps {
@@ -20,4 +21,5 @@ const CTA: React.FC<CTAProps> = ({
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components -- Default export required for component
 export default CTA;

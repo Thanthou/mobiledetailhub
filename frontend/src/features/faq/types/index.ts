@@ -1,3 +1,5 @@
+import React from 'react';
+
 // FAQ Types based on legacy structure
 export type FAQCategory =
   | "General"
@@ -34,7 +36,7 @@ export interface FAQItem {
 export interface FAQCategoryData {
   id: string;
   title: FAQCategory;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<Record<string, unknown>>;
   questions: FAQItem[];
 }
 

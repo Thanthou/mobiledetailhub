@@ -1,34 +1,22 @@
-import { useMemo } from 'react';
 import { useData } from '@/features/header/contexts/DataProvider';
+import type { MainSiteConfig } from '@/shared/types/location';
 
 /**
- * Hook to dynamically load the correct site.json based on the tenant's industry
- * This ensures we use the right data directory structure: /src/data/{industry}/site.json
+ * Hook to access the correct site.json based on the tenant's industry
+ * Site data is now centrally loaded and cached in DataProvider
+ * 
+ * This hook provides a convenient interface for components that need site config
  */
-export const useIndustrySiteData = () => {
-  const { industry } = useData();
-  
-  const siteData = useMemo(() => {
-    try {
-      // Dynamically import the site.json file based on industry
-      // This will load from /src/data/{industry}/site.json
-      const industryModule = require(`@/data/${industry}/site.json`);
-      return industryModule.default || industryModule;
-    } catch (error) {
-      console.warn(`Failed to load site data for industry "${industry}", falling back to mobile-detailing`, error);
-      // Fallback to mobile-detailing if the industry-specific file doesn't exist
-      try {
-        const fallbackModule = require('@/data/mobile-detailing/site.json');
-        return fallbackModule.default || fallbackModule;
-      } catch (fallbackError) {
-        console.error('Failed to load fallback site data', fallbackError);
-        return null;
-      }
-    }
-  }, [industry]);
+export const useIndustrySiteData = (): {
+  siteData: MainSiteConfig | null;
+  industry: string;
+  isLoading: boolean;
+} => {
+  const { industry, siteConfig, isLoading } = useData();
 
   return {
-    siteData,
-    industry
+    siteData: siteConfig,
+    industry,
+    isLoading
   };
 };

@@ -1,11 +1,11 @@
-import React, { useState, useMemo, useEffect, useCallback, startTransition } from 'react';
+import React, { startTransition, useCallback, useEffect, useState } from 'react';
 
+import { toggleBlockedDay } from './api';
+import { AppointmentModal } from './components/modals/AppointmentModal';
 import { ScheduleGrid } from './components/ScheduleGrid';
 import { ScheduleHeader } from './components/ScheduleHeader';
 import { ScheduleSidebar } from './components/ScheduleSidebar';
-import { AppointmentModal } from './components/modals/AppointmentModal';
 import { useScheduleData } from './hooks/useScheduleData';
-import { toggleBlockedDay } from './api';
 import type { Appointment } from './types';
 
 // Small safe date helpers (no timezone shifts)
@@ -26,7 +26,7 @@ export const ScheduleTab: React.FC = () => {
     blockedDays: apiBlockedDays,
     isInitialLoading,   // <- only true on first load
     isRefetching,       // <- true on background refresh
-    error,
+    error: _error,
     refreshData
   } = useScheduleData(selectedDate, viewMode);
 
@@ -56,7 +56,7 @@ export const ScheduleTab: React.FC = () => {
     try {
       await toggleBlockedDay(date);
       // background refresh, but keep grid visible (no flash)
-      void refreshData();
+      refreshData();
     } catch (e) {
       // revert on failure
       setBlockedDaysLocal(prev => {
@@ -92,11 +92,11 @@ export const ScheduleTab: React.FC = () => {
 
   const handleModalSuccess = useCallback(() => {
     // keep grid up; do a gentle background refresh
-    void refreshData();
+    refreshData();
   }, [refreshData]);
 
   const goToToday = useCallback(() => {
-    startTransition(() => setSelectedDate(toYmd(new Date())));
+    startTransition(() => { setSelectedDate(toYmd(new Date())); });
   }, []);
 
   const navigateWeek = useCallback((direction: 'prev' | 'next') => {
@@ -124,10 +124,10 @@ export const ScheduleTab: React.FC = () => {
     <div className="space-y-6">
       <ScheduleHeader
         selectedDate={selectedDate}
-        setSelectedDate={(v) => startTransition(() => setSelectedDate(v))}
+        setSelectedDate={(v) => { startTransition(() => { setSelectedDate(v); }); }}
         viewMode={viewMode}
-        setViewMode={(v) => startTransition(() => setViewMode(v))}
-        onCreateAppointment={() => handleCreateAppointment()}
+        setViewMode={(v) => { startTransition(() => { setViewMode(v); }); }}
+        onCreateAppointment={() => { handleCreateAppointment(); }}
         onGoToToday={goToToday}
       />
 

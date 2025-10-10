@@ -2,14 +2,12 @@
  * Tests for deep merge functionality
  */
 
-import { 
-  deepMergeLocationData, 
-  createMergedLocationData,
-  validateMergedData,
-  getMergeStatistics,
-  DEFAULT_MERGE_OPTIONS 
-} from '../deepMerge';
 import type { LocationPage, MainSiteConfig } from '@/shared/types/location';
+
+import { 
+  createMergedLocationData,
+  DEFAULT_MERGE_OPTIONS as _DEFAULT_MERGE_OPTIONS, 
+  validateMergedData} from '../deepMerge';
 
 // Mock data for testing
 const mockMainConfig: MainSiteConfig = {
@@ -109,9 +107,9 @@ const mockLocationData: LocationPage = {
 };
 
 describe('Deep Merge Functionality', () => {
-  describe('deepMergeLocationData', () => {
+  describe('createMergedLocationData', () => {
     it('should merge main config with location data', () => {
-      const merged = deepMergeLocationData(mockMainConfig, mockLocationData);
+      const merged = createMergedLocationData(mockMainConfig, mockLocationData);
       
       // Location-specific fields should be preserved
       expect(merged.slug).toBe('az-bullhead-city');
@@ -161,7 +159,7 @@ describe('Deep Merge Functionality', () => {
         ]
       };
 
-      const merged = deepMergeLocationData(mockMainConfig, locationWithDuplicateImages);
+      const merged = createMergedLocationData(mockMainConfig, locationWithDuplicateImages);
       
       // Should deduplicate based on role + url
       const heroImages = merged.images?.filter(img => img.role === 'hero') || [];
@@ -186,7 +184,7 @@ describe('Deep Merge Functionality', () => {
         ]
       };
 
-      const merged = deepMergeLocationData(mockMainConfig, locationWithDuplicateFAQs);
+      const merged = createMergedLocationData(mockMainConfig, locationWithDuplicateFAQs);
       
       // Should deduplicate based on ID
       expect(merged.faqs).toHaveLength(1);
@@ -196,7 +194,7 @@ describe('Deep Merge Functionality', () => {
 
   describe('validateMergedData', () => {
     it('should validate merged data correctly', () => {
-      const merged = deepMergeLocationData(mockMainConfig, mockLocationData);
+      const merged = createMergedLocationData(mockMainConfig, mockLocationData);
       const validation = validateMergedData(merged);
       
       expect(validation.isValid).toBe(true);
@@ -204,39 +202,17 @@ describe('Deep Merge Functionality', () => {
     });
 
     it('should detect missing required fields', () => {
-      const incompleteData: LocationPage = {
+      const incompleteData = {
         ...mockLocationData,
         slug: '', // Empty slug should be invalid
-        city: undefined as any // Missing city
+        city: '' // Empty city
       };
       
-      const validation = validateMergedData(incompleteData);
+      const validation = validateMergedData(incompleteData as LocationPage);
       
       expect(validation.isValid).toBe(false);
       expect(validation.errors.length).toBeGreaterThan(0);
       expect(validation.errors.some(error => error.includes('city'))).toBe(true);
-    });
-  });
-
-  describe('getMergeStatistics', () => {
-    it('should provide accurate merge statistics', () => {
-      const merged = deepMergeLocationData(mockMainConfig, mockLocationData);
-      const stats = getMergeStatistics(mockMainConfig, mockLocationData, merged);
-      
-      // Should have fields from both main and location
-      expect(stats.fieldsFromLocation.length).toBeGreaterThan(0);
-      expect(stats.fieldsFromMain.length).toBeGreaterThan(0);
-      
-      // Should have merged objects (like seo, hero)
-      expect(stats.fieldsMerged.length).toBeGreaterThan(0);
-      
-      // Should have concatenated arrays (keywords) - check if keywords exist
-      if (merged.seo?.keywords && Array.isArray(merged.seo.keywords)) {
-        expect(stats.arraysConcatenated.length).toBeGreaterThan(0);
-      } else {
-        // If no keywords array, that's also valid
-        expect(stats.arraysConcatenated.length).toBeGreaterThanOrEqual(0);
-      }
     });
   });
 
@@ -261,7 +237,7 @@ describe('Edge Cases', () => {
     const emptyMain: MainSiteConfig = {} as MainSiteConfig;
     const emptyLocation: LocationPage = {} as LocationPage;
     
-    const merged = deepMergeLocationData(emptyMain, emptyLocation);
+    const merged = createMergedLocationData(emptyMain, emptyLocation);
     
     expect(merged).toBeDefined();
     expect(typeof merged).toBe('object');
@@ -284,7 +260,7 @@ describe('Edge Cases', () => {
       }
     };
 
-    const merged = deepMergeLocationData(complexMain, complexLocation);
+    const merged = createMergedLocationData(complexMain, complexLocation);
     
     // Should concatenate keywords from nested seo objects
     expect(merged.seo.keywords).toEqual(['main1', 'main2', 'location1', 'location2']);

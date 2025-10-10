@@ -1,6 +1,7 @@
 import React from 'react';
-import { Phone, Calendar, MessageSquare } from 'lucide-react';
-import { useData } from '@/features/header/contexts/DataProvider';
+import { Calendar, MessageSquare, Phone } from 'lucide-react';
+
+import { useData } from '@/shared/contexts';
 import { cn } from '@/shared/utils/cn';
 
 interface MobileCTAButtonsProps {
@@ -20,7 +21,7 @@ const MobileCTAButtons: React.FC<MobileCTAButtonsProps> = ({
   className = '',
   layout = 'stacked'
 }) => {
-  const { phone, businessName } = useData();
+  const { phone, businessName, isPreview } = useData();
   
   // TODO: This should come from tenant settings/API
   // For now, we'll assume booking is enabled if we have a phone number
@@ -45,15 +46,19 @@ const MobileCTAButtons: React.FC<MobileCTAButtonsProps> = ({
     stacked: 'flex flex-col gap-3'
   };
 
-  const buttonSizeClasses = layout === 'stacked' ? 'w-full' : 'flex-1';
-
   return (
     <div className={cn(containerClasses[layout], className)}>
       {/* Primary CTA - Book Now (full width) */}
       {hasOnlineBooking && (
         <button
-          onClick={onBookNow}
-          className={cn(buttonBaseClasses, primaryButtonClasses, "w-full")}
+          onClick={isPreview ? undefined : onBookNow}
+          disabled={isPreview}
+          className={cn(
+            buttonBaseClasses, 
+            primaryButtonClasses, 
+            "w-full",
+            isPreview && "opacity-50 cursor-not-allowed"
+          )}
           aria-label={`Book an appointment with ${businessName}`}
         >
           <Calendar className="h-5 w-5" />

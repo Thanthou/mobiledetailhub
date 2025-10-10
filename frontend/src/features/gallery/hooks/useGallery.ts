@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useEffect,useState } from 'react';
+
 import { GalleryImage } from '../types';
 
 export const useGallery = () => {
@@ -7,7 +8,7 @@ export const useGallery = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchGalleryData = async () => {
+    const fetchGalleryData = async (): Promise<void> => {
       try {
         setLoading(true);
         setError(null);
@@ -18,16 +19,16 @@ export const useGallery = () => {
           throw new Error(`Failed to fetch gallery data: ${response.status}`);
         }
         
-        const data: GalleryImage[] = await response.json();
-        setImages(data);
-      } catch (err) {
+        const data = await response.json() as { images?: GalleryImage[] };
+        setImages(data.images || []);
+      } catch (err: unknown) {
         setError(err instanceof Error ? err.message : 'Failed to load gallery data');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchGalleryData();
+    void fetchGalleryData();
   }, []);
 
   return {

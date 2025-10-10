@@ -65,7 +65,7 @@ export const useProfileData = (): UseProfileDataReturn => {
           throw new Error(`Failed to fetch business data: ${response.statusText}`);
         }
 
-        const result = await response.json();
+        const result = await response.json() as { data?: BusinessData };
         const data = result.data;
         
         if (!data) {
@@ -82,7 +82,7 @@ export const useProfileData = (): UseProfileDataReturn => {
       }
     };
 
-    fetchBusinessData();
+    void fetchBusinessData();
   }, [slug]);
 
   // Update business data
@@ -97,7 +97,7 @@ export const useProfileData = (): UseProfileDataReturn => {
       setError(null);
 
       // Only send the fields that have values (not empty strings or undefined)
-      const updateData: any = {};
+      const updateData: Partial<BusinessData> = {};
       
       if (data.first_name !== undefined) updateData.first_name = data.first_name;
       if (data.last_name !== undefined) updateData.last_name = data.last_name;
@@ -108,7 +108,7 @@ export const useProfileData = (): UseProfileDataReturn => {
       if (data.business_phone !== undefined) updateData.business_phone = data.business_phone;
       if (data.twilio_phone !== undefined) updateData.twilio_phone = data.twilio_phone;
       if (data.business_start_date !== undefined) updateData.business_start_date = data.business_start_date;
-      if (data.website !== undefined) updateData.website = data.website;
+      if (data.website_url !== undefined) updateData.website_url = data.website_url;
       if (data.gbp_url !== undefined) updateData.gbp_url = data.gbp_url;
       if (data.google_maps_url !== undefined) updateData.google_maps_url = data.google_maps_url;
       if (data.facebook_url !== undefined) updateData.facebook_url = data.facebook_url;
@@ -129,8 +129,8 @@ export const useProfileData = (): UseProfileDataReturn => {
         throw new Error(`Failed to update business data: ${response.statusText}`);
       }
 
-      const result = await response.json();
-      const updatedData = result.affiliate;
+      const result = await response.json() as { data?: BusinessData };
+      const updatedData = result.data;
       
       if (updatedData) {
         setBusinessData(updatedData);

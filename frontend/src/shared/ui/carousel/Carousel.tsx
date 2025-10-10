@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect,useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface CarouselItem {
@@ -14,7 +14,6 @@ interface CarouselItem {
 interface CarouselProps<T extends CarouselItem> {
   items: T[];
   selectedItem?: string;
-  onItemSelect: (itemId: string) => void;
   renderItem: (item: T & { position: 'center' | 'left' | 'right' }, isSelected: boolean) => React.ReactNode;
   onItemClick?: (item: T) => void;
   emptyMessage?: string;
@@ -25,7 +24,6 @@ interface CarouselProps<T extends CarouselItem> {
 const Carousel = <T extends CarouselItem>({
   items,
   selectedItem,
-  onItemSelect,
   renderItem,
   onItemClick,
   emptyMessage = "No items available",
@@ -105,9 +103,14 @@ const Carousel = <T extends CarouselItem>({
           {getVisibleItems().map((item) => {
             const isSelected = selectedItem === item.id;
             return (
-              <div key={item.id} onClick={() => onItemClick?.(item)}>
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => onItemClick?.(item)}
+                className="bg-transparent border-none p-0 cursor-pointer"
+              >
                 {renderItem(item, isSelected)}
-              </div>
+              </button>
             );
           })}
         </div>

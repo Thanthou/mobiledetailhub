@@ -1,5 +1,5 @@
 const winston = require('winston');
-const { env } = require('../src/shared/env');
+const { env } = require('../config/env');
 
 // Create Winston logger with different configurations for different environments
 const logger = winston.createLogger({
@@ -21,10 +21,16 @@ if (env.NODE_ENV !== 'production') {
     format: winston.format.combine(
       winston.format.colorize(),
       winston.format.simple(),
-      winston.format.printf(({ timestamp, level, message, service, ...meta }) => {
-        let logMessage = `${timestamp} [${service}] ${level}: ${message}`;
-        if (Object.keys(meta).length > 0) {
-          logMessage += ` ${JSON.stringify(meta)}`;
+      winston.format.printf((info) => {
+        const { timestamp, level, message, service, ...rest } = info;
+        const meta = rest || {};
+        let logMessage = `${timestamp || ''} [${service || 'backend'}] ${level}: ${message}`;
+        // Only add meta if there are keys and they're not Winston internals
+        const metaKeys = Object.keys(meta).filter(key => !['timestamp', 'level', 'message', 'service'].includes(key));
+        if (metaKeys.length > 0) {
+          const metaObj = {};
+          metaKeys.forEach(key => metaObj[key] = meta[key]);
+          logMessage += ` ${JSON.stringify(metaObj)}`;
         }
         return logMessage;
       })

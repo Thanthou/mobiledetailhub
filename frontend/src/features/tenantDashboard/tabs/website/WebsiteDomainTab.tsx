@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Globe, ExternalLink, Copy, Check, AlertCircle, Settings, Shield, Zap } from 'lucide-react';
+import { AlertCircle, Check, Copy, ExternalLink, Globe, Settings, Shield, Zap } from 'lucide-react';
 
 const WebsiteDomainTab: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -25,14 +25,13 @@ const WebsiteDomainTab: React.FC = () => {
 
   const handleSave = () => {
     // TODO: Implement save functionality
-    console.log('Saving domain settings:', domainData);
     setIsEditing(false);
   };
 
   const handleCopy = (text: string, field: string) => {
-    navigator.clipboard.writeText(text);
+    void navigator.clipboard.writeText(text);
     setCopiedField(field);
-    setTimeout(() => setCopiedField(null), 2000);
+    setTimeout(() => { setCopiedField(null); }, 2000);
   };
 
   const getStatusColor = (status: string) => {
@@ -73,7 +72,7 @@ const WebsiteDomainTab: React.FC = () => {
         </div>
         <div className="flex space-x-3">
           <button
-            onClick={() => setIsEditing(!isEditing)}
+            onClick={() => { setIsEditing(!isEditing); }}
             className="flex items-center px-4 py-2 bg-stone-700 text-white rounded-lg hover:bg-stone-600 transition-colors"
           >
             <Settings className="h-4 w-4 mr-2" />
@@ -107,7 +106,7 @@ const WebsiteDomainTab: React.FC = () => {
           <div className="flex items-center justify-between">
             <span className="text-white font-mono">{domainData.primaryDomain}</span>
             <button
-              onClick={() => handleCopy(domainData.primaryDomain, 'primary')}
+              onClick={() => { handleCopy(domainData.primaryDomain, 'primary'); }}
               className="flex items-center text-gray-400 hover:text-white transition-colors"
             >
               {copiedField === 'primary' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
@@ -155,21 +154,22 @@ const WebsiteDomainTab: React.FC = () => {
           
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label htmlFor="domain-name-input" className="block text-sm font-medium text-gray-300 mb-2">
                 Domain Name
               </label>
               {isEditing ? (
                 <input
+                  id="domain-name-input"
                   type="text"
                   value={domainData.primaryDomain}
-                  onChange={(e) => setDomainData({ ...domainData, primaryDomain: e.target.value })}
+                  onChange={(e) => { setDomainData({ ...domainData, primaryDomain: e.target.value }); }}
                   className="w-full px-3 py-2 bg-stone-700 border border-stone-600 rounded-lg text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 />
               ) : (
                 <div className="flex items-center justify-between">
                   <span className="text-white font-mono">{domainData.primaryDomain}</span>
                   <button
-                    onClick={() => handleCopy(domainData.primaryDomain, 'primary')}
+                    onClick={() => { handleCopy(domainData.primaryDomain, 'primary'); }}
                     className="flex items-center text-gray-400 hover:text-white transition-colors"
                   >
                     {copiedField === 'primary' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
@@ -179,21 +179,22 @@ const WebsiteDomainTab: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label htmlFor="subdomain-input" className="block text-sm font-medium text-gray-300 mb-2">
                 Subdomain
               </label>
               {isEditing ? (
                 <input
+                  id="subdomain-input"
                   type="text"
                   value={domainData.subdomain}
-                  onChange={(e) => setDomainData({ ...domainData, subdomain: e.target.value })}
+                  onChange={(e) => { setDomainData({ ...domainData, subdomain: e.target.value }); }}
                   className="w-full px-3 py-2 bg-stone-700 border border-stone-600 rounded-lg text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 />
               ) : (
                 <div className="flex items-center justify-between">
                   <span className="text-white font-mono">{domainData.subdomain}.yourdomain.com</span>
                   <button
-                    onClick={() => handleCopy(`${domainData.subdomain}.yourdomain.com`, 'subdomain')}
+                    onClick={() => { handleCopy(`${domainData.subdomain}.yourdomain.com`, 'subdomain'); }}
                     className="flex items-center text-gray-400 hover:text-white transition-colors"
                   >
                     {copiedField === 'subdomain' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
@@ -213,14 +214,15 @@ const WebsiteDomainTab: React.FC = () => {
           
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label htmlFor="custom-domain-input" className="block text-sm font-medium text-gray-300 mb-2">
                 Custom Domain (Optional)
               </label>
               {isEditing ? (
                 <input
+                  id="custom-domain-input"
                   type="text"
                   value={domainData.customDomain}
-                  onChange={(e) => setDomainData({ ...domainData, customDomain: e.target.value })}
+                  onChange={(e) => { setDomainData({ ...domainData, customDomain: e.target.value }); }}
                   placeholder="your-custom-domain.com"
                   className="w-full px-3 py-2 bg-stone-700 border border-stone-600 rounded-lg text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 />
@@ -231,7 +233,7 @@ const WebsiteDomainTab: React.FC = () => {
                   </span>
                   {domainData.customDomain && (
                     <button
-                      onClick={() => handleCopy(domainData.customDomain, 'custom')}
+                      onClick={() => { handleCopy(domainData.customDomain, 'custom'); }}
                       className="flex items-center text-gray-400 hover:text-white transition-colors"
                     >
                       {copiedField === 'custom' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
@@ -245,7 +247,7 @@ const WebsiteDomainTab: React.FC = () => {
               <p>To use a custom domain:</p>
               <ul className="list-disc list-inside mt-2 space-y-1">
                 <li>Purchase a domain from a registrar</li>
-                <li>Point your domain's DNS to our nameservers</li>
+                <li>Point your domain&apos;s DNS to our nameservers</li>
                 <li>Add your domain here once DNS is configured</li>
               </ul>
             </div>
@@ -285,7 +287,7 @@ const WebsiteDomainTab: React.FC = () => {
                   <td className="py-3 px-4 text-sm text-gray-400">{record.ttl}</td>
                   <td className="py-3 px-4">
                     <button
-                      onClick={() => handleCopy(record.value, `record-${index}`)}
+                      onClick={() => { handleCopy(record.value, `record-${index}`); }}
                       className="flex items-center text-gray-400 hover:text-white transition-colors"
                     >
                       {copiedField === `record-${index}` ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}

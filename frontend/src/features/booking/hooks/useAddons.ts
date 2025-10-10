@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+
 import { toFolderName } from '@/shared/constants';
+
 import { getCardDescription } from '../utils/displayUtils';
 
 export interface AddonItem {
@@ -13,13 +15,16 @@ export interface AddonItem {
   popular?: boolean;
 }
 
-interface AddonData {
-  [key: string]: {
-    cost?: number;
-    features: string[];
-    popular?: boolean;
-    description?: string;
-  };
+interface AddonItemData {
+  cost?: number;
+  features?: string[];
+  popular?: boolean;
+  description?: string;
+  name?: string;
+}
+
+interface AddonDataRecord {
+  [key: string]: AddonItemData;
 }
 
 interface FeatureData {
@@ -33,16 +38,33 @@ interface FeatureData {
   };
 }
 
+interface ImportedModule {
+  default: AddonDataRecord;
+}
+
+interface QueryResultService {
+  addons: AddonDataRecord;
+  features: FeatureData;
+  type: 'service';
+}
+
+interface QueryResultCategory {
+  addons: AddonDataRecord;
+  features: Record<string, never>;
+  type: 'category';
+}
+
+type QueryResult = QueryResultService | QueryResultCategory;
+
 /**
  * Hook to load addons for a specific vehicle type and category
  */
 export const useAddons = (vehicleType: string, category: string) => {
   const [availableAddons, setAvailableAddons] = useState<AddonItem[]>([]);
 
-
-  const { data, isLoading, error, isFetching, isSuccess, isError } = useQuery({
+  const { data, isLoading, error } = useQuery<QueryResult>({
     queryKey: ['addons', vehicleType, category],
-    queryFn: async () => {
+    queryFn: async (): Promise<QueryResult> => {
       const folderName = toFolderName(vehicleType);
       
       if (!folderName) {
@@ -53,27 +75,26 @@ export const useAddons = (vehicleType: string, category: string) => {
         // Try to load service.json first (for windows), then fall back to category-specific files
         try {
           const [addonsData, featuresData] = await Promise.all([
-            import(`@/data/affiliate-services/${folderName}/addons/${category}/service.json`),
-            import(`@/data/affiliate-services/${folderName}/addons/${category}/features.json`)
+            import(`@/data/affiliate-services/${folderName}/addons/${category}/service.json`) as Promise<ImportedModule>,
+            import(`@/data/affiliate-services/${folderName}/addons/${category}/features.json`) as Promise<{ default: FeatureData }>
           ]);
-          
           
           return {
             addons: addonsData.default,
             features: featuresData.default,
             type: 'service' as const
           };
-        } catch (serviceError) {
+        } catch {
           // Try to load category-specific file (wheels.json, trim.json, etc.)
-          const categoryData = await import(`@/data/affiliate-services/${folderName}/addons/${category}/${category}.json`);
+          const categoryData = await import(`@/data/affiliate-services/${folderName}/addons/${category}/${category}.json`) as Promise<ImportedModule>;
           
           return {
-            addons: categoryData.default,
+            addons: categoryData.default as AddonDataRecord,
             features: {},
             type: 'category' as const
           };
         }
-      } catch (error) {
+      } catch {
         throw new Error(`No addons available for ${category} in ${vehicleType}`);
       }
     },
@@ -93,32 +114,45 @@ export const useAddons = (vehicleType: string, category: string) => {
 
       if (data.type === 'service') {
         // Process addons object (windows data structure)
-        processedAddons = Object.entries(data.addons).map(([name, addon]: [string, any]) => {
-          const featureNames = addon.features.map((featureId: string) => getFeatureName(featureId, data.features));
-          const description = getCardDescription(addon, addon.features, data.features);
-          
+        const serviceData = data as QueryResultService;
+        processedAddons = Object.entries(serviceData.addons).map(([name, addon]) => {
+          const features = addon.features ?? [];
+          const featureNames = features.map((featureId) => getFeatureName(featureId, serviceData.features));
+          const description = getCardDescription(addon, features, serviceData.features);
           
           return {
             id: name.toLowerCase().replace(/\s+/g, '-'),
             name: name,
-            price: addon.cost || 0,
+            price: typeof addon.cost === 'number' ? addon.cost : 0,
             description: description,
             features: featureNames,
-            featureIds: addon.features || [],
-            popular: addon.popular || false
+            featureIds: features,
+            popular: addon.popular ?? false
           };
         });
       } else {
         // Convert features object to addon array format
-        const features = Object.keys(data.addons);
-        processedAddons = features.map((featureKey: string, index: number) => {
-          const feature = data.addons[featureKey];
+        const categoryData = data as QueryResultCategory;
+        const features = Object.keys(categoryData.addons);
+        processedAddons = features.map((featureKey, index) => {
+          const feature = categoryData.addons[featureKey];
+          if (!feature) {
+            return {
+              id: featureKey,
+              name: featureKey,
+              price: 0,
+              description: '',
+              features: [],
+              featureIds: [featureKey],
+              popular: false
+            };
+          }
           return {
             id: featureKey,
-            name: feature.name,
+            name: feature.name ?? featureKey,
             price: 0, // No pricing in features-only files
-            description: feature.description || getCardDescription(feature, [featureKey], {}),
-            features: [feature.name], // Use the feature name as the single feature
+            description: feature.description ?? getCardDescription(feature, [featureKey], {}),
+            features: feature.name ? [feature.name] : [], // Use the feature name as the single feature
             featureIds: [featureKey],
             popular: index === 0 // Make first item popular
           };

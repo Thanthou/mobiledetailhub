@@ -5,6 +5,8 @@
  * fade transitions, auto-rotation, and performance optimizations.
  */
 
+import type React from 'react';
+
 export interface ImageRotationConfig {
   /** Array of image URLs to rotate through */
   images: string[];
@@ -62,8 +64,8 @@ export const getPreviousImageIndex = (currentIndex: number, totalImages: number)
 export const preloadImage = (imageUrl: string): Promise<void> => {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.onload = () => resolve();
-    img.onerror = () => reject(new Error(`Failed to preload image: ${imageUrl}`));
+    img.onload = () => { resolve(); };
+    img.onerror = () => { reject(new Error(`Failed to preload image: ${imageUrl}`)); };
     img.src = imageUrl;
   });
 };
@@ -71,8 +73,8 @@ export const preloadImage = (imageUrl: string): Promise<void> => {
 /**
  * Preload multiple images
  */
-export const preloadImages = async (imageUrls: string[]): Promise<void[]> => {
-  return Promise.all(imageUrls.map(preloadImage));
+export const preloadImages = async (imageUrls: string[]): Promise<void> => {
+  await Promise.all(imageUrls.map(preloadImage));
 };
 
 /**
@@ -135,7 +137,7 @@ export const validateImageRotationConfig = (config: ImageRotationConfig): {
 } => {
   const errors: string[] = [];
   
-  if (!config.images || config.images.length === 0) {
+  if (config.images.length === 0) {
     errors.push('Images array cannot be empty');
   }
   

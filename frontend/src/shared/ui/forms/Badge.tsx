@@ -1,7 +1,8 @@
-/* eslint-disable react/prop-types */
+/* eslint-disable react/prop-types -- Using TypeScript interfaces instead of PropTypes */
 import React from 'react';
 
 import { cn } from '@/shared/utils/cn';
+/* eslint-enable react/prop-types -- Re-enable after imports */
 
 export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning';

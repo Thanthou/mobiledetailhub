@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+/* eslint-disable react/prop-types -- Using TypeScript interfaces instead of PropTypes */
 import React, { forwardRef } from 'react';
 import { X } from 'lucide-react';
 
@@ -63,3 +63,4 @@ const ModalHeader = forwardRef<HTMLButtonElement, ModalHeaderProps>(
 ModalHeader.displayName = 'ModalHeader';
 
 export default ModalHeader;
+/* eslint-enable react/prop-types -- Re-enable PropTypes rule after component definition */

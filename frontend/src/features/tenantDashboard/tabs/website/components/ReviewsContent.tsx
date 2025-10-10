@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { RefreshCw } from 'lucide-react';
+
 import { getBusinessData, scrapeGoogleBusinessProfile } from '../../../api/reviewsApi';
-import { WebsiteAutoSaveField } from './WebsiteAutoSaveField';
 import { useWebsiteContent } from '../contexts/WebsiteContentContext';
+import { WebsiteAutoSaveField } from './WebsiteAutoSaveField';
 
 interface ReviewsContentProps {
   tenantSlug: string;
@@ -40,15 +41,15 @@ export const ReviewsContent: React.FC<ReviewsContentProps> = ({
         const { averageRating, totalReviews, businessName } = scrapeResponse.data;
         
         // Update the fields immediately with the scraped data
-        if (averageRating !== undefined || totalReviews !== undefined) {
-          const updates: any = {};
-          if (averageRating !== undefined) {
-            updates.reviews_avg_rating = parseFloat(averageRating);
-          }
-          if (totalReviews !== undefined) {
-            updates.reviews_total_count = parseInt(totalReviews, 10);
-          }
-          
+        const updates: Record<string, number> = {};
+        if (averageRating !== null) {
+          updates.reviews_avg_rating = parseFloat(averageRating);
+        }
+        if (totalReviews !== null) {
+          updates.reviews_total_count = parseInt(totalReviews, 10);
+        }
+        
+        if (Object.keys(updates).length > 0) {
           await updateContent(updates);
           // Refetch to update all field instances immediately
           await refetch();
@@ -66,7 +67,7 @@ export const ReviewsContent: React.FC<ReviewsContentProps> = ({
         });
         
         // Clear message after 8 seconds (longer for more complex message)
-        setTimeout(() => setUpdateMessage(null), 8000);
+        setTimeout(() => { setUpdateMessage(null); }, 8000);
       } else {
         setUpdateMessage({ 
           type: 'error', 
@@ -129,7 +130,7 @@ export const ReviewsContent: React.FC<ReviewsContentProps> = ({
           {/* Update Button */}
           <button
             type="button"
-            onClick={handleUpdateBusinessData}
+            onClick={() => void handleUpdateBusinessData()}
             disabled={isUpdating}
             className="px-3 py-2 bg-orange-600 hover:bg-orange-700 disabled:bg-orange-800 disabled:cursor-not-allowed text-white rounded text-sm font-medium transition-colors flex items-center gap-2 whitespace-nowrap"
             title="Scrape Google Maps URL for rating and review count"
@@ -140,7 +141,7 @@ export const ReviewsContent: React.FC<ReviewsContentProps> = ({
         </div>
         
         <div className="text-xs text-gray-400">
-          <strong className="text-gray-300">Note:</strong> You can manually edit these values or click "Update from Google" to fetch the latest ratings from your Google Business Profile.
+          <strong className="text-gray-300">Note:</strong> You can manually edit these values or click &quot;Update from Google&quot; to fetch the latest ratings from your Google Business Profile.
         </div>
       </div>
 

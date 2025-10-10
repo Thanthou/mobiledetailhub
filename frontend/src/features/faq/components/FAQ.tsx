@@ -1,14 +1,19 @@
 import React, { useState } from 'react';
+
+import { useFAQContent,useRotatingBackground } from '@/features/faq/hooks';
 import { getImageOpacityClasses, getTransitionStyles } from '@/shared/utils';
 
-import { useRotatingBackground, useFAQContent } from '@/features/faq/hooks';
-import FAQSearchBar from './FAQSearchBar';
 import FAQCategoryFilter from './FAQCategoryFilter';
-import FAQList from './FAQList';
 import FAQEmptyState from './FAQEmptyState';
+import FAQList from './FAQList';
+import FAQSearchBar from './FAQSearchBar';
 
 interface FAQProps {
-  locationData?: any;
+  locationData?: {
+    faqIntro?: string;
+    city?: string;
+    faqs?: Array<{ q: string; a: string }>;
+  };
 }
 
 const FAQ: React.FC<FAQProps> = ({ locationData }) => {
@@ -20,7 +25,7 @@ const FAQ: React.FC<FAQProps> = ({ locationData }) => {
   const { faqTitle, faqSubtitle, faqItems, categories } = useFAQContent({ locationData });
   
   // Rotating background
-  const { images, currentIndex, loading: backgroundLoading, error: backgroundError } = useRotatingBackground();
+  const { images, currentIndex, loading: backgroundLoading } = useRotatingBackground();
 
   // Filter FAQs based on category and search
   const filteredFaqs = faqItems.filter(faq => {
@@ -44,7 +49,7 @@ const FAQ: React.FC<FAQProps> = ({ locationData }) => {
             <img
               key={image.id}
               src={image.src}
-              alt={image.alt || `FAQ background image ${index + 1}`}
+              alt={image.alt || `FAQ background image ${String(index + 1)}`}
               className={`absolute inset-0 w-full h-full object-cover ${getImageOpacityClasses(index, currentIndex, 2000)}`}
               style={getTransitionStyles(2000)}
               decoding={index === 0 ? 'sync' : 'async'}
@@ -115,4 +120,7 @@ const FAQ: React.FC<FAQProps> = ({ locationData }) => {
   );
 };
 
+/* eslint-disable react-refresh/only-export-components -- Both named and default export needed for compatibility */
+export { FAQ };
 export default FAQ;
+/* eslint-enable react-refresh/only-export-components -- End of multi-export section */

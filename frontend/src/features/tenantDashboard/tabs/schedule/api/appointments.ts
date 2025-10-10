@@ -31,7 +31,7 @@ async function makeRequest<T>(endpoint: string, options: RequestInit = {}): Prom
     clearTimeout(timeoutId);
     
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ error: 'Request failed' }));
+      const errorData = await response.json().catch(() => ({ error: 'Request failed' })) as { error?: string };
       throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
     }
     
@@ -88,7 +88,7 @@ export const updateAppointment = async (
 
 // Delete an appointment
 export const deleteAppointment = async (id: number): Promise<void> => {
-  await makeRequest<void>(`/appointments/${id}`, {
+  await makeRequest<{ message?: string }>(`/appointments/${id}`, {
     method: 'DELETE',
   });
 };

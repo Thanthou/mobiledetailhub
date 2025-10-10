@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useCallback,useEffect, useRef, useState } from 'react';
+
 import { GalleryImage } from '../types';
 
 // Fisher-Yates shuffle algorithm
@@ -6,9 +7,13 @@ function shuffleArray<T>(array: T[]): T[] {
   const shuffled = [...array];
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    const temp = shuffled[i]!;
-    shuffled[i] = shuffled[j]!;
-    shuffled[j] = temp;
+    // Safe swap - indices are guaranteed to be valid by loop bounds
+    const temp = shuffled[i];
+    const itemJ = shuffled[j];
+    if (temp !== undefined && itemJ !== undefined) {
+      shuffled[i] = itemJ;
+      shuffled[j] = temp;
+    }
   }
   return shuffled;
 }
@@ -38,20 +43,24 @@ export function useRotatingGallery() {
   const nextPtrRef = useRef<number>(0); // next index in allImages to try
   const intervalRef = useRef<number | null>(null);
   const fadeTimeoutRef = useRef<number | null>(null);
-  const unFadeTimeoutRef = useRef<number | null>(null);
+  const unFadeTimeoutRef = useRef<{ timeout: number | null; raf: number | null }>({ 
+    timeout: null, 
+    raf: null 
+  });
 
   // Load data
   useEffect(() => {
     let cancelled = false;
-    (async () => {
+    void (async (): Promise<void> => {
         try {
           const res = await fetch('/mobile-detailing/data/gallery.json');
           if (!res.ok) throw new Error(`Failed to fetch gallery data: ${res.status}`);
-          const data: GalleryImage[] = await res.json();
+          const data = await res.json() as GalleryImage[];
 
+          // Check if component is still mounted before updating state
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- cancelled can be set to true by cleanup function before async completes
           if (cancelled) return;
-
-          // Shuffle the images for random order
+          
           const shuffledData = shuffleArray(data);
           setAllImages(shuffledData);
           allImagesRef.current = shuffledData;
@@ -69,7 +78,11 @@ export function useRotatingGallery() {
             loading: false,
             error: null,
           }));
-      } catch (err) {
+      } catch (err: unknown) {
+        // Check if component is still mounted before updating state
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- cancelled can be set to true by cleanup function before async completes
+        if (cancelled) return;
+        
         setState(s => ({
           ...s,
           loading: false,
@@ -140,10 +153,10 @@ export function useRotatingGallery() {
       });
 
       // Store raf id to clean up if needed
-      (unFadeTimeoutRef as any).currentRaf = raf;
+      unFadeTimeoutRef.current.raf = raf;
 
       // After 1000ms (CSS duration), commit nextImages -> currentImages
-      unFadeTimeoutRef.current = window.setTimeout(() => {
+      const timeout = window.setTimeout(() => {
         // Update current images to the new ones
         currentRef.current = nextImages;
         setState(s => ({ 
@@ -152,6 +165,8 @@ export function useRotatingGallery() {
           fadingIndex: null 
         }));
       }, 1000 + 50); // + small buffer
+      
+      unFadeTimeoutRef.current.timeout = timeout;
     }
   }, [getNextUniqueImage]);
 
@@ -167,10 +182,24 @@ export function useRotatingGallery() {
     intervalRef.current = window.setInterval(rotateOneCard, 7000);
 
     return () => {
+      // Clean up interval
       if (intervalRef.current) clearInterval(intervalRef.current);
-      if (fadeTimeoutRef.current) clearTimeout(fadeTimeoutRef.current);
-      if (unFadeTimeoutRef.current) clearTimeout(unFadeTimeoutRef.current);
-      if ((unFadeTimeoutRef as any).currentRaf) cancelAnimationFrame((unFadeTimeoutRef as any).currentRaf);
+      
+      // Clean up fade timeouts - capture ref values at cleanup time
+      // eslint-disable-next-line react-hooks/exhaustive-deps -- We intentionally capture current ref values at cleanup time, not at effect setup
+      const fadeTimeout = fadeTimeoutRef.current;
+      // eslint-disable-next-line react-hooks/exhaustive-deps -- We intentionally capture current ref values at cleanup time, not at effect setup
+      const unFadeTimeouts = unFadeTimeoutRef.current;
+      
+      if (fadeTimeout !== null) {
+        clearTimeout(fadeTimeout);
+      }
+      if (unFadeTimeouts.timeout !== null) {
+        clearTimeout(unFadeTimeouts.timeout);
+      }
+      if (unFadeTimeouts.raf !== null) {
+        cancelAnimationFrame(unFadeTimeouts.raf);
+      }
     };
   }, [allImages.length, rotateOneCard]);
 

@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { X, Calendar, Clock, User, Phone, Mail, DollarSign, FileText } from 'lucide-react';
+import React, { useEffect,useState } from 'react';
+import { Calendar, Clock, DollarSign, FileText,Mail, Phone, User, X } from 'lucide-react';
 
 import { Button } from '@/shared/ui';
+
 import { createAppointment, updateAppointment } from '../../api';
 import type { Appointment, CreateAppointmentRequest, UpdateAppointmentRequest } from '../../types';
 
@@ -114,7 +115,7 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
     setError(null);
 
     try {
-      if (isEdit && appointment) {
+      if (isEdit) {
         const updateData: UpdateAppointmentRequest = {
           id: appointment.id,
           ...formData
@@ -161,15 +162,16 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={(e) => { e.preventDefault(); void handleSubmit(e); }} className="space-y-6">
             {/* Basic Information */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label htmlFor="appointment-title" className="block text-sm font-medium text-gray-300 mb-2">
                   <Calendar className="inline h-4 w-4 mr-2" />
                   Title *
                 </label>
                 <input
+                  id="appointment-title"
                   type="text"
                   name="title"
                   value={formData.title}
@@ -180,11 +182,12 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label htmlFor="appointment-service-type" className="block text-sm font-medium text-gray-300 mb-2">
                   <Clock className="inline h-4 w-4 mr-2" />
                   Service Type *
                 </label>
                 <input
+                  id="appointment-service-type"
                   type="text"
                   name="service_type"
                   value={formData.service_type}
@@ -196,10 +199,11 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label htmlFor="appointment-description" className="block text-sm font-medium text-gray-300 mb-2">
                 Description
               </label>
               <textarea
+                id="appointment-description"
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
@@ -211,10 +215,11 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
             {/* Timing */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label htmlFor="appointment-start-time" className="block text-sm font-medium text-gray-300 mb-2">
                   Start Time *
                 </label>
                 <input
+                  id="appointment-start-time"
                   type="datetime-local"
                   name="start_time"
                   value={formData.start_time.slice(0, 16)}
@@ -225,13 +230,14 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label htmlFor="appointment-duration" className="block text-sm font-medium text-gray-300 mb-2">
                   Duration (minutes) *
                 </label>
                 <select
+                  id="appointment-duration"
                   name="service_duration"
                   value={formData.service_duration}
-                  onChange={(e) => handleDurationChange(Number(e.target.value))}
+                  onChange={(e) => { handleDurationChange(Number(e.target.value)); }}
                   required
                   className="w-full px-3 py-2 bg-stone-700 border border-stone-600 rounded-lg text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 >
@@ -245,10 +251,11 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label htmlFor="appointment-end-time" className="block text-sm font-medium text-gray-300 mb-2">
                   End Time
                 </label>
                 <input
+                  id="appointment-end-time"
                   type="datetime-local"
                   name="end_time"
                   value={formData.end_time.slice(0, 16)}
@@ -262,11 +269,12 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
             {/* Customer Information */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label htmlFor="appointment-customer-name" className="block text-sm font-medium text-gray-300 mb-2">
                   <User className="inline h-4 w-4 mr-2" />
                   Customer Name *
                 </label>
                 <input
+                  id="appointment-customer-name"
                   type="text"
                   name="customer_name"
                   value={formData.customer_name}
@@ -277,11 +285,12 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label htmlFor="appointment-customer-phone" className="block text-sm font-medium text-gray-300 mb-2">
                   <Phone className="inline h-4 w-4 mr-2" />
                   Phone *
                 </label>
                 <input
+                  id="appointment-customer-phone"
                   type="tel"
                   name="customer_phone"
                   value={formData.customer_phone}
@@ -293,11 +302,12 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label htmlFor="appointment-customer-email" className="block text-sm font-medium text-gray-300 mb-2">
                 <Mail className="inline h-4 w-4 mr-2" />
                 Email
               </label>
               <input
+                id="appointment-customer-email"
                 type="email"
                 name="customer_email"
                 value={formData.customer_email}
@@ -309,11 +319,12 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
             {/* Pricing */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label htmlFor="appointment-price" className="block text-sm font-medium text-gray-300 mb-2">
                   <DollarSign className="inline h-4 w-4 mr-2" />
                   Price
                 </label>
                 <input
+                  id="appointment-price"
                   type="number"
                   name="price"
                   value={formData.price}
@@ -325,11 +336,12 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label htmlFor="appointment-deposit" className="block text-sm font-medium text-gray-300 mb-2">
                   <DollarSign className="inline h-4 w-4 mr-2" />
                   Deposit
                 </label>
                 <input
+                  id="appointment-deposit"
                   type="number"
                   name="deposit"
                   value={formData.deposit}
@@ -344,11 +356,12 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
             {/* Notes */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label htmlFor="appointment-notes" className="block text-sm font-medium text-gray-300 mb-2">
                   <FileText className="inline h-4 w-4 mr-2" />
                   Customer Notes
                 </label>
                 <textarea
+                  id="appointment-notes"
                   name="notes"
                   value={formData.notes}
                   onChange={handleInputChange}
@@ -358,11 +371,12 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label htmlFor="appointment-internal-notes" className="block text-sm font-medium text-gray-300 mb-2">
                   <FileText className="inline h-4 w-4 mr-2" />
                   Internal Notes
                 </label>
                 <textarea
+                  id="appointment-internal-notes"
                   name="internal_notes"
                   value={formData.internal_notes}
                   onChange={handleInputChange}

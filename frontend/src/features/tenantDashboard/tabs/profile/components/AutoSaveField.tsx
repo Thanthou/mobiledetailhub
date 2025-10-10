@@ -1,6 +1,6 @@
 import React from 'react';
-import { AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
 
+import { AutoSaveInput } from '@/shared/ui';
 import { formatPhoneNumber } from '@/shared/utils';
 
 import { useAutoSaveField } from '../hooks/useAutoSaveField';
@@ -15,6 +15,10 @@ interface AutoSaveFieldProps {
   debounce?: number;
 }
 
+/**
+ * Auto-save field component for tenant dashboard forms
+ * Uses shared AutoSaveInput component with feature-specific auto-save logic
+ */
 export const AutoSaveField: React.FC<AutoSaveFieldProps> = ({
   field,
   label,
@@ -28,9 +32,7 @@ export const AutoSaveField: React.FC<AutoSaveFieldProps> = ({
     debounce 
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    
+  const handleChange = (newValue: string) => {
     // Apply phone formatting for phone fields
     if (type === 'tel' && (field === 'personal_phone' || field === 'business_phone')) {
       const formatted = formatPhoneNumber(newValue);
@@ -44,44 +46,16 @@ export const AutoSaveField: React.FC<AutoSaveFieldProps> = ({
     }
   };
 
-  const getStatusIcon = () => {
-    if (isSaving) {
-      return <Loader2 className="h-4 w-4 text-blue-500 animate-spin" />;
-    }
-    if (error) {
-      return <AlertCircle className="h-4 w-4 text-red-500" />;
-    }
-    if (value && value.trim() !== '') {
-      return <CheckCircle className="h-4 w-4 text-green-500" />;
-    }
-    return null;
-  };
-
   return (
-    <div className="relative">
-      <label className="block text-sm font-medium text-gray-300 mb-2">
-        {label}
-      </label>
-      <div className="relative">
-        <input
-          type={type}
-          value={value}
-          onChange={handleChange}
-          placeholder={placeholder}
-          className={`w-full px-3 py-2 pr-10 border rounded-md bg-stone-700 text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
-            error ? 'border-red-500' : 'border-stone-600'
-          } ${className}`}
-        />
-        <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-          {getStatusIcon()}
-        </div>
-      </div>
-      {error && (
-        <p className="mt-1 text-sm text-red-400">{error}</p>
-      )}
-      {isSaving && (
-        <p className="mt-1 text-sm text-blue-400">Saving...</p>
-      )}
-    </div>
+    <AutoSaveInput
+      label={label}
+      type={type}
+      value={value}
+      onChange={handleChange}
+      isSaving={isSaving}
+      error={error}
+      placeholder={placeholder}
+      className={className}
+    />
   );
 };

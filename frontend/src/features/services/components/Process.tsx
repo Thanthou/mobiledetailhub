@@ -1,5 +1,6 @@
 import React from 'react';
-import { ServiceData } from '@/features/services/types/service.types';
+
+import type { ProcessStep as ProcessStepType, ServiceData } from '@/features/services/types/service-data';
 
 interface ProcessProps {
   serviceData: ServiceData;
@@ -9,7 +10,7 @@ const ProcessStep = ({
   step, 
   isReversed = false 
 }: { 
-  step: ServiceData['process']['steps'][0]; 
+  step: ProcessStepType; 
   isReversed?: boolean;
 }) => (
   <div className={`grid gap-8 lg:grid-cols-2 items-start ${isReversed ? 'lg:grid-flow-col-dense' : ''}`}>
@@ -68,7 +69,7 @@ const Process: React.FC<ProcessProps> = ({ serviceData }) => {
           {serviceData.process?.title || "Process"}
         </h2>
         <div className="space-y-20">
-          {steps.map((step: ServiceData['process']['steps'][0], index: number) => (
+          {steps.map((step: ProcessStepType, index: number) => (
             <ProcessStep 
               key={step.number} 
               step={step} 

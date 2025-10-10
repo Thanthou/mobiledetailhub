@@ -1,15 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { RefreshCw, AlertTriangle, CheckCircle, XCircle, TrendingUp, TrendingDown, Clock } from 'lucide-react';
+import React, { useCallback, useEffect,useState } from 'react';
+import { AlertTriangle, CheckCircle, Clock,RefreshCw, XCircle } from 'lucide-react';
+
 import { 
-  getHealthStatus, 
-  triggerHealthScan, 
-  getScoreColor, 
-  getScoreBgColor, 
-  getStatusColor, 
   formatDisplayValue,
+  getHealthStatus, 
+  getScoreColor, 
   type HealthData,
-  type HealthScanResponse
-} from '../../../api/healthApi';
+  type HealthScanResponse,
+  triggerHealthScan} from '../../../api/healthApi';
 
 interface HealthTabProps {
   tenantSlug?: string;
@@ -22,7 +20,7 @@ export const HealthTab: React.FC<HealthTabProps> = ({ tenantSlug }) => {
   const [error, setError] = useState<string | null>(null);
   const [scanResult, setScanResult] = useState<HealthScanResponse['data'] | null>(null);
 
-  const loadHealthData = async () => {
+  const loadHealthData = useCallback(async () => {
     if (!tenantSlug) return;
 
     setIsLoading(true);
@@ -36,7 +34,7 @@ export const HealthTab: React.FC<HealthTabProps> = ({ tenantSlug }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [tenantSlug]);
 
   const handleScan = async () => {
     if (!tenantSlug) return;
@@ -51,7 +49,7 @@ export const HealthTab: React.FC<HealthTabProps> = ({ tenantSlug }) => {
       
       // Reload health data after scan
       setTimeout(() => {
-        loadHealthData();
+        void loadHealthData();
       }, 1000);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to run health scan');
@@ -61,8 +59,8 @@ export const HealthTab: React.FC<HealthTabProps> = ({ tenantSlug }) => {
   };
 
   useEffect(() => {
-    loadHealthData();
-  }, [tenantSlug]);
+    void loadHealthData();
+  }, [loadHealthData]);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -124,7 +122,7 @@ export const HealthTab: React.FC<HealthTabProps> = ({ tenantSlug }) => {
     );
   };
 
-  const renderScoreCard = (title: string, score: number, color?: string) => (
+  const renderScoreCard = (title: string, score: number, _color?: string) => (
     <div className="bg-stone-800 rounded-lg p-4">
       <div className="flex items-center gap-4">
         {renderScoreRing(score)}
@@ -138,7 +136,12 @@ export const HealthTab: React.FC<HealthTabProps> = ({ tenantSlug }) => {
     </div>
   );
 
-  const renderCoreWebVitals = (data: any) => (
+  const renderCoreWebVitals = (data: {
+    lcp: { score: number; value: number };
+    fid: { score: number; value: number };
+    cls: { score: number; value: number | string };
+    fcp: { score: number; value: number };
+  }) => (
     <div className="space-y-3">
       <h4 className="text-sm font-medium text-gray-300">Core Web Vitals</h4>
       <div className="grid grid-cols-2 gap-3">
@@ -205,7 +208,7 @@ export const HealthTab: React.FC<HealthTabProps> = ({ tenantSlug }) => {
     </div>
   );
 
-  const renderOpportunities = (opportunities: any[]) => (
+  const renderOpportunities = (opportunities: Array<{ title: string; savings: number; description: string }>) => (
     <div className="space-y-3">
       <h4 className="text-sm font-medium text-gray-300">Top Optimization Opportunities</h4>
       {opportunities.slice(0, 3).map((opp, index) => (
@@ -236,10 +239,10 @@ export const HealthTab: React.FC<HealthTabProps> = ({ tenantSlug }) => {
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold text-white">Website Health</h3>
-          <p className="text-sm text-gray-400">Monitor your website's performance and Core Web Vitals</p>
+          <p className="text-sm text-gray-400">Monitor your website&apos;s performance and Core Web Vitals</p>
         </div>
         <button
-          onClick={handleScan}
+          onClick={() => void handleScan()}
           disabled={isScanning || isLoading}
           className="px-4 py-2 bg-orange-600 hover:bg-orange-700 disabled:bg-orange-800 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors flex items-center gap-2"
         >
@@ -300,7 +303,7 @@ export const HealthTab: React.FC<HealthTabProps> = ({ tenantSlug }) => {
             <h4 className="text-lg font-medium text-white mb-2">No Health Data</h4>
             <p className="text-gray-400 mb-4">{healthData.message}</p>
             <button
-              onClick={handleScan}
+              onClick={() => void handleScan()}
               className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-medium transition-colors"
             >
               Run First Health Scan
@@ -351,9 +354,9 @@ export const HealthTab: React.FC<HealthTabProps> = ({ tenantSlug }) => {
                       {renderScoreCard('SEO', healthData.performance.mobile.seoScore || 0)}
                     </div>
 
-                    {healthData.performance.mobile.coreWebVitals && renderCoreWebVitals(healthData.performance.mobile.coreWebVitals)}
+                    {renderCoreWebVitals(healthData.performance.mobile.coreWebVitals)}
                     
-                    {healthData.performance.mobile.opportunities && healthData.performance.mobile.opportunities.length > 0 && 
+                    {healthData.performance.mobile.opportunities.length > 0 && 
                       renderOpportunities(healthData.performance.mobile.opportunities)
                     }
                   </>
@@ -380,9 +383,9 @@ export const HealthTab: React.FC<HealthTabProps> = ({ tenantSlug }) => {
                       {renderScoreCard('SEO', healthData.performance.desktop.seoScore || 0)}
                     </div>
 
-                    {healthData.performance.desktop.coreWebVitals && renderCoreWebVitals(healthData.performance.desktop.coreWebVitals)}
+                    {renderCoreWebVitals(healthData.performance.desktop.coreWebVitals)}
                     
-                    {healthData.performance.desktop.opportunities && healthData.performance.desktop.opportunities.length > 0 && 
+                    {healthData.performance.desktop.opportunities.length > 0 && 
                       renderOpportunities(healthData.performance.desktop.opportunities)
                     }
                   </>
@@ -404,7 +407,7 @@ export const HealthTab: React.FC<HealthTabProps> = ({ tenantSlug }) => {
               <h3 className="text-lg font-semibold text-white mb-2">No Performance Data</h3>
               <p className="text-gray-400 mb-4">Run a health scan to get detailed performance metrics for both mobile and desktop.</p>
               <button
-                onClick={handleScan}
+                onClick={() => void handleScan()}
                 disabled={isScanning}
                 className="px-4 py-2 bg-orange-600 hover:bg-orange-700 disabled:bg-orange-800 disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 mx-auto"
               >

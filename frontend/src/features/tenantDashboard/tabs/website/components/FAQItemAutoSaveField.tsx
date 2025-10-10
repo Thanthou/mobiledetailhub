@@ -1,6 +1,9 @@
 import React from 'react';
 import { AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
+
+import type { FAQItem } from '@/shared/api/websiteContent.api';
 import { useAutoSave } from '@/shared/utils';
+
 import { useWebsiteContent } from '../contexts/WebsiteContentContext';
 
 interface FAQItemAutoSaveFieldProps {
@@ -22,19 +25,23 @@ export const FAQItemAutoSaveField: React.FC<FAQItemAutoSaveFieldProps> = ({
 }) => {
   const { contentData, updateContent } = useWebsiteContent();
   
-  const getInitialValue = () => {
+  const getInitialValue = (): string => {
     if (!contentData?.faq_content) return '';
     const faqItem = contentData.faq_content[faqIndex];
-    return faqItem?.[field] || '';
+    if (!faqItem) return '';
+    return faqItem[field] || '';
   };
 
   const saveField = async (value: string) => {
     if (!contentData?.faq_content) return;
     
+    const currentItem = contentData.faq_content[faqIndex];
+    if (!currentItem) return;
+    
     // Create updated FAQ content array
-    const updatedFaqContent = [...contentData.faq_content];
+    const updatedFaqContent: FAQItem[] = [...contentData.faq_content];
     updatedFaqContent[faqIndex] = {
-      ...updatedFaqContent[faqIndex],
+      ...currentItem,
       [field]: value
     };
     

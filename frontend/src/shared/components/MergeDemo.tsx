@@ -4,26 +4,32 @@
  */
 
 import React, { useState } from 'react';
-import { useMergedLocationData, useMergedLocationDataDebug } from '@/shared/hooks/useMergedLocationData';
-import { ValidationStatus } from '@/shared/ui';
-import siteData from '@/data/mobile-detailing/site.json';
+
 import bullheadCityData from '@/data/locations/az/bullhead-city.json';
 import lasVegasData from '@/data/locations/nv/las-vegas.json';
+import siteData from '@/data/mobile-detailing/site.json';
+import { useMergedLocationDataDebug } from '@/shared/hooks/useMergedLocationData';
 import type { LocationPage } from '@/shared/types/location';
+import { ValidationStatus } from '@/shared/ui';
 
 interface MergeDemoProps {
   className?: string;
 }
 
+// Type the imported JSON data
+const typedBullheadData = bullheadCityData as LocationPage;
+const typedLasVegasData = lasVegasData as LocationPage;
+const typedSiteData = siteData as LocationPage;
+
 export const MergeDemo: React.FC<MergeDemoProps> = ({ className = '' }) => {
   const [selectedLocation, setSelectedLocation] = useState<'bullhead' | 'lasvegas'>('bullhead');
   
-  const currentLocationData: LocationPage = selectedLocation === 'bullhead' 
-    ? bullheadCityData 
-    : lasVegasData;
+  const currentLocationData = selectedLocation === 'bullhead' 
+    ? typedBullheadData 
+    : typedLasVegasData;
   
-  const { mergedData, validation, statistics, wasMerged } = useMergedLocationDataDebug(
-    siteData,
+  const { mergedData, statistics, wasMerged } = useMergedLocationDataDebug(
+    typedSiteData,
     currentLocationData,
     `Merge Demo - ${selectedLocation === 'bullhead' ? 'Bullhead City' : 'Las Vegas'}`
   );
@@ -38,10 +44,10 @@ export const MergeDemo: React.FC<MergeDemoProps> = ({ className = '' }) => {
       
       {/* Location Selector */}
       <div className="mb-4">
-        <label className="block text-sm font-medium mb-2">Select Location:</label>
+        <div className="block text-sm font-medium mb-2">Select Location:</div>
         <div className="flex gap-2">
           <button
-            onClick={() => setSelectedLocation('bullhead')}
+            onClick={() => { setSelectedLocation('bullhead'); }}
             className={`px-3 py-1 rounded text-sm ${
               selectedLocation === 'bullhead'
                 ? 'bg-blue-500 text-white'
@@ -51,7 +57,7 @@ export const MergeDemo: React.FC<MergeDemoProps> = ({ className = '' }) => {
             Bullhead City
           </button>
           <button
-            onClick={() => setSelectedLocation('lasvegas')}
+            onClick={() => { setSelectedLocation('lasvegas'); }}
             className={`px-3 py-1 rounded text-sm ${
               selectedLocation === 'lasvegas'
                 ? 'bg-blue-500 text-white'
@@ -109,7 +115,7 @@ export const MergeDemo: React.FC<MergeDemoProps> = ({ className = '' }) => {
           <h4 className="font-medium mb-2">SEO Keywords (Concatenated):</h4>
           <div className="bg-white p-3 rounded border">
             <code className="text-sm">
-              {JSON.stringify(mergedData.seo?.keywords, null, 2)}
+              {JSON.stringify(mergedData.seo.keywords, null, 2)}
             </code>
           </div>
         </div>

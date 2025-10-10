@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle, AlertCircle } from 'lucide-react';
+import { AlertCircle,CheckCircle } from 'lucide-react';
 
 interface AutoSaveStatusProps {
   isSaving: boolean;

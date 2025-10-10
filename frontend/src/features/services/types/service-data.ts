@@ -26,7 +26,7 @@ export interface ChartData {
   type: string;
   title: string;
   description: string;
-  data: any; // This can be more specific based on chart implementation
+  data: Record<string, unknown>; // Chart-specific data structure
 }
 
 export interface ServiceData {
@@ -118,6 +118,6 @@ export interface ServiceData {
   };
   
   jsonLd?: {
-    service: any; // This can be more specific based on JSON-LD structure
+    service: Record<string, unknown>; // Schema.org Service JSON-LD structure
   };
 }

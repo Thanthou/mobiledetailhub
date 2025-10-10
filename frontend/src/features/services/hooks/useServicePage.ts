@@ -1,6 +1,8 @@
 import { useParams } from 'react-router-dom';
-import { useServices } from './useServices';
+
 import { ServiceData } from '@/features/services/types/service.types';
+
+import { useServices } from './useServices';
 
 export const useServicePage = () => {
   const { serviceType } = useParams<{ serviceType: string }>();

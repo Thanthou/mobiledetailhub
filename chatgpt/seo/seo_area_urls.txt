@@ -1,5 +1,0 @@
-AREA URLS
-====================
-
-No /frontend/src/data/areas/*.json detected.
-

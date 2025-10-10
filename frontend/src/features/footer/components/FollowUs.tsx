@@ -1,5 +1,7 @@
 import React from 'react';
-import { SiFacebook, SiInstagram, SiYoutube, SiTiktok } from 'react-icons/si';
+import { SiFacebook, SiInstagram, SiTiktok, SiYoutube } from 'react-icons/si';
+
+import { useData } from '@/shared/contexts/DataContext';
 
 interface FollowUsProps {
   socialMedia?: {
@@ -11,6 +13,8 @@ interface FollowUsProps {
 }
 
 const FollowUs: React.FC<FollowUsProps> = ({ socialMedia }) => {
+  const { isPreview } = useData();
+  
   const socialLinks = [
     {
       platform: 'Facebook',
@@ -38,24 +42,40 @@ const FollowUs: React.FC<FollowUsProps> = ({ socialMedia }) => {
     }
   ];
 
-  const visibleLinks = socialLinks.filter(link => link.url && link.url !== null && link.url.trim() !== '');
+  const visibleLinks = socialLinks.filter(link => link.url && link.url.trim() !== '');
 
   return (
     <div className="text-center">
       <h3 className="font-bold text-orange-400 text-xl mb-6">Follow Us</h3>
       <div className="inline-flex flex-col space-y-3 items-start">
-        {visibleLinks.map(({ platform, url, icon: Icon, label }) => (
-          <a 
-            key={platform}
-            href={url} 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="text-white hover:text-orange-400 transition-colors duration-200 flex items-center space-x-3"
-          >
-            <Icon className="h-5 w-5 flex-shrink-0" />
-            <span className="text-lg">{label}</span>
-          </a>
-        ))}
+        {visibleLinks.map(({ platform, url, icon: Icon, label }) => {
+          // In preview mode, render as span instead of link
+          if (isPreview) {
+            return (
+              <span
+                key={platform}
+                className="text-white hover:text-orange-400 transition-colors duration-200 flex items-center space-x-3 cursor-pointer"
+                title="Social media links available in your live site"
+              >
+                <Icon className="h-5 w-5 flex-shrink-0" />
+                <span className="text-lg">{label}</span>
+              </span>
+            );
+          }
+          
+          return (
+            <a 
+              key={platform}
+              href={url} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-white hover:text-orange-400 transition-colors duration-200 flex items-center space-x-3"
+            >
+              <Icon className="h-5 w-5 flex-shrink-0" />
+              <span className="text-lg">{label}</span>
+            </a>
+          );
+        })}
       </div>
     </div>
   );

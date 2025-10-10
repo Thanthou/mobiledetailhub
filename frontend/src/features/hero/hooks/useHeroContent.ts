@@ -1,5 +1,6 @@
 import { useWebsiteContent } from '@/shared/contexts/WebsiteContentContext';
 import { useIndustrySiteData } from '@/shared/hooks/useIndustrySiteData';
+import type { LocationPage } from '@/shared/types/location';
 
 interface UseHeroContentReturn {
   title: string;
@@ -9,30 +10,23 @@ interface UseHeroContentReturn {
 }
 
 interface UseHeroContentProps {
-  locationData?: any;
+  locationData?: LocationPage;
 }
 
 export const useHeroContent = (props?: UseHeroContentProps): UseHeroContentReturn => {
   // Get industry-specific site data
   const { siteData } = useIndustrySiteData();
   
-  // Try to get website content, but handle cases where provider isn't available
-  let websiteContent = null;
-  try {
-    const { content } = useWebsiteContent();
-    websiteContent = content;
-  } catch {
-    // WebsiteContentProvider not available, use fallbacks
-    websiteContent = null;
-  }
+  // Always call hooks unconditionally
+  const { content: websiteContent } = useWebsiteContent();
   
   // Use passed locationData as fallback
   const locationData = props?.locationData;
   
   // All sites are now tenant-based, so use database content or industry-specific site data
   // Priority: Database content > Industry-specific site data > Fallback
-  const title = websiteContent?.hero_title ?? siteData?.hero?.h1 ?? 'Mobile Detailing';
-  const subtitle = websiteContent?.hero_subtitle ?? siteData?.hero?.subTitle ?? 'Professional mobile detailing services';
+  const title = websiteContent?.hero_title || siteData?.hero.h1 || 'Professional Services';
+  const subtitle = websiteContent?.hero_subtitle || siteData?.hero.sub || 'Quality service for your needs';
 
   return {
     title,

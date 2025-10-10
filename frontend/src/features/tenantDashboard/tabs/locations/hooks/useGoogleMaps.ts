@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { getGoogle, hasImportLibrary } from '@/features/locations';
+import { getGoogle, hasImportLibrary } from '@/shared';
 
 export const useGoogleMaps = () => {
   const [apiLoaded, setApiLoaded] = useState(false);

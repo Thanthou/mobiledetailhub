@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
-import { Modal } from './Modal';
 import { Button } from '../buttons/Button';
+import { Modal } from './Modal';
 
 interface QuoteModalProps {
   isOpen: boolean;
@@ -28,7 +28,6 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // TODO: Implement quote submission logic
-    console.log('Quote form submitted:', formData);
     onClose();
   };
 

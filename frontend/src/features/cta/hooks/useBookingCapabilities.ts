@@ -1,4 +1,4 @@
-import { useData } from '@/features/header/contexts/DataProvider';
+import { useData } from '@/shared/contexts';
 
 interface BookingCapabilities {
   hasOnlineBooking: boolean;
@@ -14,7 +14,7 @@ interface BookingCapabilities {
  * This should eventually integrate with tenant settings from the API
  */
 export const useBookingCapabilities = (): BookingCapabilities => {
-  const { phone, businessName, isTenant } = useData();
+  const { phone, isTenant } = useData();
 
   // For now, we'll use simple heuristics
   // TODO: Replace with actual tenant settings from API

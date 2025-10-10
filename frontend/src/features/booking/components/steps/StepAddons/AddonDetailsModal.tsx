@@ -1,4 +1,5 @@
 import React from 'react';
+
 import DetailsModal from '../../shared/DetailsModal';
 
 interface AddonItem {

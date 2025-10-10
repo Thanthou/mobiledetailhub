@@ -1,7 +1,8 @@
 import React from 'react';
 
-import { Button } from './Button';
 import { cn } from '@/shared/utils/cn';
+
+import { Button } from './Button';
 
 interface GetQuoteProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'outline' | 'outline-white' | 'ghost' | 'destructive';

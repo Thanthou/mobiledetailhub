@@ -1,9 +1,10 @@
 // Website Content Context
 // Loads website content from database once on page load
 
-import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { createContext, ReactNode, useContext } from 'react';
 import { useParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+
 import { websiteContentApi, WebsiteContentData } from '../api/websiteContent.api';
 
 interface WebsiteContentContextType {
@@ -45,8 +46,8 @@ export const WebsiteContentProvider: React.FC<WebsiteContentProviderProps> = ({ 
   const contextValue: WebsiteContentContextType = {
     content: content || null,
     isLoading,
-    error: error ? (error as Error).message : null,
-    refetch,
+    error: error?.message ?? null,
+    refetch: () => { void refetch(); },
   };
 
   return (
@@ -56,6 +57,7 @@ export const WebsiteContentProvider: React.FC<WebsiteContentProviderProps> = ({ 
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components -- Standard context pattern: hook and provider together
 export const useWebsiteContent = (): WebsiteContentContextType => {
   const context = useContext(WebsiteContentContext);
   if (!context) {

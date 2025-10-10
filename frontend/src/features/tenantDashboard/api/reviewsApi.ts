@@ -59,7 +59,7 @@ export interface BusinessData {
   phone: string;
   sms_phone: string;
   twilio_phone: string;
-  service_areas: any;
+  service_areas: Array<{ city: string; state: string; zip?: string; primary?: boolean }>;
   owner: string;
   business_email: string;
   personal_email: string;
@@ -103,11 +103,11 @@ export const createReview = async (
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
+    const errorData = await response.json().catch(() => ({})) as { message?: string };
     throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
   }
 
-  return response.json();
+  return response.json() as Promise<CreateReviewResponse>;
 };
 
 /**
@@ -122,11 +122,11 @@ export const deleteReview = async (reviewId: number): Promise<{ success: boolean
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
+    const errorData = await response.json().catch(() => ({})) as { message?: string };
     throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
   }
 
-  return response.json();
+  return response.json() as Promise<{ success: boolean; message: string }>;
 };
 
 /**
@@ -148,11 +148,11 @@ export const uploadAvatar = async (
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
+    const errorData = await response.json().catch(() => ({})) as { message?: string };
     throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
   }
 
-  return response.json();
+  return response.json() as Promise<{ success: boolean; message: string; avatarUrl?: string; filename?: string }>;
 };
 
 /**
@@ -178,11 +178,11 @@ export const getReviews = async (
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
+    const errorData = await response.json().catch(() => ({})) as { message?: string };
     throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
   }
 
-  return response.json();
+  return response.json() as Promise<GetReviewsResponse>;
 };
 
 /**
@@ -210,11 +210,11 @@ export const getTenantReviews = async (
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
+    const errorData = await response.json().catch(() => ({})) as { message?: string };
     throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
   }
 
-  return response.json();
+  return response.json() as Promise<GetReviewsResponse>;
 };
 
 /**
@@ -229,11 +229,11 @@ export const getBusinessData = async (tenantSlug: string): Promise<GetBusinessRe
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
+    const errorData = await response.json().catch(() => ({})) as { error?: string };
     throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
   }
 
-  return response.json();
+  return response.json() as Promise<GetBusinessResponse>;
 };
 
 /**
@@ -264,11 +264,20 @@ export const scrapeGoogleBusinessProfile = async (
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
+    const errorData = await response.json().catch(() => ({})) as { message?: string };
     throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
   }
 
-  return response.json();
+  return response.json() as Promise<{
+    success: boolean;
+    data?: {
+      averageRating: string | null;
+      totalReviews: string | null;
+      businessName: string | null;
+      gbpUrl: string;
+    };
+    message: string;
+  }>;
 };
 
 /**
@@ -288,9 +297,9 @@ export const updateReviewStatus = async (
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
+    const errorData = await response.json().catch(() => ({})) as { message?: string };
     throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
   }
 
-  return response.json();
+  return response.json() as Promise<{ success: boolean; data: TenantReview; message: string }>;
 };

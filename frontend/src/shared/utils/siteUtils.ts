@@ -1,35 +1,39 @@
 /**
  * Site Data Utilities
- * Functions to transform and format data from site.json for display purposes
+ * Industry-agnostic functions to transform and format data from site.json for display purposes
+ * All functions accept MainSiteConfig to support multi-industry architecture
  */
+
+import type { MainSiteConfig } from '@/shared/types/location';
 
 import { formatPhoneNumber } from './phoneFormatter';
 
 /**
  * Formats contact information from site.json for display
  */
-export function formatContactInfo(siteData: any) {
+export function formatContactInfo(siteConfig: MainSiteConfig) {
   return {
-    phone: siteData.contact?.phone ? formatPhoneNumber(siteData.contact.phone) : '',
-    email: siteData.contact?.email || '',
-    phoneRaw: siteData.contact?.phone || '', // Raw phone for tel: links
+    phone: siteConfig.contact?.phone ? formatPhoneNumber(siteConfig.contact.phone) : '',
+    email: siteConfig.contact?.email || '',
+    phoneRaw: siteConfig.contact?.phone || '', // Raw phone for tel: links
   };
 }
 
 /**
  * Formats social media links for display
  */
-export function formatSocialMedia(siteData: any) {
+export function formatSocialMedia(siteConfig: MainSiteConfig) {
   return {
-    facebook: siteData.socials?.facebook || '',
-    instagram: siteData.socials?.instagram || '',
-    tiktok: siteData.socials?.tiktok || '',
-    youtube: siteData.socials?.youtube || '',
+    facebook: siteConfig.socials?.facebook || '',
+    instagram: siteConfig.socials?.instagram || '',
+    tiktok: siteConfig.socials?.tiktok || '',
+    youtube: siteConfig.socials?.youtube || '',
   };
 }
 
 /**
  * Converts relative URLs to absolute URLs for SEO
+ * Uses current window location to determine the domain (works for any industry/subdomain)
  */
 export function getAbsoluteUrl(relativeUrl: string): string {
   if (!relativeUrl) return '';
@@ -39,38 +43,38 @@ export function getAbsoluteUrl(relativeUrl: string): string {
     return relativeUrl;
   }
   
-  // In development, use localhost
-  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+  // Use current window location (works for all industries/subdomains)
+  if (typeof window !== 'undefined') {
     return `${window.location.protocol}//${window.location.host}${relativeUrl}`;
   }
   
-  // In production, use the canonical domain
-  return `https://mobiledetailhub.com${relativeUrl}`;
+  // Fallback for SSR (should rarely be hit)
+  return relativeUrl;
 }
 
 /**
  * Formats SEO data for display
  */
-export function formatSEO(siteData: any) {
+export function formatSEO(siteConfig: MainSiteConfig) {
   return {
-    title: siteData.seo?.title || siteData.brand || 'Mobile Detail Hub',
-    description: siteData.seo?.description || '',
-    keywords: siteData.seo?.keywords || [],
-    canonical: `https://mobiledetailhub.com${siteData.seo?.canonicalPath || '/'}`,
-    ogImage: getAbsoluteUrl(siteData.seo?.ogImage || ''),
+    title: siteConfig.seo.title || siteConfig.brand || '',
+    description: siteConfig.seo.description || '',
+    keywords: siteConfig.seo.keywords || [],
+    canonical: getAbsoluteUrl(siteConfig.seo.canonicalPath || '/'),
+    ogImage: getAbsoluteUrl(siteConfig.seo.ogImage || ''),
   };
 }
 
 /**
  * Formats hero section data for display
  */
-export function formatHero(siteData: any) {
+export function formatHero(siteConfig: MainSiteConfig) {
   return {
-    h1: siteData.hero?.h1 || 'Professional Mobile Detailing',
-    images: siteData.hero?.images || [],
+    h1: siteConfig.hero.h1 || '',
+    images: siteConfig.hero.images || [],
     finder: {
-      placeholder: siteData.finder?.placeholder || 'Enter your zip code or city to find services near you',
-      sub: siteData.finder?.sub || 'We\'ll connect you with professional detailers in your area',
+      placeholder: siteConfig.finder?.placeholder || '',
+      sub: siteConfig.finder?.sub || '',
     },
   };
 }
@@ -78,55 +82,58 @@ export function formatHero(siteData: any) {
 /**
  * Formats services grid data for display
  */
-export function formatServices(siteData: any) {
-  return siteData.servicesGrid || [];
+export function formatServices(siteConfig: MainSiteConfig) {
+  return siteConfig.servicesGrid || [];
 }
 
 /**
  * Formats reviews data for display
  */
-export function formatReviews(siteData: any) {
+export function formatReviews(siteConfig: MainSiteConfig) {
   return {
-    title: siteData.reviews?.title || 'What Our Customers Say',
-    subtitle: siteData.reviews?.subtitle || 'Real reviews from real customers',
-    items: siteData.reviews?.items || [],
+    title: siteConfig.reviews?.title || '',
+    subtitle: siteConfig.reviews?.subtitle || '',
+    ratingValue: siteConfig.reviews?.ratingValue || '',
+    reviewCount: siteConfig.reviews?.reviewCount || 0,
+    source: siteConfig.reviews?.source || '',
   };
 }
 
 /**
  * Formats FAQ data for display
  */
-export function formatFAQ(siteData: any) {
+export function formatFAQ(siteConfig: MainSiteConfig) {
   return {
-    title: siteData.faq?.title || 'Frequently Asked Questions',
-    items: siteData.faq?.items || [],
+    title: siteConfig.faq?.title || '',
+    subtitle: siteConfig.faq?.subtitle || '',
   };
 }
 
 /**
  * Gets formatted business information
  */
-export function getBusinessInfo(siteData: any) {
+export function getBusinessInfo(siteConfig: MainSiteConfig) {
   return {
-    name: siteData.brand || 'Mobile Detail Hub',
-    logo: siteData.logo || '/icons/logo.webp',
-    slug: siteData.slug || 'site',
-    urlPath: siteData.urlPath || '/',
+    name: siteConfig.brand || '',
+    logo: siteConfig.logo.url || '',
+    logoAlt: siteConfig.logo.alt || '',
+    slug: siteConfig.slug || '',
+    urlPath: siteConfig.urlPath || '/',
   };
 }
 
 /**
  * Comprehensive site data formatter - formats all site data at once
  */
-export function formatSiteData(siteData: any) {
+export function formatSiteData(siteConfig: MainSiteConfig) {
   return {
-    business: getBusinessInfo(siteData),
-    contact: formatContactInfo(siteData),
-    socials: formatSocialMedia(siteData),
-    seo: formatSEO(siteData),
-    hero: formatHero(siteData),
-    services: formatServices(siteData),
-    reviews: formatReviews(siteData),
-    faq: formatFAQ(siteData),
+    business: getBusinessInfo(siteConfig),
+    contact: formatContactInfo(siteConfig),
+    socials: formatSocialMedia(siteConfig),
+    seo: formatSEO(siteConfig),
+    hero: formatHero(siteConfig),
+    services: formatServices(siteConfig),
+    reviews: formatReviews(siteConfig),
+    faq: formatFAQ(siteConfig),
   };
 }

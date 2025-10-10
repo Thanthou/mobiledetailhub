@@ -30,7 +30,7 @@ async function makeRequest<T>(endpoint: string, options: RequestInit = {}): Prom
     clearTimeout(timeoutId);
     
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ error: 'Request failed' }));
+      const errorData = await response.json().catch(() => ({ error: 'Request failed' })) as { error?: string };
       throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
     }
     

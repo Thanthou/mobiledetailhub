@@ -99,6 +99,7 @@ const SchemaOrgSchema = z.object({
   })).optional(),
   openingHours: z.union([z.string(), z.array(z.string())]).optional(),
   // Allow additional schema properties
+  // eslint-disable-next-line @typescript-eslint/no-deprecated -- passthrough is correct for this zod version
 }).passthrough();
 
 // Main LocationPage schema
@@ -203,16 +204,16 @@ export const MainSiteConfigSchema = z.object({
   }).optional(),
   
   contact: z.object({
-    email: z.string().email('Valid email is required'),
+    email: z.email('Valid email is required'),
     phone: z.string().min(1, 'Phone is required')
   }).optional(),
   
   socials: z.object({
-    facebook: z.string().url().optional(),
-    instagram: z.string().url().optional(),
-    tiktok: z.string().url().optional(),
-    youtube: z.string().url().optional(),
-    googleBusiness: z.string().url().optional()
+    facebook: z.url().optional(),
+    instagram: z.url().optional(),
+    tiktok: z.url().optional(),
+    youtube: z.url().optional(),
+    googleBusiness: z.url().optional()
   }).optional(),
   
   jsonLd: z.object({
@@ -234,10 +235,10 @@ export function validateLocationData(data: unknown) {
       return {
         success: false,
         data: null,
-        errors: error.errors.map(err => ({
-          path: err.path.join('.'),
-          message: err.message,
-          code: err.code
+        errors: error.issues.map((issue) => ({
+          path: issue.path.join('.'),
+          message: issue.message,
+          code: issue.code
         }))
       };
     }
@@ -257,10 +258,10 @@ export function validateMainSiteConfig(data: unknown) {
       return {
         success: false,
         data: null,
-        errors: error.errors.map(err => ({
-          path: err.path.join('.'),
-          message: err.message,
-          code: err.code
+        errors: error.issues.map((issue) => ({
+          path: issue.path.join('.'),
+          message: issue.message,
+          code: issue.code
         }))
       };
     }

@@ -6,13 +6,14 @@
  */
 
 import React, { useMemo } from 'react';
-import { cn } from '@/shared/utils/cn';
+
 import { useImageRotation, useImageRotationHover } from '@/shared/hooks';
+import { cn } from '@/shared/utils/cn';
 import {
+  getAccessibilityAttributes,
   getImageOpacityClasses,
   getTransitionStyles,
   getVisibleImageIndices,
-  getAccessibilityAttributes,
   type ImageRotationConfig
 } from '@/shared/utils/imageRotation';
 
@@ -165,7 +166,7 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
           {Array.from({ length: totalImages }).map((_, index) => (
             <button
               key={index}
-              onClick={() => goTo(index)}
+              onClick={() => { goTo(index); }}
               className={cn(
                 'w-3 h-3 rounded-full transition-colors',
                 index === currentIndex 

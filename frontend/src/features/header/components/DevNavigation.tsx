@@ -1,14 +1,19 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ChevronDown, ExternalLink, Settings, Users, Home } from 'lucide-react';
+import React, { useEffect,useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { ChevronDown, Eye, ExternalLink, Home,Settings, Users } from 'lucide-react';
+
 import { useTenants } from '../hooks/useTenants';
 
 const DevNavigation: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isTenantsOpen, setIsTenantsOpen] = useState(false);
   const adminRef = useRef<HTMLDivElement>(null);
   const tenantsRef = useRef<HTMLDivElement>(null);
+
+  // Check if on preview page (by URL path)
+  const isPreview = location.pathname === '/preview';
 
   // Fetch tenants data from API
   const { data: tenants, isLoading, error } = useTenants();
@@ -25,16 +30,16 @@ const DevNavigation: React.FC = () => {
     };
 
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    return () => { document.removeEventListener('mousedown', handleClickOutside); };
   }, []);
 
   const handleAdminHomepage = () => {
-    navigate('/');
+    void navigate('/');
     setIsAdminOpen(false);
   };
 
   const handleAdminDashboard = () => {
-    navigate('/admin-dashboard');
+    void navigate('/admin-dashboard');
     setIsAdminOpen(false);
   };
 
@@ -53,12 +58,15 @@ const DevNavigation: React.FC = () => {
   };
 
   const handleTenantDashboard = (slug: string) => {
-    navigate(`/${slug}/dashboard`);
+    void navigate(`/${slug}/dashboard`);
     setIsTenantsOpen(false);
   };
 
+  // Adjust position if in preview mode (to make room for CTA button)
+  const topPosition = isPreview ? 'top-20' : 'top-4';
+
   return (
-    <div className="fixed top-4 right-4 z-[9999] flex space-x-2" style={{ pointerEvents: 'auto' }}>
+    <div className={`fixed ${topPosition} right-4 z-[9999] flex space-x-2`} style={{ pointerEvents: 'auto' }}>
       {/* Admin Dropdown */}
       <div className="relative" ref={adminRef}>
         <button
@@ -93,7 +101,7 @@ const DevNavigation: React.FC = () => {
               </button>
               <button
                 onClick={() => {
-                  navigate('/tenant-onboarding');
+                  void navigate('/tenant-onboarding');
                   setIsAdminOpen(false);
                 }}
                 className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
@@ -101,6 +109,17 @@ const DevNavigation: React.FC = () => {
               >
                 <Users className="h-4 w-4 mr-3" />
                 Tenant Onboarding
+              </button>
+              <button
+                onClick={() => {
+                  void navigate('/preview-generator');
+                  setIsAdminOpen(false);
+                }}
+                className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                role="menuitem"
+              >
+                <Eye className="h-4 w-4 mr-3" />
+                Tenant Preview
               </button>
             </div>
           </div>
@@ -110,7 +129,7 @@ const DevNavigation: React.FC = () => {
       {/* Tenants Dropdown */}
       <div className="relative" ref={tenantsRef}>
         <button
-          onClick={() => setIsTenantsOpen(!isTenantsOpen)}
+          onClick={() => { setIsTenantsOpen(!isTenantsOpen); }}
           className="flex items-center space-x-1 px-3 py-2 text-xs font-medium text-white bg-green-600 hover:bg-green-700 rounded-md transition-colors duration-200"
         >
           <Users className="h-3 w-3" />
@@ -135,7 +154,7 @@ const DevNavigation: React.FC = () => {
                     </div>
                     <div className="px-2 py-1 space-y-1">
                       <button
-                        onClick={() => handleTenantHomepage(tenant.slug)}
+                        onClick={() => { handleTenantHomepage(tenant.slug); }}
                         className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
                         role="menuitem"
                       >
@@ -143,7 +162,7 @@ const DevNavigation: React.FC = () => {
                         <span>Homepage</span>
                       </button>
                       <button
-                        onClick={() => handleTenantDashboard(tenant.slug)}
+                        onClick={() => { handleTenantDashboard(tenant.slug); }}
                         className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
                         role="menuitem"
                       >

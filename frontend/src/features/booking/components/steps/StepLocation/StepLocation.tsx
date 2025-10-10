@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
+
 import { useBookingData } from '@/features/booking/state';
 
 const StepLocation: React.FC = () => {
   const { bookingData, setLocation } = useBookingData();
-  const [address, setAddress] = useState(bookingData.location?.address || '');
-  const [city, setCity] = useState(bookingData.location?.city || '');
-  const [state, setState] = useState(bookingData.location?.state || '');
-  const [zip, setZip] = useState(bookingData.location?.zip || '');
-  const [notes, setNotes] = useState(bookingData.location?.notes || '');
-  const [locationTypes, setLocationTypes] = useState<string[]>(bookingData.location?.locationType ? bookingData.location.locationType.split(',') : []);
+  const [address, setAddress] = useState(bookingData.location.address || '');
+  const [city, setCity] = useState(bookingData.location.city || '');
+  const [state, setState] = useState(bookingData.location.state || '');
+  const [zip, setZip] = useState(bookingData.location.zip || '');
+  const [notes, setNotes] = useState(bookingData.location.notes || '');
+  const [locationTypes, setLocationTypes] = useState<string[]>(bookingData.location.locationType ? bookingData.location.locationType.split(',') : []);
 
   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setAddress(e.target.value);
@@ -65,7 +66,9 @@ const StepLocation: React.FC = () => {
                 type="checkbox"
                 value={type}
                 checked={locationTypes.includes(type)}
-                onChange={() => handleLocationTypeChange(type)}
+                onChange={() => {
+                  handleLocationTypeChange(type);
+                }}
                 className="w-4 h-4 text-orange-500 bg-gray-700 border-gray-600 focus:ring-orange-500 focus:ring-2"
               />
               <span className="text-white font-medium">{type}</span>

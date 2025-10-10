@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useData } from '@/features/header';
+
+import { useData } from '@/shared/contexts';
 import ServiceAreasModal from '@/shared/ui/modals/ServiceAreasModal';
 
 interface ServiceAreasLinkProps {
@@ -13,22 +14,20 @@ const ServiceAreasLink: React.FC<ServiceAreasLinkProps> = ({
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   
-  // Get tenant data for service areas
-  let tenantData;
-  try {
-    tenantData = useData();
-  } catch {
-    tenantData = null;
-  }
+  // Get tenant data for service areas - hooks must be called unconditionally
+  const tenantData = useData();
 
-  if (!tenantData?.isTenant || !tenantData?.serviceAreas) {
+  // If no service areas, just render as plain text
+  if (tenantData.serviceAreas.length === 0) {
     return <span>{children}</span>;
   }
 
   return (
     <>
       <button
-        onClick={() => setIsModalOpen(true)}
+        onClick={() => {
+          setIsModalOpen(true);
+        }}
         className={`text-orange-400 hover:text-orange-300 underline transition-colors cursor-pointer bg-transparent border-none p-0 font-inherit ${className}`}
       >
         {children}
@@ -36,7 +35,9 @@ const ServiceAreasLink: React.FC<ServiceAreasLinkProps> = ({
       
       <ServiceAreasModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => {
+          setIsModalOpen(false);
+        }}
         serviceAreas={tenantData.serviceAreas}
         businessName={tenantData.businessName}
       />

@@ -2,6 +2,7 @@ import React from 'react';
 
 import type { DashboardTab } from '@/features/tenantDashboard/types';
 import { DASHBOARD_TABS } from '@/features/tenantDashboard/utils/constants';
+
 import { getTabConfig } from '../config/tabConfig';
 
 interface DashboardTabsProps {

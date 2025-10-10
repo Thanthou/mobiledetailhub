@@ -1,5 +1,7 @@
 import React from 'react';
+
 import { useBookingVehicle } from '@/features/booking/state';
+
 import DetailsModal from '../../shared/DetailsModal';
 
 interface ServiceTier {

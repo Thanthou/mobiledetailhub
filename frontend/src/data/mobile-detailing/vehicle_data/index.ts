@@ -8,9 +8,6 @@ import rvData from './RvMakeModel.json';
 // Export individual data sets
 export { airplaneData, boatData, carData, motorcycleData, rvData };
 
-// Export years dropdown utilities
-export { getVehicleYears, getFormattedYears, yearsConfig } from './years-dropdown';
-
 // Export combined data
 export const vehicleData = {
   airplane: airplaneData,
@@ -146,3 +143,6 @@ export const getModelsForMake = (vehicleType: string, make: string) => {
   
   return models;
 };
+
+// Export years dropdown utilities
+export { getFormattedYears, getVehicleYears, yearsConfig } from './years-dropdown';

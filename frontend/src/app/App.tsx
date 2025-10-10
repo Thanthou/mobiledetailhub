@@ -1,13 +1,16 @@
-import { Suspense, lazy, useState } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { Providers } from './providers';
+import { lazy, Suspense, useState } from 'react';
+import { Navigate, Route, Routes } from 'react-router-dom';
+
+import { DataProvider, TenantPage } from '@/features/header';
+import DevNavigation from '@/features/header/components/DevNavigation';
+import { PreviewGeneratorPage, PreviewPage } from '@/features/preview';
 import { LazyRequestQuoteModal } from '@/features/quotes';
-import HomePage from './pages/HomePage';
-import ServicePage from './pages/ServicePage';
-import { TenantPage, DataProvider } from '@/features/header';
 import { DashboardPage } from '@/features/tenantDashboard';
 import { TenantApplicationPage } from '@/features/tenantOnboarding';
-import DevNavigation from '@/features/header/components/DevNavigation';
+
+import HomePage from './pages/HomePage';
+import ServicePage from './pages/ServicePage';
+import { Providers } from './providers';
 
 // Heavy modules are NOT imported here - they stay out of the initial bundle
 const Booking = lazy(() => import('../features/booking/BookingApp'));
@@ -15,8 +18,12 @@ const Booking = lazy(() => import('../features/booking/BookingApp'));
 export default function App() {
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
 
-  const handleOpenQuoteModal = () => setIsQuoteModalOpen(true);
-  const handleCloseQuoteModal = () => setIsQuoteModalOpen(false);
+  const handleOpenQuoteModal = () => {
+    setIsQuoteModalOpen(true);
+  };
+  const handleCloseQuoteModal = () => {
+    setIsQuoteModalOpen(false);
+  };
   
   return (
     <Providers>
@@ -44,6 +51,10 @@ export default function App() {
           
           {/* Tenant Onboarding route */}
           <Route path="/tenant-onboarding" element={<TenantApplicationPage />} />
+          
+          {/* Preview routes - for sales demos */}
+          <Route path="/preview-generator" element={<PreviewGeneratorPage />} />
+          <Route path="/preview" element={<PreviewPage />} />
           
           {/* Tenant routes - now no conflicts! */}
           <Route path="/:slug/dashboard" element={

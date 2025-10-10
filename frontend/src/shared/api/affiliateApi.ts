@@ -2,8 +2,8 @@
  * API utilities for affiliate/tenant data with industry support
  */
 
-import { Affiliate, IndustryType } from '../types/affiliate.types';
 import { env } from '../env';
+import { Affiliate, IndustryType } from '../types/affiliate.types';
 
 const API_BASE_URL = env.VITE_API_URL || 'http://localhost:3001';
 
@@ -30,7 +30,8 @@ export async function fetchAffiliateBySlug(slug: string): Promise<AffiliateApiRe
       throw new Error(`Failed to fetch affiliate: ${response.status}`);
     }
     
-    const data = await response.json();
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- response.json() returns any
+    const data: Affiliate = await response.json();
     return { success: true, data };
   } catch (error) {
     console.error('Error fetching affiliate:', error);
@@ -52,7 +53,8 @@ export async function fetchAffiliatesByIndustry(industry: IndustryType): Promise
       throw new Error(`Failed to fetch affiliates: ${response.status}`);
     }
     
-    const data = await response.json();
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- response.json() returns any
+    const data: Affiliate[] = await response.json();
     return { success: true, data };
   } catch (error) {
     console.error('Error fetching affiliates by industry:', error);

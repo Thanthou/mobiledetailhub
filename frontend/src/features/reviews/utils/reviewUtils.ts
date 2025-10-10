@@ -1,11 +1,17 @@
 // Review utility functions
-import type { Review, DatabaseReview } from '../types';
+import { getTenantAssetUrl } from '@/shared/utils';
+
+import type { DatabaseReview,Review } from '../types';
 
 // Convert database review to frontend review format
 export const convertDatabaseReviewToReview = (dbReview: DatabaseReview): Review => ({
   id: dbReview.id.toString(),
   customerName: dbReview.customer_name,
-  profileImage: dbReview.avatar_filename ? `/uploads/avatars/${dbReview.avatar_filename}` : undefined,
+  profileImage: dbReview.avatar_filename ? getTenantAssetUrl({
+    vertical: 'mobile-detailing', // Reviews are cross-vertical, using default
+    type: 'avatar',
+    filename: dbReview.avatar_filename,
+  }) : undefined,
   rating: dbReview.rating,
   reviewText: dbReview.comment,
   date: dbReview.published_at || dbReview.created_at,
@@ -30,12 +36,5 @@ export const sortReviews = (reviews: Review[]): Review[] => {
   });
 };
 
-// Format date for display
-export const formatReviewDate = (dateString: string): string => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
-};
+// Format review date for display
+export { formatDateForDisplay as formatReviewDate } from '@/shared/utils';

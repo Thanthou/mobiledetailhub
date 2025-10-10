@@ -1,6 +1,7 @@
 import React from 'react';
-import { useBusiness } from '../hooks/useBusiness';
+
 import { useTenant } from '../contexts/TenantContext';
+import { useBusiness } from '../hooks/useBusiness';
 
 const BusinessInfoDisplay: React.FC = () => {
   const { slug } = useTenant();
@@ -25,18 +26,25 @@ const BusinessInfoDisplay: React.FC = () => {
     );
   }
 
+  const primaryAreas = business.service_areas
+    .filter(area => area.primary)
+    .map(area => `${area.city}, ${area.state}`)
+    .join(', ');
+  
+  const firstArea = business.service_areas[0];
+  const fallbackArea = firstArea 
+    ? `${firstArea.city}, ${firstArea.state}` 
+    : '';
+
   return (
     <div className="text-white">
       <h1 className="text-xl font-bold">{business.business_name}</h1>
       <div className="text-sm text-gray-300">
         <div>Phone: {business.phone}</div>
         <div>Owner: {business.owner}</div>
-        {business.service_areas && business.service_areas.length > 0 && (
+        {business.service_areas.length > 0 && (
           <div>
-            Serving: {business.service_areas
-              .filter(area => area.primary)
-              .map(area => `${area.city}, ${area.state}`)
-              .join(', ') || business.service_areas[0]?.city + ', ' + business.service_areas[0]?.state}
+            Serving: {primaryAreas || fallbackArea}
           </div>
         )}
       </div>

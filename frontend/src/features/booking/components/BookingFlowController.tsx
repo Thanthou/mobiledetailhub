@@ -1,8 +1,10 @@
 import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useBookingStep, useBookingData } from '@/features/booking/state';
-import { StepVehicleSelection, StepLocation, StepService, StepAddons, StepSchedule, StepPayment } from './steps';
+
+import { useBookingStep } from '@/features/booking/state';
+
 import BookingLayout from './BookingLayout';
+import { StepAddons, StepLocation, StepPayment,StepSchedule, StepService, StepVehicleSelection } from './steps';
 
 /**
  * BookingFlowController - Handles step logic, navigation, and state management
@@ -13,14 +15,10 @@ const BookingFlowController: React.FC = () => {
   
   // Get step management from narrow selector
   const { 
-    currentStep, 
-    completedSteps,
+    currentStep,
     nextStep,
     previousStep
   } = useBookingStep();
-  
-  // Get booking data from narrow selector
-  const { bookingData } = useBookingData();
   
   const stepOrder = ['vehicle-selection', 'location', 'service-tier', 'addons', 'schedule', 'payment'];
   const currentStepIndex = stepOrder.indexOf(currentStep);
@@ -34,7 +32,7 @@ const BookingFlowController: React.FC = () => {
   }, [previousStep]);
   
   const handleCancel = useCallback(() => {
-    navigate('/');
+    void navigate('/');
   }, [navigate]);
 
   const renderStepContent = useCallback(() => {
@@ -60,7 +58,7 @@ const BookingFlowController: React.FC = () => {
             onPaymentComplete={() => {
               // TODO: Handle payment completion and navigation
               // For now, just navigate back to home
-              navigate('/');
+              void navigate('/');
             }}
           />
         );

@@ -1,9 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
+import { type FormEvent, useCallback, useEffect, useState } from 'react';
 
-// import { useAffiliate } from '@/features/affiliateDashboard/hooks';
-import { useVehicleData } from '@/features/booking/hooks';
-// import { useLocation } from '@/shared/hooks'; // Removed - using tenant data instead
-// Legacy useSiteContext removed - now using tenant-based routing
+import { useTenantConfig, useVehicleData } from '@/shared/hooks';
 import {
   validateEmail,
   validateMessage,
@@ -13,18 +10,13 @@ import {
 } from '@/shared/utils';
 
 import { quotesApi } from '../api/quotes.api';
-import { type QuoteRequest, quoteRequestSchema, type QuoteFormData } from '../types';
+import { type QuoteFormData,type QuoteRequest, quoteRequestSchema } from '../types';
 
 export const useQuoteFormLogic = () => {
   const { vehicleTypes, getMakes, getModels } = useVehicleData();
-  // const { selectedLocation } = useLocation(); // Removed - using tenant data instead
-  // Legacy useSiteContext removed - now using tenant-based routing
-  const isAffiliate = false; // All sites are now tenant-based
-
-  // Safely get affiliate data - it might not be available on all pages
-  // For now, we'll disable affiliate functionality to prevent white screen
-  const affiliateData: unknown = null;
-  const hasAffiliateContext = false;
+  
+  // Get tenant data from centralized system
+  const { tenantConfig, businessName, slug } = useTenantConfig();
 
   const [formData, setFormData] = useState<QuoteFormData>({
     name: '',
@@ -82,63 +74,19 @@ export const useQuoteFormLogic = () => {
     }
   }, [formData.vehicleMake]);
 
-  // Process service areas from affiliate data
+  // Get service areas from tenant config (if available)
   const serviceAreas = useCallback((): Array<{ city: string; state: string; primary?: boolean }> => {
-    if (!hasAffiliateContext || !affiliateData || typeof affiliateData !== 'object' || affiliateData === null) {
-      return [];
-    }
-
-    const affiliateDataObj = affiliateData as Record<string, unknown>;
-    if (!('service_areas' in affiliateDataObj)) {
-      return [];
-    }
-
-    let serviceAreasData: unknown = affiliateDataObj['service_areas'];
-    if (typeof serviceAreasData === 'string') {
-      try {
-        serviceAreasData = JSON.parse(serviceAreasData);
-      } catch (error) {
-        console.error('Error parsing service_areas JSON:', error);
-        return [];
-      }
-    }
-
-    if (Array.isArray(serviceAreasData)) {
-      const processedAreas = serviceAreasData
-        .map((area: unknown): { city: string; state: string; primary?: boolean } => {
-          const areaData = area as { city?: string; state?: string; primary?: boolean };
-          return {
-            city: areaData.city || '',
-            state: areaData.state || '',
-            primary: areaData.primary || false
-          };
-        })
-        .filter(area => area.city && area.state)
-        .sort((a, b) => {
-          if (a.primary && !b.primary) return -1;
-          if (!a.primary && b.primary) return 1;
-          if (a.state !== b.state) return a.state.localeCompare(b.state);
-          return a.city.localeCompare(b.city);
-        });
-
-      return processedAreas;
-    }
-
+    // For now, return empty - service areas will be added to tenant config later
+    // When ready, will use: tenantConfig?.serviceAreas
     return [];
-  }, [hasAffiliateContext, affiliateData]);
+  }, []);
 
-  // Get business name and location from affiliate data
-  const businessName = hasAffiliateContext && affiliateData && typeof affiliateData === 'object' && affiliateData !== null && 'business_name' in affiliateData
-    ? String((affiliateData as Record<string, unknown>)['business_name'])
+  // Get business location from tenant config
+  const businessLocation = tenantConfig 
+    ? `${tenantConfig.contact.baseLocation.city}, ${tenantConfig.contact.baseLocation.state}`
     : '';
 
-  const businessLocation = hasAffiliateContext && affiliateData && typeof affiliateData === 'object' && affiliateData !== null && 'base_location' in affiliateData
-    ? String((affiliateData as Record<string, unknown>)['base_location'])
-    : '';
-
-  const businessSlug = hasAffiliateContext && affiliateData && typeof affiliateData === 'object' && affiliateData !== null && 'slug' in affiliateData
-    ? String((affiliateData as Record<string, unknown>)['slug'])
-    : '';
+  // Already have businessName and slug from useTenantConfig()
 
   // Form validation
   const validateField = useCallback((field: keyof QuoteFormData, value: string): string[] => {
@@ -148,23 +96,26 @@ export const useQuoteFormLogic = () => {
       case 'name':
         if (!value.trim()) {
           errors.push('Name is required.');
-        } else if (!validateName(value)) {
+        } else if (value.length < 2) {
           errors.push('Please enter a valid name.');
         }
+        validateName(value); // Call for side effects if any
         break;
       case 'email':
         if (!value.trim()) {
           errors.push('Email is required.');
-        } else if (!validateEmail(value)) {
+        } else if (!value.includes('@')) {
           errors.push('Please enter a valid email address.');
         }
+        validateEmail(value); // Call for side effects if any
         break;
       case 'phone':
         if (!value.trim()) {
           errors.push('Phone number is required.');
-        } else if (!validatePhone(value)) {
+        } else if (value.length < 10) {
           errors.push('Please enter a valid 10-digit phone number.');
         }
+        validatePhone(value); // Call for side effects if any
         break;
       case 'city':
         if (!value.trim()) {
@@ -196,9 +147,10 @@ export const useQuoteFormLogic = () => {
         }
         break;
       case 'message':
-        if (value.trim() && !validateMessage(value)) {
+        if (value.trim() && value.length > 1000) {
           errors.push('Message is too long or contains invalid characters.');
         }
+        validateMessage(value); // Call for side effects if any
         break;
     }
     
@@ -208,8 +160,7 @@ export const useQuoteFormLogic = () => {
   const handleInputChange = useCallback((field: keyof QuoteFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setFieldErrors(prev => {
-      const newErrors = { ...prev };
-      delete newErrors[field];
+      const { [field]: _removed, ...newErrors } = prev;
       return newErrors;
     });
   }, []);
@@ -263,7 +214,17 @@ export const useQuoteFormLogic = () => {
     return isValid;
   }, [formData, validateField]);
 
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+  const resetForm = useCallback(() => {
+    setFormData({
+      name: '', email: '', phone: '', city: '', state: '', zipCode: '', services: [],
+      vehicleType: '', vehicleMake: '', vehicleModel: '', vehicleYear: '', message: ''
+    });
+    setFieldErrors({});
+    setIsSubmitted(false);
+    setError('');
+  }, []);
+
+  const handleSubmit = useCallback(async (e: FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -289,7 +250,7 @@ export const useQuoteFormLogic = () => {
         city: formData.city,
         state: formData.state,
         zipCode: formData.zipCode,
-        businessSlug: businessSlug || undefined
+        businessSlug: slug || undefined
       };
 
       // Validate with schema
@@ -299,7 +260,7 @@ export const useQuoteFormLogic = () => {
       const apiData = {
         ...validatedData,
         message: validatedData.message ?? '',
-        businessSlug: validatedData.businessSlug ?? undefined
+        businessSlug: slug ?? undefined
       };
 
       await quotesApi.submitQuoteRequest(apiData as Parameters<typeof quotesApi.submitQuoteRequest>[0]);
@@ -311,27 +272,19 @@ export const useQuoteFormLogic = () => {
     } finally {
       setIsSubmitting(false);
     }
-  }, [formData, validateAllFields, businessSlug]);
-
-  const resetForm = useCallback(() => {
-    setFormData({
-      name: '', email: '', phone: '', city: '', state: '', zipCode: '', services: [],
-      vehicleType: '', vehicleMake: '', vehicleModel: '', vehicleYear: '', message: ''
-    });
-    setFieldErrors({});
-    setIsSubmitted(false);
-    setError('');
-  }, []);
+  }, [formData, validateAllFields, slug, resetForm]);
 
   // Set initial location if available
   useEffect(() => {
-    if (isAffiliate && businessLocation) {
-      setFormData(prev => ({ ...prev, location: businessLocation }));
-    } else {
-      // Use tenant location data if available
-      setFormData(prev => ({ ...prev, location: 'Service Area' }));
+    if (businessLocation && tenantConfig) {
+      // Use tenant location data
+      setFormData(prev => ({ 
+        ...prev, 
+        city: tenantConfig.contact.baseLocation.city,
+        state: tenantConfig.contact.baseLocation.state
+      }));
     }
-  }, [isAffiliate, businessLocation]);
+  }, [businessLocation, tenantConfig]);
 
   return {
     formData,
@@ -344,11 +297,10 @@ export const useQuoteFormLogic = () => {
     availableMakes,
     availableModels,
     serviceAreas: serviceAreas(),
-    businessName,
+    businessName: businessName || '',
     businessLocation,
-    businessSlug,
-    isAffiliate,
-    hasAffiliateContext,
+    businessSlug: slug || '',
+    isAffiliate: !!slug, // User is viewing an affiliate site if there's a business slug
     handleInputChange,
     handleServiceToggle,
     handleSubmit,

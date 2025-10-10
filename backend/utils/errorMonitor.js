@@ -14,6 +14,8 @@ class BackendErrorMonitor {
     this.isEnabled = true;
     this.listeners = [];
     this.errorLogFile = path.join(__dirname, '../logs/errors.json');
+    this.maxLogFileSize = 10 * 1024 * 1024; // 10 MB
+    this.maxRotatedLogs = 5; // Keep last 5 rotated logs
     this.setupErrorLogging();
   }
 
@@ -104,8 +106,42 @@ class BackendErrorMonitor {
     console.log('='.repeat(80) + '\n');
   }
 
+  async rotateLogIfNeeded() {
+    try {
+      // Check if log file exists and its size
+      const stats = await fs.stat(this.errorLogFile).catch(() => null);
+      
+      if (!stats || stats.size < this.maxLogFileSize) {
+        return; // No rotation needed
+      }
+
+      // Rotate: errors.json -> errors.1.json -> errors.2.json -> ... -> errors.5.json (deleted)
+      for (let i = this.maxRotatedLogs - 1; i > 0; i--) {
+        const oldFile = this.errorLogFile.replace('.json', `.${i}.json`);
+        const newFile = this.errorLogFile.replace('.json', `.${i + 1}.json`);
+        
+        try {
+          await fs.rename(oldFile, newFile);
+        } catch {
+          // File doesn't exist, continue
+        }
+      }
+
+      // Move current log to .1
+      const rotatedFile = this.errorLogFile.replace('.json', '.1.json');
+      await fs.rename(this.errorLogFile, rotatedFile);
+      
+      console.log(`🔄 Log rotated: ${path.basename(this.errorLogFile)} -> ${path.basename(rotatedFile)}`);
+    } catch (rotationError) {
+      console.warn('Failed to rotate log file:', rotationError.message);
+    }
+  }
+
   async logErrorToFile(error) {
     try {
+      // Rotate log if needed before writing
+      await this.rotateLogIfNeeded();
+
       const logEntry = {
         ...error,
         timestamp: error.timestamp.toISOString(),

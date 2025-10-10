@@ -1,7 +1,8 @@
 // Hero background with rotating images for booking flow
 import React from 'react';
+
 import { useImageRotation } from '@/shared/hooks';
-import { getVisibleImageIndices, getImageOpacityClasses, getTransitionStyles } from '@/shared/utils';
+import { getImageOpacityClasses, getTransitionStyles, getVisibleImageIndices } from '@/shared/utils';
 
 import { BOOKING_HERO_CONSTANTS } from '../../constants/hero';
 

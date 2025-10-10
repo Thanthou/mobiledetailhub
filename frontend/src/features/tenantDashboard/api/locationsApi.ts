@@ -1,5 +1,22 @@
 // API functions for locations management
-export const saveLocationData = async (tenantSlug: string, locationData: any) => {
+
+interface ServiceAreaData {
+  city: string;
+  state: string;
+  zip?: string;
+  primary?: boolean;
+  minimum?: number;
+  multiplier?: number;
+}
+
+interface ApiResponse {
+  success: boolean;
+  message?: string;
+  error?: string;
+  data?: unknown;
+}
+
+export const saveLocationData = async (tenantSlug: string, locationData: ServiceAreaData[]) => {
   const response = await fetch(`/api/locations/service-areas/${tenantSlug}`, {
     method: 'PUT',
     headers: {
@@ -9,14 +26,14 @@ export const saveLocationData = async (tenantSlug: string, locationData: any) =>
   });
 
   if (!response.ok) {
-    const error = await response.json();
+    const error = await response.json() as ApiResponse;
     throw new Error(error.error || 'Failed to save location data');
   }
 
-  return response.json();
+  return response.json() as Promise<ApiResponse>;
 };
 
-export const saveServiceAreas = async (tenantSlug: string, serviceAreas: any) => {
+export const saveServiceAreas = async (tenantSlug: string, serviceAreas: ServiceAreaData[]) => {
   const response = await fetch(`/api/locations/service-areas/${tenantSlug}`, {
     method: 'PUT',
     headers: {
@@ -26,14 +43,14 @@ export const saveServiceAreas = async (tenantSlug: string, serviceAreas: any) =>
   });
 
   if (!response.ok) {
-    const error = await response.json();
+    const error = await response.json() as ApiResponse;
     throw new Error(error.error || 'Failed to save service areas');
   }
 
-  return response.json();
+  return response.json() as Promise<ApiResponse>;
 };
 
-export const addServiceArea = async (tenantSlug: string, areaData: any) => {
+export const addServiceArea = async (tenantSlug: string, areaData: ServiceAreaData) => {
   const response = await fetch(`/api/locations/service-areas/${tenantSlug}`, {
     method: 'POST',
     headers: {
@@ -43,11 +60,11 @@ export const addServiceArea = async (tenantSlug: string, areaData: any) => {
   });
 
   if (!response.ok) {
-    const error = await response.json();
+    const error = await response.json() as ApiResponse;
     throw new Error(error.error || 'Failed to add service area');
   }
 
-  return response.json();
+  return response.json() as Promise<ApiResponse>;
 };
 
 export const deleteServiceArea = async (tenantSlug: string, areaId: string) => {
@@ -56,9 +73,9 @@ export const deleteServiceArea = async (tenantSlug: string, areaId: string) => {
   });
 
   if (!response.ok) {
-    const error = await response.json();
+    const error = await response.json() as ApiResponse;
     throw new Error(error.error || 'Failed to delete service area');
   }
 
-  return response.json();
+  return response.json() as Promise<ApiResponse>;
 };

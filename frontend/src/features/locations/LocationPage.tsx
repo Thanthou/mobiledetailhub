@@ -1,50 +1,28 @@
 import { useEffect } from "react";
 
+// Page-level composition - intentionally imports from multiple features
+// This is a top-level page that composes multiple feature components
+// eslint-disable-next-line no-restricted-imports -- Page composition
 import { FAQ } from '@/features/faq';
+// eslint-disable-next-line no-restricted-imports -- Page composition
 import { Footer } from '@/features/footer';
+// eslint-disable-next-line no-restricted-imports -- Page composition
 import { Hero } from '@/features/hero';
+import { useLocationPageState } from '@/features/locations/hooks';
+// eslint-disable-next-line no-restricted-imports -- Page composition
 import { RequestQuoteModal } from '@/features/quotes';
+// eslint-disable-next-line no-restricted-imports -- Page composition
 import { Reviews } from '@/features/reviews';
+// eslint-disable-next-line no-restricted-imports -- Page composition
 import { Services } from '@/features/services';
-
-import { useHomePageState } from '@/features/home/hooks';
-import HomePageLayout from '@/features/home/components/HomePageLayout';
+import HomePageLayout from '@/shared/components/HomePageLayout';
+import type { LocationPage as LocationPageType } from '@/shared/types/location';
 import { getAbsoluteUrl } from '@/shared/utils';
 import { generateAllSchemas, injectAllSchemas } from '@/shared/utils/schemaUtils';
 
-type AreaImage = { 
-  url: string; 
-  alt: string; 
-  caption?: string; 
-  role?: "hero" | "gallery" 
-};
-
-type Area = {
-  slug: string;
-  city: string;
-  stateCode: string;
-  state?: string;
-  urlPath: string;
-  affiliate?: string;
-  headings?: { h1?: string; sub?: string };
-  intro?: string;
-  images?: AreaImage[];
-  faqs?: Array<{ q: string; a: string }>;
-  "faq-intro"?: string;
-  reviewsSection?: {
-    heading?: string;
-    intro?: string;
-  };
-  seo?: {
-    title?: string;
-    description?: string;
-    ogImage?: string;
-  };
-};
-
-export default function LocationPage({ area }: { area: Area }) {
-  console.log('LocationPage rendered with area:', area);
-  
+// Page-level composition - allowed to import from multiple features
+export default function LocationPage({ area }: { area: LocationPageType }) {  
+  const locationPageState = useLocationPageState();
   const {
     isAffiliate,
     businessSlug,
@@ -53,27 +31,27 @@ export default function LocationPage({ area }: { area: Area }) {
     handleCloseQuoteModal,
     handleBookNow,
     handleQuoteModalPrefetch
-  } = useHomePageState();
+  } = locationPageState;
 
   // Update SEO meta tags on mount
   useEffect(() => {
     // canonical
     const canonical = document.getElementById("canonical-link") as HTMLLinkElement | null;
-    if (canonical) canonical.href = `https://mobiledetailhub.com${area.seo?.canonicalPath || area.urlPath}`;
+    if (canonical) canonical.href = `https://mobiledetailhub.com${area.seo.canonicalPath}`;
 
     // title
-    const title = area?.seo?.title ?? `Mobile Detailing ${area.city}, ${area.stateCode}`;
+    const title = area.seo.title;
     document.title = title;
 
     // meta description
     const descTag = document.getElementById("meta-desc") as HTMLMetaElement | null;
-    if (descTag && area?.seo?.description) descTag.setAttribute("content", area.seo.description);
+    if (descTag) descTag.setAttribute("content", area.seo.description);
 
     // OG/Twitter images
     const ogImage = document.getElementById("og-image") as HTMLMetaElement | null;
     const twImage = document.getElementById("tw-image") as HTMLMetaElement | null;
-    const ogImg = area?.seo?.ogImage ?? area.images?.[0]?.url;
-    const twImg = area?.seo?.twitterImage ?? ogImg;
+    const ogImg = area.seo.ogImage ?? area.images?.[0]?.url;
+    const twImg = area.seo.twitterImage ?? ogImg;
     const absoluteOgImg = ogImg ? getAbsoluteUrl(ogImg) : '';
     const absoluteTwImg = twImg ? getAbsoluteUrl(twImg) : '';
     if (absoluteOgImg && ogImage) ogImage.setAttribute("content", absoluteOgImg);
@@ -91,10 +69,10 @@ export default function LocationPage({ area }: { area: Area }) {
           onRequestQuote={handleOpenQuoteModal} 
           onBookNow={handleBookNow}
           onQuoteHover={handleQuoteModalPrefetch}
-          {...(area.headings?.h1 || area.headings?.sub ? {
+          {...(area.hero.h1 || area.hero.sub ? {
             customContent: {
-              ...(area.headings?.h1 && { title: area.headings.h1 }),
-              ...(area.headings?.sub && { subtitle: area.headings.sub })
+              title: area.hero.h1,
+              ...(area.hero.sub && { subtitle: area.hero.sub })
             }
           } : {})}
         />
@@ -105,15 +83,15 @@ export default function LocationPage({ area }: { area: Area }) {
       </section>
       <section id="reviews">
         <Reviews 
-          tenantSlug={businessSlug ?? ''}
-          {...(area["reviewsSection"]?.heading && { customHeading: area["reviewsSection"].heading })}
-          {...(area["reviewsSection"]?.intro && { customIntro: area["reviewsSection"].intro })}
-          {...(area["reviewsSection"]?.feedKey && { feedKey: area["reviewsSection"].feedKey })}
+          tenantSlug={businessSlug}
+          {...(area.reviewsSection?.heading && { customHeading: area.reviewsSection.heading })}
+          {...(area.reviewsSection?.intro && { customIntro: area.reviewsSection.intro })}
+          {...(area.reviewsSection?.feedKey && { feedKey: area.reviewsSection.feedKey })}
         />
       </section>
       <FAQ 
         {...(area.faqs && { customFAQs: area.faqs })}
-        {...(area["faq-intro"] && { customFAQIntro: area["faq-intro"] })}
+        {...(area.faqIntro && { customFAQIntro: area.faqIntro })}
       />
       <section id="footer">
         <Footer 

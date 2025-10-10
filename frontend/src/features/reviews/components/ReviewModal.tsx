@@ -1,7 +1,9 @@
 import React from 'react';
 
+import type { Review } from '../types/types';
+
 interface ReviewModalProps {
-  review: any;
+  review: Review | null;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -69,7 +71,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ review, isOpen, onClose }) =>
                   <h4 className="text-xl font-semibold text-white">{review.customerName}</h4>
                 )}
                 <div className="flex items-center">
-                  {[...Array(5)].map((_, i) => (
+                  {Array.from({ length: 5 }, (_, i) => (
                     <span
                       key={i}
                       className={`text-xl ${
@@ -91,7 +93,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ review, isOpen, onClose }) =>
                   className="hover:opacity-80 transition-opacity"
                 >
                   <img 
-                    src={`/icons/${review.reviewSource}.png`}
+                    src={`/shared/icons/${review.reviewSource}.png`}
                     alt={review.reviewSource}
                     className="w-8 h-8 rounded"
                   />
@@ -99,7 +101,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ review, isOpen, onClose }) =>
               )}
               {review.reviewSource && !review.reviewerUrl && (
                 <img 
-                  src={`/icons/${review.reviewSource}.png`}
+                  src={`/shared/icons/${review.reviewSource}.png`}
                   alt={review.reviewSource}
                   className="w-8 h-8 rounded"
                 />

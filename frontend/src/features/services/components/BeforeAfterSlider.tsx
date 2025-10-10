@@ -113,7 +113,7 @@ const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
         <div className="absolute inset-0">
           <img 
             src={beforeImage} 
-            alt={`${beforeLabel} image showing the original state`}
+            alt={`${beforeLabel}: original state`}
             width={600}
             height={400}
             loading="lazy"
@@ -132,7 +132,7 @@ const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
         >
           <img 
             src={afterImage} 
-            alt={`${afterLabel} image showing the improved state`}
+            alt={`${afterLabel}: improved state`}
             width={600}
             height={400}
             loading="lazy"

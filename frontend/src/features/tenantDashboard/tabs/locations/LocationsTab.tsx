@@ -1,10 +1,10 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import { AlertCircle } from 'lucide-react';
 
 import type { DetailerData } from '@/features/tenantDashboard/types';
-import { useTenantBusinessData } from '../../hooks/useTenantBusinessData';
-import { saveServiceAreas, addServiceArea, deleteServiceArea } from '../../api/locationsApi';
 
+import { addServiceArea, deleteServiceArea,saveServiceAreas } from '../../api/locationsApi';
+import { useTenantBusinessData } from '../../hooks/useTenantBusinessData';
 import { AddLocationModal } from './components/AddLocationModal';
 import { DeleteLocationModal } from './components/DeleteLocationModal';
 import PrimaryServiceArea from './components/PrimaryServiceArea';
@@ -21,8 +21,6 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
   const { apiLoaded } = useGoogleMaps();
   
   const {
-    businessData,
-    serviceAreas,
     primaryServiceArea,
     otherServiceAreas,
     loading,
@@ -106,7 +104,6 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
       const updatedArea = { ...primaryServiceArea, [field]: value };
       const allServiceAreas = [updatedArea, ...otherServiceAreas];
       await saveServiceAreas(currentTenantSlug, allServiceAreas);
-      console.log('Updated primary service area:', field, value);
       
       // Refresh the data to show updated values
       refetch();
@@ -120,7 +117,6 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
   const handleAddLocation = async (locationData: { city: string; state: string; zip?: string; minimum: number; multiplier: number }) => {
     try {
       await addServiceArea(currentTenantSlug, locationData);
-      console.log('Added location:', locationData);
       setIsAddModalOpen(false);
       
       // Refresh the data to show new location
@@ -139,7 +135,6 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
     setIsDeleting(true);
     try {
       await deleteServiceArea(currentTenantSlug, locationToDelete.id);
-      console.log('Deleted location:', locationToDelete);
       closeDeleteModal();
       
       // Refresh the data to show updated list
@@ -160,7 +155,6 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
         area.id === locationId ? { ...area, [field]: value } : area
       );
       await saveServiceAreas(currentTenantSlug, updatedAreas);
-      console.log('Updated location:', locationId, field, value);
       
       // Refresh the data to show updated values
       refetch();
@@ -230,7 +224,7 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
           primaryServiceArea={primaryServiceArea}
           isEditMode={isPrimaryEditMode}
           onEditModeChange={setIsPrimaryEditMode}
-          onLocationUpdate={updatePrimaryServiceAreaField}
+          onLocationUpdate={(field, value) => { void updatePrimaryServiceAreaField(field, value); }}
           apiLoaded={apiLoaded}
         />
       )}
@@ -247,15 +241,15 @@ const LocationsTab: React.FC<LocationsTabProps> = () => {
         onEditModeChange={setIsServiceAreaEditMode}
         onStartEditingLocation={startEditingLocation}
         onStopEditingLocation={stopEditingLocation}
-        onLocationUpdate={handleLocationUpdate}
+        onLocationUpdate={(id, field, value) => { void handleLocationUpdate(id, field, value); }}
         onDeleteLocation={openDeleteModal}
-        onLocationSelect={handleServiceAreaLocationSelect}
+        onLocationSelect={(place) => { void handleServiceAreaLocationSelect(place); }}
       />
 
       {/* Modals */}
       <AddLocationModal
         isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
+        onClose={() => { setIsAddModalOpen(false); }}
         onAdd={handleAddLocation}
       />
 

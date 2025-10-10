@@ -1,5 +1,9 @@
-import siteData from '@/data/mobile-detailing/site.json';
+import siteDataRaw from '@/data/mobile-detailing/site.json';
+import { useDataOptional } from '@/shared/contexts/DataContext';
 import { useWebsiteContent } from '@/shared/contexts/WebsiteContentContext';
+import type { MainSiteConfig } from '@/shared/types/location';
+
+const siteData = siteDataRaw as MainSiteConfig;
 
 interface UseReviewsRatingReturn {
   averageRating: number;
@@ -8,27 +12,31 @@ interface UseReviewsRatingReturn {
 }
 
 export const useReviewsRating = (): UseReviewsRatingReturn => {
-  // Use static site data since we're now tenant-based
+  // Check if in preview mode
+  const data = useDataOptional();
+  const isPreview = data?.isPreview || false;
   
-  // Try to get website content, but handle cases where provider isn't available
-  let websiteContent = null;
-  try {
-    const { content } = useWebsiteContent();
-    websiteContent = content;
-  } catch {
-    // WebsiteContentProvider not available, use fallbacks
-    websiteContent = null;
+  // In preview mode, return impressive stats
+  if (isPreview) {
+    return {
+      averageRating: 4.9,
+      totalReviews: 863,
+      googleBusinessUrl: '#', // Dead link in preview
+    };
   }
+  
+  // Always call hooks unconditionally
+  const { content: websiteContent } = useWebsiteContent();
   
   // Pull from database first, then fall back to site data
   const averageRating = websiteContent?.reviews_avg_rating 
-    ?? (siteData?.reviews?.ratingValue ? parseFloat(siteData.reviews.ratingValue) : 4.9);
+    ?? (siteData.reviews?.ratingValue ? parseFloat(siteData.reviews.ratingValue) : 4.9);
     
   const totalReviews = websiteContent?.reviews_total_count 
-    ?? siteData?.reviews?.reviewCount 
+    ?? siteData.reviews?.reviewCount 
     ?? 112;
     
-  const googleBusinessUrl = siteData?.socials?.googleBusiness 
+  const googleBusinessUrl = siteData.socials?.googleBusiness 
     ?? 'https://share.google/fx8oPIguzvJmTarrl';
 
   return {

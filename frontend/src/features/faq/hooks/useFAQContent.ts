@@ -1,8 +1,10 @@
 import { useMemo } from 'react';
+
 import { useWebsiteContent } from '@/shared/contexts/WebsiteContentContext';
 import { useIndustrySiteData } from '@/shared/hooks/useIndustrySiteData';
-import { MDH_FAQ_ITEMS } from '../utils';
+
 import type { FAQItem as BaseFAQItem } from '../types';
+import { MDH_FAQ_ITEMS } from '../utils';
 
 // Extended FAQ Item that allows any category string
 export interface FAQItem extends Omit<BaseFAQItem, 'category'> {
@@ -17,30 +19,32 @@ interface UseFAQContentReturn {
 }
 
 interface UseFAQContentProps {
-  locationData?: any;
+  locationData?: {
+    faqIntro?: string;
+    city?: string;
+    faqs?: Array<{ q: string; a: string }>;
+  };
 }
 
 export const useFAQContent = (props?: UseFAQContentProps): UseFAQContentReturn => {
   // Get industry-specific site data
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- siteData is dynamically imported JSON
   const { siteData } = useIndustrySiteData();
   const locationData = props?.locationData;
   
-  // Try to get website content, but handle cases where provider isn't available
-  let websiteContent = null;
-  try {
-    const { content } = useWebsiteContent();
-    websiteContent = content;
-  } catch {
-    // WebsiteContentProvider not available, use fallbacks
-    websiteContent = null;
-  }
+  // Get website content - hooks must be called unconditionally
+  const { content: websiteContent } = useWebsiteContent();
   
   // Get FAQ title and subtitle from database or industry-specific fallbacks
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- siteData is dynamically imported JSON
   const faqTitle = websiteContent?.faq_title 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- siteData is dynamically imported JSON
     ?? siteData?.faq?.title 
     ?? 'Frequently Asked Questions';
     
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- siteData is dynamically imported JSON
   const faqSubtitle = websiteContent?.faq_subtitle 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- siteData is dynamically imported JSON
     ?? siteData?.faq?.subtitle 
     ?? locationData?.faqIntro 
     ?? 'Find answers to common questions about our mobile detailing services';
@@ -52,10 +56,13 @@ export const useFAQContent = (props?: UseFAQContentProps): UseFAQContentReturn =
     }
     
     return websiteContent.faq_content.map((faq, index) => ({
-      id: `db-${index}`,
-      question: faq.question,
-      answer: faq.answer,
-      category: faq.category,
+      id: `db-${String(index)}`,
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- faq properties from database might be null
+      question: String(faq.question ?? ''),
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- faq properties from database might be null
+      answer: String(faq.answer ?? ''),
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- faq properties from database might be null
+      category: String(faq.category ?? 'General'),
       services: undefined // optional field
     } as FAQItem));
   }, [websiteContent?.faq_content]);
@@ -64,11 +71,11 @@ export const useFAQContent = (props?: UseFAQContentProps): UseFAQContentReturn =
   const locationFAQs: FAQItem[] = useMemo(() => {
     if (!locationData?.faqs) return [];
     
-    return locationData.faqs.map((faq: any, index: number) => ({
-      id: `location-${index}`,
+    return locationData.faqs.map((faq, index) => ({
+      id: `location-${String(index)}`,
       question: faq.q,
       answer: faq.a,
-      category: locationData.city ? locationData.city : 'Location'
+      category: locationData.city ?? 'Location'
     }));
   }, [locationData]);
   
@@ -91,8 +98,8 @@ export const useFAQContent = (props?: UseFAQContentProps): UseFAQContentReturn =
   }, [faqItems]);
 
   return {
-    faqTitle,
-    faqSubtitle,
+    faqTitle: String(faqTitle),
+    faqSubtitle: String(faqSubtitle),
     faqItems,
     categories
   };

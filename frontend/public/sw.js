@@ -1,5 +1,5 @@
 /**
- * Service Worker for Mobile Detail Hub PWA
+ * Service Worker for That Smart Site PWA
  * Provides basic caching for assets and offline functionality
  */
 

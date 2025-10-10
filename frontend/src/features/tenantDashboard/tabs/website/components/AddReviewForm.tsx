@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Star, Send, AlertCircle, User, Link, MessageSquare, Upload } from 'lucide-react';
-import { createReview, uploadAvatar, type TenantReviewData } from '../../../api/reviewsApi';
+import { AlertCircle, Link, MessageSquare, Send, Star, Upload,User } from 'lucide-react';
+
+import { createReview, type TenantReviewData,uploadAvatar } from '../../../api/reviewsApi';
 
 interface ReviewFormData {
   customerName: string;
@@ -77,7 +78,7 @@ export const AddReviewForm: React.FC<AddReviewFormProps> = ({ tenantSlug }) => {
       
       // Auto-detect review source when reviewer URL changes
       if (name === 'reviewerUrl') {
-        newData.source = detectReviewSource(value as string);
+        newData.source = detectReviewSource(value);
       }
       
       return newData;
@@ -114,7 +115,7 @@ export const AddReviewForm: React.FC<AddReviewFormProps> = ({ tenantSlug }) => {
       <button
         key={index}
         type="button"
-        onClick={() => interactive && handleRatingClick(index + 1)}
+        onClick={() => { if (interactive) handleRatingClick(index + 1); }}
         disabled={!interactive}
         className={`h-8 w-8 transition-colors ${
           index < rating
@@ -165,20 +166,12 @@ export const AddReviewForm: React.FC<AddReviewFormProps> = ({ tenantSlug }) => {
       };
 
       const createResponse = await createReview(tenantSlug, reviewData);
-      const reviewId = createResponse.data?.id;
-      
-      console.log('Review created:', { reviewId, response: createResponse });
+      const reviewId = createResponse.data.id;
 
       // Step 2: Upload avatar if provided
       if (formData.avatarFile && reviewId) {
         try {
-          console.log('Uploading avatar:', { 
-            fileName: formData.avatarFile.name, 
-            customerName: formData.customerName, 
-            reviewId 
-          });
-          const avatarResult = await uploadAvatar(formData.avatarFile, formData.customerName, reviewId);
-          console.log('Avatar upload result:', avatarResult);
+          const _avatarResult = await uploadAvatar(formData.avatarFile, formData.customerName, reviewId);
         } catch (avatarError) {
           // Avatar upload failed, but review was created successfully
           console.warn('Avatar upload failed:', avatarError);
@@ -229,7 +222,7 @@ export const AddReviewForm: React.FC<AddReviewFormProps> = ({ tenantSlug }) => {
 
       {/* Form */}
       <div className="bg-stone-800 rounded-xl border border-stone-700 p-6">
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={(e) => { e.preventDefault(); void handleSubmit(e); }} className="space-y-6">
           {/* Customer Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -264,7 +257,7 @@ export const AddReviewForm: React.FC<AddReviewFormProps> = ({ tenantSlug }) => {
                 placeholder="e.g., https://www.google.com/maps/contrib/123456789"
               />
               <p className="text-xs text-gray-400 mt-1">
-                Link to reviewer's profile page (Google, Yelp, etc.)
+                Link to reviewer&apos;s profile page (Google, Yelp, etc.)
               </p>
             </div>
           </div>
@@ -291,9 +284,9 @@ export const AddReviewForm: React.FC<AddReviewFormProps> = ({ tenantSlug }) => {
 
           {/* Service Types */}
           <div>
-            <label className="block text-sm font-medium text-white mb-3">
+            <div className="block text-sm font-medium text-white mb-3">
               Service Types
-            </label>
+            </div>
             <div className="space-y-3">
               <div className="flex items-center">
                 <input
@@ -368,9 +361,9 @@ export const AddReviewForm: React.FC<AddReviewFormProps> = ({ tenantSlug }) => {
 
           {/* Rating */}
           <div>
-            <label className="block text-sm font-medium text-white mb-3">
+            <div className="block text-sm font-medium text-white mb-3">
               Rating *
-            </label>
+            </div>
             <div className="flex items-center space-x-1">
               {renderStars(formData.rating, true)}
               {formData.rating > 0 && (

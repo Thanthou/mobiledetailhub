@@ -1,3 +1,4 @@
+import type React from 'react';
 import type { LucideIcon } from 'lucide-react';
 
 export interface LoginModalProps {

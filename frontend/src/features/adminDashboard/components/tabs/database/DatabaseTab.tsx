@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
-import { Play, Server,Terminal } from 'lucide-react';
+import { Play, Server, Terminal } from 'lucide-react';
 
 import { config } from '@/../config/env';
-import type { QueryResult } from '@/features/adminDashboard/types';
+import { useExecuteQuery } from '@/features/adminDashboard/hooks/useExecuteQuery';
 
 export const DatabaseTab: React.FC = () => {
   const [query, setQuery] = useState('SELECT * FROM users LIMIT 10;');
-  const [queryResult, setQueryResult] = useState<QueryResult | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { queryResult, isLoading, error, execute } = useExecuteQuery();
   
   // Automatically detect environment - no manual toggle needed
   const isLiveDatabase = config.isProduction;
@@ -16,64 +14,7 @@ export const DatabaseTab: React.FC = () => {
   const databaseDescription = isLiveDatabase ? 'Render PostgreSQL' : 'Local PostgreSQL';
 
   const executeQuery = async () => {
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      const currentQuery = query.trim();
-      
-      if (!currentQuery) {
-        throw new Error('No query entered');
-      }
-      
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
-
-      const apiUrl = isLiveDatabase ? config.apiUrls.live : config.apiUrls.local;
-      const endpoint = `${apiUrl}/admin/query`;
-
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ query: currentQuery })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json() as { error?: string };
-        throw new Error(errorData.error ?? 'Failed to execute query');
-      }
-
-      const data = await response.json() as {
-        success: boolean;
-        fields?: unknown[];
-        rows?: unknown[];
-        rowCount?: number;
-      };
-      
-      if (data.success) {
-        const result: QueryResult = {
-          columns: Array.isArray(data.fields) ? data.fields.map(String) : [],
-          rows: Array.isArray(data.rows) ? data.rows : [],
-          rowCount: data.rowCount ?? 0,
-          executionTime: Date.now()
-        };
-        
-        setQueryResult(result);
-      } else {
-        throw new Error('Query execution failed');
-      }
-      
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to execute query';
-      setError(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
+    await execute(query);
   };
 
   return (

@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronDown, Home, Shield, Building2, ExternalLink } from 'lucide-react';
+import { Building2, ChevronDown, ExternalLink,Home, Shield } from 'lucide-react';
+
 import { useTenants } from '../hooks/useTenants';
 
 const UserMenu: React.FC = () => {
@@ -32,11 +33,6 @@ const UserMenu: React.FC = () => {
     setIsAdminOpen(false);
     setIsTenantsOpen(false);
   }, [navigate]);
-
-  const handleExternalNavigation = useCallback((url: string) => {
-    window.open(url, '_blank', 'noopener,noreferrer');
-    setIsTenantsOpen(false);
-  }, []);
 
   const handleTenantHomepage = useCallback((slug: string) => {
     // In development, navigate to localhost with the slug
@@ -126,7 +122,6 @@ const UserMenu: React.FC = () => {
         <button
           id="admin-menu-button"
           onClick={() => { 
-            console.log('🔍 Admin button clicked, isAdminOpen:', !isAdminOpen);
             setIsAdminOpen(!isAdminOpen);
             setIsTenantsOpen(false); // Close other menus
           }}
@@ -146,7 +141,6 @@ const UserMenu: React.FC = () => {
             role="menu"
             aria-orientation="vertical"
             aria-labelledby="admin-menu-button"
-            onLoad={() => console.log('🔍 Admin dropdown menu rendered')}
           >
             <button
               onClick={() => { handleNavigation('/'); }}
@@ -159,7 +153,6 @@ const UserMenu: React.FC = () => {
             
             <button
               onClick={() => { 
-                console.log('🔍 Admin Dashboard clicked');
                 handleNavigation('/admin-dashboard'); 
               }}
               className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
@@ -171,7 +164,6 @@ const UserMenu: React.FC = () => {
             
             <button
               onClick={() => { 
-                console.log('🔍 Tenant Onboarding clicked');
                 handleNavigation('/tenant-onboarding'); 
               }}
               className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, MapPin, Phone } from 'lucide-react';
 
 interface GetInTouchProps {
   config?: {
@@ -20,9 +20,9 @@ const GetInTouch: React.FC<GetInTouchProps> = ({
   showLocationSetter = false
 }) => {
   const contactInfo = {
-    phone: config?.phone || '(555) 123-4567',
-    email: config?.email || 'service@mobiledetailhub.com',
-    location: config?.base_location?.city && config?.base_location?.state_name 
+    phone: config?.phone ?? '(555) 123-4567',
+    email: config?.email ?? 'service@mobiledetailhub.com',
+    location: config?.base_location?.city && config.base_location.state_name 
       ? `${config.base_location.city}, ${config.base_location.state_name}`
       : null // Don't show location for main site
   };

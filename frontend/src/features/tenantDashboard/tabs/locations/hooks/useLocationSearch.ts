@@ -1,6 +1,6 @@
-import { useCallback, useRef, useState } from 'react';
+import { type CSSProperties, useCallback, useRef, useState } from 'react';
 
-import { type AutocompleteSessionToken, getGoogle, hasImportLibrary } from '@/features/locations';
+import { type AutocompleteSessionToken, getGoogle } from '@/shared';
 
 interface UseLocationSearchProps {
   apiLoaded: boolean;
@@ -12,7 +12,7 @@ interface LocationSearchState {
   predictions: google.maps.places.AutocompleteSuggestion[];
   showPredictions: boolean;
   isLoading: boolean;
-  dropdownStyle: React.CSSProperties;
+  dropdownStyle: CSSProperties;
 }
 
 export const useLocationSearch = ({ apiLoaded }: UseLocationSearchProps) => {
@@ -105,7 +105,7 @@ export const useLocationSearch = ({ apiLoaded }: UseLocationSearchProps) => {
     sessionTokenRef.current = null;
   }, []);
 
-  const setDropdownStyle = useCallback((style: React.CSSProperties) => {
+  const setDropdownStyle = useCallback((style: CSSProperties) => {
     setState(prev => ({ ...prev, dropdownStyle: style }));
   }, []);
 

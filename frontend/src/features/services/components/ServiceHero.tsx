@@ -1,6 +1,7 @@
 import React from 'react';
-import { CTAButtons } from '@/shared/ui';
+
 import { ServiceData } from '@/features/services/types/service.types';
+import { CTAButtons } from '@/shared/ui';
 
 interface ServiceHeroProps {
   serviceData: ServiceData;

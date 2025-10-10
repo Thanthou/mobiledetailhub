@@ -1,6 +1,6 @@
 import React from 'react';
 import { SiFacebook, SiInstagram, SiYoutube } from 'react-icons/si';
-import siteData from '@/data/mobile-detailing/site.json';
+
 import { useData } from '../contexts/DataProvider';
 
 // Custom TikTok icon component
@@ -19,45 +19,43 @@ const TikTokIcon: React.FC<{ className?: string }> = ({ className }) => (
 );
 
 const SocialMediaIcons: React.FC = () => {
-  // Try to get tenant data, fall back to static data if not available
-  let tenantData;
-  try {
-    tenantData = useData();
-  } catch {
-    tenantData = null;
-  }
+  // Always call hooks unconditionally
+  const { isTenant, socialMedia, siteConfig, isPreview } = useData();
   
-  // Use tenant social media if available, otherwise use static data
-  const socialMedia = tenantData?.isTenant ? tenantData.socialMedia : siteData.socials;
+  // Use tenant social media if available, otherwise use site config
+  const socials = isTenant ? socialMedia : siteConfig?.socials;
   
   const socialLinks = [
     {
       platform: 'Facebook',
-      url: socialMedia?.facebook,
+      url: socials?.facebook,
       icon: SiFacebook,
       ariaLabel: 'Visit our Facebook page'
     },
     {
       platform: 'Instagram',
-      url: socialMedia?.instagram,
+      url: socials?.instagram,
       icon: SiInstagram,
       ariaLabel: 'Visit our Instagram page'
     },
     {
       platform: 'TikTok',
-      url: socialMedia?.tiktok,
+      url: socials?.tiktok,
       icon: TikTokIcon,
       ariaLabel: 'Visit our TikTok page'
     },
     {
       platform: 'YouTube',
-      url: socialMedia?.youtube,
+      url: socials?.youtube,
       icon: SiYoutube,
       ariaLabel: 'Visit our YouTube channel'
     }
   ];
 
-  const visibleLinks = socialLinks.filter(link => link.url && link.url !== null && link.url.trim() !== '');
+  const visibleLinks = socialLinks.filter(link => {
+    const url = link.url;
+    return typeof url === 'string' && url.trim() !== '';
+  });
 
   if (visibleLinks.length === 0) {
     return null;
@@ -65,18 +63,36 @@ const SocialMediaIcons: React.FC = () => {
 
   return (
     <div className="flex items-center space-x-3 ml-4">
-      {visibleLinks.map(({ platform, url, icon: Icon, ariaLabel }) => (
-        <a 
-          key={platform}
-          href={url} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="text-white hover:text-orange-400 transition-colors duration-200"
-          aria-label={ariaLabel}
-        >
-          <Icon className="h-5 w-5" />
-        </a>
-      ))}
+      {visibleLinks.map(({ platform, url, icon: Icon, ariaLabel }) => {
+        const href = url as string;
+        
+        // In preview mode, render as span instead of link
+        if (isPreview) {
+          return (
+            <span
+              key={platform}
+              className="text-white hover:text-orange-400 transition-colors duration-200 cursor-pointer"
+              aria-label={ariaLabel}
+              title="Social media links available in your live site"
+            >
+              <Icon className="h-5 w-5" />
+            </span>
+          );
+        }
+        
+        return (
+          <a 
+            key={platform}
+            href={href} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-white hover:text-orange-400 transition-colors duration-200"
+            aria-label={ariaLabel}
+          >
+            <Icon className="h-5 w-5" />
+          </a>
+        );
+      })}
     </div>
   );
 };

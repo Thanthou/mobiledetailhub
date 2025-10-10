@@ -143,7 +143,7 @@ export const ServiceTierCards: React.FC<ServiceTierCardsProps> = ({
                     className="text-3xl font-bold text-white bg-stone-700 border border-stone-600 rounded px-2 py-1 text-center w-24 focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                 ) : (
-                  <span className="text-3xl font-bold text-white">{tier.price.toFixed(2)}</span>
+                  <span className="text-3xl font-bold text-white">{Number(tier.price).toFixed(2)}</span>
                 )}
               </div>
               

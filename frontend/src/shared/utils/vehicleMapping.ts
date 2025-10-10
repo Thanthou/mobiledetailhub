@@ -75,8 +75,8 @@ export const getDisplayName = (vehicleId: string): string => {
 // Get all vehicle IDs that map to the same database ID
 export const getVehiclesByDatabaseId = (databaseId: number): string[] => {
   return Object.entries(VEHICLE_MAPPINGS)
-    .filter(([_, mapping]) => mapping.databaseId === databaseId)
-    .map(([vehicleId, _]) => vehicleId);
+    .filter(([_vehicleId, mapping]) => mapping.databaseId === databaseId)
+    .map(([vehicleId]) => vehicleId);
 };
 
 // Check if two vehicle types are equivalent (same database ID)

@@ -1,7 +1,8 @@
 import React from 'react';
+
 import { NAV_LINKS } from '@/features/header/utils/constants';
 import { handleSectionClick } from '@/features/header/utils/navigation';
-import { useReviewsAvailability } from '@/features/reviews/hooks/useReviewsAvailability';
+import { useReviewsAvailability } from '@/shared/hooks';
 
 interface NavigationProps {
   activeSection: string;
@@ -51,7 +52,7 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection }) => {
         link.isFAQ ? (
           <button
             key={link.name}
-            onClick={() => handleSectionClick('#faq')}
+            onClick={() => { handleSectionClick('#faq'); }}
             className={getNavItemClasses(link)}
             aria-label={`Scroll to ${link.name} section`}
           >
@@ -60,7 +61,7 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection }) => {
         ) : link.isGallery ? (
           <button
             key={link.name}
-            onClick={() => handleSectionClick('#footer')}
+            onClick={() => { handleSectionClick('#footer'); }}
             className={getNavItemClasses(link)}
             aria-label={`Scroll to ${link.name} section`}
           >
@@ -69,7 +70,7 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection }) => {
         ) : link.name === 'Reviews' ? (
           <button
             key={link.name}
-            onClick={() => handleSectionClick('#reviews')}
+            onClick={() => { handleSectionClick('#reviews'); }}
             className={getNavItemClasses(link)}
             aria-label={`Scroll to ${link.name} section`}
           >
@@ -78,7 +79,7 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection }) => {
         ) : link.name === 'Home' ? (
           <button
             key={link.name}
-            onClick={() => handleSectionClick('#top')}
+            onClick={() => { handleSectionClick('#top'); }}
             className={getNavItemClasses(link)}
             aria-label={`Scroll to ${link.name} section`}
           >
@@ -87,7 +88,7 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection }) => {
         ) : link.name === 'Services' ? (
           <button
             key={link.name}
-            onClick={() => handleSectionClick('#services')}
+            onClick={() => { handleSectionClick('#services'); }}
             className={getNavItemClasses(link)}
             aria-label={`Scroll to ${link.name} section`}
           >

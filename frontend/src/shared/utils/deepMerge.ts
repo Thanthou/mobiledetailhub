@@ -6,6 +6,11 @@
 
 import type { LocationPage, MainSiteConfig } from '@/shared/types/location';
 
+// Type-safe representations for merge operations
+type PlainObject = Record<string, unknown>;
+type MergeValue = unknown;
+type ArrayItem = unknown;
+
 /**
  * Deep merge configuration options
  */
@@ -19,7 +24,7 @@ export interface DeepMergeOptions {
   /** Keys to deduplicate arrays */
   dedupeKeys?: string[];
   /** Custom merge function for specific keys */
-  customMergers?: Record<string, (target: any, source: any) => any>;
+  customMergers?: Record<string, (target: MergeValue, source: MergeValue) => MergeValue>;
 }
 
 /**
@@ -41,64 +46,83 @@ export const DEFAULT_MERGE_OPTIONS: DeepMergeOptions = {
     // SEO: deep merge with location overriding main
     seo: (main, location) => deepMergeObject(main || {}, location || {}),
     // Header: location completely overrides main
-    header: (main, location) => location || main,
+    header: (_main, location) => location || _main,
     // Hero: deep merge with location overriding main
     hero: (main, location) => deepMergeObject(main || {}, location || {}),
     // Reviews section: location overrides main
-    reviewsSection: (main, location) => location || main,
+    reviewsSection: (_main, location) => location || _main,
     // Ops: location overrides main
-    ops: (main, location) => location || main,
+    ops: (_main, location) => location || _main,
     // Service area: location overrides main
-    serviceArea: (main, location) => location || main,
+    serviceArea: (_main, location) => location || _main,
     // Schema org: location overrides main
-    schemaOrg: (main, location) => location || main
+    schemaOrg: (_main, location) => location || _main
   }
 };
 
 /**
  * Check if value is a plain object
  */
-function isPlainObject(value: any): boolean {
+function isPlainObject(value: unknown): value is PlainObject {
   return value !== null && 
          typeof value === 'object' && 
-         value.constructor === Object &&
+         !Array.isArray(value) &&
          Object.prototype.toString.call(value) === '[object Object]';
 }
 
 /**
  * Check if value is an array
  */
-function isArray(value: any): boolean {
+function isArray(value: unknown): value is ArrayItem[] {
   return Array.isArray(value);
+}
+
+/**
+ * Safely get property from object
+ */
+function getProperty(obj: unknown, key: string): unknown {
+  if (isPlainObject(obj)) {
+    return obj[key];
+  }
+  return undefined;
 }
 
 /**
  * Create a unique key for array items to enable deduplication
  */
-function createItemKey(item: any, index: number): string {
+function createItemKey(item: ArrayItem, index: number): string {
   // For images, use role + url combination
-  if (item.role && item.url) {
-    return `${item.role}:${item.url}`;
-  }
-  
-  // For FAQs, use id or question
-  if (item.id) {
-    return `faq:${item.id}`;
-  }
-  if (item.q) {
-    return `faq:${item.q}`;
+  if (isPlainObject(item)) {
+    const role = getProperty(item, 'role');
+    const url = getProperty(item, 'url');
+    if (typeof role === 'string' && typeof url === 'string') {
+      return `${role}:${url}`;
+    }
+    
+    // For FAQs, use id or question
+    const id = getProperty(item, 'id');
+    if (id !== undefined) {
+      return `faq:${String(id)}`;
+    }
+    const q = getProperty(item, 'q');
+    if (typeof q === 'string') {
+      return `faq:${q}`;
+    }
+    
+    // For objects, try to create a meaningful key
+    const slug = getProperty(item, 'slug');
+    if (typeof slug === 'string') return `object:${slug}`;
+    
+    const title = getProperty(item, 'title');
+    if (typeof title === 'string') return `object:${title}`;
+    
+    const name = getProperty(item, 'name');
+    if (typeof name === 'string') return `object:${name}`;
   }
   
   // For simple strings, use the string itself
   if (typeof item === 'string') {
     return `string:${item}`;
-  }
-  
-  // For objects, try to create a meaningful key
-  if (isPlainObject(item)) {
-    if (item.slug) return `object:${item.slug}`;
-    if (item.title) return `object:${item.title}`;
-    if (item.name) return `object:${item.name}`;
   }
   
   // Fallback to index-based key
@@ -108,8 +132,8 @@ function createItemKey(item: any, index: number): string {
 /**
  * Deduplicate array based on custom key function
  */
-function deduplicateArray(array: any[], keyFn: (item: any, index: number) => string): any[] {
-  const seen = new Map<string, any>();
+function deduplicateArray(array: ArrayItem[], keyFn: (item: ArrayItem, index: number) => string): ArrayItem[] {
+  const seen = new Map<string, ArrayItem>();
   
   array.forEach((item, index) => {
     const key = keyFn(item, index);
@@ -125,16 +149,26 @@ function deduplicateArray(array: any[], keyFn: (item: any, index: number) => str
  * Merge arrays based on strategy
  */
 function mergeArrays(
-  target: any[], 
-  source: any[], 
+  target: unknown, 
+  source: unknown, 
   key: string, 
   options: DeepMergeOptions
-): any[] {
+): ArrayItem[] {
   const { arrayMergeStrategy, concatKeys, dedupeKeys, replaceKeys } = options;
+  
+  // Ensure source is an array
+  if (!isArray(source)) {
+    return [];
+  }
+  
+  // If target is not an array, just return source
+  if (!isArray(target)) {
+    return source;
+  }
   
   // Always concatenate for specific keys (takes precedence over replace)
   if (concatKeys?.includes(key)) {
-    return [...(target || []), ...(source || [])];
+    return [...target, ...source];
   }
   
   // Always replace for specific keys
@@ -144,7 +178,7 @@ function mergeArrays(
   
   // Always deduplicate for specific keys
   if (dedupeKeys?.includes(key)) {
-    const combined = [...(target || []), ...(source || [])];
+    const combined = [...target, ...source];
     return deduplicateArray(combined, createItemKey);
   }
   
@@ -153,45 +187,48 @@ function mergeArrays(
     case 'replace':
       return source;
     case 'concat':
-      return [...(target || []), ...(source || [])];
-    case 'dedupe':
-      const combined = [...(target || []), ...(source || [])];
+      return [...target, ...source];
+    case 'dedupe': {
+      const combined = [...target, ...source];
       return deduplicateArray(combined, createItemKey);
+    }
     case 'smart':
-    default:
+    default: {
       // Smart defaults based on key
       if (['images', 'faqs'].includes(key)) {
-        const combined = [...(target || []), ...(source || [])];
+        const combined = [...target, ...source];
         return deduplicateArray(combined, createItemKey);
       } else if (['neighborhoods', 'landmarks', 'localConditions', 'keywords'].includes(key)) {
-        return [...(target || []), ...(source || [])];
+        return [...target, ...source];
       } else {
         return source; // Replace by default
       }
+    }
   }
 }
 
 /**
  * Deep merge two objects
  */
-function deepMergeObject(target: any, source: any, options: DeepMergeOptions = DEFAULT_MERGE_OPTIONS): any {
+function deepMergeObject(target: MergeValue, source: MergeValue, options: DeepMergeOptions = DEFAULT_MERGE_OPTIONS): PlainObject {
   if (!isPlainObject(source)) {
-    return source;
+    return isPlainObject(target) ? target : {};
   }
   
   if (!isPlainObject(target)) {
     return source;
   }
   
-  const result = { ...target };
+  const result: PlainObject = { ...target };
   
   Object.keys(source).forEach(key => {
     const sourceValue = source[key];
     const targetValue = target[key];
     
     // Use custom merger if available
-    if (options.customMergers?.[key]) {
-      result[key] = options.customMergers[key](targetValue, sourceValue);
+    const customMerger = options.customMergers?.[key];
+    if (customMerger) {
+      result[key] = customMerger(targetValue, sourceValue);
       return;
     }
     
@@ -215,115 +252,73 @@ function deepMergeObject(target: any, source: any, options: DeepMergeOptions = D
 }
 
 /**
- * Deep merge main site config with location data
- */
-export function deepMergeLocationData(
-  mainConfig: MainSiteConfig,
-  locationData: LocationPage,
-  options: DeepMergeOptions = DEFAULT_MERGE_OPTIONS
-): LocationPage {
-  // Start with location data as base (it should override main config)
-  const merged = deepMergeObject(mainConfig, locationData, options);
-  
-  // Ensure required location-specific fields are preserved
-  const requiredLocationFields = [
-    'slug', 'city', 'stateCode', 'state', 'postalCode', 'urlPath'
-  ];
-  
-  requiredLocationFields.forEach(field => {
-    if (locationData[field as keyof LocationPage]) {
-      merged[field as keyof LocationPage] = locationData[field as keyof LocationPage];
-    }
-  });
-  
-  return merged as LocationPage;
-}
-
-/**
- * Merge multiple location data objects
- */
-export function deepMergeMultipleLocations(
-  baseData: LocationPage,
-  ...additionalData: Partial<LocationPage>[]
-): LocationPage {
-  let result = { ...baseData };
-  
-  additionalData.forEach(data => {
-    result = deepMergeObject(result, data, DEFAULT_MERGE_OPTIONS);
-  });
-  
-  return result;
-}
-
-/**
- * Create a merged location data object with smart defaults
+ * Main merge function for location data
+ * Merges main site config with location-specific overrides
  */
 export function createMergedLocationData(
   mainConfig: MainSiteConfig,
   locationData: LocationPage,
-  customOptions?: Partial<DeepMergeOptions>
+  options: Partial<DeepMergeOptions> = {}
 ): LocationPage {
-  const options = {
+  const mergeOptions: DeepMergeOptions = {
     ...DEFAULT_MERGE_OPTIONS,
-    ...customOptions
+    ...options
   };
   
-  return deepMergeLocationData(mainConfig, locationData, options);
+  // Deep merge the configs
+  const merged = deepMergeObject(mainConfig, locationData, mergeOptions) as unknown as LocationPage;
+  
+  // Ensure required fields from location always take precedence
+  const requiredFields: Array<keyof LocationPage> = [
+    'slug', 'city', 'stateCode', 'state', 'urlPath'
+  ];
+  
+  requiredFields.forEach(field => {
+    if (field in locationData) {
+      (merged as unknown as PlainObject)[field] = locationData[field];
+    }
+  });
+  
+  return merged;
 }
 
 /**
- * Validate merged data structure
+ * Validation result for merged data
  */
-export function validateMergedData(mergedData: LocationPage): {
+export interface ValidationResult {
   isValid: boolean;
   errors: string[];
   warnings: string[];
-} {
+}
+
+/**
+ * Validate merged location data
+ */
+export function validateMergedData(data: LocationPage): ValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
   
   // Check required fields
-  const requiredFields = ['slug', 'city', 'stateCode', 'state', 'postalCode', 'urlPath'];
-  requiredFields.forEach(field => {
-    if (!mergedData[field as keyof LocationPage]) {
-      errors.push(`Missing required field: ${field}`);
-    }
-  });
+  if (!data.slug) errors.push('Missing required field: slug');
+  if (!data.city) errors.push('Missing required field: city');
+  if (!data.stateCode) errors.push('Missing required field: stateCode');
+  if (!data.state) errors.push('Missing required field: state');
+  if (!data.urlPath) errors.push('Missing required field: urlPath');
   
-  // Check for duplicate images
-  if (mergedData.images) {
-    const imageKeys = new Set();
-    const duplicates: string[] = [];
-    
-    mergedData.images.forEach((img, index) => {
-      const key = createItemKey(img, index);
-      if (imageKeys.has(key)) {
-        duplicates.push(`Image ${index}: ${img.role}:${img.url}`);
-      }
-      imageKeys.add(key);
-    });
-    
-    if (duplicates.length > 0) {
-      warnings.push(`Duplicate images found: ${duplicates.join(', ')}`);
-    }
+  // Check SEO
+  if (!data.seo.title) warnings.push('Missing SEO title');
+  if (!data.seo.description) warnings.push('Missing SEO description');
+  
+  // Check hero
+  if (!data.hero.h1) warnings.push('Missing hero H1');
+  
+  // Warnings for optional but recommended fields
+  if (!data.images || data.images.length === 0) {
+    warnings.push('No images provided');
   }
   
-  // Check for duplicate FAQs
-  if (mergedData.faqs) {
-    const faqKeys = new Set();
-    const duplicates: string[] = [];
-    
-    mergedData.faqs.forEach((faq, index) => {
-      const key = createItemKey(faq, index);
-      if (faqKeys.has(key)) {
-        duplicates.push(`FAQ ${index}: ${faq.q}`);
-      }
-      faqKeys.add(key);
-    });
-    
-    if (duplicates.length > 0) {
-      warnings.push(`Duplicate FAQs found: ${duplicates.join(', ')}`);
-    }
+  if (!data.faqs || data.faqs.length === 0) {
+    warnings.push('No FAQs provided');
   }
   
   return {
@@ -334,58 +329,142 @@ export function validateMergedData(mergedData: LocationPage): {
 }
 
 /**
- * Utility to get merge statistics
+ * Helper to create a minimal location page from partial data
  */
-export function getMergeStatistics(
-  mainConfig: MainSiteConfig,
-  locationData: LocationPage,
-  mergedData: LocationPage
-): {
+export function createLocationPage(
+  data: Partial<LocationPage> & { slug: string; city: string; stateCode: string; state: string; urlPath: string }
+): LocationPage {
+  const defaults = {
+    seo: data.seo || {
+      title: `${data.city}, ${data.stateCode} | Services`,
+      description: `Professional services in ${data.city}, ${data.state}`,
+      canonicalPath: data.urlPath,
+    },
+    hero: data.hero || {
+      h1: `${data.city}, ${data.stateCode}`,
+    }
+  };
+
+  return {
+    ...defaults,
+    ...data,
+    slug: data.slug,
+    city: data.city,
+    stateCode: data.stateCode,
+    state: data.state,
+    urlPath: data.urlPath
+  } as LocationPage;
+}
+
+/**
+ * Deep clone an object (useful for testing merge operations)
+ */
+export function deepClone<T>(obj: T): T {
+  if (obj === null || typeof obj !== 'object') {
+    return obj;
+  }
+  
+  if (Array.isArray(obj)) {
+    return obj.map((item: unknown) => deepClone(item)) as unknown as T;
+  }
+  
+  const cloned: Record<string, unknown> = {};
+  Object.keys(obj).forEach(key => {
+    cloned[key] = deepClone((obj as Record<string, unknown>)[key]);
+  });
+  
+  return cloned as T;
+}
+
+/**
+ * Compare two objects for equality (deep comparison)
+ */
+export function deepEqual(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  
+  if (a === null || b === null) return false;
+  if (typeof a !== 'object' || typeof b !== 'object') return false;
+  
+  if (Array.isArray(a) && Array.isArray(b)) {
+    if (a.length !== b.length) return false;
+    return a.every((item, index) => deepEqual(item, b[index]));
+  }
+  
+  if (Array.isArray(a) || Array.isArray(b)) return false;
+  
+  const keysA = Object.keys(a);
+  const keysB = Object.keys(b);
+  
+  if (keysA.length !== keysB.length) return false;
+  
+  return keysA.every(key => 
+    keysB.includes(key) && 
+    deepEqual((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key])
+  );
+}
+
+/**
+ * Statistics about merge operations
+ */
+export interface MergeStatistics {
   fieldsFromMain: string[];
   fieldsFromLocation: string[];
   fieldsMerged: string[];
   arraysConcatenated: string[];
   arraysDeduplicated: string[];
-} {
+}
+
+/**
+ * Get merge statistics - analyze which fields came from where
+ */
+export function getMergeStatistics(
+  mainConfig: MainSiteConfig,
+  locationData: LocationPage,
+  mergedData: LocationPage
+): MergeStatistics {
   const fieldsFromMain: string[] = [];
   const fieldsFromLocation: string[] = [];
   const fieldsMerged: string[] = [];
   const arraysConcatenated: string[] = [];
   const arraysDeduplicated: string[] = [];
-  
-  // Analyze field sources
-  Object.keys(mergedData).forEach(key => {
-    const mergedValue = mergedData[key as keyof LocationPage];
-    const mainValue = mainConfig[key as keyof MainSiteConfig];
-    const locationValue = locationData[key as keyof LocationPage];
-    
-    if (locationValue !== undefined) {
+
+  const allKeys = new Set([
+    ...Object.keys(mainConfig),
+    ...Object.keys(locationData),
+    ...Object.keys(mergedData)
+  ]);
+
+  allKeys.forEach(key => {
+    const mainValue = (mainConfig as unknown as Record<string, unknown>)[key];
+    const locationValue = (locationData as unknown as Record<string, unknown>)[key];
+    const mergedValue = (mergedData as unknown as Record<string, unknown>)[key];
+
+    // Skip if no merged value
+    if (mergedValue === undefined) return;
+
+    const hasMain = mainValue !== undefined;
+    const hasLocation = locationValue !== undefined;
+
+    if (hasMain && hasLocation) {
+      // Both have values - field was merged
+      fieldsMerged.push(key);
+
+      // Check if arrays were involved
+      if (Array.isArray(mainValue) && Array.isArray(locationValue) && Array.isArray(mergedValue)) {
+        const totalLength = mainValue.length + locationValue.length;
+        if (mergedValue.length < totalLength) {
+          arraysDeduplicated.push(key);
+        } else if (mergedValue.length === totalLength) {
+          arraysConcatenated.push(key);
+        }
+      }
+    } else if (hasLocation) {
       fieldsFromLocation.push(key);
-    } else if (mainValue !== undefined) {
+    } else if (hasMain) {
       fieldsFromMain.push(key);
     }
-    
-    // Check for merged objects
-    if (typeof mergedValue === 'object' && 
-        typeof mainValue === 'object' && 
-        typeof locationValue === 'object' &&
-        !Array.isArray(mergedValue)) {
-      fieldsMerged.push(key);
-    }
-    
-    // Check arrays
-    if (Array.isArray(mergedValue)) {
-      const mainArray = Array.isArray(mainValue) ? mainValue : [];
-      const locationArray = Array.isArray(locationValue) ? locationValue : [];
-      
-      if (mergedValue.length > Math.max(mainArray.length, locationArray.length)) {
-        arraysConcatenated.push(key);
-      } else if (mergedValue.length < mainArray.length + locationArray.length) {
-        arraysDeduplicated.push(key);
-      }
-    }
   });
-  
+
   return {
     fieldsFromMain,
     fieldsFromLocation,

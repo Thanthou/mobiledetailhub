@@ -22,7 +22,7 @@ export interface BusinessData {
   tiktok_url: string;
   source: string;
   notes: string;
-  service_areas: any[];
+  service_areas: Array<{ city: string; state: string; zip?: string }>;
   application_date: string;
   approved_date: string;
   last_activity: string;

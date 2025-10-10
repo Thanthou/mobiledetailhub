@@ -2,8 +2,8 @@ import React, { useCallback } from 'react';
 
 import { Modal } from '@/shared/ui';
 
-import { type RequestQuoteModalProps } from '../types';
 import { useQuoteFormLogic, useQuoteModal } from '../hooks';
+import { type RequestQuoteModalProps } from '../types';
 import QuoteForm from './QuoteForm';
 import SuccessMessage from './SuccessMessage';
 
@@ -56,14 +56,14 @@ const RequestQuoteModal: React.FC<RequestQuoteModalProps> = ({ isOpen, onClose }
           formData={formData}
           fieldErrors={fieldErrors}
           isSubmitting={isSubmitting}
-          error={error}
+          error={error || undefined}
           services={services}
           serviceAreas={serviceAreas}
           isAffiliate={isAffiliate}
           businessLocation={businessLocation}
           handleInputChange={handleInputChange}
           handleServiceToggle={handleServiceToggle}
-          handleSubmit={handleSubmit}
+          handleSubmit={() => void handleSubmit()}
         />
       )}
     </Modal>

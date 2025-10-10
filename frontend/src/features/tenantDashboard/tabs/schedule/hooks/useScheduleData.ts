@@ -1,6 +1,7 @@
-import { useEffect, useState, useCallback } from 'react';
-import { getAppointments, getTimeBlocks, getBlockedDays } from '../api';
-import type { Appointment, TimeBlock, BlockedDay } from '../types';
+import { useCallback,useEffect, useState } from 'react';
+
+import { getAppointments, getBlockedDays,getTimeBlocks } from '../api';
+import type { Appointment, BlockedDay,TimeBlock } from '../types';
 
 export const useScheduleData = (selectedDate: string, viewMode: 'day' | 'week' | 'month' = 'day') => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -17,7 +18,7 @@ export const useScheduleData = (selectedDate: string, viewMode: 'day' | 'week' |
       case 'day':
         return { startDate: date, endDate: date };
       
-      case 'week':
+      case 'week': {
         // Get Monday to Sunday of the week containing the selected date
         const dayOfWeek = selectedDateObj.getDay();
         const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
@@ -30,8 +31,9 @@ export const useScheduleData = (selectedDate: string, viewMode: 'day' | 'week' |
           startDate: monday.toISOString().split('T')[0],
           endDate: sunday.toISOString().split('T')[0]
         };
+      }
       
-      case 'month':
+      case 'month': {
         // Get first and last day of the month
         const firstDay = new Date(selectedDateObj.getFullYear(), selectedDateObj.getMonth(), 1);
         const lastDay = new Date(selectedDateObj.getFullYear(), selectedDateObj.getMonth() + 1, 0);
@@ -40,6 +42,7 @@ export const useScheduleData = (selectedDate: string, viewMode: 'day' | 'week' |
           startDate: firstDay.toISOString().split('T')[0],
           endDate: lastDay.toISOString().split('T')[0]
         };
+      }
       
       default:
         return { startDate: date, endDate: date };
@@ -73,7 +76,7 @@ export const useScheduleData = (selectedDate: string, viewMode: 'day' | 'week' |
   }, [selectedDate, viewMode]);
 
   useEffect(() => {
-    fetchScheduleData();
+    void fetchScheduleData();
   }, [fetchScheduleData]);
 
   const refreshData = useCallback(() => {
@@ -92,7 +95,7 @@ export const useScheduleData = (selectedDate: string, viewMode: 'day' | 'week' |
       setAppointments(appointmentsData);
       setTimeBlocks(timeBlocksData);
       setBlockedDays(blockedDaysData);
-    }).catch((err) => {
+    }).catch((err: unknown) => {
       console.error('Error fetching schedule data:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch schedule data');
     }).finally(() => {

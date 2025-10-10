@@ -1,12 +1,14 @@
 import React, { createContext, useContext } from 'react';
 
+import type { WebsiteContentData } from '@/shared/api/websiteContent.api';
+
 import { useWebsiteContentData } from '../hooks/useWebsiteContentData';
 
 interface WebsiteContentContextValue {
-  contentData: any;
+  contentData: WebsiteContentData | null;
   loading: boolean;
   error: string | null;
-  updateContent: (data: any) => Promise<boolean>;
+  updateContent: (data: Partial<WebsiteContentData>) => Promise<boolean>;
   isUpdating: boolean;
   refetch: () => Promise<void>;
 }
@@ -31,6 +33,7 @@ export const WebsiteContentProvider: React.FC<WebsiteContentProviderProps> = ({
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components -- Hook is part of the provider pattern
 export const useWebsiteContent = () => {
   const context = useContext(WebsiteContentContext);
   if (!context) {

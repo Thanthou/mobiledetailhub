@@ -1,7 +1,7 @@
 const API_BASE = '/api/schedule';
 
 // Helper function to make authenticated requests
-const makeRequest = async (endpoint: string, options: RequestInit = {}) => {
+const makeRequest = async <T = unknown>(endpoint: string, options: RequestInit = {}): Promise<T> => {
   const token = localStorage.getItem('token');
   
   const response = await fetch(`${API_BASE}${endpoint}`, {
@@ -14,11 +14,11 @@ const makeRequest = async (endpoint: string, options: RequestInit = {}) => {
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
+    const errorData = await response.json().catch(() => ({})) as { error?: string };
     throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
   }
 
-  return response.json();
+  return response.json() as Promise<T>;
 };
 
 export interface BlockedDay {
@@ -43,12 +43,12 @@ export const getBlockedDays = async (startDate: string, endDate: string): Promis
     endDate,
   });
   
-  return makeRequest(`/blocked-days?${params}`);
+  return makeRequest<BlockedDay[]>(`/blocked-days?${params}`);
 };
 
 // Toggle blocked day (add if not exists, remove if exists)
 export const toggleBlockedDay = async (date: string, reason?: string): Promise<ToggleBlockedDayResponse> => {
-  return makeRequest('/blocked-days/toggle', {
+  return makeRequest<ToggleBlockedDayResponse>('/blocked-days/toggle', {
     method: 'POST',
     body: JSON.stringify({ date, reason }),
   });
@@ -62,7 +62,7 @@ export const addBlockedDay = async (data: {
   recurrence_pattern?: string;
   recurrence_end_date?: string;
 }): Promise<BlockedDay> => {
-  return makeRequest('/blocked-days', {
+  return makeRequest<BlockedDay>('/blocked-days', {
     method: 'POST',
     body: JSON.stringify(data),
   });
@@ -70,7 +70,7 @@ export const addBlockedDay = async (data: {
 
 // Remove blocked day
 export const removeBlockedDay = async (date: string): Promise<{ message: string; date: string }> => {
-  return makeRequest(`/blocked-days/${date}`, {
+  return makeRequest<{ message: string; date: string }>(`/blocked-days/${date}`, {
     method: 'DELETE',
   });
 };

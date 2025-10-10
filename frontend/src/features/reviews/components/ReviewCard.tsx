@@ -1,26 +1,32 @@
 import React from 'react';
 
+import type { Review } from '../types';
+
 interface ReviewCardProps {
-  review: {
-    id: string;
-    customerName: string;
-    profileImage?: string;
-    rating: number;
-    reviewText: string;
-    title?: string;
-    isVerified?: boolean;
-    isFeatured?: boolean;
-    serviceCategory?: string;
-    reviewSource?: string;
-  };
-  onReviewClick?: (review: any) => void;
+  review: Review;
+  onReviewClick?: (review: Review) => void;
 }
 
 const ReviewCard: React.FC<ReviewCardProps> = ({ review, onReviewClick }) => {
+  const handleClick = () => {
+    onReviewClick?.(review);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onReviewClick?.(review);
+    }
+  };
+
   return (
     <div 
       className="relative bg-white/10 backdrop-blur-sm rounded-lg p-9 cursor-pointer hover:bg-white/20 transition-colors"
-      onClick={() => onReviewClick?.(review)}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      role="button"
+      tabIndex={0}
+      aria-label={`Review by ${review.customerName}`}
     >
       <div className="flex items-center mb-6">
         <div className="flex items-center space-x-4">
@@ -38,7 +44,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, onReviewClick }) => {
           <div>
             <h3 className="text-white font-semibold text-lg">{review.customerName}</h3>
             <div className="flex items-center">
-              {[...Array(5)].map((_, i) => (
+              {Array.from({ length: 5 }).map((_, i) => (
                 <span
                   key={i}
                   className={`text-2xl ${
@@ -81,7 +87,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, onReviewClick }) => {
         <div>
           {review.reviewSource && (
             <img 
-              src={`/icons/${review.reviewSource}.png`}
+              src={`/shared/icons/${review.reviewSource}.png`}
               alt={review.reviewSource}
               className="w-5 h-5 rounded"
             />

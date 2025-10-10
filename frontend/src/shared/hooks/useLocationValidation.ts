@@ -4,8 +4,9 @@
  */
 
 import { useMemo } from 'react';
-import { validateLocationWithDetails } from '@/shared/utils/validateLocationData';
+
 import type { LocationPage } from '@/shared/types/location';
+import { validateLocationWithDetails } from '@/shared/utils/validateLocationData';
 
 interface UseLocationValidationResult {
   isValid: boolean;
@@ -64,9 +65,13 @@ export function useMultipleLocationValidation(locationDataArray: (LocationPage |
   results: UseLocationValidationResult[];
   summary: string;
 } {
+  // Validate each location individually - hooks must be called unconditionally
+  const results = locationDataArray.map(data => 
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- This is called in a loop at the same level, safe for React
+    useLocationValidation(data)
+  );
+  
   return useMemo(() => {
-    const results = locationDataArray.map(data => useLocationValidation(data));
-    
     const totalErrors = results.reduce((sum, result) => sum + result.errorCount, 0);
     const totalWarnings = results.reduce((sum, result) => sum + result.warningCount, 0);
     const overallValid = totalErrors === 0;
@@ -92,7 +97,7 @@ export function useMultipleLocationValidation(locationDataArray: (LocationPage |
       results,
       summary
     };
-  }, [locationDataArray]);
+  }, [results]);
 }
 
 /**

@@ -28,6 +28,7 @@ const DashboardPage: React.FC = () => {
         setLoading(true);
         const token = localStorage.getItem('token');
         const url = `/api/tenants/${slug}`;
+        // eslint-disable-next-line no-restricted-globals, no-restricted-syntax -- Dashboard component needs direct fetch for initialization
         const response = await fetch(url, {
           headers: {
             'Content-Type': 'application/json',

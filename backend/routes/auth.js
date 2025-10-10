@@ -18,7 +18,7 @@ const {
 const { asyncHandler } = require('../middleware/errorHandler');
 const logger = require('../utils/logger');
 const { authLimiter, sensitiveAuthLimiter, refreshTokenLimiter } = require('../middleware/rateLimiter');
-const { env } = require('../src/shared/env');
+const { env } = require('../config/env');
 
 // User Registration
 router.post('/register', 

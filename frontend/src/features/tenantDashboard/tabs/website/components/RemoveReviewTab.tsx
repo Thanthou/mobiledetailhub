@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Trash2, Star, Calendar, ExternalLink, Car, Truck, Wrench } from 'lucide-react';
-import { getReviews, deleteReview } from '../../../api/reviewsApi';
+import React, { useCallback, useEffect,useState } from 'react';
+import { Car, ExternalLink, Star, Trash2, Truck, Wrench } from 'lucide-react';
+
+import { deleteReview,getReviews } from '../../../api/reviewsApi';
 
 interface Review {
   id: number;
@@ -27,27 +28,27 @@ export const RemoveReviewTab: React.FC<RemoveReviewTabProps> = ({ tenantSlug }) 
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  useEffect(() => {
-    if (tenantSlug) {
-      loadReviews();
-    }
-  }, [tenantSlug]);
-
-  const loadReviews = async () => {
+  const loadReviews = useCallback(async () => {
     if (!tenantSlug) return;
     
     try {
       setLoading(true);
       setError(null);
       const response = await getReviews(tenantSlug);
-      setReviews(response.data || []);
+      setReviews(response.data);
     } catch (err) {
       setError('Failed to load reviews');
       console.error('Error loading reviews:', err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [tenantSlug]);
+
+  useEffect(() => {
+    if (tenantSlug) {
+      void loadReviews();
+    }
+  }, [tenantSlug, loadReviews]);
 
   const handleDeleteReview = async (reviewId: number) => {
     if (!confirm('Are you sure you want to delete this review? This action cannot be undone.')) {
@@ -119,7 +120,7 @@ export const RemoveReviewTab: React.FC<RemoveReviewTabProps> = ({ tenantSlug }) 
       <div className="text-center py-8">
         <div className="text-red-400 mb-4">{error}</div>
         <button
-          onClick={loadReviews}
+          onClick={() => void loadReviews()}
           className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
         >
           Try Again
@@ -146,7 +147,7 @@ export const RemoveReviewTab: React.FC<RemoveReviewTabProps> = ({ tenantSlug }) 
           Manage Reviews ({reviews.length})
         </h3>
         <button
-          onClick={loadReviews}
+          onClick={() => void loadReviews()}
           className="px-3 py-1 text-sm bg-stone-700 text-white rounded-lg hover:bg-stone-600 transition-colors"
         >
           Refresh
@@ -215,7 +216,7 @@ export const RemoveReviewTab: React.FC<RemoveReviewTabProps> = ({ tenantSlug }) 
 
               {/* Delete button */}
               <button
-                onClick={() => handleDeleteReview(review.id)}
+                onClick={() => void handleDeleteReview(review.id)}
                 disabled={deletingId === review.id}
                 className="ml-4 p-2 text-red-400 hover:text-red-300 hover:bg-red-900/20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Delete review"

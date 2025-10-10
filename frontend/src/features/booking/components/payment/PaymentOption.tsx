@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { PaymentIcons } from '@/shared/ui/icons/PaymentIcons';
 
 type PaymentOptionProps = {
@@ -19,7 +20,9 @@ export const PaymentOption: React.FC<PaymentOptionProps> = ({
   return (
     <button
       type="button"
-      onClick={() => onSelect(id)}
+      onClick={() => {
+        onSelect(id);
+      }}
       className={[
         'px-4 py-3 rounded-lg border-2 transition-all flex items-center justify-center gap-3 min-h-[48px] w-full',
         selected 

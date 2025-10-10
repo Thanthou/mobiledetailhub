@@ -1,8 +1,8 @@
 import React, { useCallback, useState } from 'react';
 import { MapPin, Plus, X } from 'lucide-react';
 
-import { Button } from '@/shared/ui';
 import { isValidStateCode } from '@/shared';
+import { Button } from '@/shared/ui';
 
 import type { LocationFormData, LocationValidationErrors } from '../types';
 
@@ -77,7 +77,7 @@ export const AddLocationModal: React.FC<AddLocationModalProps> = ({
       } else {
         setErrors({ general: result.error || 'Failed to add location' });
       }
-    } catch (error) {
+    } catch {
       setErrors({ general: 'An unexpected error occurred' });
     } finally {
       setIsSubmitting(false);
@@ -129,7 +129,7 @@ export const AddLocationModal: React.FC<AddLocationModalProps> = ({
                 id="city"
                 type="text"
                 value={formData.city}
-                onChange={(e) => handleInputChange('city', e.target.value)}
+                onChange={(e) => { handleInputChange('city', e.target.value); }}
                 className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
                   errors.city ? 'border-red-300' : 'border-gray-300'
                 }`}
@@ -148,7 +148,7 @@ export const AddLocationModal: React.FC<AddLocationModalProps> = ({
                 id="state"
                 type="text"
                 value={formData.state}
-                onChange={(e) => handleInputChange('state', e.target.value.toUpperCase())}
+                onChange={(e) => { handleInputChange('state', e.target.value.toUpperCase()); }}
                 className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
                   errors.state ? 'border-red-500 bg-red-50' : 'border-gray-300'
                 }`}
@@ -168,7 +168,7 @@ export const AddLocationModal: React.FC<AddLocationModalProps> = ({
                 id="zip"
                 type="text"
                 value={formData.zip}
-                onChange={(e) => handleInputChange('zip', e.target.value)}
+                onChange={(e) => { handleInputChange('zip', e.target.value); }}
                 className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
                   errors.zip ? 'border-red-300' : 'border-gray-300'
                 }`}

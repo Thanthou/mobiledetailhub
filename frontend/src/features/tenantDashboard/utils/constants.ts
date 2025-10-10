@@ -1,4 +1,4 @@
-import { Calendar, Car, Home, MapPin, User, Users, Globe } from 'lucide-react';
+import { Calendar, Car, Globe,Home, MapPin, User, Users } from 'lucide-react';
 
 import type { TabConfig } from '../types';
 

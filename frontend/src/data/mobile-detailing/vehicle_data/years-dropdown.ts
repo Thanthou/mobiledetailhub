@@ -13,7 +13,7 @@ export const getVehicleYears = (): (number | string)[] => {
   }
   
   // Add "Before {minYear}" at the end
-  years.push(`Before ${minYear}`);
+  years.push(`Before ${String(minYear)}`);
   
   return years;
 };

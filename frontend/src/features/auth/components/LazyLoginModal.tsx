@@ -1,14 +1,14 @@
 import React, { lazy, Suspense, useEffect } from 'react';
 
-import { LazyLoginModalProps } from '../types/auth.types';
 import { useLoginModalPrefetch } from '../hooks/useLoginModalPrefetch';
+import { LazyLoginModalProps } from '../types/auth.types';
 import LoginModalErrorBoundary from './LoginModalErrorBoundary';
 import LoginModalFallback from './LoginModalFallback';
 
 // Lazy load the LoginModal component
 const LoginModal = lazy(() => import('./LoginModal'));
 
-const LazyLoginModal: React.FC<LazyLoginModalProps> = ({ isOpen, onClose }) => {
+export const LazyLoginModal: React.FC<LazyLoginModalProps> = ({ isOpen, onClose }) => {
   const { isPreloading, isPreloaded, handleOpen } = useLoginModalPrefetch();
 
   // Monitor component loading performance
@@ -33,8 +33,3 @@ const LazyLoginModal: React.FC<LazyLoginModalProps> = ({ isOpen, onClose }) => {
     </LoginModalErrorBoundary>
   );
 };
-
-export default LazyLoginModal;
-
-// Re-export prefetch functions from the hook
-export { prefetchLoginModal, useLoginModalPrefetch } from '../hooks/useLoginModalPrefetch';

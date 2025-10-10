@@ -1,4 +1,5 @@
 import React from 'react';
+
 import Addons from './Addons';
 
 interface StepAddonsProps {

@@ -1,6 +1,7 @@
 import React from 'react';
-import { CTAButtons } from '@/shared/ui';
+
 import { ServiceData } from '@/features/services/types/service.types';
+import { CTAButtons } from '@/shared/ui';
 
 interface ServiceCTAProps {
   serviceData: ServiceData;
@@ -23,12 +24,12 @@ const ServiceCTA: React.FC<ServiceCTAProps> = ({ serviceData, onRequestQuote }) 
         <CTAButtons 
           layout="horizontal"
           bookNowProps={{
-            children: serviceData.cta?.primary?.label || serviceData.hero?.ctas?.[0]?.label || "Book Now"
+            children: serviceData.cta?.primary?.label || serviceData.hero.ctas?.[0]?.label || "Book Now"
           }}
           getQuoteProps={{
-            children: serviceData.cta?.secondary?.label || serviceData.hero?.ctas?.[1]?.label || "Request Quote",
+            children: serviceData.cta?.secondary?.label || serviceData.hero.ctas?.[1]?.label || "Request Quote",
             variant: "outline-white",
-            onClick: onRequestQuote || (() => console.log('Request Quote clicked - no handler provided'))
+            onClick: onRequestQuote || (() => { /* No handler provided */ })
           }}
         />
       </div>

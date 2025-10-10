@@ -1,24 +1,9 @@
+import type { WebsiteContentData } from '@/shared/api/websiteContent.api';
 import { useAutoSave } from '@/shared/utils';
 
 import { useWebsiteContent } from '../contexts/WebsiteContentContext';
 
-type WebsiteContentField = 
-  | 'hero_title'
-  | 'hero_subtitle'
-  | 'services_title'
-  | 'services_subtitle'
-  | 'services_auto_description'
-  | 'services_marine_description'
-  | 'services_rv_description'
-  | 'services_ceramic_description'
-  | 'services_correction_description'
-  | 'services_ppf_description'
-  | 'reviews_title'
-  | 'reviews_subtitle'
-  | 'reviews_avg_rating'
-  | 'reviews_total_count'
-  | 'faq_title'
-  | 'faq_subtitle';
+type WebsiteContentField = keyof WebsiteContentData;
 
 interface UseWebsiteContentFieldOptions {
   debounce?: number;
@@ -30,12 +15,13 @@ export function useWebsiteContentField(options: UseWebsiteContentFieldOptions) {
   const { updateContent, contentData } = useWebsiteContent();
   
   // Get the initial value for this field
-  const getInitialValue = () => {
+  const getInitialValue = (): string => {
     if (!contentData) return '';
     const value = contentData[field];
     // Convert numbers to strings for the input field
     if (typeof value === 'number') return String(value);
-    return value || '';
+    if (typeof value === 'string') return value;
+    return '';
   };
 
   const saveField = async (value: string) => {

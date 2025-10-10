@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+/* eslint-disable react/prop-types -- Using TypeScript interfaces instead of PropTypes */
 import React from 'react';
 
 import { cn } from '@/shared/utils/cn';
@@ -92,3 +92,4 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 Input.displayName = 'Input';
 
 export { Input };
+/* eslint-enable react/prop-types -- Re-enable after TypeScript interface declarations */

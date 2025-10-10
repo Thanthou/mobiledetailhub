@@ -3,6 +3,25 @@
  * Catches all frontend errors including console errors, unhandled promises, and React errors
  */
 
+interface ReactErrorInfo {
+  componentStack?: string;
+}
+
+// Type guard to safely extract error properties
+function getErrorStack(error: unknown): string | undefined {
+  if (error && typeof error === 'object' && 'stack' in error) {
+    return String((error as { stack: unknown }).stack);
+  }
+  return undefined;
+}
+
+function getErrorMessage(error: unknown): string {
+  if (error && typeof error === 'object' && 'message' in error) {
+    return String((error as { message: unknown }).message);
+  }
+  return String(error);
+}
+
 interface ErrorEvent {
   id: string;
   timestamp: Date;
@@ -41,7 +60,7 @@ class ErrorMonitor {
   }
 
   private generateSessionId(): string {
-    return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    return `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
   }
 
   private setupGlobalErrorHandlers(): void {
@@ -50,7 +69,7 @@ class ErrorMonitor {
       this.captureError({
         type: 'unhandled',
         message: event.message,
-        stack: event.error?.stack,
+        stack: getErrorStack(event.error),
         url: event.filename,
         line: event.lineno,
         column: event.colno,
@@ -61,19 +80,31 @@ class ErrorMonitor {
     window.addEventListener('unhandledrejection', (event) => {
       this.captureError({
         type: 'promise',
-        message: event.reason?.message || String(event.reason),
-        stack: event.reason?.stack,
+        message: getErrorMessage(event.reason),
+        stack: getErrorStack(event.reason),
       });
     });
 
     // Catch resource loading errors
     window.addEventListener('error', (event) => {
       if (event.target !== window) {
+        const target = event.target;
+        const targetName = target instanceof Element ? target.tagName.toLowerCase() : 'unknown';
+        
+        let url = 'unknown';
+        if (target && typeof target === 'object') {
+          if ('src' in target && typeof target.src === 'string') {
+            url = target.src;
+          } else if ('href' in target && typeof target.href === 'string') {
+            url = target.href;
+          }
+        }
+        
         this.captureError({
           type: 'network',
-          message: `Resource loading error: ${event.target}`,
+          message: `Resource loading error: ${targetName}`,
           networkInfo: {
-            url: (event.target as any)?.src || (event.target as any)?.href || 'unknown',
+            url,
             method: 'GET',
           },
         });
@@ -86,7 +117,7 @@ class ErrorMonitor {
     const originalConsoleError = console.error;
     const originalConsoleWarn = console.warn;
 
-    console.error = (...args: any[]) => {
+    console.error = (...args: unknown[]) => {
       this.captureError({
         type: 'console',
         message: args.map(arg => typeof arg === 'string' ? arg : JSON.stringify(arg)).join(' '),
@@ -95,7 +126,7 @@ class ErrorMonitor {
       originalConsoleError.apply(console, args);
     };
 
-    console.warn = (...args: any[]) => {
+    console.warn = (...args: unknown[]) => {
       this.captureError({
         type: 'console',
         message: `WARNING: ${args.map(arg => typeof arg === 'string' ? arg : JSON.stringify(arg)).join(' ')}`,
@@ -110,7 +141,14 @@ class ErrorMonitor {
     const originalFetch = window.fetch;
     window.fetch = async (...args: Parameters<typeof fetch>) => {
       const startTime = Date.now();
-      const url = typeof args[0] === 'string' ? args[0] : args[0].url;
+      const requestInput = args[0];
+      // Extract URL from request input - either string or Request object
+      let url: string;
+      if (typeof requestInput === 'string') {
+        url = requestInput;
+      } else {
+        url = (requestInput as Request).url;
+      }
       const method = args[1]?.method || 'GET';
 
       try {
@@ -132,14 +170,21 @@ class ErrorMonitor {
         }
 
         return response;
-      } catch (error) {
+      } catch (error: unknown) {
         const responseTime = Date.now() - startTime;
+        const errorMessage = getErrorMessage(error);
+        
+        // Check if it's a connection refused error to localhost
+        const isLocalConnectionError = 
+          url.includes('localhost:5173') && 
+          error instanceof TypeError && 
+          errorMessage.includes('ERR_CONNECTION_REFUSED');
         
         // Don't log connection refused errors to localhost:5173 (Vite dev server pings)
-        if (!(url.includes('localhost:5173') && error instanceof TypeError && error.message.includes('ERR_CONNECTION_REFUSED'))) {
+        if (!isLocalConnectionError) {
           this.captureError({
             type: 'network',
-            message: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            message: `Network error: ${errorMessage}`,
             networkInfo: {
               url,
               method,
@@ -157,7 +202,7 @@ class ErrorMonitor {
     if (!this.isEnabled) return;
 
     const error: ErrorEvent = {
-      id: `error_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: `error_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
       timestamp: new Date(),
       type: 'console',
       message: '',
@@ -176,7 +221,7 @@ class ErrorMonitor {
     }
 
     // Notify listeners
-    this.listeners.forEach(listener => listener(error));
+    this.listeners.forEach(listener => { listener(error); });
 
     // Log to console in development
     if (process.env.NODE_ENV === 'development') {
@@ -192,12 +237,12 @@ class ErrorMonitor {
   }
 
   // Public methods
-  public captureReactError(error: Error, errorInfo: any, componentStack?: string): void {
+  public captureReactError(error: Error, errorInfo: ReactErrorInfo, componentStack?: string): void {
     this.captureError({
       type: 'react',
       message: error.message,
       stack: error.stack,
-      componentStack: componentStack || errorInfo?.componentStack,
+      componentStack: componentStack || errorInfo.componentStack,
     });
   }
 
@@ -273,10 +318,10 @@ class ErrorMonitor {
     byType: Record<string, number>;
     recent: ErrorEvent[];
   } {
-    const byType = this.errors.reduce((acc, error) => {
+    const byType = this.errors.reduce<Record<string, number>>((acc, error) => {
       acc[error.type] = (acc[error.type] || 0) + 1;
       return acc;
-    }, {} as Record<string, number>);
+    }, {});
 
     return {
       total: this.errors.length,
@@ -290,18 +335,29 @@ class ErrorMonitor {
 export const errorMonitor = new ErrorMonitor();
 
 // Export types for use in other files
-export type { ErrorEvent };
+export type { ErrorEvent, ReactErrorInfo };
 
 // Global error handler for React errors
-export const handleReactError = (error: Error, errorInfo: any, componentStack?: string) => {
+export const handleReactError = (error: Error, errorInfo: ReactErrorInfo, componentStack?: string) => {
   errorMonitor.captureReactError(error, errorInfo, componentStack);
 };
 
+// Extend Window interface for debugging commands
+declare global {
+  interface Window {
+    errorMonitor: ErrorMonitor;
+    printErrors: () => void;
+    getErrors: () => ErrorEvent[];
+    clearErrors: () => void;
+    exportErrors: () => string;
+  }
+}
+
 // Console commands for debugging
 if (typeof window !== 'undefined') {
-  (window as any).errorMonitor = errorMonitor;
-  (window as any).printErrors = () => errorMonitor.printErrorsToConsole();
-  (window as any).getErrors = () => errorMonitor.getErrors();
-  (window as any).clearErrors = () => errorMonitor.clearErrors();
-  (window as any).exportErrors = () => errorMonitor.exportErrors();
+  window.errorMonitor = errorMonitor;
+  window.printErrors = () => { errorMonitor.printErrorsToConsole(); };
+  window.getErrors = () => errorMonitor.getErrors();
+  window.clearErrors = () => { errorMonitor.clearErrors(); };
+  window.exportErrors = () => errorMonitor.exportErrors();
 }

@@ -1,7 +1,9 @@
 import React from 'react';
-import TextDisplay from './TextDisplay';
-import CTA from './CTA';
+
 import { ReviewsSummary } from '@/shared/ui';
+
+import CTA from './CTA';
+import TextDisplay from './TextDisplay';
 
 interface ContentContainerProps {
   title: string;

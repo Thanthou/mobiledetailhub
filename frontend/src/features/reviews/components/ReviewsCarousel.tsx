@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+
+import type { Review } from '../types';
 import ReviewCard from './ReviewCard';
 
 interface ReviewsCarouselProps {
-  reviews: any[];
-  onReviewClick?: (review: any) => void;
+  reviews: Review[];
+  onReviewClick?: (review: Review) => void;
   maxVisible?: number;
 }
 
@@ -75,7 +77,7 @@ const ReviewsCarousel: React.FC<ReviewsCarouselProps> = ({
           {Array.from({ length: Math.ceil(reviews.length / maxVisible) }).map((_, index) => (
             <button
               key={index}
-              onClick={() => setCurrentIndex(index * maxVisible)}
+              onClick={() => { setCurrentIndex(index * maxVisible); }}
               className={`w-3 h-3 rounded-full transition-colors ${
                 Math.floor(currentIndex / maxVisible) === index
                   ? 'bg-orange-500'

@@ -1,7 +1,9 @@
 import React from 'react';
 import { Star, Users } from 'lucide-react';
-import type { ReviewsSummaryProps } from '@/shared/types/reviews';
+
 import { useReviewsRating } from '@/features/reviews/hooks';
+import { useDataOptional } from '@/shared/contexts/DataContext';
+import type { ReviewsSummaryProps } from '@/shared/types/reviews';
 
 const ReviewsSummary: React.FC<ReviewsSummaryProps> = ({ 
   averageRating: propAverageRating, 
@@ -10,6 +12,10 @@ const ReviewsSummary: React.FC<ReviewsSummaryProps> = ({
   className = '',
   variant = 'default'
 }) => {
+  // Check if in preview mode
+  const data = useDataOptional();
+  const isPreview = data?.isPreview || false;
+  
   // Get data from database (with fallbacks to site.json)
   const dbData = useReviewsRating();
   
@@ -42,36 +48,56 @@ const ReviewsSummary: React.FC<ReviewsSummaryProps> = ({
 
   return (
     <div className={`${containerClasses} ${className}`}>
-      {/* Rating Section - Clickable */}
-      <a 
-        href={googleBusinessUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center gap-2 hover:opacity-80 transition-opacity duration-200 cursor-pointer"
-      >
-        <Star className={`${iconSize} text-orange-400 fill-current`} />
-        <span className={`${textSize} font-bold text-white`}>
-          {averageRating.toFixed(1)}
+      {/* Rating Section - Clickable (or span in preview mode) */}
+      {isPreview ? (
+        <span className="flex items-center gap-2 cursor-pointer">
+          <Star className={`${iconSize} text-orange-400 fill-current`} />
+          <span className={`${textSize} font-bold text-white`}>
+            {averageRating.toFixed(1)}
+          </span>
+          <span className="text-gray-300">average</span>
         </span>
-        <span className="text-gray-300">average</span>
-      </a>
+      ) : (
+        <a 
+          href={googleBusinessUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 hover:opacity-80 transition-opacity duration-200 cursor-pointer"
+        >
+          <Star className={`${iconSize} text-orange-400 fill-current`} />
+          <span className={`${textSize} font-bold text-white`}>
+            {averageRating.toFixed(1)}
+          </span>
+          <span className="text-gray-300">average</span>
+        </a>
+      )}
       
       {/* Vertical Divider */}
       <div className={`w-px ${dividerHeight} bg-stone-600`}></div>
       
-      {/* Reviews Count Section - Clickable */}
-      <a 
-        href={googleBusinessUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center gap-2 hover:opacity-80 transition-opacity duration-200 cursor-pointer"
-      >
-        <Users className={`${usersIconSize} text-orange-400`} />
-        <span className={`${textSize} font-bold text-white`}>
-          {totalReviews}
+      {/* Reviews Count Section - Clickable (or span in preview mode) */}
+      {isPreview ? (
+        <span className="flex items-center gap-2 cursor-pointer">
+          <Users className={`${usersIconSize} text-orange-400`} />
+          <span className={`${textSize} font-bold text-white`}>
+            {totalReviews.toLocaleString()}
+          </span>
+          <span className="text-gray-300">reviews</span>
         </span>
-        <span className="text-gray-300">reviews</span>
-      </a>
+      ) : (
+        <a 
+          href={googleBusinessUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 hover:opacity-80 transition-opacity duration-200 cursor-pointer"
+        >
+          <Users className={`${usersIconSize} text-orange-400`} />
+          <span className={`${textSize} font-bold text-white`}>
+            {totalReviews.toLocaleString()}
+          </span>
+          <span className="text-gray-300">reviews</span>
+        </a>
+      )}
     </div>
   );
 };

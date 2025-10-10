@@ -3,9 +3,10 @@
  * Generates FAQPage JSON-LD schemas for all pages at build time
  */
 
-import { generateFAQSchema, convertFAQItemsToSchemaFormat } from './schemaUtils';
-import type { LocationPage } from '@/shared/types/location';
 import type { FAQItem } from '@/features/faq/types';
+import type { LocationPage } from '@/shared/types/location';
+
+import { convertFAQItemsToSchemaFormat,generateFAQSchema } from './schemaUtils';
 
 /**
  * Build FAQ schema for a location page
@@ -22,7 +23,7 @@ export function buildLocationFAQSchema(locationData: LocationPage): Record<strin
  * Build FAQ schema for the main site using general FAQs
  */
 export function buildMainSiteFAQSchema(generalFAQs: FAQItem[]): Record<string, unknown> | null {
-  if (!generalFAQs || generalFAQs.length === 0) {
+  if (generalFAQs.length === 0) {
     return null;
   }
 

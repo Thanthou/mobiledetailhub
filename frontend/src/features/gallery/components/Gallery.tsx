@@ -1,10 +1,15 @@
 import React from 'react';
-import Footer from '@/features/footer/components/footer';
-import { useRotatingGallery } from '../hooks/useRotatingGallery';
-import RotatingGalleryItem from './RotatingGalleryItem';
-import { GalleryProps } from '../types';
 
-const Gallery: React.FC<GalleryProps> = ({ onRequestQuote, locationData }) => {
+// Gallery section includes footer as part of its display
+// This is intentional and part of the gallery feature's design
+// eslint-disable-next-line no-restricted-imports -- Gallery displays footer as bottom half of section
+import { Footer } from '@/features/footer';
+
+import { useRotatingGallery } from '../hooks/useRotatingGallery';
+import { GalleryProps } from '../types';
+import RotatingGalleryItem from './RotatingGalleryItem';
+
+const Gallery: React.FC<GalleryProps> = ({ onRequestQuote, locationData: _locationData }) => {
   const { currentImages, nextImages, loading, error, fadingIndex } = useRotatingGallery();
 
   return (
@@ -30,7 +35,7 @@ const Gallery: React.FC<GalleryProps> = ({ onRequestQuote, locationData }) => {
                 <RotatingGalleryItem 
                   key={image.id} 
                   image={image} 
-                  {...(nextImages?.[index] && { nextImage: nextImages[index] })}
+                  {...(nextImages[index] && { nextImage: nextImages[index] })}
                   isTransitioning={fadingIndex === index}
                   index={index}
                 />
@@ -41,7 +46,7 @@ const Gallery: React.FC<GalleryProps> = ({ onRequestQuote, locationData }) => {
 
         {/* Bottom Half - Footer Content */}
         <div className="h-1/2 flex flex-col justify-center border-t border-stone-700">
-          <Footer onRequestQuote={onRequestQuote || (() => {})} locationData={locationData} />
+          <Footer onRequestQuote={onRequestQuote || (() => { /* noop */ })} />
         </div>
       </div>
     </section>

@@ -1,6 +1,8 @@
 import React from 'react';
-import { ProtectionComparisonChart } from './ProtectionComparisonChart';
+
 import { ServiceData } from '@/features/services/types/service.types';
+
+import { ProtectionComparisonChart } from './ProtectionComparisonChart';
 
 interface WhatItIsProps {
   serviceData: ServiceData;
@@ -15,7 +17,7 @@ const WhatItIs: React.FC<WhatItIsProps> = ({ serviceData }) => {
     <section className="bg-stone-800 py-16">
       <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         {/* Protection Comparison Chart - First */}
-        {hasChart && (
+        {hasChart && serviceData.whatItIs?.chart && (
           <div className="mb-12">
             <ProtectionComparisonChart
               ratings={serviceData.whatItIs.chart.data}
@@ -73,6 +75,7 @@ const WhatItIs: React.FC<WhatItIsProps> = ({ serviceData }) => {
                     playsInline
                     style={{ aspectRatio: '2/3' }}
                   >
+                    <track kind="captions" />
                     Your browser does not support the video tag.
                   </video>
                 </div>
@@ -147,6 +150,7 @@ const WhatItIs: React.FC<WhatItIsProps> = ({ serviceData }) => {
                     playsInline
                     style={{ aspectRatio: '2/3' }}
                   >
+                    <track kind="captions" />
                     Your browser does not support the video tag.
                   </video>
                 </div>

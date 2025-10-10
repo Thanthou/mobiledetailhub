@@ -1,13 +1,22 @@
 import React from 'react';
-import siteData from '@/data/mobile-detailing/site.json';
+
+import { useData } from '@/shared/contexts';
 import { useImageRotation } from '@/shared/hooks';
-import { getVisibleImageIndices, getImageOpacityClasses, getTransitionStyles } from '@/shared/utils';
-import { useData } from '@/features/header/contexts/DataProvider';
+import type { LocationPage } from '@/shared/types/location';
+import { getImageOpacityClasses, getTransitionStyles, getVisibleImageIndices } from '@/shared/utils';
+
+interface HeroImage {
+  url: string;
+  alt: string;
+  width?: number;
+  height?: number;
+  priority?: boolean;
+}
 
 interface ImageCarouselProps {
   autoRotate?: boolean;
   interval?: number;
-  locationData?: any;
+  locationData?: LocationPage;
 }
 
 const ImageCarousel: React.FC<ImageCarouselProps> = ({ 
@@ -15,20 +24,29 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
   interval = 7000,
   locationData
 }) => {
-  const { isTenant } = useData();
+  const { isTenant, siteConfig } = useData();
   
   // Determine which images to use
   let images: string[];
-  let imageData: any[] = [];
+  let imageData: HeroImage[] = [];
   
   if (isTenant && locationData?.images) {
     // Use location-specific hero images
-    imageData = locationData.images.filter((img: any) => img.role === 'hero');
-    images = imageData.map((img: any) => img.url);
+    const heroImages = locationData.images.filter(img => img.role === 'hero');
+    imageData = heroImages.map(img => ({
+      url: img.url,
+      alt: img.alt,
+      width: img.width,
+      height: img.height,
+      priority: img.priority
+    }));
+    images = imageData.map(img => img.url);
   } else {
-    // Fall back to main site hero images
-    imageData = siteData.hero.Images || [];
-    images = imageData.map((img: any) => img.url);
+    // Fall back to main site hero images from dynamically loaded site.json
+    // Note: JSON uses "Images" (capital I) - type assertion needed until JSON is normalized
+    const heroImages = (siteConfig?.hero as { Images?: HeroImage[] } | undefined)?.Images || [];
+    imageData = heroImages;
+    images = imageData.map(img => img.url);
   }
   
   // Use the new image rotation utility
@@ -41,7 +59,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
     pauseOnHover: false // Hero doesn't need hover pause
   });
 
-  const { currentIndex, nextIndex, hasMultipleImages } = rotation;
+  const { currentIndex } = rotation;
   
   // Get visible image indices for performance optimization
   const visibleIndices = getVisibleImageIndices(currentIndex, images.length, true);
@@ -53,7 +71,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
         // Only render visible images
         if (!visibleIndices.includes(index)) return null;
         
-        const imgData = imageData[index];
+        const imgData: HeroImage | undefined = imageData[index];
         const isPriority = imgData?.priority || index === 0;
         
         return (
@@ -67,6 +85,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
             style={getTransitionStyles(2000)}
             decoding={isPriority ? 'sync' : 'async'}
             loading={isPriority ? 'eager' : 'lazy'}
+            // eslint-disable-next-line react/no-unknown-property -- fetchpriority is a valid HTML attribute (lowercase required)
             fetchpriority={isPriority ? 'high' : 'low'}
           />
         );

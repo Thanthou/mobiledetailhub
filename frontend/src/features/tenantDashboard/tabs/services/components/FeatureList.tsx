@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { ChevronRight, ChevronDown, X } from 'lucide-react';
+import { ChevronDown, ChevronRight, X } from 'lucide-react';
 
 import type { ServiceFeature } from '../types/ServiceFeature';
 
 interface FeatureListProps {
   features: ServiceFeature[];
-  tierNames: string[];
+  tierNames?: string[];
   onRemoveFeature?: (serviceId: string, tierId: string, groupTierName: string) => void;
   showRemoveButtons?: boolean;
   currentTierId?: string;
@@ -14,23 +14,13 @@ interface FeatureListProps {
 
 export const FeatureList: React.FC<FeatureListProps> = ({ 
   features, 
-  tierNames, 
+  tierNames: _tierNames, 
   onRemoveFeature, 
   showRemoveButtons = false,
   currentTierId,
-  allTiers = []
+  allTiers: _allTiers = []
 }) => {
   const [expandedTiers, setExpandedTiers] = useState<Set<string>>(new Set());
-
-  // Find which tier a feature originally belongs to
-  const findFeatureOriginalTier = (serviceId: string): string | null => {
-    for (const tier of allTiers) {
-      if (tier.features.includes(serviceId)) {
-        return tier.id;
-      }
-    }
-    return null;
-  };
 
   const toggleTier = (tierId: string) => {
     setExpandedTiers(prev => {
@@ -54,7 +44,7 @@ export const FeatureList: React.FC<FeatureListProps> = ({
         <div className="flex items-center gap-2 py-1 group">
           {isTier && hasChildren && (
             <button
-              onClick={() => toggleTier(feature.id)}
+              onClick={() => { toggleTier(feature.id); }}
               className="text-gray-400 hover:text-gray-200 transition-colors"
             >
               {isExpanded ? (
@@ -72,7 +62,7 @@ export const FeatureList: React.FC<FeatureListProps> = ({
           
           {showRemoveButtons && !isTier && onRemoveFeature && currentTierId && (
             <button
-              onClick={() => onRemoveFeature(feature.id, currentTierId, groupTierName || '')}
+              onClick={() => { onRemoveFeature(feature.id, currentTierId, groupTierName || ''); }}
               className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 transition-all duration-200 p-1"
               title="Remove feature"
             >

@@ -29,12 +29,14 @@ class Logger {
 
   debug(message: string, ...args: unknown[]): void {
     if (this.shouldLog('debug')) {
+      // eslint-disable-next-line no-console -- Logger utility needs console access
       console.log(`[DEBUG] ${message}`, ...args);
     }
   }
 
   info(message: string, ...args: unknown[]): void {
     if (this.shouldLog('info')) {
+      // eslint-disable-next-line no-console -- Logger utility needs console access
       console.info(`[INFO] ${message}`, ...args);
     }
   }
@@ -53,24 +55,24 @@ class Logger {
 
   // Booking-specific loggers
   booking = {
-    stepChanged: (step: string) => this.debug(`🔄 Step changed to: ${step}`),
-    dataUpdated: (data: unknown) => this.debug('📊 Booking data updated:', data),
-    vehicleSelected: (vehicle: string) => this.debug(`🚗 Vehicle selected: ${vehicle}`),
-    serviceSelected: (service: string) => this.debug(`🎯 Service selected: ${service}`),
-    addonsSelected: (addons: string[]) => this.debug('➕ Addons selected:', addons),
-    scheduleSelected: (schedule: unknown) => this.debug('📅 Schedule selected:', schedule),
-    paymentSelected: (method: string) => this.debug(`💳 Payment method selected: ${method}`),
-    bookingCompleted: () => this.info('🎉 Booking completed!'),
-    bookingReset: () => this.debug('🔄 Booking reset'),
-    error: (error: string) => this.error(`❌ Booking error: ${error}`)
+    stepChanged: (step: string) => { this.debug(`🔄 Step changed to: ${step}`); },
+    dataUpdated: (data: unknown) => { this.debug('📊 Booking data updated:', data); },
+    vehicleSelected: (vehicle: string) => { this.debug(`🚗 Vehicle selected: ${vehicle}`); },
+    serviceSelected: (service: string) => { this.debug(`🎯 Service selected: ${service}`); },
+    addonsSelected: (addons: string[]) => { this.debug('➕ Addons selected:', addons); },
+    scheduleSelected: (schedule: unknown) => { this.debug('📅 Schedule selected:', schedule); },
+    paymentSelected: (method: string) => { this.debug(`💳 Payment method selected: ${method}`); },
+    bookingCompleted: () => { this.info('🎉 Booking completed!'); },
+    bookingReset: () => { this.debug('🔄 Booking reset'); },
+    error: (error: string) => { this.error(`❌ Booking error: ${error}`); }
   };
 
   // Data loading loggers
   data = {
-    loading: (type: string, params: unknown) => this.debug(`🔍 Loading ${type}:`, params),
-    loaded: (type: string, count: number) => this.debug(`📊 Loaded ${count} ${type}`),
-    error: (type: string, error: string) => this.error(`❌ Error loading ${type}: ${error}`),
-    noData: (type: string, params: unknown) => this.warn(`⚠️ No ${type} available:`, params)
+    loading: (type: string, params: unknown) => { this.debug(`🔍 Loading ${type}:`, params); },
+    loaded: (type: string, count: number) => { this.debug(`📊 Loaded ${count} ${type}`); },
+    error: (type: string, error: string) => { this.error(`❌ Error loading ${type}: ${error}`); },
+    noData: (type: string, params: unknown) => { this.warn(`⚠️ No ${type} available:`, params); }
   };
 }
 

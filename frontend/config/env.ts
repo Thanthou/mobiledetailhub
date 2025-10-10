@@ -5,14 +5,14 @@ export const config = {
   // API URL - will be set based on environment
   apiUrl: env.VITE_API_URL || 
     (env.PROD 
-      ? env.VITE_API_URL_LIVE || 'https://mobiledetailhub.onrender.com'
+      ? env.VITE_API_URL_LIVE || ''  // Use relative URLs (same domain as frontend)
       : ''  // Empty string for development to use relative URLs with Vite proxy
     ),
   
   // API URLs for admin dashboard toggle
   apiUrls: {
     local: env.VITE_API_URL_LOCAL || 'http://localhost:3001',
-    live: env.VITE_API_URL_LIVE || 'https://mobiledetailhub.onrender.com'
+    live: env.VITE_API_URL_LIVE || ''  // Configure via env var when deploying
   },
   
   // Environment

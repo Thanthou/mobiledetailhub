@@ -1,5 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { getCardDescription, formatPrice } from '../utils/displayUtils';
+import { describe, expect,it } from 'vitest';
+
+import { formatPrice,getCardDescription } from '../utils/displayUtils';
 
 describe('displayUtils', () => {
   describe('getCardDescription', () => {
