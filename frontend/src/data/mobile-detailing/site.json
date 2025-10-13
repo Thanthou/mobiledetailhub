@@ -29,16 +29,62 @@
       "Images": [
         { 
           "url": "/mobile-detailing/images/hero/hero1.png", 
+          "mobileUrl": "/mobile-detailing/images/hero/hero1-mobile.png",
           "alt": "Professional mobile detailing service in action",
-          "width": 1920,
-          "height": 1080,
+          "width": 1536,
+          "height": 1024,
+          "mobileWidth": 1024,
+          "mobileHeight": 1536,
+          "aspectRatio": 1.5,
+          "mobileAspectRatio": 0.666,
           "priority": true
         },
         { 
           "url": "/mobile-detailing/images/hero/hero2.png", 
+          "mobileUrl": "/mobile-detailing/images/hero/hero2-mobile.png",
           "alt": "High-quality car detailing and ceramic coating",
-          "width": 1920,
-          "height": 1080,
+          "width": 1536,
+          "height": 1024,
+          "mobileWidth": 1024,
+          "mobileHeight": 1536,
+          "aspectRatio": 1.5,
+          "mobileAspectRatio": 0.666,
+          "priority": true
+        },
+        { 
+          "url": "/mobile-detailing/images/hero/hero3.png", 
+          "mobileUrl": "/mobile-detailing/images/hero/hero3-mobile.png",
+          "alt": "High-quality car detailing, paint correction, and ceramic coating",
+          "width": 1536,
+          "height": 1024,
+          "mobileWidth": 1024,
+          "mobileHeight": 1536,
+          "aspectRatio": 1.5,
+          "mobileAspectRatio": 0.666,
+          "priority": true
+        },
+        { 
+          "url": "/mobile-detailing/images/hero/hero4.png", 
+          "mobileUrl": "/mobile-detailing/images/hero/hero4-mobile.png",
+          "alt": "High-quality car detailing, paint correction, and ceramic coating",
+          "width": 1536,
+          "height": 1024,
+          "mobileWidth": 1024,
+          "mobileHeight": 1536,
+          "aspectRatio": 1.5,
+          "mobileAspectRatio": 0.666,
+          "priority": true
+        },
+        { 
+          "url": "/mobile-detailing/images/hero/hero5.png", 
+          "mobileUrl": "/mobile-detailing/images/hero/hero5-mobile.png",
+          "alt": "High-quality car detailing, paint correction, and ceramic coating",
+          "width": 1536,
+          "height": 1024,
+          "mobileWidth": 1024,
+          "mobileHeight": 1536,
+          "aspectRatio": 1.5,
+          "mobileAspectRatio": 0.666,
           "priority": true
         }
       ]

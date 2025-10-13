@@ -2,10 +2,10 @@
 import { useCallback,useEffect, useState } from 'react';
 
 import { useDataOptional } from '@/shared/contexts/DataContext';
+import dummyReviewsData from '@/shared/data/dummyReviews.json';
 
 import { reviewsApi } from '../api';
 import type { DatabaseReview,Review, ReviewQueryParams } from '../types';
-import dummyReviewsData from '../../preview/data/dummyReviews.json';
 
 // Convert database review to frontend review format
 const convertDatabaseReviewToReview = (dbReview: DatabaseReview): Review => {

@@ -4,7 +4,8 @@ const { pool } = require('../database/pool');
 const { validateParams } = require('../middleware/validation');
 const { customerSchemas } = require('../utils/validationSchemas');
 const { asyncHandler } = require('../middleware/errorHandler');
-const logger = require('../utils/logger');
+// TODO: Add proper logging for customer operations
+// const logger = require('../utils/logger');
 
 // Get customers
 router.get('/', asyncHandler(async (req, res) => {

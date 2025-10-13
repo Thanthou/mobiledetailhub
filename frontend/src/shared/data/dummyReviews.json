@@ -1,0 +1,57 @@
+[
+  {
+    "id": "preview-1",
+    "customerName": "Sarah Mitchell",
+    "rating": 5,
+    "reviewText": "Outstanding service from start to finish! The attention to detail was incredible and the results exceeded my expectations. Highly professional team that truly cares about quality.",
+    "date": "2024-12-15",
+    "reviewSource": "google",
+    "profileImage": "/shared/preview-avatars/avatar-1.jfif"
+  },
+  {
+    "id": "preview-2",
+    "customerName": "Michael Rodriguez",
+    "rating": 5,
+    "reviewText": "I'm absolutely thrilled with the results! They were punctual, professional, and did an amazing job. You can tell they take real pride in their work. Will definitely be using them again!",
+    "date": "2024-12-10",
+    "reviewSource": "google",
+    "profileImage": "/shared/preview-avatars/avatar-2.jfif"
+  },
+  {
+    "id": "preview-3",
+    "customerName": "Jennifer Chen",
+    "rating": 5,
+    "reviewText": "Best experience I've had with any service provider! They showed up on time, were incredibly friendly, and delivered exceptional results. Worth every penny!",
+    "date": "2024-12-08",
+    "reviewSource": "google",
+    "profileImage": "/shared/preview-avatars/avatar-3.jfif"
+  },
+  {
+    "id": "preview-4",
+    "customerName": "David Thompson",
+    "rating": 5,
+    "reviewText": "Absolutely fantastic! They did such a thorough and meticulous job. Very professional, reasonably priced, and the quality is top-notch. I couldn't be happier with the service!",
+    "date": "2024-12-05",
+    "reviewSource": "google",
+    "profileImage": "/shared/preview-avatars/avatar-4.jfif"
+  },
+  {
+    "id": "preview-5",
+    "customerName": "Emily Parker",
+    "rating": 5,
+    "reviewText": "Wow! I am so impressed with the quality of work. They were professional, efficient, and went above and beyond what I expected. Highly recommend to anyone looking for excellent service!",
+    "date": "2024-12-01",
+    "reviewSource": "google",
+    "profileImage": "/shared/preview-avatars/avatar-5.jfif"
+  },
+  {
+    "id": "preview-6",
+    "customerName": "Robert Johnson",
+    "rating": 5,
+    "reviewText": "These folks are the real deal! Amazing attention to detail, fair pricing, and exceptional customer service. They've earned a customer for life. Thank you!",
+    "date": "2024-11-28",
+    "reviewSource": "google",
+    "profileImage": "/shared/preview-avatars/avatar-6.jfif"
+  }
+]
+

@@ -62,7 +62,8 @@ async function executeSqlFile(filePath, description) {
 }
 
 // Utility function to execute SQL string
-async function executeSql(sql, description) {
+// TODO: Re-enable when needed for special SQL execution cases
+async function _executeSql(sql, description) {
   try {
     console.log(`🔧 ${description}...`);
     await pool.query(sql);
@@ -85,11 +86,15 @@ async function initializeDatabase() {
       -- Drop existing schemas (CASCADE will remove all objects)
       DROP SCHEMA IF EXISTS public CASCADE;
       DROP SCHEMA IF EXISTS auth CASCADE;
-      DROP SCHEMA IF EXISTS affiliates CASCADE;
+      DROP SCHEMA IF EXISTS tenants CASCADE;
+      DROP SCHEMA IF EXISTS booking CASCADE;
       DROP SCHEMA IF EXISTS system CASCADE;
       DROP SCHEMA IF EXISTS reputation CASCADE;
       DROP SCHEMA IF EXISTS customers CASCADE;
+      DROP SCHEMA IF EXISTS schedule CASCADE;
+      DROP SCHEMA IF EXISTS website CASCADE;
       DROP SCHEMA IF EXISTS vehicles CASCADE;
+      DROP SCHEMA IF EXISTS affiliates CASCADE;
     `);
     client.release();
     console.log('✅ Old schemas cleaned');
@@ -99,10 +104,13 @@ async function initializeDatabase() {
     const schemaClient = await pool.connect();
     await schemaClient.query(`
       CREATE SCHEMA auth;
-      CREATE SCHEMA affiliates;
+      CREATE SCHEMA tenants;
+      CREATE SCHEMA booking;
       CREATE SCHEMA system;
       CREATE SCHEMA reputation;
       CREATE SCHEMA customers;
+      CREATE SCHEMA schedule;
+      CREATE SCHEMA website;
     `);
     schemaClient.release();
     console.log('✅ Schemas created');
@@ -126,19 +134,31 @@ async function initializeDatabase() {
       'Creating user_sessions table'
     );
     
-    // 3. Create affiliates tables
-    console.log('\n🏢 Creating affiliate tables...');
+    // 3. Create tenant tables
+    console.log('\n🏢 Creating tenant tables...');
     await executeSqlFile(
-      path.join(__dirname, '../schemas/affiliates/business.sql'),
+      path.join(__dirname, '../schemas/tenants/business.sql'),
       'Creating business table'
     );
     await executeSqlFile(
-      path.join(__dirname, '../schemas/affiliates/services.sql'),
+      path.join(__dirname, '../schemas/tenants/services.sql'),
       'Creating services table'
     );
     await executeSqlFile(
-      path.join(__dirname, '../schemas/affiliates/service_tiers.sql'),
+      path.join(__dirname, '../schemas/tenants/service_tiers.sql'),
       'Creating service_tiers table'
+    );
+    await executeSqlFile(
+      path.join(__dirname, '../schemas/tenants/tenant_images.sql'),
+      'Creating tenant_images table'
+    );
+    await executeSqlFile(
+      path.join(__dirname, '../schemas/tenants/tenant_applications.sql'),
+      'Creating tenant_applications table'
+    );
+    await executeSqlFile(
+      path.join(__dirname, '../schemas/tenants/subscriptions.sql'),
+      'Creating subscriptions table'
     );
     
     // 4. Create system tables
@@ -186,31 +206,51 @@ async function initializeDatabase() {
       'Creating customer_communications table'
     );
     
-    // 7. Insert seed data
-    console.log('\n🌱 Inserting seed data...');
+    // 7. Create schedule tables
+    console.log('\n📅 Creating schedule tables...');
     await executeSqlFile(
-      path.join(__dirname, '../seeds/auth_users.sql'),
-      'Inserting initial users'
+      path.join(__dirname, '../schemas/schedule/appointments.sql'),
+      'Creating appointments table'
     );
     await executeSqlFile(
-      path.join(__dirname, '../seeds/affiliate_businesses.sql'),
-      'Inserting affiliate businesses'
+      path.join(__dirname, '../schemas/schedule/blocked_days.sql'),
+      'Creating blocked_days table'
     );
     await executeSqlFile(
-      path.join(__dirname, '../seeds/affiliate_services.sql'),
-      'Inserting affiliate services'
+      path.join(__dirname, '../schemas/schedule/schedule_settings.sql'),
+      'Creating schedule_settings table'
     );
     await executeSqlFile(
-      path.join(__dirname, '../seeds/reputation_reviews.sql'),
-      'Inserting sample reviews'
+      path.join(__dirname, '../schemas/schedule/time_blocks.sql'),
+      'Creating time_blocks table'
     );
     
-    // 8. Update schema migrations
+    // 8. Insert seed data (optional - comment out if not needed)
+    console.log('\n🌱 Inserting seed data...');
+    try {
+      await executeSqlFile(
+        path.join(__dirname, '../seeds/auth_users.sql'),
+        'Inserting initial users'
+      );
+    } catch {
+      console.log('⚠️  Skipping auth_users seed (file may not exist)');
+    }
+    
+    try {
+      await executeSqlFile(
+        path.join(__dirname, '../seeds/reputation_reviews.sql'),
+        'Inserting sample reviews'
+      );
+    } catch {
+      console.log('⚠️  Skipping reputation_reviews seed (file may not exist)');
+    }
+    
+    // 9. Update schema migrations
     console.log('\n📝 Updating schema migrations...');
     const migrationClient = await pool.connect();
     await migrationClient.query(`
       INSERT INTO system.schema_migrations (version, description) 
-      VALUES ('v6.0', 'Initialized new schema structure: auth, affiliates, system, reputation with enterprise features')
+      VALUES ('v7.0', 'Initialized complete schema: auth, tenants (with onboarding), customers, reputation, schedule, booking, website')
       ON CONFLICT (version) DO NOTHING;
     `);
     migrationClient.release();
@@ -220,10 +260,13 @@ async function initializeDatabase() {
     console.log('\n📊 Database Summary:');
     console.log('   • Public Schema: Cleaned (no tables)');
     console.log('   • Auth Schema: 4 tables (users, refresh_tokens, login_attempts, user_sessions)');
-    console.log('   • Affiliates Schema: 3 tables (business, services, service_tiers)');
-    console.log('   • System Schema: 2 tables (schema_migrations, system_config)');
+    console.log('   • Tenants Schema: 6 tables (business, services, service_tiers, tenant_images, tenant_applications, subscriptions)');
+    console.log('   • System Schema: 3 tables (schema_migrations, system_config, health_monitoring)');
     console.log('   • Reputation Schema: 3 tables (reviews, review_replies, review_votes)');
     console.log('   • Customers Schema: 3 tables (customers, customer_vehicles, customer_communications)');
+    console.log('   • Schedule Schema: 4 tables (appointments, blocked_days, schedule_settings, time_blocks)');
+    console.log('   • Booking Schema: To be implemented');
+    console.log('   • Website Schema: To be implemented');
     console.log('   • Seed Data: Initial users and system configuration');
     console.log('\n⚠️  WARNING: All previous data has been removed!');
     
@@ -250,3 +293,4 @@ if (require.main === module) {
 }
 
 module.exports = { initializeDatabase };
+

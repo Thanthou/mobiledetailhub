@@ -1,152 +1,260 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Check } from 'lucide-react';
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+import { ChevronLeft } from 'lucide-react';
 
-import type { TenantApplication } from '@/features/tenantOnboarding/types';
-import { tenantApplicationDefaultValues } from '@/features/tenantOnboarding/types';
 import { Button } from '@/shared/ui';
 
+import { useAutoSave } from '../hooks/useAutoSave';
+import {
+  type PreviewState,
+  type TenantApplication,
+  tenantApplicationDefaultValues,
+} from '../types';
+import {
+  businessInfoSchema,
+  personalInfoSchema,
+  planSelectionSchema,
+} from '../utils/validation';
 import {
   ApplicationHeader,
   BusinessInformationSection,
   PersonalInformationSection,
-  SuccessPage
+  PlanSelectionSection,
+  StepProgress,
+  SuccessPage,
 } from './index';
 import PaymentSection from './PaymentSection';
 
-interface PreviewState {
-  fromPreview?: boolean;
-  businessName?: string;
-  phone?: string;
-  city?: string;
-  state?: string;
-  industry?: string;
-}
+// Initialize Stripe (will be configured later)
+const stripePromise = loadStripe(
+  (import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY as string) || 'pk_test_placeholder'
+);
+
+const STEPS = [
+  { id: 0, label: 'Plan' },
+  { id: 1, label: 'Personal' },
+  { id: 2, label: 'Business' },
+  { id: 3, label: 'Payment' },
+];
 
 const TenantApplicationPage: React.FC = () => {
   const location = useLocation();
   const previewData = location.state as PreviewState | null;
-  
+
   const [formData, setFormData] = useState<TenantApplication>(tenantApplicationDefaultValues);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-  const [currentStep, setCurrentStep] = useState(1);
 
-  // Pre-fill form if coming from preview
+  const { loadFromLocalStorage, clearSavedData } = useAutoSave({
+    formData,
+    enabled: currentStep > 0,
+  });
+
+  // Load saved draft or preview data on mount
   useEffect(() => {
-    if (previewData?.fromPreview) {
-      setFormData(prev => ({
-        ...prev,
-        businessName: previewData.businessName || prev.businessName,
-        businessPhone: previewData.phone || prev.businessPhone,
-        businessAddress: {
-          ...prev.businessAddress,
-          city: previewData.city || prev.businessAddress.city,
-          state: previewData.state || prev.businessAddress.state,
-        },
-      }));
+    const loadSavedData = () => {
+      const localData = loadFromLocalStorage();
+
+      if (localData) {
+        const shouldRestore = window.confirm(
+          'We found a saved draft. Would you like to continue where you left off?'
+        );
+        if (shouldRestore) {
+          setFormData(localData);
+          setCurrentStep(localData.step);
+          return;
+        }
+      }
+
+      // Pre-fill from preview data if available
+      if (previewData?.fromPreview) {
+        setFormData((prev) => ({
+          ...prev,
+          businessName: previewData.businessName || prev.businessName,
+          businessPhone: previewData.phone || prev.businessPhone,
+          businessAddress: {
+            ...prev.businessAddress,
+            city: previewData.city || prev.businessAddress.city,
+            state: previewData.state || prev.businessAddress.state,
+          },
+          industry: previewData.industry,
+        }));
+      }
+    };
+
+    loadSavedData();
+  }, [loadFromLocalStorage, previewData]);
+
+  // Warn user before leaving if form is in progress
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (currentStep > 0 && currentStep < STEPS.length - 1) {
+        e.preventDefault();
+        // Modern browsers will show a generic confirmation dialog
+        return '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => { window.removeEventListener('beforeunload', handleBeforeUnload); };
+  }, [currentStep]);
+
+  const handleFieldChange = (field: string, value: unknown) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => ({ ...prev, [field]: '' }));
+  };
+
+  const handleAddressChange = (
+    addressType: 'businessAddress' | 'billingAddress',
+    field: string,
+    value: string
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      [addressType]: { ...prev[addressType], [field]: value },
+    }));
+  };
+
+  const handlePlanSelect = (planId: 'starter' | 'pro' | 'enterprise', price: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      selectedPlan: planId,
+      planPrice: price,
+    }));
+  };
+
+  const handleToggleSameAddress = (value: boolean) => {
+    setFormData((prev) => ({
+      ...prev,
+      useSameAddress: value,
+      billingAddress: value ? prev.businessAddress : prev.billingAddress,
+    }));
+  };
+
+  const validateStep = (step: number): boolean => {
+    try {
+      switch (step) {
+        case 0:
+          planSelectionSchema.parse({
+            selectedPlan: formData.selectedPlan,
+            planPrice: formData.planPrice,
+          });
+          return true;
+
+        case 1:
+          personalInfoSchema.parse({
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            personalPhone: formData.personalPhone,
+            personalEmail: formData.personalEmail,
+          });
+          return true;
+
+        case 2:
+          businessInfoSchema.parse({
+            businessName: formData.businessName,
+            businessPhone: formData.businessPhone,
+            businessEmail: formData.businessEmail,
+            businessAddress: formData.businessAddress,
+            industry: formData.industry,
+          });
+          return true;
+
+        case 3:
+          return true;
+
+        default:
+          return false;
+      }
+    } catch (error: unknown) {
+      const newErrors: Record<string, string> = {};
+      if (error && typeof error === 'object' && 'errors' in error) {
+        const zodError = error as { errors: Array<{ path: string[]; message: string }> };
+        zodError.errors.forEach((err) => {
+          const field = err.path.join('.');
+          newErrors[field] = err.message;
+        });
+      }
+      setErrors(newErrors);
+      return false;
     }
-  }, [previewData]);
+  };
 
-  const steps = ['Personal', 'Business', 'Payment'];
-
-  // Step navigation functions
   const goToNextStep = () => {
-    if (currentStep < steps.length) {
-      setCurrentStep(prev => prev + 1);
+    if (validateStep(currentStep)) {
+      const nextStep = currentStep + 1;
+      setFormData((prev) => ({ ...prev, step: nextStep }));
+      setCurrentStep(nextStep);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
   const goToPreviousStep = () => {
-    if (currentStep > 1) {
-      setCurrentStep(prev => prev - 1);
+    if (currentStep > 0) {
+      const prevStep = currentStep - 1;
+      setFormData((prev) => ({ ...prev, step: prevStep }));
+      setCurrentStep(prevStep);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
-  // Handle input changes for simple fields
-  const handleInputChange = (field: keyof TenantApplication, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
-  // Handle business address changes
-  const handleAddressChange = (field: keyof TenantApplication['businessAddress'], value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      businessAddress: {
-        ...prev.businessAddress,
-        [field]: value
-      }
-    }));
-  };
-
-  // Handle billing address changes
-  const handleBillingAddressChange = (field: keyof TenantApplication['billingAddress'], value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      billingAddress: {
-        ...prev.billingAddress,
-        [field]: value
-      }
-    }));
-  };
-
-  // Test data for auto-filling the form
-  const testData: TenantApplication = {
-    firstName: 'Jess',
-    lastName: 'Brister',
-    personalPhone: '(702) 420-3151',
-    personalEmail: 'jessbrister27@gmail.com',
-    businessName: "JP's Mobile Detailing",
-    businessPhone: '(702) 420-3151',
-    businessEmail: 'jpsmobiledetailing@hotmail.com',
-    businessAddress: {
-      address: '2550 Country Club Drive',
-      city: 'Bullhead City',
-      state: 'AZ',
-      zip: '86442'
-    },
-    paymentMethod: 'credit_card',
-    cardNumber: '4532 1234 5678 9012',
-    expiryDate: '12/25',
-    cvv: '123',
-    billingAddress: {
-      address: '2550 Country Club Drive',
-      city: 'Bullhead City',
-      state: 'AZ',
-      zip: '86442'
-    }
-  };
-
-  // Function to auto-fill form with test data
-  const handleTestFill = () => {
-    setFormData(testData);
-  };
-
-  // Function to clear form
-  const handleClearForm = () => {
-    setFormData(tenantApplicationDefaultValues);
-  };
-
-  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validateStep(currentStep)) {
+      return;
+    }
+
     setIsSubmitting(true);
-    setSubmitError(null);
 
     try {
-      // TODO: Implement actual submission logic
-      
+      // TODO: Implement actual API submission
+      const _applicationData = {
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        personal_phone: formData.personalPhone,
+        personal_email: formData.personalEmail,
+        business_name: formData.businessName,
+        business_phone: formData.businessPhone,
+        business_email: formData.businessEmail,
+        business_address: formData.businessAddress.address,
+        business_city: formData.businessAddress.city,
+        business_state: formData.businessAddress.state,
+        business_zip: formData.businessAddress.zip,
+        industry: formData.industry,
+        selected_plan: formData.selectedPlan,
+        plan_price: formData.planPrice,
+        billing_address: formData.useSameAddress
+          ? formData.businessAddress.address
+          : formData.billingAddress.address,
+        billing_city: formData.useSameAddress
+          ? formData.businessAddress.city
+          : formData.billingAddress.city,
+        billing_state: formData.useSameAddress
+          ? formData.businessAddress.state
+          : formData.billingAddress.state,
+        billing_zip: formData.useSameAddress
+          ? formData.businessAddress.zip
+          : formData.billingAddress.zip,
+        status: 'pending',
+        submitted_at: new Date().toISOString(),
+      };
+
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => { setTimeout(resolve, 2000); });
       
+      // TODO: Replace with proper API call
+      // await submitApplication(_applicationData);
+
+      clearSavedData();
       setIsSuccess(true);
     } catch (error) {
-      setSubmitError('Failed to submit application. Please try again.');
       console.error('Submission error:', error);
+      alert('Failed to submit application. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -159,154 +267,112 @@ const TenantApplicationPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-stone-900 text-white">
       <ApplicationHeader />
-      
-      {/* Development Tools */}
-      <div className="fixed top-20 left-4 z-40 bg-amber-900/50 border border-amber-600 text-white p-4 rounded-lg max-w-xs">
-        <h3 className="text-sm font-bold mb-2">🛠️ Dev Tools</h3>
-        <div className="flex flex-col gap-2">
-          <Button
-            type="button"
-            onClick={handleTestFill}
-            variant="secondary"
-            size="sm"
-            className="px-3 py-1 bg-green-600 hover:bg-green-700 font-medium rounded-md text-xs"
-          >
-            📝 Fill Test Data
-          </Button>
-          <Button
-            type="button"
-            onClick={handleClearForm}
-            variant="destructive"
-            size="sm"
-            className="px-3 py-1 bg-red-600 hover:bg-red-700 font-medium rounded-md text-xs"
-          >
-            🗑️ Clear Form
-          </Button>
-        </div>
-        <p className="text-xs text-amber-200 mt-2">
-          Use these buttons to quickly test the form functionality.
-        </p>
-      </div>
-      
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
-        <form onSubmit={(e) => { void handleSubmit(e); }} className="space-y-8" id="tenant-form">
-          {/* Step Container with Fixed Height */}
-          <div className="h-[700px] flex flex-col justify-start">
-            {/* Step 1: Personal Information */}
-            {currentStep === 1 && (
-              <div className="h-full flex flex-col justify-center">
-                <PersonalInformationSection 
-                  formData={formData} 
-                  handleInputChange={handleInputChange} 
+
+      <div className="pt-16 sm:pt-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <StepProgress steps={STEPS} currentStep={currentStep} />
+
+          <form onSubmit={(e) => { void handleSubmit(e); }} className="pb-12">
+            <div className="min-h-[500px] flex items-center justify-center">
+              {currentStep === 0 && (
+                <PlanSelectionSection
+                  selectedPlan={formData.selectedPlan}
+                  onSelectPlan={handlePlanSelect}
                 />
-              </div>
-            )}
-            
-            {/* Step 2: Business Information */}
-            {currentStep === 2 && (
-              <div className="h-full flex flex-col justify-center">
-                <BusinessInformationSection 
-                  formData={formData} 
-                  handleInputChange={handleInputChange}
-                  handleAddressChange={handleAddressChange}
+              )}
+
+              {currentStep === 1 && (
+                <PersonalInformationSection
+                  formData={formData}
+                  handleInputChange={handleFieldChange}
                 />
-              </div>
-            )}
-            
-            {/* Step 3: Payment Information */}
-            {currentStep === 3 && (
-              <div className="h-full flex flex-col justify-start">
-                <PaymentSection 
-                  formData={formData} 
-                  handleInputChange={handleInputChange}
-                  handleAddressChange={handleBillingAddressChange}
+              )}
+
+              {currentStep === 2 && (
+                <BusinessInformationSection
+                  formData={formData}
+                  handleInputChange={handleFieldChange}
+                  handleAddressChange={(field, value) => {
+                    handleAddressChange('businessAddress', field, value);
+                  }}
                 />
-              </div>
-            )}
-          </div>
-          
-          {/* Navigation Buttons */}
-          <div className="py-6">
-            {/* Step Numbers */}
-            <div className="flex justify-center items-center mb-6">
-              {steps.map((step, index) => {
-                const stepNumber = index + 1;
-                const isActive = stepNumber === currentStep;
-                const isCompleted = stepNumber < currentStep;
-                
-                return (
-                  <React.Fragment key={stepNumber}>
-                    <div className="flex flex-col items-center">
-                      <div className={`
-                        flex items-center justify-center w-8 h-8 rounded-full border-2 transition-all duration-300
-                        ${isCompleted 
-                          ? 'bg-orange-600 border-orange-600 text-white' 
-                          : isActive 
-                            ? 'bg-orange-600 border-orange-600 text-white' 
-                            : 'bg-stone-700 border-stone-600 text-gray-400'
-                        }
-                      `}>
-                        {isCompleted ? (
-                          <Check className="w-4 h-4" />
-                        ) : (
-                          <span className="text-sm font-semibold">{stepNumber}</span>
-                        )}
-                      </div>
-                      <div className={`text-xs font-medium mt-1 transition-colors duration-300 ${
-                        isActive || isCompleted ? 'text-white' : 'text-gray-400'
-                      }`}>
-                        {step}
-                      </div>
-                    </div>
-                    {index < steps.length - 1 && (
-                      <div className={`
-                        w-8 h-0.5 mx-2 mt-4 transition-colors duration-300
-                        ${isCompleted ? 'bg-orange-600' : 'bg-stone-600'}
-                      `} />
-                    )}
-                  </React.Fragment>
-                );
-              })}
-            </div>
-            
-            {/* Previous/Next Buttons */}
-            <div className="flex justify-center gap-4">
-              <Button
-                type="button"
-                onClick={goToPreviousStep}
-                disabled={currentStep === 1}
-                variant="outline"
-                className="px-6 py-2 border border-stone-600 text-gray-300 hover:bg-stone-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Previous
-              </Button>
-              
-              {currentStep < steps.length ? (
-                <Button
-                  type="button"
-                  onClick={goToNextStep}
-                  className="px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white"
-                >
-                  Next
-                </Button>
-              ) : (
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white disabled:opacity-50"
-                >
-                  {isSubmitting ? 'Submitting...' : 'Submit Application'}
-                </Button>
+              )}
+
+              {currentStep === 3 && (
+                <Elements stripe={stripePromise}>
+                  <PaymentSection
+                    formData={formData}
+                    businessAddress={formData.businessAddress}
+                    onAddressChange={(field, value) => {
+                      handleAddressChange('billingAddress', field, value);
+                    }}
+                    onToggleSameAddress={handleToggleSameAddress}
+                    errors={errors}
+                    setErrors={setErrors}
+                  />
+                </Elements>
               )}
             </div>
-            
-            {submitError && (
-              <div className="mt-4 text-red-400 text-sm bg-red-900/20 border border-red-600 p-3 rounded-md max-w-md mx-auto">
-                {submitError}
+
+            <div className="max-w-2xl mx-auto mt-8 px-4">
+              <div className="flex flex-col-reverse sm:flex-row justify-center gap-3 sm:gap-4">
+                {currentStep > 0 && (
+                  <Button
+                    type="button"
+                    onClick={goToPreviousStep}
+                    variant="outline"
+                    size="lg"
+                    className="flex items-center justify-center gap-2"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    Back
+                  </Button>
+                )}
+
+                {currentStep < STEPS.length - 1 ? (
+                  <Button
+                    type="button"
+                    onClick={goToNextStep}
+                    variant="primary"
+                    size="lg"
+                    fullWidth={currentStep === 0}
+                    disabled={currentStep === 0 && !formData.selectedPlan}
+                  >
+                    {currentStep === 0 ? 'Get Started' : 'Continue'}
+                  </Button>
+                ) : (
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    size="lg"
+                    disabled={isSubmitting}
+                    className="min-w-[200px]"
+                  >
+                    {isSubmitting ? 'Processing...' : 'Complete Purchase'}
+                  </Button>
+                )}
               </div>
-            )}
+
+              {currentStep > 0 && (
+                <p className="text-center text-xs text-gray-500 mt-4">
+                  Your progress is automatically saved
+                </p>
+              )}
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div className="border-t border-stone-800 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 text-sm text-gray-400">
+            <span>100+ businesses trust us</span>
+            <span className="hidden sm:inline">•</span>
+            <span>SSL Secure</span>
+            <span className="hidden sm:inline">•</span>
+            <span>PCI Compliant</span>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );

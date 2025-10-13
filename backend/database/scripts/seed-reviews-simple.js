@@ -137,11 +137,11 @@ function generateAvatarUrl(name) {
 // Function to determine service category based on content
 function getServiceCategory(content) {
     const lowerContent = content.toLowerCase();
-    if (lowerContent.includes('ceramic') || lowerContent.includes('coating')) return 'ceramic';
-    if (lowerContent.includes('paint correction') || lowerContent.includes('paint')) return 'paint_correction';
-    if (lowerContent.includes('boat') || lowerContent.includes('marine')) return 'boat';
-    if (lowerContent.includes('rv') || lowerContent.includes('recreational')) return 'rv';
-    if (lowerContent.includes('ppf') || lowerContent.includes('film')) return 'ppf';
+    if (lowerContent.includes('ceramic') || lowerContent.includes('coating')) {return 'ceramic';}
+    if (lowerContent.includes('paint correction') || lowerContent.includes('paint')) {return 'paint_correction';}
+    if (lowerContent.includes('boat') || lowerContent.includes('marine')) {return 'boat';}
+    if (lowerContent.includes('rv') || lowerContent.includes('recreational')) {return 'rv';}
+    if (lowerContent.includes('ppf') || lowerContent.includes('film')) {return 'ppf';}
     return 'auto'; // default
 }
 

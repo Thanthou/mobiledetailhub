@@ -12,8 +12,10 @@ interface UseReviewsRatingReturn {
 }
 
 export const useReviewsRating = (): UseReviewsRatingReturn => {
-  // Check if in preview mode
+  // Always call hooks unconditionally (hooks rules)
   const data = useDataOptional();
+  const { content: websiteContent } = useWebsiteContent();
+  
   const isPreview = data?.isPreview || false;
   
   // In preview mode, return impressive stats
@@ -24,9 +26,6 @@ export const useReviewsRating = (): UseReviewsRatingReturn => {
       googleBusinessUrl: '#', // Dead link in preview
     };
   }
-  
-  // Always call hooks unconditionally
-  const { content: websiteContent } = useWebsiteContent();
   
   // Pull from database first, then fall back to site data
   const averageRating = websiteContent?.reviews_avg_rating 

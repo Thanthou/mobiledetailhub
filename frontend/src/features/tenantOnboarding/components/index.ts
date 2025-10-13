@@ -2,6 +2,8 @@
 export { default as ApplicationHeader } from './ApplicationHeader';
 export { default as BusinessInformationSection } from './BusinessInformationSection';
 export { default as PersonalInformationSection } from './PersonalInformationSection';
+export { PlanSelectionSection } from './PlanSelectionSection';
+export { StepProgress } from './StepProgress';
 export { default as SuccessPage } from './SuccessPage';
 export { default as TenantApplicationPage } from './TenantApplicationPage';
 

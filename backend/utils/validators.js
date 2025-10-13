@@ -3,7 +3,8 @@
  * Provides common validation functions for API endpoints
  */
 
-const logger = require('./logger');
+// TODO: Add proper logging for validation failures
+// const logger = require('./logger');
 
 /**
  * Common validation patterns
@@ -14,9 +15,9 @@ const PATTERNS = {
   ZIP_CODE: /^\d{5}(-\d{4})?$/,
   STATE_CODE: /^[A-Z]{2}$/,
   SLUG: /^[a-z0-9-]+$/,
-  URL: /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/,
-  ALPHANUMERIC: /^[a-zA-Z0-9\s\.,&'\-()!?@#+$%:;]+$/,
-  ALPHABETIC: /^[a-zA-Z\s'\-\.]+$/,
+  URL: /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)$/,
+  ALPHANUMERIC: /^[a-zA-Z0-9\s.,&'\-()!?@#+$%:;]+$/,
+  ALPHABETIC: /^[a-zA-Z\s'\-.]+$/,
   NUMERIC: /^\d+$/,
   DECIMAL: /^\d+(\.\d+)?$/
 };

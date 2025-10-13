@@ -5,7 +5,6 @@ import HomePage from '@/app/pages/HomePage';
 // eslint-disable-next-line no-restricted-imports -- Page composition needs quote modal
 import { LazyRequestQuoteModal } from '@/features/quotes';
 
-import Header from '../components/Header';
 import { DataProvider } from '../contexts/DataProvider';
 
 const TenantPage: React.FC = () => {
@@ -17,7 +16,6 @@ const TenantPage: React.FC = () => {
   return (
     <DataProvider>
       <div className="min-h-screen">
-        <Header />
         <HomePage onRequestQuote={handleOpenQuoteModal} />
         
         {isQuoteModalOpen && (

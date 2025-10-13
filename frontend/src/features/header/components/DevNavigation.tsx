@@ -1,6 +1,6 @@
-import React, { useEffect,useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ChevronDown, Eye, ExternalLink, Home,Settings, Users } from 'lucide-react';
+import { ChevronDown, ExternalLink, Eye, Home, Settings, Users } from 'lucide-react';
 
 import { useTenants } from '../hooks/useTenants';
 
@@ -13,7 +13,7 @@ const DevNavigation: React.FC = () => {
   const tenantsRef = useRef<HTMLDivElement>(null);
 
   // Check if on preview page (by URL path)
-  const isPreview = location.pathname === '/preview';
+  const _isPreview = location.pathname === '/preview';
 
   // Fetch tenants data from API
   const { data: tenants, isLoading, error } = useTenants();
@@ -62,11 +62,8 @@ const DevNavigation: React.FC = () => {
     setIsTenantsOpen(false);
   };
 
-  // Adjust position if in preview mode (to make room for CTA button)
-  const topPosition = isPreview ? 'top-20' : 'top-4';
-
   return (
-    <div className={`fixed ${topPosition} right-4 z-[9999] flex space-x-2`} style={{ pointerEvents: 'auto' }}>
+    <div className="fixed top-4 right-4 z-[9999] flex space-x-2" style={{ pointerEvents: 'auto' }}>
       {/* Admin Dropdown */}
       <div className="relative" ref={adminRef}>
         <button
@@ -80,8 +77,8 @@ const DevNavigation: React.FC = () => {
           <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${isAdminOpen ? 'rotate-180' : ''}`} />
         </button>
 
-        {isAdminOpen && (
-          <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200">
+            {isAdminOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200">
             <div className="py-1">
               <button
                 onClick={handleAdminHomepage}
@@ -137,8 +134,8 @@ const DevNavigation: React.FC = () => {
           <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${isTenantsOpen ? 'rotate-180' : ''}`} />
         </button>
 
-        {isTenantsOpen && (
-          <div className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg border border-gray-200 max-h-96 overflow-y-auto">
+            {isTenantsOpen && (
+              <div className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg border border-gray-200 max-h-96 overflow-y-auto">
             {isLoading ? (
               <div className="px-4 py-3 text-sm text-gray-500">Loading tenants...</div>
             ) : error ? (

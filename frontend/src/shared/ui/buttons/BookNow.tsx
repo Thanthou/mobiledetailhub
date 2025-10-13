@@ -7,7 +7,7 @@ import { Button } from './Button';
 
 interface BookNowProps {
   to?: string;
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent) => void;
   variant?: 'primary' | 'secondary' | 'outline' | 'outline-white' | 'ghost' | 'destructive';
   size?: 'sm' | 'md' | 'lg' | 'xl';
   loading?: boolean;
@@ -15,6 +15,7 @@ interface BookNowProps {
   rightIcon?: React.ReactNode;
   className?: string;
   children?: React.ReactNode;
+  style?: React.CSSProperties;
 }
 
 const BookNow = React.forwardRef<HTMLButtonElement, BookNowProps>(
@@ -28,6 +29,7 @@ const BookNow = React.forwardRef<HTMLButtonElement, BookNowProps>(
     rightIcon,
     className = '',
     children,
+    style,
     ...props
   }, ref) => {
     const buttonText = children || 'Book Now';
@@ -48,9 +50,10 @@ const BookNow = React.forwardRef<HTMLButtonElement, BookNowProps>(
       leftIcon,
       rightIcon,
       className: cn(
-        'px-12 py-5 text-xl h-16 whitespace-nowrap',
+        'whitespace-nowrap',
         className
       ),
+      style,
       children: buttonText,
       ref,
       ...props

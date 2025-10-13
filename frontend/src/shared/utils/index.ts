@@ -136,6 +136,13 @@ export {
   preloadImages,
   validateImageRotationConfig} from './imageRotation';
 
+// Responsive image utilities
+export {
+  generateSrcSet,
+  getCardImageSizes,
+  getHeroImageSizes,
+  getServiceImageSizes} from './imageUtils';
+
 // Image rotation hooks moved to @/shared/hooks
 
 // Logger utility

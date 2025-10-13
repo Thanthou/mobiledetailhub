@@ -172,7 +172,7 @@ router.get('/:tenantSlug', async (req, res) => {
 });
 
 // Get website content for main site (no tenant)
-router.get('/main', async (req, res) => {
+router.get('/main', (req, res) => {
   try {
     // For main site, we could use a special tenant ID or return default content
     // For now, let's return default content

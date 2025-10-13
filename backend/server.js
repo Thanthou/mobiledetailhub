@@ -17,7 +17,6 @@ const healthMonitoringRoutes = require('./routes/healthMonitoring');
 const serviceAreasRoutes = require('./routes/serviceAreas');
 const authRoutes = require('./routes/auth');
 const tenantsRoutes = require('./routes/tenants');
-const mdhConfigRoutes = require('./routes/mdhConfig');
 const customersRoutes = require('./routes/customers');
 const adminRoutes = require('./routes/admin');
 const uploadRoutes = require('./routes/upload');
@@ -123,7 +122,7 @@ let server = null;
 
 // Graceful shutdown state management
 let isShuttingDown = false;
-let activeRequests = new Map(); // Map to store request promises
+const activeRequests = new Map(); // Map to store request promises
 let statusUpdateInterval = null; // Interval for status updates
 
 // Request tracking middleware
@@ -165,7 +164,7 @@ const requestTracker = (req, res, next) => {
 const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or Postman)
-    if (!origin) return callback(null, true);
+    if (!origin) {return callback(null, true);}
     
     const environment = env.NODE_ENV;
     const allowedOrigins = ALLOWED_ORIGINS[environment] || ALLOWED_ORIGINS.development;
@@ -238,16 +237,6 @@ app.use(express.json({ limit: '1mb' })); // Limit request body size
 app.use(express.urlencoded({ extended: true, limit: '1mb' })); // Limit URL-encoded body size
 
 // Serve static files with caching
-// Note: mdh-config.js is cached for 24 hours to ensure instant header/footer loading
-app.use('/js/mdh-config.js', (req, res, next) => {
-  // Set long-term cache headers for the static config file
-  res.set({
-    'Cache-Control': 'public, max-age=86400, s-maxage=86400', // 24 hours
-    'ETag': '"mdh-config-static"',
-    'Vary': 'Accept-Encoding'
-  });
-  next();
-});
 app.use('/js', express.static('frontend/public/js'));
 
 // Serve uploaded avatar files
@@ -340,7 +329,7 @@ app.use(requestTracker); // Apply request tracking middleware
 // Rate limiting strategy:
 // - Apply specific rate limiters to sensitive endpoints (auth, admin, uploads)
 // - Apply general API limiter to other routes
-// - Read-only endpoints (health, service_areas, mdh-config) are NOT rate-limited
+// - Read-only endpoints (health, service_areas) are NOT rate-limited
 //   to prevent slow header/footer performance
 
 // Apply specific rate limiting to sensitive routes
@@ -361,7 +350,6 @@ app.use('/api/schedule', apiLimiter, scheduleRoutes); // Schedule routes
 app.use('/api/health', healthRoutes); // Health checks
 app.use('/api/health-monitoring', apiLimiter, healthMonitoringRoutes); // Website health monitoring
 app.use('/api/service_areas', serviceAreasRoutes); // Service areas data
-app.use('/api/mdh-config', mdhConfigRoutes); // Configuration data
 app.use('/api/gallery', galleryRoutes); // Gallery images (legacy)
 app.use('/api/stock-images', stockImagesRoutes); // Stock images
 app.use('/api/tenant-images', tenantImagesRoutes); // Tenant-specific images
@@ -446,7 +434,7 @@ async function gracefulShutdown(signal) {
         timeoutPromise
       ]);
       logger.info('All active requests have completed successfully');
-    } catch (error) {
+    } catch {
       logger.warn('Some requests may not have completed within timeout');
     }
   } else {

@@ -11,7 +11,7 @@ const PII_PATTERNS = {
 
 // Function to scrub PII from message strings
 const scrubPII = (message) => {
-  if (typeof message !== 'string') return message;
+  if (typeof message !== 'string') {return message;}
   
   let scrubbed = message;
   
@@ -26,7 +26,7 @@ const scrubPII = (message) => {
 
 // Function to scrub PII from objects recursively
 const scrubObject = (obj) => {
-  if (obj === null || obj === undefined) return obj;
+  if (obj === null || obj === undefined) {return obj;}
   
   if (typeof obj === 'string') {
     return scrubPII(obj);

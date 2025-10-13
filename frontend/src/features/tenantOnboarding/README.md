@@ -94,7 +94,7 @@ Provides consistent input change handlers for both simple and nested form fields
 
 ## Usage
 
-The main `AffiliateApplicationPage` component orchestrates all the pieces:
+The main `TenantApplicationPage` component orchestrates all the pieces:
 
 1. Loads existing draft on mount
 2. Auto-saves form changes

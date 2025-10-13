@@ -1,11 +1,14 @@
-/* eslint-disable no-console */
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /** ======================
  *  Config (no CLI flags; just run `node project-overview.js`)
  *  ====================== */
-const OUTPUT_DIR_NAME = path.join('chatgpt', 'full');
+const OUTPUT_DIR_NAME = 'chatgpt';
 
 // Maximum size per output file (bytes)
 const MAX_BUNDLE_BYTES = 5 * 1024 * 1024; // 5 MB
@@ -40,10 +43,21 @@ const IGNORE_FILES = new Set([
   '.DS_Store','Thumbs.db','package-lock.json','yarn.lock','pnpm-lock.yaml'
 ]);
 
+
+// --- add near the top with other imports ---
+function writeText(filePath, text) {
+  const dir = path.dirname(filePath);
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(filePath, text, 'utf8');
+}
+
 /** ======================
  *  FS helpers
  *  ====================== */
-function clearDir(dir) { fs.rmSync(dir, { recursive: true, force: true }); fs.mkdirSync(dir, { recursive: true }); }
+function clearDir(dir) { 
+  fs.rmSync(dir, { recursive: true, force: true }); 
+  fs.mkdirSync(dir, { recursive: true }); 
+}
 function isBinary(buf) { return buf.includes(0); }
 function safeRead(filePath) {
   try {
@@ -56,6 +70,10 @@ function safeRead(filePath) {
 }
 function shouldSkipFile(name) {
   if (IGNORE_FILES.has(name)) return true;
+  
+  // Allow common no-ext infra files
+  if (name === 'Dockerfile' || name === 'Makefile') return false;
+  
   const ext = path.extname(name).toLowerCase();
   if (!ALLOWED_EXT.has(ext)) return true;
   return false;
@@ -148,7 +166,17 @@ function collectContextFiles(projectRoot) {
     'postcss.config.js','postcss.config.cjs','postcss.config.ts',
     'eslint.config.js','eslint.config.cjs','eslint.config.mjs','.eslintrc','.eslintrc.json',
     'README.md','frontend/README.md',
-    '.cursorrules'
+    '.cursorrules',
+    // SEO & infra files
+    'public/robots.txt','frontend/public/robots.txt',
+    'public/sitemap.xml','frontend/public/sitemap.xml',
+    'public/manifest.json','frontend/public/manifest.json',
+    // Environment examples
+    '.env.example','frontend/.env.example',
+    // CI/CD workflows
+    '.github/workflows/lighthouse.yml',
+    '.github/workflows/ci.yml',
+    '.github/workflows/tests.yml'
   ].map(p => path.join(projectRoot, p));
 
   const router = detectRouterEntries(projectRoot);
@@ -249,6 +277,73 @@ function printFullTree(root, files) {
   return tree;
 }
 
+
+
+// --- add these helpers somewhere above MAIN ---
+function detectSeoSignals(projectRoot) {
+  // Cache walkDir calls for performance
+  const files = walkDir(projectRoot);
+  const rels = JSON.stringify(files.map(f => f.rel));
+  
+  const checks = [];
+  const hasRobots = fs.existsSync(path.join(projectRoot, 'public', 'robots.txt')) ||
+                    fs.existsSync(path.join(projectRoot, 'frontend', 'public', 'robots.txt'));
+  const hasSitemapGen = /sitemap/i.test(rels);
+  const hasSeoFeature = fs.existsSync(path.join(projectRoot, 'frontend', 'src', 'features', 'seo'));
+  const hasLdJsonHelpers = /ldjson|structured.?data|json-ld/i.test(rels);
+  const hasPreviewRoute = /preview/i.test(rels);
+  const hasHelmetOrHead = /react-helmet|next\/head/i.test(
+    JSON.stringify(walkDir(projectRoot, { allowAll: true }).map(f => f.rel))
+  );
+
+  checks.push({ key: 'robots.txt', present: hasRobots });
+  checks.push({ key: 'sitemap generator', present: hasSitemapGen });
+  checks.push({ key: 'seo feature folder', present: hasSeoFeature });
+  checks.push({ key: 'ld-json helpers', present: hasLdJsonHelpers });
+  checks.push({ key: 'preview route', present: hasPreviewRoute });
+  checks.push({ key: 'head manager (Helmet/NextHead)', present: hasHelmetOrHead });
+
+  return checks;
+}
+
+function buildSeoMarkdown({ projectRoot, stats }) {
+  const checks = detectSeoSignals(projectRoot);
+  const byExt = stats.counts.byExtension || {};
+  const total = stats.counts.totalFilesInTarget || 0;
+
+  const checklist = checks.map(c => `- [${c.present ? 'x' : ' '}] ${c.key}`).join('\n');
+
+  return `# SEO Report (Auto-Generated)
+
+Generated: ${new Date().toISOString()}
+
+This file summarizes detected SEO signals and TODOs. Edit conventions in \`/docs/SEO.md\` by replacing this file with a curated version if needed.
+
+## Snapshot
+- Total files scanned: **${total}**
+- By extension: \`${JSON.stringify(byExt)}\`
+
+## Detected signals
+${checklist}
+
+## Conventions (recommended)
+- **Canonicals**: live → custom domain; subdomain plan canonicalizes to subdomain; previews are **noindex,nofollow** with X-Robots-Tag.
+- **Sitemaps**: per-tenant \`/sitemaps/<tenant>.xml\` including home, services, locations.
+- **Robots**: allow live tenants; disallow \`/preview\`.
+- **Meta**: title ≤ 60 chars; description 150–160 chars; OG + Twitter cards per page.
+- **JSON-LD**: LocalBusiness + Service + FAQ where relevant, sourced from tenant config.
+- **Assets**: WebP, width/height attributes, lazy loading.
+- **Analytics**: GA4 per tenant (calls, form submit, booking events), cookie consent where required.
+
+## TODOs
+- [ ] Ensure preview routes send \`noindex\` meta and X-Robots-Tag headers
+- [ ] Add per-tenant sitemap generation
+- [ ] Add/verify robots.txt
+- [ ] Centralize JSON-LD helpers
+- [ ] Enforce meta/title via a shared SEO component
+`;
+}
+
 /** ======================
  *  MAIN
  *  ====================== */
@@ -302,6 +397,10 @@ function printFullTree(root, files) {
     bundles: written
   };
 
+  // Generate and write SEO report
+  const seoReport = buildSeoMarkdown({ projectRoot: PROJECT_ROOT, stats });
+  writeText(path.join(OUT_DIR, 'SEO.md'), seoReport);
+
   const structureTxt = [
     '\n*** PROJECT_STRUCTURE ***',
     '# Project Structure',
@@ -328,8 +427,21 @@ function printFullTree(root, files) {
     fs.appendFileSync(part1Path, structureTxt);
   }
 
-  console.log('Done.');
-  console.log('Output files:', written);
+  // 6) Copy PROJECT_OVERVIEW.md from docs/ to output directory
+  const overviewSource = path.join(PROJECT_ROOT, 'docs', 'PROJECT_OVERVIEW.md');
+  const overviewDest = path.join(OUT_DIR, 'PROJECT_OVERVIEW.md');
+  const finalFiles = [...written, 'SEO.md'];
+  
+  if (fs.existsSync(overviewSource)) {
+    fs.copyFileSync(overviewSource, overviewDest);
+    finalFiles.push('PROJECT_OVERVIEW.md');
+    console.log('✓ Copied PROJECT_OVERVIEW.md to output directory');
+  } else {
+    console.log('⚠ PROJECT_OVERVIEW.md not found in /docs/ - skipping');
+  }
+
+  console.log('\n✅ Done!');
+  console.log('Output files:', finalFiles);
 })().catch(err => {
   console.error(err);
   process.exit(1);

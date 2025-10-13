@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { pool } = require('../database/pool');
-const { authenticateToken } = require('../middleware/auth');
+// TODO: Add authentication to protected routes
+// const { authenticateToken } = require('../middleware/auth');
 const { apiLimiter } = require('../middleware/rateLimiter');
 
 /**

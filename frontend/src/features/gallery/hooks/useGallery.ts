@@ -19,8 +19,10 @@ export const useGallery = () => {
           throw new Error(`Failed to fetch gallery data: ${response.status}`);
         }
         
-        const data = await response.json() as { images?: GalleryImage[] };
-        setImages(data.images || []);
+        const data: unknown = await response.json();
+        // Gallery.json is an array directly, not an object with images property
+        const galleryImages = Array.isArray(data) ? data : ((data as { images?: unknown[] }).images || []);
+        setImages(galleryImages as GalleryImage[]);
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : 'Failed to load gallery data');
       } finally {

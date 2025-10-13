@@ -11,7 +11,7 @@ const logger = require('../utils/logger');
  * ⚠️  DEVELOPMENT MODE: Rate limiting is DISABLED
  * All rate limits set to 10,000 requests per window to prevent development issues.
  * 
- * IMPORTANT: Read-only endpoints (GET /api/mdh-config, GET /api/affiliates) 
+ * IMPORTANT: Read-only endpoints (GET /api/tenants, GET /api/service_areas) 
  * are NOT rate-limited to prevent slow header/footer performance.
  * Only apply rate limiting to:
  * - Write operations (POST, PUT, DELETE)

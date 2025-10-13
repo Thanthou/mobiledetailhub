@@ -76,7 +76,7 @@ const FAQ: React.FC<FAQProps> = ({ locationData }) => {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 h-full overflow-y-auto pt-20">
+      <div className="relative z-10 h-full overflow-y-auto pt-[72px] md:pt-[88px]">
         <div className="max-w-6xl mx-auto w-full px-4 py-8">
           {/* Header */}
           <div className="text-center mb-8">

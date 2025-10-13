@@ -214,7 +214,7 @@ function validateEnvironment() {
       if (url.protocol === 'postgres:' && !url.searchParams.has('sslmode')) {
         warnings.push('Warning: Production DATABASE_URL should specify sslmode parameter for explicit SSL configuration');
       }
-    } catch (error) {
+    } catch {
       // URL already validated above, this shouldn't happen
     }
   }

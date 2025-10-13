@@ -2,15 +2,16 @@ const express = require('express');
 const router = express.Router();
 const { pool } = require('../database/pool');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
-const { validateBody, validateParams, sanitize } = require('../middleware/validation');
-const { adminSchemas, sanitizationSchemas } = require('../utils/validationSchemas');
+// TODO: Re-enable validation middleware when schemas are implemented
+// const { validateBody, validateParams, sanitize } = require('../middleware/validation');
+// const { adminSchemas, sanitizationSchemas } = require('../utils/validationSchemas');
 const { asyncHandler } = require('../middleware/errorHandler');
 const logger = require('../utils/logger');
 const { adminLimiter, criticalAdminLimiter } = require('../middleware/rateLimiter');
 
-// Delete affiliate and associated data
-router.delete('/affiliates/:id', criticalAdminLimiter, authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
-  logger.info('[ADMIN] DELETE /affiliates/:id called with id:', { id: req.params.id });
+// Delete tenant and associated data
+router.delete('/tenants/:id', criticalAdminLimiter, authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
+  logger.info('[ADMIN] DELETE /tenants/:id called with id:', { id: req.params.id });
   
 
   if (!pool) {
@@ -27,24 +28,24 @@ router.delete('/affiliates/:id', criticalAdminLimiter, authenticateToken, requir
   try {
     await client.query('BEGIN');
     
-    // First, try to find the affiliate by ID
-    let findAffiliateQuery = 'SELECT business_email as email, business_name, slug FROM tenants.business WHERE id = $1';
-    let affiliateResult = await client.query(findAffiliateQuery, [id]);
+    // First, try to find the tenant by ID
+    const findTenantQuery = 'SELECT business_email as email, business_name, slug FROM tenants.business WHERE id = $1';
+    const tenantResult = await client.query(findTenantQuery, [id]);
     
-    // If not found in affiliates table, try to find by user ID
-    if (affiliateResult.rowCount === 0) {
-      logger.debug(`Affiliate ID ${id} not found in affiliates table, checking users table...`);
+    // If not found in tenants table, try to find by user ID
+    if (tenantResult.rowCount === 0) {
+      logger.debug(`Tenant ID ${id} not found in tenants table, checking users table...`);
       const findUserQuery = 'SELECT email, name FROM auth.users WHERE id = $1';
       const userResult = await client.query(findUserQuery, [id]);
       
       if (userResult.rowCount === 0) {
         await client.query('ROLLBACK');
-        const error = new Error('Affiliate not found in either affiliates or users table');
+        const error = new Error('Tenant not found in either tenants or users table');
         error.statusCode = 404;
         throw error;
       }
       
-      // User exists but no affiliate record - just delete the user
+      // User exists but no tenant record - just delete the user
       const user = userResult.rows[0];
       const deleteUserQuery = 'DELETE FROM auth.users WHERE id = $1';
       await client.query(deleteUserQuery, [id]);
@@ -71,31 +72,31 @@ router.delete('/affiliates/:id', criticalAdminLimiter, authenticateToken, requir
       return;
     }
     
-    // Affiliate found - proceed with full deletion
-    const affiliate = affiliateResult.rows[0];
+    // Tenant found - proceed with full deletion
+    const tenant = tenantResult.rows[0];
     
-    // Log the affiliate data before deletion for audit
-    const affiliateBeforeState = {
+    // Log the tenant data before deletion for audit
+    const tenantBeforeState = {
       id: parseInt(id),
-      business_name: affiliate.business_name,
-      slug: affiliate.slug,
-      email: affiliate.email
+      business_name: tenant.business_name,
+      slug: tenant.slug,
+      email: tenant.email
     };
     
-         // Service areas are stored in affiliates.service_areas JSONB column, no cleanup needed
+         // Service areas are stored in tenants.business service_areas JSONB column, no cleanup needed
     
-    // Delete the affiliate record
-    const deleteAffiliateQuery = 'DELETE FROM tenants.business WHERE id = $1';
-    await client.query(deleteAffiliateQuery, [id]);
-    logger.info(`Deleted affiliate record ${id}`);
+    // Delete the tenant record
+    const deleteTenantQuery = 'DELETE FROM tenants.business WHERE id = $1';
+    await client.query(deleteTenantQuery, [id]);
+    logger.info(`Deleted tenant record ${id}`);
     
     // Delete the corresponding user record
     const deleteUserQuery = 'DELETE FROM auth.users WHERE email = $1';
-    const userResult = await client.query(deleteUserQuery, [affiliate.business_email]);
-    logger.info(`Deleted ${userResult.rowCount} user record(s) for email: ${affiliate.email}`);
+    const userResult = await client.query(deleteUserQuery, [tenant.business_email]);
+    logger.info(`Deleted ${userResult.rowCount} user record(s) for email: ${tenant.email}`);
     
-    // Audit log the affiliate deletion
-    logger.audit('DELETE_AFFILIATE', 'affiliates', affiliateBeforeState, null, {
+    // Audit log the tenant deletion
+    logger.audit('DELETE_TENANT', 'tenants', tenantBeforeState, null, {
       userId: req.user.userId,
       email: req.user.email
     });
@@ -103,16 +104,16 @@ router.delete('/affiliates/:id', criticalAdminLimiter, authenticateToken, requir
     // Commit the transaction
     await client.query('COMMIT');
     
-    logger.info(`Successfully deleted affiliate: ${affiliate.business_name} (${affiliate.slug})`);
+    logger.info(`Successfully deleted tenant: ${tenant.business_name} (${tenant.slug})`);
     
     res.json({
       success: true,
-      message: `Affiliate "${affiliate.business_name}" has been deleted successfully`,
-      deletedAffiliate: {
+      message: `Tenant "${tenant.business_name}" has been deleted successfully`,
+      deletedTenant: {
         id: parseInt(id),
-        business_name: affiliate.business_name,
-        slug: affiliate.slug,
-        email: affiliate.email
+        business_name: tenant.business_name,
+        slug: tenant.slug,
+        email: tenant.email
       }
     });
     
@@ -137,25 +138,25 @@ router.get('/users', adminLimiter, authenticateToken, requireAdmin, asyncHandler
   // Audit log the users query
   logger.adminAction('QUERY_USERS', 'users', { 
     status: status || 'all-users',
-    query: status === 'affiliates' ? 'affiliates_table' : 'users_table'
+    query: status === 'tenants' ? 'tenants_table' : 'users_table'
   }, {
     userId: req.user.userId,
     email: req.user.email
   });
   
-  if (status === 'affiliates') {
-    // For affiliates, query the affiliates table directly
+  if (status === 'tenants') {
+    // For tenants, query the tenants table directly
     try {
-      // Check if there are any affiliates
+      // Check if there are any tenants
       const countCheck = await pool.query('SELECT COUNT(*) FROM tenants.business');
-      const affiliateCount = parseInt(countCheck.rows[0].count);
+      const tenantCount = parseInt(countCheck.rows[0].count);
       
-      if (affiliateCount === 0) {
+      if (tenantCount === 0) {
         res.json({
           success: true,
           users: [],
           count: 0,
-          message: 'No affiliates found'
+          message: 'No tenants found'
         });
         return;
       }
@@ -168,7 +169,7 @@ router.get('/users', adminLimiter, authenticateToken, requireAdmin, asyncHandler
         WHERE a.application_status = 'approved'
       `;
       
-      let params = [];
+      const params = [];
       let paramIndex = 1;
       
       // Add slug filter if provided
@@ -183,25 +184,25 @@ router.get('/users', adminLimiter, authenticateToken, requireAdmin, asyncHandler
       
       const result = await pool.query(query, params);
       
-      logger.debug(`[ADMIN] Affiliates query returned ${result.rowCount} approved affiliates`);
-      logger.debug(`[ADMIN] Affiliate names:`, { names: result.rows.map(r => r.business_name) });
+      logger.debug(`[ADMIN] Tenants query returned ${result.rowCount} approved tenants`);
+      logger.debug(`[ADMIN] Tenant names:`, { names: result.rows.map(r => r.business_name) });
       logger.debug(`[ADMIN] Query executed:`, { query, params, rowCount: result.rowCount });
       
       res.json({
         success: true,
         users: result.rows,
         count: result.rowCount,
-        message: `Found ${result.rowCount} approved affiliates in database`
+        message: `Found ${result.rowCount} approved tenants in database`
       });
       return;
-    } catch (affiliateErr) {
-      logger.error('Error in affiliates query:', { error: affiliateErr.message });
-      throw affiliateErr;
+    } catch (tenantErr) {
+      logger.error('Error in tenants query:', { error: tenantErr.message });
+      throw tenantErr;
     }
   }
   
   let query = 'SELECT id, name, email, is_admin, created_at FROM auth.users';
-  let params = [];
+  const params = [];
   
   if (status && status !== 'all-users') {
     // Map frontend status to database fields
@@ -234,7 +235,7 @@ router.get('/users', adminLimiter, authenticateToken, requireAdmin, asyncHandler
   });
 }));
 
-// Pending affiliate applications endpoint
+// Pending tenant applications endpoint
 router.get('/pending-applications', adminLimiter, authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
 
   if (!pool) {
@@ -244,7 +245,7 @@ router.get('/pending-applications', adminLimiter, authenticateToken, requireAdmi
   }
   
   // Audit log the pending applications query
-  logger.adminAction('QUERY_PENDING_APPLICATIONS', 'affiliates', { 
+  logger.adminAction('QUERY_PENDING_APPLICATIONS', 'tenants', { 
     status: 'pending',
     query_type: 'pending_applications'
   }, {
@@ -272,7 +273,7 @@ router.get('/pending-applications', adminLimiter, authenticateToken, requireAdmi
   });
 }));
 
-// Approve affiliate application endpoint
+// Approve tenant application endpoint
 router.post('/approve-application/:id', adminLimiter, authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
 
   if (!pool) {
@@ -322,7 +323,7 @@ router.post('/approve-application/:id', adminLimiter, authenticateToken, require
   const slugCheck = await pool.query(slugCheckQuery, [approved_slug, id]);
   
   if (slugCheck.rowCount > 0) {
-    const error = new Error('Slug is already taken by another affiliate');
+    const error = new Error('Slug is already taken by another tenant');
     error.statusCode = 400;
     throw error;
   }
@@ -348,7 +349,7 @@ router.post('/approve-application/:id', adminLimiter, authenticateToken, require
   const currentStateResult = await pool.query(currentStateQuery, [id]);
   const beforeState = currentStateResult.rows[0];
   
-  // Update affiliate status to approved
+  // Update tenant status to approved
   const updateQuery = `
     UPDATE tenants.business 
     SET 
@@ -371,58 +372,58 @@ router.post('/approve-application/:id', adminLimiter, authenticateToken, require
     throw error;
   }
   
-  const affiliate = result.rows[0];
+  const tenant = result.rows[0];
   
-  // Create user account for approved affiliate
+  // Create user account for approved tenant
   const userQuery = `
     INSERT INTO auth.users (email, password_hash, name, phone, is_admin, created_at)
     VALUES ($1, $2, $3, $4, $5, NOW())
     RETURNING id
   `;
   
-  // Generate a temporary password (affiliate will reset this)
+  // Generate a temporary password (tenant will reset this)
   const tempPassword = Math.random().toString(36).substring(2, 15);
   const bcrypt = require('bcryptjs');
   const hashedPassword = await bcrypt.hash(tempPassword, 10);
   
   const userResult = await pool.query(userQuery, [
-    affiliate.business_email,
+    tenant.business_email,
     hashedPassword,
-    affiliate.owner,
-    affiliate.business_phone,
-    false  // is_admin = false for affiliates
+    tenant.owner,
+    tenant.business_phone,
+    false  // is_admin = false for tenants
   ]);
   
   const userId = userResult.rows[0].id;
   
-  // Audit log the affiliate approval
+  // Audit log the tenant approval
   const afterState = {
-    ...affiliate,
+    ...tenant,
     user_id: userId
   };
   
-  logger.audit('APPROVE_AFFILIATE', 'affiliates', beforeState, afterState, {
+  logger.audit('APPROVE_TENANT', 'tenants', beforeState, afterState, {
     userId: req.user.userId,
     email: req.user.email
   });
   
-  // User account is created for affiliate access
+  // User account is created for tenant access
   // No need for additional junction table
   
         // Process service areas if provided
       let serviceAreaResult = null;
 
-      // Use existing service areas from the affiliate record
-      let serviceAreasToProcess = affiliate.service_areas || [];
+      // Use existing service areas from the tenant record
+      let serviceAreasToProcess = tenant.service_areas || [];
       if (!serviceAreasToProcess || !Array.isArray(serviceAreasToProcess) || serviceAreasToProcess.length === 0) {
-        logger.warn(`No service areas found for affiliate ${affiliate.id}`);
+        logger.warn(`No service areas found for tenant ${tenant.id}`);
         serviceAreasToProcess = [];
       }
 
       if (serviceAreasToProcess && Array.isArray(serviceAreasToProcess) && serviceAreasToProcess.length > 0) {
         try {
           // CLEAN APPROACH: Direct database inserts with proper service area structure
-          logger.info(`Processing ${serviceAreasToProcess.length} service areas for affiliate ${affiliate.id}`);
+          logger.info(`Processing ${serviceAreasToProcess.length} service areas for tenant ${tenant.id}`);
           
           let processed = 0;
           const cleanServiceAreas = [];
@@ -450,17 +451,17 @@ router.post('/approve-application/:id', adminLimiter, authenticateToken, require
             logger.debug(`Prepared service area: ${city}, ${state} (clean structure, no slug)`);
           }
           
-          // Update affiliate with clean service areas (no slugs)
+          // Update tenant with clean service areas (no slugs)
           await pool.query(
             'UPDATE tenants.business SET service_areas = $1 WHERE id = $2',
-            [JSON.stringify(cleanServiceAreas), affiliate.id]
+            [JSON.stringify(cleanServiceAreas), tenant.id]
           );
           
           serviceAreaResult = { processed, errors: [], total: serviceAreasToProcess.length, serviceAreas: cleanServiceAreas };
-          logger.info(`✅ Successfully processed ${processed} service areas for affiliate ${affiliate.id} with clean structure`);
+          logger.info(`✅ Successfully processed ${processed} service areas for tenant ${tenant.id} with clean structure`);
           
         } catch (serviceAreaError) {
-          logger.error(`Failed to process service areas for affiliate ${affiliate.id}:`, serviceAreaError);
+          logger.error(`Failed to process service areas for tenant ${tenant.id}:`, serviceAreaError);
           // Don't fail the approval if service area processing fails
           serviceAreaResult = { error: serviceAreaError.message };
         }
@@ -469,17 +470,17 @@ router.post('/approve-application/:id', adminLimiter, authenticateToken, require
   res.json({
     success: true,
     message: 'Application approved successfully',
-    affiliate: {
-      ...affiliate,
+    tenant: {
+      ...tenant,
       user_id: userId,
       temp_password: tempPassword
     },
     service_areas: serviceAreaResult,
-    note: 'User account created with temporary password. Affiliate should reset password on first login.'
+    note: 'User account created with temporary password. Tenant should reset password on first login.'
   });
 }));
 
-// Reject affiliate application endpoint
+// Reject tenant application endpoint
 router.post('/reject-application/:id', adminLimiter, authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
 
   if (!pool) {
@@ -553,8 +554,8 @@ router.post('/reject-application/:id', adminLimiter, authenticateToken, requireA
   
   const afterState = result.rows[0];
   
-  // Audit log the affiliate rejection
-  logger.audit('REJECT_AFFILIATE', 'affiliates', beforeState, afterState, {
+  // Audit log the tenant rejection
+  logger.audit('REJECT_TENANT', 'tenants', beforeState, afterState, {
     userId: req.user.userId,
     email: req.user.email
   });
@@ -562,12 +563,12 @@ router.post('/reject-application/:id', adminLimiter, authenticateToken, requireA
   res.json({
     success: true,
     message: 'Application rejected successfully',
-    affiliate: result.rows[0]
+    tenant: result.rows[0]
   });
 }));
 
-// Get MDH service areas (all cities/states where approved affiliates serve)
-router.get('/mdh-service-areas', adminLimiter, authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
+// Get platform service areas (all cities/states where approved tenants serve)
+router.get('/service-areas', adminLimiter, authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
   if (!pool) {
     const error = new Error('Database connection not available');
     error.statusCode = 500;
@@ -584,7 +585,7 @@ router.get('/mdh-service-areas', adminLimiter, authenticateToken, requireAdmin, 
       count: serviceAreas.length
     });
   } catch (error) {
-    logger.error('Error fetching MDH service areas:', error);
+    logger.error('Error fetching platform service areas:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch service areas'
@@ -628,8 +629,8 @@ router.post('/seed-reviews', adminLimiter, authenticateToken, requireAdmin, asyn
       throw error;
     }
 
-    if (review.type === 'affiliate' && !review.businessSlug) {
-      const error = new Error('Affiliate reviews must have a businessSlug');
+    if (review.type === 'tenant' && !review.businessSlug) {
+      const error = new Error('Tenant reviews must have a businessSlug');
       error.statusCode = 400;
       throw error;
     }
@@ -639,29 +640,29 @@ router.post('/seed-reviews', adminLimiter, authenticateToken, requireAdmin, asyn
   let successCount = 0;
   let errorCount = 0;
   const errors = [];
-  let result = { reviewIds: [] };
+  const result = { reviewIds: [] };
 
   try {
     await client.query('BEGIN');
 
     for (const review of reviews) {
       try {
-        let affiliateId = null;
+        let tenantId = null;
 
-        // Get affiliate_id if this is an affiliate review
-        if (review.type === 'affiliate') {
-          const affiliateQuery = 'SELECT id FROM tenants.business WHERE slug = $1';
-          const affiliateResult = await client.query(affiliateQuery, [review.businessSlug]);
+        // Get tenant_id if this is a tenant review
+        if (review.type === 'tenant') {
+          const tenantQuery = 'SELECT id FROM tenants.business WHERE slug = $1';
+          const tenantResult = await client.query(tenantQuery, [review.businessSlug]);
           
-          if (affiliateResult.rowCount === 0) {
+          if (tenantResult.rowCount === 0) {
             errors.push(`Business slug '${review.businessSlug}' not found`);
             errorCount++;
             continue;
           }
           
           // Double-check that we have a valid result before accessing it
-          if (affiliateResult.rows && affiliateResult.rows.length > 0) {
-            affiliateId = affiliateResult.rows[0].id;
+          if (tenantResult.rows && tenantResult.rows.length > 0) {
+            tenantId = tenantResult.rows[0].id;
           } else {
             errors.push(`Business slug '${review.businessSlug}' query returned no results`);
             errorCount++;
@@ -680,17 +681,21 @@ router.post('/seed-reviews', adminLimiter, authenticateToken, requireAdmin, asyn
         // Import avatar utilities
         const { getAvatarUrl, findCustomAvatar } = require('../utils/avatarUtils');
 
-        const getServiceCategory = (content) => {
+        // Helper function to determine service category from review content
+        // TODO: Move to shared utils if needed elsewhere
+        const _getServiceCategory = (content) => {
           const lowerContent = content.toLowerCase();
-          if (lowerContent.includes('ceramic') || lowerContent.includes('coating')) return 'ceramic';
-          if (lowerContent.includes('paint correction') || lowerContent.includes('paint')) return 'paint_correction';
-          if (lowerContent.includes('boat') || lowerContent.includes('marine')) return 'boat';
-          if (lowerContent.includes('rv') || lowerContent.includes('recreational')) return 'rv';
-          if (lowerContent.includes('ppf') || lowerContent.includes('film')) return 'ppf';
+          if (lowerContent.includes('ceramic') || lowerContent.includes('coating')) {return 'ceramic';}
+          if (lowerContent.includes('paint correction') || lowerContent.includes('paint')) {return 'paint_correction';}
+          if (lowerContent.includes('boat') || lowerContent.includes('marine')) {return 'boat';}
+          if (lowerContent.includes('rv') || lowerContent.includes('recreational')) {return 'rv';}
+          if (lowerContent.includes('ppf') || lowerContent.includes('film')) {return 'ppf';}
           return 'auto';
         };
 
-        const generateServiceDate = (daysAgo, weeksAgo) => {
+        // Helper function to generate service dates for reviews
+        // TODO: Move to shared utils if needed elsewhere
+        const _generateServiceDate = (daysAgo, weeksAgo) => {
           const now = new Date();
           let reviewDate;
           
@@ -743,7 +748,7 @@ router.post('/seed-reviews', adminLimiter, authenticateToken, requireAdmin, asyn
         const insertQuery = `
           INSERT INTO reputation.reviews (
             review_type,
-            affiliate_id,
+            tenant_id,
             business_slug,
             rating,
             title,
@@ -765,7 +770,7 @@ router.post('/seed-reviews', adminLimiter, authenticateToken, requireAdmin, asyn
 
         const values = [
           review.type,
-          affiliateId,
+          tenantId,
           review.businessSlug,
           review.stars,
           review.title,

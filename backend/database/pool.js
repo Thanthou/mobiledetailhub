@@ -32,17 +32,17 @@ pool.on('error', (err) => {
 });
 
 // Connection acquired event
-pool.on('acquire', (client) => {
+pool.on('acquire', (_client) => {
   logger.debug('Client acquired from pool');
 });
 
 // Connection released event
-pool.on('release', (client) => {
+pool.on('release', (_client) => {
   logger.debug('Client released back to pool');
 });
 
 // Connection connect event
-pool.on('connect', (client) => {
+pool.on('connect', (_client) => {
   logger.debug('New client connected to database');
 });
 

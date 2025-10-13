@@ -12,6 +12,7 @@ interface GetQuoteProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   rightIcon?: React.ReactNode;
   className?: string;
   children?: React.ReactNode;
+  style?: React.CSSProperties;
 }
 
 const GetQuote = React.forwardRef<HTMLButtonElement, GetQuoteProps>(
@@ -23,6 +24,7 @@ const GetQuote = React.forwardRef<HTMLButtonElement, GetQuoteProps>(
     rightIcon,
     className = '',
     children,
+    style,
     ...props
   }, ref) => {
     const buttonText = children || 'Request Quote';
@@ -35,9 +37,10 @@ const GetQuote = React.forwardRef<HTMLButtonElement, GetQuoteProps>(
         leftIcon={leftIcon}
         rightIcon={rightIcon}
         className={cn(
-          'px-12 py-5 text-xl h-16 whitespace-nowrap',
+          'whitespace-nowrap',
           className
         )}
+        style={style}
         ref={ref}
         {...props}
       >

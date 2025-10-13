@@ -15,7 +15,7 @@ router.post('/single',
       images: ['image/jpeg', 'image/png', 'image/gif']
     }
   }),
-  asyncHandler(async (req, res) => {
+  asyncHandler((req, res) => {
     if (!req.file) {
       return res.status(400).json({
         error: 'No file uploaded',
@@ -55,7 +55,7 @@ router.post('/multiple',
       documents: ['application/pdf', 'text/plain']
     }
   }),
-  asyncHandler(async (req, res) => {
+  asyncHandler((req, res) => {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({
         error: 'No files uploaded',
@@ -94,7 +94,7 @@ router.post('/memory',
       images: ['image/jpeg', 'image/png']
     }
   }),
-  asyncHandler(async (req, res) => {
+  asyncHandler((req, res) => {
     if (!req.file) {
       return res.status(400).json({
         error: 'No file uploaded',

@@ -11,42 +11,11 @@ async function initializeSampleData() {
       return;
     }
 
-    // Check if states table has data
-    const result = await pool.query('SELECT COUNT(*) FROM states');
-    if (parseInt(result.rows[0].count) === 0) {
-      // Insert US states + DC + territories
-      const statesData = [
-        ['AL', 'Alabama', 'US'], ['AK', 'Alaska', 'US'], ['AZ', 'Arizona', 'US'], ['AR', 'Arkansas', 'US'],
-        ['CA', 'California', 'US'], ['CO', 'Colorado', 'US'], ['CT', 'Connecticut', 'US'], ['DE', 'Delaware', 'US'],
-        ['FL', 'Florida', 'US'], ['GA', 'Georgia', 'US'], ['HI', 'Hawaii', 'US'], ['ID', 'Idaho', 'US'],
-        ['IL', 'Illinois', 'US'], ['IN', 'Indiana', 'US'], ['IA', 'Iowa', 'US'], ['KS', 'Kansas', 'US'],
-        ['KY', 'Kentucky', 'US'], ['LA', 'Louisiana', 'US'], ['ME', 'Maine', 'US'], ['MD', 'Maryland', 'US'],
-        ['MA', 'Massachusetts', 'US'], ['MI', 'Michigan', 'US'], ['MN', 'Minnesota', 'US'], ['MS', 'Mississippi', 'US'],
-        ['MO', 'Missouri', 'US'], ['MT', 'Montana', 'US'], ['NE', 'Nebraska', 'US'], ['NV', 'Nevada', 'US'],
-        ['NH', 'New Hampshire', 'US'], ['NJ', 'New Jersey', 'US'], ['NM', 'New Mexico', 'US'], ['NY', 'New York', 'US'],
-        ['NC', 'North Carolina', 'US'], ['ND', 'North Dakota', 'US'], ['OH', 'Ohio', 'US'], ['OK', 'Oklahoma', 'US'],
-        ['OR', 'Oregon', 'US'], ['PA', 'Pennsylvania', 'US'], ['RI', 'Rhode Island', 'US'], ['SC', 'South Carolina', 'US'],
-        ['SD', 'South Dakota', 'US'], ['TN', 'Tennessee', 'US'], ['TX', 'Texas', 'US'], ['UT', 'Utah', 'US'],
-        ['VT', 'Vermont', 'US'], ['VA', 'Virginia', 'US'], ['WA', 'Washington', 'US'], ['WV', 'West Virginia', 'US'],
-        ['WI', 'Wisconsin', 'US'], ['WY', 'Wyoming', 'US'], ['DC', 'District of Columbia', 'US'],
-        ['PR', 'Puerto Rico', 'US'], ['GU', 'Guam', 'US'], ['VI', 'U.S. Virgin Islands', 'US'],
-        ['AS', 'American Samoa', 'US'], ['MP', 'Northern Mariana Islands', 'US']
-      ];
-      
-      for (const [stateCode, name, countryCode] of statesData) {
-        await pool.query(
-          'INSERT INTO states (state_code, name, country_code) VALUES ($1, $2, $3) ON CONFLICT (state_code) DO NOTHING',
-          [stateCode, name, countryCode]
-        );
-      }
-      logger.info('States data initialized');
-    }
-
     // Check if mdh_config table has data
     const configResult = await pool.query('SELECT COUNT(*) FROM system.mdh_config');
     if (parseInt(configResult.rows[0].count) === 0) {
       await pool.query(`
-        INSERT INTO mdh_config (id, email, phone, sms_phone, logo_url, favicon_url, facebook, instagram, tiktok, youtube, header_display, location, name)
+        INSERT INTO system.mdh_config (id, email, phone, sms_phone, logo_url, favicon_url, facebook, instagram, tiktok, youtube, header_display, location, name)
         VALUES (1, 'service@mobiledetailhub.com', '(888) 555-1234', '+17024206066', '/assets/logo.webp', '/assets/favicon.ico',
                 'https://facebook.com/mobiledetailhub', 'https://instagram.com/mobiledetailhub', 'https://tiktok.com/@mobiledetailhub', 'https://youtube.com/mobiledetailhub',
                 'Mobile Detail Hub', 'Anywhere, USA', 'Mobile Detail Hub')
@@ -166,19 +135,12 @@ async function setupDatabase() {
                );
       $$;
 
-      -- Create states table
-      CREATE TABLE IF NOT EXISTS states (
-        state_code    CHAR(2) PRIMARY KEY,
-        name          TEXT NOT NULL,
-        country_code  CHAR(2) NOT NULL DEFAULT 'US'
-      );
-
-      -- Create cities table
+      -- Create cities table (states reference removed - legacy)
       CREATE TABLE IF NOT EXISTS cities (
         id         BIGSERIAL PRIMARY KEY,
         name       TEXT NOT NULL,
         city_slug  TEXT NOT NULL,
-        state_code CHAR(2) NOT NULL REFERENCES states(state_code),
+        state_code CHAR(2) NOT NULL,
         lat        DOUBLE PRECISION,
         lng        DOUBLE PRECISION,
         CONSTRAINT uq_cities_name_state UNIQUE (name, state_code),
@@ -694,14 +656,7 @@ async function createViews() {
 
 
 
-    // States with at least one affiliate coverage row
-    await pool.query(`
-      CREATE OR REPLACE VIEW v_served_states AS
-      SELECT DISTINCT s.state_code, s.name
-      FROM states s
-      JOIN affiliate_service_areas a ON a.state_code = s.state_code
-      ORDER BY s.name;
-    `);
+    // Legacy view removed - states table no longer exists
 
     // Cities per state with affiliate counts
     await pool.query(`
@@ -730,7 +685,7 @@ async function insertBasicData() {
     const result = await pool.query('SELECT COUNT(*) FROM system.mdh_config');
     if (parseInt(result.rows[0].count) === 0) {
       await pool.query(`
-        INSERT INTO mdh_config (id, email, phone, sms_phone, logo_url, favicon_url, facebook, instagram, tiktok, youtube, header_display, location, name) 
+        INSERT INTO system.mdh_config (id, email, phone, sms_phone, logo_url, favicon_url, facebook, instagram, tiktok, youtube, header_display, location, name) 
         VALUES (1, 'service@mobiledetailhub.com', '(888) 555-1234', '+17024206066', '/assets/logo.webp', '/assets/favicon.ico',
                 'https://facebook.com/mobiledetailhub', 'https://instagram.com/mobiledetailhub', 'https://tiktok.com/@mobiledetailhub', 'https://youtube.com/mobiledetailhub',
                 'Mobile Detail Hub', 'Anywhere, USA', 'Mobile Detail Hub')

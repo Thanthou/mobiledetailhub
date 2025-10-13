@@ -160,7 +160,8 @@ router.post('/:tenantSlug/scan', asyncHandler(async (req, res) => {
       return res.status(404).json({ error: 'Tenant not found' });
     }
 
-    const tenant = tenantResult.rows[0];
+    // TODO: Use tenant data once ready
+    // const tenant = tenantResult.rows[0];
     const websiteUrl = 'https://google.com'; // Use Google for testing to isolate the issue
     logger.info(`Using test URL: ${websiteUrl}`);
 
@@ -345,8 +346,9 @@ router.get('/:tenantSlug/history', asyncHandler(async (req, res) => {
 
 /**
  * Helper function to save health data to database
+ * TODO: Re-enable when health monitoring is fully implemented
  */
-async function saveHealthData(pool, tenantSlug, url, checkType, strategy, data, overallScore) {
+async function _saveHealthData(dbPool, tenantSlug, url, checkType, strategy, data, overallScore) {
   const query = `
     INSERT INTO system.health_monitoring (
       tenant_slug, check_type, url, strategy,
@@ -390,21 +392,23 @@ async function saveHealthData(pool, tenantSlug, url, checkType, strategy, data, 
 
 /**
  * Helper function to save CrUX data
+ * TODO: Re-enable when CrUX monitoring is fully implemented
  */
-async function saveCrUXData(pool, tenantSlug, url, cruxData) {
+async function _saveCrUXData(dbPool, tenantSlug, url, _cruxData) {
   const query = `
     INSERT INTO system.health_monitoring (
       tenant_slug, check_type, url, crux_data, status, checked_at
     ) VALUES ($1, 'crux', $2, $3, 'healthy', CURRENT_TIMESTAMP)
   `;
 
-  await pool.query(query, [tenantSlug, url, JSON.stringify(cruxData)]);
+  await dbPool.query(query, [tenantSlug, url, JSON.stringify(_cruxData)]);
 }
 
 /**
  * Helper function to save overall health summary
+ * TODO: Re-enable when overall health tracking is fully implemented
  */
-async function saveOverallHealth(pool, tenantSlug, url, overallScore, summary) {
+async function _saveOverallHealth(dbPool, tenantSlug, url, overallScore, summary) {
   const query = `
     INSERT INTO system.health_monitoring (
       tenant_slug, check_type, url, overall_score, raw_data, status, checked_at
@@ -422,9 +426,9 @@ async function saveOverallHealth(pool, tenantSlug, url, overallScore, summary) {
  * Helper function to determine health status based on score
  */
 function determineStatus(score) {
-  if (score >= 90) return 'healthy';
-  if (score >= 70) return 'warning';
-  if (score >= 50) return 'critical';
+  if (score >= 90) {return 'healthy';}
+  if (score >= 70) {return 'warning';}
+  if (score >= 50) {return 'critical';}
   return 'error';
 }
 

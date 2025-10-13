@@ -3,7 +3,8 @@ const { pool } = require('../database/pool');
 const { authenticateToken } = require('../middleware/auth');
 const { validateBody } = require('../middleware/validation');
 const { apiLimiter } = require('../middleware/rateLimiter');
-const { requestLogger } = require('../middleware/requestLogger');
+// TODO: Add request logging middleware when needed
+// const { requestLogger } = require('../middleware/requestLogger');
 
 const router = express.Router();
 

@@ -17,6 +17,8 @@ export default defineConfig({
     exclude: ['lucide-react'],
   },
   server: {
+    host: true, // Allow access from network
+    port: 5173,
     proxy: {
       '/api': 'http://localhost:3001',
       '/uploads': 'http://localhost:3001',

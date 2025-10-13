@@ -30,8 +30,8 @@ const args = process.argv.slice(2);
 const options = {
   limit: 10,
   threshold: 200,
-  warn: 500,
-  fail: null,
+  warn: 200,
+  fail: 250,
   ci: false,
   json: false,
 };

@@ -19,12 +19,12 @@ async function processAffiliateServiceAreas(affiliateId, serviceAreas) {
   const client = await pool.connect();
   const errors = [];
   let processed = 0;
+  const validatedAreas = [];
 
   try {
     await client.query('BEGIN');
 
     // Validate service areas
-    const validatedAreas = [];
     for (const area of serviceAreas) {
       try {
         const { city, state, zip } = area;
@@ -72,7 +72,7 @@ async function processAffiliateServiceAreas(affiliateId, serviceAreas) {
     client.release();
   }
 
-  return { processed, errors, validatedAreas: validatedAreas.length };
+  return { processed, errors, validatedAreasCount: validatedAreas.length };
 }
 
 /**

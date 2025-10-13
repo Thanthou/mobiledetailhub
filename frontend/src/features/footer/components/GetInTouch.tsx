@@ -50,7 +50,7 @@ const GetInTouch: React.FC<GetInTouchProps> = ({
           </button>
         </div>
         {contactInfo.location && (
-          <div className="flex items-center justify-center md:justify-start space-x-3">
+          <div className="hidden md:flex items-center justify-center md:justify-start space-x-3">
             <MapPin className="h-5 w-5 flex-shrink-0 text-orange-400" />
             <span className="text-lg text-white">
               {contactInfo.location}

@@ -92,7 +92,7 @@ async function inspectDatabase() {
           typeInfo += `(${col.character_maximum_length})`;
         } else if (col.numeric_precision) {
           typeInfo += `(${col.numeric_precision}`;
-          if (col.numeric_scale) typeInfo += `,${col.numeric_scale}`;
+          if (col.numeric_scale) {typeInfo += `,${col.numeric_scale}`;}
           typeInfo += ')';
         }
         

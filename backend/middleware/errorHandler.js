@@ -11,7 +11,7 @@ const { errorMonitor } = require('../utils/errorMonitor');
  * Error handler middleware
  * Must be the last middleware in the chain
  */
-const errorHandler = (err, req, res, next) => {
+const errorHandler = (err, req, res, _next) => {
   // Log the error
   logger.error('Unhandled error:', {
     error: err.message,

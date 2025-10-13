@@ -35,7 +35,23 @@ export const useImageRotation = (config: ImageRotationConfig): UseImageRotationR
   // State
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [_prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Check if user prefers reduced motion
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mediaQuery.matches);
+    
+    const handleChange = (e: MediaQueryListEvent) => {
+      setPrefersReducedMotion(e.matches);
+    };
+    
+    mediaQuery.addEventListener('change', handleChange);
+    return () => { mediaQuery.removeEventListener('change', handleChange); };
+  }, []);
 
   // Preload images
   useEffect(() => {
@@ -46,6 +62,9 @@ export const useImageRotation = (config: ImageRotationConfig): UseImageRotationR
 
   // Auto-rotation effect
   useEffect(() => {
+    // Disable auto-rotation if invalid or paused
+    // NOTE: prefersReducedMotion check disabled for development
+    // Re-enable in production by uncommenting: || prefersReducedMotion
     if (!isValid || !autoRotate || !hasMultipleImages || isPaused) {
       return;
     }

@@ -47,12 +47,12 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection }) => {
   };
 
   return (
-    <nav aria-label="Primary navigation" className="hidden md:flex space-x-6">
+    <nav aria-label="Primary navigation" className="hidden xl:flex space-x-6">
       {filteredNavLinks.map(link => (
         link.isFAQ ? (
           <button
             key={link.name}
-            onClick={() => { handleSectionClick('#faq'); }}
+            onClick={(e) => { handleSectionClick('#faq'); e.currentTarget.blur(); }}
             className={getNavItemClasses(link)}
             aria-label={`Scroll to ${link.name} section`}
           >
@@ -61,7 +61,7 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection }) => {
         ) : link.isGallery ? (
           <button
             key={link.name}
-            onClick={() => { handleSectionClick('#footer'); }}
+            onClick={(e) => { handleSectionClick('#footer'); e.currentTarget.blur(); }}
             className={getNavItemClasses(link)}
             aria-label={`Scroll to ${link.name} section`}
           >
@@ -70,7 +70,7 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection }) => {
         ) : link.name === 'Reviews' ? (
           <button
             key={link.name}
-            onClick={() => { handleSectionClick('#reviews'); }}
+            onClick={(e) => { handleSectionClick('#reviews'); e.currentTarget.blur(); }}
             className={getNavItemClasses(link)}
             aria-label={`Scroll to ${link.name} section`}
           >
@@ -79,7 +79,7 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection }) => {
         ) : link.name === 'Home' ? (
           <button
             key={link.name}
-            onClick={() => { handleSectionClick('#top'); }}
+            onClick={(e) => { handleSectionClick('#top'); e.currentTarget.blur(); }}
             className={getNavItemClasses(link)}
             aria-label={`Scroll to ${link.name} section`}
           >
@@ -88,7 +88,7 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection }) => {
         ) : link.name === 'Services' ? (
           <button
             key={link.name}
-            onClick={() => { handleSectionClick('#services'); }}
+            onClick={(e) => { handleSectionClick('#services'); e.currentTarget.blur(); }}
             className={getNavItemClasses(link)}
             aria-label={`Scroll to ${link.name} section`}
           >

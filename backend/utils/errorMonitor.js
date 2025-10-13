@@ -34,7 +34,7 @@ class BackendErrorMonitor {
   }
 
   captureError(errorData) {
-    if (!this.isEnabled) return;
+    if (!this.isEnabled) {return;}
 
     const error = {
       id: `error_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -289,10 +289,10 @@ class BackendErrorMonitor {
       console.log(`\n--- Error ${index + 1} (${error.type}) ---`);
       console.log(`Time: ${error.timestamp.toISOString()}`);
       console.log(`Message: ${error.message}`);
-      if (error.url) console.log(`URL: ${error.method} ${error.url}`);
-      if (error.statusCode) console.log(`Status: ${error.statusCode}`);
-      if (error.userId) console.log(`User: ${error.userId}`);
-      if (error.stack) console.log(`Stack: ${error.stack}`);
+      if (error.url) {console.log(`URL: ${error.method} ${error.url}`);}
+      if (error.statusCode) {console.log(`Status: ${error.statusCode}`);}
+      if (error.userId) {console.log(`User: ${error.userId}`);}
+      if (error.stack) {console.log(`Stack: ${error.stack}`);}
     });
     
     console.log('='.repeat(80) + '\n');

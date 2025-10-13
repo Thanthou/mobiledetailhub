@@ -14,6 +14,7 @@ const CTA: React.FC<CTAProps> = ({
   return (
     <CTAButtons 
       className={className}
+      bookNowProps={{}}
       getQuoteProps={{
         onClick: onRequestQuote
       }}

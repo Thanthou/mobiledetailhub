@@ -2,11 +2,12 @@ import React from 'react';
 
 import { useData } from '@/shared/contexts';
 import { useImageRotation } from '@/shared/hooks';
-import type { LocationPage } from '@/shared/types/location';
-import { getImageOpacityClasses, getTransitionStyles, getVisibleImageIndices } from '@/shared/utils';
+import { getTransitionStyles } from '@/shared/utils/imageRotation';
+// Available when needed: toAvif, toWebp for modern image format support
 
 interface HeroImage {
   url: string;
+  mobileUrl?: string; // Optional mobile-specific image (portrait orientation)
   alt: string;
   width?: number;
   height?: number;
@@ -16,42 +17,22 @@ interface HeroImage {
 interface ImageCarouselProps {
   autoRotate?: boolean;
   interval?: number;
-  locationData?: LocationPage;
 }
 
 const ImageCarousel: React.FC<ImageCarouselProps> = ({ 
   autoRotate = true, 
-  interval = 7000,
-  locationData
+  interval = 7000
 }) => {
-  const { isTenant, siteConfig } = useData();
+  const { siteConfig } = useData();
   
-  // Determine which images to use
-  let images: string[];
-  let imageData: HeroImage[] = [];
-  
-  if (isTenant && locationData?.images) {
-    // Use location-specific hero images
-    const heroImages = locationData.images.filter(img => img.role === 'hero');
-    imageData = heroImages.map(img => ({
-      url: img.url,
-      alt: img.alt,
-      width: img.width,
-      height: img.height,
-      priority: img.priority
-    }));
-    images = imageData.map(img => img.url);
-  } else {
-    // Fall back to main site hero images from dynamically loaded site.json
-    // Note: JSON uses "Images" (capital I) - type assertion needed until JSON is normalized
-    const heroImages = (siteConfig?.hero as { Images?: HeroImage[] } | undefined)?.Images || [];
-    imageData = heroImages;
-    images = imageData.map(img => img.url);
-  }
-  
-  // Use the new image rotation utility
+  // Get hero images from main site config
+  const heroImages = (siteConfig?.hero as { Images?: HeroImage[] } | undefined)?.Images || [];
+  const imageData: HeroImage[] = heroImages;
+  const images: string[] = imageData.map(img => img.url);
+
+  // Use the new image rotation utility (must be called unconditionally)
   const rotation = useImageRotation({
-    images,
+    images: images.length > 0 ? images : [''], // Provide dummy array if empty
     autoRotate,
     interval,
     fadeDuration: 2000, // 2s fade duration to match original
@@ -61,37 +42,86 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
 
   const { currentIndex } = rotation;
   
-  // Get visible image indices for performance optimization
-  const visibleIndices = getVisibleImageIndices(currentIndex, images.length, true);
+  // Guard: nothing to render (must be after ALL hooks)
+  if (images.length === 0) {
+    return null;
+  }
 
   return (
-    <div className="absolute inset-0" aria-hidden="true">
-      {/* Render only current and next images for performance */}
+    <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
       {images.map((image, index) => {
-        // Only render visible images
-        if (!visibleIndices.includes(index)) return null;
-        
         const imgData: HeroImage | undefined = imageData[index];
-        const isPriority = imgData?.priority || index === 0;
-        
+        const desktopUrl = image;
+        const mobileUrl = imgData?.mobileUrl;
+
         return (
-          <img
+          <div
             key={index}
-            src={image}
-            alt={imgData?.alt || ""} // Use alt text from data when available
-            width={imgData?.width}
-            height={imgData?.height}
-            className={`absolute inset-0 w-full h-full object-cover ${getImageOpacityClasses(index, currentIndex, 2000)}`}
+            className="absolute inset-0"
             style={getTransitionStyles(2000)}
-            decoding={isPriority ? 'sync' : 'async'}
-            loading={isPriority ? 'eager' : 'lazy'}
-            // eslint-disable-next-line react/no-unknown-property -- fetchpriority is a valid HTML attribute (lowercase required)
-            fetchpriority={isPriority ? 'high' : 'low'}
-          />
+          >
+            {mobileUrl ? (
+              <>
+                {/* Mobile portrait (≤640px) */}
+                <img
+                  src={mobileUrl}
+                  alt={imgData.alt || ''}
+                  className="absolute inset-0 w-full h-full object-cover object-top sm:hidden"
+                  style={{
+                    opacity: index === currentIndex ? 1 : 0,
+                    transition: 'opacity 2s ease-in-out',
+                    width: '100%',
+                    height: '100%',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    zIndex: index === currentIndex ? 2 : 1
+                  }}
+                  loading={index === 0 ? 'eager' : 'lazy'}
+                  decoding="async"
+                />
+                {/* Tablet/Desktop (≥640px) */}
+                <img
+                  src={desktopUrl}
+                  alt={imgData.alt || ''}
+                  className="absolute inset-0 w-full h-full object-cover object-center hidden sm:block"
+                  style={{
+                    opacity: index === currentIndex ? 1 : 0,
+                    transition: 'opacity 2s ease-in-out',
+                    width: '100%',
+                    height: '100%',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    zIndex: index === currentIndex ? 2 : 1
+                  }}
+                  loading={index === 0 ? 'eager' : 'lazy'}
+                  decoding="async"
+                />
+              </>
+            ) : (
+              <img
+                src={desktopUrl}
+                alt={imgData?.alt || ''}
+                className="absolute inset-0 w-full h-full object-cover object-top sm:object-center"
+                style={{
+                  opacity: index === currentIndex ? 1 : 0,
+                  transition: 'opacity 2s ease-in-out',
+                  width: '100%',
+                  height: '100%',
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  zIndex: index === currentIndex ? 2 : 1
+                }}
+                loading={index === 0 ? 'eager' : 'lazy'}
+                decoding="async"
+              />
+            )}
+          </div>
         );
       })}
-      {/* Improved gradient overlay for better contrast */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/30" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/30 pointer-events-none" />
     </div>
   );
 };

@@ -38,7 +38,7 @@ ALTER TABLE system.system_config ADD CONSTRAINT chk_config_type
 
 -- Insert default system configuration
 INSERT INTO system.system_config (config_key, config_value, config_type, description, is_public) VALUES
-('app_name', 'Mobile Detail Hub', 'string', 'Application name', true),
+('app_name', 'Multi-Tenant Platform', 'string', 'Application name', true),
 ('app_version', '1.0.0', 'string', 'Current application version', true),
 ('maintenance_mode', 'false', 'boolean', 'Enable maintenance mode', false),
 ('registration_enabled', 'true', 'boolean', 'Allow new user registration', true),

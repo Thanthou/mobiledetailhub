@@ -32,42 +32,49 @@ const CTAButtons: React.FC<CTAButtonsProps> = ({
   bookNowProps = {},
   getQuoteProps = {}
 }) => {
-  // Check if in preview mode
   const data = useDataOptional();
   const isPreview = data?.isPreview || false;
-  
-  // In preview mode, disable Book Now
+
+  // Default both to the same size unless overridden
+  const buttonSize = bookNowProps.size ?? getQuoteProps.size ?? 'lg';
+
+  const containerClasses =
+    layout === 'vertical'
+      ? // Single column, centered, consistent width
+        'flex flex-col gap-3 w-full max-w-[28rem] md:max-w-[32rem] mx-auto px-6'
+      : // 1 col on mobile, 2 equal cols ≥ sm
+        'grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-[28rem] md:max-w-[32rem] mx-auto px-6';
+
+  const commonBtnClasses = 'w-full justify-center'; // fill column, equal widths
+
   const handleBookNowClick = (e: React.MouseEvent) => {
     if (isPreview) {
       e.preventDefault();
-      // Do nothing - button is disabled in preview
       return;
     }
-    if (bookNowProps.onClick) {
-      bookNowProps.onClick();
-    }
+    bookNowProps.onClick?.();
   };
-  const containerClasses = layout === 'vertical' 
-    ? 'flex flex-col space-y-4' 
-    : 'flex flex-col sm:flex-row gap-4 justify-center';
 
   return (
     <div className={cn(containerClasses, className)}>
-      <BookNow 
-        variant="primary"
-        className={cn(
-          'w-full sm:w-auto',
-          isPreview && 'opacity-50 cursor-not-allowed'
-        )}
-        {...bookNowProps}
-        onClick={isPreview ? handleBookNowClick : bookNowProps.onClick}
-        to={isPreview ? undefined : bookNowProps.to}
-      />
-      <GetQuote 
-        variant="outline-white"
-        className="w-full sm:w-auto"
-        {...getQuoteProps}
-      />
+      <BookNow
+        variant={bookNowProps.variant ?? 'primary'}
+        size={buttonSize}
+        className={cn(commonBtnClasses, isPreview && 'opacity-50 cursor-not-allowed', bookNowProps.className)}
+        {...(bookNowProps.onClick && { onClick: isPreview ? handleBookNowClick : bookNowProps.onClick })}
+        {...(bookNowProps.to && !isPreview && { to: bookNowProps.to })}
+      >
+        {bookNowProps.children ?? 'Book Now'}
+      </BookNow>
+
+      <GetQuote
+        variant={getQuoteProps.variant ?? 'outline-white'}
+        size={buttonSize}
+        className={cn(commonBtnClasses, getQuoteProps.className)}
+        onClick={getQuoteProps.onClick}
+      >
+        {getQuoteProps.children ?? 'Request Quote'}
+      </GetQuote>
     </div>
   );
 };

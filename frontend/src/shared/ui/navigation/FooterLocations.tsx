@@ -47,7 +47,7 @@ const FooterLocations: React.FC<FooterLocationsProps> = ({ serviceAreas }) => {
                 </div>
               ))}
               {hasMore && (
-                <div className="flex justify-end">
+                <div className="flex justify-center md:justify-end">
                   <button
                     onClick={handleViewMore}
                     className="text-orange-400 hover:text-orange-300 transition-colors duration-200 text-lg bg-transparent border-none p-0 font-inherit cursor-pointer"

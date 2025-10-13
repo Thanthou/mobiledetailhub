@@ -29,7 +29,7 @@ const PreviewPayloadSchema = z.object({
  * Body: { businessName, phone, industry }
  * Returns: { url, token }
  */
-router.post('/', async (req, res) => {
+router.post('/', (req, res) => {
   try {
     // Validate request body
     const validation = PreviewPayloadSchema.safeParse(req.body);
@@ -79,7 +79,7 @@ router.post('/', async (req, res) => {
  * Query: { t: token }
  * Returns: { businessName, phone, industry }
  */
-router.get('/verify', async (req, res) => {
+router.get('/verify', (req, res) => {
   try {
     const { t: token } = req.query;
 

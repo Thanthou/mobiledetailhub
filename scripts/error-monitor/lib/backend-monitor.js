@@ -63,7 +63,7 @@ export class BackendMonitor {
           await this.showErrors();
         }
       }
-    } catch (error) {
+    } catch {
       // File doesn't exist yet, that's OK
     }
   }

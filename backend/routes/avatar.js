@@ -205,7 +205,7 @@ router.post('/upload', authenticateToken, requireAdmin, upload.single('avatar'),
 }));
 
 // Get avatar info for a review
-router.get('/info/:reviewId', authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
+router.get('/info/:reviewId', authenticateToken, requireAdmin, asyncHandler((req, res) => {
   const { reviewId } = req.params;
   const { reviewerName } = req.query;
   
@@ -229,7 +229,7 @@ router.get('/info/:reviewId', authenticateToken, requireAdmin, asyncHandler(asyn
 }));
 
 // Delete avatar for a review
-router.delete('/:reviewId', authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
+router.delete('/:reviewId', authenticateToken, requireAdmin, asyncHandler((req, res) => {
   const { reviewId } = req.params;
   const { reviewerName } = req.query;
   

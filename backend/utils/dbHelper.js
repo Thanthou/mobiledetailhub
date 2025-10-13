@@ -68,15 +68,14 @@ async function isConnected() {
     
     await pool.query('SELECT 1');
     return true;
-  } catch (error) {
+  } catch {
     return false;
   }
 }
 
 // Helper function to get connection status
-async function getConnectionStatus() {
+function getConnectionStatus() {
   try {
-
     if (!pool) {
       return {
         connected: false,
@@ -125,6 +124,6 @@ module.exports = {
   executeTransaction,
   isConnected,
   getConnectionStatus,
-  closeConnections,
-  getPool // Re-export for convenience
+  closeConnections
+  // getPool is available from pool.js if needed
 };

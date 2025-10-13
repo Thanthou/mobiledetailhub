@@ -8,7 +8,7 @@ import { Hero } from '@/features/hero';
 import { Reviews } from '@/features/reviews';
 import { useReviewsAvailability } from '@/features/reviews/hooks/useReviewsAvailability';
 import { ServicesGrid } from '@/features/services';
-import { useSEO } from '@/shared/hooks/useSEO';
+import { useScrollSpy, useSEO } from '@/shared/hooks';
 import { convertFAQItemsToSchemaFormat, injectAllSchemas } from '@/shared/utils/schemaUtils';
 
 interface HomePageProps {
@@ -24,6 +24,26 @@ const HomePage: React.FC<HomePageProps> = ({ onRequestQuote, locationData }) => 
   
   // Check if reviews are available for this site
   const hasReviews = useReviewsAvailability();
+  
+  // Determine which section IDs to track based on screen size
+  const [isDesktop, setIsDesktop] = React.useState(window.innerWidth >= 768);
+  
+  useEffect(() => {
+    const handleResize = () => { setIsDesktop(window.innerWidth >= 768); };
+    window.addEventListener('resize', handleResize);
+    return () => { window.removeEventListener('resize', handleResize); };
+  }, []);
+  
+  // Set up scroll spy to track active section - use correct IDs for mobile vs desktop
+  const sectionIds = isDesktop 
+    ? ['top', 'services-desktop', 'reviews', 'faq', 'gallery-desktop']
+    : ['top', 'services', 'reviews', 'faq', 'gallery', 'footer'];
+  
+  useScrollSpy({ 
+    ids: sectionIds, 
+    headerPx: isDesktop ? 88 : 72, 
+    updateHash: false 
+  });
 
   // Generate and inject Schema.org JSON-LD for tenant site
   useEffect(() => {
@@ -35,11 +55,12 @@ const HomePage: React.FC<HomePageProps> = ({ onRequestQuote, locationData }) => 
   }, [locationData]);
 
   return (
-    <div className="h-screen snap-y snap-mandatory overflow-y-scroll snap-container">
+    <>
       <Header />
-      <Hero 
-        {...(onRequestQuote && { onRequestQuote })}
-      />
+      <div className="h-screen snap-y snap-mandatory overflow-y-scroll snap-container scrollbar-hide pt-[72px] md:pt-[88px]">
+        <Hero 
+          {...(onRequestQuote && { onRequestQuote })}
+        />
       
       <ServicesGrid />
       
@@ -53,7 +74,8 @@ const HomePage: React.FC<HomePageProps> = ({ onRequestQuote, locationData }) => 
       <Gallery 
         {...(onRequestQuote && { onRequestQuote })}
       />
-    </div>
+      </div>
+    </>
   );
 };
 

@@ -90,13 +90,16 @@ class GoogleBusinessScraper {
           totalReviews: null,
           businessName: null,
           debugInfo: {
+            // eslint-disable-next-line no-undef -- Running in browser context via Puppeteer
             pageTitle: document.title,
+            // eslint-disable-next-line no-undef -- Running in browser context via Puppeteer
             url: window.location.href,
             foundElements: []
           }
         };
 
         // Log all elements that might contain rating info
+        // eslint-disable-next-line no-undef -- Running in browser context via Puppeteer
         const allElements = document.querySelectorAll('*');
         for (let i = 0; i < Math.min(allElements.length, 100); i++) {
           const el = allElements[i];
@@ -126,6 +129,7 @@ class GoogleBusinessScraper {
 
         // Try to find rating - more comprehensive approach
         for (const selector of ratingSelectors) {
+          // eslint-disable-next-line no-undef -- Running in browser context via Puppeteer
           const elements = document.querySelectorAll(selector);
           for (const element of elements) {
             const text = element.textContent || element.getAttribute('data-value') || element.getAttribute('aria-label') || '';
@@ -139,10 +143,11 @@ class GoogleBusinessScraper {
               }
             }
           }
-          if (result.averageRating) break;
+          if (result.averageRating) {break;}
         }
 
         // Try to find review count - search through all elements for text containing "review"
+        // eslint-disable-next-line no-undef -- Running in browser context via Puppeteer
         const reviewElements = document.querySelectorAll('*');
         for (const element of reviewElements) {
           const text = element.textContent || '';
@@ -172,6 +177,7 @@ class GoogleBusinessScraper {
         ];
 
         for (const selector of businessNameSelectors) {
+          // eslint-disable-next-line no-undef -- Running in browser context via Puppeteer
           const element = document.querySelector(selector);
           if (element && element.textContent.trim()) {
             result.businessName = element.textContent.trim();

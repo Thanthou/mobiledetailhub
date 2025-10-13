@@ -16,7 +16,7 @@ class MigrationTracker {
    * Creates the schema_migrations table if it doesn't exist
    */
   async initialize() {
-    if (this.initialized) return;
+    if (this.initialized) {return;}
     
     try {
       await executeQuery(`

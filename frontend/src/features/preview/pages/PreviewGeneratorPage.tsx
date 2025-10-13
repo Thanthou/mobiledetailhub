@@ -9,6 +9,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, Loader2, Sparkles } from 'lucide-react';
 
+import { formatPhoneNumber } from '@/shared/utils/phoneFormatter';
+
 import { createPreview } from '../api/preview.api';
 import type { PreviewPayload } from '../types/preview.types';
 
@@ -32,22 +34,24 @@ const PreviewGeneratorPage: React.FC = () => {
     industry: 'mobile-detailing' as PreviewPayload['industry'],
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setIsLoading(true);
 
-    try {
-      const response = await createPreview(formData);
-      
-      // Navigate to the preview page with the token
-      navigate(response.url);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to create preview';
-      setError(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
+    void (async () => {
+      try {
+        const response = await createPreview(formData);
+        
+        // Navigate to the preview page with the token
+        void navigate(response.url);
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to create preview';
+        setError(errorMessage);
+      } finally {
+        setIsLoading(false);
+      }
+    })();
   };
 
   const handleChange = (
@@ -55,6 +59,11 @@ const PreviewGeneratorPage: React.FC = () => {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhoneNumber(e.target.value);
+    setFormData((prev) => ({ ...prev, phone: formatted }));
   };
 
   const handleStateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -107,11 +116,11 @@ const PreviewGeneratorPage: React.FC = () => {
               id="phone"
               name="phone"
               value={formData.phone}
-              onChange={handleChange}
+              onChange={handlePhoneChange}
               required
-              minLength={7}
-              maxLength={20}
-              placeholder="928-555-1234"
+              minLength={14}
+              maxLength={14}
+              placeholder="(928) 555-1234"
               className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             />
           </div>
@@ -207,10 +216,10 @@ const PreviewGeneratorPage: React.FC = () => {
           </p>
         </form>
 
-        {/* Back Link */}
+          {/* Back Link */}
         <div className="mt-6 text-center">
           <button
-            onClick={() => navigate('/')}
+            onClick={() => { void navigate('/'); }}
             className="text-sm text-gray-400 hover:text-white transition-colors"
           >
             ← Back to Home

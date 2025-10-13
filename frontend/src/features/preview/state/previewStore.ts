@@ -24,28 +24,32 @@ export const usePreviewStore = create<PreviewState>((set) => ({
   isLoading: false,
   error: null,
   
-  setPayload: (payload) =>
+  setPayload: (payload) => {
     set({
       payload,
       error: null,
-    }),
+    });
+  },
   
-  setLoading: (loading) =>
+  setLoading: (loading) => {
     set({
       isLoading: loading,
-    }),
+    });
+  },
   
-  setError: (error) =>
+  setError: (error) => {
     set({
       error,
       isLoading: false,
-    }),
+    });
+  },
   
-  clearPreview: () =>
+  clearPreview: () => {
     set({
       payload: null,
       error: null,
       isLoading: false,
-    }),
+    });
+  },
 }));
 

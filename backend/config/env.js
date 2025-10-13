@@ -25,19 +25,26 @@ const EnvSchema = z.object({
   // Database
   DATABASE_URL: z.string().url(),
   
-  // JWT
-  JWT_SECRET: z.string().min(32, "JWT_SECRET must be at least 32 characters"),
-  JWT_REFRESH_SECRET: z.string().min(32, "JWT_REFRESH_SECRET must be at least 32 characters"),
+  // JWT - relaxed for development, strict for production
+  JWT_SECRET: z.string().min(8).refine(
+    (val) => process.env.NODE_ENV === 'production' ? val.length >= 32 : true,
+    { message: "JWT_SECRET must be at least 32 characters in production" }
+  ).default('dev-jwt-secret-change-in-prod'),
+  
+  JWT_REFRESH_SECRET: z.string().min(8).refine(
+    (val) => process.env.NODE_ENV === 'production' ? val.length >= 32 : true,
+    { message: "JWT_REFRESH_SECRET must be at least 32 characters in production" }
+  ).default('dev-jwt-refresh-secret-change-in-prod'),
   
   // CORS - parse comma-separated origins
   ALLOWED_ORIGINS: z.string().optional().transform((val) => {
-    if (!val) return ['http://localhost:5173', 'http://localhost:3000'];
+    if (!val) {return ['http://localhost:5173', 'http://localhost:3000'];}
     return val.split(',').map(origin => origin.trim());
   }),
   
   // Admin
   ADMIN_EMAILS: z.string().optional().transform((val) => {
-    if (!val) return [];
+    if (!val) {return [];}
     return val.split(',').map(email => email.trim());
   }),
   ADMIN_PASSWORD: z.string().optional(),

@@ -4,7 +4,8 @@ const path = require('path');
 const fs = require('fs');
 const router = express.Router();
 const { pool } = require('../database/pool');
-const { authenticateToken } = require('../middleware/auth');
+// TODO: Add authentication to protected routes
+// const { authenticateToken } = require('../middleware/auth');
 const { validateFileMagic } = require('../utils/uploadValidator');
 const { generateAvatarFilename, ensureUploadsDir } = require('../utils/avatarUtils');
 const googleBusinessScraper = require('../services/googleBusinessScraper');
@@ -428,7 +429,7 @@ router.post('/scrape-google-business', async (req, res) => {
     // Validate URL format
     try {
       new URL(gbpUrl);
-    } catch (error) {
+    } catch {
       return res.status(400).json({
         success: false,
         message: 'Invalid URL format'

@@ -36,14 +36,14 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
         aria-label={`View ${service.title}`}
         className={`group relative block rounded-lg overflow-hidden shadow-lg transition-transform duration-300 hover:-translate-y-2 hover:shadow-xl cursor-pointer ${className}`}
       >
-        <div className="aspect-[3/2]">
+        <div className="h-52 sm:h-80 lg:h-96 xl:h-[28rem]">
           <img 
             src={service.imageUrl} 
             alt="" /* decorative; title is visible text */
             loading={service.imagePriority ? "eager" : "lazy"}
             decoding={service.imagePriority ? "sync" : "async"}
-            // eslint-disable-next-line react/no-unknown-property -- fetchpriority is a valid HTML attribute (lowercase required)
-            fetchpriority={service.imagePriority ? "high" : "low"}
+            // eslint-disable-next-line react/no-unknown-property -- fetchPriority is a valid HTML attribute
+            {...(service.imagePriority && { fetchPriority: 'high' as const })}
             width={service.imageWidth || 600}
             height={service.imageHeight || 400}
             className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
@@ -52,8 +52,8 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
         
         {/* Content Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent">
-          <div className="absolute bottom-0 left-0 right-0 p-4 text-white text-center">
-            <h3 className="text-lg font-semibold">
+          <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-6 lg:p-8 text-white text-center">
+            <h3 className="text-base sm:text-xl lg:text-2xl font-semibold">
               {service.title}
             </h3>
           </div>

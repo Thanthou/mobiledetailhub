@@ -189,7 +189,7 @@ const getTokenExpiration = (token) => {
  */
 const isTokenExpired = (token) => {
   const expiration = getTokenExpiration(token);
-  if (!expiration) return true;
+  if (!expiration) {return true;}
   return Date.now() >= expiration.getTime();
 };
 
@@ -200,7 +200,7 @@ const isTokenExpired = (token) => {
  */
 const getTimeUntilExpiration = (token) => {
   const expiration = getTokenExpiration(token);
-  if (!expiration) return 0;
+  if (!expiration) {return 0;}
   return Math.max(0, expiration.getTime() - Date.now());
 };
 
@@ -366,10 +366,10 @@ const isTokenBlacklisted = async (token) => {
  * @returns {boolean} True if token is blacklisted
  */
 const isTokenBlacklistedInMemory = (token) => {
-  if (!global.tokenBlacklist) return false;
+  if (!global.tokenBlacklist) {return false;}
   
   // Check by full token first
-  if (global.tokenBlacklist.has(token)) return true;
+  if (global.tokenBlacklist.has(token)) {return true;}
   
   // Also check by JTI for more efficient lookups
   const decoded = decodeToken(token);

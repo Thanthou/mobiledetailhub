@@ -13,7 +13,7 @@ const logger = require('./logger');
  * @param {Object} options - Query options
  * @returns {Promise<Object>} Query result
  */
-const query = async (query, params = [], options = {}) => {
+const query = async (sql, params = [], options = {}) => {
   const {
     retries = 3,
     retryDelay = 1000,
@@ -31,7 +31,7 @@ const query = async (query, params = [], options = {}) => {
       
       // Execute query with timeout
       const result = await Promise.race([
-        dbClient.query(query, params),
+        dbClient.query(sql, params),
         new Promise((_, reject) => 
           setTimeout(() => reject(new Error('Query timeout')), timeout)
         )
@@ -39,7 +39,7 @@ const query = async (query, params = [], options = {}) => {
 
       // Log successful query (debug level)
       logger.debug('Database query executed successfully', {
-        query: query.substring(0, 100) + '...',
+        query: sql.substring(0, 100) + '...',
         params: params.length,
         rows: result.rows.length
       });
@@ -54,7 +54,7 @@ const query = async (query, params = [], options = {}) => {
       logger.warn(`Database query attempt ${attempt} failed`, {
         error: error.message,
         code: error.code,
-        query: query.substring(0, 100) + '...',
+        query: sql.substring(0, 100) + '...',
         attempt,
         retries
       });

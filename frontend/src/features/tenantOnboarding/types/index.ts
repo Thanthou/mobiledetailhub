@@ -22,8 +22,37 @@ export interface UploadFile {
   url: string;
 }
 
+// Address interface for reusability
+export interface Address {
+  address: string;
+  city: string;
+  state: string;
+  zip: string;
+}
+
+// Pricing plan interface
+export interface PricingPlan {
+  id: 'starter' | 'pro' | 'enterprise';
+  name: string;
+  price: number;
+  interval: string;
+  features: string[];
+  popular?: boolean;
+}
+
+// Preview state interface
+export interface PreviewState {
+  fromPreview?: boolean;
+  businessName?: string;
+  phone?: string;
+  city?: string;
+  state?: string;
+  industry?: string;
+}
+
 // New simplified tenant application interface
 export interface TenantApplication {
+  id?: string;
   firstName: string;
   lastName: string;
   personalPhone: string;
@@ -31,22 +60,18 @@ export interface TenantApplication {
   businessName: string;
   businessPhone: string;
   businessEmail: string;
-  businessAddress: {
-    address: string;
-    city: string;
-    state: string;
-    zip: string;
-  };
+  businessAddress: Address;
+  selectedPlan: 'starter' | 'pro' | 'enterprise' | '';
+  planPrice: number;
   paymentMethod: string;
   cardNumber: string;
   expiryDate: string;
   cvv: string;
-  billingAddress: {
-    address: string;
-    city: string;
-    state: string;
-    zip: string;
-  };
+  billingAddress: Address;
+  useSameAddress: boolean;
+  industry?: string;
+  step: number;
+  status: 'draft' | 'pending' | 'approved' | 'rejected';
 }
 
 // Legacy interface for backward compatibility
@@ -96,6 +121,57 @@ export const SOURCES = [
   'Other'
 ];
 
+// Pricing plans with updated $15/$25/$35 pricing
+export const pricingPlans: PricingPlan[] = [
+  {
+    id: 'starter',
+    name: 'Starter',
+    price: 15,
+    interval: 'month',
+    features: [
+      'Single location website',
+      '5 custom pages',
+      'Mobile responsive design',
+      'Contact form integration',
+      'Basic SEO optimization',
+      'SSL certificate included',
+      'Email support',
+    ],
+  },
+  {
+    id: 'pro',
+    name: 'Pro',
+    price: 25,
+    interval: 'month',
+    popular: true,
+    features: [
+      'Multi-location support',
+      'Unlimited pages',
+      'Advanced SEO tools',
+      'Online booking system',
+      'Google Maps integration',
+      'Analytics dashboard',
+      'Priority support',
+      'Custom domain',
+    ],
+  },
+  {
+    id: 'enterprise',
+    name: 'Enterprise',
+    price: 35,
+    interval: 'month',
+    features: [
+      'Everything in Pro',
+      'Custom development',
+      'API integrations',
+      'Dedicated account manager',
+      'White-label options',
+      'SLA guarantee',
+      '24/7 phone support',
+    ],
+  },
+];
+
 // Default values for new simplified tenant application
 export const tenantApplicationDefaultValues: TenantApplication = {
   firstName: '',
@@ -111,6 +187,8 @@ export const tenantApplicationDefaultValues: TenantApplication = {
     state: '',
     zip: ''
   },
+  selectedPlan: '',
+  planPrice: 0,
   paymentMethod: '',
   cardNumber: '',
   expiryDate: '',
@@ -120,7 +198,10 @@ export const tenantApplicationDefaultValues: TenantApplication = {
     city: '',
     state: '',
     zip: ''
-  }
+  },
+  useSameAddress: true,
+  step: 0,
+  status: 'draft'
 };
 
 // Legacy default values for backward compatibility

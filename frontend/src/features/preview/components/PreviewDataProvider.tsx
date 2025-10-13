@@ -8,13 +8,10 @@
 
 import React, { useEffect, useState } from 'react';
 
-import { getIndustryTemplate } from '@/features/industries/registry';
-import type { IndustryTemplate } from '@/features/industries/registry';
-import type { MainSiteConfig } from '@/shared/types/location';
-
-// Import the REAL DataContext from shared
-// This is the same context that regular tenant pages use
 import { DataContext } from '@/shared/contexts/DataContext';
+import type { MainSiteConfig } from '@/shared/types/location';
+import type { IndustryTemplate } from '@/shared/utils/industryRegistry';
+import { getIndustryTemplate } from '@/shared/utils/industryRegistry';
 
 import type { PreviewPayload } from '../types/preview.types';
 
@@ -49,7 +46,7 @@ export const PreviewDataProvider: React.FC<PreviewDataProviderProps> = ({
       }
     }
 
-    loadTemplate();
+    void loadTemplate();
   }, [payload.industry]);
 
   // Generate email from business name

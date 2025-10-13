@@ -169,6 +169,7 @@ const Reviews: React.FC<ReviewsProps> = ({
 
   return (
     <section id="reviews" className="relative h-screen snap-start snap-always overflow-hidden">
+      <div className="h-full pt-[80px] md:pt-[88px]">
       {/* Rotating Background Images with Overlay */}
       <div className="absolute inset-0 z-0">
         {backgroundImages.map((image, index) => (
@@ -187,7 +188,7 @@ const Reviews: React.FC<ReviewsProps> = ({
       </div>
       
       {/* Content */}
-      <div className="relative z-10 h-full flex flex-col items-center justify-center px-4">
+      <div className="relative z-10 h-full flex flex-col items-center justify-start md:justify-center px-4 pt-[20px] md:pt-0">
         <div className="max-w-6xl mx-auto w-full">
           <ReviewsHeader 
             title={title}
@@ -206,6 +207,7 @@ const Reviews: React.FC<ReviewsProps> = ({
         isOpen={isModalOpen}
         onClose={handleCloseModal}
       />
+      </div>
     </section>
   );
 };

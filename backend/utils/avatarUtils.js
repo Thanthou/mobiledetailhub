@@ -62,7 +62,7 @@ const findCustomAvatar = (reviewerName, reviewId) => {
  * @param {string} source - Review source (google, yelp, etc.) - unused now
  * @returns {string|null} Avatar URL or null if no custom avatar
  */
-const getAvatarUrl = (reviewerName, reviewId, source = 'website') => {
+const getAvatarUrl = (reviewerName, reviewId, _source = 'website') => {
   // Check for custom avatar only
   const customAvatar = findCustomAvatar(reviewerName, reviewId);
   if (customAvatar) {

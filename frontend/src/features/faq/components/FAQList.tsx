@@ -12,7 +12,7 @@ interface FAQListProps {
 
 const FAQList: React.FC<FAQListProps> = ({ faqs, expandedFaq, onToggleFaq }) => {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-5 lg:gap-6">
       {faqs.map((faq, index) => {
         // Use id if available, otherwise fall back to question or index
         const key = faq.id ?? `faq-${String(index)}`;

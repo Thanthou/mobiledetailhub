@@ -394,7 +394,7 @@ class HealthMonitor {
    * @param {Object} cruxData - CrUX data
    * @returns {number} Overall health score (0-100)
    */
-  calculateHealthScore(mobilePSI, desktopPSI, cruxData) {
+  calculateHealthScore(mobilePSI, desktopPSI, _cruxData) {
     let totalScore = 0;
     let scoreCount = 0;
 
@@ -419,7 +419,7 @@ class HealthMonitor {
    * @param {Object} cruxData - CrUX data
    * @returns {Object} Health summary
    */
-  generateHealthSummary(mobilePSI, desktopPSI, cruxData) {
+  generateHealthSummary(mobilePSI, desktopPSI, _cruxData) {
     const summary = {
       status: 'good',
       priority: [],

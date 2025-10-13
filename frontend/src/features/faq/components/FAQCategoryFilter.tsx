@@ -28,14 +28,8 @@ const FAQCategoryFilter: React.FC<FAQCategoryFilterProps> = ({
   onCategoryChange,
   categories
 }) => {
-  // Split into two rows: 5 in first row, remaining in second row
-  const firstRow = categories.slice(0, 5);
-  const secondRow = categories.slice(5);
-  
   const renderChip = (categoryName: string) => {
-    // No mapping needed - use category names directly from database
     const isSelected = selectedCategory === categoryName;
-    // Get appropriate icon for this category
     const IconComponent = categoryIcons[categoryName] || MapPin;
     
     return (
@@ -46,7 +40,7 @@ const FAQCategoryFilter: React.FC<FAQCategoryFilterProps> = ({
         }}
         isSelected={isSelected}
         icon={IconComponent}
-        className="transform hover:scale-105 backdrop-blur-sm"
+        className="transform hover:scale-105 backdrop-blur-sm text-sm md:text-base"
       >
         {categoryName}
       </FilterChip>
@@ -54,16 +48,8 @@ const FAQCategoryFilter: React.FC<FAQCategoryFilterProps> = ({
   };
   
   return (
-    <div className="flex flex-col items-center gap-3">
-      {/* First row - 5 chips */}
-      <div className="flex justify-center gap-3">
-        {firstRow.map(renderChip)}
-      </div>
-      
-      {/* Second row - 4 chips */}
-      <div className="flex justify-center gap-3">
-        {secondRow.map(renderChip)}
-      </div>
+    <div className="flex flex-wrap justify-center gap-2 md:gap-3 max-w-3xl mx-auto">
+      {categories.map(renderChip)}
     </div>
   );
 };

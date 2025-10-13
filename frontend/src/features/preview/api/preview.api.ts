@@ -6,6 +6,7 @@
  */
 
 import { env } from '@/shared/env';
+import { safeValidationMessage } from '@/shared/utils/errorHandling';
 
 import type {
   CreatePreviewResponse,
@@ -28,7 +29,7 @@ export async function createPreview(
   // Validate payload before sending
   const validation = PreviewPayloadSchema.safeParse(payload);
   if (!validation.success) {
-    throw new Error(validation.error.errors[0]?.message || 'Invalid payload');
+    throw new Error(safeValidationMessage(validation.error));
   }
 
   const response = await fetch(`${API_BASE}/api/previews`, {
@@ -40,11 +41,13 @@ export async function createPreview(
   });
 
   if (!response.ok) {
-    const error: PreviewErrorResponse = await response.json();
-    throw new Error(error.message || 'Failed to create preview');
+    const error = await response.json() as PreviewErrorResponse;
+    const errorMsg = error.message || 'Failed to create preview';
+    throw new Error(errorMsg);
   }
 
-  return response.json();
+  const result = await response.json() as CreatePreviewResponse;
+  return result;
 }
 
 /**
@@ -64,11 +67,12 @@ export async function verifyPreview(token: string): Promise<PreviewPayload> {
   );
 
   if (!response.ok) {
-    const error: PreviewErrorResponse = await response.json();
-    throw new Error(error.message || 'Failed to verify preview');
+    const error = await response.json() as PreviewErrorResponse;
+    const errorMsg = error.message || 'Failed to verify preview';
+    throw new Error(errorMsg);
   }
 
-  const data: VerifyPreviewResponse = await response.json();
+  const data = await response.json() as VerifyPreviewResponse;
   
   // Validate the payload from the backend
   const validation = PreviewPayloadSchema.safeParse(data.payload);

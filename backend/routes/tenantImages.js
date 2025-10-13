@@ -1,6 +1,7 @@
 const express = require('express');
-const fs = require('fs');
-const path = require('path');
+// TODO: Add file system operations when implementing image management
+// const fs = require('fs');
+// const path = require('path');
 const { pool } = require('../database/pool');
 const router = express.Router();
 
@@ -34,9 +35,9 @@ router.get('/images', async (req, res) => {
 });
 
 // Upload new tenant image
-router.post('/upload', async (req, res) => {
+router.post('/upload', (req, res) => {
   try {
-    const { tenant, category = 'gallery' } = req.body;
+    const { tenant, category: _category = 'gallery' } = req.body;
     
     if (!tenant) {
       return res.status(400).json({ error: 'Tenant parameter is required' });

@@ -12,6 +12,8 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
+import { safeErrorMessage, safeValidationMessage } from '@/shared/utils/errorHandling';
+
 import { verifyPreview } from '../api/preview.api';
 import { usePreviewStore } from '../state/previewStore';
 import type { PreviewPayload } from '../types/preview.types';
@@ -68,20 +70,18 @@ export function usePreviewParams(): UsePreviewParamsResult {
         });
 
         if (!validation.success) {
-          const firstError = validation.error.errors[0];
-          throw new Error(firstError?.message || 'Invalid preview parameters');
+          throw new Error(safeValidationMessage(validation.error));
         }
 
         setPayload(validation.data);
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to load preview';
-        setError(errorMessage);
+      } catch (err: unknown) {
+        setError(safeErrorMessage(err));
       } finally {
         setLoading(false);
       }
     }
 
-    loadPreview();
+    void loadPreview();
   }, [searchParams, hasInitialized, setPayload, setLoading, setError]);
 
   return {

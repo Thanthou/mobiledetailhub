@@ -16,7 +16,8 @@ const {
   getUserTokens
 } = require('../services/refreshTokenService');
 const { asyncHandler } = require('../middleware/errorHandler');
-const logger = require('../utils/logger');
+// TODO: Add proper logging throughout auth routes
+// const logger = require('../utils/logger');
 const { authLimiter, sensitiveAuthLimiter, refreshTokenLimiter } = require('../middleware/rateLimiter');
 const { env } = require('../config/env');
 
@@ -278,7 +279,7 @@ router.get('/me', authenticateToken, asyncHandler(async (req, res) => {
  */
 router.post('/refresh', refreshTokenLimiter, asyncHandler(async (req, res) => {
   // Accept refresh token from body or cookie (flexible input)
-  let refreshToken = req.body.refreshToken || req.cookies?.refreshToken;
+  const refreshToken = req.body.refreshToken || req.cookies?.refreshToken;
   
   if (!refreshToken) {
     const error = new Error('Refresh token is required in body or cookie');

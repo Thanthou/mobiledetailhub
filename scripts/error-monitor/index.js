@@ -47,7 +47,7 @@ async function main() {
       await new FrontendMonitor().start();
       break;
       
-    case 'all':
+    case 'all': {
       console.log('🔄 Monitoring both backend and frontend...\n');
       const backend = new BackendMonitor();
       const frontend = new FrontendMonitor();
@@ -56,6 +56,7 @@ async function main() {
         frontend.start(),
       ]);
       break;
+    }
       
     default:
       console.error(`❌ Invalid target: ${target}`);

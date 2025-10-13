@@ -21,7 +21,7 @@ export const PreviewCTAButton: React.FC<PreviewCTAButtonProps> = ({ position = '
 
   const handleGetThisSite = () => {
     // Pass preview data to onboarding form
-    navigate('/tenant-onboarding', {
+    void navigate('/tenant-onboarding', {
       state: {
         fromPreview: true,
         businessName: data.businessName,

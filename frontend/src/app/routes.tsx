@@ -4,7 +4,6 @@ import { Navigate, Route, Routes, useParams } from 'react-router-dom';
 import HomePage from '@/app/pages/HomePage';
 import { DashboardPage as AdminDashboard } from '@/features/adminDashboard';
 import { BookingPage } from '@/features/booking';
-import { Header } from '@/features/header';
 import { ServicesGrid as ServicePage } from '@/features/services';
 import { DashboardPage } from '@/features/tenantDashboard';
 import { TenantApplicationPage } from '@/features/tenantOnboarding';
@@ -78,18 +77,8 @@ export const AppRoutes: React.FC = () => {
           {locationRoutes.map(r => (
             <Route key={r.path} path={r.path} element={r.element} />
           ))}
-          <Route path="/:businessSlug" element={
-            <>
-              <Header />
-              <HomePage />
-            </>
-          } />
-          <Route path="/" element={
-            <>
-              <Header />
-              <HomePage />
-            </>
-          } />
+          <Route path="/:businessSlug" element={<HomePage />} />
+          <Route path="/" element={<HomePage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>

@@ -21,14 +21,14 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, onReviewClick }) => {
 
   return (
     <div 
-      className="relative bg-white/10 backdrop-blur-sm rounded-lg p-9 cursor-pointer hover:bg-white/20 transition-colors"
+      className="relative bg-white/10 backdrop-blur-sm rounded-lg p-6 md:p-8 lg:p-9 cursor-pointer hover:bg-white/20 transition-colors"
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       role="button"
       tabIndex={0}
       aria-label={`Review by ${review.customerName}`}
     >
-      <div className="flex items-center mb-6">
+      <div className="flex items-center mb-4 md:mb-5 lg:mb-6">
         <div className="flex items-center space-x-4">
           <div className="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center text-white font-semibold overflow-hidden">
             {review.profileImage ? (

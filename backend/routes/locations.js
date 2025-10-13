@@ -81,7 +81,7 @@ router.post('/service-areas/:tenantSlug', async (req, res) => {
     const updatedServiceAreas = [...currentServiceAreas, newServiceArea];
     
     // Update database
-    const result = await pool.query(
+    await pool.query(
       'UPDATE tenants.business SET service_areas = $1, updated_at = NOW() WHERE slug = $2 RETURNING slug',
       [JSON.stringify(updatedServiceAreas), tenantSlug]
     );
@@ -112,7 +112,7 @@ router.delete('/service-areas/:tenantSlug/:areaId', async (req, res) => {
     const updatedServiceAreas = currentServiceAreas.filter(area => area.id !== areaId);
     
     // Update database
-    const result = await pool.query(
+    await pool.query(
       'UPDATE tenants.business SET service_areas = $1, updated_at = NOW() WHERE slug = $2 RETURNING slug',
       [JSON.stringify(updatedServiceAreas), tenantSlug]
     );
