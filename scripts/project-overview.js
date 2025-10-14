@@ -439,7 +439,7 @@ ${checklist}
           `# Cursor Rules (Auto-Generated)\n\nGenerated: ${new Date().toISOString()}\n\nSource: \`.cursorrules\`\n\n## Project Purpose\n\n${parsed.purpose || 'N/A'}\n\n## Priorities\n\n${(parsed.priorities || []).map(p => `- ${p}`).join('\n')}\n\n## Full Configuration\n\n\`\`\`json\n${formatted}\n\`\`\`\n`
         );
         console.log('✓ Extracted .cursorrules to CURSORRULES.md');
-      } catch (e) {
+      } catch {
         // Fallback if JSON parsing fails
         writeText(path.join(OUT_DIR, 'CURSORRULES.md'), 
           `# Cursor Rules (Auto-Generated)\n\nGenerated: ${new Date().toISOString()}\n\nSource: \`.cursorrules\`\n\n\`\`\`\n${cursorRulesContent}\n\`\`\`\n`
