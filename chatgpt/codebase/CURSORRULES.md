@@ -1,6 +1,6 @@
 # Cursor Rules (Auto-Generated)
 
-Generated: 2025-10-13T18:34:16.854Z
+Generated: 2025-10-14T19:31:28.515Z
 
 Source: `.cursorrules`
 

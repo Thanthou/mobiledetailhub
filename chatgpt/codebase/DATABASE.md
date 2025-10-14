@@ -1,9 +1,9 @@
 # Database Overview (Auto-Generated)
 
-Generated: 2025-10-13T18:34:17.062Z
+Generated: 2025-10-14T19:31:28.719Z
 
 ```
-[dotenv@17.2.2] injecting env (19) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[dotenv@17.2.2] injecting env (19) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
 
 🔍 Database: ThatSmartSite
 ============================================================
@@ -75,6 +75,7 @@ Generated: 2025-10-13T18:34:17.062Z
       • failure_reason: character varying(100) NULL
       • attempted_at: timestamp with time zone NULL = CURRENT_TIMESTAMP
       • location_data: jsonb NULL = '{}'::jsonb
+      • user_id: integer NULL
 
    auth.refresh_tokens
       • id: integer NOT NULL = nextval('auth.refresh_tokens_i
@@ -137,6 +138,7 @@ Generated: 2025-10-13T18:34:17.062Z
       • preferences: jsonb NULL = '{}'::jsonb
       • created_at: timestamp with time zone NULL = CURRENT_TIMESTAMP
       • updated_at: timestamp with time zone NULL = CURRENT_TIMESTAMP
+      • stripe_customer_id: character varying(255) NULL
 
    booking.availability
       • id: integer NOT NULL = nextval('booking.availability_
@@ -393,6 +395,7 @@ Generated: 2025-10-13T18:34:17.062Z
       • checked_at: timestamp with time zone NULL = CURRENT_TIMESTAMP
       • created_at: timestamp with time zone NULL = CURRENT_TIMESTAMP
       • updated_at: timestamp with time zone NULL = CURRENT_TIMESTAMP
+      • business_id: integer NULL
 
    system.schema_migrations
       • version: character varying(50) NOT NULL
@@ -441,17 +444,6 @@ Generated: 2025-10-13T18:34:17.062Z
       • last_activity: timestamp with time zone NULL
       • created_at: timestamp with time zone NULL = CURRENT_TIMESTAMP
       • updated_at: timestamp with time zone NULL = CURRENT_TIMESTAMP
-      • selected_plan: character varying(20) NULL
-      • plan_price_cents: integer NULL
-      • billing_cycle: character varying(20) NULL = 'monthly'::character varying
-      • subscription_status: character varying(20) NULL = 'trial'::character varying
-      • trial_ends_at: timestamp with time zone NULL
-      • subscription_started_at: timestamp with time zone NULL
-      • billing_address: character varying(500) NULL
-      • billing_city: character varying(100) NULL
-      • billing_state: character varying(50) NULL
-      • billing_zip: character varying(20) NULL
-      • billing_country: character varying(50) NULL = 'US'::character varying
 
    tenants.service_tiers
       • id: integer NOT NULL = nextval('tenants.service_tiers
@@ -566,26 +558,21 @@ Generated: 2025-10-13T18:34:17.062Z
 
    website.content
       • id: integer NOT NULL = nextval('website.content_id_se
-      • tenant_slug: character varying(255) NOT NULL
-      • hero_title: character varying(255) NULL
+      • business_id: integer NOT NULL
+      • header_logo_url: character varying(500) NULL
+      • header_icon_url: character varying(500) NULL
+      • hero_title: character varying(500) NULL
       • hero_subtitle: text NULL
-      • services_title: character varying(255) NULL
-      • services_subtitle: text NULL
-      • services_auto_description: text NULL
-      • services_marine_description: text NULL
-      • services_rv_description: text NULL
-      • services_ceramic_description: text NULL
-      • services_correction_description: text NULL
-      • services_ppf_description: text NULL
       • reviews_title: character varying(255) NULL
       • reviews_subtitle: text NULL
-      • reviews_avg_rating: numeric NULL
-      • reviews_total_count: integer NULL = 0
       • faq_title: character varying(255) NULL
       • faq_subtitle: text NULL
-      • faq_content: jsonb NULL = '[]'::jsonb
+      • faq_items: jsonb NULL = '[]'::jsonb
+      • custom_sections: jsonb NULL = '[]'::jsonb
       • created_at: timestamp with time zone NULL = CURRENT_TIMESTAMP
       • updated_at: timestamp with time zone NULL = CURRENT_TIMESTAMP
+      • reviews_avg_rating: numeric NULL = 0.00
+      • reviews_total_count: integer NULL = 0
 
 ✅ Done!
 

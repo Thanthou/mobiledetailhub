@@ -9,7 +9,7 @@ const __dirname = path.dirname(__filename);
 /** ======================
  *  Config (no CLI flags; just run `node project-overview.js`)
  *  ====================== */
-const OUTPUT_DIR_NAME = 'chatgpt';
+const OUTPUT_DIR_NAME = 'chatgpt/codebase';
 
 // Maximum size per output file (bytes)
 const MAX_BUNDLE_BYTES = 5 * 1024 * 1024; // 5 MB
