@@ -2,52 +2,8 @@
 # install-commit-hook.ps1
 # Installs a post-commit hook that automatically generates changelogs
 
-$hookFile = ".git/hooks/post-commit"
-$hookContent = @'
-#!/bin/sh
-# Auto-generate changelog on every commit
-
-TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
-CHANGELOG_FILE="chatgpt/gitlogs/CHANGES_$TIMESTAMP.md"
-
-# Create gitlogs directory if it doesn't exist
-mkdir -p chatgpt/gitlogs
-
-# Get the last commit info
-COMMIT_HASH=$(git rev-parse HEAD)
-COMMIT_MESSAGE=$(git log -1 --pretty=%B)
-COMMIT_AUTHOR=$(git log -1 --pretty=format:'%an <%ae>')
-COMMIT_DATE=$(git log -1 --pretty=format:'%ad')
-
-# Get changed files in this commit
-CHANGED_FILES=$(git diff-tree --no-commit-id --name-status -r $COMMIT_HASH)
-
-# Create the changelog
-cat > "$CHANGELOG_FILE" << EOF
-# Changelog - $TIMESTAMP
-
-## Commit Information
-- **Hash**: $COMMIT_HASH
-- **Author**: $COMMIT_AUTHOR
-- **Date**: $COMMIT_DATE
-
-## Commit Message
-$COMMIT_MESSAGE
-
-## Changed Files
-\`\`\`
-$CHANGED_FILES
-\`\`\`
-
-## Detailed Changes
-
-EOF
-
-# Append the full diff
-git show $COMMIT_HASH >> "$CHANGELOG_FILE"
-
-echo "📝 Changelog generated: $CHANGELOG_FILE"
-'@
+Write-Host "Installing post-commit hook for automatic gitlog generation..." -ForegroundColor Cyan
+Write-Host ""
 
 # Check if .git directory exists
 if (-not (Test-Path ".git")) {
@@ -55,14 +11,44 @@ if (-not (Test-Path ".git")) {
     exit 1
 }
 
-# Create hooks directory if it doesn't exist
-if (-not (Test-Path ".git/hooks")) {
-    New-Item -ItemType Directory -Path ".git/hooks" | Out-Null
+# 1. Install PowerShell script in .git/hooks
+$psScriptPath = ".git/hooks/post-commit-script.ps1"
+Write-Host "Creating PowerShell script at: $psScriptPath" -ForegroundColor Yellow
+
+# Copy or verify the script exists (assuming it's already created)
+if (-not (Test-Path $psScriptPath)) {
+    Write-Host "❌ Error: post-commit-script.ps1 not found at $psScriptPath" -ForegroundColor Red
+    Write-Host "   This should have been created already." -ForegroundColor Red
+    exit 1
 }
 
-# Write the hook file
-$hookContent | Out-File -FilePath $hookFile -Encoding ASCII -NoNewline
+# 2. Install Husky hook
+$huskyHook = ".husky/post-commit"
+if (Test-Path ".husky") {
+    Write-Host "Husky detected - creating hook at: $huskyHook" -ForegroundColor Yellow
+    
+    $hookContent = @"
+# Auto-generate changelog after every commit
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".git/hooks/post-commit-script.ps1"
+"@
+    
+    $hookContent | Out-File -FilePath $huskyHook -Encoding UTF8 -NoNewline
+    Write-Host "✅ Husky post-commit hook created" -ForegroundColor Green
+} else {
+    Write-Host "⚠️  Husky not detected - installing direct git hook" -ForegroundColor Yellow
+    
+    $gitHook = ".git/hooks/post-commit"
+    $hookContent = @"
+#!/bin/sh
+# Auto-generate changelog after every commit
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".git/hooks/post-commit-script.ps1"
+"@
+    
+    $hookContent | Out-File -FilePath $gitHook -Encoding ASCII -NoNewline
+    Write-Host "✅ Git post-commit hook created" -ForegroundColor Green
+}
 
+Write-Host ""
 Write-Host "✅ Post-commit hook installed successfully!" -ForegroundColor Green
 Write-Host ""
 Write-Host "Now every time you commit, a changelog will be auto-generated in chatgpt/gitlogs/" -ForegroundColor Cyan

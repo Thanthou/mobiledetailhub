@@ -1,0 +1,3 @@
+# Auto-generate changelog after every commit
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".git/hooks/post-commit-script.ps1"
+

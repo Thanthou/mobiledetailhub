@@ -71,7 +71,9 @@ You can modify the scripts to:
 
 ## How It Works
 
-This project uses **Husky** for git hooks management. The automatic gitlog generation is triggered via `.husky/_/post-commit`.
+This project uses **Husky** for git hooks management. The automatic gitlog generation is triggered via:
+- **`.husky/post-commit`** - Husky hook file (calls PowerShell script)
+- **`.git/hooks/post-commit-script.ps1`** - PowerShell script that generates gitlogs
 
 ### Quick Test
 
