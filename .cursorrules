@@ -1,6 +1,16 @@
 {
-  "name": "Go Snap Site - Cursor Rules",
+  "name": "That Smart Site - Cursor Rules",
+  "purpose": "Multi-tenant, white-label website generator for industry-specific local services (mobile detailing, maid service, lawn care, pet grooming, barber shops). Launch fast, conversion-focused sites per tenant with SEO/location pages, booking hooks, and review integrations — all from one shared codebase.",
   "description": "Feature-first architecture. Strong TS + linting discipline. Clear import boundaries. Clean UI with Tailwind + shadcn/ui.",
+  "priorities": [
+    "Clean, modular TypeScript (feature-first; components/ui only, side-effects in hooks, pure utils, isolated types)",
+    "Multi-tenant config: per-tenant JSON, location pages, industry presets, theme tokens",
+    "Reuse and composability across industries without copy-paste (shared primitives + industry adapters)",
+    "Strict linting/formatting, testable units, and clear boundaries (no business logic in presentational components)",
+    "SEO scaffolding: city/service pages, JSON-LD, meta helpers; GBP/reviews integration",
+    "Performance + accessibility defaults (image pipelines, srcset, lazy/priority rules, a11y checks)",
+    "Easy onboarding flows and preview links for prospects"
+  ],
   "rules": [
     {
       "pattern": "**/*",

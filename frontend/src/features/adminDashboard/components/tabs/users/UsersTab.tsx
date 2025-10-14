@@ -61,7 +61,7 @@ export const UsersTab: React.FC = () => {
   const subTabs = [
     { id: 'all-users' as UserSubTab, label: 'All Users', icon: Users },
     { id: 'admin' as UserSubTab, label: 'Admin', icon: UserCog },
-    { id: 'affiliates' as UserSubTab, label: 'Affiliates', icon: UserCheck },
+    { id: 'tenants' as UserSubTab, label: 'Tenants', icon: UserCheck },
     { id: 'customers' as UserSubTab, label: 'Customers', icon: UserX },
     { id: 'pending' as UserSubTab, label: 'Pending', icon: UserPlus },
   ];
@@ -90,7 +90,7 @@ export const UsersTab: React.FC = () => {
         
         try {
           if (status === 'pending') {
-            // Fetch pending affiliate applications
+            // Fetch pending tenant applications
             const response = await apiService.getPendingApplications();
             setPendingApplications(response.applications);
           } else {

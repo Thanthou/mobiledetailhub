@@ -11,7 +11,7 @@ const logger = winston.createLogger({
     winston.format.errors({ stack: true }),
     winston.format.json()
   ),
-  defaultMeta: { service: 'mdh-backend' },
+  defaultMeta: { service: 'platform-backend' },
   transports: []
 });
 

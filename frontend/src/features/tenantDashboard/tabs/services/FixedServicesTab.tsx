@@ -11,9 +11,9 @@ import { MultiTierPricingModal } from './components/MultiTierPricingModal';
 import { SelectedServiceDetailsDisplay } from './components/SelectedServiceDetailsDisplay';
 import { ServiceSelector } from './components/ServiceSelector';
 import { VehicleSelector } from './components/VehicleSelector';
-import { useAffiliateId } from './hooks/useAffiliateId';
 import { useFixedServicesHandlers } from './hooks/useFixedServicesHandlers';
 import { useServicesAPI, useServicesData } from './hooks/useServicesData';
+import { useTenantId } from './hooks/useTenantId';
 import type { Service } from './types';
 
 const FixedServicesTab: React.FC = () => {
@@ -29,9 +29,9 @@ const FixedServicesTab: React.FC = () => {
   const user = authContext.user;
   const { businessSlug } = useParams<{ businessSlug: string }>();
   
-  const affiliateId = useAffiliateId(user, businessSlug);
+  const tenantId = useTenantId();
   const { vehicles } = useServicesData();
-  const { fetchServices, createService, updateService, deleteService, loading, error } = useServicesAPI(affiliateId);
+  const { fetchServices, createService, updateService, deleteService, loading, error } = useServicesAPI(tenantId);
   
   const handlers = useFixedServicesHandlers({
     availableServices,
@@ -50,8 +50,8 @@ const FixedServicesTab: React.FC = () => {
   
   // Effect to fetch services when vehicle or category changes
   useEffect(() => {
-    if (selectedVehicle && selectedCategory && affiliateId) {
-      const fetchKey = `${selectedVehicle}-${selectedCategory}-${affiliateId}`;
+    if (selectedVehicle && selectedCategory && tenantId) {
+      const fetchKey = `${selectedVehicle}-${selectedCategory}-${tenantId}`;
       
       if (lastFetchRef.current === fetchKey) {
         return;
@@ -123,7 +123,7 @@ const FixedServicesTab: React.FC = () => {
         setSelectedService('');
       });
     }
-  }, [selectedVehicle, selectedCategory, affiliateId, fetchServices, selectedService]);
+  }, [selectedVehicle, selectedCategory, tenantId, fetchServices, selectedService]);
 
   // Effect to handle service selection changes
   useEffect(() => {
@@ -137,7 +137,7 @@ const FixedServicesTab: React.FC = () => {
 
   const selectedVehicleData = vehicles.find(v => v.id === selectedVehicle);
 
-  if (user?.role === 'admin' && businessSlug && !affiliateId) {
+  if (user?.role === 'admin' && businessSlug && !tenantId) {
     return (
       <div className="text-center py-12">
         <div className="text-gray-400 mb-4">Loading affiliate data...</div>
@@ -145,7 +145,7 @@ const FixedServicesTab: React.FC = () => {
     );
   }
 
-  if (!affiliateId) {
+  if (!tenantId) {
     return (
       <div className="text-center py-12">
         <div className="text-red-400 mb-4">Configuration Error</div>
@@ -248,19 +248,19 @@ const FixedServicesTab: React.FC = () => {
 
       <SelectedServiceDetailsDisplay currentServiceData={currentServiceData} />
 
-      {!affiliateId && (
+      {!tenantId && (
         <div className="text-center py-12">
           <div className="text-gray-400 mb-4">Initializing...</div>
         </div>
       )}
       
-      {loading && affiliateId && (
+      {loading && tenantId && (
         <div className="text-center py-12">
           <div className="text-gray-400 mb-4">Loading services...</div>
         </div>
       )}
       
-      {error && affiliateId && (
+      {error && tenantId && (
         <div className="text-center py-12">
           <div className="text-red-400 mb-4">Error loading services</div>
           <p className="text-gray-400">{error}</p>

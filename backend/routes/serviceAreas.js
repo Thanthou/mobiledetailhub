@@ -5,7 +5,7 @@ const { validateParams } = require('../middleware/validation');
 const { serviceAreaSchemas } = require('../utils/validationSchemas');
 const { asyncHandler } = require('../middleware/errorHandler');
 const logger = require('../utils/logger');
-const { getMDHServiceAreas, getAffiliatesForCity } = require('../utils/serviceAreaProcessor');
+const { getPlatformServiceAreas, getTenantsForCity } = require('../utils/serviceAreaProcessor');
 
 // Get all service areas organized by state -> city -> slug for footer
 router.get('/footer', asyncHandler(async (req, res) => {
@@ -19,7 +19,7 @@ router.get('/footer', asyncHandler(async (req, res) => {
       throw error;
     }
     
-    // First, check if we have any approved affiliates
+    // First, check if we have any approved tenants
     const countResult = await pool.query(`
       SELECT COUNT(*) as count
       FROM tenants.business 
@@ -27,19 +27,19 @@ router.get('/footer', asyncHandler(async (req, res) => {
     `);
     
     const approvedCount = parseInt(countResult.rows[0].count);
-    logger.info(`Found ${approvedCount} approved affiliates`);
+    logger.info(`Found ${approvedCount} approved tenants`);
     
     if (approvedCount === 0) {
-      logger.info('No approved affiliates found, returning empty service areas');
+      logger.info('No approved tenants found, returning empty service areas');
       return res.json({
         success: true,
         service_areas: {},
         count: 0,
-        message: 'No approved affiliates found'
+        message: 'No approved tenants found'
       });
     }
     
-    // Get all approved affiliates with their service areas
+    // Get all approved tenants with their service areas
     const result = await pool.query(`
       SELECT id, slug, service_areas
       FROM tenants.business 
@@ -47,18 +47,18 @@ router.get('/footer', asyncHandler(async (req, res) => {
         AND service_areas IS NOT NULL
     `);
     
-    logger.info(`Found ${result.rows.length} affiliates with service areas data`);
+    logger.info(`Found ${result.rows.length} tenants with service areas data`);
     
     // Process the data to create state -> city -> slug structure
     const serviceAreasMap = {};
     
-    result.rows.forEach(affiliate => {
+    result.rows.forEach(tenant => {
       try {
-        if (affiliate.service_areas && Array.isArray(affiliate.service_areas)) {
-          affiliate.service_areas.forEach(area => {
+        if (tenant.service_areas && Array.isArray(tenant.service_areas)) {
+          tenant.service_areas.forEach(area => {
             const state = area.state?.toUpperCase();
             const city = area.city;
-            const slug = affiliate.slug;
+            const slug = tenant.slug;
             
             if (state && city && slug) {
               if (!serviceAreasMap[state]) {
@@ -75,7 +75,7 @@ router.get('/footer', asyncHandler(async (req, res) => {
           });
         }
       } catch (areaError) {
-        logger.warn(`Error processing service areas for affiliate ${affiliate.slug}:`, areaError);
+        logger.warn(`Error processing service areas for tenant ${tenant.slug}:`, areaError);
       }
     });
     
@@ -158,10 +158,10 @@ router.get('/:state_code',
   })
 );
 
-// Get all MDH service areas (cities and states where approved affiliates serve)
-router.get('/mdh/coverage', asyncHandler(async (req, res) => {
+// Get all platform service areas (cities and states where approved tenants serve)
+router.get('/platform/coverage', asyncHandler(async (req, res) => {
   try {
-    logger.info('MDH coverage endpoint called');
+    logger.info('Platform coverage endpoint called');
     
     if (!pool) {
       logger.error('Database connection not available');
@@ -170,7 +170,7 @@ router.get('/mdh/coverage', asyncHandler(async (req, res) => {
       throw error;
     }
     
-    const serviceAreas = await getMDHServiceAreas();
+    const serviceAreas = await getPlatformServiceAreas();
     
     res.json({
       success: true,
@@ -178,7 +178,7 @@ router.get('/mdh/coverage', asyncHandler(async (req, res) => {
       count: serviceAreas.length
     });
   } catch (error) {
-    logger.error('Error fetching MDH coverage:', error);
+    logger.error('Error fetching platform coverage:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch coverage data'
@@ -186,10 +186,10 @@ router.get('/mdh/coverage', asyncHandler(async (req, res) => {
   }
 }));
 
-// Get affiliates serving a specific city (for directory pages)
+// Get tenants serving a specific city (for directory pages)
 router.get('/city/:slug', asyncHandler(async (req, res) => {
   try {
-    logger.info('City affiliates endpoint called');
+    logger.info('City tenants endpoint called');
     
     if (!pool) {
       logger.error('Database connection not available');
@@ -199,19 +199,19 @@ router.get('/city/:slug', asyncHandler(async (req, res) => {
     }
     
     const { slug } = req.params;
-    const affiliates = await getAffiliatesForCity(slug);
+    const tenants = await getTenantsForCity(slug);
     
     res.json({
       success: true,
       slug,
-      affiliates,
-      count: affiliates.length
+      tenants,
+      count: tenants.length
     });
   } catch (error) {
-    logger.error('Error fetching city affiliates:', error);
+    logger.error('Error fetching city tenants:', error);
     res.status(500).json({
       success: false,
-      error: 'Failed to fetch affiliate data'
+      error: 'Failed to fetch tenant data'
     });
   }
 }));

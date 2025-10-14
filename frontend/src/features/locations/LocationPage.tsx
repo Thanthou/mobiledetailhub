@@ -16,8 +16,8 @@ import { Reviews } from '@/features/reviews';
 // eslint-disable-next-line no-restricted-imports -- Page composition
 import { Services } from '@/features/services';
 import HomePageLayout from '@/shared/components/HomePageLayout';
+import { useBrowserTab, useMetaTags } from '@/shared/hooks';
 import type { LocationPage as LocationPageType } from '@/shared/types/location';
-import { getAbsoluteUrl } from '@/shared/utils';
 import { generateAllSchemas, injectAllSchemas } from '@/shared/utils/schemaUtils';
 
 // Page-level composition - allowed to import from multiple features
@@ -33,31 +33,23 @@ export default function LocationPage({ area }: { area: LocationPageType }) {
     handleQuoteModalPrefetch
   } = locationPageState;
 
-  // Update SEO meta tags on mount
+  // Update browser tab title
+  useBrowserTab({
+    title: area.seo.title,
+    useBusinessName: false, // Location pages have their own title
+  });
+
+  // Update meta tags for SEO
+  useMetaTags({
+    title: area.seo.title,
+    description: area.seo.description,
+    ogImage: area.seo.ogImage ?? area.images?.[0]?.url,
+    twitterImage: area.seo.twitterImage ?? area.seo.ogImage ?? area.images?.[0]?.url,
+    canonicalPath: area.seo.canonicalPath,
+  });
+
+  // Generate and inject Schema.org JSON-LD schemas
   useEffect(() => {
-    // canonical
-    const canonical = document.getElementById("canonical-link") as HTMLLinkElement | null;
-    if (canonical) canonical.href = `https://mobiledetailhub.com${area.seo.canonicalPath}`;
-
-    // title
-    const title = area.seo.title;
-    document.title = title;
-
-    // meta description
-    const descTag = document.getElementById("meta-desc") as HTMLMetaElement | null;
-    if (descTag) descTag.setAttribute("content", area.seo.description);
-
-    // OG/Twitter images
-    const ogImage = document.getElementById("og-image") as HTMLMetaElement | null;
-    const twImage = document.getElementById("tw-image") as HTMLMetaElement | null;
-    const ogImg = area.seo.ogImage ?? area.images?.[0]?.url;
-    const twImg = area.seo.twitterImage ?? ogImg;
-    const absoluteOgImg = ogImg ? getAbsoluteUrl(ogImg) : '';
-    const absoluteTwImg = twImg ? getAbsoluteUrl(twImg) : '';
-    if (absoluteOgImg && ogImage) ogImage.setAttribute("content", absoluteOgImg);
-    if (absoluteTwImg && twImage) twImage.setAttribute("content", absoluteTwImg);
-
-    // Generate and inject all Schema.org JSON-LD schemas dynamically
     const schemas = generateAllSchemas(area, 'location');
     injectAllSchemas(schemas);
   }, [area]);

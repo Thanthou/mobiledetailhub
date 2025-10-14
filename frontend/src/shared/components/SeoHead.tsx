@@ -14,16 +14,29 @@ interface SeoHeadProps {
 /**
  * SeoHead - Centralized SEO meta tag management
  * 
- * Updates document head with SEO-critical meta tags.
- * Use this in page components to set page-specific SEO.
+ * @deprecated Use the new hooks instead:
+ * - `useBrowserTab()` for browser tab title + favicon
+ * - `useMetaTags()` for meta description, OG tags, etc.
+ * - `useSEO()` for both (convenience wrapper)
  * 
- * @example
+ * This component is kept for backward compatibility but is no longer recommended.
+ * The new hooks provide better separation of concerns and are easier to use.
+ * 
+ * @example Migration
  * ```tsx
+ * // Old way (deprecated)
  * <SeoHead 
  *   title="Mobile Detailing Services"
  *   description="Professional mobile auto detailing"
  *   keywords={['mobile detailing', 'car wash']}
  * />
+ * 
+ * // New way (recommended)
+ * useBrowserTab({ title: 'Mobile Detailing Services' });
+ * useMetaTags({ 
+ *   description: 'Professional mobile auto detailing',
+ *   keywords: ['mobile detailing', 'car wash']
+ * });
  * ```
  */
 export const SeoHead: React.FC<SeoHeadProps> = ({

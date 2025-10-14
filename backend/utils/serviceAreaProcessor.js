@@ -2,17 +2,17 @@ const { pool } = require('../database/pool');
 const logger = require('./logger');
 
 /**
- * Process service areas for an approved affiliate
+ * Process service areas for an approved tenant
  * In the new schema, service areas are stored as JSONB directly in the business table
  * This function validates and updates the service_areas field
  */
-async function processAffiliateServiceAreas(affiliateId, serviceAreas) {
+async function processTenantServiceAreas(tenantId, serviceAreas) {
   if (!pool) {
     throw new Error('Database connection not available');
   }
 
   if (!serviceAreas || !Array.isArray(serviceAreas) || serviceAreas.length === 0) {
-    logger.warn(`No service areas provided for affiliate ${affiliateId}`);
+    logger.warn(`No service areas provided for tenant ${tenantId}`);
     return { processed: 0, errors: [] };
   }
 
@@ -44,7 +44,7 @@ async function processAffiliateServiceAreas(affiliateId, serviceAreas) {
 
         validatedAreas.push(validatedArea);
         processed++;
-        logger.debug(`Validated service area: ${city}, ${state} for affiliate ${affiliateId}`);
+        logger.debug(`Validated service area: ${city}, ${state} for tenant ${tenantId}`);
 
       } catch (error) {
         logger.error(`Error validating service area ${JSON.stringify(area)}:`, error);
@@ -56,17 +56,17 @@ async function processAffiliateServiceAreas(affiliateId, serviceAreas) {
     if (validatedAreas.length > 0) {
       await client.query(
         'UPDATE tenants.business SET service_areas = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
-        [JSON.stringify(validatedAreas), affiliateId]
+        [JSON.stringify(validatedAreas), tenantId]
       );
       
-      logger.info(`Successfully updated ${processed} service areas for affiliate ${affiliateId}`);
+      logger.info(`Successfully updated ${processed} service areas for tenant ${tenantId}`);
     }
 
     await client.query('COMMIT');
 
   } catch (error) {
     await client.query('ROLLBACK');
-    logger.error(`Transaction failed for affiliate ${affiliateId}:`, error);
+    logger.error(`Transaction failed for tenant ${tenantId}:`, error);
     throw error;
   } finally {
     client.release();
@@ -76,9 +76,9 @@ async function processAffiliateServiceAreas(affiliateId, serviceAreas) {
 }
 
 /**
- * Get all service areas for MDH (cities/states where approved affiliates serve)
+ * Get all service areas for the platform (cities/states where approved tenants serve)
  */
-async function getMDHServiceAreas() {
+async function getPlatformServiceAreas() {
   if (!pool) {
     throw new Error('Database connection not available');
   }
@@ -99,16 +99,16 @@ async function getMDHServiceAreas() {
 }
 
 /**
- * Get affiliates serving a specific city (for directory pages)
+ * Get tenants serving a specific city (for directory pages)
  */
-async function getAffiliatesForCity(slug) {
+async function getTenantsForCity(slug) {
   if (!pool) {
     throw new Error('Database connection not available');
   }
 
   const query = `
     SELECT 
-      a.slug AS affiliate_slug,
+      a.slug AS tenant_slug,
       a.business_name,
       JSONB_ARRAY_ELEMENTS(a.service_areas)->>'city' as city,
       JSONB_ARRAY_ELEMENTS(a.service_areas)->>'state' as state_code
@@ -129,7 +129,11 @@ async function getAffiliatesForCity(slug) {
 }
 
 module.exports = {
-  processAffiliateServiceAreas,
-  getMDHServiceAreas,
-  getAffiliatesForCity
+  processTenantServiceAreas,
+  getPlatformServiceAreas,
+  getTenantsForCity,
+  // Legacy exports for backward compatibility
+  processAffiliateServiceAreas: processTenantServiceAreas,
+  getMDHServiceAreas: getPlatformServiceAreas,
+  getAffiliatesForCity: getTenantsForCity
 };

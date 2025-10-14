@@ -1,6 +1,8 @@
 import React, { useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
+import { useIsMobile, useIsTablet } from '@/shared/hooks';
+
 import type { Review } from '../types';
 import ReviewCard from './ReviewCard';
 
@@ -21,8 +23,8 @@ const ReviewsCarousel: React.FC<ReviewsCarouselProps> = ({
 
   // Determine how many reviews to show based on screen size
   // Mobile: 1, Tablet: 2, Desktop: 3
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-  const isTablet = typeof window !== 'undefined' && window.innerWidth >= 768 && window.innerWidth < 1024;
+  const isMobile = useIsMobile();
+  const isTablet = useIsTablet();
   const visibleCount = isMobile ? 1 : isTablet ? 2 : maxVisible;
 
   const handlePrevious = () => {

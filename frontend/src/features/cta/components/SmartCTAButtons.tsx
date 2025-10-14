@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { useIsMobile } from '@/shared/hooks';
 import { CTAButtons } from '@/shared/ui';
 
 import { useBookingCapabilities } from '../hooks/useBookingCapabilities';
@@ -26,7 +27,8 @@ const SmartCTAButtons: React.FC<SmartCTAButtonsProps> = ({
   useBookingCapabilities();
   
   // Detect if we're on mobile or should use mobile layout
-  const isMobile = forceMobile || (typeof window !== 'undefined' && window.innerWidth < 768);
+  const isMobileDetected = useIsMobile();
+  const isMobile = forceMobile || isMobileDetected;
 
   // Tenant-specific CTA configuration (all sites are now tenant-based)
   const tenantButtons = [

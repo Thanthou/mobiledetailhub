@@ -25,7 +25,7 @@ interface ServiceData {
   description: string;
   base_price_cents: number;
   tiers?: ServiceTier[];
-  affiliate_id: number;
+  tenant_id: number;
   vehicle_id: number;
   service_category_id: number;
 }
@@ -53,7 +53,7 @@ const CATEGORY_ID_MAP: Record<string, number> = {
 };
 
 // New hook for fetching services data from database
-export const useServicesAPI = (affiliateId?: string) => {
+export const useServicesAPI = (tenantId?: string) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isFetching, setIsFetching] = useState(false);
@@ -64,9 +64,9 @@ export const useServicesAPI = (affiliateId?: string) => {
       return null;
     }
     
-    // Validate affiliate ID is provided
-    if (!affiliateId || affiliateId === '') {
-      // Don't set error for missing affiliate ID - just return early
+    // Validate tenant ID is provided
+    if (!tenantId || tenantId === '') {
+      // Don't set error for missing tenant ID - just return early
       return null;
     }
     
@@ -83,7 +83,7 @@ export const useServicesAPI = (affiliateId?: string) => {
         throw new Error('Invalid vehicle or category ID');
       }
       
-      const response = await fetch(`/api/services/affiliate/${affiliateId}/vehicle/${vehicleId}/category/${dbCategoryId}`);
+      const response = await fetch(`/api/services/tenant/${tenantId}/vehicle/${vehicleId}/category/${dbCategoryId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch services');
       }
@@ -97,12 +97,12 @@ export const useServicesAPI = (affiliateId?: string) => {
       setLoading(false);
       setIsFetching(false);
     }
-  }, [affiliateId, isFetching]);
+  }, [tenantId, isFetching]);
 
   const createService = useCallback(async (vehicleId: string, categoryId: string, serviceTitle: string, tiers?: ServiceTier[]) => {
-    // Validate affiliate ID is provided
-    if (!affiliateId || affiliateId === '') {
-      // Don't set error for missing affiliate ID - just return early
+    // Validate tenant ID is provided
+    if (!tenantId || tenantId === '') {
+      // Don't set error for missing tenant ID - just return early
       return null;
     }
     
@@ -119,7 +119,7 @@ export const useServicesAPI = (affiliateId?: string) => {
       }
       
       const requestBody: Partial<ServiceData> = {
-        affiliate_id: parseInt(affiliateId),
+        tenant_id: parseInt(tenantId),
         vehicle_id: dbVehicleId, // Send the database vehicle ID
         service_category_id: dbCategoryId,
         base_price_cents: 0, // Default base price, can be updated later
@@ -153,12 +153,12 @@ export const useServicesAPI = (affiliateId?: string) => {
     } finally {
       setLoading(false);
     }
-  }, [affiliateId]);
+  }, [tenantId]);
 
   const fetchServiceById = useCallback(async (serviceId: string) => {
-    // Validate affiliate ID is provided
-    if (!affiliateId || affiliateId === '') {
-      // Don't set error for missing affiliate ID - just return early
+    // Validate tenant ID is provided
+    if (!tenantId || tenantId === '') {
+      // Don't set error for missing tenant ID - just return early
       return null;
     }
     
@@ -179,11 +179,11 @@ export const useServicesAPI = (affiliateId?: string) => {
     } finally {
       setLoading(false);
     }
-  }, [affiliateId]);
+  }, [tenantId]);
 
   const updateService = useCallback(async (serviceId: string, serviceData: Partial<ServiceData>) => {
-    // Validate affiliate ID is provided
-    if (!affiliateId || affiliateId === '') {
+    // Validate tenant ID is provided
+    if (!tenantId || tenantId === '') {
       return null;
     }
     
@@ -212,11 +212,11 @@ export const useServicesAPI = (affiliateId?: string) => {
     } finally {
       setLoading(false);
     }
-  }, [affiliateId]);
+  }, [tenantId]);
 
   const deleteService = useCallback(async (serviceId: string) => {
-    // Validate affiliate ID is provided
-    if (!affiliateId || affiliateId === '') {
+    // Validate tenant ID is provided
+    if (!tenantId || tenantId === '') {
       return false;
     }
     
@@ -243,7 +243,7 @@ export const useServicesAPI = (affiliateId?: string) => {
     } finally {
       setLoading(false);
     }
-  }, [affiliateId]);
+  }, [tenantId]);
 
   return {
     fetchServices,

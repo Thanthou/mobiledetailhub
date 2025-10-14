@@ -23,3 +23,13 @@ export {
   fetchTenants,
   tenantConfigKeys
 } from './tenantConfig.api';
+
+// Tenant API
+export type { ServiceArea, Tenant, TenantApiResponse, TenantsListResponse } from './tenantApi';
+export {
+  fetchTenantBySlug,
+  fetchTenantsByIndustry,
+  getIndustryAssetsPath,
+  getIndustryDataPath,
+  getIndustrySiteConfigPath
+} from './tenantApi';

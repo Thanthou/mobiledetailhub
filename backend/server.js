@@ -31,6 +31,7 @@ const tenantImagesRoutes = require('./routes/tenantImages');
 const locationsRoutes = require('./routes/locations');
 const websiteContentRoutes = require('./routes/websiteContent');
 const previewsRoutes = require('./routes/previews');
+const tenantManifestRoutes = require('./routes/tenantManifest');
 
 // Get the update function from health routes
 const { updateShutdownStatus } = healthRoutes;
@@ -357,6 +358,7 @@ app.use('/api/locations', locationsRoutes); // Service areas and locations
 app.use('/api/website-content', apiLimiter, websiteContentRoutes); // Website content
 app.use('/api/previews', apiLimiter, previewsRoutes); // Preview token generation
 app.use('/api/preview', previewsRoutes); // Preview verification (no rate limit for link opens)
+app.use('/api/tenant-manifest', tenantManifestRoutes); // Tenant PWA manifests (no rate limit)
 
 // Error handling middleware (must be last)
 app.use(notFoundHandler);

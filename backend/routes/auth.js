@@ -248,22 +248,22 @@ router.get('/me', authenticateToken, asyncHandler(async (req, res) => {
     isAdmin = true;
   }
   
-  // Check if user is an affiliate and get affiliate ID
-  let affiliateId = null;
+  // Check if user is a tenant and get tenant ID
+  let tenantId = null;
   if (!isAdmin) {
-    const affiliateResult = await pool.query(
-      'SELECT affiliate_id FROM auth.affiliate_users WHERE user_id = $1 LIMIT 1',
+    const tenantResult = await pool.query(
+      'SELECT id FROM tenants.business WHERE user_id = $1 LIMIT 1',
       [user.id]
     );
-    if (affiliateResult.rows.length > 0) {
-      affiliateId = affiliateResult.rows[0].affiliate_id;
+    if (tenantResult.rows.length > 0) {
+      tenantId = tenantResult.rows[0].id;
     }
   }
   
   res.json({
     ...user,
     is_admin: isAdmin,
-    affiliate_id: affiliateId
+    tenant_id: tenantId
   });
 }));
 

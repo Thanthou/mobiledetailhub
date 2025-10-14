@@ -14,6 +14,7 @@ import { Hero } from '@/features/hero';
 import { LazyRequestQuoteModal } from '@/features/quotes';
 import { Reviews } from '@/features/reviews';
 import { ServicesGrid } from '@/features/services';
+import { useBrowserTab } from '@/shared/hooks';
 
 import { usePreviewParams } from '../hooks/usePreviewParams';
 import { PreviewCTAButton } from './PreviewCTAButton';
@@ -34,16 +35,10 @@ const PreviewPage: React.FC = () => {
   };
 
   // Update browser tab title with business name
-  useEffect(() => {
-    if (payload?.businessName) {
-      document.title = `${payload.businessName} - Preview`;
-    }
-    
-    // Restore default title on unmount
-    return () => {
-      document.title = 'Mobile Detail Hub';
-    };
-  }, [payload]);
+  useBrowserTab({
+    title: payload?.businessName ? `${payload.businessName} - Preview` : 'Platform Preview',
+    useBusinessName: false, // Don't use default business name, we have custom format
+  });
 
   // Loading state
   if (isLoading) {

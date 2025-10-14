@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react';
 import React, { createContext, useCallback, useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 
-import { useAffiliate } from '../hooks/useAffiliate';
+import { fetchTenantBySlug } from '../api/tenantApi';
 import { TenantConfig } from '../types';
 import { affiliateToTenantConfig, tenantConfigToLegacy } from '../utils/tenantConfigMigration';
 
@@ -62,65 +63,61 @@ interface TenantConfigProviderProps {
  * - New centralized format (TenantConfig)
  * - Legacy format (LegacyTenantConfig) for backward compatibility
  * 
- * Data source: Affiliate API (useAffiliate hook)
+ * Data source: Tenant API (fetchTenantBySlug)
  */
 export const TenantConfigProvider: React.FC<TenantConfigProviderProps> = ({ children }) => {
   const [tenantConfigState, setTenantConfigState] = useState<TenantConfig | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
-  // Get affiliate data and industry context
-  // eslint-disable-next-line @typescript-eslint/no-deprecated -- useAffiliate hook is deprecated but still needed during migration period
-  const { affiliate, industry, loading: affiliateLoading, error: affiliateError } = useAffiliate();
+  const { slug } = useParams<{ slug: string }>();
 
-  const refreshTenantConfig = useCallback(() => {
+  const refreshTenantConfig = useCallback(async () => {
+    if (!slug) {
+      setTenantConfigState(null);
+      setIsLoading(false);
+      return;
+    }
+
     try {
       setIsLoading(true);
       setError(null);
       
-      if (affiliate && industry) {
-        // Convert affiliate data to new centralized format
+      const result = await fetchTenantBySlug(slug);
+      
+      if (result.success && result.data) {
+        // Convert tenant data to new centralized format
         const config = affiliateToTenantConfig({
-          id: affiliate.id,
-          slug: affiliate.slug,
-          business_name: affiliate.business_name,
-          business_phone: affiliate.business_phone,
-          business_email: affiliate.business_email,
-          facebook_url: affiliate.facebook_url,
-          instagram_url: affiliate.instagram_url,
-          tiktok_url: affiliate.tiktok_url,
-          youtube_url: affiliate.youtube_url,
-          service_areas: affiliate.service_areas,
-          industry: industry as string,  // Pass industry for correct logo path, type-checked by truthiness guard above
-          logo_url: affiliate.logo_url as string | undefined  // Use affiliate's logo if available
+          id: result.data.id,
+          slug: result.data.slug,
+          business_name: result.data.business_name,
+          business_phone: result.data.business_phone,
+          business_email: result.data.business_email,
+          facebook_url: result.data.facebook_url,
+          instagram_url: result.data.instagram_url,
+          tiktok_url: result.data.tiktok_url,
+          youtube_url: result.data.youtube_url,
+          service_areas: result.data.service_areas,
+          industry: result.data.industry,
+          logo_url: result.data.logo_url
         });
         
         setTenantConfigState(config);
-      } else if (affiliateError) {
-        setError(typeof affiliateError === 'string' ? affiliateError : 'Failed to load affiliate data');
       } else {
-        // No affiliate data available (main site or loading)
+        setError(result.error || 'Failed to load tenant data');
         setTenantConfigState(null);
       }
     } catch (err) {
       console.error('Error refreshing tenant config:', err);
       setError(err instanceof Error ? err.message : 'Failed to refresh tenant config');
+      setTenantConfigState(null);
     } finally {
       setIsLoading(false);
     }
-  }, [affiliate, industry, affiliateError]);
+  }, [slug]);
 
   useEffect(() => {
-    // Load tenant data when affiliate data changes
-    refreshTenantConfig();
+    void refreshTenantConfig();
   }, [refreshTenantConfig]);
-
-  // Update loading state based on affiliate loading
-  useEffect(() => {
-    if (affiliateLoading) {
-      setIsLoading(true);
-    }
-  }, [affiliateLoading]);
 
   // Create legacy format for backward compatibility
   const legacyConfig = tenantConfigState ? tenantConfigToLegacy(tenantConfigState) : null;

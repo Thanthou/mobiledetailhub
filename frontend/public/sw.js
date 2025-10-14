@@ -1,18 +1,18 @@
 /**
  * Service Worker for That Smart Site PWA
- * Provides basic caching for assets and offline functionality
+ * Provides caching for assets, offline functionality, and tenant-specific manifests
  */
 
-const CACHE_NAME = 'mdh-v1.0.0';
+const CACHE_NAME = 'tss-pwa-v1.0.1';
 const STATIC_CACHE_URLS = [
   '/',
   '/manifest.webmanifest',
-  '/assets/favicon.webp',
-  '/assets/icon-192.webp', 
-  '/assets/icon-512.webp',
-  '/hero/image1-lg.webp',
-  '/hero/image2-lg.webp'
+  '/shared/icons/logo.png'
 ];
+
+// Cache tenant manifests separately with longer TTL
+const MANIFEST_CACHE = 'tss-manifests-v1';
+const MANIFEST_TTL = 24 * 60 * 60 * 1000; // 24 hours
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
@@ -38,12 +38,14 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
       // Service Worker activating
   
+  const validCaches = [CACHE_NAME, MANIFEST_CACHE];
+  
   event.waitUntil(
     caches.keys()
       .then((cacheNames) => {
         return Promise.all(
           cacheNames.map((cacheName) => {
-            if (cacheName !== CACHE_NAME) {
+            if (!validCaches.includes(cacheName)) {
               // Deleting old cache
               return caches.delete(cacheName);
             }
@@ -66,6 +68,20 @@ self.addEventListener('fetch', (event) => {
 
   // Skip cross-origin requests
   if (!event.request.url.startsWith(self.location.origin)) {
+    return;
+  }
+
+  const url = new URL(event.request.url);
+
+  // Special handling for tenant manifests
+  if (url.pathname.includes('/api/tenant-manifest/')) {
+    event.respondWith(manifestCacheStrategy(event.request));
+    return;
+  }
+
+  // API requests always go to network (don't cache)
+  if (url.pathname.startsWith('/api/')) {
+    event.respondWith(fetch(event.request));
     return;
   }
 
@@ -132,5 +148,54 @@ async function cacheFirst(request) {
     return networkResponse;
   } catch (error) {
     return new Response('Asset unavailable', { status: 503 });
+  }
+}
+
+/**
+ * Manifest cache strategy - cache with TTL
+ * Caches tenant manifests for 24 hours, then revalidates
+ */
+async function manifestCacheStrategy(request) {
+  const cache = await caches.open(MANIFEST_CACHE);
+  const cachedResponse = await cache.match(request);
+  
+  // Check if cached response exists and is still fresh
+  if (cachedResponse) {
+    const cachedTime = cachedResponse.headers.get('sw-cached-time');
+    if (cachedTime) {
+      const age = Date.now() - parseInt(cachedTime, 10);
+      if (age < MANIFEST_TTL) {
+        return cachedResponse;
+      }
+    }
+  }
+  
+  // Fetch fresh manifest
+  try {
+    const networkResponse = await fetch(request);
+    
+    if (networkResponse.ok) {
+      // Clone the response and add timestamp header
+      const responseToCache = new Response(networkResponse.body, {
+        status: networkResponse.status,
+        statusText: networkResponse.statusText,
+        headers: {
+          ...Object.fromEntries(networkResponse.headers.entries()),
+          'sw-cached-time': Date.now().toString()
+        }
+      });
+      
+      await cache.put(request, responseToCache);
+      return networkResponse;
+    }
+    
+    // If network fails but we have cache, return stale cache
+    return cachedResponse || networkResponse;
+  } catch (error) {
+    // Network error, return cached version if available
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+    throw error;
   }
 }

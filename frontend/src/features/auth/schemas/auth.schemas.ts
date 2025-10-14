@@ -7,7 +7,7 @@ export const userSchema = z.object({
   name: z.string().min(2).max(100),
   phone: z.string().optional(),
   is_admin: z.boolean().default(false),
-  affiliate_id: z.number().optional(),
+  tenant_id: z.number().optional(),
   created_at: z.iso.datetime(),
   updated_at: z.iso.datetime(),
 });

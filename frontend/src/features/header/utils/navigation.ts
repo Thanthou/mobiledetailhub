@@ -8,6 +8,9 @@
  */
 export const scrollToSection = (sectionId: string): void => {
   const cleanId = sectionId.replace('#', '');
+  // NOTE: Using inline window.innerWidth check here is intentional
+  // This is a utility function (not a React component), so hooks can't be used
+  // We need the current viewport width at the time this function is called
   const isDesktop = window.innerWidth >= 768;
   
   // Map nav ID to actual section ID based on screen size

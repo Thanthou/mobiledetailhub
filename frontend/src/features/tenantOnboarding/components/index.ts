@@ -7,9 +7,7 @@ export { StepProgress } from './StepProgress';
 export { default as SuccessPage } from './SuccessPage';
 export { default as TenantApplicationPage } from './TenantApplicationPage';
 
-// Legacy components (kept for backward compatibility)
-export { default as AffiliatePrivacyModal } from './AffiliatePrivacyModal';
-export { default as AffiliateTermsModal } from './AffiliateTermsModal';
+// Modal components
 export { default as GoogleBusinessProfileModal } from './GoogleBusinessProfileModal';
 export { default as IdentityContactSection } from './IdentityContactSection';
 export { default as LegalTermsSection } from './LegalTermsSection';
@@ -18,3 +16,5 @@ export { default as OperatingBasicsSection } from './OperatingBasicsSection';
 export { default as ProofOfWorkSection } from './ProofOfWorkSection';
 export { default as SocialMediaSection } from './SocialMediaSection';
 export { default as SubmitSection } from './SubmitSection';
+export { default as TenantPrivacyModal } from './TenantPrivacyModal';
+export { default as TenantTermsModal } from './TenantTermsModal';

@@ -28,51 +28,51 @@ const SimpleFixedServicesTab: React.FC = () => {
   // Prevent infinite loops
   const lastFetchRef = React.useRef<string>('');
   
-  // Get affiliate ID from AuthContext or URL params for admin users
+  // Get tenant ID from AuthContext or URL params for admin users
   const authContext = useAuth();
   const user = authContext.user;
   const { businessSlug } = useParams<{ businessSlug: string }>();
   
-  // For affiliate users, get ID from auth context
-  // For admin users, we'll need to fetch affiliate ID from the business slug
-  const [adminAffiliateId, setAdminAffiliateId] = useState<string | null>(null);
+  // For tenant users, get ID from auth context
+  // For admin users, we'll need to fetch tenant ID from the business slug
+  const [adminTenantId, setAdminTenantId] = useState<string | null>(null);
   
-  // Fetch affiliate ID for admin users
+  // Fetch tenant ID for admin users
   useEffect(() => {
     // Only fetch if user is admin and we have a business slug
-    if (user?.role === 'admin' && businessSlug && !adminAffiliateId) {
-      const fetchAffiliateId = async () => {
+    if (user?.role === 'admin' && businessSlug && !adminTenantId) {
+      const fetchTenantId = async () => {
         try {
-          const response = await fetch(`/api/affiliates/${businessSlug}`);
+          const response = await fetch(`/api/tenants/${businessSlug}`);
           
           if (response.ok) {
             const data = await response.json() as {
               success: boolean;
-              affiliate?: {
+              tenant?: {
                 id: number;
               };
             };
             
-            if (data.success && data.affiliate?.id) {
-              setAdminAffiliateId(data.affiliate.id.toString());
+            if (data.success && data.tenant?.id) {
+              setAdminTenantId(data.tenant.id.toString());
             }
           }
         } catch (err: unknown) {
-          console.error('Error fetching affiliate ID:', err);
+          console.error('Error fetching tenant ID:', err);
         }
       };
-      void fetchAffiliateId();
+      void fetchTenantId();
     }
-  }, [user?.role, businessSlug, adminAffiliateId]);
+  }, [user?.role, businessSlug, adminTenantId]);
   
-  // Get affiliate ID from user context or admin lookup
-  const affiliateId = user?.affiliate_id?.toString() ?? adminAffiliateId ?? undefined;
+  // Get tenant ID from user context or admin lookup
+  const tenantId = user?.tenant_id?.toString() ?? adminTenantId ?? undefined;
 
   const { vehicles } = useServicesData();
   
   // Direct API call function to avoid hook dependency issues
   const fetchServicesDirect = useCallback(async (vehicleId: string, categoryId: string) => {
-    if (!affiliateId) return null;
+    if (!tenantId) return null;
     
     setLoading(true);
     setError(null);
@@ -107,7 +107,7 @@ const SimpleFixedServicesTab: React.FC = () => {
         throw new Error('Invalid vehicle or category ID');
       }
       
-      const response = await fetch(`/api/services/affiliate/${affiliateId}/vehicle/${vehicleId}/category/${dbCategoryId}`);
+      const response = await fetch(`/api/services/tenant/${tenantId}/vehicle/${vehicleId}/category/${dbCategoryId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch services');
       }
@@ -120,12 +120,12 @@ const SimpleFixedServicesTab: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [affiliateId]);
+  }, [tenantId]);
   
   // Effect to fetch services when vehicle or category changes
   useEffect(() => {
-    if (selectedVehicle && selectedCategory && affiliateId) {
-      const fetchKey = `${selectedVehicle}-${selectedCategory}-${affiliateId}`;
+    if (selectedVehicle && selectedCategory && tenantId) {
+      const fetchKey = `${selectedVehicle}-${selectedCategory}-${tenantId}`;
       
       // Prevent duplicate calls
       if (lastFetchRef.current === fetchKey) {
@@ -196,7 +196,7 @@ const SimpleFixedServicesTab: React.FC = () => {
         }
       });
     }
-  }, [selectedVehicle, selectedCategory, affiliateId, fetchServicesDirect, selectedService]);
+  }, [selectedVehicle, selectedCategory, tenantId, fetchServicesDirect, selectedService]);
 
   // Effect to handle service selection changes
   useEffect(() => {
@@ -212,7 +212,7 @@ const SimpleFixedServicesTab: React.FC = () => {
   const selectedVehicleData = vehicles.find(v => v.id === selectedVehicle);
   const selectedCategoryData = selectedVehicleData?.categories.find(c => c.id === selectedCategory);
 
-  if (user?.role === 'admin' && businessSlug && !affiliateId) {
+  if (user?.role === 'admin' && businessSlug && !tenantId) {
     return (
       <div className="text-center py-12">
         <div className="text-gray-400 mb-4">Loading affiliate data...</div>
@@ -220,7 +220,7 @@ const SimpleFixedServicesTab: React.FC = () => {
     );
   }
 
-  if (!affiliateId) {
+  if (!tenantId) {
     return (
       <div className="text-center py-12">
         <div className="text-red-400 mb-4">Configuration Error</div>

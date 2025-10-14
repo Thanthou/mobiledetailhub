@@ -11,10 +11,10 @@ import { SelectedServiceDisplay } from './components/SelectedServiceDisplay';
 import { ServiceActionsHeader } from './components/ServiceActionsHeader';
 import { ServiceSelector } from './components/ServiceSelector';
 import { VehicleSelector } from './components/VehicleSelector';
-import { useAffiliateId } from './hooks/useAffiliateId';
 import { useServiceOperations } from './hooks/useServiceOperations';
 import { useServicesAPI, useServicesData } from './hooks/useServicesData';
 import { useServiceSelection } from './hooks/useServiceSelection';
+import { useTenantId } from './hooks/useTenantId';
 import {
   convertTierToNewFormat,
   convertTierToOldFormat,
@@ -37,11 +37,11 @@ const ServicesTab: React.FC = () => {
   const { businessSlug } = useParams<{ businessSlug: string }>();
   
   // Resolve affiliate ID (handles both affiliate users and admin users)
-  const affiliateId = useAffiliateId();
+  const tenantId = useTenantId();
 
   // Get vehicles data and API
   const { vehicles } = useServicesData();
-  const api = useServicesAPI(affiliateId);
+  const api = useServicesAPI(tenantId);
   const { fetchServices, loading, error } = api;
   
   // Service selection and data management
@@ -55,12 +55,12 @@ const ServicesTab: React.FC = () => {
   } = useServiceSelection({
     selectedVehicle,
     selectedCategory,
-    affiliateId,
+    tenantId,
     fetchServices
   });
 
   // Service operations (CRUD)
-  const operations = useServiceOperations(api, affiliateId, selectedVehicle, selectedCategory);
+  const operations = useServiceOperations(api, tenantId, selectedVehicle, selectedCategory);
 
   // Get selected vehicle and category data
   const selectedVehicleData = vehicles.find(v => v.id === selectedVehicle);
@@ -104,7 +104,7 @@ const ServicesTab: React.FC = () => {
   };
 
   // Loading state for admin users
-  if (user?.role === 'admin' && businessSlug && !affiliateId) {
+  if (user?.role === 'admin' && businessSlug && !tenantId) {
     return (
       <div className="text-center py-12">
         <div className="text-gray-400 mb-4">Loading affiliate data...</div>
@@ -113,7 +113,7 @@ const ServicesTab: React.FC = () => {
   }
 
   // Error state for missing affiliate ID
-  if (!affiliateId) {
+  if (!tenantId) {
     return (
       <div className="text-center py-12">
         <div className="text-red-400 mb-4">Configuration Error</div>
@@ -271,13 +271,13 @@ const ServicesTab: React.FC = () => {
       )}
 
       {/* Loading States */}
-      {!affiliateId && (
+      {!tenantId && (
         <div className="text-center py-12">
           <div className="text-gray-400 mb-4">Initializing...</div>
         </div>
       )}
       
-      {loading && affiliateId && (
+      {loading && tenantId && (
         <div className="text-center py-12">
           <div className="text-gray-400 mb-4">Loading services...</div>
         </div>

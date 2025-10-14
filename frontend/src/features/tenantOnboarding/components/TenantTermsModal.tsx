@@ -3,19 +3,19 @@ import { X } from 'lucide-react';
 
 import { Button } from '@/shared/ui';
 
-interface AffiliateTermsModalProps {
+interface TenantTermsModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const AffiliateTermsModal: React.FC<AffiliateTermsModalProps> = ({ isOpen, onClose }) => {
+const TenantTermsModal: React.FC<TenantTermsModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-stone-800 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-stone-800 border-b border-stone-700 p-6 flex justify-between items-center">
-          <h2 className="text-white text-2xl font-bold">Affiliate Terms of Service</h2>
+          <h2 className="text-white text-2xl font-bold">Tenant Terms of Service</h2>
           <Button
             onClick={onClose}
             variant="ghost"
@@ -33,7 +33,7 @@ const AffiliateTermsModal: React.FC<AffiliateTermsModalProps> = ({ isOpen, onClo
           
           <div className="space-y-3">
             <p className="leading-relaxed">
-              Welcome to Mobile Detail Hub (&ldquo;MDH&rdquo;). By applying to become an affiliate and using our platform, you agree to these Terms of Service (&ldquo;Terms&rdquo;). Please read them carefully.
+              Welcome to our platform. By applying to become a tenant and using our services, you agree to these Terms of Service (&ldquo;Terms&rdquo;). Please read them carefully.
             </p>
             
             <div>
@@ -47,13 +47,13 @@ const AffiliateTermsModal: React.FC<AffiliateTermsModalProps> = ({ isOpen, onClo
             <div>
               <h3 className="text-white text-lg font-semibold mb-1">2. Services Provided</h3>
               <ul className="list-disc list-inside space-y-1 text-sm">
-                <li>MDH provides a platform (website and app) that allows affiliates to list, market, and sell mobile detailing services to customers.</li>
-                <li>MDH is not the service provider; you remain solely responsible for delivering the services you advertise and accept through the platform.</li>
+                <li>We provide a platform (website and app) that allows tenants to list, market, and sell mobile detailing services to customers.</li>
+                <li>We are not the service provider; you remain solely responsible for delivering the services you advertise and accept through the platform.</li>
               </ul>
             </div>
             
             <div>
-              <h3 className="text-white text-lg font-semibold mb-1">3. Affiliate Responsibilities</h3>
+              <h3 className="text-white text-lg font-semibold mb-1">3. Tenant Responsibilities</h3>
               <ul className="list-disc list-inside space-y-1 text-sm">
                 <li>Maintain valid business licenses, insurance, and any required permits in your service area.</li>
                 <li>Deliver services in a professional, lawful, and safe manner.</li>
@@ -65,8 +65,8 @@ const AffiliateTermsModal: React.FC<AffiliateTermsModalProps> = ({ isOpen, onClo
             <div>
               <h3 className="text-white text-lg font-semibold mb-1">4. Payments and Fees</h3>
               <ul className="list-disc list-inside space-y-1 text-sm">
-                <li>All transactions are processed through MDH&rsquo;s payment processor (currently Stripe).</li>
-                <li>Standard fee: 10% of each transaction (3% payment processing + 7% MDH platform fee).</li>
+                <li>All transactions are processed through our payment processor (currently Stripe).</li>
+                <li>Standard fee: 10% of each transaction (3% payment processing + 7% platform fee).</li>
                 <li>Payouts are issued to your designated bank account, less applicable fees.</li>
                 <li>You are responsible for taxes associated with your earnings.</li>
               </ul>
@@ -74,7 +74,7 @@ const AffiliateTermsModal: React.FC<AffiliateTermsModalProps> = ({ isOpen, onClo
             
             <div>
               <h3 className="text-white text-lg font-semibold mb-1">5. Termination and Suspension</h3>
-              <p className="text-sm mb-1">MDH may suspend or terminate your account if you:</p>
+              <p className="text-sm mb-1">We may suspend or terminate your account if you:</p>
               <ul className="list-disc list-inside space-y-1 text-sm ml-4">
                 <li>Provide false information,</li>
                 <li>Engage in fraudulent or harmful activity,</li>
@@ -86,7 +86,7 @@ const AffiliateTermsModal: React.FC<AffiliateTermsModalProps> = ({ isOpen, onClo
             <div>
               <h3 className="text-white text-lg font-semibold mb-1">6. Limitation of Liability</h3>
               <ul className="list-disc list-inside space-y-1 text-sm">
-                <li>MDH is not liable for your actions, omissions, or damages arising from your detailing services.</li>
+                <li>We are not liable for your actions, omissions, or damages arising from your detailing services.</li>
                 <li>Our liability is limited to the amount of platform fees you paid to us in the past 6 months.</li>
               </ul>
             </div>
@@ -94,7 +94,7 @@ const AffiliateTermsModal: React.FC<AffiliateTermsModalProps> = ({ isOpen, onClo
             <div>
               <h3 className="text-white text-lg font-semibold mb-1">7. Changes to Terms</h3>
               <p className="text-sm">
-                MDH may update these Terms from time to time. We will notify affiliates by email or dashboard notice. Continued use of the platform constitutes acceptance.
+                We may update these Terms from time to time. We will notify tenants by email or dashboard notice. Continued use of the platform constitutes acceptance.
               </p>
             </div>
           </div>
@@ -115,4 +115,6 @@ const AffiliateTermsModal: React.FC<AffiliateTermsModalProps> = ({ isOpen, onClo
   );
 };
 
-export default AffiliateTermsModal;
+export default TenantTermsModal;
+
+

@@ -8,8 +8,8 @@ interface User {
   name: string;
   email: string;
   phone?: string | undefined;
-  role: 'user' | 'affiliate' | 'admin';
-  affiliate_id?: number | undefined;
+  role: 'user' | 'tenant' | 'admin';
+  tenant_id?: number | undefined;
 }
 
 export interface AuthContextType {
@@ -30,12 +30,12 @@ const mapBackendUserToFrontend = (backendUser: unknown): User => {
     name: string;
     email: string;
     phone?: string;
-    role?: 'user' | 'affiliate' | 'admin';
+    role?: 'user' | 'tenant' | 'admin';
     is_admin?: boolean;
-    affiliate_id?: number;
+    tenant_id?: number;
   };
   // Handle both backend API response format and saved user format
-  let role: 'user' | 'affiliate' | 'admin' = 'user';
+  let role: 'user' | 'tenant' | 'admin' = 'user';
   
   if (user.role !== undefined) {
     // If role is already set (from saved user data)
@@ -43,6 +43,9 @@ const mapBackendUserToFrontend = (backendUser: unknown): User => {
   } else if (user.is_admin) {
     // If is_admin flag is present (from API response)
     role = 'admin';
+  } else if (user.tenant_id) {
+    // If tenant_id is present, user is a tenant
+    role = 'tenant';
   }
   
   return {
@@ -51,7 +54,7 @@ const mapBackendUserToFrontend = (backendUser: unknown): User => {
     email: user.email,
     phone: user.phone,
     role: role,
-    affiliate_id: user.affiliate_id
+    tenant_id: user.tenant_id
   };
 };
 

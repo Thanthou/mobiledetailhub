@@ -25,7 +25,7 @@ export const PlanSelectionSection: React.FC<PlanSelectionSectionProps> = ({
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 px-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 px-4 items-stretch">
         {pricingPlans.map((plan: PricingPlan) => {
           const isSelected = selectedPlan === plan.id;
           const isHovered = hoveredPlan === plan.id;
@@ -34,7 +34,7 @@ export const PlanSelectionSection: React.FC<PlanSelectionSectionProps> = ({
             <div
               key={plan.id}
               className={`
-                relative rounded-2xl border-2 transition-all duration-300
+                relative rounded-2xl border-2 transition-all duration-300 flex flex-col h-full
                 ${
                   isSelected
                     ? 'border-orange-600 bg-stone-800 shadow-xl shadow-orange-600/20 scale-105'
@@ -56,7 +56,7 @@ export const PlanSelectionSection: React.FC<PlanSelectionSectionProps> = ({
                 </div>
               )}
 
-              <div className="p-6 sm:p-8">
+              <div className="p-6 sm:p-8 flex flex-col h-full">
                 <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">
                   {plan.name}
                 </h3>
@@ -70,7 +70,7 @@ export const PlanSelectionSection: React.FC<PlanSelectionSectionProps> = ({
                   </div>
                 </div>
 
-                <ul className="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
+                <ul className="space-y-3 sm:space-y-4 mb-6 sm:mb-8 flex-grow">
                   {plan.features.map((feature, index) => (
                     <li key={index} className="flex items-start gap-3">
                       <Check className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
@@ -101,7 +101,7 @@ export const PlanSelectionSection: React.FC<PlanSelectionSectionProps> = ({
         })}
       </div>
 
-      <div className="mt-8 sm:mt-12 text-center px-4">
+      <div className="mt-8 text-center px-4">
         <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-8 text-sm text-gray-400">
           <div className="flex items-center gap-2">
             <Check className="w-4 h-4 text-orange-600" />
@@ -115,6 +115,15 @@ export const PlanSelectionSection: React.FC<PlanSelectionSectionProps> = ({
             <Check className="w-4 h-4 text-orange-600" />
             <span>No setup fees</span>
           </div>
+        </div>
+        
+        {/* Trust badges */}
+        <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-6 text-xs text-gray-500 mt-4">
+          <span>Powered by Stripe</span>
+          <span className="hidden sm:inline">•</span>
+          <span>SSL Secure</span>
+          <span className="hidden sm:inline">•</span>
+          <span>PCI Compliant</span>
         </div>
       </div>
     </div>

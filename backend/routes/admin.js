@@ -576,8 +576,8 @@ router.get('/service-areas', adminLimiter, authenticateToken, requireAdmin, asyn
   }
 
   try {
-    const { getMDHServiceAreas } = require('../utils/serviceAreaProcessor');
-    const serviceAreas = await getMDHServiceAreas();
+    const { getPlatformServiceAreas } = require('../utils/serviceAreaProcessor');
+    const serviceAreas = await getPlatformServiceAreas();
     
     res.json({
       success: true,

@@ -14,10 +14,19 @@ interface BusinessInformationSectionProps {
       state: string;
       zip: string;
     };
+    industry?: string;
   };
   handleInputChange: (field: string, value: string) => void;
   handleAddressChange: (field: keyof BusinessInformationSectionProps['formData']['businessAddress'], value: string) => void;
 }
+
+const INDUSTRIES = [
+  { value: 'mobile-detailing', label: 'Mobile Detailing' },
+  { value: 'maid-service', label: 'Maid Service' },
+  { value: 'lawncare', label: 'Lawn Care' },
+  { value: 'pet-grooming', label: 'Pet Grooming' },
+  { value: 'barber', label: 'Barber Shop' },
+];
 
 const BusinessInformationSection: React.FC<BusinessInformationSectionProps> = ({
   formData,
@@ -50,6 +59,29 @@ const BusinessInformationSection: React.FC<BusinessInformationSectionProps> = ({
             required
             className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
           />
+        </div>
+
+        {/* Industry Selection */}
+        <div className="md:col-span-2">
+          <label htmlFor="industry" className="block text-sm font-medium text-gray-300 mb-2">
+            Industry *
+          </label>
+          <select
+            id="industry"
+            value={formData.industry || 'mobile-detailing'}
+            onChange={(e) => { handleInputChange('industry', e.target.value); }}
+            required
+            className="w-full bg-stone-700 border border-stone-600 text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+          >
+            {INDUSTRIES.map((industry) => (
+              <option key={industry.value} value={industry.value}>
+                {industry.label}
+              </option>
+            ))}
+          </select>
+          <p className="text-gray-400 text-xs mt-1">
+            This determines your website template and features
+          </p>
         </div>
 
         {/* Business Phone */}

@@ -5,7 +5,7 @@ import { useAuth } from '@/shared/hooks/useAuth';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredRole?: 'admin' | 'affiliate' | 'user' | ('admin' | 'affiliate' | 'user')[];
+  requiredRole?: 'admin' | 'tenant' | 'user' | ('admin' | 'tenant' | 'user')[];
   fallbackPath?: string;
 }
 
@@ -21,12 +21,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const loading = authContext.loading;
   
   // In development mode, allow access to tenant dashboards without authentication
-  if (import.meta.env.DEV && Array.isArray(requiredRole) && requiredRole.includes('affiliate')) {
+  if (import.meta.env.DEV && Array.isArray(requiredRole) && requiredRole.includes('tenant')) {
     return <>{children}</>;
   }
   
-  // In development mode, also allow access for single 'affiliate' role
-  if (import.meta.env.DEV && requiredRole === 'affiliate') {
+  // In development mode, also allow access for single 'tenant' role
+  if (import.meta.env.DEV && requiredRole === 'tenant') {
     return <>{children}</>;
   }
   
@@ -58,7 +58,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       return <Navigate to={fallbackPath} replace />;
     }
     
-    if (requiredRole === 'affiliate' && userRole !== 'affiliate') {
+    if (requiredRole === 'tenant' && userRole !== 'tenant') {
       return <Navigate to={fallbackPath} replace />;
     }
   }

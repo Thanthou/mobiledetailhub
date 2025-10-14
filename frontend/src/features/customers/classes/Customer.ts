@@ -164,7 +164,7 @@ export class Customer {
   }
 
   getPreferredAffiliates(): string[] {
-    return [...this.data.service_preferences.preferred_affiliates];
+    return [...this.data.service_preferences.preferred_tenants];
   }
 
   getVehiclePreferences(): Record<string, unknown> {
@@ -180,7 +180,7 @@ export class Customer {
   }
 
   hasPreferredAffiliates(): boolean {
-    return this.data.service_preferences.preferred_affiliates.length > 0;
+    return this.data.service_preferences.preferred_tenants.length > 0;
   }
 
   // ─────────────────────────────────────────────────────────────────────────────

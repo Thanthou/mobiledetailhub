@@ -2,7 +2,7 @@
 
 export interface Appointment {
   id: number;
-  affiliate_id: number;
+  tenant_id: number;
   customer_id?: number;
   
   // Appointment details
@@ -44,7 +44,7 @@ export type AppointmentStatus =
 
 export interface TimeBlock {
   id: number;
-  affiliate_id: number;
+  tenant_id: number;
   
   // Block details
   title: string;
@@ -77,7 +77,7 @@ export type RecurrencePattern = 'daily' | 'weekly' | 'monthly';
 
 export interface BlockedDay {
   id: number;
-  affiliate_id: number;
+  tenant_id: number;
   blocked_date: string; // YYYY-MM-DD format
   reason?: string;
   is_recurring: boolean;
@@ -98,7 +98,7 @@ export interface BusinessHours {
 
 export interface ScheduleSettings {
   id: number;
-  affiliate_id: number;
+  tenant_id: number;
   
   // Business hours
   business_hours: BusinessHours;

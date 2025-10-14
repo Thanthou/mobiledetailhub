@@ -58,7 +58,7 @@ export interface ContactPreferences {
 // Service preferences
 export interface ServicePreferences {
   preferred_services: string[];
-  preferred_affiliates: string[];
+  preferred_tenants: string[];
   vehicle_preferences: Record<string, unknown>;
   service_notes: string;
 }
@@ -115,7 +115,7 @@ export interface CustomerCommunication {
   // Related entities
   related_booking_id?: string;
   related_quote_id?: string;
-  related_affiliate_id?: string;
+  related_tenant_id?: string;
   
   // Delivery tracking
   sent_at?: string;
@@ -212,7 +212,7 @@ export const DEFAULT_CONTACT_PREFERENCES: ContactPreferences = {
 
 export const DEFAULT_SERVICE_PREFERENCES: ServicePreferences = {
   preferred_services: [],
-  preferred_affiliates: [],
+  preferred_tenants: [],
   vehicle_preferences: {},
   service_notes: '',
 };

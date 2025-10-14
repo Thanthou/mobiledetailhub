@@ -7,15 +7,15 @@ const { getDatabaseId } = require('../utils/vehicleMapping');
 // POST /api/services - Create a new service
 router.post('/', async (req, res) => {
   try {
-    const { affiliate_id, vehicle_id, service_category_id, base_price_cents, name, description, tiers } = req.body;
+    const { tenant_id, vehicle_id, service_category_id, base_price_cents, name, description, tiers } = req.body;
     
     
     // Validate required fields
-    if (!affiliate_id || !name || !vehicle_id || !service_category_id) {
+    if (!tenant_id || !name || !vehicle_id || !service_category_id) {
       return res.status(400).json({
         success: false,
         error: 'Missing required fields',
-        message: 'affiliate_id, vehicle_id, service_category_id, and name are required'
+        message: 'tenant_id, vehicle_id, service_category_id, and name are required'
       });
     }
     
@@ -44,7 +44,7 @@ router.post('/', async (req, res) => {
     
     // Create the service using the correct table and column names
     const insertQuery = `
-      INSERT INTO affiliates.services (business_id, service_name, service_description, service_category, vehicle_types, metadata, is_active, is_featured, sort_order)
+      INSERT INTO tenants.services (business_id, service_name, service_description, service_category, vehicle_types, metadata, is_active, is_featured, sort_order)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING *
     `;
@@ -60,9 +60,9 @@ router.post('/', async (req, res) => {
     });
     
     const result = await pool.query(insertQuery, [
-      affiliate_id,  // business_id
+      tenant_id,  // business_id
       name,          // service_name
-      description || 'Offered by affiliate', // service_description
+      description || 'Offered by tenant', // service_description
       category,      // service_category
       vehicleTypes,  // vehicle_types
       metadata,      // metadata
@@ -81,7 +81,7 @@ router.post('/', async (req, res) => {
         if (tier.name && tier.name.trim() !== '') {
           console.log('Backend - Processing tier:', tier.name, 'tierCopies:', tier.tierCopies);
           await pool.query(`
-            INSERT INTO affiliates.service_tiers (service_id, tier_name, price_cents, included_services, duration_minutes, metadata, is_active, is_featured, sort_order)
+            INSERT INTO tenants.service_tiers (service_id, tier_name, price_cents, included_services, duration_minutes, metadata, is_active, is_featured, sort_order)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
           `, [
             newService.id,
@@ -109,7 +109,7 @@ router.post('/', async (req, res) => {
       
       for (let i = 0; i < tierNames.length; i++) {
         await pool.query(`
-          INSERT INTO affiliates.service_tiers (service_id, tier_name, price_cents, included_services, duration_minutes, is_active, is_featured, sort_order)
+          INSERT INTO tenants.service_tiers (service_id, tier_name, price_cents, included_services, duration_minutes, is_active, is_featured, sort_order)
           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         `, [
           newService.id,
@@ -144,7 +144,7 @@ router.post('/', async (req, res) => {
 router.put('/:serviceId', async (req, res) => {
   try {
     const { serviceId } = req.params;
-    const { affiliate_id, vehicle_id, service_category_id, base_price_cents, name, description, tiers } = req.body;
+    const { tenant_id, vehicle_id, service_category_id, base_price_cents, name, description, tiers } = req.body;
     
     if (!serviceId) {
       return res.status(400).json({
@@ -155,11 +155,11 @@ router.put('/:serviceId', async (req, res) => {
     }
     
     // Validate required fields
-    if (!affiliate_id || !name || !vehicle_id || !service_category_id) {
+    if (!tenant_id || !name || !vehicle_id || !service_category_id) {
       return res.status(400).json({
         success: false,
         error: 'Missing required fields',
-        message: 'affiliate_id, vehicle_id, service_category_id, and name are required'
+        message: 'tenant_id, vehicle_id, service_category_id, and name are required'
       });
     }
     
@@ -203,7 +203,7 @@ router.put('/:serviceId', async (req, res) => {
       
       // Update the service
       const updateServiceQuery = `
-        UPDATE affiliates.services 
+        UPDATE tenants.services 
         SET service_name = $1, 
             service_description = $2, 
             service_category = $3, 
@@ -216,12 +216,12 @@ router.put('/:serviceId', async (req, res) => {
       
       const serviceResult = await client.query(updateServiceQuery, [
         name,
-        description || 'Offered by affiliate',
+        description || 'Offered by tenant',
         category,
         vehicleTypes,
         metadata,
         serviceId,
-        affiliate_id
+        tenant_id
       ]);
       
       if (serviceResult.rowCount === 0) {
@@ -234,7 +234,7 @@ router.put('/:serviceId', async (req, res) => {
       }
       
       // Delete existing tiers
-      await client.query('DELETE FROM affiliates.service_tiers WHERE service_id = $1', [serviceId]);
+      await client.query('DELETE FROM tenants.service_tiers WHERE service_id = $1', [serviceId]);
       
       // Create new service tiers
       if (tiers && Array.isArray(tiers) && tiers.length > 0) {
@@ -244,7 +244,7 @@ router.put('/:serviceId', async (req, res) => {
           if (tier.name && tier.name.trim() !== '') {
             console.log('Backend PUT - Processing tier:', tier.name, 'tierCopies:', tier.tierCopies);
             await client.query(`
-              INSERT INTO affiliates.service_tiers (service_id, tier_name, price_cents, included_services, duration_minutes, metadata, is_active, is_featured, sort_order)
+              INSERT INTO tenants.service_tiers (service_id, tier_name, price_cents, included_services, duration_minutes, metadata, is_active, is_featured, sort_order)
               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
             `, [
               serviceId,
@@ -266,7 +266,7 @@ router.put('/:serviceId', async (req, res) => {
         
         for (let i = 0; i < tierNames.length; i++) {
           await client.query(`
-            INSERT INTO affiliates.service_tiers (service_id, tier_name, price_cents, included_services, duration_minutes, is_active, is_featured, sort_order)
+            INSERT INTO tenants.service_tiers (service_id, tier_name, price_cents, included_services, duration_minutes, is_active, is_featured, sort_order)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
           `, [
             serviceId,
@@ -328,11 +328,11 @@ router.delete('/:serviceId', async (req, res) => {
       await client.query('BEGIN');
       
       // First, delete all service tiers for this service
-      const deleteTiersQuery = 'DELETE FROM affiliates.service_tiers WHERE service_id = $1';
+      const deleteTiersQuery = 'DELETE FROM tenants.service_tiers WHERE service_id = $1';
       const tiersResult = await client.query(deleteTiersQuery, [serviceId]);
       
       // Then, delete the service itself
-      const deleteServiceQuery = 'DELETE FROM affiliates.services WHERE id = $1';
+      const deleteServiceQuery = 'DELETE FROM tenants.services WHERE id = $1';
       const serviceResult = await client.query(deleteServiceQuery, [serviceId]);
       
       if (serviceResult.rowCount === 0) {
@@ -372,10 +372,10 @@ router.delete('/:serviceId', async (req, res) => {
   }
 });
 
-// GET /api/services/affiliate/:affiliateId/vehicle/:vehicleId/category/:categoryId - Get services with tiers
-router.get('/affiliate/:affiliateId/vehicle/:vehicleId/category/:categoryId', async (req, res) => {
+// GET /api/services/tenant/:tenantId/vehicle/:vehicleId/category/:categoryId - Get services with tiers
+router.get('/tenant/:tenantId/vehicle/:vehicleId/category/:categoryId', async (req, res) => {
   try {
-    const { affiliateId, vehicleId, categoryId } = req.params;
+    const { tenantId, vehicleId, categoryId } = req.params;
     
     // Map the category ID to the actual category name
     const categoryMap = {
@@ -408,14 +408,14 @@ router.get('/affiliate/:affiliateId/vehicle/:vehicleId/category/:categoryId', as
         s.metadata->>'pricing_unit' as pricing_unit,
         s.metadata->>'min_duration_min' as min_duration_min,
         s.is_active as active
-      FROM affiliates.services s
+      FROM tenants.services s
       WHERE s.business_id = $1 
         AND s.service_category = $2
         AND ${vehicleTypesFilter}
       ORDER BY s.created_at DESC, s.service_name ASC
     `;
     
-    const queryParams = [affiliateId, dbCategory, JSON.stringify([dbVehicleType])];
+    const queryParams = [tenantId, dbCategory, JSON.stringify([dbVehicleType])];
     
     const result = await pool.query(query, queryParams);
     
@@ -440,7 +440,7 @@ router.get('/affiliate/:affiliateId/vehicle/:vehicleId/category/:categoryId', as
           st.metadata,
           st.is_active,
           st.is_featured
-        FROM affiliates.service_tiers st
+        FROM tenants.service_tiers st
         WHERE st.service_id = $1
         ORDER BY st.price_cents ASC
       `;

@@ -11,8 +11,8 @@ const { env } = require('../config/env');
 const logger = require('./logger');
 
 // Preview token configuration
-const PREVIEW_AUD = 'mdh-previews';
-const PREVIEW_ISS = 'mdh-backend';
+const PREVIEW_AUD = 'platform-previews';
+const PREVIEW_ISS = 'platform-backend';
 const PREVIEW_EXP = '7d';
 const PREVIEW_VERSION = 1;
 

@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { execSync } from 'child_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -306,6 +307,27 @@ function detectSeoSignals(projectRoot) {
   return checks;
 }
 
+function captureDatabaseOverview(projectRoot) {
+  try {
+    const dbScriptPath = path.join(projectRoot, 'backend', 'scripts', 'db-overview.js');
+    if (!fs.existsSync(dbScriptPath)) {
+      return '# Database Overview\n\n⚠️ db-overview.js not found in backend/scripts/\n';
+    }
+    
+    // Run db-overview.js with level 3 (full details)
+    const output = execSync(`node "${dbScriptPath}" 3`, {
+      cwd: path.join(projectRoot, 'backend'),
+      encoding: 'utf8',
+      timeout: 30000, // 30 second timeout
+      stdio: ['pipe', 'pipe', 'pipe'] // capture stdout, stderr
+    });
+    
+    return `# Database Overview (Auto-Generated)\n\nGenerated: ${new Date().toISOString()}\n\n\`\`\`\n${output}\n\`\`\`\n`;
+  } catch (error) {
+    return `# Database Overview\n\n❌ Error running db-overview.js:\n\`\`\`\n${error.message}\n\`\`\`\n\nNote: Make sure your database is running and .env is configured.\n`;
+  }
+}
+
 function buildSeoMarkdown({ projectRoot, stats }) {
   const checks = detectSeoSignals(projectRoot);
   const byExt = stats.counts.byExtension || {};
@@ -368,10 +390,14 @@ ${checklist}
   const contextFiles = collectContextFiles(PROJECT_ROOT);
   const allFiles = walkDir(TARGET_PATH);
 
-  // Build unified ordered list: .cursorrules/context first, then the rest
+  // 3.1) Extract .cursorrules to write separately
+  const cursorRulesFile = contextFiles.find(f => f.rel === '.cursorrules');
+  const contextFilesWithoutCursorRules = contextFiles.filter(f => f.rel !== '.cursorrules');
+
+  // Build unified ordered list: context files (without .cursorrules), then the rest
   const contextSet = new Set(contextFiles.map(f => f.full));
   const unified = [
-    ...contextFiles,
+    ...contextFilesWithoutCursorRules,
     ...allFiles.filter(f => !contextSet.has(f.full)),
   ];
 
@@ -400,6 +426,34 @@ ${checklist}
   // Generate and write SEO report
   const seoReport = buildSeoMarkdown({ projectRoot: PROJECT_ROOT, stats });
   writeText(path.join(OUT_DIR, 'SEO.md'), seoReport);
+
+  // Write .cursorrules as separate file
+  if (cursorRulesFile) {
+    const cursorRulesContent = safeRead(cursorRulesFile.full);
+    if (cursorRulesContent) {
+      // Parse and pretty-print the JSON for better readability
+      try {
+        const parsed = JSON.parse(cursorRulesContent);
+        const formatted = JSON.stringify(parsed, null, 2);
+        writeText(path.join(OUT_DIR, 'CURSORRULES.md'), 
+          `# Cursor Rules (Auto-Generated)\n\nGenerated: ${new Date().toISOString()}\n\nSource: \`.cursorrules\`\n\n## Project Purpose\n\n${parsed.purpose || 'N/A'}\n\n## Priorities\n\n${(parsed.priorities || []).map(p => `- ${p}`).join('\n')}\n\n## Full Configuration\n\n\`\`\`json\n${formatted}\n\`\`\`\n`
+        );
+        console.log('✓ Extracted .cursorrules to CURSORRULES.md');
+      } catch (e) {
+        // Fallback if JSON parsing fails
+        writeText(path.join(OUT_DIR, 'CURSORRULES.md'), 
+          `# Cursor Rules (Auto-Generated)\n\nGenerated: ${new Date().toISOString()}\n\nSource: \`.cursorrules\`\n\n\`\`\`\n${cursorRulesContent}\n\`\`\`\n`
+        );
+        console.log('✓ Extracted .cursorrules to CURSORRULES.md (raw format)');
+      }
+    }
+  }
+
+  // Capture and write database overview
+  console.log('⏳ Capturing database overview (this may take a moment)...');
+  const dbOverview = captureDatabaseOverview(PROJECT_ROOT);
+  writeText(path.join(OUT_DIR, 'DATABASE.md'), dbOverview);
+  console.log('✓ Generated DATABASE.md');
 
   const structureTxt = [
     '\n*** PROJECT_STRUCTURE ***',
@@ -430,7 +484,12 @@ ${checklist}
   // 6) Copy PROJECT_OVERVIEW.md from docs/ to output directory
   const overviewSource = path.join(PROJECT_ROOT, 'docs', 'PROJECT_OVERVIEW.md');
   const overviewDest = path.join(OUT_DIR, 'PROJECT_OVERVIEW.md');
-  const finalFiles = [...written, 'SEO.md'];
+  const finalFiles = [...written, 'SEO.md', 'DATABASE.md'];
+  
+  // Add CURSORRULES.md if it was written
+  if (cursorRulesFile) {
+    finalFiles.push('CURSORRULES.md');
+  }
   
   if (fs.existsSync(overviewSource)) {
     fs.copyFileSync(overviewSource, overviewDest);

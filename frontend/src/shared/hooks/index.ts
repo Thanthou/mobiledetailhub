@@ -2,7 +2,9 @@
 export { useAuth } from './useAuth';
 export { useTenantConfig } from './useTenantConfig';
 
-// Tenant config loader (React Query based)
+// SEO & Browser Tab Management
+export { useBrowserTab, setBrowserTab, setBrowserTitle, setFavicon } from './useBrowserTab';
+export { useMetaTags, setMetaDescription, setOgImage } from './useMetaTags';
 export { useSEO } from './useSEO';
 export {
   prefetchTenantConfig,
@@ -19,6 +21,15 @@ export { withAsyncErrorBoundary, withErrorBoundary } from './withErrorBoundary';
 export { useDebouncedValue } from './useDebouncedValue';
 export { useEventListener } from './useEventListener';
 export { useLocalStorage } from './useLocalStorage';
+export { 
+  BREAKPOINTS,
+  useBreakpoint,
+  useIsDesktop,
+  useIsLargeDesktop,
+  useIsMobile,
+  useIsTablet,
+  useMediaQuery
+} from './useMediaQuery';
 export { usePerformanceMonitor } from './usePerformanceMonitor';
 export { useModalPrefetch, usePrefetch } from './usePrefetch';
 export { useScrollSpy } from './useScrollSpy';

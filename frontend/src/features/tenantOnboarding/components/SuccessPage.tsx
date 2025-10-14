@@ -1,15 +1,34 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CheckCircle, Sparkles } from 'lucide-react';
+import { CheckCircle, ExternalLink, Sparkles } from 'lucide-react';
 
+import { AddToHomeScreen } from '@/shared/components';
 import { Button } from '@/shared/ui';
 
 const SuccessPage: React.FC = () => {
   const navigate = useNavigate();
+  const [tenantSlug, setTenantSlug] = useState<string | null>(null);
+  const [websiteUrl, setWebsiteUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Retrieve the tenant info from session storage
+    const slug = sessionStorage.getItem('newTenantSlug');
+    const url = sessionStorage.getItem('newTenantWebsiteUrl');
+    
+    if (slug) {
+      setTenantSlug(slug);
+      setWebsiteUrl(url || `/${slug}`);
+      
+      // Clean up session storage after retrieval
+      sessionStorage.removeItem('newTenantSlug');
+      sessionStorage.removeItem('newTenantWebsiteUrl');
+    }
+  }, []);
 
   return (
-    <div className="min-h-screen bg-stone-900 text-white flex items-center justify-center p-4">
-      <div className="bg-stone-800 border border-stone-700 rounded-2xl max-w-2xl w-full p-6 sm:p-8">
+    <>
+      <div className="min-h-screen bg-stone-900 text-white flex items-center justify-center p-4 pb-32">
+        <div className="bg-stone-800 border border-stone-700 rounded-2xl max-w-2xl w-full p-6 sm:p-8">
         <div className="text-center">
           <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-green-600/50">
             <CheckCircle className="w-10 h-10 text-white" />
@@ -18,10 +37,36 @@ const SuccessPage: React.FC = () => {
             Welcome to ThatSmartSite! 🎉
           </h1>
           <p className="text-gray-300 text-lg mb-8">
-            Your application has been received and is being processed.
+            Your website has been created and is ready to view!
           </p>
         </div>
         
+        {tenantSlug && websiteUrl && (
+          <div className="bg-gradient-to-br from-blue-900/30 to-blue-800/20 border border-blue-600/50 rounded-lg p-6 mb-6">
+            <h3 className="font-semibold text-white text-lg mb-3 text-center">
+              🌐 Your Website is Live!
+            </h3>
+            <p className="text-gray-300 text-sm mb-4 text-center">
+              View your new website at:
+            </p>
+            <div className="bg-stone-900/50 rounded-lg p-3 mb-4">
+              <code className="text-blue-400 text-sm break-all">
+                {window.location.origin}{websiteUrl}
+              </code>
+            </div>
+            <Link to={websiteUrl} className="block">
+              <Button 
+                variant="primary"
+                size="lg"
+                className="w-full bg-blue-600 hover:bg-blue-700 flex items-center justify-center gap-2"
+              >
+                <ExternalLink className="w-5 h-5" />
+                View My Website
+              </Button>
+            </Link>
+          </div>
+        )}
+
         <div className="bg-gradient-to-br from-orange-900/30 to-orange-800/20 border border-orange-600/50 rounded-lg p-6 mb-6">
           <div className="flex items-start gap-3 mb-4">
             <Sparkles className="w-6 h-6 text-orange-400 flex-shrink-0 mt-1" />
@@ -30,15 +75,15 @@ const SuccessPage: React.FC = () => {
               <ul className="space-y-2 text-gray-300 text-sm">
                 <li className="flex items-start">
                   <span className="text-orange-400 mr-2">•</span>
-                  <span>We&apos;re setting up your website right now (takes ~5 minutes)</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-orange-400 mr-2">•</span>
                   <span>You&apos;ll receive a welcome email with login credentials</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-orange-400 mr-2">•</span>
-                  <span>Our team will reach out to help customize your site</span>
+                  <span>Access your dashboard to customize your site</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-orange-400 mr-2">•</span>
+                  <span>Our team will reach out to help you get started</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-orange-400 mr-2">•</span>
@@ -82,8 +127,18 @@ const SuccessPage: React.FC = () => {
             <span className="text-orange-400">support@thatsmartsite.com</span>
           </p>
         </div>
+        </div>
       </div>
-    </div>
+
+      {/* Add to Home Screen Prompt */}
+      {tenantSlug && (
+        <AddToHomeScreen 
+          tenantSlug={tenantSlug}
+          businessName="Your Dashboard"
+          autoShow={true}
+        />
+      )}
+    </>
   );
 };
 

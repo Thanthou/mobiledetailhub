@@ -42,9 +42,9 @@ const authSchemas = {
 };
 
 /**
- * Affiliate route validation schemas
+ * Tenant route validation schemas
  */
-const affiliateSchemas = {
+const tenantSchemas = {
   apply: {
     legal_name: [
       validators.required,
@@ -182,7 +182,7 @@ const affiliateSchemas = {
  * Admin route validation schemas
  */
 const adminSchemas = {
-  updateAffiliate: {
+  updateTenant: {
     business_name: [
       validators.alphanumeric,
       validators.length(2, 200)
@@ -242,7 +242,7 @@ const adminSchemas = {
       validators.phone
     ],
     role: [
-      validators.enum(['user', 'admin', 'affiliate'])
+      validators.enum(['user', 'admin', 'tenant'])
     ],
     is_admin: [
       validators.boolean
@@ -265,7 +265,7 @@ const adminSchemas = {
     ],
     role: [
       validators.required,
-      validators.enum(['user', 'admin', 'affiliate'])
+      validators.enum(['user', 'admin', 'tenant'])
     ],
     password: [
       validators.required,
@@ -331,9 +331,9 @@ const reviewSchemas = {
   submission: {
     review_type: [
       validators.required,
-      validators.enum(['affiliate', 'mdh'])
+      validators.enum(['tenant', 'platform'])
     ],
-    affiliate_id: [
+    tenant_id: [
       validators.numeric,
       validators.range(1)
     ],
@@ -497,7 +497,7 @@ const commonSchemas = {
  * Sanitization schemas
  */
 const sanitizationSchemas = {
-  affiliate: {
+  tenant: {
     body: {
       legal_name: 'trim',
       primary_contact: 'trim',
@@ -534,12 +534,14 @@ const sanitizationSchemas = {
 
 module.exports = {
   authSchemas,
-  affiliateSchemas,
+  tenantSchemas,
   adminSchemas,
   customerSchemas,
   serviceAreaSchemas,
   locationSchemas,
   reviewSchemas,
   commonSchemas,
-  sanitizationSchemas
+  sanitizationSchemas,
+  // Legacy export for backward compatibility
+  affiliateSchemas: tenantSchemas
 };

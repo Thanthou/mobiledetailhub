@@ -8,7 +8,7 @@ import { Hero } from '@/features/hero';
 import { Reviews } from '@/features/reviews';
 import { useReviewsAvailability } from '@/features/reviews/hooks/useReviewsAvailability';
 import { ServicesGrid } from '@/features/services';
-import { useScrollSpy, useSEO } from '@/shared/hooks';
+import { useIsDesktop, useScrollSpy, useSEO } from '@/shared/hooks';
 import { convertFAQItemsToSchemaFormat, injectAllSchemas } from '@/shared/utils/schemaUtils';
 
 interface HomePageProps {
@@ -26,13 +26,7 @@ const HomePage: React.FC<HomePageProps> = ({ onRequestQuote, locationData }) => 
   const hasReviews = useReviewsAvailability();
   
   // Determine which section IDs to track based on screen size
-  const [isDesktop, setIsDesktop] = React.useState(window.innerWidth >= 768);
-  
-  useEffect(() => {
-    const handleResize = () => { setIsDesktop(window.innerWidth >= 768); };
-    window.addEventListener('resize', handleResize);
-    return () => { window.removeEventListener('resize', handleResize); };
-  }, []);
+  const isDesktop = useIsDesktop();
   
   // Set up scroll spy to track active section - use correct IDs for mobile vs desktop
   const sectionIds = isDesktop 

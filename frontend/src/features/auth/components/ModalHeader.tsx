@@ -34,7 +34,7 @@ const ModalHeader = forwardRef<HTMLButtonElement, ModalHeaderProps>(
           >
             <img 
               src="/icons/favicon.webp" 
-              alt="Mobile Detail Hub Logo" 
+              alt="Logo" 
               className="w-full h-full object-contain"
               onError={(e) => {
                 console.error('Logo failed to load:', e);

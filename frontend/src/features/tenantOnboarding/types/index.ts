@@ -200,6 +200,7 @@ export const tenantApplicationDefaultValues: TenantApplication = {
     zip: ''
   },
   useSameAddress: true,
+  industry: 'mobile-detailing',
   step: 0,
   status: 'draft'
 };

@@ -25,7 +25,7 @@ const BusinessInfo: React.FC = () => {
         className="hover:opacity-80 transition-opacity text-left min-w-0"
       >
         <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-bold text-white leading-tight truncate">
-          {businessName || 'Mobile Detail Hub'}
+          {businessName}
         </h1>
       </button>
       

@@ -5,7 +5,7 @@ export const MDH_FAQ_PAYMENTS: FAQItem[] = [
     category: "Payments",
     question: "What payment methods do you accept?",
     answer:
-    "Mobile Detail Hub providers accept major credit cards, debit cards, and in many cases, digital wallets like Apple Pay or Google Pay. Some may also accept cash upon completion.",
+    "Our providers accept major credit cards, debit cards, and in many cases, digital wallets like Apple Pay or Google Pay. Some may also accept cash upon completion.",
 },
 {
     category: "Payments",
@@ -17,7 +17,7 @@ export const MDH_FAQ_PAYMENTS: FAQItem[] = [
     category: "Payments",
     question: "Is my payment information secure?",
     answer:
-    "Yes. All online payments through Mobile Detail Hub are processed via secure, PCI-compliant payment gateways. We do not store your sensitive card information.",
+    "Yes. All online payments are processed via secure, PCI-compliant payment gateways. We do not store your sensitive card information.",
 },
 {
     category: "Payments",

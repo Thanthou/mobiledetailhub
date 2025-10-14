@@ -49,7 +49,7 @@ export const AppRoutes: React.FC = () => {
             </ProtectedRoute>
           } />
           <Route path="/tenant-dashboard" element={
-            <ProtectedRoute requiredRole="affiliate" fallbackPath="/">
+            <ProtectedRoute requiredRole="tenant" fallbackPath="/">
               <DashboardPage />
             </ProtectedRoute>
           } />
@@ -66,7 +66,7 @@ export const AppRoutes: React.FC = () => {
             <div style={{ padding: '20px', background: 'red', color: 'white' }}>
               <h1>DASHBOARD ROUTE MATCHED!</h1>
               <p>Business Slug: {window.location.pathname.split('/')[1]}</p>
-              <ProtectedRoute requiredRole={['admin', 'affiliate']} fallbackPath="/">
+              <ProtectedRoute requiredRole={['admin', 'tenant']} fallbackPath="/">
                   <DashboardPage />
               </ProtectedRoute>
             </div>

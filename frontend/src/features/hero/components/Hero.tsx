@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { useHeroContent } from '@/features/hero/hooks/useHeroContent';
+import { useMediaQuery, BREAKPOINTS } from '@/shared/hooks';
 
 import ContentContainer from './ContentContainer';
 import ImageCarousel from './ImageCarousel';
@@ -11,6 +12,7 @@ interface HeroProps {
 
 const Hero: React.FC<HeroProps> = ({ onRequestQuote }) => {
   const { title, subtitle } = useHeroContent({});
+  const isSmallMobile = useMediaQuery(`(max-width: ${BREAKPOINTS.sm - 1}px)`);
 
   return (
     <section 
@@ -28,7 +30,7 @@ const Hero: React.FC<HeroProps> = ({ onRequestQuote }) => {
         className="relative z-10 w-full"
         style={{ 
           marginTop: '72px',
-          paddingBottom: window.innerWidth < 640 ? '56px' : '7rem'
+          paddingBottom: isSmallMobile ? '56px' : '7rem'
         }}
       >
         <ContentContainer 

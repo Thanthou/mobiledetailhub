@@ -4,6 +4,7 @@ import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { ChevronLeft } from 'lucide-react';
 
+import { useBrowserTab } from '@/shared/hooks';
 import { Button } from '@/shared/ui';
 
 import { useAutoSave } from '../hooks/useAutoSave';
@@ -49,6 +50,12 @@ const TenantApplicationPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
+  // Set browser tab title and favicon for onboarding page
+  // Automatically uses platform logo (/shared/icons/logo.png) and default title
+  useBrowserTab({
+    useBusinessName: false, // Platform page, not tenant-specific
+  });
+
   const { loadFromLocalStorage, clearSavedData } = useAutoSave({
     formData,
     enabled: currentStep > 0,
@@ -67,6 +74,9 @@ const TenantApplicationPage: React.FC = () => {
           setFormData(localData);
           setCurrentStep(localData.step);
           return;
+        } else {
+          // User declined - clear the draft so we don't ask again
+          clearSavedData();
         }
       }
 
@@ -87,7 +97,7 @@ const TenantApplicationPage: React.FC = () => {
     };
 
     loadSavedData();
-  }, [loadFromLocalStorage, previewData]);
+  }, [loadFromLocalStorage, previewData, clearSavedData]);
 
   // Warn user before leaving if form is in progress
   useEffect(() => {
@@ -212,49 +222,44 @@ const TenantApplicationPage: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      // TODO: Implement actual API submission
-      const _applicationData = {
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        personal_phone: formData.personalPhone,
-        personal_email: formData.personalEmail,
-        business_name: formData.businessName,
-        business_phone: formData.businessPhone,
-        business_email: formData.businessEmail,
-        business_address: formData.businessAddress.address,
-        business_city: formData.businessAddress.city,
-        business_state: formData.businessAddress.state,
-        business_zip: formData.businessAddress.zip,
-        industry: formData.industry,
-        selected_plan: formData.selectedPlan,
-        plan_price: formData.planPrice,
-        billing_address: formData.useSameAddress
-          ? formData.businessAddress.address
-          : formData.billingAddress.address,
-        billing_city: formData.useSameAddress
-          ? formData.businessAddress.city
-          : formData.billingAddress.city,
-        billing_state: formData.useSameAddress
-          ? formData.businessAddress.state
-          : formData.billingAddress.state,
-        billing_zip: formData.useSameAddress
-          ? formData.businessAddress.zip
-          : formData.billingAddress.zip,
-        status: 'pending',
-        submitted_at: new Date().toISOString(),
+      const applicationData = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        personalPhone: formData.personalPhone,
+        personalEmail: formData.personalEmail,
+        businessName: formData.businessName,
+        businessPhone: formData.businessPhone,
+        businessEmail: formData.businessEmail,
+        businessAddress: formData.businessAddress,
+        industry: formData.industry || 'mobile-detailing',
+        selectedPlan: formData.selectedPlan,
+        planPrice: formData.planPrice,
       };
 
-      // Simulate API call
-      await new Promise((resolve) => { setTimeout(resolve, 2000); });
-      
-      // TODO: Replace with proper API call
-      // await submitApplication(_applicationData);
+      const response = await fetch('/api/tenants/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(applicationData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to submit application');
+      }
+
+      // Store the new tenant slug for the success page
+      sessionStorage.setItem('newTenantSlug', result.data.slug);
+      sessionStorage.setItem('newTenantWebsiteUrl', result.data.websiteUrl);
 
       clearSavedData();
       setIsSuccess(true);
     } catch (error) {
       console.error('Submission error:', error);
-      alert('Failed to submit application. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to submit application. Please try again.';
+      alert(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -272,8 +277,8 @@ const TenantApplicationPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <StepProgress steps={STEPS} currentStep={currentStep} />
 
-          <form onSubmit={(e) => { void handleSubmit(e); }} className="pb-12">
-            <div className="min-h-[500px] flex items-center justify-center">
+          <form onSubmit={(e) => { void handleSubmit(e); }} className="pb-6">
+            <div className="min-h-[400px] flex items-center justify-center">
               {currentStep === 0 && (
                 <PlanSelectionSection
                   selectedPlan={formData.selectedPlan}
@@ -335,7 +340,7 @@ const TenantApplicationPage: React.FC = () => {
                     onClick={goToNextStep}
                     variant="primary"
                     size="lg"
-                    fullWidth={currentStep === 0}
+                    className={currentStep === 0 ? 'w-full' : ''}
                     disabled={currentStep === 0 && !formData.selectedPlan}
                   >
                     {currentStep === 0 ? 'Get Started' : 'Continue'}
@@ -360,18 +365,6 @@ const TenantApplicationPage: React.FC = () => {
               )}
             </div>
           </form>
-        </div>
-      </div>
-
-      <div className="border-t border-stone-800 py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 text-sm text-gray-400">
-            <span>100+ businesses trust us</span>
-            <span className="hidden sm:inline">•</span>
-            <span>SSL Secure</span>
-            <span className="hidden sm:inline">•</span>
-            <span>PCI Compliant</span>
-          </div>
         </div>
       </div>
     </div>

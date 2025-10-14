@@ -56,7 +56,7 @@ export function transformServiceData(servicesData: unknown[]): Service[] {
 
 export function useServiceOperations(
   api: ReturnType<typeof useServicesAPI>,
-  affiliateId: string | undefined,
+  tenantId: string | undefined,
   selectedVehicle: string,
   selectedCategory: string
 ) {
@@ -113,7 +113,7 @@ export function useServiceOperations(
     };
     
     const serviceData = {
-      affiliate_id: affiliateId,
+      tenant_id: tenantId,
       vehicle_id: getBackendEndpoint(selectedVehicle),
       service_category_id: categoryMap[selectedCategory] || 3,
       name: serviceName,
@@ -129,7 +129,7 @@ export function useServiceOperations(
       return await refreshServices();
     }
     return null;
-  }, [updateService, affiliateId, selectedVehicle, selectedCategory, refreshServices]);
+  }, [updateService, tenantId, selectedVehicle, selectedCategory, refreshServices]);
 
   /**
    * Delete a service

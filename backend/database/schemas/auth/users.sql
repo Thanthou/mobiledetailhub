@@ -1,60 +1,46 @@
--- Users table for authentication and user management
-DROP TABLE IF EXISTS auth.users CASCADE;
+-- auth.users table definition
 
-CREATE TABLE auth.users (
-    id SERIAL PRIMARY KEY,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    email_verified BOOLEAN DEFAULT false,
-    email_verification_token VARCHAR(255),
-    email_verification_expires_at TIMESTAMP WITH TIME ZONE,
-    name VARCHAR(255) NOT NULL,
-    phone VARCHAR(20),
-    phone_verified BOOLEAN DEFAULT false,
-    password_hash VARCHAR(255) NOT NULL,
-    password_reset_token VARCHAR(255),
-    password_reset_expires_at TIMESTAMP WITH TIME ZONE,
-    is_admin BOOLEAN DEFAULT false,
-    account_status VARCHAR(20) DEFAULT 'active', -- active, suspended, disabled
-    last_login_at TIMESTAMP WITH TIME ZONE,
-    last_login_ip INET,
-    failed_login_attempts INTEGER DEFAULT 0,
-    locked_until TIMESTAMP WITH TIME ZONE,
-    two_factor_enabled BOOLEAN DEFAULT false,
-    two_factor_secret VARCHAR(255),
-    two_factor_backup_codes JSONB DEFAULT '[]',
-    profile_data JSONB DEFAULT '{}',
-    preferences JSONB DEFAULT '{}',
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE IF NOT EXISTS auth.users (
+  id INTEGER(32) NOT NULL DEFAULT nextval('auth.users_id_seq'::regclass),
+  email VARCHAR(255) NOT NULL,
+  email_verified BOOLEAN DEFAULT false,
+  email_verification_token VARCHAR(255),
+  email_verification_expires_at TIMESTAMPTZ,
+  name VARCHAR(255) NOT NULL,
+  phone VARCHAR(20),
+  phone_verified BOOLEAN DEFAULT false,
+  password_hash VARCHAR(255) NOT NULL,
+  password_reset_token VARCHAR(255),
+  password_reset_expires_at TIMESTAMPTZ,
+  is_admin BOOLEAN DEFAULT false,
+  account_status VARCHAR(20) DEFAULT 'active'::character varying,
+  last_login_at TIMESTAMPTZ,
+  last_login_ip INET,
+  failed_login_attempts INTEGER(32) DEFAULT 0,
+  locked_until TIMESTAMPTZ,
+  two_factor_enabled BOOLEAN DEFAULT false,
+  two_factor_secret VARCHAR(255),
+  two_factor_backup_codes JSONB DEFAULT '[]'::jsonb,
+  profile_data JSONB DEFAULT '{}'::jsonb,
+  preferences JSONB DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  stripe_customer_id VARCHAR(255),
+  PRIMARY KEY (id)
 );
+-- Indexes
+CREATE INDEX idx_users_account_status ON auth.users USING btree (account_status);
+CREATE INDEX idx_users_created_at ON auth.users USING btree (created_at);
+CREATE INDEX idx_users_email ON auth.users USING btree (email);
+CREATE INDEX idx_users_email_verification_token ON auth.users USING btree (email_verification_token);
+CREATE INDEX idx_users_is_admin ON auth.users USING btree (is_admin);
+CREATE INDEX idx_users_last_login_at ON auth.users USING btree (last_login_at);
+CREATE INDEX idx_users_password_reset_token ON auth.users USING btree (password_reset_token);
+CREATE INDEX idx_users_phone ON auth.users USING btree (phone);
+CREATE INDEX idx_users_status_created ON auth.users USING btree (account_status, created_at DESC);
+CREATE INDEX idx_users_stripe_customer_id ON auth.users USING btree (stripe_customer_id);
+CREATE UNIQUE INDEX users_email_key ON auth.users USING btree (email);
+CREATE UNIQUE INDEX users_stripe_customer_id_key ON auth.users USING btree (stripe_customer_id);
 
--- Create indexes for better performance
-CREATE INDEX IF NOT EXISTS idx_users_email ON auth.users(email);
-CREATE INDEX IF NOT EXISTS idx_users_email_verification_token ON auth.users(email_verification_token);
-CREATE INDEX IF NOT EXISTS idx_users_password_reset_token ON auth.users(password_reset_token);
-CREATE INDEX IF NOT EXISTS idx_users_phone ON auth.users(phone);
-CREATE INDEX IF NOT EXISTS idx_users_is_admin ON auth.users(is_admin);
-CREATE INDEX IF NOT EXISTS idx_users_account_status ON auth.users(account_status);
-CREATE INDEX IF NOT EXISTS idx_users_last_login_at ON auth.users(last_login_at);
-CREATE INDEX IF NOT EXISTS idx_users_created_at ON auth.users(created_at);
-
--- Create trigger to automatically update updated_at timestamp
-CREATE OR REPLACE FUNCTION auth.update_users_updated_at()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = CURRENT_TIMESTAMP;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trigger_users_updated_at
-    BEFORE UPDATE ON auth.users
-    FOR EACH ROW
-    EXECUTE FUNCTION auth.update_users_updated_at();
-
--- Add constraints
-ALTER TABLE auth.users ADD CONSTRAINT chk_account_status 
-    CHECK (account_status IN ('active', 'suspended', 'disabled'));
-
-ALTER TABLE auth.users ADD CONSTRAINT chk_failed_login_attempts 
-    CHECK (failed_login_attempts >= 0);
+-- Table created: 2025-10-13T19:26:01.086Z
+-- Extracted from database

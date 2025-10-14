@@ -3,7 +3,8 @@ import { Shield } from 'lucide-react';
 
 import type { AffiliateApplication } from '../types';
 import { SOURCES } from '../types';
-import { AffiliatePrivacyModal, AffiliateTermsModal } from './index';
+import TenantPrivacyModal from './TenantPrivacyModal';
+import TenantTermsModal from './TenantTermsModal';
 
 interface LegalTermsSectionProps {
   formData: AffiliateApplication;
@@ -91,8 +92,8 @@ const LegalTermsSection: React.FC<LegalTermsSectionProps> = ({
         </div>
       </div>
       
-      <AffiliateTermsModal isOpen={showTerms} onClose={() => { setShowTerms(false); }} />
-      <AffiliatePrivacyModal isOpen={showPrivacy} onClose={() => { setShowPrivacy(false); }} />
+      <TenantTermsModal isOpen={showTerms} onClose={() => { setShowTerms(false); }} />
+      <TenantPrivacyModal isOpen={showPrivacy} onClose={() => { setShowPrivacy(false); }} />
     </div>
   );
 };

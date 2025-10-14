@@ -3,6 +3,7 @@ import { Star, Users } from 'lucide-react';
 
 import { useReviewsRating } from '@/features/reviews/hooks';
 import { useDataOptional } from '@/shared/contexts/DataContext';
+import { useReviewsAvailability } from '@/shared/hooks';
 import type { ReviewsSummaryProps } from '@/shared/types/reviews';
 
 const ReviewsSummary: React.FC<ReviewsSummaryProps> = ({ 
@@ -15,6 +16,9 @@ const ReviewsSummary: React.FC<ReviewsSummaryProps> = ({
   // Check if in preview mode
   const data = useDataOptional();
   const isPreview = data?.isPreview || false;
+  
+  // Check if reviews are available (unless in preview mode)
+  const hasReviews = useReviewsAvailability();
   
   // Get data from database (with fallbacks to site.json)
   const dbData = useReviewsRating();
@@ -36,6 +40,11 @@ const ReviewsSummary: React.FC<ReviewsSummaryProps> = ({
       
   const googleBusinessUrl = propGoogleBusinessUrl ?? dbData.googleBusinessUrl;
   const isCompact = variant === 'compact';
+  
+  // Don't render if there are no reviews (unless in preview mode)
+  if (!isPreview && !hasReviews) {
+    return null;
+  }
   
   const containerClasses = isCompact 
     ? 'flex items-center justify-center gap-4'

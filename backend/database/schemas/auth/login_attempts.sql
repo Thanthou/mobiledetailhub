@@ -1,23 +1,31 @@
--- Login attempts table for security monitoring
-DROP TABLE IF EXISTS auth.login_attempts CASCADE;
+-- auth.login_attempts table definition
 
-CREATE TABLE auth.login_attempts (
-    id SERIAL PRIMARY KEY,
-    email VARCHAR(255) NOT NULL,
-    ip_address INET NOT NULL,
-    user_agent TEXT,
-    success BOOLEAN NOT NULL,
-    failure_reason VARCHAR(100), -- wrong_password, user_not_found, account_locked, etc.
-    attempted_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    location_data JSONB DEFAULT '{}' -- Country, city, etc.
+CREATE TABLE IF NOT EXISTS auth.login_attempts (
+  id INTEGER(32) NOT NULL DEFAULT nextval('auth.login_attempts_id_seq'::regclass),
+  email VARCHAR(255) NOT NULL,
+  ip_address INET NOT NULL,
+  user_agent TEXT,
+  success BOOLEAN NOT NULL,
+  failure_reason VARCHAR(100),
+  attempted_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  location_data JSONB DEFAULT '{}'::jsonb,
+  user_id INTEGER(32),
+  PRIMARY KEY (id)
 );
 
--- Create indexes for better performance
-CREATE INDEX IF NOT EXISTS idx_login_attempts_email ON auth.login_attempts(email);
-CREATE INDEX IF NOT EXISTS idx_login_attempts_ip_address ON auth.login_attempts(ip_address);
-CREATE INDEX IF NOT EXISTS idx_login_attempts_success ON auth.login_attempts(success);
-CREATE INDEX IF NOT EXISTS idx_login_attempts_attempted_at ON auth.login_attempts(attempted_at);
+-- Foreign Keys
+ALTER TABLE auth.login_attempts
+  ADD CONSTRAINT fk_login_attempts_user_id
+  FOREIGN KEY (user_id)
+  REFERENCES auth.users(id);
 
--- Add constraints
-ALTER TABLE auth.login_attempts ADD CONSTRAINT chk_failure_reason 
-    CHECK (failure_reason IN ('wrong_password', 'user_not_found', 'account_locked', 'email_not_verified', 'account_disabled', 'rate_limited'));
+-- Indexes
+CREATE INDEX idx_login_attempts_attempted_at ON auth.login_attempts USING btree (attempted_at);
+CREATE INDEX idx_login_attempts_email ON auth.login_attempts USING btree (email);
+CREATE INDEX idx_login_attempts_email_recent ON auth.login_attempts USING btree (email, attempted_at DESC) WHERE (success = false);
+CREATE INDEX idx_login_attempts_ip_address ON auth.login_attempts USING btree (ip_address);
+CREATE INDEX idx_login_attempts_success ON auth.login_attempts USING btree (success);
+CREATE INDEX idx_login_attempts_user_id ON auth.login_attempts USING btree (user_id);
+
+-- Table created: 2025-10-13T19:26:01.097Z
+-- Extracted from database

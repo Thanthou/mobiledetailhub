@@ -1,14 +1,32 @@
+import { useReviews } from '@/features/reviews/hooks/useReviews';
+import { useDataOptional } from '@/shared/contexts/DataContext';
+import type { ReviewQueryParams } from '@/features/reviews/types';
+
 /**
  * Hook to check if reviews are available for the current site
  * Returns true if there are reviews, false otherwise
- * 
- * NOTE: This is a simplified version that always returns true.
- * The actual implementation should check if reviews exist for the current site.
  */
 export const useReviewsAvailability = (): boolean => {
-  // For now, always return true
-  // TODO: Implement actual check for reviews availability
-  // This could involve checking tenant config or making an API call
-  return true;
+  const data = useDataOptional();
+  const isTenant = data?.isTenant || false;
+  
+  // Build query parameters to match what Reviews component uses
+  const queryParams: ReviewQueryParams = {
+    limit: 1
+  };
+  
+  // For tenant sites, get the tenant slug from the URL
+  if (isTenant) {
+    const urlSlug = window.location.pathname.split('/')[1];
+    if (urlSlug) {
+      queryParams.tenant_slug = urlSlug;
+    }
+  }
+  
+  // Fetch reviews with tenant-specific filtering
+  const { reviews, loading } = useReviews(queryParams);
+  
+  // Only return true if we have reviews and are not loading
+  return !loading && reviews.length > 0;
 };
 

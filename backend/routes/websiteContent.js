@@ -101,9 +101,11 @@ router.get('/:tenantSlug', async (req, res) => {
     
     console.log('🔍 Fetching website content for tenant:', tenantSlug);
 
-    // Query from the correct table: website.content
+    // Query from the correct table: website.content joined with tenants.business
     const contentResult = await pool.query(
-      'SELECT * FROM website.content WHERE tenant_slug = $1', 
+      `SELECT wc.* FROM website.content wc
+       JOIN tenants.business tb ON wc.business_id = tb.id
+       WHERE tb.slug = $1`, 
       [tenantSlug]
     );
     

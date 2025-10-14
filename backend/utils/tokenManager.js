@@ -42,8 +42,8 @@ const generateAccessToken = (payload) => {
   return jwt.sign(payload, env.JWT_SECRET, {
     expiresIn: TOKEN_CONFIG.ACCESS_TOKEN.expiresIn,
     algorithm: TOKEN_CONFIG.ACCESS_TOKEN.algorithm,
-    issuer: 'mdh-backend',
-    audience: 'mdh-users',
+    issuer: 'platform-backend',
+    audience: 'platform-users',
     jwtid: jwtid,
     header: { 
       kid: env.JWT_KID || 'primary' // Key ID for future key rotation
@@ -70,8 +70,8 @@ const generateRefreshToken = (payload) => {
   return jwt.sign(payload, secret, {
     expiresIn: TOKEN_CONFIG.REFRESH_TOKEN.expiresIn,
     algorithm: TOKEN_CONFIG.REFRESH_TOKEN.algorithm,
-    issuer: 'mdh-backend',
-    audience: 'mdh-users',
+    issuer: 'platform-backend',
+    audience: 'platform-users',
     jwtid: jwtid,
     header: { 
       kid: env.JWT_KID || 'primary' // Key ID for future key rotation

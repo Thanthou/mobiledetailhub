@@ -3,19 +3,19 @@ import { X } from 'lucide-react';
 
 import { Button } from '@/shared/ui';
 
-interface AffiliatePrivacyModalProps {
+interface TenantPrivacyModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const AffiliatePrivacyModal: React.FC<AffiliatePrivacyModalProps> = ({ isOpen, onClose }) => {
+const TenantPrivacyModal: React.FC<TenantPrivacyModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-stone-800 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-stone-800 border-b border-stone-700 p-6 flex justify-between items-center">
-          <h2 className="text-white text-2xl font-bold">Affiliate Privacy Policy</h2>
+          <h2 className="text-white text-2xl font-bold">Tenant Privacy Policy</h2>
           <Button
             onClick={onClose}
             variant="ghost"
@@ -33,7 +33,7 @@ const AffiliatePrivacyModal: React.FC<AffiliatePrivacyModalProps> = ({ isOpen, o
           
           <div className="space-y-4">
             <p className="leading-relaxed">
-              Mobile Detail Hub (&quot;MDH&quot;, &quot;we&quot;, &quot;our&quot;) respects your privacy. This Privacy Policy explains how we collect, use, and protect your personal information as an affiliate.
+              We (&quot;we&quot;, &quot;our&quot;, &quot;the platform&quot;) respect your privacy. This Privacy Policy explains how we collect, use, and protect your personal information as a tenant.
             </p>
             
             <div>
@@ -48,7 +48,7 @@ const AffiliatePrivacyModal: React.FC<AffiliatePrivacyModalProps> = ({ isOpen, o
             <div>
               <h3 className="text-white text-lg font-semibold mb-2">2. How We Use Your Information</h3>
               <ul className="list-disc list-inside space-y-1 text-sm">
-                <li>To review and approve affiliate applications.</li>
+                <li>To review and approve tenant applications.</li>
                 <li>To publish your business profile and services on our platform.</li>
                 <li>To process transactions, fees, and payouts.</li>
                 <li>To communicate with you regarding account updates, payments, or issues.</li>
@@ -92,7 +92,7 @@ const AffiliatePrivacyModal: React.FC<AffiliatePrivacyModalProps> = ({ isOpen, o
             <div>
               <h3 className="text-white text-lg font-semibold mb-2">7. Changes to this Policy</h3>
               <p className="text-sm">
-                MDH may update this Privacy Policy. We will notify you via email or dashboard notice. Continued use of the platform constitutes acceptance.
+                We may update this Privacy Policy. We will notify you via email or dashboard notice. Continued use of the platform constitutes acceptance.
               </p>
             </div>
           </div>
@@ -113,4 +113,6 @@ const AffiliatePrivacyModal: React.FC<AffiliatePrivacyModalProps> = ({ isOpen, o
   );
 };
 
-export default AffiliatePrivacyModal;
+export default TenantPrivacyModal;
+
+

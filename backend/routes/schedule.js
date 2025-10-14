@@ -8,34 +8,34 @@ const { apiLimiter } = require('../middleware/rateLimiter');
 
 const router = express.Router();
 
-// Helper function to get affiliate_id from user_id
-const getAffiliateId = async (userId, isAdmin = false) => {
-  // For admin users, get the first available business or allow them to work without affiliate context
+// Helper function to get tenant_id from user_id
+const getTenantId = async (userId, isAdmin = false) => {
+  // For admin users, get the first available business or allow them to work without tenant context
   if (isAdmin) {
     // For now, let's get the first business for admin users
-    const affiliateQuery = `
+    const tenantQuery = `
       SELECT id FROM tenants.business ORDER BY id LIMIT 1
     `;
-    const affiliateResult = await pool.query(affiliateQuery);
+    const tenantResult = await pool.query(tenantQuery);
     
-    if (affiliateResult.rows.length === 0) {
-      throw new Error('No affiliate businesses found in the system');
+    if (tenantResult.rows.length === 0) {
+      throw new Error('No tenant businesses found in the system');
     }
     
-    return affiliateResult.rows[0].id;
+    return tenantResult.rows[0].id;
   }
   
   // For regular users, get their specific business
-  const affiliateQuery = `
+  const tenantQuery = `
     SELECT id FROM tenants.business WHERE user_id = $1
   `;
-  const affiliateResult = await pool.query(affiliateQuery, [userId]);
+  const tenantResult = await pool.query(tenantQuery, [userId]);
   
-  if (affiliateResult.rows.length === 0) {
-    throw new Error('No affiliate business found for this user');
+  if (tenantResult.rows.length === 0) {
+    throw new Error('No tenant business found for this user');
   }
   
-  return affiliateResult.rows[0].id;
+  return tenantResult.rows[0].id;
 };
 
 // Apply middleware
@@ -95,21 +95,21 @@ router.get('/appointments', async (req, res) => {
       return res.status(400).json({ error: 'startDate and endDate are required' });
     }
 
-    const affiliateId = await getAffiliateId(userId, req.user.isAdmin);
+    const tenantId = await getTenantId(userId, req.user.isAdmin);
 
     const query = `
       SELECT * FROM schedule.appointments 
-      WHERE affiliate_id = $1 
+      WHERE tenant_id = $1 
         AND start_time >= $2 
         AND end_time <= $3
       ORDER BY start_time ASC
     `;
 
-    const result = await pool.query(query, [affiliateId, startDate, endDate]);
+    const result = await pool.query(query, [tenantId, startDate, endDate]);
     res.json(result.rows);
   } catch (error) {
     console.error('Error fetching appointments:', error);
-    if (error.message === 'No affiliate business found for this user') {
+    if (error.message === 'No tenant business found for this user') {
       return res.status(404).json({ error: error.message });
     }
     res.status(500).json({ error: 'Failed to fetch appointments' });
@@ -120,16 +120,16 @@ router.get('/appointments', async (req, res) => {
 router.get('/appointments/date/:date', async (req, res) => {
   try {
     const { date } = req.params;
-    const affiliateId = req.user.affiliate_id;
+    const tenantId = req.user.tenant_id;
 
     const query = `
       SELECT * FROM schedule.appointments 
-      WHERE affiliate_id = $1 
+      WHERE tenant_id = $1 
         AND DATE(start_time) = $2
       ORDER BY start_time ASC
     `;
 
-    const result = await pool.query(query, [affiliateId, date]);
+    const result = await pool.query(query, [tenantId, date]);
     res.json(result.rows);
   } catch (error) {
     console.error('Error fetching appointments for date:', error);
@@ -141,14 +141,14 @@ router.get('/appointments/date/:date', async (req, res) => {
 router.get('/appointments/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const affiliateId = req.user.affiliate_id;
+    const tenantId = req.user.tenant_id;
 
     const query = `
       SELECT * FROM schedule.appointments 
-      WHERE id = $1 AND affiliate_id = $2
+      WHERE id = $1 AND tenant_id = $2
     `;
 
-    const result = await pool.query(query, [id, affiliateId]);
+    const result = await pool.query(query, [id, tenantId]);
     
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Appointment not found' });
@@ -164,7 +164,7 @@ router.get('/appointments/:id', async (req, res) => {
 // Create appointment
 router.post('/appointments', validateBody(appointmentSchema.body), async (req, res) => {
   try {
-    const affiliateId = req.user.affiliate_id;
+    const tenantId = req.user.tenant_id;
     const userId = req.user.id;
     const {
       title, description, service_type, service_duration,
@@ -183,7 +183,7 @@ router.post('/appointments', validateBody(appointmentSchema.body), async (req, r
     // Check for conflicts
     const conflictQuery = `
       SELECT id FROM schedule.appointments 
-      WHERE affiliate_id = $1 
+      WHERE tenant_id = $1 
         AND (
           (start_time < $2 AND end_time > $2) OR
           (start_time < $3 AND end_time > $3) OR
@@ -191,7 +191,7 @@ router.post('/appointments', validateBody(appointmentSchema.body), async (req, r
         )
     `;
 
-    const conflictResult = await pool.query(conflictQuery, [affiliateId, start_time, end_time]);
+    const conflictResult = await pool.query(conflictQuery, [tenantId, start_time, end_time]);
     
     if (conflictResult.rows.length > 0) {
       return res.status(409).json({ error: 'Time slot conflicts with existing appointment' });
@@ -199,7 +199,7 @@ router.post('/appointments', validateBody(appointmentSchema.body), async (req, r
 
     const query = `
       INSERT INTO schedule.appointments (
-        affiliate_id, title, description, service_type, service_duration,
+        tenant_id, title, description, service_type, service_duration,
         start_time, end_time, customer_name, customer_phone, customer_email,
         price, deposit, notes, internal_notes, created_by
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
@@ -207,7 +207,7 @@ router.post('/appointments', validateBody(appointmentSchema.body), async (req, r
     `;
 
     const result = await pool.query(query, [
-      affiliateId, title, description, service_type, service_duration,
+      tenantId, title, description, service_type, service_duration,
       start_time, end_time, customer_name, customer_phone, customer_email,
       price, deposit, notes, internal_notes, userId
     ]);
@@ -223,17 +223,17 @@ router.post('/appointments', validateBody(appointmentSchema.body), async (req, r
 router.put('/appointments/:id', validateBody(appointmentSchema.body), async (req, res) => {
   try {
     const { id } = req.params;
-    const affiliateId = req.user.affiliate_id;
+    const tenantId = req.user.tenant_id;
     const userId = req.user.id;
     const updateData = req.body;
 
-    // Check if appointment exists and belongs to affiliate
+    // Check if appointment exists and belongs to tenant
     const checkQuery = `
       SELECT id FROM schedule.appointments 
-      WHERE id = $1 AND affiliate_id = $2
+      WHERE id = $1 AND tenant_id = $2
     `;
     
-    const checkResult = await pool.query(checkQuery, [id, affiliateId]);
+    const checkResult = await pool.query(checkQuery, [id, tenantId]);
     if (checkResult.rows.length === 0) {
       return res.status(404).json({ error: 'Appointment not found' });
     }
@@ -260,12 +260,12 @@ router.put('/appointments/:id', validateBody(appointmentSchema.body), async (req
     paramCount++;
 
     updateFields.push(`updated_at = CURRENT_TIMESTAMP`);
-    values.push(id, affiliateId);
+    values.push(id, tenantId);
 
     const query = `
       UPDATE schedule.appointments 
       SET ${updateFields.join(', ')}
-      WHERE id = $${paramCount} AND affiliate_id = $${paramCount + 1}
+      WHERE id = $${paramCount} AND tenant_id = $${paramCount + 1}
       RETURNING *
     `;
 
@@ -282,7 +282,7 @@ router.patch('/appointments/:id/status', async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
-    const affiliateId = req.user.affiliate_id;
+    const tenantId = req.user.tenant_id;
     const userId = req.user.id;
 
     const validStatuses = ['scheduled', 'confirmed', 'in_progress', 'completed', 'cancelled', 'no_show'];
@@ -293,11 +293,11 @@ router.patch('/appointments/:id/status', async (req, res) => {
     const query = `
       UPDATE schedule.appointments 
       SET status = $1, updated_by = $2, updated_at = CURRENT_TIMESTAMP
-      WHERE id = $3 AND affiliate_id = $4
+      WHERE id = $3 AND tenant_id = $4
       RETURNING *
     `;
 
-    const result = await pool.query(query, [status, userId, id, affiliateId]);
+    const result = await pool.query(query, [status, userId, id, tenantId]);
     
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Appointment not found' });
@@ -314,15 +314,15 @@ router.patch('/appointments/:id/status', async (req, res) => {
 router.delete('/appointments/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const affiliateId = req.user.affiliate_id;
+    const tenantId = req.user.tenant_id;
 
     const query = `
       DELETE FROM schedule.appointments 
-      WHERE id = $1 AND affiliate_id = $2
+      WHERE id = $1 AND tenant_id = $2
       RETURNING id
     `;
 
-    const result = await pool.query(query, [id, affiliateId]);
+    const result = await pool.query(query, [id, tenantId]);
     
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Appointment not found' });
@@ -339,19 +339,19 @@ router.delete('/appointments/:id', async (req, res) => {
 router.get('/appointments/available-slots', async (req, res) => {
   try {
     const { date, duration = 60 } = req.query;
-    const affiliateId = req.user.affiliate_id;
+    const tenantId = req.user.tenant_id;
 
     if (!date) {
       return res.status(400).json({ error: 'date is required' });
     }
 
-    // Get schedule settings for this affiliate
+    // Get schedule settings for this tenant
     const settingsQuery = `
       SELECT * FROM schedule.schedule_settings 
-      WHERE affiliate_id = $1
+      WHERE tenant_id = $1
     `;
     
-    const settingsResult = await pool.query(settingsQuery, [affiliateId]);
+    const settingsResult = await pool.query(settingsQuery, [tenantId]);
     const settings = settingsResult.rows[0];
 
     if (!settings) {
@@ -361,14 +361,14 @@ router.get('/appointments/available-slots', async (req, res) => {
     // Get existing appointments and time blocks for the date
     const conflictsQuery = `
       SELECT start_time, end_time FROM schedule.appointments 
-      WHERE affiliate_id = $1 AND DATE(start_time) = $2
+      WHERE tenant_id = $1 AND DATE(start_time) = $2
       UNION ALL
       SELECT start_time, end_time FROM schedule.time_blocks 
-      WHERE affiliate_id = $1 AND DATE(start_time) = $2
+      WHERE tenant_id = $1 AND DATE(start_time) = $2
       ORDER BY start_time
     `;
 
-    const conflictsResult = await pool.query(conflictsQuery, [affiliateId, date]);
+    const conflictsResult = await pool.query(conflictsQuery, [tenantId, date]);
     const conflicts = conflictsResult.rows;
 
     // Generate available time slots based on business hours and settings
@@ -421,21 +421,21 @@ router.get('/time-blocks', async (req, res) => {
       return res.status(400).json({ error: 'startDate and endDate are required' });
     }
 
-    const affiliateId = await getAffiliateId(userId, req.user.isAdmin);
+    const tenantId = await getTenantId(userId, req.user.isAdmin);
 
     const query = `
       SELECT * FROM schedule.time_blocks 
-      WHERE affiliate_id = $1 
+      WHERE tenant_id = $1 
         AND start_time >= $2 
         AND end_time <= $3
       ORDER BY start_time ASC
     `;
 
-    const result = await pool.query(query, [affiliateId, startDate, endDate]);
+    const result = await pool.query(query, [tenantId, startDate, endDate]);
     res.json(result.rows);
   } catch (error) {
     console.error('Error fetching time blocks:', error);
-    if (error.message === 'No affiliate business found for this user') {
+    if (error.message === 'No tenant business found for this user') {
       return res.status(404).json({ error: error.message });
     }
     res.status(500).json({ error: 'Failed to fetch time blocks' });
@@ -446,16 +446,16 @@ router.get('/time-blocks', async (req, res) => {
 router.get('/time-blocks/date/:date', async (req, res) => {
   try {
     const { date } = req.params;
-    const affiliateId = req.user.affiliate_id;
+    const tenantId = req.user.tenant_id;
 
     const query = `
       SELECT * FROM schedule.time_blocks 
-      WHERE affiliate_id = $1 
+      WHERE tenant_id = $1 
         AND DATE(start_time) = $2
       ORDER BY start_time ASC
     `;
 
-    const result = await pool.query(query, [affiliateId, date]);
+    const result = await pool.query(query, [tenantId, date]);
     res.json(result.rows);
   } catch (error) {
     console.error('Error fetching time blocks for date:', error);
@@ -466,7 +466,7 @@ router.get('/time-blocks/date/:date', async (req, res) => {
 // Create time block
 router.post('/time-blocks', validateBody(timeBlockSchema.body), async (req, res) => {
   try {
-    const affiliateId = req.user.affiliate_id;
+    const tenantId = req.user.tenant_id;
     const userId = req.user.id;
     const {
       title, description, block_type, start_time, end_time,
@@ -483,7 +483,7 @@ router.post('/time-blocks', validateBody(timeBlockSchema.body), async (req, res)
 
     const query = `
       INSERT INTO schedule.time_blocks (
-        affiliate_id, title, description, block_type,
+        tenant_id, title, description, block_type,
         start_time, end_time, is_recurring, recurrence_pattern,
         recurrence_end_date, created_by
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
@@ -491,7 +491,7 @@ router.post('/time-blocks', validateBody(timeBlockSchema.body), async (req, res)
     `;
 
     const result = await pool.query(query, [
-      affiliateId, title, description, block_type,
+      tenantId, title, description, block_type,
       start_time, end_time, is_recurring, recurrence_pattern,
       recurrence_end_date, userId
     ]);
@@ -507,16 +507,16 @@ router.post('/time-blocks', validateBody(timeBlockSchema.body), async (req, res)
 router.put('/time-blocks/:id', validateBody(timeBlockSchema.body), async (req, res) => {
   try {
     const { id } = req.params;
-    const affiliateId = req.user.affiliate_id;
+    const tenantId = req.user.tenant_id;
     const updateData = req.body;
 
-    // Check if time block exists and belongs to affiliate
+    // Check if time block exists and belongs to tenant
     const checkQuery = `
       SELECT id FROM schedule.time_blocks 
-      WHERE id = $1 AND affiliate_id = $2
+      WHERE id = $1 AND tenant_id = $2
     `;
     
-    const checkResult = await pool.query(checkQuery, [id, affiliateId]);
+    const checkResult = await pool.query(checkQuery, [id, tenantId]);
     if (checkResult.rows.length === 0) {
       return res.status(404).json({ error: 'Time block not found' });
     }
@@ -539,12 +539,12 @@ router.put('/time-blocks/:id', validateBody(timeBlockSchema.body), async (req, r
     }
 
     updateFields.push(`updated_at = CURRENT_TIMESTAMP`);
-    values.push(id, affiliateId);
+    values.push(id, tenantId);
 
     const query = `
       UPDATE schedule.time_blocks 
       SET ${updateFields.join(', ')}
-      WHERE id = $${paramCount} AND affiliate_id = $${paramCount + 1}
+      WHERE id = $${paramCount} AND tenant_id = $${paramCount + 1}
       RETURNING *
     `;
 
@@ -560,15 +560,15 @@ router.put('/time-blocks/:id', validateBody(timeBlockSchema.body), async (req, r
 router.delete('/time-blocks/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const affiliateId = req.user.affiliate_id;
+    const tenantId = req.user.tenant_id;
 
     const query = `
       DELETE FROM schedule.time_blocks 
-      WHERE id = $1 AND affiliate_id = $2
+      WHERE id = $1 AND tenant_id = $2
       RETURNING id
     `;
 
-    const result = await pool.query(query, [id, affiliateId]);
+    const result = await pool.query(query, [id, tenantId]);
     
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Time block not found' });
@@ -593,22 +593,22 @@ router.get('/blocked-days', async (req, res) => {
       return res.status(400).json({ error: 'startDate and endDate are required' });
     }
 
-    const affiliateId = await getAffiliateId(userId, req.user.isAdmin);
+    const tenantId = await getTenantId(userId, req.user.isAdmin);
 
     const query = `
       SELECT blocked_date, reason, is_recurring, recurrence_pattern, recurrence_end_date
       FROM schedule.blocked_days 
-      WHERE affiliate_id = $1 
+      WHERE tenant_id = $1 
         AND blocked_date >= $2 
         AND blocked_date <= $3
       ORDER BY blocked_date ASC
     `;
 
-    const result = await pool.query(query, [affiliateId, startDate, endDate]);
+    const result = await pool.query(query, [tenantId, startDate, endDate]);
     res.json(result.rows);
   } catch (error) {
     console.error('Error fetching blocked days:', error);
-    if (error.message === 'No affiliate business found for this user') {
+    if (error.message === 'No tenant business found for this user') {
       return res.status(404).json({ error: error.message });
     }
     res.status(500).json({ error: 'Failed to fetch blocked days' });
@@ -625,25 +625,25 @@ router.post('/blocked-days/toggle', async (req, res) => {
       return res.status(400).json({ error: 'date is required' });
     }
 
-    const affiliateId = await getAffiliateId(userId, req.user.isAdmin);
+    const tenantId = await getTenantId(userId, req.user.isAdmin);
 
     // Check if date is already blocked
     const checkQuery = `
       SELECT id FROM schedule.blocked_days 
-      WHERE affiliate_id = $1 AND blocked_date = $2
+      WHERE tenant_id = $1 AND blocked_date = $2
     `;
     
-    const checkResult = await pool.query(checkQuery, [affiliateId, date]);
+    const checkResult = await pool.query(checkQuery, [tenantId, date]);
     
     if (checkResult.rows.length > 0) {
       // Remove blocked day
       const deleteQuery = `
         DELETE FROM schedule.blocked_days 
-        WHERE affiliate_id = $1 AND blocked_date = $2
+        WHERE tenant_id = $1 AND blocked_date = $2
         RETURNING blocked_date
       `;
       
-      const deleteResult = await pool.query(deleteQuery, [affiliateId, date]);
+      const deleteResult = await pool.query(deleteQuery, [tenantId, date]);
       res.json({ 
         action: 'removed', 
         date: deleteResult.rows[0].blocked_date,
@@ -652,12 +652,12 @@ router.post('/blocked-days/toggle', async (req, res) => {
     } else {
       // Add blocked day
       const insertQuery = `
-        INSERT INTO schedule.blocked_days (affiliate_id, blocked_date, reason, created_by)
+        INSERT INTO schedule.blocked_days (tenant_id, blocked_date, reason, created_by)
         VALUES ($1, $2, $3, $4)
         RETURNING blocked_date, reason
       `;
       
-      const insertResult = await pool.query(insertQuery, [affiliateId, date, reason || 'Blocked', userId]);
+      const insertResult = await pool.query(insertQuery, [tenantId, date, reason || 'Blocked', userId]);
       res.json({ 
         action: 'added', 
         date: insertResult.rows[0].blocked_date,
@@ -667,7 +667,7 @@ router.post('/blocked-days/toggle', async (req, res) => {
     }
   } catch (error) {
     console.error('Error toggling blocked day:', error);
-    if (error.message === 'No affiliate business found for this user') {
+    if (error.message === 'No tenant business found for this user') {
       return res.status(404).json({ error: error.message });
     }
     res.status(500).json({ error: 'Failed to toggle blocked day' });
@@ -678,7 +678,7 @@ router.post('/blocked-days/toggle', async (req, res) => {
 router.post('/blocked-days', async (req, res) => {
   try {
     const { date, reason, is_recurring, recurrence_pattern, recurrence_end_date } = req.body;
-    const affiliateId = req.user.affiliate_id;
+    const tenantId = req.user.tenant_id;
     const userId = req.user.id;
 
     if (!date) {
@@ -688,24 +688,24 @@ router.post('/blocked-days', async (req, res) => {
     // Check if date is already blocked
     const checkQuery = `
       SELECT id FROM schedule.blocked_days 
-      WHERE affiliate_id = $1 AND blocked_date = $2
+      WHERE tenant_id = $1 AND blocked_date = $2
     `;
     
-    const checkResult = await pool.query(checkQuery, [affiliateId, date]);
+    const checkResult = await pool.query(checkQuery, [tenantId, date]);
     if (checkResult.rows.length > 0) {
       return res.status(409).json({ error: 'Date is already blocked' });
     }
 
     const query = `
       INSERT INTO schedule.blocked_days (
-        affiliate_id, blocked_date, reason, is_recurring, 
+        tenant_id, blocked_date, reason, is_recurring, 
         recurrence_pattern, recurrence_end_date, created_by
       ) VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING *
     `;
 
     const result = await pool.query(query, [
-      affiliateId, date, reason || 'Blocked', is_recurring || false,
+      tenantId, date, reason || 'Blocked', is_recurring || false,
       recurrence_pattern, recurrence_end_date, userId
     ]);
 
@@ -720,15 +720,15 @@ router.post('/blocked-days', async (req, res) => {
 router.delete('/blocked-days/:date', async (req, res) => {
   try {
     const { date } = req.params;
-    const affiliateId = req.user.affiliate_id;
+    const tenantId = req.user.tenant_id;
 
     const query = `
       DELETE FROM schedule.blocked_days 
-      WHERE affiliate_id = $1 AND blocked_date = $2
+      WHERE tenant_id = $1 AND blocked_date = $2
       RETURNING blocked_date
     `;
 
-    const result = await pool.query(query, [affiliateId, date]);
+    const result = await pool.query(query, [tenantId, date]);
     
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Blocked day not found' });
@@ -749,14 +749,14 @@ router.delete('/blocked-days/:date', async (req, res) => {
 // Get schedule settings
 router.get('/settings', async (req, res) => {
   try {
-    const affiliateId = req.user.affiliate_id;
+    const tenantId = req.user.tenant_id;
 
     const query = `
       SELECT * FROM schedule.schedule_settings 
-      WHERE affiliate_id = $1
+      WHERE tenant_id = $1
     `;
 
-    const result = await pool.query(query, [affiliateId]);
+    const result = await pool.query(query, [tenantId]);
     
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Schedule settings not found' });
@@ -772,7 +772,7 @@ router.get('/settings', async (req, res) => {
 // Update schedule settings
 router.put('/settings', async (req, res) => {
   try {
-    const affiliateId = req.user.affiliate_id;
+    const tenantId = req.user.tenant_id;
     const userId = req.user.id;
     const updateData = req.body;
 
@@ -798,12 +798,12 @@ router.put('/settings', async (req, res) => {
     paramCount++;
 
     updateFields.push(`updated_at = CURRENT_TIMESTAMP`);
-    values.push(affiliateId);
+    values.push(tenantId);
 
     const query = `
       UPDATE schedule.schedule_settings 
       SET ${updateFields.join(', ')}
-      WHERE affiliate_id = $${paramCount}
+      WHERE tenant_id = $${paramCount}
       RETURNING *
     `;
 
@@ -823,7 +823,7 @@ router.put('/settings', async (req, res) => {
 // Reset schedule settings to defaults
 router.post('/settings/reset', async (req, res) => {
   try {
-    const affiliateId = req.user.affiliate_id;
+    const tenantId = req.user.tenant_id;
     const userId = req.user.id;
 
     const query = `
@@ -851,11 +851,11 @@ router.post('/settings/reset', async (req, res) => {
         send_confirmation_emails = true,
         updated_by = $1,
         updated_at = CURRENT_TIMESTAMP
-      WHERE affiliate_id = $2
+      WHERE tenant_id = $2
       RETURNING *
     `;
 
-    const result = await pool.query(query, [userId, affiliateId]);
+    const result = await pool.query(query, [userId, tenantId]);
     res.json(result.rows[0]);
   } catch (error) {
     console.error('Error resetting schedule settings:', error);
