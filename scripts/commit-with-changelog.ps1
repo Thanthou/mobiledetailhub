@@ -8,11 +8,11 @@ param(
 )
 
 $timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
-$changelogFile = "gitlogs/CHANGES_$timestamp.md"
+$changelogFile = "chatgpt/gitlogs/CHANGES_$timestamp.md"
 
 # Create gitlogs directory if it doesn't exist
-if (-not (Test-Path "gitlogs")) {
-    New-Item -ItemType Directory -Path "gitlogs" | Out-Null
+if (-not (Test-Path "chatgpt/gitlogs")) {
+    New-Item -ItemType Directory -Path "chatgpt/gitlogs" -Force | Out-Null
 }
 
 Write-Host "📝 Generating changelog..." -ForegroundColor Cyan

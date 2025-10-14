@@ -8,10 +8,10 @@ $hookContent = @'
 # Auto-generate changelog on every commit
 
 TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
-CHANGELOG_FILE="gitlogs/CHANGES_$TIMESTAMP.md"
+CHANGELOG_FILE="chatgpt/gitlogs/CHANGES_$TIMESTAMP.md"
 
 # Create gitlogs directory if it doesn't exist
-mkdir -p gitlogs
+mkdir -p chatgpt/gitlogs
 
 # Get the last commit info
 COMMIT_HASH=$(git rev-parse HEAD)
@@ -65,7 +65,7 @@ $hookContent | Out-File -FilePath $hookFile -Encoding ASCII -NoNewline
 
 Write-Host "✅ Post-commit hook installed successfully!" -ForegroundColor Green
 Write-Host ""
-Write-Host "Now every time you commit, a changelog will be auto-generated in gitlogs/" -ForegroundColor Cyan
+Write-Host "Now every time you commit, a changelog will be auto-generated in chatgpt/gitlogs/" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "To use:" -ForegroundColor Yellow
 Write-Host "  git add ." -ForegroundColor White

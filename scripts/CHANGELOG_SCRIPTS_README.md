@@ -7,7 +7,7 @@ These scripts automatically generate a changelog file documenting all changes wh
 - 📝 Captures all file changes and diffs
 - 🕐 Timestamps each changelog
 - 💾 Auto-stages, commits, and pushes
-- 📁 Organizes changelogs in `gitlogs/` directory
+- 📁 Organizes changelogs in `chatgpt/gitlogs/` directory
 
 ## Usage
 
@@ -31,7 +31,7 @@ Then run:
 
 ## What Gets Generated?
 
-Each run creates a file like `gitlogs/CHANGES_2025-10-14_15-30-45.md` containing:
+Each run creates a file like `chatgpt/gitlogs/CHANGES_2025-10-14_15-30-45.md` containing:
 
 1. **Timestamp** - When the commit was made
 2. **Commit Message** - Your provided message
@@ -69,7 +69,7 @@ You can modify the scripts to:
 
 ## Notes
 
-- The `gitlogs/` directory is git-ignored by default
-- If you want to commit changelogs, remove `gitlogs/` from `.gitignore`
+- The `chatgpt/gitlogs/` directory is git-ignored by default
+- If you want to commit changelogs, remove `chatgpt/gitlogs/` from `.gitignore`
 - Scripts will auto-stage all changes before committing
 

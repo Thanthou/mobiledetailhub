@@ -10,10 +10,10 @@ fi
 
 COMMIT_MESSAGE="$1"
 TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
-CHANGELOG_FILE="gitlogs/CHANGES_$TIMESTAMP.md"
+CHANGELOG_FILE="chatgpt/gitlogs/CHANGES_$TIMESTAMP.md"
 
 # Create gitlogs directory if it doesn't exist
-mkdir -p gitlogs
+mkdir -p chatgpt/gitlogs
 
 echo "📝 Generating changelog..."
 
