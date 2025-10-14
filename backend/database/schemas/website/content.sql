@@ -13,6 +13,8 @@ CREATE TABLE IF NOT EXISTS website.content (
   faq_subtitle TEXT,
   faq_items JSONB DEFAULT '[]'::jsonb,
   custom_sections JSONB DEFAULT '[]'::jsonb,
+  reviews_avg_rating DECIMAL(3,2) DEFAULT 0.00,
+  reviews_total_count INTEGER DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
@@ -20,7 +22,10 @@ CREATE TABLE IF NOT EXISTS website.content (
 -- Indexes
 CREATE INDEX idx_content_business_id ON website.content USING btree (business_id);
 CREATE INDEX idx_content_updated_at ON website.content USING btree (updated_at);
+CREATE INDEX idx_content_avg_rating ON website.content USING btree (reviews_avg_rating);
+CREATE INDEX idx_content_review_count ON website.content USING btree (reviews_total_count);
 CREATE UNIQUE INDEX uk_content_business_id ON website.content USING btree (business_id);
 
 -- Table created: 2025-10-13T19:26:01.170Z
+-- Updated: 2025-10-14 - Added review statistics columns
 -- Extracted from database

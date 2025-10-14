@@ -1,7 +1,8 @@
 import React from 'react';
-import { User } from 'lucide-react';
+import { User, Zap } from 'lucide-react';
 
 import { Input } from '@/shared/ui';
+import { formatPhoneNumber } from '@/shared/utils/phoneFormatter';
 
 interface PersonalInformationSectionProps {
   formData: {
@@ -11,20 +12,49 @@ interface PersonalInformationSectionProps {
     personalEmail: string;
   };
   handleInputChange: (field: string, value: string) => void;
+  errors?: Record<string, string>;
 }
 
 const PersonalInformationSection: React.FC<PersonalInformationSectionProps> = ({
   formData,
-  handleInputChange
+  handleInputChange,
+  errors = {}
 }) => {
+  const handlePhoneChange = (value: string) => {
+    const formatted = formatPhoneNumber(value);
+    handleInputChange('personalPhone', formatted);
+  };
+
+  const handleAutoFill = () => {
+    handleInputChange('firstName', 'Jess');
+    handleInputChange('lastName', 'Brister');
+    handleInputChange('personalPhone', formatPhoneNumber('7024203140'));
+    handleInputChange('personalEmail', 'jessbrister27@gmail.com');
+  };
+
   return (
     <div className="bg-stone-800 border border-stone-700 rounded-lg">
       <div className="p-6 border-b border-stone-700">
-        <h2 className="text-white text-lg font-semibold flex items-center">
-          <User className="h-5 w-5 mr-2" />
-          Personal Information
-        </h2>
-        <p className="text-gray-400 text-sm mt-1">Tell us about yourself</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-white text-lg font-semibold flex items-center">
+              <User className="h-5 w-5 mr-2" />
+              Personal Information
+            </h2>
+            <p className="text-gray-400 text-sm mt-1">Tell us about yourself</p>
+          </div>
+          {import.meta.env.DEV && (
+            <button
+              type="button"
+              onClick={handleAutoFill}
+              className="flex items-center gap-2 px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium rounded-lg transition-colors"
+              title="Auto-fill with test data"
+            >
+              <Zap className="h-4 w-4" />
+              Auto-fill
+            </button>
+          )}
+        </div>
       </div>
       <div className="p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -69,9 +99,10 @@ const PersonalInformationSection: React.FC<PersonalInformationSectionProps> = ({
             id="personalPhone"
             type="tel"
             value={formData.personalPhone}
-            onChange={(e) => { handleInputChange('personalPhone', e.target.value); }}
+            onChange={(e) => { handlePhoneChange(e.target.value); }}
             placeholder="(555) 123-4567"
             required
+            maxLength={14}
             className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
           />
         </div>
@@ -90,6 +121,9 @@ const PersonalInformationSection: React.FC<PersonalInformationSectionProps> = ({
             required
             className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
           />
+          {errors['personalEmail'] && (
+            <p className="mt-1 text-sm text-red-400">{errors['personalEmail']}</p>
+          )}
         </div>
         </div>
       </div>

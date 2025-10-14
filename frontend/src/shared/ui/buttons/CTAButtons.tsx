@@ -50,6 +50,8 @@ const CTAButtons: React.FC<CTAButtonsProps> = ({
   const handleBookNowClick = (e: React.MouseEvent) => {
     if (isPreview) {
       e.preventDefault();
+      e.stopPropagation();
+      alert('📋 Preview Mode\n\nBooking is disabled in preview mode.\n\nThis is a demonstration site to showcase features to potential clients.');
       return;
     }
     bookNowProps.onClick?.();
@@ -60,8 +62,8 @@ const CTAButtons: React.FC<CTAButtonsProps> = ({
       <BookNow
         variant={bookNowProps.variant ?? 'primary'}
         size={buttonSize}
-        className={cn(commonBtnClasses, isPreview && 'opacity-50 cursor-not-allowed', bookNowProps.className)}
-        {...(bookNowProps.onClick && { onClick: isPreview ? handleBookNowClick : bookNowProps.onClick })}
+        className={cn(commonBtnClasses, isPreview && 'cursor-pointer', bookNowProps.className)}
+        onClick={isPreview ? handleBookNowClick : bookNowProps.onClick}
         {...(bookNowProps.to && !isPreview && { to: bookNowProps.to })}
       >
         {bookNowProps.children ?? 'Book Now'}

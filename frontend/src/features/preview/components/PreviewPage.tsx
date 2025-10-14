@@ -5,7 +5,7 @@
  * Used for sales demos - no tenant record is created yet.
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 import { FAQ } from '@/features/faq';
 import { Gallery } from '@/features/gallery';

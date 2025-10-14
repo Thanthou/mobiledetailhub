@@ -46,18 +46,25 @@ const MobileCTAButtons: React.FC<MobileCTAButtonsProps> = ({
     stacked: 'flex flex-col gap-3'
   };
 
+  const handleBookNowClick = () => {
+    if (isPreview) {
+      alert('📋 Preview Mode\n\nBooking is disabled in preview mode.\n\nThis is a demonstration site to showcase features to potential clients.');
+      return;
+    }
+    onBookNow?.();
+  };
+
   return (
     <div className={cn(containerClasses[layout], className)}>
       {/* Primary CTA - Book Now (full width) */}
       {hasOnlineBooking && (
         <button
-          onClick={isPreview ? undefined : onBookNow}
-          disabled={isPreview}
+          onClick={handleBookNowClick}
           className={cn(
             buttonBaseClasses, 
             primaryButtonClasses, 
             "w-full",
-            isPreview && "opacity-50 cursor-not-allowed"
+            isPreview && "cursor-pointer"
           )}
           aria-label={`Book an appointment with ${businessName}`}
         >

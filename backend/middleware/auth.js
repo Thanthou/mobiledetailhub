@@ -11,6 +11,23 @@ const authenticateToken = async (req, res, next) => {
       ip: req.ip
     });
     
+    // In development mode, allow requests without authentication for admin routes
+    // Check both req.path and req.originalUrl since routes may be mounted
+    const isAdminRoute = req.path.includes('/admin') || (req.originalUrl && req.originalUrl.includes('/admin'));
+    if ((process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'dev') && isAdminRoute) {
+      req.user = {
+        userId: 1,
+        email: 'admin@dev.local',
+        isAdmin: true
+      };
+      logger.debug('Authentication bypassed (development mode for admin route)', { 
+        path: req.path,
+        originalUrl: req.originalUrl,
+        method: req.method
+      });
+      return next();
+    }
+    
     // 1) Prefer HttpOnly cookie
     const cookies = req.headers.cookie ? cookie.parse(req.headers.cookie) : {};
     const cookieToken = cookies['access_token'];
@@ -106,6 +123,23 @@ const authenticateToken = async (req, res, next) => {
 
 // Admin Middleware - Role-aware and future-proof
 const requireAdmin = (req, res, next) => {
+  // In development mode, allow admin access without authentication
+  if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'dev') {
+    // Set mock admin user for development
+    if (!req.user) {
+      req.user = {
+        userId: 1,
+        email: 'admin@dev.local',
+        isAdmin: true
+      };
+    }
+    logger.debug('Admin access granted (development mode)', { 
+      path: req.path, 
+      method: req.method
+    });
+    return next();
+  }
+  
   logger.debug('Admin middleware called', { 
     path: req.path, 
     method: req.method,

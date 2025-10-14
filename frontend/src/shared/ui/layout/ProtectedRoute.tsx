@@ -20,14 +20,22 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const user = authContext.user;
   const loading = authContext.loading;
   
-  // In development mode, allow access to tenant dashboards without authentication
-  if (import.meta.env.DEV && Array.isArray(requiredRole) && requiredRole.includes('tenant')) {
-    return <>{children}</>;
-  }
-  
-  // In development mode, also allow access for single 'tenant' role
-  if (import.meta.env.DEV && requiredRole === 'tenant') {
-    return <>{children}</>;
+  // In development mode, allow access to dashboards without authentication
+  if (import.meta.env.DEV) {
+    // Allow tenant access
+    if (Array.isArray(requiredRole) && requiredRole.includes('tenant')) {
+      return <>{children}</>;
+    }
+    if (requiredRole === 'tenant') {
+      return <>{children}</>;
+    }
+    // Allow admin access
+    if (Array.isArray(requiredRole) && requiredRole.includes('admin')) {
+      return <>{children}</>;
+    }
+    if (requiredRole === 'admin') {
+      return <>{children}</>;
+    }
   }
   
   // Show loading while checking authentication

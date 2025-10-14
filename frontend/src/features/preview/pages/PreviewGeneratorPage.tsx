@@ -7,8 +7,9 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, Loader2, Sparkles } from 'lucide-react';
+import { Eye, Loader2, Sparkles, Zap } from 'lucide-react';
 
+import { useBrowserTab } from '@/shared/hooks';
 import { formatPhoneNumber } from '@/shared/utils/phoneFormatter';
 
 import { createPreview } from '../api/preview.api';
@@ -21,10 +22,44 @@ const INDUSTRIES = [
   { value: 'pet-grooming', label: 'Pet Grooming' },
 ] as const;
 
+// Test data for quick autofill by industry
+const TEST_DATA = {
+  'mobile-detailing': {
+    businessName: "JP's Mobile Detail",
+    phone: '(702) 420-3140',
+    city: 'Bullhead City',
+    state: 'AZ'
+  },
+  'maid-service': {
+    businessName: 'Sparkle Clean Maids',
+    phone: '(602) 555-5678',
+    city: 'Phoenix',
+    state: 'AZ'
+  },
+  'lawncare': {
+    businessName: 'Green Horizons Lawn Care',
+    phone: '(928) 555-9012',
+    city: 'Flagstaff',
+    state: 'AZ'
+  },
+  'pet-grooming': {
+    businessName: 'Pampered Paws Grooming',
+    phone: '(520) 555-3456',
+    city: 'Tucson',
+    state: 'AZ'
+  }
+} as const;
+
 const PreviewGeneratorPage: React.FC = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Set browser tab title and favicon for preview generator page
+  useBrowserTab({
+    title: 'Preview Generator - That Smart Site',
+    useBusinessName: false,
+  });
   
   const [formData, setFormData] = useState({
     businessName: '',
@@ -69,6 +104,17 @@ const PreviewGeneratorPage: React.FC = () => {
   const handleStateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.toUpperCase().slice(0, 2); // Max 2 chars, uppercase
     setFormData((prev) => ({ ...prev, state: value }));
+  };
+
+  const handleAutofill = () => {
+    const testData = TEST_DATA[formData.industry];
+    setFormData({
+      industry: formData.industry,
+      businessName: testData.businessName,
+      phone: testData.phone,
+      city: testData.city,
+      state: testData.state
+    });
   };
 
   return (
@@ -183,6 +229,16 @@ const PreviewGeneratorPage: React.FC = () => {
               ))}
             </select>
           </div>
+
+          {/* Autofill Button */}
+          <button
+            type="button"
+            onClick={handleAutofill}
+            className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors border border-blue-500"
+          >
+            <Zap className="h-4 w-4" />
+            <span>Quick Fill Test Data</span>
+          </button>
 
           {/* Error Message */}
           {error && (

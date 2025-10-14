@@ -25,6 +25,17 @@ export const WebsiteContentProvider: React.FC<WebsiteContentProviderProps> = ({ 
   const params = useParams();
   const slug = params.businessSlug || params.tenantSlug || params.slug || 'jps';
 
+  // Skip fetching for non-tenant routes (admin, onboarding, login, etc.)
+  const currentPath = window.location.pathname;
+  const isNonTenantRoute = 
+    currentPath.startsWith('/admin-dashboard') ||
+    currentPath.startsWith('/tenant-dashboard') ||
+    currentPath.startsWith('/tenant-onboarding') ||
+    currentPath.startsWith('/login') ||
+    currentPath.startsWith('/booking') ||
+    currentPath.startsWith('/preview-generator') ||
+    currentPath.startsWith('/preview');
+
   const {
     data: content,
     isLoading,
@@ -40,7 +51,7 @@ export const WebsiteContentProvider: React.FC<WebsiteContentProviderProps> = ({ 
     staleTime: 5 * 60 * 1000, // 5 minutes
     cacheTime: 10 * 60 * 1000, // 10 minutes
     retry: 2,
-    enabled: !!slug,
+    enabled: !!slug && !isNonTenantRoute,
   });
 
   const contextValue: WebsiteContentContextType = {

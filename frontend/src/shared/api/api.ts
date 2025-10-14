@@ -43,7 +43,8 @@ export interface User {
   id: number;
   name: string;
   email: string;
-  role: 'admin' | 'affiliate' | 'customer';
+  role?: 'admin' | 'affiliate' | 'customer' | 'tenant';
+  is_admin?: boolean;
   created_at: string;
   business_name?: string;
   application_status?: string;
@@ -296,18 +297,21 @@ class ApiService {
     // Use relative URL to leverage Vite proxy
     const url = endpoint;
     
-    // Get token from localStorage
+    // Get token from localStorage (optional in development mode)
     const token = localStorage.getItem('token');
-    if (!token) {
-      throw new Error('Authentication token required');
-    }
     
     try {
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+      
+      // Only add Authorization header if token exists
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
       const response = await fetch(url, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
+        headers,
       });
       
       const data = await response.json() as UsersResponse;
@@ -329,18 +333,21 @@ class ApiService {
     // Use relative URL to leverage Vite proxy
     const url = '/api/admin/pending-applications';
     
-    // Get token from localStorage
+    // Get token from localStorage (optional in development mode)
     const token = localStorage.getItem('token');
-    if (!token) {
-      throw new Error('Authentication token required');
-    }
     
     try {
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+      
+      // Only add Authorization header if token exists
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
       const response = await fetch(url, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
+        headers,
       });
       
       const data = await response.json() as ApplicationsResponse;
@@ -362,19 +369,22 @@ class ApiService {
     // Use relative URL to leverage Vite proxy
     const url = `/api/admin/approve-application/${applicationId.toString()}`;
     
-    // Get token from localStorage
+    // Get token from localStorage (optional in development mode)
     const token = localStorage.getItem('token');
-    if (!token) {
-      throw new Error('Authentication token required');
-    }
     
     try {
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+      
+      // Only add Authorization header if token exists
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
       const response = await fetch(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
+        headers,
         body: JSON.stringify({
           approved_slug: approvedSlug,
           admin_notes: adminNotes,
@@ -401,19 +411,22 @@ class ApiService {
     // Use relative URL to leverage Vite proxy
     const url = `/api/admin/reject-application/${applicationId.toString()}`;
     
-    // Get token from localStorage
+    // Get token from localStorage (optional in development mode)
     const token = localStorage.getItem('token');
-    if (!token) {
-      throw new Error('Authentication token required');
-    }
     
     try {
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+      
+      // Only add Authorization header if token exists
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
       const response = await fetch(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
+        headers,
         body: JSON.stringify({
           rejection_reason: rejectionReason,
           admin_notes: adminNotes
@@ -437,21 +450,24 @@ class ApiService {
 
   async deleteAffiliate(affiliateId: number): Promise<AffiliateDeletionResponse> {
     // Use relative URL to leverage Vite proxy
-    const url = `/api/admin/affiliates/${affiliateId.toString()}`;
+    const url = `/api/admin/tenants/${affiliateId.toString()}`;
     
-    // Get token from localStorage
+    // Get token from localStorage (optional in development mode)
     const token = localStorage.getItem('token');
-    if (!token) {
-      throw new Error('Authentication token required');
-    }
     
     try {
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+      
+      // Only add Authorization header if token exists
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
       const response = await fetch(url, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
+        headers,
       });
       
       const data = await response.json() as AffiliateDeletionResponse;

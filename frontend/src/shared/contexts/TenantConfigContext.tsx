@@ -71,8 +71,20 @@ export const TenantConfigProvider: React.FC<TenantConfigProviderProps> = ({ chil
   const [error, setError] = useState<string | null>(null);
   const { slug } = useParams<{ slug: string }>();
 
+  // Skip fetching for non-tenant routes (admin, onboarding, login, etc.)
+  const currentPath = window.location.pathname;
+  const isNonTenantRoute = 
+    currentPath.startsWith('/admin-dashboard') ||
+    currentPath.startsWith('/tenant-dashboard') ||
+    currentPath.startsWith('/tenant-onboarding') ||
+    currentPath.startsWith('/login') ||
+    currentPath.startsWith('/booking') ||
+    currentPath.startsWith('/preview-generator') ||
+    currentPath.startsWith('/preview');
+
   const refreshTenantConfig = useCallback(async () => {
-    if (!slug) {
+    // Skip if no slug or on non-tenant route
+    if (!slug || isNonTenantRoute) {
       setTenantConfigState(null);
       setIsLoading(false);
       return;
@@ -113,7 +125,7 @@ export const TenantConfigProvider: React.FC<TenantConfigProviderProps> = ({ chil
     } finally {
       setIsLoading(false);
     }
-  }, [slug]);
+  }, [slug, isNonTenantRoute]);
 
   useEffect(() => {
     void refreshTenantConfig();

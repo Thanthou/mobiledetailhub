@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { useHeroContent } from '@/features/hero/hooks/useHeroContent';
-import { useMediaQuery, BREAKPOINTS } from '@/shared/hooks';
+import { BREAKPOINTS, useMediaQuery } from '@/shared/hooks';
 
 import ContentContainer from './ContentContainer';
 import ImageCarousel from './ImageCarousel';

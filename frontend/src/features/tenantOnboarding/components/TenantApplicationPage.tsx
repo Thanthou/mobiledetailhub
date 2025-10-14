@@ -67,17 +67,10 @@ const TenantApplicationPage: React.FC = () => {
       const localData = loadFromLocalStorage();
 
       if (localData) {
-        const shouldRestore = window.confirm(
-          'We found a saved draft. Would you like to continue where you left off?'
-        );
-        if (shouldRestore) {
-          setFormData(localData);
-          setCurrentStep(localData.step);
-          return;
-        } else {
-          // User declined - clear the draft so we don't ask again
-          clearSavedData();
-        }
+        // Automatically restore saved draft without confirmation popup
+        setFormData(localData);
+        setCurrentStep(localData.step);
+        return;
       }
 
       // Pre-fill from preview data if available
@@ -145,7 +138,7 @@ const TenantApplicationPage: React.FC = () => {
     }));
   };
 
-  const validateStep = (step: number): boolean => {
+  const validateStep = async (step: number): Promise<boolean> => {
     try {
       switch (step) {
         case 0:
@@ -155,14 +148,32 @@ const TenantApplicationPage: React.FC = () => {
           });
           return true;
 
-        case 1:
+        case 1: {
+          // First, validate the schema
           personalInfoSchema.parse({
             firstName: formData.firstName,
             lastName: formData.lastName,
             personalPhone: formData.personalPhone,
             personalEmail: formData.personalEmail,
           });
+
+          // Then check if email already exists
+          try {
+            const response = await fetch(`/api/auth/check-email?email=${encodeURIComponent(formData.personalEmail)}`);
+            const result = await response.json();
+            
+            if (result.exists) {
+              setErrors({ personalEmail: 'An account with this email already exists' });
+              return false;
+            }
+          } catch (emailCheckError) {
+            console.error('Error checking email:', emailCheckError);
+            // If the email check fails, we'll allow them to proceed
+            // The backend will catch duplicates during signup
+          }
+          
           return true;
+        }
 
         case 2:
           businessInfoSchema.parse({
@@ -194,8 +205,9 @@ const TenantApplicationPage: React.FC = () => {
     }
   };
 
-  const goToNextStep = () => {
-    if (validateStep(currentStep)) {
+  const goToNextStep = async () => {
+    const isValid = await validateStep(currentStep);
+    if (isValid) {
       const nextStep = currentStep + 1;
       setFormData((prev) => ({ ...prev, step: nextStep }));
       setCurrentStep(nextStep);
@@ -215,7 +227,8 @@ const TenantApplicationPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateStep(currentStep)) {
+    const isValid = await validateStep(currentStep);
+    if (!isValid) {
       return;
     }
 
@@ -290,6 +303,7 @@ const TenantApplicationPage: React.FC = () => {
                 <PersonalInformationSection
                   formData={formData}
                   handleInputChange={handleFieldChange}
+                  errors={errors}
                 />
               )}
 
@@ -337,7 +351,7 @@ const TenantApplicationPage: React.FC = () => {
                 {currentStep < STEPS.length - 1 ? (
                   <Button
                     type="button"
-                    onClick={goToNextStep}
+                    onClick={() => { void goToNextStep(); }}
                     variant="primary"
                     size="lg"
                     className={currentStep === 0 ? 'w-full' : ''}

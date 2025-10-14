@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
+import { useBrowserTab } from '@/shared/hooks';
+
 import type { DashboardTab, DetailerData } from '@/features/tenantDashboard/types';
 
 import { DashboardHeader } from './DashboardHeader';
@@ -14,6 +16,13 @@ const DashboardPage: React.FC = () => {
   const [detailerData, setDetailerData] = useState<DetailerData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Set browser tab title and favicon for tenant dashboard
+  useBrowserTab({
+    title: detailerData?.businessName 
+      ? `${detailerData.businessName} - Dashboard`
+      : 'Dashboard - That Smart Site',
+  });
 
   // Fetch tenant data based on business slug
   useEffect(() => {

@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Loader2, Trash2, UserCheck, UserCog, UserPlus, Users, UserX } from 'lucide-react';
 
-import { ApplicationModal, Toast } from '@/features/adminDashboard/components/shared';
+import { ApplicationModal, DeleteConfirmationModal, Toast } from '@/features/adminDashboard/components/shared';
 import type { UserSubTab } from '@/features/adminDashboard/types';
 import { apiService } from '@/shared/api/api';
 import { Button } from '@/shared/ui';
@@ -11,7 +11,8 @@ interface User {
   id: number;
   name: string;
   email: string;
-  role: string;
+  role?: string;
+  is_admin?: boolean;
   created_at: string;
   business_name?: string;
   slug?: string;
@@ -45,6 +46,12 @@ export const UsersTab: React.FC = () => {
     type: 'approve' | 'reject';
     applicationId: number;
     businessName: string;
+  } | null>(null);
+  const [deleteModalState, setDeleteModalState] = useState<{
+    isOpen: boolean;
+    userId: number;
+    name: string;
+    isTenant: boolean;
   } | null>(null);
   const [processingApplication, setProcessingApplication] = useState(false);
   const [toast, setToast] = useState<{
@@ -96,7 +103,12 @@ export const UsersTab: React.FC = () => {
           } else {
             // Fetch regular users
             const response = await apiService.getUsers(status);
-            setUsers(response.users);
+            // Map is_admin boolean to role string
+            const usersWithRole = response.users.map(user => ({
+              ...user,
+              role: user.is_admin ? 'admin' : (user.business_name ? 'tenant' : 'customer')
+            }));
+            setUsers(usersWithRole);
           }
         } catch (err) {
           setError(err instanceof Error ? err.message : 'An error occurred');
@@ -230,29 +242,39 @@ export const UsersTab: React.FC = () => {
     setModalState(null);
   };
 
-  const handleDeleteAffiliate = async (userId: number, businessName: string) => {
-    if (!window.confirm(`Are you sure you want to delete "${businessName}"? This action cannot be undone and will also remove all associated service areas.`)) {
-      return;
-    }
+  const handleDeleteClick = (userId: number, name: string, isTenant: boolean) => {
+    setDeleteModalState({
+      isOpen: true,
+      userId,
+      name,
+      isTenant
+    });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteModalState) return;
     
-    setDeletingAffiliate(userId);
+    setDeletingAffiliate(deleteModalState.userId);
     try {
-      const response = await apiService.deleteAffiliate(userId);
+      const response = await apiService.deleteAffiliate(deleteModalState.userId);
       if (response.success) {
         setToast({
-          message: `Affiliate "${businessName}" deleted successfully.`,
+          message: `"${deleteModalState.name}" deleted successfully. All associated data has been removed.`,
           type: 'success',
           isVisible: true
         });
-        fetchUsers('affiliates', true); // Refresh affiliates list
+        fetchUsers(activeSubTab, true); // Refresh current tab
         
         // Notify other components that a tenant was deleted
         tenantEventManager.notify();
+        
+        // Close modal
+        setDeleteModalState(null);
       } else {
-        throw new Error(response.message || 'Failed to delete affiliate');
+        throw new Error(response.message || 'Failed to delete');
       }
     } catch (err) {
-      console.error('Error deleting affiliate:', err);
+      console.error('Error deleting:', err);
       let errorMessage = 'An error occurred';
       if (err instanceof Error) {
         errorMessage = err.message;
@@ -266,6 +288,7 @@ export const UsersTab: React.FC = () => {
         type: 'error',
         isVisible: true
       });
+      setDeleteModalState(null);
     } finally {
       setDeletingAffiliate(null);
     }
@@ -423,9 +446,11 @@ export const UsersTab: React.FC = () => {
                   {user.slug && (
                     <p className="text-gray-400 text-xs">slug: {user.slug}</p>
                   )}
-                  <p className="text-gray-400 text-xs mt-1">
-                    Role: <span className="text-blue-300">{user.role}</span>
-                  </p>
+                  {user.role && (
+                    <p className="text-gray-400 text-xs mt-1">
+                      Role: <span className="text-blue-300 capitalize">{user.role}</span>
+                    </p>
+                  )}
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="text-right text-xs text-gray-400">
@@ -433,17 +458,33 @@ export const UsersTab: React.FC = () => {
                     <p>Created: {new Date(user.created_at).toLocaleDateString()}</p>
                   </div>
                   
-                  {/* Delete button for affiliates */}
-                  {user.role === 'affiliate' && (
+                  {/* Delete button for tenants */}
+                  {user.role === 'tenant' && (
                     <button
-                      onClick={() => void handleDeleteAffiliate(user.id, user.business_name || user.name)}
+                      onClick={() => handleDeleteClick(user.id, user.business_name || user.name, true)}
                       disabled={deletingAffiliate === user.id}
                       className={`flex items-center gap-2 px-3 py-1.5 text-white text-xs rounded transition-colors ${
                         deletingAffiliate === user.id
                           ? 'bg-gray-500 cursor-not-allowed'
                           : 'bg-red-600 hover:bg-red-700'
                       }`}
-                      title="Delete affiliate and all associated data"
+                      title="Delete tenant and all associated data"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                      {deletingAffiliate === user.id ? 'Deleting...' : 'Delete'}
+                    </button>
+                  )}
+                  {/* Delete button for regular users (customers/admins) */}
+                  {(user.role === 'customer' || user.role === 'admin') && user.id !== 1 && (
+                    <button
+                      onClick={() => handleDeleteClick(user.id, user.name, false)}
+                      disabled={deletingAffiliate === user.id}
+                      className={`flex items-center gap-2 px-3 py-1.5 text-white text-xs rounded transition-colors ${
+                        deletingAffiliate === user.id
+                          ? 'bg-gray-500 cursor-not-allowed'
+                          : 'bg-red-600 hover:bg-red-700'
+                      }`}
+                      title="Delete user"
                     >
                       <Trash2 className="w-3 h-3" />
                       {deletingAffiliate === user.id ? 'Deleting...' : 'Delete'}
@@ -516,6 +557,23 @@ export const UsersTab: React.FC = () => {
           applicationId={modalState.applicationId}
           businessName={modalState.businessName}
           isLoading={processingApplication}
+        />
+      )}
+      
+      {/* Delete Confirmation Modal */}
+      {deleteModalState && (
+        <DeleteConfirmationModal
+          isOpen={deleteModalState.isOpen}
+          onClose={() => setDeleteModalState(null)}
+          onConfirm={handleDeleteConfirm}
+          title={deleteModalState.isTenant ? 'Delete Tenant' : 'Delete User'}
+          message={deleteModalState.isTenant 
+            ? `Are you sure you want to delete this tenant and all associated data?`
+            : `Are you sure you want to delete this user account?`
+          }
+          itemName={deleteModalState.name}
+          isLoading={deletingAffiliate === deleteModalState.userId}
+          isTenant={deleteModalState.isTenant}
         />
       )}
       

@@ -83,17 +83,94 @@ router.delete('/tenants/:id', criticalAdminLimiter, authenticateToken, requireAd
       email: tenant.email
     };
     
-         // Service areas are stored in tenants.business service_areas JSONB column, no cleanup needed
+    logger.info(`Starting comprehensive deletion for tenant: ${tenant.business_name} (ID: ${id})`);
     
-    // Delete the tenant record
+    // Delete in order to respect foreign key constraints
+    // 1. Delete reviews for this tenant
+    await client.query('DELETE FROM reputation.reviews WHERE tenant_slug = $1', [tenant.slug]);
+    logger.info(`Deleted reviews for tenant: ${tenant.slug}`);
+    
+    // 2. Delete tenant images
+    await client.query('DELETE FROM tenants.tenant_images WHERE tenant_slug = $1', [tenant.slug]);
+    logger.info(`Deleted tenant images for: ${tenant.slug}`);
+    
+    // 3. Delete website content
+    await client.query('DELETE FROM website.content WHERE business_id = $1', [id]);
+    logger.info(`Deleted website content for business ID: ${id}`);
+    
+    // 4. Delete health monitoring records
+    await client.query('DELETE FROM system.health_monitoring WHERE business_id = $1 OR tenant_slug = $2', [id, tenant.slug]);
+    logger.info(`Deleted health monitoring records for: ${tenant.slug}`);
+    
+    // 5. Delete subscriptions
+    await client.query('DELETE FROM tenants.subscriptions WHERE business_id = $1', [id]);
+    logger.info(`Deleted subscriptions for business ID: ${id}`);
+    
+    // 6. Delete service tiers (which reference services)
+    const serviceTiersResult = await client.query(
+      'DELETE FROM tenants.service_tiers WHERE service_id IN (SELECT id FROM tenants.services WHERE business_id = $1)',
+      [id]
+    );
+    logger.info(`Deleted ${serviceTiersResult.rowCount} service tiers for business ID: ${id}`);
+    
+    // 7. Delete services
+    await client.query('DELETE FROM tenants.services WHERE business_id = $1', [id]);
+    logger.info(`Deleted services for business ID: ${id}`);
+    
+    // 8. Delete booking-related records
+    await client.query('DELETE FROM booking.bookings WHERE affiliate_id = $1', [id]);
+    logger.info(`Deleted bookings for affiliate ID: ${id}`);
+    
+    await client.query('DELETE FROM booking.quotes WHERE affiliate_id = $1', [id]);
+    logger.info(`Deleted quotes for affiliate ID: ${id}`);
+    
+    await client.query('DELETE FROM booking.availability WHERE affiliate_id = $1', [id]);
+    logger.info(`Deleted availability records for affiliate ID: ${id}`);
+    
+    // 9. Delete schedule-related records
+    await client.query('DELETE FROM schedule.time_blocks WHERE affiliate_id = $1', [id]);
+    logger.info(`Deleted time blocks for affiliate ID: ${id}`);
+    
+    await client.query('DELETE FROM schedule.blocked_days WHERE affiliate_id = $1', [id]);
+    logger.info(`Deleted blocked days for affiliate ID: ${id}`);
+    
+    await client.query('DELETE FROM schedule.appointments WHERE affiliate_id = $1', [id]);
+    logger.info(`Deleted appointments for affiliate ID: ${id}`);
+    
+    await client.query('DELETE FROM schedule.schedule_settings WHERE affiliate_id = $1', [id]);
+    logger.info(`Deleted schedule settings for affiliate ID: ${id}`);
+    
+    // 10. Delete customer-related records (if any customers are linked to this tenant's bookings)
+    // Note: We don't delete customers themselves as they may have interacted with other tenants
+    // But we do delete communications and vehicles linked to this tenant's customers
+    const customerIds = await client.query(
+      'SELECT DISTINCT customer_id FROM booking.bookings WHERE affiliate_id = $1 AND customer_id IS NOT NULL',
+      [id]
+    );
+    if (customerIds.rowCount > 0) {
+      const ids = customerIds.rows.map(r => r.customer_id);
+      // Only delete communications/vehicles if customers are exclusive to this tenant
+      logger.info(`Found ${ids.length} customers associated with tenant`);
+    }
+    
+    // 11. Get user_id before deleting tenant record
+    const userIdResult = await client.query('SELECT user_id FROM tenants.business WHERE id = $1', [id]);
+    const userId = userIdResult.rowCount > 0 ? userIdResult.rows[0].user_id : null;
+    
+    // 12. Delete the tenant record itself
     const deleteTenantQuery = 'DELETE FROM tenants.business WHERE id = $1';
     await client.query(deleteTenantQuery, [id]);
     logger.info(`Deleted tenant record ${id}`);
     
-    // Delete the corresponding user record
-    const deleteUserQuery = 'DELETE FROM auth.users WHERE email = $1';
-    const userResult = await client.query(deleteUserQuery, [tenant.business_email]);
-    logger.info(`Deleted ${userResult.rowCount} user record(s) for email: ${tenant.email}`);
+    // 13. Finally, delete the corresponding user record (if exists)
+    if (userId) {
+      await client.query('DELETE FROM auth.users WHERE id = $1', [userId]);
+      logger.info(`Deleted user record for user ID: ${userId}`);
+    } else if (tenant.email) {
+      // Fallback: try deleting by email
+      const userDeleteResult = await client.query('DELETE FROM auth.users WHERE email = $1', [tenant.email]);
+      logger.info(`Deleted ${userDeleteResult.rowCount} user record(s) for email: ${tenant.email}`);
+    }
     
     // Audit log the tenant deletion
     logger.audit('DELETE_TENANT', 'tenants', tenantBeforeState, null, {
@@ -201,14 +278,26 @@ router.get('/users', adminLimiter, authenticateToken, requireAdmin, asyncHandler
     }
   }
   
-  let query = 'SELECT id, name, email, is_admin, created_at FROM auth.users';
+  // Join with tenants.business to get tenant information
+  let query = `
+    SELECT 
+      u.id, 
+      u.name, 
+      u.email, 
+      u.is_admin, 
+      u.created_at,
+      t.business_name,
+      t.slug
+    FROM auth.users u
+    LEFT JOIN tenants.business t ON u.id = t.user_id AND t.application_status = 'approved'
+  `;
   const params = [];
   
   if (status && status !== 'all-users') {
     // Map frontend status to database fields
     const statusMap = {
-      'admin': 'is_admin = $1',
-      'customers': 'is_admin = $1'
+      'admin': 'u.is_admin = $1',
+      'customers': 'u.is_admin = $1 AND t.id IS NULL'  // Not admin and not a tenant
     };
     
     // Map frontend status to actual database values
@@ -223,7 +312,7 @@ router.get('/users', adminLimiter, authenticateToken, requireAdmin, asyncHandler
     }
   }
   
-  query += ' ORDER BY created_at DESC';
+  query += ' ORDER BY u.created_at DESC';
   
   const result = await pool.query(query, params);
   

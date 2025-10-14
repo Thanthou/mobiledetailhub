@@ -21,6 +21,29 @@ const { asyncHandler } = require('../middleware/errorHandler');
 const { authLimiter, sensitiveAuthLimiter, refreshTokenLimiter } = require('../middleware/rateLimiter');
 const { env } = require('../config/env');
 
+// Check if email exists (for onboarding validation)
+router.get('/check-email',
+  authLimiter,
+  asyncHandler(async (req, res) => {
+    const { email } = req.query;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required'
+      });
+    }
+
+    // Check if user already exists
+    const existingUser = await pool.query('SELECT id FROM auth.users WHERE email = $1', [email]);
+    
+    res.json({
+      success: true,
+      exists: existingUser.rows.length > 0
+    });
+  })
+);
+
 // User Registration
 router.post('/register', 
   sensitiveAuthLimiter,

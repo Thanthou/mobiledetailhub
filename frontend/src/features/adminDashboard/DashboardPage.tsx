@@ -4,7 +4,7 @@ import { AdminLayout, AdminTabs, TabContent } from './components';
 import type { AdminTab } from './types';
 
 const DashboardPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<AdminTab>('database');
+  const [activeTab, setActiveTab] = useState<AdminTab>('users');
 
   const handleTabChange = (tab: AdminTab) => {
     setActiveTab(tab);

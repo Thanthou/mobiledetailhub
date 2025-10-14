@@ -1,7 +1,8 @@
 import React from 'react';
-import { Building2 } from 'lucide-react';
+import { Building2, Zap } from 'lucide-react';
 
 import { Input } from '@/shared/ui';
+import { formatPhoneNumber } from '@/shared/utils/phoneFormatter';
 
 interface BusinessInformationSectionProps {
   formData: {
@@ -33,14 +34,45 @@ const BusinessInformationSection: React.FC<BusinessInformationSectionProps> = ({
   handleInputChange,
   handleAddressChange
 }) => {
+  const handlePhoneChange = (value: string) => {
+    const formatted = formatPhoneNumber(value);
+    handleInputChange('businessPhone', formatted);
+  };
+
+  const handleAutoFill = () => {
+    handleInputChange('businessName', "JP's Mobile Detail");
+    handleInputChange('industry', 'mobile-detailing');
+    handleInputChange('businessPhone', formatPhoneNumber('7024203140'));
+    handleInputChange('businessEmail', 'jpsmobiledetailing@hotmail.com');
+    handleAddressChange('address', '2550 Country Club Dr');
+    handleAddressChange('city', 'Bullhead City');
+    handleAddressChange('state', 'AZ');
+    handleAddressChange('zip', '86442');
+  };
+
   return (
     <div className="bg-stone-800 border border-stone-700 rounded-lg">
       <div className="p-6 border-b border-stone-700">
-        <h2 className="text-white text-lg font-semibold flex items-center">
-          <Building2 className="h-5 w-5 mr-2" />
-          Business Information
-        </h2>
-        <p className="text-gray-400 text-sm mt-1">Tell us about your business</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-white text-lg font-semibold flex items-center">
+              <Building2 className="h-5 w-5 mr-2" />
+              Business Information
+            </h2>
+            <p className="text-gray-400 text-sm mt-1">Tell us about your business</p>
+          </div>
+          {import.meta.env.DEV && (
+            <button
+              type="button"
+              onClick={handleAutoFill}
+              className="flex items-center gap-2 px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium rounded-lg transition-colors"
+              title="Auto-fill with test data"
+            >
+              <Zap className="h-4 w-4" />
+              Auto-fill
+            </button>
+          )}
+        </div>
       </div>
       <div className="p-6">
       
@@ -93,9 +125,10 @@ const BusinessInformationSection: React.FC<BusinessInformationSectionProps> = ({
             id="businessPhone"
             type="tel"
             value={formData.businessPhone}
-            onChange={(e) => { handleInputChange('businessPhone', e.target.value); }}
+            onChange={(e) => { handlePhoneChange(e.target.value); }}
             placeholder="(555) 123-4567"
             required
+            maxLength={14}
             className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
           />
         </div>

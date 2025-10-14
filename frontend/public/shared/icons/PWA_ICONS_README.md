@@ -89,3 +89,5 @@ When implementing icon generation:
 3. Stores in `/uploads/tenant-icons/{slug}/`
 4. Manifest serves tenant-specific icons
 
+
+

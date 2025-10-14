@@ -3,8 +3,8 @@ export { useAuth } from './useAuth';
 export { useTenantConfig } from './useTenantConfig';
 
 // SEO & Browser Tab Management
-export { useBrowserTab, setBrowserTab, setBrowserTitle, setFavicon } from './useBrowserTab';
-export { useMetaTags, setMetaDescription, setOgImage } from './useMetaTags';
+export { setBrowserTab, setBrowserTitle, setFavicon, useBrowserTab } from './useBrowserTab';
+export { setMetaDescription, setOgImage, useMetaTags } from './useMetaTags';
 export { useSEO } from './useSEO';
 export {
   prefetchTenantConfig,

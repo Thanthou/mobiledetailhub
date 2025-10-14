@@ -1,11 +1,13 @@
 import { lazy, Suspense, useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
+import { DashboardPage as AdminDashboard } from '@/features/adminDashboard';
 import { DataProvider, TenantPage } from '@/features/header';
 import { PreviewGeneratorPage, PreviewPage } from '@/features/preview';
 import { LazyRequestQuoteModal } from '@/features/quotes';
 import { DashboardPage } from '@/features/tenantDashboard';
 import { TenantApplicationPage } from '@/features/tenantOnboarding';
+import { ProtectedRoute } from '@/shared/ui';
 
 import HomePage from './pages/HomePage';
 import ServicePage from './pages/ServicePage';
@@ -29,6 +31,13 @@ export default function App() {
     <Suspense fallback={<div className="p-8 text-white">Loading…</div>}>
       <Routes>
         <Route path="/" element={<Navigate to="/jps" replace />} />
+        
+        {/* Admin Dashboard - must come before tenant routes */}
+        <Route path="/admin-dashboard" element={
+          <ProtectedRoute requiredRole="admin" fallbackPath="/">
+            <AdminDashboard />
+          </ProtectedRoute>
+        } />
         
         {/* Specific routes first */}
         <Route path="/locations/:slug" element={<HomePage onRequestQuote={handleOpenQuoteModal} />} />
