@@ -1,6 +1,6 @@
 import { type FormEvent, useCallback, useEffect, useState } from 'react';
 
-import { useTenantConfig, useVehicleData } from '@/shared/hooks';
+import { useData, useTenantConfigLoader, useVehicleData } from '@/shared/hooks';
 import {
   validateEmail,
   validateMessage,
@@ -15,8 +15,10 @@ import { type QuoteFormData,type QuoteRequest, quoteRequestSchema } from '../typ
 export const useQuoteFormLogic = () => {
   const { vehicleTypes, getMakes, getModels } = useVehicleData();
   
-  // Get tenant data from centralized system
-  const { tenantConfig, businessName, slug } = useTenantConfig();
+  // Get tenant data from centralized hooks
+  const { businessName } = useData();
+  const { data: tenantConfig } = useTenantConfigLoader();
+  const slug = tenantConfig?.slug;
 
   const [formData, setFormData] = useState<QuoteFormData>({
     name: '',
@@ -86,7 +88,7 @@ export const useQuoteFormLogic = () => {
     ? `${tenantConfig.contact.baseLocation.city}, ${tenantConfig.contact.baseLocation.state}`
     : '';
 
-  // Already have businessName and slug from useTenantConfig()
+  // businessName and slug loaded from useData() and useTenantConfigLoader()
 
   // Form validation
   const validateField = useCallback((field: keyof QuoteFormData, value: string): string[] => {

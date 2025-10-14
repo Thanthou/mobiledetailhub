@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 import { useDataOptional } from '@/shared/contexts/DataContext';
-import { useTenantConfig } from '@/shared/hooks/useTenantConfig';
+import { useTenantConfigLoader } from '@/shared/hooks';
 import type { Vertical } from '@/shared/types';
 import { getTenantAssetUrl } from '@/shared/utils';
 
@@ -59,7 +59,8 @@ export const useBrowserTab = (options: UseBrowserTabOptions = {}) => {
   const isDataLoading = data?.isLoading || false;
 
   // Tenant config hook - safe to call, will return defaults if no tenant
-  const { logoUrl, isLoading: isConfigLoading } = useTenantConfig();
+  const { data: tenantConfig, isLoading: isConfigLoading } = useTenantConfigLoader();
+  const logoUrl = tenantConfig?.branding.logo.url;
 
   // Determine the page title
   const pageTitle = customTitle || (

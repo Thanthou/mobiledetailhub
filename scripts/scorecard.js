@@ -42,17 +42,19 @@ function getGitHistory() {
 // --- Grading ---
 function getGrade(dpv) {
   if (dpv >= 95) return "A+";
-  if (dpv >= 85) return "A";
-  if (dpv >= 75) return "B";
-  if (dpv >= 65) return "C";
-  if (dpv >= 50) return "D";
+  if (dpv >= 90) return "A";
+  if (dpv >= 85) return "B+";
+  if (dpv >= 80) return "B";
+  if (dpv >= 75) return "C+";
+  if (dpv >= 70) return "C";
+  if (dpv >= 60) return "D";
   return "F";
 }
 
 function colorByGrade(grade) {
   if (grade === "A+" || grade === "A") return chalk.green;
-  if (grade === "B") return chalk.cyan;
-  if (grade === "C") return chalk.yellow;
+  if (grade === "B" || grade === "B+") return chalk.cyan;
+  if (grade === "C" || grade === "C+") return chalk.yellow;
   if (grade === "D") return chalk.hex("#A0522D"); // brown
   if (grade === "F") return chalk.red;
   return chalk.gray;
@@ -113,7 +115,8 @@ function analyzeHistory() {
     );
 
     const grade = getGrade(avgDPV);
-    return { week: `W${week}`, dpv: avgDPV, grade, lines: totalLines };
+
+    return { week: `Week ${week}`, dpv: avgDPV, grade, lines: totalLines };
   });
 
   render(days, weekSummaries);
@@ -144,7 +147,7 @@ function render(days, weekSummaries) {
     const nextDay = days.find((x) => new Date(x.date) > new Date(d.date));
     const nextWeek = nextDay ? getWeekNumber(new Date(nextDay.date)) : null;
     if (nextWeek !== week) {
-      const ws = weekSummaries.find((w) => w.week === `W${week}`);
+      const ws = weekSummaries.find((w) => w.week === `Week ${week}`);
       if (ws) {
         const wColor = colorByGrade(ws.grade);
         table.push([

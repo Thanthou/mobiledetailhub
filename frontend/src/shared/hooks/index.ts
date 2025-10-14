@@ -1,6 +1,5 @@
 // Context hooks
 export { useAuth } from './useAuth';
-export { useTenantConfig } from './useTenantConfig';
 
 // SEO & Browser Tab Management
 export { setBrowserTab, setBrowserTitle, setFavicon, useBrowserTab } from './useBrowserTab';
@@ -40,6 +39,10 @@ export { useImageRotation, useImageRotationHover } from './useImageRotation';
 
 // Industry-specific site data hook
 export { useIndustrySiteData } from './useIndustrySiteData';
+
+// Config loaders (centralized tenant + industry configuration)
+export { useIndustryConfig, prefetchIndustryConfig } from './useIndustryConfig';
+export { useData, useDataOptional, DataContext, DataProvider } from '../contexts/DataContext';
 
 // Vehicle data hook
 export { useVehicleData } from './useVehicleData';

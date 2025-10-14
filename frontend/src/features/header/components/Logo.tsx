@@ -1,14 +1,15 @@
 import React from 'react';
 
-import { useTenantConfig } from '@/shared/hooks';
+import { useData, useTenantConfigLoader } from '@/shared/hooks';
 import type { Vertical } from '@/shared/types';
 import { getTenantAssetUrl } from '@/shared/utils';
 
-import { useData } from '../contexts/DataProvider';
-
 const Logo: React.FC = () => {
-  const { tenantConfig, logoUrl, isLoading } = useTenantConfig();
-  const { industry } = useData();
+  const { industry, isLoading: isDataLoading } = useData();
+  const { data: tenantConfig, isLoading: isConfigLoading } = useTenantConfigLoader();
+  
+  const isLoading = isDataLoading || isConfigLoading;
+  const logoUrl = tenantConfig?.branding.logo.url;
   
   const handleClick = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
