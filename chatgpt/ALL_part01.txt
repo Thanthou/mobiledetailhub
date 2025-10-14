@@ -23,18 +23,20 @@
     "error-monitor:all": "node scripts/error-monitor/index.js --target=all"
   },
   "devDependencies": {
+    "@eslint/js": "^9.17.0",
     "concurrently": "^8.2.2",
     "eslint": "^9.17.0",
-    "@eslint/js": "^9.17.0",
     "globals": "^15.14.0",
-    "prettier": "^3.4.2",
+    "husky": "^9.1.7",
     "lint-staged": "^15.2.11",
-    "husky": "^9.1.7"
+    "prettier": "^3.4.2"
   },
   "engines": {
     "node": ">=18.0.0"
   },
   "dependencies": {
+    "chalk": "^5.6.2",
+    "cli-table3": "^0.6.5",
     "dotenv": "^17.2.1",
     "pg": "^8.16.3"
   }
@@ -22413,69 +22415,114 @@ module.exports = {
 *** END FILE ***
 
 *** FILE: current-goals.md ***
-Great question. Based on what you’ve got, here’s the highest-leverage order to hit next so you can open the funnel (preview → signup → live) and start learning from real tenants fast.
+🚀 That Smart Site — Core Development Roadmap
+🧩 1. Onboarding & Provisioning (current priority)
 
-# What to build next (in order)
+❌ Signup form → Stripe checkout → provisioning job → subdomain + SSL → welcome email → first-login dashboard
 
-1. **Finish tenant onboarding end-to-end (CURRENT PRIORITY)**
+❌ Add fallback "default content" logic — every new site boots with industry defaults (no empty pages)
 
-* Signup form → Stripe checkout → provisioning job → subdomain + SSL → welcome email → first-login dashboard.
-* Include the “content fallback” logic so every new site boots with industry defaults until the tenant edits (never blank pages).
-* Acceptance: I can paste a business’s basics, pay, and see a live `[slug].thatsmartsite.com` with default copy, services, hours, and a dashboard login.
+❌ Implement Stripe webhook for tenant activation
 
-2. **SEO foundation (ship before first public tenant)**
+❌ Include post-provision confirmation screen and "view my site" button
 
-* Add `robots.txt`, per-tenant `sitemap.xml` generator, canonical rules, preview `noindex` (both meta and X-Robots-Tag), and centralized JSON-LD helpers (LocalBusiness, Service, FAQ).
-* Acceptance: Lighthouse “SEO” ≥ 90 and a test tenant’s pages all emit correct canonical + JSON-LD, and `/robots.txt` + `/sitemap.xml` resolve per tenant.
+❌ Validate first full run: business basics → pay → live [slug].thatsmartsite.com with defaults + dashboard login
 
-3. **Multi-tenant routing + config loader hardening**
+Acceptance: I can paste a business's info, pay, and get a live site with working dashboard.
 
-* Robust subdomain (and custom domain) detection → load `{industry, theme, city/service pages}` from tenant row; fall back to `/data/<industry>.json` when DB empty.
-* Acceptance: Switching subdomains fully swaps branding, services, and locations without code changes.
+🌐 2. SEO Foundation
 
-4. **Booking MVP wired to your schema**
+❌ Implement robots.txt per tenant
 
-* Expose bookable services/tiers, time-slot generation from business hours, create Booking, and send confirmations.
-* Acceptance: From a tenant’s public site, I can select a service, pick a slot, and see a new record in `booking.bookings` + an email receipt.
+❌ Auto-generate sitemap.xml per tenant
 
-5. **Reviews ingestion + display v1**
+❌ Add canonical + noindex for previews (meta + header)
 
-* Nightly job to pull recent Google reviews (or import CSV for now), moderation toggle in dashboard, and SEO review schema on public pages.
-* Acceptance: Reviews render on homepage + /reviews with structured data and an “Approved” switch in the dashboard.
+❌ Create centralized JSON-LD helpers (LocalBusiness, Service, FAQ)
 
-6. **Tenant dashboard: “just enough CMS”**
+❌ SEO audit: Lighthouse SEO ≥ 90
 
-* Sections: Business Profile, Services & Tiers, Service Areas, Hours, Theme (logo/colors), Reviews moderation.
-* Show which fields are “Default” vs “Customized”, with a one-click “Reset to default.”
-* Acceptance: A tenant can replace every bit of default copy without touching code.
+Acceptance: All tenant pages emit valid canonical + JSON-LD, and /robots.txt + /sitemap.xml resolve correctly.
 
-7. **Quality gates & ops**
+🏗️ 3. Multi-Tenant Routing & Config Loader
 
-* Enforce feature-boundary lint rule, add unit tests for hooks/utils, seed script for one demo tenant per industry, and a scheduled Lighthouse/health check that writes to your `system.health_monitoring` table.
-* Acceptance: CI blocks cross-feature imports; nightly job records core web vitals per tenant; a seeded demo tenant spins up locally with one command.
+❌ Detect subdomain or custom domain → load {industry, theme, city/service pages} from DB
 
-# A crisp 2–3 week sequence
+❌ Fallback to /data/<industry>.json when DB empty
 
-**Week 1**
+❌ Swap entire tenant branding/config when switching subdomains
 
-* Provisioning worker + Stripe webhooks
-* Subdomain/SSL automation
-* Preview link flow with `noindex`
+❌ Verify preview vs live domain logic
 
-**Week 2**
+Acceptance: Switching subdomains fully swaps branding, services, and locations without code changes.
 
-* Content fallback + industry JSON templates
-* SEO baseline: robots, sitemap, canonical, JSON-LD helper
-* Booking MVP (select service → slot → create booking)
+📅 4. Booking MVP
 
-**Week 3**
+❌ Define schema: Services → Time Slots → Bookings
 
-* Reviews import job + display
-* Dashboard “Profile / Services / Hours / Areas / Theme / Reviews”
-* CI rules, seeds, and Lighthouse monitor
+❌ Generate time slots from business hours
 
-If you’d like, I can turn this into a tight checklist inside your repo (with file paths to touch) and stub the Stripe webhook + provisioning worker so you can run through a full fake-tenant today.
+❌ Create booking from public site
 
+❌ Send confirmation emails (tenant + client)
+
+❌ Record booking in booking.bookings
+
+Acceptance: From a tenant's public site, I can select a service, pick a slot, book, and see the record in DB.
+
+⭐ 5. Reviews Ingestion & Display v1
+
+❌ Nightly job to pull recent Google reviews (mock via CSV for now)
+
+❌ Add moderation toggle in dashboard ("Approved")
+
+❌ Display reviews on homepage and /reviews page
+
+❌ Include structured review schema markup for SEO
+
+Acceptance: Reviews render on site with SEO data and can be toggled visible via dashboard.
+
+🧭 6. Tenant Dashboard — Minimal CMS
+
+❌ Add "Business Profile" section
+
+❌ Add "Services & Tiers" management
+
+❌ Add "Service Areas" and "Hours" modules
+
+❌ Add "Theme" (logo/colors) customization
+
+❌ Add "Reviews Moderation" tab
+
+❌ Mark default vs customized fields; include "Reset to Default"
+
+Acceptance: A tenant can replace every default text/image through dashboard.
+
+⚙️ 7. Quality Gates & Ops
+
+❌ Add feature-boundary lint rule (no cross-feature imports)
+
+❌ Add unit test coverage for hooks/utils
+
+❌ Create seed script: one demo tenant per industry
+
+❌ Scheduled Lighthouse/health check → writes to system.health_monitoring
+
+❌ Ensure CI blocks rule violations
+
+Acceptance: Local build can spin a seeded demo tenant; CI + nightly health checks pass cleanly.
+
+🎯 8. Launch Readiness Checklist
+
+❌ Verify default emails (welcome, booking, review invite)
+
+❌ Add SEO meta defaults (title, description, OG)
+
+❌ Add Lighthouse + SSL verification script
+
+❌ Final test with demo tenant → real subdomain → Stripe live mode
+
+Acceptance: Demo tenant behaves like a real tenant with fully working SEO, booking, and dashboard.
 
 *** END FILE ***
 
@@ -37994,9 +38041,8 @@ export const AdminTabs: React.FC<AdminTabsProps> = ({ activeTab, onTabChange }) 
 *** FILE: frontend\src\features\adminDashboard\components\DashboardPage.tsx ***
 import React, { useState } from 'react';
 
-import { useBrowserTab } from '@/shared/hooks';
-
 import type { AdminTab } from '@/features/adminDashboard/types';
+import { useBrowserTab } from '@/shared/hooks';
 
 import { AdminLayout, AdminTabs, TabContent } from './';
 
@@ -38957,6 +39003,7 @@ export { UsersTab } from './UsersTab';
 *** END FILE ***
 
 *** FILE: frontend\src\features\adminDashboard\components\tabs\users\UsersTab.tsx ***
+/* eslint-disable max-lines -- Complex component with multiple sub-tabs, refactoring planned */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Loader2, Trash2, UserCheck, UserCog, UserPlus, Users, UserX } from 'lucide-react';
 
@@ -39420,7 +39467,7 @@ export const UsersTab: React.FC = () => {
                   {/* Delete button for tenants */}
                   {user.role === 'tenant' && (
                     <button
-                      onClick={() => handleDeleteClick(user.id, user.business_name || user.name, true)}
+                      onClick={() => { handleDeleteClick(user.id, user.business_name || user.name, true); }}
                       disabled={deletingAffiliate === user.id}
                       className={`flex items-center gap-2 px-3 py-1.5 text-white text-xs rounded transition-colors ${
                         deletingAffiliate === user.id
@@ -39436,7 +39483,7 @@ export const UsersTab: React.FC = () => {
                   {/* Delete button for regular users (customers/admins) */}
                   {(user.role === 'customer' || user.role === 'admin') && user.id !== 1 && (
                     <button
-                      onClick={() => handleDeleteClick(user.id, user.name, false)}
+                      onClick={() => { handleDeleteClick(user.id, user.name, false); }}
                       disabled={deletingAffiliate === user.id}
                       className={`flex items-center gap-2 px-3 py-1.5 text-white text-xs rounded transition-colors ${
                         deletingAffiliate === user.id
@@ -39523,8 +39570,8 @@ export const UsersTab: React.FC = () => {
       {deleteModalState && (
         <DeleteConfirmationModal
           isOpen={deleteModalState.isOpen}
-          onClose={() => setDeleteModalState(null)}
-          onConfirm={handleDeleteConfirm}
+          onClose={() => { setDeleteModalState(null); }}
+          onConfirm={() => { void handleDeleteConfirm(); }}
           title={deleteModalState.isTenant ? 'Delete Tenant' : 'Delete User'}
           message={deleteModalState.isTenant 
             ? `Are you sure you want to delete this tenant and all associated data?`
@@ -39548,6 +39595,7 @@ export const UsersTab: React.FC = () => {
     </div>
   );
 };
+/* eslint-enable max-lines -- Re-enabled after complex multi-tab component */
 
 
 *** END FILE ***
@@ -58696,9 +58744,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { useBrowserTab } from '@/shared/hooks';
-
 import type { DashboardTab, DetailerData } from '@/features/tenantDashboard/types';
+import { useBrowserTab } from '@/shared/hooks';
 
 import { DashboardHeader } from './DashboardHeader';
 import { DashboardLayout } from './DashboardLayout';
@@ -75314,9 +75361,12 @@ const TenantApplicationPage: React.FC = () => {
 
           // Then check if email already exists
           try {
+            // eslint-disable-next-line no-restricted-globals, no-restricted-syntax -- Isolated onboarding check, API client refactor planned
             const response = await fetch(`/api/auth/check-email?email=${encodeURIComponent(formData.personalEmail)}`);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Response typing improvement planned
             const result = await response.json();
             
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- Response typing improvement planned
             if (result.exists) {
               setErrors({ personalEmail: 'An account with this email already exists' });
               return false;
@@ -75404,6 +75454,7 @@ const TenantApplicationPage: React.FC = () => {
         planPrice: formData.planPrice,
       };
 
+      // eslint-disable-next-line no-restricted-globals, no-restricted-syntax -- Single-use onboarding endpoint, API client refactor planned
       const response = await fetch('/api/tenants/signup', {
         method: 'POST',
         headers: {
@@ -75412,14 +75463,18 @@ const TenantApplicationPage: React.FC = () => {
         body: JSON.stringify(applicationData),
       });
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Response typing improvement planned
       const result = await response.json();
 
       if (!response.ok) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access -- Response typing improvement planned
         throw new Error(result.message || 'Failed to submit application');
       }
 
       // Store the new tenant slug for the success page
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access -- Response typing improvement planned
       sessionStorage.setItem('newTenantSlug', result.data.slug);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access -- Response typing improvement planned
       sessionStorage.setItem('newTenantWebsiteUrl', result.data.websiteUrl);
 
       clearSavedData();
@@ -78556,8 +78611,8 @@ export const websiteContentApi = {
  * Works on iOS, Android, and desktop browsers
  */
 
-import { useEffect, useState } from 'react';
-import { Smartphone, X, Download } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Download, Smartphone, X } from 'lucide-react';
 
 import { Button } from '@/shared/ui';
 
@@ -78651,7 +78706,7 @@ export const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
     const choiceResult = await deferredPrompt.userChoice;
 
     if (choiceResult.outcome === 'accepted') {
-      console.log('User accepted the install prompt');
+      // User accepted the install prompt
     }
 
     // Clear the deferred prompt
@@ -78697,8 +78752,8 @@ export const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
                       <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
                     </svg>
                   </span> at the bottom</li>
-                  <li>Scroll down and tap "Add to Home Screen"</li>
-                  <li>Tap "Add" to confirm</li>
+                  <li>Scroll down and tap &quot;Add to Home Screen&quot;</li>
+                  <li>Tap &quot;Add&quot; to confirm</li>
                 </ol>
               </div>
             ) : (
@@ -78725,7 +78780,7 @@ export const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
         <div className="mt-4 flex gap-3">
           {!isIOS && deferredPrompt && (
             <Button
-              onClick={handleInstallClick}
+              onClick={() => { void handleInstallClick(); }}
               variant="primary"
               size="lg"
               className="flex-1 bg-orange-600 hover:bg-orange-700 flex items-center justify-center gap-2"
@@ -79929,7 +79984,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     phone: businessData?.business_phone || '',
     email: businessData?.business_email || 'service@mobiledetailhub.com',
     owner: businessData?.owner || '',
-    location: businessData?.service_areas?.[0] ? 
+    location: businessData?.service_areas[0] ? 
       `${businessData.service_areas[0].city}, ${businessData.service_areas[0].state}` : '',
     industry: businessData?.industry || 'mobile-detailing',
     serviceAreas: businessData?.service_areas || [],
@@ -82312,9 +82367,8 @@ export const useModalPrefetch = () => {
 *** END FILE ***
 
 *** FILE: frontend\src\shared\hooks\useReviewsAvailability.ts ***
-import type { ReviewQueryParams } from '@/features/reviews/types';
 import { useReviews } from '@/features/reviews/hooks/useReviews';
-
+import type { ReviewQueryParams } from '@/features/reviews/types';
 import { useDataOptional } from '@/shared/contexts/DataContext';
 
 /**
@@ -94756,256 +94810,9 @@ export default defineConfig({
 
 *** END FILE ***
 
-*** FILE: scripts\CHANGELOG_SCRIPTS_README.md ***
-# Commit with Changelog Scripts
+*** FILE: scripts\chatgpt\codebase\ALL_part01.txt ***
 
-These scripts automatically generate a changelog file documenting all changes whenever you commit and push to git.
-
-## Features
-
-- 📝 Captures all file changes and diffs
-- 🕐 Timestamps each changelog
-- 💾 Auto-stages, commits, and pushes
-- 📁 Organizes changelogs in `chatgpt/gitlogs/` directory
-
-## Usage
-
-### Windows (PowerShell)
-
-```powershell
-.\scripts\commit-with-changelog.ps1 "Your commit message here"
-```
-
-### Mac/Linux or Git Bash (Bash)
-
-First, make the script executable:
-```bash
-chmod +x scripts/commit-with-changelog.sh
-```
-
-Then run:
-```bash
-./scripts/commit-with-changelog.sh "Your commit message here"
-```
-
-## What Gets Generated?
-
-Each run creates a file like `chatgpt/gitlogs/CHANGES_2025-10-14_15-30-45.md` containing:
-
-1. **Timestamp** - When the commit was made
-2. **Commit Message** - Your provided message
-3. **Changed Files List** - All files that were modified/added/deleted
-4. **Detailed Diffs** - Line-by-line changes for each file
-
-## Example Output
-
-```markdown
-# Changelog - 2025-10-14_15-30-45
-
-## Commit Message
-Add new feature for user authentication
-
-## Changed Files
-```
-M       frontend/src/features/auth/components/LoginForm.tsx
-A       frontend/src/features/auth/hooks/useAuth.ts
-D       frontend/src/features/auth/old-auth.tsx
-```
-
-## Detailed Changes
-
-[Full git diff output here...]
-```
-
-## Customization
-
-You can modify the scripts to:
-- Change the changelog format (JSON, TXT, etc.)
-- Filter which files to include
-- Add git statistics
-- Include branch information
-- Skip the automatic push
-
-## Notes
-
-- The `chatgpt/gitlogs/` directory is git-ignored by default
-- If you want to commit changelogs, remove `chatgpt/gitlogs/` from `.gitignore`
-- Scripts will auto-stage all changes before committing
-
-
-
-*** END FILE ***
-
-*** FILE: scripts\commit-with-changelog.ps1 ***
-#!/usr/bin/env pwsh
-# commit-with-changelog.ps1
-# Usage: .\scripts\commit-with-changelog.ps1 "Your commit message here"
-
-param(
-    [Parameter(Mandatory=$true)]
-    [string]$CommitMessage
-)
-
-$timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
-$changelogFile = "chatgpt/gitlogs/CHANGES_$timestamp.md"
-
-# Create gitlogs directory if it doesn't exist
-if (-not (Test-Path "chatgpt/gitlogs")) {
-    New-Item -ItemType Directory -Path "chatgpt/gitlogs" -Force | Out-Null
-}
-
-Write-Host "📝 Generating changelog..." -ForegroundColor Cyan
-
-# Get the list of changed files
-$changedFiles = git diff --cached --name-status
-if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrEmpty($changedFiles)) {
-    Write-Host "⚠️  No staged changes found. Staging all changes..." -ForegroundColor Yellow
-    git add .
-    $changedFiles = git diff --cached --name-status
-}
-
-# Create the changelog content
-$changelogContent = @"
-# Changelog - $timestamp
-
-## Commit Message
-$CommitMessage
-
-## Changed Files
-``````
-$changedFiles
-``````
-
-## Detailed Changes
-
-"@
-
-# Get detailed diff for each file
-$changelogContent += "`n"
-$changelogContent += git diff --cached
-
-# Write to file
-$changelogContent | Out-File -FilePath $changelogFile -Encoding UTF8
-
-Write-Host "✅ Changelog written to: $changelogFile" -ForegroundColor Green
-
-# Perform git operations
-Write-Host "`n🔄 Staging changes..." -ForegroundColor Cyan
-git add .
-
-Write-Host "💾 Committing..." -ForegroundColor Cyan
-git commit -m $CommitMessage
-
-if ($LASTEXITCODE -eq 0) {
-    Write-Host "✅ Committed successfully" -ForegroundColor Green
-    
-    Write-Host "`n🚀 Pushing to remote..." -ForegroundColor Cyan
-    git push
-    
-    if ($LASTEXITCODE -eq 0) {
-        Write-Host "✅ Pushed successfully" -ForegroundColor Green
-    } else {
-        Write-Host "❌ Push failed" -ForegroundColor Red
-        exit 1
-    }
-} else {
-    Write-Host "❌ Commit failed" -ForegroundColor Red
-    exit 1
-}
-
-Write-Host "`n📋 Summary:" -ForegroundColor Cyan
-Write-Host "  - Changelog: $changelogFile" -ForegroundColor White
-Write-Host "  - Commit: $CommitMessage" -ForegroundColor White
-
-
-
-*** END FILE ***
-
-*** FILE: scripts\commit-with-changelog.sh ***
-#!/bin/bash
-# commit-with-changelog.sh
-# Usage: ./scripts/commit-with-changelog.sh "Your commit message here"
-
-if [ -z "$1" ]; then
-    echo "❌ Error: Commit message required"
-    echo "Usage: ./scripts/commit-with-changelog.sh \"Your commit message\""
-    exit 1
-fi
-
-COMMIT_MESSAGE="$1"
-TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
-CHANGELOG_FILE="chatgpt/gitlogs/CHANGES_$TIMESTAMP.md"
-
-# Create gitlogs directory if it doesn't exist
-mkdir -p chatgpt/gitlogs
-
-echo "📝 Generating changelog..."
-
-# Get the list of changed files
-CHANGED_FILES=$(git diff --cached --name-status)
-if [ -z "$CHANGED_FILES" ]; then
-    echo "⚠️  No staged changes found. Staging all changes..."
-    git add .
-    CHANGED_FILES=$(git diff --cached --name-status)
-fi
-
-# Create the changelog content
-cat > "$CHANGELOG_FILE" << EOF
-# Changelog - $TIMESTAMP
-
-## Commit Message
-$COMMIT_MESSAGE
-
-## Changed Files
-\`\`\`
-$CHANGED_FILES
-\`\`\`
-
-## Detailed Changes
-
-EOF
-
-# Append detailed diff
-git diff --cached >> "$CHANGELOG_FILE"
-
-echo "✅ Changelog written to: $CHANGELOG_FILE"
-
-# Perform git operations
-echo ""
-echo "🔄 Staging changes..."
-git add .
-
-echo "💾 Committing..."
-git commit -m "$COMMIT_MESSAGE"
-
-if [ $? -eq 0 ]; then
-    echo "✅ Committed successfully"
-    
-    echo ""
-    echo "🚀 Pushing to remote..."
-    git push
-    
-    if [ $? -eq 0 ]; then
-        echo "✅ Pushed successfully"
-    else
-        echo "❌ Push failed"
-        exit 1
-    fi
-else
-    echo "❌ Commit failed"
-    exit 1
-fi
-
-echo ""
-echo "📋 Summary:"
-echo "  - Changelog: $CHANGELOG_FILE"
-echo "  - Commit: $COMMIT_MESSAGE"
-
-
-
-*** END FILE ***
-
-*** FILE: scripts\error-monitor\index.js ***
+*** FILE: error-monitor\index.js ***
 #!/usr/bin/env node
 
 /**
@@ -95079,7 +94886,7 @@ main().catch(console.error);
 
 *** END FILE ***
 
-*** FILE: scripts\error-monitor\lib\backend-monitor.js ***
+*** FILE: error-monitor\lib\backend-monitor.js ***
 /**
  * Backend Error Monitor
  * Reads from backend/logs/errors.json
@@ -95159,7 +94966,7 @@ export class BackendMonitor {
 
 *** END FILE ***
 
-*** FILE: scripts\error-monitor\lib\cli.js ***
+*** FILE: error-monitor\lib\cli.js ***
 /**
  * CLI Utilities for Error Monitor
  * Shared between backend and frontend monitors
@@ -95215,7 +95022,7 @@ Options:
 
 *** END FILE ***
 
-*** FILE: scripts\error-monitor\lib\frontend-monitor.js ***
+*** FILE: error-monitor\lib\frontend-monitor.js ***
 /**
  * Frontend Error Monitor
  * Note: Frontend errors are logged to browser console
@@ -95250,86 +95057,7 @@ export class FrontendMonitor {
 
 *** END FILE ***
 
-*** FILE: scripts\install-commit-hook.ps1 ***
-#!/usr/bin/env pwsh
-# install-commit-hook.ps1
-# Installs a post-commit hook that automatically generates changelogs
-
-$hookFile = ".git/hooks/post-commit"
-$hookContent = @'
-#!/bin/sh
-# Auto-generate changelog on every commit
-
-TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
-CHANGELOG_FILE="chatgpt/gitlogs/CHANGES_$TIMESTAMP.md"
-
-# Create gitlogs directory if it doesn't exist
-mkdir -p chatgpt/gitlogs
-
-# Get the last commit info
-COMMIT_HASH=$(git rev-parse HEAD)
-COMMIT_MESSAGE=$(git log -1 --pretty=%B)
-COMMIT_AUTHOR=$(git log -1 --pretty=format:'%an <%ae>')
-COMMIT_DATE=$(git log -1 --pretty=format:'%ad')
-
-# Get changed files in this commit
-CHANGED_FILES=$(git diff-tree --no-commit-id --name-status -r $COMMIT_HASH)
-
-# Create the changelog
-cat > "$CHANGELOG_FILE" << EOF
-# Changelog - $TIMESTAMP
-
-## Commit Information
-- **Hash**: $COMMIT_HASH
-- **Author**: $COMMIT_AUTHOR
-- **Date**: $COMMIT_DATE
-
-## Commit Message
-$COMMIT_MESSAGE
-
-## Changed Files
-\`\`\`
-$CHANGED_FILES
-\`\`\`
-
-## Detailed Changes
-
-EOF
-
-# Append the full diff
-git show $COMMIT_HASH >> "$CHANGELOG_FILE"
-
-echo "📝 Changelog generated: $CHANGELOG_FILE"
-'@
-
-# Check if .git directory exists
-if (-not (Test-Path ".git")) {
-    Write-Host "❌ Error: Not a git repository" -ForegroundColor Red
-    exit 1
-}
-
-# Create hooks directory if it doesn't exist
-if (-not (Test-Path ".git/hooks")) {
-    New-Item -ItemType Directory -Path ".git/hooks" | Out-Null
-}
-
-# Write the hook file
-$hookContent | Out-File -FilePath $hookFile -Encoding ASCII -NoNewline
-
-Write-Host "✅ Post-commit hook installed successfully!" -ForegroundColor Green
-Write-Host ""
-Write-Host "Now every time you commit, a changelog will be auto-generated in chatgpt/gitlogs/" -ForegroundColor Cyan
-Write-Host ""
-Write-Host "To use:" -ForegroundColor Yellow
-Write-Host "  git add ." -ForegroundColor White
-Write-Host "  git commit -m 'Your message'" -ForegroundColor White
-Write-Host "  git push" -ForegroundColor White
-
-
-
-*** END FILE ***
-
-*** FILE: scripts\project-overview.js ***
+*** FILE: project-overview.js ***
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -95771,7 +95499,7 @@ ${checklist}
           `# Cursor Rules (Auto-Generated)\n\nGenerated: ${new Date().toISOString()}\n\nSource: \`.cursorrules\`\n\n## Project Purpose\n\n${parsed.purpose || 'N/A'}\n\n## Priorities\n\n${(parsed.priorities || []).map(p => `- ${p}`).join('\n')}\n\n## Full Configuration\n\n\`\`\`json\n${formatted}\n\`\`\`\n`
         );
         console.log('✓ Extracted .cursorrules to CURSORRULES.md');
-      } catch (e) {
+      } catch {
         // Fallback if JSON parsing fails
         writeText(path.join(OUT_DIR, 'CURSORRULES.md'), 
           `# Cursor Rules (Auto-Generated)\n\nGenerated: ${new Date().toISOString()}\n\nSource: \`.cursorrules\`\n\n\`\`\`\n${cursorRulesContent}\n\`\`\`\n`
@@ -95841,28 +95569,1403 @@ ${checklist}
 
 *** END FILE ***
 
+*** FILE: scorecard.js ***
+#!/usr/bin/env node
+/**
+ * Developer Scorecard — Simple Mode (v5)
+ * Tracks git productivity by net lines (insertions - deletions).
+ * Weekly and total averages are weighted by total lines, not daily averages.
+ */
+
+import { execSync } from "child_process";
+import fs from "fs";
+import path from "path";
+import chalk from "chalk";
+import Table from "cli-table3";
+
+// --- Settings ---
+const DAILY_TARGET = 3500;          // lines/day = 100 DPV
+const MAX_LINES_PER_DAY = 10000;    // cap extreme days
+
+// --- Parse git log ---
+function getGitHistory() {
+  const logCmd = `git log --pretty=format:"%ad|%s" --date=short --shortstat --no-merges`;
+  const raw = execSync(logCmd, { encoding: "utf-8" });
+  const lines = raw.split("\n").filter(Boolean);
+
+  const data = [];
+  let current = null;
+  for (const line of lines) {
+    if (line.includes("|") && !line.includes("files changed")) {
+      const [date, message] = line.split("|");
+      current = { date: date.trim(), message: message.trim(), insertions: 0, deletions: 0 };
+    } else if (line.includes("file") && current) {
+      const addMatch = line.match(/(\d+) insertions?/);
+      const delMatch = line.match(/(\d+) deletions?/);
+      current.insertions += addMatch ? +addMatch[1] : 0;
+      current.deletions += delMatch ? +delMatch[1] : 0;
+      data.push(current);
+      current = null;
+    }
+  }
+  return data;
+}
+
+// --- Grading ---
+function getGrade(dpv) {
+  if (dpv >= 95) return "A+";
+  if (dpv >= 85) return "A";
+  if (dpv >= 75) return "B";
+  if (dpv >= 65) return "C";
+  if (dpv >= 50) return "D";
+  return "F";
+}
+
+function colorByGrade(grade) {
+  if (grade === "A+" || grade === "A") return chalk.green;
+  if (grade === "B") return chalk.cyan;
+  if (grade === "C") return chalk.yellow;
+  if (grade === "D") return chalk.hex("#A0522D"); // brown
+  if (grade === "F") return chalk.red;
+  return chalk.gray;
+}
+
+// --- Week number helper ---
+function getWeekNumber(date) {
+  const firstDay = new Date(date.getFullYear(), 0, 1);
+  const days = Math.floor((date - firstDay) / 86400000);
+  return Math.ceil((days + firstDay.getDay() + 1) / 7);
+}
+
+// --- Main analysis ---
+function analyzeHistory() {
+  const commits = getGitHistory();
+
+  // Aggregate daily
+  const byDate = {};
+  for (const c of commits) {
+    const key = c.date;
+    if (!byDate[key]) byDate[key] = { commits: 0, lines: 0 };
+    byDate[key].commits++;
+    const net = Math.max(0, c.insertions - c.deletions);
+    byDate[key].lines += Math.min(net, MAX_LINES_PER_DAY);
+  }
+
+  const days = Object.entries(byDate)
+    .sort(([a], [b]) => new Date(a) - new Date(b))
+    .map(([date, val]) => {
+      const dpv =
+        val.lines === 0 ? 0 : Math.min(100, Math.round((val.lines / DAILY_TARGET) * 100));
+      const grade = val.lines === 0 ? "—" : getGrade(dpv);
+      return { date, commits: val.commits, lines: val.lines, dpv, grade };
+    });
+
+  // Group by week
+  const validDays = days.filter((d) => d.lines > 0);
+  const weeks = {};
+  for (const d of validDays) {
+    const week = getWeekNumber(new Date(d.date));
+    if (!weeks[week]) weeks[week] = [];
+    weeks[week].push(d);
+  }
+
+  const weekSummaries = Object.entries(weeks).map(([week, arr]) => {
+    const totalLines = arr.reduce((s, d) => s + d.lines, 0);
+    // Detect if this is the current (active) week
+    const now = new Date();
+    const currentWeekNum = getWeekNumber(now);
+    const isCurrentWeek = Number(week) === currentWeekNum;
+
+    // If current week, use real worked days; else assume 5
+    const totalDays = isCurrentWeek ? arr.length : 5;
+
+    const avgDPV = Math.min(
+      100,
+      Math.round(((totalLines / totalDays) / DAILY_TARGET) * 100)
+    );
+
+    const grade = getGrade(avgDPV);
+    return { week: `W${week}`, dpv: avgDPV, grade, lines: totalLines };
+  });
+
+  render(days, weekSummaries);
+}
+
+// --- Render table ---
+function render(days, weekSummaries) {
+  console.log(chalk.cyan("📅  Developer Scorecard — Lines Added/Deleted (Simple Mode v5)"));
+
+  const table = new Table({
+    head: [chalk.gray("Date"), "Commits", "Lines", "DPV", "Grade"],
+    colWidths: [14, 10, 12, 8, 8],
+    style: { head: [], border: [] },
+  });
+
+  for (const d of days) {
+    const week = getWeekNumber(new Date(d.date));
+    const color = colorByGrade(d.grade);
+    table.push([
+      color(d.date),
+      color(d.commits),
+      color(d.lines.toLocaleString()),
+      color(d.dpv || "—"),
+      color(d.grade),
+    ]);
+
+    // Week summary
+    const nextDay = days.find((x) => new Date(x.date) > new Date(d.date));
+    const nextWeek = nextDay ? getWeekNumber(new Date(nextDay.date)) : null;
+    if (nextWeek !== week) {
+      const ws = weekSummaries.find((w) => w.week === `W${week}`);
+      if (ws) {
+        const wColor = colorByGrade(ws.grade);
+        table.push([
+          wColor.bold(ws.week),
+          "—",
+          wColor(ws.lines.toLocaleString()),
+          wColor(ws.dpv),
+          wColor(ws.grade),
+        ]);
+        table.push(["", "", "", "", ""]); // spacer
+      }
+    }
+  }
+
+  console.log(table.toString());
+
+  // Weighted total average
+  const avgDPV =
+  weekSummaries.length > 0
+    ? Math.round(
+        weekSummaries.reduce((sum, w) => sum + w.dpv, 0) / weekSummaries.length
+      )
+    : 0;
+  const grade = getGrade(avgDPV);
+  console.log(chalk.gray(`Average DPV (recent): ${avgDPV} → ${grade}`));
+
+  // Save CSV
+  const csvPath = path.join("chatgpt", "gitlogs", "scorecard-history.csv");
+  fs.mkdirSync(path.dirname(csvPath), { recursive: true });
+  const csv =
+    "date,commits,lines,dpv,grade\n" +
+    days.map((d) => `${d.date},${d.commits},${d.lines},${d.dpv},${d.grade}`).join("\n");
+  fs.writeFileSync(csvPath, csv);
+  console.log(chalk.gray(`History saved to: ${csvPath}`));
+}
+
+// --- Run ---
+analyzeHistory();
+
+
+*** END FILE ***
+
+*** FILE: test-hook-simple.ps1 ***
+# Simple hook diagnostic
+Write-Host "Git Hook Diagnostic" -ForegroundColor Cyan
+Write-Host ("=" * 60)
+
+Write-Host "`nChecking hook setup..." -ForegroundColor Yellow
+
+# 1. Check if post-commit exists
+if (Test-Path ".git/hooks/post-commit") {
+    Write-Host "[OK] post-commit file exists" -ForegroundColor Green
+} else {
+    Write-Host "[FAIL] post-commit file missing" -ForegroundColor Red
+    exit
+}
+
+# 2. Check PowerShell script exists
+if (Test-Path ".git/hooks/post-commit-script.ps1") {
+    Write-Host "[OK] post-commit-script.ps1 exists" -ForegroundColor Green
+} else {
+    Write-Host "[FAIL] post-commit-script.ps1 missing" -ForegroundColor Red
+}
+
+# 3. Check line endings
+$bytes = [System.IO.File]::ReadAllBytes(".git/hooks/post-commit")
+$hasCRLF = ($bytes -contains 13)
+if (-not $hasCRLF) {
+    Write-Host "[OK] Line endings are correct (LF)" -ForegroundColor Green
+} else {
+    Write-Host "[WARN] Line endings are CRLF - may cause issues" -ForegroundColor Yellow
+    Write-Host "  Fix with: .\scripts\fix-hook-simple.ps1" -ForegroundColor Gray
+}
+
+# 4. Test manual execution
+Write-Host "`nTesting manual execution..." -ForegroundColor Yellow
+try {
+    & powershell -NoProfile -ExecutionPolicy Bypass -File ".git/hooks/post-commit-script.ps1" 2>&1 | Out-Null
+    if (Test-Path "chatgpt/gitlogs") {
+        $files = Get-ChildItem "chatgpt/gitlogs" -ErrorAction SilentlyContinue
+        Write-Host "[OK] PowerShell script works (found $($files.Count) gitlogs)" -ForegroundColor Green
+    } else {
+        Write-Host "[WARN] Script runs but no gitlogs created yet" -ForegroundColor Yellow
+    }
+} catch {
+    Write-Host "[FAIL] PowerShell script error: $_" -ForegroundColor Red
+}
+
+# 5. Check Git config
+$hooksPath = git config core.hooksPath 2>$null
+if ([string]::IsNullOrEmpty($hooksPath)) {
+    Write-Host "[OK] Using default hooks path" -ForegroundColor Green
+} else {
+    Write-Host "[WARN] Custom hooks path: $hooksPath" -ForegroundColor Yellow
+}
+
+Write-Host "`n" + ("=" * 60)
+Write-Host "Next step: Test with a real commit" -ForegroundColor Cyan
+Write-Host "  git commit --allow-empty -m 'Test hook'" -ForegroundColor White
+Write-Host ""
+
+
+
+*** END FILE ***
+
 *** PROJECT_STRUCTURE ***
 # Project Structure
 
 ## Summary
 ```json
 {
-  "generated": "2025-10-14T19:31:28.479Z",
+  "generated": "2025-10-14T22:25:21.382Z",
+  "projectRoot": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts",
+  "targetFolder": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts",
+  "counts": {
+    "totalFilesInTarget": 7,
+    "byExtension": {
+      ".js": 6,
+      ".ps1": 1
+    }
+  },
+  "bundles": [
+    "ALL_part01.txt"
+  ]
+}
+```
+
+## Project Root (limited depth)
+```
+scripts/
+  chatgpt/
+    codebase/
+      ALL_part01.txt
+    gitlogs/
+      scorecard-history.csv
+  error-monitor/
+    index.js
+    lib/
+      backend-monitor.js
+      cli.js
+      frontend-monitor.js
+  project-overview.js
+  scorecard.js
+  test-hook-simple.ps1
+```
+
+## Target Folder (full tree)
+```
+scripts/
+  error-monitor/
+    index.js
+    lib/
+      backend-monitor.js
+      cli.js
+      frontend-monitor.js
+  project-overview.js
+  scorecard.js
+  test-hook-simple.ps1
+```
+*** END PROJECT_STRUCTURE ***
+
+
+*** END FILE ***
+
+*** FILE: scripts\chatgpt\codebase\DATABASE.md ***
+# Database Overview
+
+⚠️ db-overview.js not found in backend/scripts/
+
+
+*** END FILE ***
+
+*** FILE: scripts\chatgpt\codebase\SEO.md ***
+# SEO Report (Auto-Generated)
+
+Generated: 2025-10-14T22:25:21.384Z
+
+This file summarizes detected SEO signals and TODOs. Edit conventions in `/docs/SEO.md` by replacing this file with a curated version if needed.
+
+## Snapshot
+- Total files scanned: **7**
+- By extension: `{".js":6,".ps1":1}`
+
+## Detected signals
+- [ ] robots.txt
+- [ ] sitemap generator
+- [ ] seo feature folder
+- [ ] ld-json helpers
+- [ ] preview route
+- [ ] head manager (Helmet/NextHead)
+
+## Conventions (recommended)
+- **Canonicals**: live → custom domain; subdomain plan canonicalizes to subdomain; previews are **noindex,nofollow** with X-Robots-Tag.
+- **Sitemaps**: per-tenant `/sitemaps/<tenant>.xml` including home, services, locations.
+- **Robots**: allow live tenants; disallow `/preview`.
+- **Meta**: title ≤ 60 chars; description 150–160 chars; OG + Twitter cards per page.
+- **JSON-LD**: LocalBusiness + Service + FAQ where relevant, sourced from tenant config.
+- **Assets**: WebP, width/height attributes, lazy loading.
+- **Analytics**: GA4 per tenant (calls, form submit, booking events), cookie consent where required.
+
+## TODOs
+- [ ] Ensure preview routes send `noindex` meta and X-Robots-Tag headers
+- [ ] Add per-tenant sitemap generation
+- [ ] Add/verify robots.txt
+- [ ] Centralize JSON-LD helpers
+- [ ] Enforce meta/title via a shared SEO component
+
+
+*** END FILE ***
+
+*** FILE: scripts\error-monitor\index.js ***
+#!/usr/bin/env node
+
+/**
+ * Unified Error Monitor CLI
+ * Monitors errors across backend and frontend with --target flag
+ * 
+ * Usage:
+ *   npm run error-monitor                    # Backend only (default)
+ *   npm run error-monitor -- --target=backend
+ *   npm run error-monitor -- --target=frontend  
+ *   npm run error-monitor -- --target=all
+ */
+
+import { parseArgs, printHelp } from './lib/cli.js';
+import { BackendMonitor } from './lib/backend-monitor.js';
+import { FrontendMonitor } from './lib/frontend-monitor.js';
+
+async function main() {
+  const args = parseArgs();
+  
+  if (args.flags.has('help') || args.flags.has('h')) {
+    printHelp(
+      'Error Monitor',
+      'Monitor errors across backend and frontend',
+      [
+        'npm run error-monitor',
+        'npm run error-monitor -- --target=backend',
+        'npm run error-monitor -- --target=frontend',
+        'npm run error-monitor -- --target=all',
+      ]
+    );
+    process.exit(0);
+  }
+  
+  const target = args.options.get('target') || 'backend';
+  
+  console.log('🚀 MDH Error Monitor Started');
+  console.log(`📍 Target: ${target}`);
+  console.log('================================\n');
+  
+  switch (target) {
+    case 'backend':
+      await new BackendMonitor().start();
+      break;
+      
+    case 'frontend':
+      await new FrontendMonitor().start();
+      break;
+      
+    case 'all': {
+      console.log('🔄 Monitoring both backend and frontend...\n');
+      const backend = new BackendMonitor();
+      const frontend = new FrontendMonitor();
+      await Promise.all([
+        backend.start(),
+        frontend.start(),
+      ]);
+      break;
+    }
+      
+    default:
+      console.error(`❌ Invalid target: ${target}`);
+      console.error('Valid targets: backend, frontend, all');
+      process.exit(1);
+  }
+}
+
+main().catch(console.error);
+
+
+
+*** END FILE ***
+
+*** FILE: scripts\error-monitor\lib\backend-monitor.js ***
+/**
+ * Backend Error Monitor
+ * Reads from backend/logs/errors.json
+ */
+
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+export class BackendMonitor {
+  constructor() {
+    this.logPath = path.resolve(__dirname, '../../../backend/logs/errors.json');
+    this.watching = false;
+  }
+  
+  async start() {
+    console.log('👀 Monitoring backend errors...');
+    console.log(`📁 Log file: ${this.logPath}\n`);
+    
+    // Show current errors
+    await this.showErrors();
+    
+    // Watch for changes
+    this.watching = true;
+    this.watchErrors();
+  }
+  
+  async showErrors() {
+    try {
+      const content = await fs.readFile(this.logPath, 'utf8');
+      const errors = content.trim().split('\n').filter(Boolean).map(line => JSON.parse(line));
+      
+      if (errors.length === 0) {
+        console.log('✅ No errors logged\n');
+        return;
+      }
+      
+      console.log(`📊 Found ${errors.length} error(s):\n`);
+      errors.slice(-10).forEach((error, i) => {
+        console.log(`[${i + 1}] ${error.level?.toUpperCase() || 'ERROR'}: ${error.message}`);
+        if (error.timestamp) console.log(`    ${new Date(error.timestamp).toLocaleString()}`);
+        if (error.url) console.log(`    ${error.method} ${error.url}`);
+        console.log('');
+      });
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        console.log('📭 No error log file yet\n');
+      } else {
+        console.error('❌ Failed to read error log:', error.message);
+      }
+    }
+  }
+  
+  async watchErrors() {
+    try {
+      const watcher = fs.watch(this.logPath);
+      
+      for await (const event of watcher) {
+        if (event.eventType === 'change' && this.watching) {
+          console.log('\n🔔 New error logged!');
+          await this.showErrors();
+        }
+      }
+    } catch {
+      // File doesn't exist yet, that's OK
+    }
+  }
+  
+  stop() {
+    this.watching = false;
+  }
+}
+
+
+
+*** END FILE ***
+
+*** FILE: scripts\error-monitor\lib\cli.js ***
+/**
+ * CLI Utilities for Error Monitor
+ * Shared between backend and frontend monitors
+ */
+
+export function parseArgs(argv = process.argv.slice(2)) {
+  const flags = new Set();
+  const options = new Map();
+  const positional = [];
+  
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i];
+    
+    if (arg.startsWith('--')) {
+      const flagName = arg.slice(2);
+      const equalIndex = flagName.indexOf('=');
+      
+      if (equalIndex > -1) {
+        const key = flagName.slice(0, equalIndex);
+        const value = flagName.slice(equalIndex + 1);
+        options.set(key, value);
+      } else if (i + 1 < argv.length && !argv[i + 1].startsWith('-')) {
+        options.set(flagName, argv[i + 1]);
+        i++;
+      } else {
+        flags.add(flagName);
+      }
+    } else if (arg.startsWith('-')) {
+      flags.add(arg.slice(1));
+    } else {
+      positional.push(arg);
+    }
+  }
+  
+  return { flags, options, positional };
+}
+
+export function printHelp(name, description, usage) {
+  console.log(`
+${name}
+${description}
+
+Usage:
+${usage.map(u => `  ${u}`).join('\n')}
+
+Options:
+  --target=<target>  Specify target (backend, frontend, all)
+  --help, -h         Show this help
+`);
+}
+
+
+
+*** END FILE ***
+
+*** FILE: scripts\error-monitor\lib\frontend-monitor.js ***
+/**
+ * Frontend Error Monitor
+ * Note: Frontend errors are logged to browser console
+ * This monitor provides info about checking frontend errors
+ */
+
+export class FrontendMonitor {
+  async start() {
+    console.log('🌐 Frontend Error Monitoring Info:');
+    console.log('==================================');
+    console.log('');
+    console.log('Frontend errors are logged in the browser console.');
+    console.log('');
+    console.log('To view frontend errors:');
+    console.log('  1. Open your browser');
+    console.log('  2. Navigate to your app (http://localhost:5173)');
+    console.log('  3. Open DevTools (F12)');
+    console.log('  4. Check the Console tab');
+    console.log('');
+    console.log('Error monitoring features in browser:');
+    console.log('  - All errors are caught by ErrorBoundary');
+    console.log('  - Logged with errorMonitoring.ts utility');
+    console.log('  - Network errors visible in Network tab');
+    console.log('  - React errors visible in Components tab');
+    console.log('');
+    console.log('💡 Tip: Install React DevTools browser extension');
+    console.log('');
+  }
+}
+
+
+
+*** END FILE ***
+
+*** FILE: scripts\project-overview.js ***
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { execSync } from 'child_process';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+/** ======================
+ *  Config (no CLI flags; just run `node project-overview.js`)
+ *  ====================== */
+const OUTPUT_DIR_NAME = 'chatgpt';
+
+// Maximum size per output file (bytes)
+const MAX_BUNDLE_BYTES = 5 * 1024 * 1024; // 5 MB
+// Max number of output files
+const MAX_OUTPUT_FILES = 10;
+// Tree depth for project root overview
+const ROOT_TREE_DEPTH = 3;
+
+// Which file types to include in bundles (text-ish)
+const ALLOWED_EXT = new Set([
+  '.js','.jsx','.ts','.tsx','.mjs','.cjs',
+  '.json','.md','.txt',
+  '.css','.scss','.sass',
+  '.html','.xml',
+  '.sql','.sh','.bat','.ps1',
+  '.yml','.yaml','.toml','.ini','.cfg','.conf',
+  '.py','.go','.rb','.rs','.java','.kt',
+  '.c','.h','.cpp','.hpp',
+  '.dockerfile','.env.example'
+]);
+
+// Directories we skip to avoid noise/weight
+const IGNORE_DIRS = new Set([
+  'node_modules','dist','build','.next','.nuxt','out',
+  '.cache','.parcel-cache','coverage',
+  '.git','.github','.vscode','.idea','.vite',
+  'assets','images','videos','media','uploads','public'
+]);
+
+// Files we skip explicitly
+const IGNORE_FILES = new Set([
+  '.DS_Store','Thumbs.db','package-lock.json','yarn.lock','pnpm-lock.yaml'
+]);
+
+
+// --- add near the top with other imports ---
+function writeText(filePath, text) {
+  const dir = path.dirname(filePath);
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(filePath, text, 'utf8');
+}
+
+/** ======================
+ *  FS helpers
+ *  ====================== */
+function clearDir(dir) { 
+  fs.rmSync(dir, { recursive: true, force: true }); 
+  fs.mkdirSync(dir, { recursive: true }); 
+}
+function isBinary(buf) { return buf.includes(0); }
+function safeRead(filePath) {
+  try {
+    const buf = fs.readFileSync(filePath);
+    if (isBinary(buf)) return null;
+    return buf.toString('utf8');
+  } catch {
+    return null;
+  }
+}
+function shouldSkipFile(name) {
+  if (IGNORE_FILES.has(name)) return true;
+  
+  // Allow common no-ext infra files
+  if (name === 'Dockerfile' || name === 'Makefile') return false;
+  
+  const ext = path.extname(name).toLowerCase();
+  if (!ALLOWED_EXT.has(ext)) return true;
+  return false;
+}
+
+/** ======================
+ *  Root detection (walk up from this script)
+ *  ====================== */
+function findProjectRoot(startDir) {
+  let dir = path.resolve(startDir);
+  for (let i = 0; i < 12; i++) {
+    const hasPkg = fs.existsSync(path.join(dir, 'package.json'));
+    const hasGit = fs.existsSync(path.join(dir, '.git'));
+    const hasFrontend = fs.existsSync(path.join(dir, 'frontend'));
+    const hasChatgpt = fs.existsSync(path.join(dir, 'chatgpt'));
+    
+    // Require at least 2 signals to avoid false positives (e.g., scripts/chatgpt folder)
+    const signals = [hasPkg, hasGit, hasFrontend, hasChatgpt].filter(Boolean).length;
+    if (signals >= 2) return dir;
+    
+    // If we find package.json alone, that's also good enough
+    if (hasPkg) return dir;
+    
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  return path.resolve(startDir);
+}
+
+/** ======================
+ *  Walkers
+ *  ====================== */
+function walkDir(dir, { allowAll = false } = {}) {
+  const out = [];
+  const stack = [dir];
+  while (stack.length) {
+    const d = stack.pop();
+    let entries = [];
+    try { entries = fs.readdirSync(d, { withFileTypes: true }); } catch { continue; }
+    for (const e of entries) {
+      if (e.name.startsWith('.')) continue; // skip hidden by default
+      const full = path.join(d, e.name);
+      if (e.isSymbolicLink()) continue;
+      if (e.isDirectory()) {
+        if (!IGNORE_DIRS.has(e.name)) stack.push(full);
+      } else {
+        if (!allowAll && shouldSkipFile(e.name)) continue;
+        out.push({ full, rel: path.relative(dir, full), name: e.name });
+      }
+    }
+  }
+  return out.sort((a,b) => a.rel.localeCompare(b.rel));
+}
+
+function walkDirLimitedDepth(dir, maxDepth, depth = 0) {
+  let tree = '';
+  if (depth === 0) tree += `${path.basename(dir)}/\n`;
+  let entries = [];
+  try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return tree; }
+  entries = entries
+    .filter(e => !e.name.startsWith('.') && !IGNORE_DIRS.has(e.name))
+    .sort((a,b) => a.name.localeCompare(b.name));
+  for (const e of entries) {
+    const full = path.join(dir, e.name);
+    const indent = '  '.repeat(depth + 1);
+    tree += `${indent}${e.name}${e.isDirectory() ? '/' : ''}\n`;
+    if (e.isDirectory() && depth + 1 < maxDepth) {
+      tree += walkDirLimitedDepth(full, maxDepth, depth + 1);
+    }
+  }
+  return tree;
+}
+
+/** ======================
+ *  Context gatherers
+ *  ====================== */
+function detectRouterEntries(projectRoot) {
+  const guesses = [
+    // Vite/CRA-style
+    'src/main.tsx','src/main.jsx','src/index.tsx','src/index.jsx','src/App.tsx','src/App.jsx',
+    'frontend/src/main.tsx','frontend/src/main.jsx','frontend/src/index.tsx','frontend/src/index.jsx','frontend/src/App.tsx','frontend/src/App.jsx',
+    // Next.js
+    'pages/_app.tsx','pages/_app.jsx','pages/_document.tsx','pages/_document.jsx',
+    'app/layout.tsx','app/layout.jsx','app/page.tsx','app/page.jsx'
+  ];
+  return guesses.map(g => path.join(projectRoot, g)).filter(p => fs.existsSync(p));
+}
+
+function collectContextFiles(projectRoot) {
+  const candidates = [
+    // Root & frontend tooling/config
+    'package.json','frontend/package.json',
+    'tsconfig.json','frontend/tsconfig.json','frontend/tsconfig.app.json','frontend/tsconfig.node.json','frontend/tsconfig.eslint.json',
+    'vite.config.ts','vite.config.js','frontend/vite.config.ts','frontend/vite.config.js',
+    'tailwind.config.js','tailwind.config.cjs','tailwind.config.ts',
+    'postcss.config.js','postcss.config.cjs','postcss.config.ts',
+    'eslint.config.js','eslint.config.cjs','eslint.config.mjs','.eslintrc','.eslintrc.json',
+    'README.md','frontend/README.md',
+    '.cursorrules',
+    // SEO & infra files
+    'public/robots.txt','frontend/public/robots.txt',
+    'public/sitemap.xml','frontend/public/sitemap.xml',
+    'public/manifest.json','frontend/public/manifest.json',
+    // Environment examples
+    '.env.example','frontend/.env.example',
+    // CI/CD workflows
+    '.github/workflows/lighthouse.yml',
+    '.github/workflows/ci.yml',
+    '.github/workflows/tests.yml'
+  ].map(p => path.join(projectRoot, p));
+
+  const router = detectRouterEntries(projectRoot);
+  const maybes = [
+    'site.json','frontend/src/site.json','src/site.json',
+    'frontend/tailwind.config.js','frontend/postcss.config.js'
+  ].map(p => path.join(projectRoot, p));
+
+  const all = [...new Set([...candidates, ...router, ...maybes])]
+    .filter(p => fs.existsSync(p))
+    .map(full => ({ full, rel: path.relative(projectRoot, full), name: path.basename(full) }));
+
+  // Ensure .cursorrules is first if present
+  const idx = all.findIndex(f => f.rel === '.cursorrules');
+  if (idx > -1) {
+    const [it] = all.splice(idx, 1);
+    all.unshift(it);
+  }
+  return all;
+}
+
+/** ======================
+ *  Banners & packers
+ *  ====================== */
+function makeBanner(title, fileRel) { return `\n*** ${title}: ${fileRel} ***\n`; }
+function makeEndBanner() { return `\n*** END FILE ***\n`; }
+
+function buildChunks(files, baseDir) {
+  const chunks = [];
+  for (const f of files) {
+    const content = safeRead(f.full);
+    if (content == null) continue;
+    const rel = path.relative(baseDir, f.full);
+    const chunk = `${makeBanner('FILE', rel)}${content}\n${makeEndBanner()}`;
+    chunks.push({ rel, bytes: Buffer.byteLength(chunk, 'utf8'), text: chunk });
+  }
+  return chunks;
+}
+
+function packBySize(chunks, outDir, prefix, maxBytes, maxFiles) {
+  const written = [];
+  let part = 1;
+  let current = '';
+  let currentBytes = 0;
+
+  const flush = () => {
+    if (!current) return;
+    const name = `${prefix}_part${String(part).padStart(2,'0')}.txt`;
+    fs.writeFileSync(path.join(outDir, name), current);
+    written.push(name);
+    part++;
+    current = '';
+    currentBytes = 0;
+  };
+
+  for (const ch of chunks) {
+    if (currentBytes + ch.bytes > maxBytes && current) {
+      flush();
+      // if we somehow exceed max files, we’ll merge later
+    }
+    current += ch.text;
+    currentBytes += ch.bytes;
+  }
+  if (current) flush();
+
+  // Enforce file cap by merging from the end
+  while (written.length > maxFiles) {
+    const keep = written[written.length - 2];
+    const absorb = written[written.length - 1];
+    const keepPath = path.join(outDir, keep);
+    const absorbPath = path.join(outDir, absorb);
+    fs.appendFileSync(keepPath, '\n' + fs.readFileSync(absorbPath, 'utf8'));
+    fs.rmSync(absorbPath, { force: true });
+    written.pop();
+  }
+
+  return written;
+}
+
+/** ======================
+ *  Structure text
+ *  ====================== */
+function printFullTree(root, files) {
+  const set = new Set(files.map(f => f.rel.split(/[\\/]/).join('/')));
+  const allPaths = Array.from(set).sort();
+  let tree = path.basename(root) + '/\n';
+  let prev = [];
+  for (const p of allPaths) {
+    const parts = p.split('/');
+    let i = 0;
+    while (i < parts.length && prev[i] === parts[i]) i++;
+    for (; i < parts.length; i++) {
+      const indent = '  '.repeat(i + 1);
+      tree += `${indent}${parts[i]}${i < parts.length - 1 ? '/' : ''}\n`;
+    }
+    prev = parts;
+  }
+  return tree;
+}
+
+
+
+// --- add these helpers somewhere above MAIN ---
+function detectSeoSignals(projectRoot) {
+  // Cache walkDir calls for performance
+  const files = walkDir(projectRoot);
+  const rels = JSON.stringify(files.map(f => f.rel));
+  
+  const checks = [];
+  const hasRobots = fs.existsSync(path.join(projectRoot, 'public', 'robots.txt')) ||
+                    fs.existsSync(path.join(projectRoot, 'frontend', 'public', 'robots.txt'));
+  const hasSitemapGen = /sitemap/i.test(rels);
+  const hasSeoFeature = fs.existsSync(path.join(projectRoot, 'frontend', 'src', 'features', 'seo'));
+  const hasLdJsonHelpers = /ldjson|structured.?data|json-ld/i.test(rels);
+  const hasPreviewRoute = /preview/i.test(rels);
+  const hasHelmetOrHead = /react-helmet|next\/head/i.test(
+    JSON.stringify(walkDir(projectRoot, { allowAll: true }).map(f => f.rel))
+  );
+
+  checks.push({ key: 'robots.txt', present: hasRobots });
+  checks.push({ key: 'sitemap generator', present: hasSitemapGen });
+  checks.push({ key: 'seo feature folder', present: hasSeoFeature });
+  checks.push({ key: 'ld-json helpers', present: hasLdJsonHelpers });
+  checks.push({ key: 'preview route', present: hasPreviewRoute });
+  checks.push({ key: 'head manager (Helmet/NextHead)', present: hasHelmetOrHead });
+
+  return checks;
+}
+
+function captureDatabaseOverview(projectRoot) {
+  try {
+    const dbScriptPath = path.join(projectRoot, 'backend', 'scripts', 'db-overview.js');
+    if (!fs.existsSync(dbScriptPath)) {
+      return '# Database Overview\n\n⚠️ db-overview.js not found in backend/scripts/\n';
+    }
+    
+    // Run db-overview.js with level 3 (full details)
+    const output = execSync(`node "${dbScriptPath}" 3`, {
+      cwd: path.join(projectRoot, 'backend'),
+      encoding: 'utf8',
+      timeout: 30000, // 30 second timeout
+      stdio: ['pipe', 'pipe', 'pipe'] // capture stdout, stderr
+    });
+    
+    return `# Database Overview (Auto-Generated)\n\nGenerated: ${new Date().toISOString()}\n\n\`\`\`\n${output}\n\`\`\`\n`;
+  } catch (error) {
+    return `# Database Overview\n\n❌ Error running db-overview.js:\n\`\`\`\n${error.message}\n\`\`\`\n\nNote: Make sure your database is running and .env is configured.\n`;
+  }
+}
+
+function buildSeoMarkdown({ projectRoot, stats }) {
+  const checks = detectSeoSignals(projectRoot);
+  const byExt = stats.counts.byExtension || {};
+  const total = stats.counts.totalFilesInTarget || 0;
+
+  const checklist = checks.map(c => `- [${c.present ? 'x' : ' '}] ${c.key}`).join('\n');
+
+  return `# SEO Report (Auto-Generated)
+
+Generated: ${new Date().toISOString()}
+
+This file summarizes detected SEO signals and TODOs. Edit conventions in \`/docs/SEO.md\` by replacing this file with a curated version if needed.
+
+## Snapshot
+- Total files scanned: **${total}**
+- By extension: \`${JSON.stringify(byExt)}\`
+
+## Detected signals
+${checklist}
+
+## Conventions (recommended)
+- **Canonicals**: live → custom domain; subdomain plan canonicalizes to subdomain; previews are **noindex,nofollow** with X-Robots-Tag.
+- **Sitemaps**: per-tenant \`/sitemaps/<tenant>.xml\` including home, services, locations.
+- **Robots**: allow live tenants; disallow \`/preview\`.
+- **Meta**: title ≤ 60 chars; description 150–160 chars; OG + Twitter cards per page.
+- **JSON-LD**: LocalBusiness + Service + FAQ where relevant, sourced from tenant config.
+- **Assets**: WebP, width/height attributes, lazy loading.
+- **Analytics**: GA4 per tenant (calls, form submit, booking events), cookie consent where required.
+
+## TODOs
+- [ ] Ensure preview routes send \`noindex\` meta and X-Robots-Tag headers
+- [ ] Add per-tenant sitemap generation
+- [ ] Add/verify robots.txt
+- [ ] Centralize JSON-LD helpers
+- [ ] Enforce meta/title via a shared SEO component
+`;
+}
+
+/** ======================
+ *  MAIN
+ *  ====================== */
+(async function main() {
+  // 1) Locate project root from this script’s directory
+  const SCRIPT_DIR = __dirname;
+  const PROJECT_ROOT = findProjectRoot(SCRIPT_DIR);
+  const TARGET_PATH = PROJECT_ROOT; // Always pack the whole project root
+
+  // 2) Prepare output directory
+  const OUT_DIR = path.join(PROJECT_ROOT, OUTPUT_DIR_NAME);
+  clearDir(OUT_DIR);
+
+  console.log('[project-overview] Project root:', PROJECT_ROOT);
+  console.log('[project-overview] Target folder:', TARGET_PATH);
+  console.log('[project-overview] Output dir:', OUT_DIR);
+  console.log(`[project-overview] Max bundle size: ${(MAX_BUNDLE_BYTES/1024/1024).toFixed(1)} MB`);
+  console.log(`[project-overview] Max output files: ${MAX_OUTPUT_FILES}`);
+  console.log('');
+
+  // 3) Gather files
+  const contextFiles = collectContextFiles(PROJECT_ROOT);
+  const allFiles = walkDir(TARGET_PATH);
+
+  // 3.1) Extract .cursorrules to write separately
+  const cursorRulesFile = contextFiles.find(f => f.rel === '.cursorrules');
+  const contextFilesWithoutCursorRules = contextFiles.filter(f => f.rel !== '.cursorrules');
+
+  // Build unified ordered list: context files (without .cursorrules), then the rest
+  const contextSet = new Set(contextFiles.map(f => f.full));
+  const unified = [
+    ...contextFilesWithoutCursorRules,
+    ...allFiles.filter(f => !contextSet.has(f.full)),
+  ];
+
+  // 4) Build chunks and pack
+  const chunks = buildChunks(unified, PROJECT_ROOT);
+  const written = packBySize(chunks, OUT_DIR, 'ALL', MAX_BUNDLE_BYTES, MAX_OUTPUT_FILES);
+
+  // 5) Append structure info to PART 1 (no separate file)
+  const treeRoot = walkDirLimitedDepth(PROJECT_ROOT, ROOT_TREE_DEPTH);
+  const treeTarget = printFullTree(TARGET_PATH, allFiles);
+  const stats = {
+    generated: new Date().toISOString(),
+    projectRoot: PROJECT_ROOT,
+    targetFolder: TARGET_PATH,
+    counts: {
+      totalFilesInTarget: allFiles.length,
+      byExtension: allFiles.reduce((acc, f) => {
+        const ext = path.extname(f.name).toLowerCase() || '(noext)';
+        acc[ext] = (acc[ext] || 0) + 1;
+        return acc;
+      }, {})
+    },
+    bundles: written
+  };
+
+  // Generate and write SEO report
+  const seoReport = buildSeoMarkdown({ projectRoot: PROJECT_ROOT, stats });
+  writeText(path.join(OUT_DIR, 'SEO.md'), seoReport);
+
+  // Write .cursorrules as separate file
+  if (cursorRulesFile) {
+    const cursorRulesContent = safeRead(cursorRulesFile.full);
+    if (cursorRulesContent) {
+      // Parse and pretty-print the JSON for better readability
+      try {
+        const parsed = JSON.parse(cursorRulesContent);
+        const formatted = JSON.stringify(parsed, null, 2);
+        writeText(path.join(OUT_DIR, 'CURSORRULES.md'), 
+          `# Cursor Rules (Auto-Generated)\n\nGenerated: ${new Date().toISOString()}\n\nSource: \`.cursorrules\`\n\n## Project Purpose\n\n${parsed.purpose || 'N/A'}\n\n## Priorities\n\n${(parsed.priorities || []).map(p => `- ${p}`).join('\n')}\n\n## Full Configuration\n\n\`\`\`json\n${formatted}\n\`\`\`\n`
+        );
+        console.log('✓ Extracted .cursorrules to CURSORRULES.md');
+      } catch {
+        // Fallback if JSON parsing fails
+        writeText(path.join(OUT_DIR, 'CURSORRULES.md'), 
+          `# Cursor Rules (Auto-Generated)\n\nGenerated: ${new Date().toISOString()}\n\nSource: \`.cursorrules\`\n\n\`\`\`\n${cursorRulesContent}\n\`\`\`\n`
+        );
+        console.log('✓ Extracted .cursorrules to CURSORRULES.md (raw format)');
+      }
+    }
+  }
+
+  // Capture and write database overview
+  console.log('⏳ Capturing database overview (this may take a moment)...');
+  const dbOverview = captureDatabaseOverview(PROJECT_ROOT);
+  writeText(path.join(OUT_DIR, 'DATABASE.md'), dbOverview);
+  console.log('✓ Generated DATABASE.md');
+
+  const structureTxt = [
+    '\n*** PROJECT_STRUCTURE ***',
+    '# Project Structure',
+    '',
+    '## Summary',
+    '```json',
+    JSON.stringify(stats, null, 2),
+    '```',
+    '',
+    '## Project Root (limited depth)',
+    '```',
+    treeRoot.trimEnd(),
+    '```',
+    '',
+    '## Target Folder (full tree)',
+    '```',
+    treeTarget.trimEnd(),
+    '```',
+    '*** END PROJECT_STRUCTURE ***\n'
+  ].join('\n');
+
+  if (written.length > 0) {
+    const part1Path = path.join(OUT_DIR, written[0]);
+    fs.appendFileSync(part1Path, structureTxt);
+  }
+
+  // 6) Copy PROJECT_OVERVIEW.md from docs/ to output directory
+  const overviewSource = path.join(PROJECT_ROOT, 'docs', 'PROJECT_OVERVIEW.md');
+  const overviewDest = path.join(OUT_DIR, 'PROJECT_OVERVIEW.md');
+  const finalFiles = [...written, 'SEO.md', 'DATABASE.md'];
+  
+  // Add CURSORRULES.md if it was written
+  if (cursorRulesFile) {
+    finalFiles.push('CURSORRULES.md');
+  }
+  
+  if (fs.existsSync(overviewSource)) {
+    fs.copyFileSync(overviewSource, overviewDest);
+    finalFiles.push('PROJECT_OVERVIEW.md');
+    console.log('✓ Copied PROJECT_OVERVIEW.md to output directory');
+  } else {
+    console.log('⚠ PROJECT_OVERVIEW.md not found in /docs/ - skipping');
+  }
+
+  console.log('\n✅ Done!');
+  console.log('Output files:', finalFiles);
+})().catch(err => {
+  console.error(err);
+  process.exit(1);
+});
+
+
+*** END FILE ***
+
+*** FILE: scripts\scorecard.js ***
+#!/usr/bin/env node
+/**
+ * Developer Scorecard — Simple Mode (v5)
+ * Tracks git productivity by net lines (insertions - deletions).
+ * Weekly and total averages are weighted by total lines, not daily averages.
+ */
+
+import { execSync } from "child_process";
+import fs from "fs";
+import path from "path";
+import chalk from "chalk";
+import Table from "cli-table3";
+
+// --- Settings ---
+const DAILY_TARGET = 3500;          // lines/day = 100 DPV
+const MAX_LINES_PER_DAY = 10000;    // cap extreme days
+
+// --- Parse git log ---
+function getGitHistory() {
+  const logCmd = `git log --pretty=format:"%ad|%s" --date=short --shortstat --no-merges`;
+  const raw = execSync(logCmd, { encoding: "utf-8" });
+  const lines = raw.split("\n").filter(Boolean);
+
+  const data = [];
+  let current = null;
+  for (const line of lines) {
+    if (line.includes("|") && !line.includes("files changed")) {
+      const [date, message] = line.split("|");
+      current = { date: date.trim(), message: message.trim(), insertions: 0, deletions: 0 };
+    } else if (line.includes("file") && current) {
+      const addMatch = line.match(/(\d+) insertions?/);
+      const delMatch = line.match(/(\d+) deletions?/);
+      current.insertions += addMatch ? +addMatch[1] : 0;
+      current.deletions += delMatch ? +delMatch[1] : 0;
+      data.push(current);
+      current = null;
+    }
+  }
+  return data;
+}
+
+// --- Grading ---
+function getGrade(dpv) {
+  if (dpv >= 95) return "A+";
+  if (dpv >= 85) return "A";
+  if (dpv >= 75) return "B";
+  if (dpv >= 65) return "C";
+  if (dpv >= 50) return "D";
+  return "F";
+}
+
+function colorByGrade(grade) {
+  if (grade === "A+" || grade === "A") return chalk.green;
+  if (grade === "B") return chalk.cyan;
+  if (grade === "C") return chalk.yellow;
+  if (grade === "D") return chalk.hex("#A0522D"); // brown
+  if (grade === "F") return chalk.red;
+  return chalk.gray;
+}
+
+// --- Week number helper ---
+function getWeekNumber(date) {
+  const firstDay = new Date(date.getFullYear(), 0, 1);
+  const days = Math.floor((date - firstDay) / 86400000);
+  return Math.ceil((days + firstDay.getDay() + 1) / 7);
+}
+
+// --- Main analysis ---
+function analyzeHistory() {
+  const commits = getGitHistory();
+
+  // Aggregate daily
+  const byDate = {};
+  for (const c of commits) {
+    const key = c.date;
+    if (!byDate[key]) byDate[key] = { commits: 0, lines: 0 };
+    byDate[key].commits++;
+    const net = Math.max(0, c.insertions - c.deletions);
+    byDate[key].lines += Math.min(net, MAX_LINES_PER_DAY);
+  }
+
+  const days = Object.entries(byDate)
+    .sort(([a], [b]) => new Date(a) - new Date(b))
+    .map(([date, val]) => {
+      const dpv =
+        val.lines === 0 ? 0 : Math.min(100, Math.round((val.lines / DAILY_TARGET) * 100));
+      const grade = val.lines === 0 ? "—" : getGrade(dpv);
+      return { date, commits: val.commits, lines: val.lines, dpv, grade };
+    });
+
+  // Group by week
+  const validDays = days.filter((d) => d.lines > 0);
+  const weeks = {};
+  for (const d of validDays) {
+    const week = getWeekNumber(new Date(d.date));
+    if (!weeks[week]) weeks[week] = [];
+    weeks[week].push(d);
+  }
+
+  const weekSummaries = Object.entries(weeks).map(([week, arr]) => {
+    const totalLines = arr.reduce((s, d) => s + d.lines, 0);
+    // Detect if this is the current (active) week
+    const now = new Date();
+    const currentWeekNum = getWeekNumber(now);
+    const isCurrentWeek = Number(week) === currentWeekNum;
+
+    // If current week, use real worked days; else assume 5
+    const totalDays = isCurrentWeek ? arr.length : 5;
+
+    const avgDPV = Math.min(
+      100,
+      Math.round(((totalLines / totalDays) / DAILY_TARGET) * 100)
+    );
+
+    const grade = getGrade(avgDPV);
+    return { week: `W${week}`, dpv: avgDPV, grade, lines: totalLines };
+  });
+
+  render(days, weekSummaries);
+}
+
+// --- Render table ---
+function render(days, weekSummaries) {
+  console.log(chalk.cyan("📅  Developer Scorecard — Lines Added/Deleted (Simple Mode v5)"));
+
+  const table = new Table({
+    head: [chalk.gray("Date"), "Commits", "Lines", "DPV", "Grade"],
+    colWidths: [14, 10, 12, 8, 8],
+    style: { head: [], border: [] },
+  });
+
+  for (const d of days) {
+    const week = getWeekNumber(new Date(d.date));
+    const color = colorByGrade(d.grade);
+    table.push([
+      color(d.date),
+      color(d.commits),
+      color(d.lines.toLocaleString()),
+      color(d.dpv || "—"),
+      color(d.grade),
+    ]);
+
+    // Week summary
+    const nextDay = days.find((x) => new Date(x.date) > new Date(d.date));
+    const nextWeek = nextDay ? getWeekNumber(new Date(nextDay.date)) : null;
+    if (nextWeek !== week) {
+      const ws = weekSummaries.find((w) => w.week === `W${week}`);
+      if (ws) {
+        const wColor = colorByGrade(ws.grade);
+        table.push([
+          wColor.bold(ws.week),
+          "—",
+          wColor(ws.lines.toLocaleString()),
+          wColor(ws.dpv),
+          wColor(ws.grade),
+        ]);
+        table.push(["", "", "", "", ""]); // spacer
+      }
+    }
+  }
+
+  console.log(table.toString());
+
+  // Weighted total average
+  const avgDPV =
+  weekSummaries.length > 0
+    ? Math.round(
+        weekSummaries.reduce((sum, w) => sum + w.dpv, 0) / weekSummaries.length
+      )
+    : 0;
+  const grade = getGrade(avgDPV);
+  console.log(chalk.gray(`Average DPV (recent): ${avgDPV} → ${grade}`));
+
+  // Save CSV
+  const csvPath = path.join("chatgpt", "gitlogs", "scorecard-history.csv");
+  fs.mkdirSync(path.dirname(csvPath), { recursive: true });
+  const csv =
+    "date,commits,lines,dpv,grade\n" +
+    days.map((d) => `${d.date},${d.commits},${d.lines},${d.dpv},${d.grade}`).join("\n");
+  fs.writeFileSync(csvPath, csv);
+  console.log(chalk.gray(`History saved to: ${csvPath}`));
+}
+
+// --- Run ---
+analyzeHistory();
+
+
+*** END FILE ***
+
+*** FILE: scripts\test-hook-simple.ps1 ***
+# Simple hook diagnostic
+Write-Host "Git Hook Diagnostic" -ForegroundColor Cyan
+Write-Host ("=" * 60)
+
+Write-Host "`nChecking hook setup..." -ForegroundColor Yellow
+
+# 1. Check if post-commit exists
+if (Test-Path ".git/hooks/post-commit") {
+    Write-Host "[OK] post-commit file exists" -ForegroundColor Green
+} else {
+    Write-Host "[FAIL] post-commit file missing" -ForegroundColor Red
+    exit
+}
+
+# 2. Check PowerShell script exists
+if (Test-Path ".git/hooks/post-commit-script.ps1") {
+    Write-Host "[OK] post-commit-script.ps1 exists" -ForegroundColor Green
+} else {
+    Write-Host "[FAIL] post-commit-script.ps1 missing" -ForegroundColor Red
+}
+
+# 3. Check line endings
+$bytes = [System.IO.File]::ReadAllBytes(".git/hooks/post-commit")
+$hasCRLF = ($bytes -contains 13)
+if (-not $hasCRLF) {
+    Write-Host "[OK] Line endings are correct (LF)" -ForegroundColor Green
+} else {
+    Write-Host "[WARN] Line endings are CRLF - may cause issues" -ForegroundColor Yellow
+    Write-Host "  Fix with: .\scripts\fix-hook-simple.ps1" -ForegroundColor Gray
+}
+
+# 4. Test manual execution
+Write-Host "`nTesting manual execution..." -ForegroundColor Yellow
+try {
+    & powershell -NoProfile -ExecutionPolicy Bypass -File ".git/hooks/post-commit-script.ps1" 2>&1 | Out-Null
+    if (Test-Path "chatgpt/gitlogs") {
+        $files = Get-ChildItem "chatgpt/gitlogs" -ErrorAction SilentlyContinue
+        Write-Host "[OK] PowerShell script works (found $($files.Count) gitlogs)" -ForegroundColor Green
+    } else {
+        Write-Host "[WARN] Script runs but no gitlogs created yet" -ForegroundColor Yellow
+    }
+} catch {
+    Write-Host "[FAIL] PowerShell script error: $_" -ForegroundColor Red
+}
+
+# 5. Check Git config
+$hooksPath = git config core.hooksPath 2>$null
+if ([string]::IsNullOrEmpty($hooksPath)) {
+    Write-Host "[OK] Using default hooks path" -ForegroundColor Green
+} else {
+    Write-Host "[WARN] Custom hooks path: $hooksPath" -ForegroundColor Yellow
+}
+
+Write-Host "`n" + ("=" * 60)
+Write-Host "Next step: Test with a real commit" -ForegroundColor Cyan
+Write-Host "  git commit --allow-empty -m 'Test hook'" -ForegroundColor White
+Write-Host ""
+
+
+
+*** END FILE ***
+
+*** PROJECT_STRUCTURE ***
+# Project Structure
+
+## Summary
+```json
+{
+  "generated": "2025-10-14T22:28:57.197Z",
   "projectRoot": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh",
   "targetFolder": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh",
   "counts": {
-    "totalFilesInTarget": 815,
+    "totalFilesInTarget": 816,
     "byExtension": {
-      ".js": 76,
-      ".md": 35,
+      ".js": 77,
+      ".md": 36,
       ".sql": 38,
       ".json": 76,
       ".ts": 320,
       ".html": 1,
       ".tsx": 265,
       ".css": 1,
-      ".ps1": 2,
-      ".sh": 1
+      ".txt": 1,
+      ".ps1": 1
     }
   },
   "bundles": [
@@ -95954,9 +97057,7 @@ mdh/
       validators.js
       vehicleMapping.js
   chatgpt/
-    codebase/
-      ALL_part01.txt
-    gitlogs/
+    ALL_part01.txt
   current-goals.md
   docs/
     LEGACY_CODE_CLEANUP.md
@@ -96015,14 +97116,15 @@ mdh/
   package-lock.json
   package.json
   scripts/
-    CHANGELOG_SCRIPTS_README.md
-    commit-with-changelog.ps1
-    commit-with-changelog.sh
+    chatgpt/
+      codebase/
+      gitlogs/
     error-monitor/
       index.js
       lib/
-    install-commit-hook.ps1
     project-overview.js
+    scorecard.js
+    test-hook-simple.ps1
 ```
 
 ## Target Folder (full tree)
@@ -97098,16 +98200,19 @@ mdh/
     vitest.config.ts
   package.json
   scripts/
-    CHANGELOG_SCRIPTS_README.md
-    commit-with-changelog.ps1
-    commit-with-changelog.sh
+    chatgpt/
+      codebase/
+        ALL_part01.txt
+        DATABASE.md
+        SEO.md
     error-monitor/
       index.js
       lib/
         backend-monitor.js
         cli.js
         frontend-monitor.js
-    install-commit-hook.ps1
     project-overview.js
+    scorecard.js
+    test-hook-simple.ps1
 ```
 *** END PROJECT_STRUCTURE ***

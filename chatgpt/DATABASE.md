@@ -1,9 +1,9 @@
 # Database Overview (Auto-Generated)
 
-Generated: 2025-10-14T19:31:28.719Z
+Generated: 2025-10-14T22:28:57.436Z
 
 ```
-[dotenv@17.2.2] injecting env (19) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[dotenv@17.2.2] injecting env (19) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
 
 🔍 Database: ThatSmartSite
 ============================================================

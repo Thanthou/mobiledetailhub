@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 
-import { useBrowserTab } from '@/shared/hooks';
-
 import type { AdminTab } from '@/features/adminDashboard/types';
+import { useBrowserTab } from '@/shared/hooks';
 
 import { AdminLayout, AdminTabs, TabContent } from './';
 

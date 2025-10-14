@@ -1,19 +1,19 @@
 # SEO Report (Auto-Generated)
 
-Generated: 2025-10-14T19:31:28.515Z
+Generated: 2025-10-14T22:25:21.384Z
 
 This file summarizes detected SEO signals and TODOs. Edit conventions in `/docs/SEO.md` by replacing this file with a curated version if needed.
 
 ## Snapshot
-- Total files scanned: **815**
-- By extension: `{".js":76,".md":35,".sql":38,".json":76,".ts":320,".html":1,".tsx":265,".css":1,".ps1":2,".sh":1}`
+- Total files scanned: **7**
+- By extension: `{".js":6,".ps1":1}`
 
 ## Detected signals
 - [ ] robots.txt
 - [ ] sitemap generator
 - [ ] seo feature folder
 - [ ] ld-json helpers
-- [x] preview route
+- [ ] preview route
 - [ ] head manager (Helmet/NextHead)
 
 ## Conventions (recommended)

@@ -1,62 +1,108 @@
-Great question. Based on what you’ve got, here’s the highest-leverage order to hit next so you can open the funnel (preview → signup → live) and start learning from real tenants fast.
+🚀 That Smart Site — Core Development Roadmap
+🧩 1. Onboarding & Provisioning (current priority)
 
-# What to build next (in order)
+❌ Signup form → Stripe checkout → provisioning job → subdomain + SSL → welcome email → first-login dashboard
 
-1. **Finish tenant onboarding end-to-end (CURRENT PRIORITY)**
+❌ Add fallback "default content" logic — every new site boots with industry defaults (no empty pages)
 
-* Signup form → Stripe checkout → provisioning job → subdomain + SSL → welcome email → first-login dashboard.
-* Include the “content fallback” logic so every new site boots with industry defaults until the tenant edits (never blank pages).
-* Acceptance: I can paste a business’s basics, pay, and see a live `[slug].thatsmartsite.com` with default copy, services, hours, and a dashboard login.
+❌ Implement Stripe webhook for tenant activation
 
-2. **SEO foundation (ship before first public tenant)**
+❌ Include post-provision confirmation screen and "view my site" button
 
-* Add `robots.txt`, per-tenant `sitemap.xml` generator, canonical rules, preview `noindex` (both meta and X-Robots-Tag), and centralized JSON-LD helpers (LocalBusiness, Service, FAQ).
-* Acceptance: Lighthouse “SEO” ≥ 90 and a test tenant’s pages all emit correct canonical + JSON-LD, and `/robots.txt` + `/sitemap.xml` resolve per tenant.
+❌ Validate first full run: business basics → pay → live [slug].thatsmartsite.com with defaults + dashboard login
 
-3. **Multi-tenant routing + config loader hardening**
+Acceptance: I can paste a business's info, pay, and get a live site with working dashboard.
 
-* Robust subdomain (and custom domain) detection → load `{industry, theme, city/service pages}` from tenant row; fall back to `/data/<industry>.json` when DB empty.
-* Acceptance: Switching subdomains fully swaps branding, services, and locations without code changes.
+🌐 2. SEO Foundation
 
-4. **Booking MVP wired to your schema**
+❌ Implement robots.txt per tenant
 
-* Expose bookable services/tiers, time-slot generation from business hours, create Booking, and send confirmations.
-* Acceptance: From a tenant’s public site, I can select a service, pick a slot, and see a new record in `booking.bookings` + an email receipt.
+❌ Auto-generate sitemap.xml per tenant
 
-5. **Reviews ingestion + display v1**
+❌ Add canonical + noindex for previews (meta + header)
 
-* Nightly job to pull recent Google reviews (or import CSV for now), moderation toggle in dashboard, and SEO review schema on public pages.
-* Acceptance: Reviews render on homepage + /reviews with structured data and an “Approved” switch in the dashboard.
+❌ Create centralized JSON-LD helpers (LocalBusiness, Service, FAQ)
 
-6. **Tenant dashboard: “just enough CMS”**
+❌ SEO audit: Lighthouse SEO ≥ 90
 
-* Sections: Business Profile, Services & Tiers, Service Areas, Hours, Theme (logo/colors), Reviews moderation.
-* Show which fields are “Default” vs “Customized”, with a one-click “Reset to default.”
-* Acceptance: A tenant can replace every bit of default copy without touching code.
+Acceptance: All tenant pages emit valid canonical + JSON-LD, and /robots.txt + /sitemap.xml resolve correctly.
 
-7. **Quality gates & ops**
+🏗️ 3. Multi-Tenant Routing & Config Loader
 
-* Enforce feature-boundary lint rule, add unit tests for hooks/utils, seed script for one demo tenant per industry, and a scheduled Lighthouse/health check that writes to your `system.health_monitoring` table.
-* Acceptance: CI blocks cross-feature imports; nightly job records core web vitals per tenant; a seeded demo tenant spins up locally with one command.
+❌ Detect subdomain or custom domain → load {industry, theme, city/service pages} from DB
 
-# A crisp 2–3 week sequence
+❌ Fallback to /data/<industry>.json when DB empty
 
-**Week 1**
+❌ Swap entire tenant branding/config when switching subdomains
 
-* Provisioning worker + Stripe webhooks
-* Subdomain/SSL automation
-* Preview link flow with `noindex`
+❌ Verify preview vs live domain logic
 
-**Week 2**
+Acceptance: Switching subdomains fully swaps branding, services, and locations without code changes.
 
-* Content fallback + industry JSON templates
-* SEO baseline: robots, sitemap, canonical, JSON-LD helper
-* Booking MVP (select service → slot → create booking)
+📅 4. Booking MVP
 
-**Week 3**
+❌ Define schema: Services → Time Slots → Bookings
 
-* Reviews import job + display
-* Dashboard “Profile / Services / Hours / Areas / Theme / Reviews”
-* CI rules, seeds, and Lighthouse monitor
+❌ Generate time slots from business hours
 
-If you’d like, I can turn this into a tight checklist inside your repo (with file paths to touch) and stub the Stripe webhook + provisioning worker so you can run through a full fake-tenant today.
+❌ Create booking from public site
+
+❌ Send confirmation emails (tenant + client)
+
+❌ Record booking in booking.bookings
+
+Acceptance: From a tenant's public site, I can select a service, pick a slot, book, and see the record in DB.
+
+⭐ 5. Reviews Ingestion & Display v1
+
+❌ Nightly job to pull recent Google reviews (mock via CSV for now)
+
+❌ Add moderation toggle in dashboard ("Approved")
+
+❌ Display reviews on homepage and /reviews page
+
+❌ Include structured review schema markup for SEO
+
+Acceptance: Reviews render on site with SEO data and can be toggled visible via dashboard.
+
+🧭 6. Tenant Dashboard — Minimal CMS
+
+❌ Add "Business Profile" section
+
+❌ Add "Services & Tiers" management
+
+❌ Add "Service Areas" and "Hours" modules
+
+❌ Add "Theme" (logo/colors) customization
+
+❌ Add "Reviews Moderation" tab
+
+❌ Mark default vs customized fields; include "Reset to Default"
+
+Acceptance: A tenant can replace every default text/image through dashboard.
+
+⚙️ 7. Quality Gates & Ops
+
+❌ Add feature-boundary lint rule (no cross-feature imports)
+
+❌ Add unit test coverage for hooks/utils
+
+❌ Create seed script: one demo tenant per industry
+
+❌ Scheduled Lighthouse/health check → writes to system.health_monitoring
+
+❌ Ensure CI blocks rule violations
+
+Acceptance: Local build can spin a seeded demo tenant; CI + nightly health checks pass cleanly.
+
+🎯 8. Launch Readiness Checklist
+
+❌ Verify default emails (welcome, booking, review invite)
+
+❌ Add SEO meta defaults (title, description, OG)
+
+❌ Add Lighthouse + SSL verification script
+
+❌ Final test with demo tenant → real subdomain → Stripe live mode
+
+Acceptance: Demo tenant behaves like a real tenant with fully working SEO, booking, and dashboard.

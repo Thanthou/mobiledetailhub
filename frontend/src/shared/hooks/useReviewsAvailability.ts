@@ -1,6 +1,5 @@
-import type { ReviewQueryParams } from '@/features/reviews/types';
 import { useReviews } from '@/features/reviews/hooks/useReviews';
-
+import type { ReviewQueryParams } from '@/features/reviews/types';
 import { useDataOptional } from '@/shared/contexts/DataContext';
 
 /**

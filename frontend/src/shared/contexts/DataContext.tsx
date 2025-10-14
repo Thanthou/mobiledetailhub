@@ -119,7 +119,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     phone: businessData?.business_phone || '',
     email: businessData?.business_email || 'service@mobiledetailhub.com',
     owner: businessData?.owner || '',
-    location: businessData?.service_areas?.[0] ? 
+    location: businessData?.service_areas[0] ? 
       `${businessData.service_areas[0].city}, ${businessData.service_areas[0].state}` : '',
     industry: businessData?.industry || 'mobile-detailing',
     serviceAreas: businessData?.service_areas || [],

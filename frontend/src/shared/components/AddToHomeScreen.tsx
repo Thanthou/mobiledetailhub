@@ -4,8 +4,8 @@
  * Works on iOS, Android, and desktop browsers
  */
 
-import { useEffect, useState } from 'react';
-import { Smartphone, X, Download } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Download, Smartphone, X } from 'lucide-react';
 
 import { Button } from '@/shared/ui';
 
@@ -99,7 +99,7 @@ export const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
     const choiceResult = await deferredPrompt.userChoice;
 
     if (choiceResult.outcome === 'accepted') {
-      console.log('User accepted the install prompt');
+      // User accepted the install prompt
     }
 
     // Clear the deferred prompt
@@ -145,8 +145,8 @@ export const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
                       <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
                     </svg>
                   </span> at the bottom</li>
-                  <li>Scroll down and tap "Add to Home Screen"</li>
-                  <li>Tap "Add" to confirm</li>
+                  <li>Scroll down and tap &quot;Add to Home Screen&quot;</li>
+                  <li>Tap &quot;Add&quot; to confirm</li>
                 </ol>
               </div>
             ) : (
@@ -173,7 +173,7 @@ export const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
         <div className="mt-4 flex gap-3">
           {!isIOS && deferredPrompt && (
             <Button
-              onClick={handleInstallClick}
+              onClick={() => { void handleInstallClick(); }}
               variant="primary"
               size="lg"
               className="flex-1 bg-orange-600 hover:bg-orange-700 flex items-center justify-center gap-2"

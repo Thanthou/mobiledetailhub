@@ -1,3 +1,250 @@
+
+*** FILE: error-monitor\index.js ***
+#!/usr/bin/env node
+
+/**
+ * Unified Error Monitor CLI
+ * Monitors errors across backend and frontend with --target flag
+ * 
+ * Usage:
+ *   npm run error-monitor                    # Backend only (default)
+ *   npm run error-monitor -- --target=backend
+ *   npm run error-monitor -- --target=frontend  
+ *   npm run error-monitor -- --target=all
+ */
+
+import { parseArgs, printHelp } from './lib/cli.js';
+import { BackendMonitor } from './lib/backend-monitor.js';
+import { FrontendMonitor } from './lib/frontend-monitor.js';
+
+async function main() {
+  const args = parseArgs();
+  
+  if (args.flags.has('help') || args.flags.has('h')) {
+    printHelp(
+      'Error Monitor',
+      'Monitor errors across backend and frontend',
+      [
+        'npm run error-monitor',
+        'npm run error-monitor -- --target=backend',
+        'npm run error-monitor -- --target=frontend',
+        'npm run error-monitor -- --target=all',
+      ]
+    );
+    process.exit(0);
+  }
+  
+  const target = args.options.get('target') || 'backend';
+  
+  console.log('🚀 MDH Error Monitor Started');
+  console.log(`📍 Target: ${target}`);
+  console.log('================================\n');
+  
+  switch (target) {
+    case 'backend':
+      await new BackendMonitor().start();
+      break;
+      
+    case 'frontend':
+      await new FrontendMonitor().start();
+      break;
+      
+    case 'all': {
+      console.log('🔄 Monitoring both backend and frontend...\n');
+      const backend = new BackendMonitor();
+      const frontend = new FrontendMonitor();
+      await Promise.all([
+        backend.start(),
+        frontend.start(),
+      ]);
+      break;
+    }
+      
+    default:
+      console.error(`❌ Invalid target: ${target}`);
+      console.error('Valid targets: backend, frontend, all');
+      process.exit(1);
+  }
+}
+
+main().catch(console.error);
+
+
+
+*** END FILE ***
+
+*** FILE: error-monitor\lib\backend-monitor.js ***
+/**
+ * Backend Error Monitor
+ * Reads from backend/logs/errors.json
+ */
+
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+export class BackendMonitor {
+  constructor() {
+    this.logPath = path.resolve(__dirname, '../../../backend/logs/errors.json');
+    this.watching = false;
+  }
+  
+  async start() {
+    console.log('👀 Monitoring backend errors...');
+    console.log(`📁 Log file: ${this.logPath}\n`);
+    
+    // Show current errors
+    await this.showErrors();
+    
+    // Watch for changes
+    this.watching = true;
+    this.watchErrors();
+  }
+  
+  async showErrors() {
+    try {
+      const content = await fs.readFile(this.logPath, 'utf8');
+      const errors = content.trim().split('\n').filter(Boolean).map(line => JSON.parse(line));
+      
+      if (errors.length === 0) {
+        console.log('✅ No errors logged\n');
+        return;
+      }
+      
+      console.log(`📊 Found ${errors.length} error(s):\n`);
+      errors.slice(-10).forEach((error, i) => {
+        console.log(`[${i + 1}] ${error.level?.toUpperCase() || 'ERROR'}: ${error.message}`);
+        if (error.timestamp) console.log(`    ${new Date(error.timestamp).toLocaleString()}`);
+        if (error.url) console.log(`    ${error.method} ${error.url}`);
+        console.log('');
+      });
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        console.log('📭 No error log file yet\n');
+      } else {
+        console.error('❌ Failed to read error log:', error.message);
+      }
+    }
+  }
+  
+  async watchErrors() {
+    try {
+      const watcher = fs.watch(this.logPath);
+      
+      for await (const event of watcher) {
+        if (event.eventType === 'change' && this.watching) {
+          console.log('\n🔔 New error logged!');
+          await this.showErrors();
+        }
+      }
+    } catch {
+      // File doesn't exist yet, that's OK
+    }
+  }
+  
+  stop() {
+    this.watching = false;
+  }
+}
+
+
+
+*** END FILE ***
+
+*** FILE: error-monitor\lib\cli.js ***
+/**
+ * CLI Utilities for Error Monitor
+ * Shared between backend and frontend monitors
+ */
+
+export function parseArgs(argv = process.argv.slice(2)) {
+  const flags = new Set();
+  const options = new Map();
+  const positional = [];
+  
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i];
+    
+    if (arg.startsWith('--')) {
+      const flagName = arg.slice(2);
+      const equalIndex = flagName.indexOf('=');
+      
+      if (equalIndex > -1) {
+        const key = flagName.slice(0, equalIndex);
+        const value = flagName.slice(equalIndex + 1);
+        options.set(key, value);
+      } else if (i + 1 < argv.length && !argv[i + 1].startsWith('-')) {
+        options.set(flagName, argv[i + 1]);
+        i++;
+      } else {
+        flags.add(flagName);
+      }
+    } else if (arg.startsWith('-')) {
+      flags.add(arg.slice(1));
+    } else {
+      positional.push(arg);
+    }
+  }
+  
+  return { flags, options, positional };
+}
+
+export function printHelp(name, description, usage) {
+  console.log(`
+${name}
+${description}
+
+Usage:
+${usage.map(u => `  ${u}`).join('\n')}
+
+Options:
+  --target=<target>  Specify target (backend, frontend, all)
+  --help, -h         Show this help
+`);
+}
+
+
+
+*** END FILE ***
+
+*** FILE: error-monitor\lib\frontend-monitor.js ***
+/**
+ * Frontend Error Monitor
+ * Note: Frontend errors are logged to browser console
+ * This monitor provides info about checking frontend errors
+ */
+
+export class FrontendMonitor {
+  async start() {
+    console.log('🌐 Frontend Error Monitoring Info:');
+    console.log('==================================');
+    console.log('');
+    console.log('Frontend errors are logged in the browser console.');
+    console.log('');
+    console.log('To view frontend errors:');
+    console.log('  1. Open your browser');
+    console.log('  2. Navigate to your app (http://localhost:5173)');
+    console.log('  3. Open DevTools (F12)');
+    console.log('  4. Check the Console tab');
+    console.log('');
+    console.log('Error monitoring features in browser:');
+    console.log('  - All errors are caught by ErrorBoundary');
+    console.log('  - Logged with errorMonitoring.ts utility');
+    console.log('  - Network errors visible in Network tab');
+    console.log('  - React errors visible in Components tab');
+    console.log('');
+    console.log('💡 Tip: Install React DevTools browser extension');
+    console.log('');
+  }
+}
+
+
+
+*** END FILE ***
+
+*** FILE: project-overview.js ***
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -9,7 +256,7 @@ const __dirname = path.dirname(__filename);
 /** ======================
  *  Config (no CLI flags; just run `node project-overview.js`)
  *  ====================== */
-const OUTPUT_DIR_NAME = 'chatgpt';
+const OUTPUT_DIR_NAME = 'chatgpt/codebase';
 
 // Maximum size per output file (bytes)
 const MAX_BUNDLE_BYTES = 5 * 1024 * 1024; // 5 MB
@@ -90,14 +337,7 @@ function findProjectRoot(startDir) {
     const hasGit = fs.existsSync(path.join(dir, '.git'));
     const hasFrontend = fs.existsSync(path.join(dir, 'frontend'));
     const hasChatgpt = fs.existsSync(path.join(dir, 'chatgpt'));
-    
-    // Require at least 2 signals to avoid false positives (e.g., scripts/chatgpt folder)
-    const signals = [hasPkg, hasGit, hasFrontend, hasChatgpt].filter(Boolean).length;
-    if (signals >= 2) return dir;
-    
-    // If we find package.json alone, that's also good enough
-    if (hasPkg) return dir;
-    
+    if (hasPkg || hasGit || hasFrontend || hasChatgpt) return dir;
     const parent = path.dirname(dir);
     if (parent === dir) break;
     dir = parent;
@@ -512,3 +752,315 @@ ${checklist}
   console.error(err);
   process.exit(1);
 });
+
+
+*** END FILE ***
+
+*** FILE: scorecard.js ***
+#!/usr/bin/env node
+/**
+ * Developer Scorecard — Simple Mode (v5)
+ * Tracks git productivity by net lines (insertions - deletions).
+ * Weekly and total averages are weighted by total lines, not daily averages.
+ */
+
+import { execSync } from "child_process";
+import fs from "fs";
+import path from "path";
+import chalk from "chalk";
+import Table from "cli-table3";
+
+// --- Settings ---
+const DAILY_TARGET = 3500;          // lines/day = 100 DPV
+const MAX_LINES_PER_DAY = 10000;    // cap extreme days
+
+// --- Parse git log ---
+function getGitHistory() {
+  const logCmd = `git log --pretty=format:"%ad|%s" --date=short --shortstat --no-merges`;
+  const raw = execSync(logCmd, { encoding: "utf-8" });
+  const lines = raw.split("\n").filter(Boolean);
+
+  const data = [];
+  let current = null;
+  for (const line of lines) {
+    if (line.includes("|") && !line.includes("files changed")) {
+      const [date, message] = line.split("|");
+      current = { date: date.trim(), message: message.trim(), insertions: 0, deletions: 0 };
+    } else if (line.includes("file") && current) {
+      const addMatch = line.match(/(\d+) insertions?/);
+      const delMatch = line.match(/(\d+) deletions?/);
+      current.insertions += addMatch ? +addMatch[1] : 0;
+      current.deletions += delMatch ? +delMatch[1] : 0;
+      data.push(current);
+      current = null;
+    }
+  }
+  return data;
+}
+
+// --- Grading ---
+function getGrade(dpv) {
+  if (dpv >= 95) return "A+";
+  if (dpv >= 85) return "A";
+  if (dpv >= 75) return "B";
+  if (dpv >= 65) return "C";
+  if (dpv >= 50) return "D";
+  return "F";
+}
+
+function colorByGrade(grade) {
+  if (grade === "A+" || grade === "A") return chalk.green;
+  if (grade === "B") return chalk.cyan;
+  if (grade === "C") return chalk.yellow;
+  if (grade === "D") return chalk.hex("#A0522D"); // brown
+  if (grade === "F") return chalk.red;
+  return chalk.gray;
+}
+
+// --- Week number helper ---
+function getWeekNumber(date) {
+  const firstDay = new Date(date.getFullYear(), 0, 1);
+  const days = Math.floor((date - firstDay) / 86400000);
+  return Math.ceil((days + firstDay.getDay() + 1) / 7);
+}
+
+// --- Main analysis ---
+function analyzeHistory() {
+  const commits = getGitHistory();
+
+  // Aggregate daily
+  const byDate = {};
+  for (const c of commits) {
+    const key = c.date;
+    if (!byDate[key]) byDate[key] = { commits: 0, lines: 0 };
+    byDate[key].commits++;
+    const net = Math.max(0, c.insertions - c.deletions);
+    byDate[key].lines += Math.min(net, MAX_LINES_PER_DAY);
+  }
+
+  const days = Object.entries(byDate)
+    .sort(([a], [b]) => new Date(a) - new Date(b))
+    .map(([date, val]) => {
+      const dpv =
+        val.lines === 0 ? 0 : Math.min(100, Math.round((val.lines / DAILY_TARGET) * 100));
+      const grade = val.lines === 0 ? "—" : getGrade(dpv);
+      return { date, commits: val.commits, lines: val.lines, dpv, grade };
+    });
+
+  // Group by week
+  const validDays = days.filter((d) => d.lines > 0);
+  const weeks = {};
+  for (const d of validDays) {
+    const week = getWeekNumber(new Date(d.date));
+    if (!weeks[week]) weeks[week] = [];
+    weeks[week].push(d);
+  }
+
+  const weekSummaries = Object.entries(weeks).map(([week, arr]) => {
+    const totalLines = arr.reduce((s, d) => s + d.lines, 0);
+    // Detect if this is the current (active) week
+    const now = new Date();
+    const currentWeekNum = getWeekNumber(now);
+    const isCurrentWeek = Number(week) === currentWeekNum;
+
+    // If current week, use real worked days; else assume 5
+    const totalDays = isCurrentWeek ? arr.length : 5;
+
+    const avgDPV = Math.min(
+      100,
+      Math.round(((totalLines / totalDays) / DAILY_TARGET) * 100)
+    );
+
+    const grade = getGrade(avgDPV);
+    return { week: `W${week}`, dpv: avgDPV, grade, lines: totalLines };
+  });
+
+  render(days, weekSummaries);
+}
+
+// --- Render table ---
+function render(days, weekSummaries) {
+  console.log(chalk.cyan("📅  Developer Scorecard — Lines Added/Deleted (Simple Mode v5)"));
+
+  const table = new Table({
+    head: [chalk.gray("Date"), "Commits", "Lines", "DPV", "Grade"],
+    colWidths: [14, 10, 12, 8, 8],
+    style: { head: [], border: [] },
+  });
+
+  for (const d of days) {
+    const week = getWeekNumber(new Date(d.date));
+    const color = colorByGrade(d.grade);
+    table.push([
+      color(d.date),
+      color(d.commits),
+      color(d.lines.toLocaleString()),
+      color(d.dpv || "—"),
+      color(d.grade),
+    ]);
+
+    // Week summary
+    const nextDay = days.find((x) => new Date(x.date) > new Date(d.date));
+    const nextWeek = nextDay ? getWeekNumber(new Date(nextDay.date)) : null;
+    if (nextWeek !== week) {
+      const ws = weekSummaries.find((w) => w.week === `W${week}`);
+      if (ws) {
+        const wColor = colorByGrade(ws.grade);
+        table.push([
+          wColor.bold(ws.week),
+          "—",
+          wColor(ws.lines.toLocaleString()),
+          wColor(ws.dpv),
+          wColor(ws.grade),
+        ]);
+        table.push(["", "", "", "", ""]); // spacer
+      }
+    }
+  }
+
+  console.log(table.toString());
+
+  // Weighted total average
+  const avgDPV =
+  weekSummaries.length > 0
+    ? Math.round(
+        weekSummaries.reduce((sum, w) => sum + w.dpv, 0) / weekSummaries.length
+      )
+    : 0;
+  const grade = getGrade(avgDPV);
+  console.log(chalk.gray(`Average DPV (recent): ${avgDPV} → ${grade}`));
+
+  // Save CSV
+  const csvPath = path.join("chatgpt", "gitlogs", "scorecard-history.csv");
+  fs.mkdirSync(path.dirname(csvPath), { recursive: true });
+  const csv =
+    "date,commits,lines,dpv,grade\n" +
+    days.map((d) => `${d.date},${d.commits},${d.lines},${d.dpv},${d.grade}`).join("\n");
+  fs.writeFileSync(csvPath, csv);
+  console.log(chalk.gray(`History saved to: ${csvPath}`));
+}
+
+// --- Run ---
+analyzeHistory();
+
+
+*** END FILE ***
+
+*** FILE: test-hook-simple.ps1 ***
+# Simple hook diagnostic
+Write-Host "Git Hook Diagnostic" -ForegroundColor Cyan
+Write-Host ("=" * 60)
+
+Write-Host "`nChecking hook setup..." -ForegroundColor Yellow
+
+# 1. Check if post-commit exists
+if (Test-Path ".git/hooks/post-commit") {
+    Write-Host "[OK] post-commit file exists" -ForegroundColor Green
+} else {
+    Write-Host "[FAIL] post-commit file missing" -ForegroundColor Red
+    exit
+}
+
+# 2. Check PowerShell script exists
+if (Test-Path ".git/hooks/post-commit-script.ps1") {
+    Write-Host "[OK] post-commit-script.ps1 exists" -ForegroundColor Green
+} else {
+    Write-Host "[FAIL] post-commit-script.ps1 missing" -ForegroundColor Red
+}
+
+# 3. Check line endings
+$bytes = [System.IO.File]::ReadAllBytes(".git/hooks/post-commit")
+$hasCRLF = ($bytes -contains 13)
+if (-not $hasCRLF) {
+    Write-Host "[OK] Line endings are correct (LF)" -ForegroundColor Green
+} else {
+    Write-Host "[WARN] Line endings are CRLF - may cause issues" -ForegroundColor Yellow
+    Write-Host "  Fix with: .\scripts\fix-hook-simple.ps1" -ForegroundColor Gray
+}
+
+# 4. Test manual execution
+Write-Host "`nTesting manual execution..." -ForegroundColor Yellow
+try {
+    & powershell -NoProfile -ExecutionPolicy Bypass -File ".git/hooks/post-commit-script.ps1" 2>&1 | Out-Null
+    if (Test-Path "chatgpt/gitlogs") {
+        $files = Get-ChildItem "chatgpt/gitlogs" -ErrorAction SilentlyContinue
+        Write-Host "[OK] PowerShell script works (found $($files.Count) gitlogs)" -ForegroundColor Green
+    } else {
+        Write-Host "[WARN] Script runs but no gitlogs created yet" -ForegroundColor Yellow
+    }
+} catch {
+    Write-Host "[FAIL] PowerShell script error: $_" -ForegroundColor Red
+}
+
+# 5. Check Git config
+$hooksPath = git config core.hooksPath 2>$null
+if ([string]::IsNullOrEmpty($hooksPath)) {
+    Write-Host "[OK] Using default hooks path" -ForegroundColor Green
+} else {
+    Write-Host "[WARN] Custom hooks path: $hooksPath" -ForegroundColor Yellow
+}
+
+Write-Host "`n" + ("=" * 60)
+Write-Host "Next step: Test with a real commit" -ForegroundColor Cyan
+Write-Host "  git commit --allow-empty -m 'Test hook'" -ForegroundColor White
+Write-Host ""
+
+
+
+*** END FILE ***
+
+*** PROJECT_STRUCTURE ***
+# Project Structure
+
+## Summary
+```json
+{
+  "generated": "2025-10-14T22:25:21.382Z",
+  "projectRoot": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts",
+  "targetFolder": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts",
+  "counts": {
+    "totalFilesInTarget": 7,
+    "byExtension": {
+      ".js": 6,
+      ".ps1": 1
+    }
+  },
+  "bundles": [
+    "ALL_part01.txt"
+  ]
+}
+```
+
+## Project Root (limited depth)
+```
+scripts/
+  chatgpt/
+    codebase/
+      ALL_part01.txt
+    gitlogs/
+      scorecard-history.csv
+  error-monitor/
+    index.js
+    lib/
+      backend-monitor.js
+      cli.js
+      frontend-monitor.js
+  project-overview.js
+  scorecard.js
+  test-hook-simple.ps1
+```
+
+## Target Folder (full tree)
+```
+scripts/
+  error-monitor/
+    index.js
+    lib/
+      backend-monitor.js
+      cli.js
+      frontend-monitor.js
+  project-overview.js
+  scorecard.js
+  test-hook-simple.ps1
+```
+*** END PROJECT_STRUCTURE ***

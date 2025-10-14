@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { useBrowserTab } from '@/shared/hooks';
-
 import type { DashboardTab, DetailerData } from '@/features/tenantDashboard/types';
+import { useBrowserTab } from '@/shared/hooks';
 
 import { DashboardHeader } from './DashboardHeader';
 import { DashboardLayout } from './DashboardLayout';
