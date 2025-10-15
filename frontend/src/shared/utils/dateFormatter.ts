@@ -122,8 +122,17 @@ export function getWeekDates(dateString: string): string[] {
  */
 export function formatWeekRange(dateString: string): string {
   const weekDates = getWeekDates(dateString);
-  const startDate = parseLocalDate(weekDates[0]!);
-  const endDate = parseLocalDate(weekDates[6]!);
+  
+  // getWeekDates always returns 7 dates (Monday-Sunday)
+  const firstDate = weekDates[0];
+  const lastDate = weekDates[6];
+  
+  if (!firstDate || !lastDate) {
+    return '';
+  }
+  
+  const startDate = parseLocalDate(firstDate);
+  const endDate = parseLocalDate(lastDate);
   
   const startFormatted = startDate.toLocaleDateString('en-US', { 
     month: 'short', 

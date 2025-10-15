@@ -34,7 +34,7 @@ async function main() {
   
   const target = args.options.get('target') || 'backend';
   
-  console.log('🚀 MDH Error Monitor Started');
+  console.log('🚀 That Smart Site - Error Monitor');
   console.log(`📍 Target: ${target}`);
   console.log('================================\n');
   
