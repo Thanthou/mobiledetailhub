@@ -5,7 +5,7 @@
  * No UI imports, no DOM usage - pure API layer.
  */
 
-import { env } from '@/shared/env';
+import { config } from '@/shared/env';
 import { safeValidationMessage } from '@/shared/utils/errorHandling';
 
 import type {
@@ -15,8 +15,6 @@ import type {
   VerifyPreviewResponse,
 } from '../types/preview.types';
 import { PreviewPayloadSchema } from '../types/preview.types';
-
-const API_BASE = env.VITE_API_URL_LOCAL || 'http://localhost:3001';
 
 /**
  * Create a preview token
@@ -32,22 +30,30 @@ export async function createPreview(
     throw new Error(safeValidationMessage(validation.error));
   }
 
-  const response = await fetch(`${API_BASE}/api/previews`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(validation.data),
-  });
+  try {
+    const response = await fetch(`${config.apiBaseUrl}/api/previews`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(validation.data),
+    });
 
-  if (!response.ok) {
-    const error = await response.json() as PreviewErrorResponse;
-    const errorMsg = error.message || 'Failed to create preview';
-    throw new Error(errorMsg);
+    if (!response.ok) {
+      const error = await response.json() as PreviewErrorResponse;
+      const errorMsg = error.message || 'Failed to create preview';
+      throw new Error(errorMsg);
+    }
+
+    const result = await response.json() as CreatePreviewResponse;
+    return result;
+  } catch (error) {
+    // Provide more helpful error messages for mobile devices
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw new Error('Unable to connect to server. Please check your network connection and ensure you can reach the backend server.');
+    }
+    throw error;
   }
-
-  const result = await response.json() as CreatePreviewResponse;
-  return result;
 }
 
 /**
@@ -56,30 +62,38 @@ export async function createPreview(
  * @returns Promise with decoded payload
  */
 export async function verifyPreview(token: string): Promise<PreviewPayload> {
-  const response = await fetch(
-    `${API_BASE}/api/preview/verify?t=${encodeURIComponent(token)}`,
-    {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+  try {
+    const response = await fetch(
+      `${config.apiBaseUrl}/api/preview/verify?t=${encodeURIComponent(token)}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json() as PreviewErrorResponse;
+      const errorMsg = error.message || 'Failed to verify preview';
+      throw new Error(errorMsg);
     }
-  );
 
-  if (!response.ok) {
-    const error = await response.json() as PreviewErrorResponse;
-    const errorMsg = error.message || 'Failed to verify preview';
-    throw new Error(errorMsg);
+    const data = await response.json() as VerifyPreviewResponse;
+    
+    // Validate the payload from the backend
+    const validation = PreviewPayloadSchema.safeParse(data.payload);
+    if (!validation.success) {
+      throw new Error('Invalid payload received from server');
+    }
+
+    return validation.data;
+  } catch (error) {
+    // Provide more helpful error messages for mobile devices
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw new Error('Unable to connect to server. Please check your network connection and ensure you can reach the backend server.');
+    }
+    throw error;
   }
-
-  const data = await response.json() as VerifyPreviewResponse;
-  
-  // Validate the payload from the backend
-  const validation = PreviewPayloadSchema.safeParse(data.payload);
-  if (!validation.success) {
-    throw new Error('Invalid payload received from server');
-  }
-
-  return validation.data;
 }
 

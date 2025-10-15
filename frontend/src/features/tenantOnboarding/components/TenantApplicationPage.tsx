@@ -160,7 +160,7 @@ const TenantApplicationPage: React.FC = () => {
           // Then check if email already exists
           try {
             // eslint-disable-next-line no-restricted-globals, no-restricted-syntax -- Isolated onboarding check, API client refactor planned
-            const response = await fetch(`/api/auth/check-email?email=${encodeURIComponent(formData.personalEmail)}`);
+            const response = await fetch(`${config.apiBaseUrl}/api/auth/check-email?email=${encodeURIComponent(formData.personalEmail)}`);
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Response typing improvement planned
             const result = await response.json();
             
@@ -227,8 +227,23 @@ const TenantApplicationPage: React.FC = () => {
     }
   };
 
+  const handlePaymentSuccess = (data: { slug: string; websiteUrl: string; dashboardUrl: string }) => {
+    // Store the new tenant information for the success page
+    sessionStorage.setItem('newTenantSlug', data.slug);
+    sessionStorage.setItem('newTenantWebsiteUrl', data.websiteUrl);
+    sessionStorage.setItem('newTenantDashboardUrl', data.dashboardUrl);
+
+    clearSavedData();
+    setIsSuccess(true);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // For payment step, the payment processing is handled by PaymentSection
+    if (currentStep === 3) {
+      return; // Payment is handled by the payment component
+    }
 
     const isValid = await validateStep(currentStep);
     if (!isValid) {
@@ -238,53 +253,22 @@ const TenantApplicationPage: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      // Load industry-specific defaults
-      const industry = (formData.industry || 'mobile-detailing') as IndustrySlug;
-      const defaults = await loadDefaults(industry);
-
-      const applicationData = {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        personalPhone: formData.personalPhone,
-        personalEmail: formData.personalEmail,
-        businessName: formData.businessName,
-        businessPhone: formData.businessPhone,
-        businessEmail: formData.businessEmail,
-        businessAddress: formData.businessAddress,
-        industry,
-        selectedPlan: formData.selectedPlan,
-        planPrice: formData.planPrice,
-        defaults, // Include industry defaults for provisioning
-      };
-
-      // eslint-disable-next-line no-restricted-globals, no-restricted-syntax -- Single-use onboarding endpoint, API client refactor planned
-      const response = await fetch('/api/tenants/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(applicationData),
-      });
-
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Response typing improvement planned
-      const result = await response.json();
-
-      if (!response.ok) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access -- Response typing improvement planned
-        throw new Error(result.message || 'Failed to submit application');
+      // Load industry-specific defaults for non-payment steps
+      if (currentStep === 2) { // Business info step
+        const industry = (formData.industry || 'mobile-detailing') as IndustrySlug;
+        const defaults = await loadDefaults(industry);
+        setFormData(prev => ({ ...prev, defaults }));
       }
 
-      // Store the new tenant slug for the success page
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access -- Response typing improvement planned
-      sessionStorage.setItem('newTenantSlug', result.data.slug);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access -- Response typing improvement planned
-      sessionStorage.setItem('newTenantWebsiteUrl', result.data.websiteUrl);
+      // Move to next step
+      const nextStep = currentStep + 1;
+      setFormData((prev) => ({ ...prev, step: nextStep }));
+      setCurrentStep(nextStep);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
 
-      clearSavedData();
-      setIsSuccess(true);
     } catch (error) {
-      console.error('Submission error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to submit application. Please try again.';
+      console.error('Step validation error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to proceed. Please try again.';
       alert(errorMessage);
     } finally {
       setIsSubmitting(false);
@@ -339,6 +323,7 @@ const TenantApplicationPage: React.FC = () => {
                       handleAddressChange('billingAddress', field, value);
                     }}
                     onToggleSameAddress={handleToggleSameAddress}
+                    onPaymentSuccess={handlePaymentSuccess}
                     errors={errors}
                     setErrors={setErrors}
                   />
@@ -372,7 +357,7 @@ const TenantApplicationPage: React.FC = () => {
                   >
                     {currentStep === 0 ? 'Get Started' : 'Continue'}
                   </Button>
-                ) : (
+                ) : currentStep !== 3 ? (
                   <Button
                     type="submit"
                     variant="primary"
@@ -382,7 +367,7 @@ const TenantApplicationPage: React.FC = () => {
                   >
                     {isSubmitting ? 'Processing...' : 'Complete Purchase'}
                   </Button>
-                )}
+                ) : null}
               </div>
 
               {currentStep > 0 && (

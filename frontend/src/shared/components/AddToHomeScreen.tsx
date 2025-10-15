@@ -1,13 +1,15 @@
 /**
  * Add to Home Screen Component
- * Prompts users to install the PWA on their device
- * Works on iOS, Android, and desktop browsers
+ * Prompts users to install the PWA on mobile devices only
+ * Works on iOS and Android mobile devices
+ * Desktop and tablet users will not see this prompt
  */
 
 import React, { useEffect, useState } from 'react';
 import { Download, Smartphone, X } from 'lucide-react';
 
 import { Button } from '@/shared/ui';
+import { useMobileDetection } from '@/shared/hooks/useMobileDetection';
 
 interface AddToHomeScreenProps {
   tenantSlug?: string;
@@ -31,6 +33,7 @@ export const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
   const [showPrompt, setShowPrompt] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
+  const isMobile = useMobileDetection();
 
   useEffect(() => {
     // Check if already installed
@@ -39,11 +42,16 @@ export const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
       return;
     }
 
+    // Only proceed if on mobile device
+    if (!isMobile) {
+      return;
+    }
+
     // Detect iOS
     const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     setIsIOS(iOS);
 
-    // Listen for the beforeinstallprompt event (Android/Desktop)
+    // Listen for the beforeinstallprompt event (Android)
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
@@ -75,7 +83,7 @@ export const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.removeEventListener('appinstalled', handleAppInstalled);
     };
-  }, [autoShow, isInstalled]);
+  }, [autoShow, isInstalled, isMobile]);
 
   // Update manifest link if tenant-specific
   useEffect(() => {
@@ -116,8 +124,8 @@ export const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
     onClose?.();
   };
 
-  // Don't show if already installed or no prompt available
-  if (isInstalled || !showPrompt) {
+  // Don't show if not mobile, already installed, or no prompt available
+  if (!isMobile || isInstalled || !showPrompt) {
     return null;
   }
 

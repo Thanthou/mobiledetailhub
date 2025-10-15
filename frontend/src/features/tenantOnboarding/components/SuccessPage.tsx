@@ -1,29 +1,71 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CheckCircle, ExternalLink, Sparkles } from 'lucide-react';
+import { CheckCircle, ExternalLink, Sparkles, Settings } from 'lucide-react';
 
 import { AddToHomeScreen } from '@/shared/components';
 import { Button } from '@/shared/ui';
+import { useAuth } from '@/shared/hooks';
 
 const SuccessPage: React.FC = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [tenantSlug, setTenantSlug] = useState<string | null>(null);
   const [websiteUrl, setWebsiteUrl] = useState<string | null>(null);
+  const [dashboardUrl, setDashboardUrl] = useState<string | null>(null);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   useEffect(() => {
     // Retrieve the tenant info from session storage
     const slug = sessionStorage.getItem('newTenantSlug');
     const url = sessionStorage.getItem('newTenantWebsiteUrl');
+    const dashboard = sessionStorage.getItem('newTenantDashboardUrl');
     
     if (slug) {
       setTenantSlug(slug);
       setWebsiteUrl(url || `/${slug}`);
+      setDashboardUrl(dashboard || `/${slug}/dashboard`);
       
       // Clean up session storage after retrieval
       sessionStorage.removeItem('newTenantSlug');
       sessionStorage.removeItem('newTenantWebsiteUrl');
+      sessionStorage.removeItem('newTenantDashboardUrl');
     }
   }, []);
+
+  const handleGoToDashboard = async () => {
+    const tempPassword = sessionStorage.getItem('tempPassword');
+    const tenantEmail = sessionStorage.getItem('tenantEmail');
+    
+    if (!tempPassword || !tenantEmail || !dashboardUrl) {
+      console.error('Missing credentials for dashboard login');
+      return;
+    }
+
+    setIsLoggingIn(true);
+    
+    try {
+      const result = await login(tenantEmail, tempPassword);
+      
+      if (result.success) {
+        // Clean up temporary credentials
+        sessionStorage.removeItem('tempPassword');
+        sessionStorage.removeItem('tenantEmail');
+        
+        // Navigate to dashboard
+        navigate(dashboardUrl);
+      } else {
+        console.error('Dashboard login failed:', result.error);
+        // Fallback: navigate to dashboard URL anyway (user can login manually)
+        navigate(dashboardUrl);
+      }
+    } catch (error) {
+      console.error('Dashboard login error:', error);
+      // Fallback: navigate to dashboard URL anyway
+      navigate(dashboardUrl);
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
 
   return (
     <>
@@ -54,16 +96,28 @@ const SuccessPage: React.FC = () => {
                 {window.location.origin}{websiteUrl}
               </code>
             </div>
-            <Link to={websiteUrl} className="block">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Link to={websiteUrl} className="flex-1">
+                <Button 
+                  variant="primary"
+                  size="lg"
+                  className="w-full bg-blue-600 hover:bg-blue-700 flex items-center justify-center gap-2"
+                >
+                  <ExternalLink className="w-5 h-5" />
+                  View My Website
+                </Button>
+              </Link>
               <Button 
+                onClick={handleGoToDashboard}
+                disabled={isLoggingIn}
                 variant="primary"
                 size="lg"
-                className="w-full bg-blue-600 hover:bg-blue-700 flex items-center justify-center gap-2"
+                className="flex-1 bg-green-600 hover:bg-green-700 flex items-center justify-center gap-2"
               >
-                <ExternalLink className="w-5 h-5" />
-                View My Website
+                <Settings className="w-5 h-5" />
+                {isLoggingIn ? 'Logging In...' : 'Go to Dashboard'}
               </Button>
-            </Link>
+            </div>
           </div>
         )}
 
@@ -75,19 +129,19 @@ const SuccessPage: React.FC = () => {
               <ul className="space-y-2 text-gray-300 text-sm">
                 <li className="flex items-start">
                   <span className="text-orange-400 mr-2">•</span>
-                  <span>You&apos;ll receive a welcome email with login credentials</span>
+                  <span>Click &quot;Go to Dashboard&quot; above to access your site settings</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-orange-400 mr-2">•</span>
-                  <span>Access your dashboard to customize your site</span>
+                  <span>You&apos;ll receive a welcome email with your login credentials</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-orange-400 mr-2">•</span>
+                  <span>Customize your site content, photos, and business information</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-orange-400 mr-2">•</span>
                   <span>Our team will reach out to help you get started</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-orange-400 mr-2">•</span>
-                  <span>Your first payment will be processed within 24 hours</span>
                 </li>
               </ul>
             </div>

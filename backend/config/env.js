@@ -49,6 +49,13 @@ const EnvSchema = z.object({
   }),
   ADMIN_PASSWORD: z.string().optional(),
   
+  // Stripe
+  STRIPE_SECRET_KEY: z.string().startsWith('sk_'),
+  STRIPE_WEBHOOK_SECRET: z.string().optional(),
+  
+  // Frontend URL for redirects
+  FRONTEND_URL: z.string().url().optional().default('http://localhost:5173'),
+  
   // Logging
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'debug']).optional().default('info'),
   LOG_FILE: z.string().optional(),

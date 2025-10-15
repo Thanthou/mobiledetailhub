@@ -17,6 +17,7 @@ interface User {
   created_at: string;
   business_name?: string;
   slug?: string;
+  tenant_id?: number;
 }
 
 interface PendingApplication {
@@ -462,17 +463,17 @@ export const UsersTab: React.FC = () => {
                   {/* Delete button for tenants */}
                   {user.role === 'tenant' && (
                     <button
-                      onClick={() => { handleDeleteClick(user.id, user.business_name || user.name, true); }}
-                      disabled={deletingAffiliate === user.id}
+                      onClick={() => { handleDeleteClick(user.tenant_id || user.id, user.business_name || user.name, true); }}
+                      disabled={deletingAffiliate === (user.tenant_id || user.id)}
                       className={`flex items-center gap-2 px-3 py-1.5 text-white text-xs rounded transition-colors ${
-                        deletingAffiliate === user.id
+                        deletingAffiliate === (user.tenant_id || user.id)
                           ? 'bg-gray-500 cursor-not-allowed'
                           : 'bg-red-600 hover:bg-red-700'
                       }`}
                       title="Delete tenant and all associated data"
                     >
                       <Trash2 className="w-3 h-3" />
-                      {deletingAffiliate === user.id ? 'Deleting...' : 'Delete'}
+                      {deletingAffiliate === (user.tenant_id || user.id) ? 'Deleting...' : 'Delete'}
                     </button>
                   )}
                   {/* Delete button for regular users (customers/admins) */}

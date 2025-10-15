@@ -55,22 +55,22 @@ router.get('/:slug/manifest.json', async (req, res) => {
       categories: ['business', 'productivity'],
       icons: [
         {
-          src: '/shared/icons/default-dashboard-icon-192.png',
+          src: `/${tenant.industry}/icons/favicon.svg`,
+          sizes: 'any',
+          type: 'image/svg+xml',
+          purpose: 'any'
+        },
+        {
+          src: `/${tenant.industry}/icons/favicon-192.webp`,
           sizes: '192x192',
-          type: 'image/png',
+          type: 'image/webp',
           purpose: 'any'
         },
         {
-          src: '/shared/icons/default-dashboard-icon-512.png',
+          src: `/${tenant.industry}/icons/favicon-512.webp`,
           sizes: '512x512',
-          type: 'image/png',
+          type: 'image/webp',
           purpose: 'any'
-        },
-        {
-          src: '/shared/icons/default-dashboard-icon-maskable.png',
-          sizes: '512x512',
-          type: 'image/png',
-          purpose: 'maskable'
         }
       ],
       shortcuts: [
@@ -79,14 +79,14 @@ router.get('/:slug/manifest.json', async (req, res) => {
           short_name: 'Dashboard',
           description: 'Open your dashboard',
           url: `/${slug}/dashboard`,
-          icons: [{ src: '/shared/icons/dashboard-shortcut.png', sizes: '96x96' }]
+          icons: [{ src: `/${tenant.industry}/icons/favicon.svg`, sizes: '96x96' }]
         },
         {
           name: 'View Website',
           short_name: 'Website',
           description: 'View your live website',
           url: `/${slug}`,
-          icons: [{ src: '/shared/icons/website-shortcut.png', sizes: '96x96' }]
+          icons: [{ src: `/${tenant.industry}/icons/favicon.svg`, sizes: '96x96' }]
         }
       ]
     };

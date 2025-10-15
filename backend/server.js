@@ -32,13 +32,14 @@ const locationsRoutes = require('./routes/locations');
 const websiteContentRoutes = require('./routes/websiteContent');
 const previewsRoutes = require('./routes/previews');
 const tenantManifestRoutes = require('./routes/tenantManifest');
+const paymentsRoutes = require('./routes/payments');
 
 // Get the update function from health routes
 const { updateShutdownStatus } = healthRoutes;
 
 // Import middleware
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
-const { apiLimiter, authLimiter, adminLimiter } = require('./middleware/rateLimiter');
+const { apiLimiter, authLimiter, adminLimiter, sensitiveAuthLimiter } = require('./middleware/rateLimiter');
 const { requestLogger } = require('./middleware/requestLogger');
 
 // Import database utilities
@@ -93,7 +94,12 @@ const ALLOWED_ORIGINS = {
     'http://127.0.0.1:3001',   // Backend server (IP variant)
     'http://127.0.0.1:5173',   // Vite dev server (IP variant)
     'http://127.0.0.1:5174',   // Vite dev server (IP variant, alternate)
-    'http://127.0.0.1:4173'    // Vite preview server (IP variant)
+    'http://127.0.0.1:4173',   // Vite preview server (IP variant)
+    'http://192.168.4.21:3000', // Network React dev server
+    'http://192.168.4.21:3001', // Network backend server
+    'http://192.168.4.21:5173', // Network Vite dev server
+    'http://192.168.4.21:5174', // Network Vite dev server (alternate)
+    'http://192.168.4.21:4173'  // Network Vite preview server
   ],
   staging: [
     // Staging domains from environment + localhost for testing
@@ -359,6 +365,7 @@ app.use('/api/website-content', apiLimiter, websiteContentRoutes); // Website co
 app.use('/api/previews', apiLimiter, previewsRoutes); // Preview token generation
 app.use('/api/preview', previewsRoutes); // Preview verification (no rate limit for link opens)
 app.use('/api/tenant-manifest', tenantManifestRoutes); // Tenant PWA manifests (no rate limit)
+app.use('/api/payments', sensitiveAuthLimiter, paymentsRoutes); // Payment processing (sensitive auth rate limiting)
 
 // Error handling middleware (must be last)
 app.use(notFoundHandler);

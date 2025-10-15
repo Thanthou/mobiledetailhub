@@ -20,6 +20,7 @@ export { withAsyncErrorBoundary, withErrorBoundary } from './withErrorBoundary';
 export { useDebouncedValue } from './useDebouncedValue';
 export { useEventListener } from './useEventListener';
 export { useLocalStorage } from './useLocalStorage';
+export { useMobileDetection } from './useMobileDetection';
 export { 
   BREAKPOINTS,
   useBreakpoint,

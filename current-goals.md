@@ -1,11 +1,25 @@
 # 🚀 That Smart Site — Core Development Roadmap
 
-## 🧩️ 1. Onboarding & Provisioning (**current priority**)
-❌ Signup form → Stripe checkout → provisioning job → subdomain + SSL → welcome email → first-login dashboard  
-❌ Add fallback “default content” logic — every new site boots with industry defaults (no empty pages)  
-❌ Implement Stripe webhook for tenant activation  
-❌ Include post-provision confirmation screen + “View my site” button  
-❌ Validate full run: business info → pay → live `[slug].thatsmartsite.com` → dashboard login  
+## 🧩️ 1. Onboarding & Provisioning (**COMPLETE**)
+✅ Signup form → Stripe checkout → provisioning job → subdomain + SSL → welcome email → first-login dashboard  
+✅ Add fallback "default content" logic — every new site boots with industry defaults (no empty pages)  
+✅ Implement Stripe webhook for tenant activation  
+✅ Include post-provision confirmation screen + "View my site" button  
+✅ Validate full run: business info → pay → live `[slug].thatsmartsite.com` → dashboard login  
+
+    ❌ Welcome email
+    • No email sending functionality implemented
+    • No email service configured
+    ❌ SSL (automatic)
+    • No automatic SSL certificate provisioning
+    • SSL is handled at the hosting/CDN level, not in the application
+    ❌ Automatic icon to mobile homescreen
+    • PWA manifest exists but no automatic installation
+    • Users need to manually "Add to Home Screen"
+    • We have the AddToHomeScreen component but it's manual
+    ❌ First-login to dashboard
+    • No automatic redirect to dashboard after login
+    • Dashboard routes exist but no post-login flow
 
 **Acceptance:** I can paste a business’s info, pay, and get a live site + dashboard.
 

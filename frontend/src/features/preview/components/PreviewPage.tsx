@@ -14,7 +14,8 @@ import { Hero } from '@/features/hero';
 import { LazyRequestQuoteModal } from '@/features/quotes';
 import { Reviews } from '@/features/reviews';
 import { ServicesGrid } from '@/features/services';
-import { useBrowserTab } from '@/shared/hooks';
+import { useBrowserTab, useIsDesktop, useScrollSpy } from '@/shared/hooks';
+import type { SectionId } from '@/shared/state/sectionStore';
 
 import { usePreviewParams } from '../hooks/usePreviewParams';
 import { PreviewCTAButton } from './PreviewCTAButton';
@@ -25,6 +26,7 @@ import { PreviewLoading } from './PreviewLoading';
 const PreviewPage: React.FC = () => {
   const { payload, isLoading, error } = usePreviewParams();
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
+  const isDesktop = useIsDesktop();
 
   const handleOpenQuoteModal = () => {
     setIsQuoteModalOpen(true);
@@ -38,6 +40,17 @@ const PreviewPage: React.FC = () => {
   useBrowserTab({
     title: payload?.businessName ? `${payload.businessName} - Preview` : 'Platform Preview',
     useBusinessName: false, // Don't use default business name, we have custom format
+  });
+
+  // Section tracking for scroll spy
+  const sectionIds: SectionId[] = isDesktop 
+    ? ['top', 'services', 'services-desktop', 'reviews', 'faq', 'gallery', 'gallery-desktop', 'footer']
+    : ['top', 'services', 'reviews', 'faq', 'gallery', 'footer'];
+  
+  useScrollSpy({ 
+    ids: sectionIds, 
+    headerPx: isDesktop ? 88 : 72, 
+    updateHash: false 
   });
 
   // Loading state

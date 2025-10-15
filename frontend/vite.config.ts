@@ -20,8 +20,8 @@ export default defineConfig({
     host: true, // Allow access from network
     port: 5173,
     proxy: {
-      '/api': 'http://localhost:3001',
-      '/uploads': 'http://localhost:3001',
+      '/api': 'http://192.168.4.21:3001',
+      '/uploads': 'http://192.168.4.21:3001',
     },
   },
   build: {

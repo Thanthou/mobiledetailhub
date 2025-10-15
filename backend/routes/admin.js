@@ -286,6 +286,7 @@ router.get('/users', adminLimiter, authenticateToken, requireAdmin, asyncHandler
       u.email, 
       u.is_admin, 
       u.created_at,
+      t.id as tenant_id,
       t.business_name,
       t.slug
     FROM auth.users u
