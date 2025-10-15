@@ -3,11 +3,9 @@
  * Shows FAQ schema generation and statistics
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-import bullheadCityData from '@/data/locations/az/bullhead-city.json';
-import lasVegasData from '@/data/locations/nv/las-vegas.json';
-import { MDH_FAQ_ITEMS } from '@/features/faq/utils';
+import { loadIndustryFAQs } from '@/features/faq/utils';
 import { useFAQSchema, useFAQSchemaStats } from '@/shared/hooks/useFAQSchema';
 import type { LocationPage } from '@/shared/types/location';
 
@@ -21,9 +19,17 @@ const typedLasVegasData = lasVegasData as LocationPage;
 
 export const FAQSchemaDemo: React.FC<FAQSchemaDemoProps> = ({ className = '' }) => {
   const [selectedDataset, setSelectedDataset] = useState<'general' | 'bullhead' | 'lasvegas'>('general');
+  const [generalFAQs, setGeneralFAQs] = useState<Array<{ id?: string; question: string; answer: string; category: string }>>([]);
+  
+  // Load mobile-detailing FAQs on mount
+  useEffect(() => {
+    loadIndustryFAQs('mobile-detailing')
+      .then(setGeneralFAQs)
+      .catch(() => setGeneralFAQs([]));
+  }, []);
   
   const currentFAQs = selectedDataset === 'general' 
-    ? MDH_FAQ_ITEMS 
+    ? generalFAQs 
     : selectedDataset === 'bullhead' 
       ? (typedBullheadData.faqs || []).map(faq => ({
           id: faq.id,
@@ -61,7 +67,7 @@ export const FAQSchemaDemo: React.FC<FAQSchemaDemoProps> = ({ className = '' }) 
                 : 'bg-white border border-gray-300'
             }`}
           >
-            General FAQs ({MDH_FAQ_ITEMS.length})
+            General FAQs ({generalFAQs.length})
           </button>
           <button
             onClick={() => { setSelectedDataset('bullhead'); }}

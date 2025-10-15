@@ -1,0 +1,78 @@
+{
+  "$schema": "../../schemas/defaults-services.schema.json",
+  "description": "Default service descriptions for lawn care tenants (informational only, no pricing)",
+  
+  "services": [
+    {
+      "slug": "lawn-mowing",
+      "title": "Lawn Mowing & Edging",
+      "shortDescription": "Regular lawn maintenance and trimming",
+      "description": "Professional lawn mowing and edging services to keep your grass healthy and your property looking sharp. We provide consistent, reliable service on a weekly or bi-weekly schedule that fits your needs.",
+      "benefits": [
+        "Regular mowing schedule",
+        "Professional edging and trimming",
+        "Grass clippings removal",
+        "Walkway and driveway cleanup"
+      ],
+      "duration": "30-60 minutes",
+      "category": "maintenance"
+    },
+    {
+      "slug": "landscape-maintenance",
+      "title": "Landscape Maintenance",
+      "shortDescription": "Complete property landscaping services",
+      "description": "Comprehensive landscape maintenance including hedge trimming, mulch bed care, weeding, and seasonal plantings. We keep your entire property looking professionally maintained year-round.",
+      "benefits": [
+        "Hedge and shrub trimming",
+        "Mulch bed maintenance",
+        "Weed control and removal",
+        "Seasonal flower planting"
+      ],
+      "duration": "1-2 hours",
+      "category": "landscaping"
+    },
+    {
+      "slug": "fertilization",
+      "title": "Lawn Fertilization & Treatment",
+      "shortDescription": "Healthy lawn care programs",
+      "description": "Professional fertilization and treatment programs designed to promote healthy, lush grass growth while controlling weeds and pests. We customize treatment plans based on your lawn's specific needs and local climate.",
+      "benefits": [
+        "Season-appropriate fertilization",
+        "Weed control treatments",
+        "Pest management",
+        "Soil health improvement"
+      ],
+      "duration": "30-45 minutes",
+      "category": "treatment"
+    },
+    {
+      "slug": "seasonal-cleanup",
+      "title": "Seasonal Cleanup",
+      "shortDescription": "Spring and fall property cleanup",
+      "description": "Thorough spring and fall cleanup services to prepare your property for the changing seasons. We remove leaves, trim back perennials, clean beds, and get your yard ready for the months ahead.",
+      "benefits": [
+        "Leaf removal and disposal",
+        "Perennial trimming",
+        "Bed cleaning and mulching",
+        "Debris removal"
+      ],
+      "duration": "2-4 hours",
+      "category": "seasonal"
+    },
+    {
+      "slug": "aeration-seeding",
+      "title": "Aeration & Overseeding",
+      "shortDescription": "Lawn renovation and improvement",
+      "description": "Core aeration and overseeding services to improve lawn health and thickness. Aeration relieves soil compaction while overseeding fills in bare spots and improves grass density.",
+      "benefits": [
+        "Improved soil air circulation",
+        "Better nutrient absorption",
+        "Thicker, healthier grass",
+        "Reduced thatch buildup"
+      ],
+      "duration": "1-2 hours",
+      "category": "renovation"
+    }
+  ]
+}
+

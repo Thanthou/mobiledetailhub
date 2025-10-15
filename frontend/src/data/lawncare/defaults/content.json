@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schemas/defaults-content.schema.json",
+  "description": "Default content for new lawn care tenants - used during provisioning",
+  
+  "hero": {
+    "h1": "Professional Lawn Care Services",
+    "subtitle": "Expert lawn maintenance and landscaping services to keep your property looking its best year-round.",
+    "cta": {
+      "primary": {
+        "label": "Get a Quote",
+        "href": "/quote"
+      },
+      "secondary": {
+        "label": "View Services",
+        "href": "/services"
+      }
+    }
+  },
+
+  "about": {
+    "title": "About Our Lawn Care Service",
+    "content": "We provide professional lawn care and landscaping services to residential and commercial properties. Our experienced team delivers reliable, high-quality service that keeps your lawn healthy and beautiful throughout the year.\n\nFrom routine mowing and edging to seasonal cleanups and landscape maintenance, we offer comprehensive lawn care solutions tailored to your property's specific needs.",
+    "highlights": [
+      "Reliable weekly or bi-weekly service",
+      "Experienced and professional team",
+      "Comprehensive lawn care solutions",
+      "Commercial and residential services"
+    ]
+  },
+
+  "footer": {
+    "tagline": "Professional lawn care for beautiful properties",
+    "description": "Reliable lawn maintenance and landscaping services for residential and commercial properties."
+  },
+
+  "contact": {
+    "callToAction": "Ready for a beautiful, healthy lawn?",
+    "description": "Contact us today for a free quote or to schedule your lawn care service."
+  }
+}
+

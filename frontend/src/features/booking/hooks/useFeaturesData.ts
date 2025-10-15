@@ -50,69 +50,73 @@ export const useFeaturesData = ({ isOpen, vehicleType, category, itemType }: Use
         
         if (itemType === 'service') {
           // Service features - static imports to avoid Vite warnings
+          // TODO: Make this industry-agnostic by using DataContext to get industry
           switch (folderName) {
             case 'cars':
-              featuresModule = await import('@/data/affiliate-services/cars/service/features.json') as ImportedFeaturesModule;
+              featuresModule = await import('@/data/mobile-detailing/pricing/cars/service/features.json') as ImportedFeaturesModule;
               break;
             case 'trucks':
-              featuresModule = await import('@/data/affiliate-services/trucks/service/features.json') as ImportedFeaturesModule;
+              featuresModule = await import('@/data/mobile-detailing/pricing/trucks/service/features.json') as ImportedFeaturesModule;
               break;
             case 'suvs':
-              featuresModule = await import('@/data/affiliate-services/suvs/service/features.json') as ImportedFeaturesModule;
+              featuresModule = await import('@/data/mobile-detailing/pricing/suvs/service/features.json') as ImportedFeaturesModule;
               break;
             case 'rvs':
-              featuresModule = await import('@/data/affiliate-services/rvs/service/features.json') as ImportedFeaturesModule;
+              featuresModule = await import('@/data/mobile-detailing/pricing/rvs/service/features.json') as ImportedFeaturesModule;
               break;
-            // boats doesn't have service features yet
+            case 'boats':
+              featuresModule = await import('@/data/mobile-detailing/pricing/boats/service/features.json') as ImportedFeaturesModule;
+              break;
           }
         } else {
           // Addon features - only import files that exist
+          // TODO: Make this industry-agnostic by using DataContext to get industry
           switch (folderName) {
             case 'cars':
               switch (category) {
                 case 'windows':
-                  featuresModule = await import('@/data/affiliate-services/cars/addons/windows/features.json') as ImportedFeaturesModule;
+                  featuresModule = await import('@/data/mobile-detailing/pricing/cars/addons/windows/features.json') as ImportedFeaturesModule;
                   break;
                 case 'wheels':
-                  featuresModule = await import('@/data/affiliate-services/cars/addons/wheels/features.json') as ImportedFeaturesModule;
+                  featuresModule = await import('@/data/mobile-detailing/pricing/cars/addons/wheels/features.json') as ImportedFeaturesModule;
                   break;
                 case 'trim':
-                  featuresModule = await import('@/data/affiliate-services/cars/addons/trim/features.json') as ImportedFeaturesModule;
+                  featuresModule = await import('@/data/mobile-detailing/pricing/cars/addons/trim/features.json') as ImportedFeaturesModule;
                   break;
                 case 'engine':
-                  featuresModule = await import('@/data/affiliate-services/cars/addons/engine/features.json') as ImportedFeaturesModule;
+                  featuresModule = await import('@/data/mobile-detailing/pricing/cars/addons/engine/features.json') as ImportedFeaturesModule;
                   break;
               }
               break;
             case 'trucks':
               switch (category) {
                 case 'windows':
-                  featuresModule = await import('@/data/affiliate-services/trucks/addons/windows/features.json') as ImportedFeaturesModule;
+                  featuresModule = await import('@/data/mobile-detailing/pricing/trucks/addons/windows/features.json') as ImportedFeaturesModule;
                   break;
                 case 'wheels':
-                  featuresModule = await import('@/data/affiliate-services/trucks/addons/wheels/features.json') as ImportedFeaturesModule;
+                  featuresModule = await import('@/data/mobile-detailing/pricing/trucks/addons/wheels/features.json') as ImportedFeaturesModule;
                   break;
                 case 'trim':
-                  featuresModule = await import('@/data/affiliate-services/trucks/addons/trim/features.json') as ImportedFeaturesModule;
+                  featuresModule = await import('@/data/mobile-detailing/pricing/trucks/addons/trim/features.json') as ImportedFeaturesModule;
                   break;
                 case 'engine':
-                  featuresModule = await import('@/data/affiliate-services/trucks/addons/engine/features.json') as ImportedFeaturesModule;
+                  featuresModule = await import('@/data/mobile-detailing/pricing/trucks/addons/engine/features.json') as ImportedFeaturesModule;
                   break;
               }
               break;
             case 'suvs':
               switch (category) {
                 case 'windows':
-                  featuresModule = await import('@/data/affiliate-services/suvs/addons/windows/features.json') as ImportedFeaturesModule;
+                  featuresModule = await import('@/data/mobile-detailing/pricing/suvs/addons/windows/features.json') as ImportedFeaturesModule;
                   break;
                 case 'wheels':
-                  featuresModule = await import('@/data/affiliate-services/suvs/addons/wheels/features.json') as ImportedFeaturesModule;
+                  featuresModule = await import('@/data/mobile-detailing/pricing/suvs/addons/wheels/features.json') as ImportedFeaturesModule;
                   break;
                 case 'trim':
-                  featuresModule = await import('@/data/affiliate-services/suvs/addons/trim/features.json') as ImportedFeaturesModule;
+                  featuresModule = await import('@/data/mobile-detailing/pricing/suvs/addons/trim/features.json') as ImportedFeaturesModule;
                   break;
                 case 'engine':
-                  featuresModule = await import('@/data/affiliate-services/suvs/addons/engine/features.json') as ImportedFeaturesModule;
+                  featuresModule = await import('@/data/mobile-detailing/pricing/suvs/addons/engine/features.json') as ImportedFeaturesModule;
                   break;
               }
               break;

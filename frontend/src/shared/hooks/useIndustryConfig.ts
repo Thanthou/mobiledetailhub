@@ -1,6 +1,6 @@
 /**
  * Industry Configuration Hook
- * Centralized loader for industry-specific site configs from /data/{industry}/site.json
+ * Centralized loader for industry-specific site configs
  * 
  * Usage:
  *   const { siteConfig, isLoading } = useIndustryConfig('mobile-detailing');
@@ -10,23 +10,10 @@
  * the DataContext (via useData) which automatically loads both tenant + industry config.
  */
 
-import { useQuery } from '@tanstack/react-query';
+import { type QueryClient, useQuery } from '@tanstack/react-query';
 
+import { fetchIndustryConfig } from '@/shared/api/industryConfigApi';
 import type { MainSiteConfig } from '@/shared/types/location';
-
-/**
- * Load industry site configuration from /data/{industry}/site.json
- */
-async function fetchIndustryConfig(industry: string): Promise<MainSiteConfig> {
-  try {
-    // Dynamic import based on industry
-    const module = await import(`@/data/${industry}/site.json`) as { default: MainSiteConfig };
-    return module.default;
-  } catch (error) {
-    console.error(`Failed to load site config for industry: ${industry}`, error);
-    throw new Error(`Industry config not found: ${industry}`);
-  }
-}
 
 /**
  * Hook to access industry-specific site configuration
@@ -53,7 +40,10 @@ export function useIndustryConfig(
 ) {
   const { data: siteConfig, isLoading, error } = useQuery({
     queryKey: ['industryConfig', industry],
-    queryFn: () => fetchIndustryConfig(industry!),
+    queryFn: () => {
+      if (!industry) throw new Error('Industry is required');
+      return fetchIndustryConfig(industry);
+    },
     enabled: options?.enabled !== false && !!industry,
     staleTime: 10 * 60 * 1000, // 10 minutes - configs rarely change
     gcTime: 30 * 60 * 1000, // 30 minutes cache
@@ -63,7 +53,7 @@ export function useIndustryConfig(
   return {
     siteConfig: siteConfig || null,
     isLoading,
-    error: error as Error | null,
+    error: error || null,
     industry: industry || null,
   };
 }
@@ -92,7 +82,7 @@ export function useIndustryConfig(
  * ```
  */
 export async function prefetchIndustryConfig(
-  queryClient: any,
+  queryClient: QueryClient,
   industry: string
 ): Promise<void> {
   await queryClient.prefetchQuery({

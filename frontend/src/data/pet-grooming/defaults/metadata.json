@@ -1,0 +1,66 @@
+{
+  "$schema": "../../schemas/defaults-metadata.schema.json",
+  "description": "Default SEO metadata for pet grooming tenants",
+  
+  "seo": {
+    "titleTemplate": "{businessName} | Professional Pet Grooming",
+    "defaultTitle": "Professional Pet Grooming Services",
+    "description": "Expert pet grooming services for dogs and cats of all breeds. From basic baths to full spa treatments, we provide gentle, professional care for your pets.",
+    "keywords": [
+      "pet grooming",
+      "dog grooming",
+      "cat grooming",
+      "dog bath",
+      "pet spa",
+      "mobile pet grooming",
+      "dog haircut",
+      "pet salon"
+    ],
+    "openGraph": {
+      "type": "website",
+      "locale": "en_US",
+      "siteName": "Professional Pet Grooming Services"
+    },
+    "twitter": {
+      "card": "summary_large_image",
+      "site": "@petgrooming"
+    }
+  },
+
+  "pages": {
+    "home": {
+      "title": "Professional Pet Grooming Services | {businessName}",
+      "description": "Expert grooming for dogs and cats in {serviceArea}. Full grooming, spa treatments, and specialized care delivered with a gentle touch."
+    },
+    "services": {
+      "title": "Our Grooming Services | {businessName}",
+      "description": "Explore our comprehensive pet grooming services including full grooms, spa packages, de-shedding treatments, and specialized care."
+    },
+    "about": {
+      "title": "About Us | {businessName}",
+      "description": "Learn about our professional grooming team and our commitment to providing gentle, expert care for pets of all breeds and sizes."
+    },
+    "contact": {
+      "title": "Contact Us | {businessName}",
+      "description": "Get in touch to schedule a grooming appointment or learn more about our services. Serving {serviceArea} and surrounding areas."
+    },
+    "quote": {
+      "title": "Book Appointment | {businessName}",
+      "description": "Schedule your pet's grooming appointment or request information about our services and pricing."
+    }
+  },
+
+  "structuredData": {
+    "organizationType": "LocalBusiness",
+    "additionalTypes": [
+      "PetStore",
+      "AnimalShelter"
+    ],
+    "defaultServiceArea": {
+      "type": "radius",
+      "value": 15,
+      "unit": "miles"
+    }
+  }
+}
+

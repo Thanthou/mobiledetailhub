@@ -1,23 +1,8 @@
-import { env } from '../src/shared/env';
+/**
+ * Legacy config export for backward compatibility
+ * 
+ * @deprecated Import from '@/shared/env' instead
+ * This file re-exports the centralized config for backward compatibility.
+ */
 
-// Environment configuration
-export const config = {
-  // API URL - will be set based on environment
-  apiUrl: env.VITE_API_URL || 
-    (env.PROD 
-      ? env.VITE_API_URL_LIVE || ''  // Use relative URLs (same domain as frontend)
-      : ''  // Empty string for development to use relative URLs with Vite proxy
-    ),
-  
-  // API URLs for admin dashboard toggle
-  apiUrls: {
-    local: env.VITE_API_URL_LOCAL || 'http://localhost:3001',
-    live: env.VITE_API_URL_LIVE || ''  // Configure via env var when deploying
-  },
-  
-  // Environment
-  isProduction: env.PROD,
-  isDevelopment: env.DEV
-};
-
-// Debug logging removed for production
+export { config, env } from '../src/shared/env';

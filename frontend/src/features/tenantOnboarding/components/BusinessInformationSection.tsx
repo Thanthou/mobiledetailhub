@@ -1,6 +1,7 @@
 import React from 'react';
 import { Building2, Zap } from 'lucide-react';
 
+import { env } from '@/shared/env';
 import { Input } from '@/shared/ui';
 import { formatPhoneNumber } from '@/shared/utils/phoneFormatter';
 
@@ -61,7 +62,7 @@ const BusinessInformationSection: React.FC<BusinessInformationSectionProps> = ({
             </h2>
             <p className="text-gray-400 text-sm mt-1">Tell us about your business</p>
           </div>
-          {import.meta.env.DEV && (
+          {env.DEV && (
             <button
               type="button"
               onClick={handleAutoFill}

@@ -1,11 +1,17 @@
 /**
- * API utilities for tenant data with industry support
+ * API utilities for tenant/business data with industry support
+ * 
+ * Single responsibility: HTTP calls to tenant endpoints
  */
 
 import { env } from '../env';
+import type { Business, BusinessResponse } from '../types/tenant-business.types';
 import type { Vertical } from '../types/tenant.types';
 
 const API_BASE_URL = env.VITE_API_URL || 'http://localhost:3001';
+
+// Re-export types for convenience
+export type { Business, BusinessResponse } from '../types/tenant-business.types';
 
 export interface Tenant {
   id: number;
@@ -65,6 +71,7 @@ export interface TenantsListResponse {
 
 /**
  * Fetch tenant data by slug with industry context
+ * Legacy format - returns Tenant type
  */
 export async function fetchTenantBySlug(slug: string): Promise<TenantApiResponse> {
   try {
@@ -84,6 +91,27 @@ export async function fetchTenantBySlug(slug: string): Promise<TenantApiResponse
       error: error instanceof Error ? error.message : 'Unknown error' 
     };
   }
+}
+
+/**
+ * Fetch business data by slug
+ * Used by DataContext - returns Business type with BusinessResponse wrapper
+ */
+export async function fetchBusinessBySlug(slug: string): Promise<Business> {
+  const response = await fetch(`${API_BASE_URL}/api/tenants/${slug}`);
+  
+  if (!response.ok) {
+    throw new Error('Failed to fetch business data');
+  }
+  
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- response.json() returns any
+  const result: BusinessResponse = await response.json();
+  
+  if (!result.success) {
+    throw new Error('API returned error');
+  }
+  
+  return result.data;
 }
 
 /**

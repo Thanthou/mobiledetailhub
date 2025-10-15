@@ -80,6 +80,7 @@ export const PreviewDataProvider: React.FC<PreviewDataProviderProps> = ({
       instagram: '#',
       youtube: '#',
       tiktok: '#',
+      googleBusiness: '#',
     },
     siteConfig: siteConfig as MainSiteConfig | null,
     isLoading,

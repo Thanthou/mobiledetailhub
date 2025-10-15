@@ -4,7 +4,7 @@ import { useWebsiteContent } from '@/shared/contexts/WebsiteContentContext';
 import { useIndustrySiteData } from '@/shared/hooks/useIndustrySiteData';
 
 import type { FAQItem as BaseFAQItem } from '../types';
-import { MDH_FAQ_ITEMS } from '../utils';
+import { useFAQData } from './useFAQData';
 
 // Extended FAQ Item that allows any category string
 export interface FAQItem extends Omit<BaseFAQItem, 'category'> {
@@ -35,6 +35,9 @@ export const useFAQContent = (props?: UseFAQContentProps): UseFAQContentReturn =
   // Get website content - hooks must be called unconditionally
   const { content: websiteContent } = useWebsiteContent();
   
+  // Get industry-specific FAQ items
+  const { faqData: industryFAQs } = useFAQData();
+  
   // Get FAQ title and subtitle from database or industry-specific fallbacks
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- siteData is dynamically imported JSON
   const faqTitle = websiteContent?.faq_title 
@@ -47,9 +50,9 @@ export const useFAQContent = (props?: UseFAQContentProps): UseFAQContentReturn =
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- siteData is dynamically imported JSON
     ?? siteData?.faq?.subtitle 
     ?? locationData?.faqIntro 
-    ?? 'Find answers to common questions about our mobile detailing services';
+    ?? 'Find answers to common questions about our services';
   
-  // Get FAQ items from database or fallback to hardcoded utils
+  // Get FAQ items from database or fallback to industry-specific FAQs
   const databaseFAQs: FAQItem[] = useMemo(() => {
     if (!websiteContent?.faq_content || !Array.isArray(websiteContent.faq_content)) {
       return [];
@@ -79,17 +82,15 @@ export const useFAQContent = (props?: UseFAQContentProps): UseFAQContentReturn =
     }));
   }, [locationData]);
   
-  // Priority: Database FAQs ONLY (don't mix with hardcoded)
-  // If database has FAQs, use ONLY those + location FAQs
-  // Otherwise, fall back to hardcoded FAQs + location FAQs
+  // Priority: Database FAQs > Industry FAQs > Location FAQs
   const faqItems = useMemo(() => {
     if (databaseFAQs.length > 0) {
-      // Use ONLY database FAQs (don't add hardcoded ones)
+      // Use ONLY database FAQs (tenant has customized)
       return [...databaseFAQs, ...locationFAQs];
     }
-    // Fallback to hardcoded FAQs only if no database FAQs
-    return [...MDH_FAQ_ITEMS, ...locationFAQs];
-  }, [databaseFAQs, locationFAQs]);
+    // Fallback to industry-specific FAQs if no database FAQs
+    return [...industryFAQs, ...locationFAQs];
+  }, [databaseFAQs, industryFAQs, locationFAQs]);
   
   // Extract unique categories
   const categories = useMemo(() => {
@@ -104,4 +105,3 @@ export const useFAQContent = (props?: UseFAQContentProps): UseFAQContentReturn =
     categories
   };
 };
-

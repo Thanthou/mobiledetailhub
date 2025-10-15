@@ -34,7 +34,7 @@ interface AffiliateApiResponse {
  * @returns Validated TenantConfig
  */
 export async function fetchTenantConfigBySlug(slug: string): Promise<TenantConfig> {
-  const response = await apiClient.get<{ data?: AffiliateApiResponse }>(`/tenants/${slug}`);
+  const response = await apiClient.get<{ data?: AffiliateApiResponse }>(`/api/tenants/${slug}`);
   
   // API returns affiliate data, needs conversion
   const { data } = response;
@@ -80,7 +80,7 @@ export async function fetchTenantConfigBySlug(slug: string): Promise<TenantConfi
  * @returns Validated TenantConfig
  */
 export async function fetchTenantConfigById(tenantId: string | number): Promise<TenantConfig> {
-  const response = await apiClient.get<{ data?: AffiliateApiResponse }>(`/tenants/id/${tenantId}`);
+  const response = await apiClient.get<{ data?: AffiliateApiResponse }>(`/api/tenants/id/${tenantId}`);
   
   const { data } = response;
   
@@ -122,7 +122,7 @@ export async function fetchTenantConfigById(tenantId: string | number): Promise<
  */
 export async function fetchTenants(vertical?: Vertical): Promise<TenantConfig[]> {
   const queryParams = vertical ? `?industry=${vertical}` : '';
-  const response = await apiClient.get<{ data: AffiliateApiResponse[] }>(`/tenants${queryParams}`);
+  const response = await apiClient.get<{ data: AffiliateApiResponse[] }>(`/api/tenants${queryParams}`);
   
   const { data } = response;
   

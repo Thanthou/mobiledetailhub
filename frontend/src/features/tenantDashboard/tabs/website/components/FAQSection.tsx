@@ -1,17 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { ChevronDown, ChevronRight, Eye, FileText, HelpCircle, Plus, Save, X } from 'lucide-react';
 
-import {
-  MDH_FAQ_AFTERCARE,
-  MDH_FAQ_GENERAL,
-  MDH_FAQ_LOCATIONS,
-  MDH_FAQ_PAYMENTS,
-  MDH_FAQ_PREPARATION,
-  MDH_FAQ_PRICING,
-  MDH_FAQ_SCHEDULING,
-  MDH_FAQ_SERVICES,
-  MDH_FAQ_WARRANTY
-} from '@/shared/data/faq-defaults';
+import { loadIndustryFAQs } from '@/features/faq/utils';
+import { useData } from '@/shared/hooks';
 
 import { FAQItemAutoSaveField } from './FAQItemAutoSaveField';
 import { WebsiteAutoSaveField } from './WebsiteAutoSaveField';
@@ -49,17 +40,27 @@ export const FAQSection: React.FC<FAQSectionProps> = ({
     'General'
   ];
 
-  const _categoryFaqMap = useMemo(() => ({
-    'Services': MDH_FAQ_SERVICES,
-    'Pricing': MDH_FAQ_PRICING,
-    'Scheduling': MDH_FAQ_SCHEDULING,
-    'Locations': MDH_FAQ_LOCATIONS,
-    'Preparation': MDH_FAQ_PREPARATION,
-    'Payments': MDH_FAQ_PAYMENTS,
-    'Warranty': MDH_FAQ_WARRANTY,
-    'Aftercare': MDH_FAQ_AFTERCARE,
-    'General': MDH_FAQ_GENERAL
-  }), []);
+  // Load industry-specific FAQs for template picker
+  const { industry } = useData();
+  const [industryFAQs, setIndustryFAQs] = React.useState<Array<{ question: string; answer: string; category: string }>>([]);
+  
+  React.useEffect(() => {
+    if (!industry) return;
+    loadIndustryFAQs(industry)
+      .then(setIndustryFAQs)
+      .catch(() => setIndustryFAQs([]));
+  }, [industry]);
+  
+  const _categoryFaqMap = useMemo(() => {
+    const map: Record<string, typeof industryFAQs> = {};
+    industryFAQs.forEach(faq => {
+      if (!map[faq.category]) {
+        map[faq.category] = [];
+      }
+      map[faq.category].push(faq);
+    });
+    return map;
+  }, [industryFAQs]);
 
   const handleAddFAQ = () => {
     const newContent = [...faqContent, { 

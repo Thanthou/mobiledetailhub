@@ -7,6 +7,7 @@ import { PreviewGeneratorPage, PreviewPage } from '@/features/preview';
 import { LazyRequestQuoteModal } from '@/features/quotes';
 import { DashboardPage } from '@/features/tenantDashboard';
 import { TenantApplicationPage } from '@/features/tenantOnboarding';
+import { env } from '@/shared/env';
 import { ProtectedRoute } from '@/shared/ui';
 
 import HomePage from './pages/HomePage';
@@ -45,7 +46,7 @@ export default function App() {
         <Route path="/services/:slug" element={<ServicePage onRequestQuote={handleOpenQuoteModal} />} />
         
         {/* Development-only tenant-based service routes */}
-        {import.meta.env.DEV && (
+        {env.DEV && (
           <Route path="/:tenantSlug/services/:serviceType" element={<ServicePage onRequestQuote={handleOpenQuoteModal} />} />
         )}
         

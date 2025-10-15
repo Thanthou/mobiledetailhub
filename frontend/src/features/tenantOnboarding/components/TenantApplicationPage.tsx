@@ -4,8 +4,10 @@ import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { ChevronLeft } from 'lucide-react';
 
+import { config } from '@/shared/env';
 import { useBrowserTab } from '@/shared/hooks';
 import { Button } from '@/shared/ui';
+import { loadDefaults, type IndustrySlug } from '@/shared/utils/loadDefaults';
 
 import { useAutoSave } from '../hooks/useAutoSave';
 import {
@@ -28,10 +30,8 @@ import {
 } from './index';
 import PaymentSection from './PaymentSection';
 
-// Initialize Stripe (will be configured later)
-const stripePromise = loadStripe(
-  (import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY as string) || 'pk_test_placeholder'
-);
+// Initialize Stripe
+const stripePromise = loadStripe(config.stripePublishableKey);
 
 const STEPS = [
   { id: 0, label: 'Plan' },
@@ -238,6 +238,10 @@ const TenantApplicationPage: React.FC = () => {
     setIsSubmitting(true);
 
     try {
+      // Load industry-specific defaults
+      const industry = (formData.industry || 'mobile-detailing') as IndustrySlug;
+      const defaults = await loadDefaults(industry);
+
       const applicationData = {
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -247,9 +251,10 @@ const TenantApplicationPage: React.FC = () => {
         businessPhone: formData.businessPhone,
         businessEmail: formData.businessEmail,
         businessAddress: formData.businessAddress,
-        industry: formData.industry || 'mobile-detailing',
+        industry,
         selectedPlan: formData.selectedPlan,
         planPrice: formData.planPrice,
+        defaults, // Include industry defaults for provisioning
       };
 
       // eslint-disable-next-line no-restricted-globals, no-restricted-syntax -- Single-use onboarding endpoint, API client refactor planned

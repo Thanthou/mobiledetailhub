@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { getGoogle, hasImportLibrary } from '@/shared';
+import { config } from '@/shared/env';
 
 export const useGoogleMaps = () => {
   const [apiLoaded, setApiLoaded] = useState(false);
@@ -41,7 +42,7 @@ export const useGoogleMaps = () => {
     }
     
     const script = document.createElement('script');
-    const apiKey = import.meta.env['VITE_GOOGLE_MAPS_API_KEY'] as string;
+    const apiKey = config.googleMapsApiKey;
     
     if (!apiKey) {
       console.error('Google Maps API key not found. Please set VITE_GOOGLE_MAPS_API_KEY in your .env file');

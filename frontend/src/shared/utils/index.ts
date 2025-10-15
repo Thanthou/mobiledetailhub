@@ -166,3 +166,22 @@ export {
   hasFileExtension,
   type LogoUrls,
   normalizeAssetUrl} from './assetLocator';
+
+// Domain utilities
+export {
+  addDomainMapping,
+  getDomainMappings,
+  getTenantFromDomain,
+  isReservedSubdomain
+} from './domainUtils';
+
+// Tenant data transformation utilities
+export {
+  formatBusinessPhone,
+  getBusinessEmail,
+  getPrimaryLocation,
+  getPrimaryServiceAreas,
+  hasSocialMedia,
+  type SocialMediaLinks,
+  transformSocialMedia
+} from './tenantDataTransform';

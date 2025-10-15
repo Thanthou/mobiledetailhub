@@ -1,0 +1,186 @@
+{
+  "description": "Image assets and their metadata for mobile detailing industry",
+
+  "logo": {
+    "default": {
+      "url": "/mobile-detailing/icons/logo.webp",
+      "alt": "Mobile Detailing Logo"
+    },
+    "dark": {
+      "url": "/mobile-detailing/icons/logo.webp",
+      "alt": "Mobile Detailing Logo (Dark Mode)"
+    },
+    "light": {
+      "url": "/mobile-detailing/icons/logo.webp",
+      "alt": "Mobile Detailing Logo (Light Mode)"
+    }
+  },
+
+  "hero": [
+    {
+      "id": "hero-1",
+      "desktop": {
+        "url": "/mobile-detailing/images/hero/hero1.png",
+        "width": 1536,
+        "height": 1024,
+        "aspectRatio": 1.5
+      },
+      "mobile": {
+        "url": "/mobile-detailing/images/hero/hero1-mobile.png",
+        "width": 1024,
+        "height": 1536,
+        "aspectRatio": 0.666
+      },
+      "alt": "Professional mobile detailing service in action",
+      "priority": true
+    },
+    {
+      "id": "hero-2",
+      "desktop": {
+        "url": "/mobile-detailing/images/hero/hero2.png",
+        "width": 1536,
+        "height": 1024,
+        "aspectRatio": 1.5
+      },
+      "mobile": {
+        "url": "/mobile-detailing/images/hero/hero2-mobile.png",
+        "width": 1024,
+        "height": 1536,
+        "aspectRatio": 0.666
+      },
+      "alt": "High-quality car detailing and ceramic coating",
+      "priority": true
+    },
+    {
+      "id": "hero-3",
+      "desktop": {
+        "url": "/mobile-detailing/images/hero/hero3.png",
+        "width": 1536,
+        "height": 1024,
+        "aspectRatio": 1.5
+      },
+      "mobile": {
+        "url": "/mobile-detailing/images/hero/hero3-mobile.png",
+        "width": 1024,
+        "height": 1536,
+        "aspectRatio": 0.666
+      },
+      "alt": "High-quality car detailing, paint correction, and ceramic coating",
+      "priority": true
+    },
+    {
+      "id": "hero-4",
+      "desktop": {
+        "url": "/mobile-detailing/images/hero/hero4.png",
+        "width": 1536,
+        "height": 1024,
+        "aspectRatio": 1.5
+      },
+      "mobile": {
+        "url": "/mobile-detailing/images/hero/hero4-mobile.png",
+        "width": 1024,
+        "height": 1536,
+        "aspectRatio": 0.666
+      },
+      "alt": "High-quality car detailing, paint correction, and ceramic coating",
+      "priority": true
+    },
+    {
+      "id": "hero-5",
+      "desktop": {
+        "url": "/mobile-detailing/images/hero/hero5.png",
+        "width": 1536,
+        "height": 1024,
+        "aspectRatio": 1.5
+      },
+      "mobile": {
+        "url": "/mobile-detailing/images/hero/hero5-mobile.png",
+        "width": 1024,
+        "height": 1536,
+        "aspectRatio": 0.666
+      },
+      "alt": "High-quality car detailing, paint correction, and ceramic coating",
+      "priority": true
+    }
+  ],
+
+  "services": {
+    "grid": [
+      {
+        "slug": "auto-detailing",
+        "title": "Auto",
+        "href": "/services/auto-detailing",
+        "priority": false
+      },
+      {
+        "slug": "marine-detailing",
+        "title": "Marine",
+        "href": "/services/marine-detailing",
+        "priority": false
+      },
+      {
+        "slug": "rv-detailing",
+        "title": "RV",
+        "href": "/services/rv-detailing",
+        "priority": false
+      },
+      {
+        "slug": "ceramic-coating",
+        "title": "Ceramic Coating",
+        "href": "/services/ceramic-coating",
+        "priority": false
+      },
+      {
+        "slug": "paint-correction",
+        "title": "Paint Correction",
+        "href": "/services/paint-correction",
+        "priority": false
+      },
+      {
+        "slug": "paint-protection-film",
+        "title": "Paint Protection Film",
+        "href": "/services/paint-protection-film",
+        "priority": false
+      }
+    ],
+    "thumbnails": {
+      "auto-detailing": {
+        "url": "/mobile-detailing/images/services/thumbnails/auto.png",
+        "alt": "Professional auto detailing service",
+        "width": 1536,
+        "height": 1024
+      },
+      "marine-detailing": {
+        "url": "/mobile-detailing/images/services/thumbnails/boat.png",
+        "alt": "Professional boat and marine detailing service",
+        "width": 1536,
+        "height": 1024
+      },
+      "rv-detailing": {
+        "url": "/mobile-detailing/images/services/thumbnails/rv.png",
+        "alt": "Professional RV and motorhome detailing service",
+        "width": 1536,
+        "height": 1024
+      },
+      "ceramic-coating": {
+        "url": "/mobile-detailing/images/services/thumbnails/ceramic.png",
+        "alt": "Ceramic coating application",
+        "width": 1024,
+        "height": 1024
+      },
+      "paint-correction": {
+        "url": "/mobile-detailing/images/services/thumbnails/paint.png",
+        "alt": "Professional paint correction and restoration service",
+        "width": 1204,
+        "height": 1024
+      },
+      "paint-protection-film": {
+        "url": "/mobile-detailing/images/services/thumbnails/ppf.png",
+        "alt": "Paint protection film installation",
+        "width": 1024,
+        "height": 1024
+      }
+    }
+  }
+}
+

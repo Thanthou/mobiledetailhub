@@ -1,0 +1,33 @@
+[
+  {
+    "category": "Scheduling",
+    "question": "How do I book a mobile detailing appointment?",
+    "answer": "You can book online anytime by selecting your vehicle type, location, and preferred service package. Choose an available time slot and confirm your appointment instantly — no phone call required."
+  },
+  {
+    "category": "Scheduling",
+    "question": "How far in advance should I schedule my service?",
+    "answer": "For the best availability, we recommend scheduling at least 3–5 days in advance. Same-day or next-day appointments may be available depending on current workload and location."
+  },
+  {
+    "category": "Scheduling",
+    "question": "What happens if it rains on my appointment day?",
+    "answer": "If rain or severe weather is expected, we'll contact you to reschedule or relocate the service to a covered area. Light rain can sometimes be managed with a canopy, but heavy rain or storms may require rescheduling."
+  },
+  {
+    "category": "Scheduling",
+    "question": "Do you work in extreme heat or cold?",
+    "answer": "Yes, we operate year-round. However, certain services like ceramic coating or paint correction may need to be postponed if temperatures fall outside safe application ranges. We'll help you find the best time for your vehicle's needs."
+  },
+  {
+    "category": "Scheduling",
+    "question": "Can I change or cancel my booking?",
+    "answer": "Absolutely. You can modify or cancel your appointment up to 24 hours in advance without penalty. Late changes or cancellations may incur a small fee depending on our policy."
+  },
+  {
+    "category": "Scheduling",
+    "question": "Do you offer weekend or evening appointments?",
+    "answer": "Yes, we offer flexible scheduling, including weekends and limited evening appointments. Check our online calendar for available time slots in your area."
+  }
+]
+

@@ -25,11 +25,15 @@ export {
 } from './tenantConfig.api';
 
 // Tenant API
-export type { ServiceArea, Tenant, TenantApiResponse, TenantsListResponse } from './tenantApi';
+export type { Business, BusinessResponse, ServiceArea, Tenant, TenantApiResponse, TenantsListResponse } from './tenantApi';
 export {
+  fetchBusinessBySlug,
   fetchTenantBySlug,
   fetchTenantsByIndustry,
   getIndustryAssetsPath,
   getIndustryDataPath,
   getIndustrySiteConfigPath
 } from './tenantApi';
+
+// Industry Config API
+export { fetchIndustryConfig } from './industryConfigApi';

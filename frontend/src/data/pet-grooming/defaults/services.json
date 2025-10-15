@@ -1,0 +1,103 @@
+{
+  "$schema": "../../schemas/defaults-services.schema.json",
+  "description": "Default service descriptions for pet grooming tenants (informational only, no pricing)",
+  
+  "services": [
+    {
+      "slug": "bath-brush",
+      "title": "Bath & Brush",
+      "shortDescription": "Basic grooming service for clean, fresh pets",
+      "description": "Our bath and brush service includes a thorough bath with premium shampoo, blow dry, brush out, nail trim, ear cleaning, and finishing cologne. Perfect for maintaining your pet's coat between full grooming appointments.",
+      "benefits": [
+        "Premium shampoo and conditioner",
+        "Thorough brush out and blow dry",
+        "Nail trim and filing",
+        "Ear cleaning",
+        "Light cologne or fragrance"
+      ],
+      "duration": "1-1.5 hours",
+      "category": "basic"
+    },
+    {
+      "slug": "full-groom",
+      "title": "Full Grooming Service",
+      "shortDescription": "Complete grooming with haircut and styling",
+      "description": "Our comprehensive grooming service includes everything in our bath package plus professional haircut and styling. We follow breed standards or customize the style to your preferences.",
+      "benefits": [
+        "Complete bath and brush out",
+        "Professional haircut and styling",
+        "Breed-specific or custom cuts",
+        "Nail trim and paw pad trim",
+        "Sanitary trim",
+        "Teeth brushing"
+      ],
+      "duration": "2-3 hours",
+      "category": "grooming"
+    },
+    {
+      "slug": "spa-package",
+      "title": "Spa Package",
+      "shortDescription": "Luxury pampering experience for your pet",
+      "description": "Treat your pet to our ultimate spa experience! This premium service includes all grooming services plus special treatments like deep conditioning, facial, teeth cleaning, and nail polish.",
+      "benefits": [
+        "Complete grooming service",
+        "Deep conditioning treatment",
+        "Blueberry facial",
+        "Teeth cleaning",
+        "Nail polish or nail art",
+        "Bow, bandana, or accessory",
+        "Professional photo"
+      ],
+      "duration": "3-4 hours",
+      "category": "spa"
+    },
+    {
+      "slug": "puppy-first-groom",
+      "title": "Puppy's First Groom",
+      "shortDescription": "Gentle introduction to grooming",
+      "description": "Special grooming experience designed for puppies having their first professional grooming. We take extra time and care to make it a positive, stress-free experience.",
+      "benefits": [
+        "Gentle, patient approach",
+        "Basic bath and brush",
+        "Light trim and shaping",
+        "Nail introduction",
+        "Positive reinforcement",
+        "Extra cuddles and treats"
+      ],
+      "duration": "1-1.5 hours",
+      "category": "specialized"
+    },
+    {
+      "slug": "deshedding-treatment",
+      "title": "De-Shedding Treatment",
+      "shortDescription": "Reduce shedding and maintain healthy coat",
+      "description": "Specialized treatment for heavy shedding breeds. Our de-shedding service removes loose undercoat, reduces shedding, and promotes healthy skin and coat.",
+      "benefits": [
+        "Specialized de-shedding shampoo",
+        "Deep conditioning treatment",
+        "Thorough undercoat removal",
+        "High-velocity blow out",
+        "Significantly reduced shedding"
+      ],
+      "duration": "1.5-2 hours",
+      "category": "treatment"
+    },
+    {
+      "slug": "cat-grooming",
+      "title": "Cat Grooming",
+      "shortDescription": "Gentle grooming for felines",
+      "description": "Specialized grooming services for cats, with extra patience and care. We understand feline behavior and work gently to keep your cat comfortable and stress-free.",
+      "benefits": [
+        "Gentle, fear-free approach",
+        "Bath and blow dry",
+        "Brush out and detangling",
+        "Nail trim",
+        "Sanitary trim",
+        "Lion cuts available"
+      ],
+      "duration": "1-2 hours",
+      "category": "specialized"
+    }
+  ]
+}
+

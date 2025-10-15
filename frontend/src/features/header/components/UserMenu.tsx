@@ -2,6 +2,8 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Building2, ChevronDown, ExternalLink,Home, Shield } from 'lucide-react';
 
+import { env } from '@/shared/env';
+
 import { useTenants } from '../hooks/useTenants';
 
 const UserMenu: React.FC = () => {
@@ -36,7 +38,7 @@ const UserMenu: React.FC = () => {
 
   const handleTenantHomepage = useCallback((slug: string) => {
     // In development, navigate to localhost with the slug
-    const isDevelopment = import.meta.env.DEV;
+    const isDevelopment = env.DEV;
     if (isDevelopment) {
       window.open(`http://localhost:5173/${slug}`, '_blank', 'noopener,noreferrer');
     } else {
@@ -92,7 +94,7 @@ const UserMenu: React.FC = () => {
                     <div className="flex flex-col items-start">
                       <span>Homepage</span>
                       <span className="text-xs text-gray-500 font-mono">
-                        {import.meta.env.DEV ? `http://localhost:5173/${tenant.slug}` : tenant.website}
+                        {env.DEV ? `http://localhost:5173/${tenant.slug}` : tenant.website}
                       </span>
                     </div>
                   </button>

@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ChevronDown, ExternalLink, Eye, Home, Settings, Users } from 'lucide-react';
 
+import { env } from '@/shared/env';
+
 import { useTenants } from '../hooks/useTenants';
 
 const DevNavigation: React.FC = () => {
@@ -44,7 +46,7 @@ const DevNavigation: React.FC = () => {
   };
 
   const handleTenantHomepage = (slug: string) => {
-    if (import.meta.env.DEV) {
+    if (env.DEV) {
       // In development, navigate to localhost with slug
       window.location.href = `http://localhost:5173/${slug}`;
     } else {

@@ -6,14 +6,17 @@ import marineDetailingData from '@/data/mobile-detailing/services/marine-detaili
 import paintCorrectionData from '@/data/mobile-detailing/services/paint-correction.json';
 import ppfData from '@/data/mobile-detailing/services/ppf.json';
 import rvDetailingData from '@/data/mobile-detailing/services/rv-detailing.json';
-import siteData from '@/data/mobile-detailing/site.json';
+import assetsData from '@/data/mobile-detailing/assets.json';
 import { Service } from '@/features/services/types/service.types';
+import { env } from '@/shared/env';
 import type { LocationPage } from '@/shared/types/location';
 import { getServiceImageFromLocation } from '@/shared/utils/schemaUtils';
 
-// Transform site.json servicesGrid data to Service format with location-specific images
+// Transform assets.json services.grid data to Service format with location-specific images
 const getServicesFromSiteData = (locationData: LocationPage | null | undefined, tenantSlug?: string): Service[] => {
-  return siteData.servicesGrid.map((service, index) => {
+  return assetsData.services.grid.map((service, index) => {
+    // Get thumbnail data for this service
+    const thumbnail = assetsData.services.thumbnails[service.slug as keyof typeof assetsData.services.thumbnails];
     // Determine service role for location-specific images
     let serviceRole: "auto" | "marine" | "rv" | null = null;
     if (service.slug.includes('auto-detailing')) {
@@ -24,21 +27,21 @@ const getServicesFromSiteData = (locationData: LocationPage | null | undefined, 
       serviceRole = 'rv';
     }
 
-    // Get location-specific image if available, otherwise use default
+    // Get location-specific image if available, otherwise use default thumbnail
     const imageData = serviceRole && locationData 
-      ? getServiceImageFromLocation(locationData, serviceRole, service.image)
+      ? getServiceImageFromLocation(locationData, serviceRole, thumbnail?.url || '')
       : {
-          url: service.image,
-          alt: service.alt,
-          width: service.width,
-          height: service.height,
+          url: thumbnail?.url || '',
+          alt: thumbnail?.alt || '',
+          width: thumbnail?.width || 400,
+          height: thumbnail?.height || 300,
           priority: service.priority
         };
 
     // Construct route based on environment
     // Development: /{tenantSlug}/services/{serviceSlug}
     // Production: /services/{serviceSlug}
-    const route = import.meta.env.DEV && tenantSlug
+    const route = env.DEV && tenantSlug
       ? `/${tenantSlug}/services/${service.slug}`
       : `/services/${service.slug}`;
     

@@ -1,13 +1,26 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import { MDH_FAQ_ITEMS } from '@/features/faq/utils';
+import { useData } from '@/shared/hooks';
+
+import { loadIndustryFAQs } from '../utils';
+import type { FAQItem } from '../types';
 
 export const useFAQData = () => {
   const [openItems, setOpenItems] = useState<Set<string>>(new Set());
+  const [faqData, setFaqData] = useState<FAQItem[]>([]);
+  const { industry } = useData();
 
-  // For now, we only have MDH FAQ data
-  // In the future, you can add affiliate-specific FAQ data here
-  const faqData = MDH_FAQ_ITEMS;
+  // Load industry-specific FAQs
+  useEffect(() => {
+    if (!industry) return;
+    
+    loadIndustryFAQs(industry)
+      .then(setFaqData)
+      .catch(error => {
+        console.error('Failed to load FAQs:', error);
+        setFaqData([]);
+      });
+  }, [industry]);
 
   const toggleItem = (question: string) => {
     setOpenItems(prev => {

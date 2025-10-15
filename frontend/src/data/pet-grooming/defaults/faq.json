@@ -1,0 +1,68 @@
+{
+  "$schema": "../../schemas/defaults-faq.schema.json",
+  "description": "Default FAQ content for pet grooming tenants",
+  
+  "faqs": [
+    {
+      "category": "general",
+      "question": "What breeds do you groom?",
+      "answer": "We groom dogs and cats of all breeds and sizes, from small dogs to large breeds. Our groomers are trained in breed-specific cuts and can accommodate any pet."
+    },
+    {
+      "category": "general",
+      "question": "How often should I have my pet groomed?",
+      "answer": "Most dogs benefit from professional grooming every 4-8 weeks, depending on breed and coat type. We can recommend a schedule based on your pet's specific needs."
+    },
+    {
+      "category": "general",
+      "question": "Do I need to make an appointment?",
+      "answer": "Yes, we work by appointment to ensure each pet receives our full attention. You can book online, by phone, or in person."
+    },
+    {
+      "category": "services",
+      "question": "What's included in a full groom?",
+      "answer": "Our full grooming service includes bath, blow dry, haircut/styling, nail trim, ear cleaning, sanitary trim, teeth brushing, and finishing cologne."
+    },
+    {
+      "category": "services",
+      "question": "Do you offer cat grooming?",
+      "answer": "Yes! We offer specialized grooming services for cats with groomers experienced in handling felines. Services include baths, brush outs, nail trims, and lion cuts."
+    },
+    {
+      "category": "services",
+      "question": "Can you handle anxious or difficult pets?",
+      "answer": "Absolutely. Our groomers are trained in gentle handling techniques and work patiently with anxious pets. We take breaks as needed and use positive reinforcement."
+    },
+    {
+      "category": "health",
+      "question": "What if I find fleas on my pet?",
+      "answer": "We offer flea treatments and will notify you if we discover fleas during grooming. We recommend consulting your vet for comprehensive flea prevention."
+    },
+    {
+      "category": "health",
+      "question": "Do you check for health issues?",
+      "answer": "While we're not veterinarians, we do note any skin issues, lumps, ear problems, or other concerns and will alert you so you can follow up with your vet."
+    },
+    {
+      "category": "health",
+      "question": "What vaccinations does my pet need?",
+      "answer": "We require current rabies vaccination for all pets. Some groomers also require bordetella and distemper. Check with us for specific requirements."
+    },
+    {
+      "category": "appointment",
+      "question": "How long will grooming take?",
+      "answer": "Grooming time varies by service and pet size. Basic baths take 1-1.5 hours, while full grooming typically takes 2-3 hours. We'll give you an estimated pickup time when you drop off."
+    },
+    {
+      "category": "appointment",
+      "question": "Can I stay during the grooming?",
+      "answer": "For the best results and your pet's focus, we recommend dropping off and picking up. Many pets are calmer when their owner isn't present."
+    },
+    {
+      "category": "appointment",
+      "question": "What is your cancellation policy?",
+      "answer": "We require 24 hours notice for cancellations or rescheduling. Late cancellations may incur a fee."
+    }
+  ]
+}
+

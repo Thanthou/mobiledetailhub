@@ -1,27 +1,45 @@
 /**
  * Demo component showing deep merge functionality
  * Useful for development and testing merge behavior
+ * 
+ * NOTE: Temporarily disabled - needs refactoring for modular data structure
+ * mobile-detailing no longer uses site.json, uses assets.json + content-defaults.json instead
  */
 
-import React, { useState } from 'react';
+// import React, { useState } from 'react';
 
-import bullheadCityData from '@/data/locations/az/bullhead-city.json';
-import lasVegasData from '@/data/locations/nv/las-vegas.json';
-import siteData from '@/data/mobile-detailing/site.json';
-import { useMergedLocationDataDebug } from '@/shared/hooks/useMergedLocationData';
-import type { LocationPage } from '@/shared/types/location';
-import { ValidationStatus } from '@/shared/ui';
+// import bullheadCityData from '@/data/locations/az/bullhead-city.json';
+// import lasVegasData from '@/data/locations/nv/las-vegas.json';
+// import { useMergedLocationDataDebug } from '@/shared/hooks/useMergedLocationData';
+// import type { LocationPage } from '@/shared/types/location';
+// import { ValidationStatus } from '@/shared/ui';
 
 interface MergeDemoProps {
   className?: string;
 }
 
 // Type the imported JSON data
-const typedBullheadData = bullheadCityData as LocationPage;
-const typedLasVegasData = lasVegasData as LocationPage;
-const typedSiteData = siteData as LocationPage;
+// const typedBullheadData = bullheadCityData as LocationPage;
+// const typedLasVegasData = lasVegasData as LocationPage;
 
 export const MergeDemo: React.FC<MergeDemoProps> = ({ className = '' }) => {
+  // Disabled - needs refactoring for modular data
+  return (
+    <div className={`p-6 bg-gray-900 text-white ${className}`}>
+      <h2 className="text-2xl font-bold mb-4">MergeDemo Component</h2>
+      <p className="text-gray-400">
+        This component is temporarily disabled and needs refactoring for the new modular data structure.
+      </p>
+      <p className="text-gray-400 mt-2">
+        mobile-detailing now uses: assets.json, content-defaults.json, seo-defaults.json instead of site.json
+      </p>
+    </div>
+  );
+};
+
+// Original implementation - commented out for refactoring
+/* 
+export const MergeDemoOriginal: React.FC<MergeDemoProps> = ({ className = '' }) => {
   const [selectedLocation, setSelectedLocation] = useState<'bullhead' | 'lasvegas'>('bullhead');
   
   const currentLocationData = selectedLocation === 'bullhead' 
@@ -177,5 +195,6 @@ export const MergeDemo: React.FC<MergeDemoProps> = ({ className = '' }) => {
     </div>
   );
 };
+*/
 
 export default MergeDemo;

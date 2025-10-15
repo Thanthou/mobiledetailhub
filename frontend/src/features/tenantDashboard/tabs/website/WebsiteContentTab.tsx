@@ -1,15 +1,7 @@
 import React, { useEffect, useMemo,useState } from 'react';
 
-import {
-  MDH_FAQ_AFTERCARE,
-  MDH_FAQ_GENERAL,
-  MDH_FAQ_LOCATIONS,
-  MDH_FAQ_PAYMENTS,
-  MDH_FAQ_PREPARATION,
-  MDH_FAQ_PRICING,
-  MDH_FAQ_SCHEDULING,
-  MDH_FAQ_SERVICES,
-  MDH_FAQ_WARRANTY} from '@/shared/data/faq-defaults';
+import { loadIndustryFAQs } from '@/features/faq/utils';
+import { useData } from '@/shared/hooks';
 import { useAutoSave } from '@/shared/utils/useAutoSave';
 
 import { getWebsiteContent, saveWebsiteContent } from '../../api/websiteContentApi';
@@ -77,18 +69,28 @@ const WebsiteContentTab: React.FC<WebsiteContentTabProps> = ({ tenantSlug }) => 
   const [customGalleryImages, setCustomGalleryImages] = useState<GalleryImage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Map categories to their FAQ data
-  const categoryFaqMap = useMemo(() => ({
-    'Services': MDH_FAQ_SERVICES,
-    'Pricing': MDH_FAQ_PRICING,
-    'Scheduling': MDH_FAQ_SCHEDULING,
-    'Locations': MDH_FAQ_LOCATIONS,
-    'Preparation': MDH_FAQ_PREPARATION,
-    'Payments': MDH_FAQ_PAYMENTS,
-    'Warranty': MDH_FAQ_WARRANTY,
-    'Aftercare': MDH_FAQ_AFTERCARE,
-    'General': MDH_FAQ_GENERAL
-  }), []);
+  // Load industry-specific FAQs
+  const { industry } = useData();
+  const [industryFAQs, setIndustryFAQs] = useState<Array<{ question: string; answer: string; category: string }>>([]);
+  
+  useEffect(() => {
+    if (!industry) return;
+    loadIndustryFAQs(industry)
+      .then(setIndustryFAQs)
+      .catch(() => setIndustryFAQs([]));
+  }, [industry]);
+  
+  // Group FAQs by category
+  const categoryFaqMap = useMemo(() => {
+    const map: Record<string, typeof industryFAQs> = {};
+    industryFAQs.forEach(faq => {
+      if (!map[faq.category]) {
+        map[faq.category] = [];
+      }
+      map[faq.category].push(faq);
+    });
+    return map;
+  }, [industryFAQs]);
   
   // Memoize initial content data to prevent infinite re-renders
   const initialContentData = useMemo<ContentData>(() => ({

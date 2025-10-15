@@ -1,6 +1,7 @@
 import React from 'react';
 import { User, Zap } from 'lucide-react';
 
+import { env } from '@/shared/env';
 import { Input } from '@/shared/ui';
 import { formatPhoneNumber } from '@/shared/utils/phoneFormatter';
 
@@ -43,7 +44,7 @@ const PersonalInformationSection: React.FC<PersonalInformationSectionProps> = ({
             </h2>
             <p className="text-gray-400 text-sm mt-1">Tell us about yourself</p>
           </div>
-          {import.meta.env.DEV && (
+          {env.DEV && (
             <button
               type="button"
               onClick={handleAutoFill}

@@ -1,5 +1,5 @@
 // frontend/src/shared/utils/findBusinessByLocation.ts
-import { config } from '@/../config/env';
+import { config, env } from '@/shared/env';
 
 interface BusinessLookupResponse {
   slugs?: string[];
@@ -13,13 +13,13 @@ export async function findBusinessByLocation(zipCode?: string, city?: string, st
 
   const url = `${config.apiUrl}/api/affiliates/lookup?${params.toString()}`;
   
-  if (import.meta.env.DEV) {
+  if (env.DEV) {
     // Making request to find business by location
   }
   
   const res = await fetch(url);
   if (!res.ok) {
-    if (import.meta.env.DEV) {
+    if (env.DEV) {
       console.error('findBusinessByLocation: Request failed:', res.status, res.statusText);
     }
     return null;
@@ -27,7 +27,7 @@ export async function findBusinessByLocation(zipCode?: string, city?: string, st
   
   const data = await res.json() as BusinessLookupResponse;
   
-  if (import.meta.env.DEV) {
+  if (env.DEV) {
     // Response received
   }
   

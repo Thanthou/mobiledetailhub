@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { MapPin, Search, X } from 'lucide-react';
 
 import { type AutocompleteSessionToken, type AutocompleteSuggestion, type PlacesLibrary } from '@/shared';
+import { config } from '@/shared/env';
 import { Button } from '@/shared/ui';
 
 // interface AutocompleteResponse {
@@ -72,8 +73,7 @@ const LocationInput: React.FC<LocationInputProps> = ({
       }
       
       const script = document.createElement('script');
-      const apiKey = (import.meta.env as unknown as { VITE_GOOGLE_MAPS_API_KEY?: string })
-        .VITE_GOOGLE_MAPS_API_KEY;
+      const apiKey = config.googleMapsApiKey;
       
       if (!apiKey) {
         console.error('Google Maps API key not found. Please set VITE_GOOGLE_MAPS_API_KEY in your .env file');

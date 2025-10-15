@@ -1,0 +1,28 @@
+/**
+ * Pet Grooming Industry Config Loader
+ * Assembles modular config files into MainSiteConfig structure
+ * 
+ * NOTE: This industry is not yet fully configured. Placeholder files are used
+ * to establish the modular architecture pattern. The old site.json is still
+ * available as a reference/backup.
+ */
+
+import type { MainSiteConfig } from '@/shared/types/location';
+import assetsData from './assets.json';
+import contentDefaults from './content-defaults.json';
+import seoDefaults from './seo-defaults.json';
+
+/**
+ * Load and assemble pet-grooming config from modular files
+ * Falls back to legacy site.json data structure for now
+ */
+export async function loadPetGroomingConfig(): Promise<MainSiteConfig> {
+  // TODO: Populate modular files with actual pet grooming data
+  // For now, import the legacy site.json from archive as fallback
+  const legacyConfig = await import('./_archive/site.json.legacy');
+  
+  // Return legacy config until modular files are populated
+  // Once populated, replace with assembled config like mobile-detailing
+  return legacyConfig.default as MainSiteConfig;
+}
+

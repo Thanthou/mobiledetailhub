@@ -7,7 +7,7 @@ This guide explains how to access tenant and industry configuration data in the 
 The application has **two main configuration sources**:
 
 1. **Tenant Config** - Business-specific data from the database (API)
-2. **Industry Config** - Industry-specific defaults from `/data/{industry}/site.json`
+2. **Industry Config** - Industry-specific defaults from `/data/{industry}/` (modular files or site.json)
 
 ## Quick Reference
 
@@ -62,10 +62,10 @@ function MyComponent() {
   data.serviceAreas;     // [{ city, state, zip, primary }]
   data.socialMedia;      // { facebook, instagram, youtube, tiktok }
   
-  // Industry config (from /data/{industry}/site.json)
+  // Industry config (from /data/{industry}/ - modular or site.json)
   data.siteConfig?.hero.h1;        // "Professional Mobile Detailing"
-  data.siteConfig?.hero.subTitle;  // "We come to you!"
-  data.siteConfig?.seo.Title;      // SEO title
+  data.siteConfig?.hero.sub;       // "We come to you!"
+  data.siteConfig?.seo.title;      // SEO title
   
   // Status
   data.isLoading;        // true during fetch
@@ -184,7 +184,7 @@ const { businessName, phone, isLoading } = useData();
 
 **Before:**
 ```tsx
-// ❌ Don't do this
+// ❌ Don't do this - some industries don't have site.json
 import siteData from '@/data/mobile-detailing/site.json';
 
 function Hero() {
@@ -194,7 +194,7 @@ function Hero() {
 
 **After:**
 ```tsx
-// ✅ Use centralized hook
+// ✅ Use centralized hook - works with both modular and site.json
 import { useData } from '@/shared/hooks';
 
 function Hero() {
@@ -202,6 +202,8 @@ function Hero() {
   return <h1>{siteConfig?.hero.h1}</h1>;
 }
 ```
+
+**Note:** Mobile-detailing uses modular config files (assets.json, content-defaults.json, etc.) instead of a monolithic site.json. The hooks handle this automatically.
 
 ---
 
@@ -404,7 +406,8 @@ function App() {
 **Cause:** Industry slug doesn't match folder name in `/data/`
 
 **Solution:** Check that industry value matches folder:
-- ✅ `'mobile-detailing'` → `/data/mobile-detailing/site.json`
+- ✅ `'mobile-detailing'` → `/data/mobile-detailing/` (modular files)
+- ✅ `'pet-grooming'` → `/data/pet-grooming/site.json`
 - ❌ `'mobileDetailing'` → won't work
 
 ### Loading state never resolves
@@ -413,7 +416,9 @@ function App() {
 
 **Solution:** Check network tab for 404s, verify:
 1. API `/api/tenants/{slug}` returns data
-2. `/data/{industry}/site.json` exists
+2. Industry config exists:
+   - For mobile-detailing: `/data/mobile-detailing/index.ts` + modular files
+   - For other industries: `/data/{industry}/site.json`
 
 ---
 

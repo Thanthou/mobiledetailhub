@@ -1,11 +1,12 @@
+import { config } from '@/shared/env';
+
 import type {
   Appointment,
   CreateAppointmentRequest,
   UpdateAppointmentRequest,
 } from '../types';
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL as string) || 'http://localhost:3001';
-const API_BASE = `${API_BASE_URL}/api/schedule`;
+const API_BASE = `${config.apiBaseUrl}/api/schedule`;
 
 // Generic API request function
 async function makeRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {

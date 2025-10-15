@@ -2,6 +2,8 @@
  * Performance monitoring utilities for lazy loading and prefetching
  */
 
+import { env } from '@/shared/env';
+
 interface PerformanceMetrics {
   componentLoadTime: number;
   prefetchTime: number;
@@ -45,7 +47,7 @@ class PerformanceMonitor {
     this.metrics.set(componentName, existing);
 
     // Log performance data in development
-    if (import.meta.env.DEV) {
+    if (env.DEV) {
       // Performance measurement logged
     }
   }

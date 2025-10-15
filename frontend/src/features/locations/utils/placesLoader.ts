@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-condition -- Google Maps API checks require optional chaining that TypeScript thinks is unnecessary */
 // A small, typed loader around the new importLibrary('places') API.
 
+import { config } from '@/shared/env';
+
 const MAPS_SRC_MATCH = 'maps.googleapis.com';
 
 function wait(ms: number) {
@@ -11,7 +13,7 @@ function wait(ms: number) {
 async function injectMapsScript(): Promise<void> {
   if (window.google?.maps) return; // already loaded
   if (!document.querySelector(`script[src*="${MAPS_SRC_MATCH}"]`)) {
-    const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
+    const apiKey = config.googleMapsApiKey;
     if (!apiKey) throw new Error('Missing VITE_GOOGLE_MAPS_API_KEY');
 
     const script = document.createElement('script');

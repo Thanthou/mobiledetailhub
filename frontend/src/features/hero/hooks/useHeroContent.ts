@@ -26,7 +26,7 @@ export const useHeroContent = (props?: UseHeroContentProps): UseHeroContentRetur
   // All sites are now tenant-based, so use database content or industry-specific site data
   // Priority: Database content > Industry-specific site data > Fallback
   const title = websiteContent?.hero_title || siteData?.hero.h1 || 'Professional Services';
-  const subtitle = websiteContent?.hero_subtitle || siteData?.hero.sub || 'Quality service for your needs';
+  const subtitle = websiteContent?.hero_subtitle || siteData?.hero.subTitle || 'Quality service for your needs';
 
   return {
     title,

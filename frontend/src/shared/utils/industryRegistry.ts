@@ -1,9 +1,8 @@
 /**
  * Industry Template Registry
  * 
- * Maps industry types to their template data (site.json).
- * This registry is non-breaking: it simply reads existing JSON files
- * and provides type-safe access for preview and rendering.
+ * Maps industry types to their template data.
+ * Updated to use new modular file structure (assets.json, content-defaults.json, seo-defaults.json)
  */
 
 // Industry types enum
@@ -17,7 +16,6 @@ export const INDUSTRIES = [
 export type Industry = (typeof INDUSTRIES)[number];
 
 // Base industry template structure
-// This matches the structure in site.json files
 export interface IndustryTemplate {
   tenant: {
     brand: string | null;
@@ -51,12 +49,14 @@ export interface IndustryTemplate {
       priority?: boolean;
     }>;
   };
-  servicesGrid?: unknown[]; // Services vary by industry
-  [key: string]: unknown; // Allow additional fields
+  servicesGrid?: unknown[];
+  [key: string]: unknown;
 }
 
 /**
- * Load industry template from site.json
+ * Load industry template from modular loaders
+ * All industries now use the new modular architecture
+ * 
  * @param industry - Industry type
  * @returns Promise resolving to the industry template
  */
@@ -64,36 +64,61 @@ export async function getIndustryTemplate(
   industry: Industry
 ): Promise<IndustryTemplate> {
   try {
-    let template: IndustryTemplate;
-
+    // All industries now use modular loaders via index.ts
+    let config;
+    
     switch (industry) {
-      case 'mobile-detailing':
-        template = (await import(
-          '@/data/mobile-detailing/site.json'
-        )) as unknown as IndustryTemplate;
+      case 'mobile-detailing': {
+        const { loadMobileDetailingConfig } = await import('@/data/mobile-detailing');
+        config = await loadMobileDetailingConfig();
         break;
-      case 'maid-service':
-        template = (await import(
-          '@/data/maid-service/site.json'
-        )) as unknown as IndustryTemplate;
+      }
+      case 'pet-grooming': {
+        const { loadPetGroomingConfig } = await import('@/data/pet-grooming');
+        config = await loadPetGroomingConfig();
         break;
-      case 'lawncare':
-        template = (await import(
-          '@/data/lawncare/site.json'
-        )) as unknown as IndustryTemplate;
+      }
+      case 'maid-service': {
+        const { loadMaidServiceConfig } = await import('@/data/maid-service');
+        config = await loadMaidServiceConfig();
         break;
-      case 'pet-grooming':
-        template = (await import(
-          '@/data/pet-grooming/site.json'
-        )) as unknown as IndustryTemplate;
+      }
+      case 'lawncare': {
+        const { loadLawncareConfig } = await import('@/data/lawncare');
+        config = await loadLawncareConfig();
         break;
+      }
       default: {
         const unknownIndustry: string = industry;
         throw new Error(`Unknown industry: ${unknownIndustry}`);
       }
     }
 
-    return template;
+    // Convert MainSiteConfig to IndustryTemplate format
+    return {
+      tenant: {
+        brand: config.brand || null,
+        businessName: null,
+        customBranding: false,
+      },
+      slug: config.slug || 'site',
+      urlPath: config.urlPath || '/',
+      logo: config.logo,
+      seo: {
+        Title: config.seo.title,
+        subTitle: config.seo.description,
+        canonicalPath: config.seo.canonicalPath,
+        OgImage: config.seo.ogImage,
+        TwitterImage: config.seo.twitterImage,
+        robots: config.seo.robots,
+      },
+      hero: {
+        h1: config.hero.h1,
+        subTitle: config.hero.sub || '',
+        Images: config.hero.images || [],
+      },
+      servicesGrid: config.servicesGrid,
+    };
   } catch (error) {
     console.error('Failed to load industry template:', error);
     const errorMsg = error instanceof Error ? error.message : 'Unknown error';
@@ -110,4 +135,3 @@ export async function getIndustryTemplate(
 export function isValidIndustry(value: unknown): value is Industry {
   return typeof value === 'string' && INDUSTRIES.includes(value as Industry);
 }
-

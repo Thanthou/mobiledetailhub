@@ -5,6 +5,7 @@
 
 import { useMemo } from 'react';
 
+import { env } from '@/shared/env';
 import type { LocationPage, MainSiteConfig } from '@/shared/types/location';
 import { 
   createMergedLocationData, 
@@ -144,7 +145,7 @@ export function useMergedLocationDataDebug(
         console.warn(`${prefix}Location merge warnings:`, result.validation.warnings);
       }
       
-      if (result.wasMerged && import.meta.env.DEV) {
+      if (result.wasMerged && env.DEV) {
         // eslint-disable-next-line no-console -- Debug logging in development only
         console.log(`${prefix}Merge statistics:`, {
           fieldsFromMain: result.statistics.fieldsFromMain.length,

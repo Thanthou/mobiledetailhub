@@ -1,40 +1,52 @@
-import type { FAQItem } from '@/features/faq/types';
+/**
+ * FAQ Data Loader
+ * 
+ * Dynamically loads FAQ data from industry-specific JSON files.
+ * This allows each industry to have its own FAQ content.
+ */
 
-import { MDH_FAQ_AFTERCARE } from './aftercare';
-import { MDH_FAQ_GENERAL } from './general';
-import { MDH_FAQ_LOCATIONS } from './locations';
-import { MDH_FAQ_PAYMENTS } from './payments';
-import { MDH_FAQ_PREPARATION } from './preparation';
-import { MDH_FAQ_PRICING } from './pricing';
-import { MDH_FAQ_SCHEDULING } from './scheduling';
-import { MDH_FAQ_SERVICES } from './services';
-import { MDH_FAQ_WARRANTY } from './warranty';
+import type { FAQItem } from '../types';
 
-// Export all FAQ data
-export { MDH_FAQ_AFTERCARE } from './aftercare';
-export { MDH_FAQ_GENERAL } from './general';
-export { MDH_FAQ_LOCATIONS } from './locations';
-export { MDH_FAQ_PAYMENTS } from './payments';
-export { MDH_FAQ_PREPARATION } from './preparation';
-export { MDH_FAQ_PRICING } from './pricing';
-export { MDH_FAQ_SCHEDULING } from './scheduling';
-export { MDH_FAQ_SERVICES } from './services';
-export { MDH_FAQ_WARRANTY } from './warranty';
-
-// Combine all FAQs and add unique IDs
-const allFAQs = [
-  ...MDH_FAQ_SERVICES,
-  ...MDH_FAQ_PRICING,
-  ...MDH_FAQ_SCHEDULING,
-  ...MDH_FAQ_LOCATIONS,
-  ...MDH_FAQ_PREPARATION,
-  ...MDH_FAQ_PAYMENTS,
-  ...MDH_FAQ_WARRANTY,
-  ...MDH_FAQ_AFTERCARE,
-  ...MDH_FAQ_GENERAL,
-];
-
-export const MDH_FAQ_ITEMS: FAQItem[] = allFAQs.map((faq, index) => ({
-  ...faq,
-  id: `hardcoded-${String(index)}`
-}));
+/**
+ * Load all FAQ categories for a specific industry
+ * 
+ * @param industry - Industry slug (e.g., 'mobile-detailing')
+ * @returns Array of FAQ items with unique IDs
+ */
+export async function loadIndustryFAQs(industry: string): Promise<FAQItem[]> {
+  const categories = [
+    'services',
+    'pricing',
+    'scheduling',
+    'locations',
+    'preparation',
+    'payments',
+    'warranty',
+    'aftercare',
+    'general',
+  ];
+  
+  try {
+    const faqArrays = await Promise.all(
+      categories.map(async (category) => {
+        try {
+          const module = await import(`@/data/${industry}/faq/${category}.json`) as { default: FAQItem[] };
+          return module.default;
+        } catch (error) {
+          console.warn(`FAQ category ${category} not found for ${industry}, skipping`);
+          return [];
+        }
+      })
+    );
+    
+    // Flatten and add unique IDs
+    const allFAQs = faqArrays.flat();
+    return allFAQs.map((faq, index) => ({
+      ...faq,
+      id: `${industry}-${String(index)}`
+    }));
+  } catch (error) {
+    console.error(`Failed to load FAQs for ${industry}:`, error);
+    return [];
+  }
+}

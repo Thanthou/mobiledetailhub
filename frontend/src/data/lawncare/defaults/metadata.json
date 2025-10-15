@@ -1,0 +1,66 @@
+{
+  "$schema": "../../schemas/defaults-metadata.schema.json",
+  "description": "Default SEO metadata for lawn care tenants",
+  
+  "seo": {
+    "titleTemplate": "{businessName} | Professional Lawn Care Services",
+    "defaultTitle": "Professional Lawn Care & Landscaping",
+    "description": "Professional lawn care and landscaping services for residential and commercial properties. Reliable mowing, fertilization, seasonal cleanup, and landscape maintenance.",
+    "keywords": [
+      "lawn care",
+      "lawn mowing",
+      "landscaping",
+      "lawn maintenance",
+      "fertilization",
+      "aeration",
+      "seasonal cleanup",
+      "landscape maintenance"
+    ],
+    "openGraph": {
+      "type": "website",
+      "locale": "en_US",
+      "siteName": "Professional Lawn Care Services"
+    },
+    "twitter": {
+      "card": "summary_large_image",
+      "site": "@lawncare"
+    }
+  },
+
+  "pages": {
+    "home": {
+      "title": "Professional Lawn Care Services | {businessName}",
+      "description": "Expert lawn maintenance and landscaping services for beautiful, healthy lawns. Serving {serviceArea} with reliable, professional lawn care."
+    },
+    "services": {
+      "title": "Our Services | {businessName}",
+      "description": "Explore our comprehensive lawn care services including mowing, fertilization, aeration, seasonal cleanup, and landscape maintenance."
+    },
+    "about": {
+      "title": "About Us | {businessName}",
+      "description": "Learn about our professional lawn care team and our commitment to keeping your property looking its best year-round."
+    },
+    "contact": {
+      "title": "Contact Us | {businessName}",
+      "description": "Get in touch to schedule your lawn care service or request a free quote. Serving {serviceArea} and surrounding areas."
+    },
+    "quote": {
+      "title": "Request a Quote | {businessName}",
+      "description": "Get a free quote for professional lawn care services. Tell us about your property and we'll provide a detailed estimate."
+    }
+  },
+
+  "structuredData": {
+    "organizationType": "LocalBusiness",
+    "additionalTypes": [
+      "LandscapingBusiness",
+      "LawnAndGardenStore"
+    ],
+    "defaultServiceArea": {
+      "type": "radius",
+      "value": 15,
+      "unit": "miles"
+    }
+  }
+}
+

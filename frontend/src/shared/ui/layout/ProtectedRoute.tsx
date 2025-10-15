@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 
+import { env } from '@/shared/env';
 import { useAuth } from '@/shared/hooks/useAuth';
 
 interface ProtectedRouteProps {
@@ -21,7 +22,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const loading = authContext.loading;
   
   // In development mode, allow access to dashboards without authentication
-  if (import.meta.env.DEV) {
+  if (env.DEV) {
     // Allow tenant access
     if (Array.isArray(requiredRole) && requiredRole.includes('tenant')) {
       return <>{children}</>;

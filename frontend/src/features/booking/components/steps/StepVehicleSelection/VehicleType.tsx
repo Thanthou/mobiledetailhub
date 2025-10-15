@@ -1,15 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-import siteDataImport from '@/data/mobile-detailing/site.json';
 import { getMakesForType, getModelsForMake, getVehicleYears } from '@/data/mobile-detailing/vehicle_data';
-
-interface SiteData {
-  contact?: {
-    phone?: string;
-  };
-}
-
-const siteData = siteDataImport as SiteData;
+import { useDataOptional } from '@/shared/contexts/DataContext';
 
 interface VehicleSelectionProps {
   selectedVehicle: string;
@@ -18,6 +10,10 @@ interface VehicleSelectionProps {
 }
 
 const VehicleSelection: React.FC<VehicleSelectionProps> = ({ selectedVehicle, vehicleDetails, onVehicleDetailsSelect }) => {
+  // Get phone number from tenant data context
+  const data = useDataOptional();
+  const phoneNumber = data?.phone ?? '(555) 123-4567';
+
   const [make, setMake] = useState(vehicleDetails.make || '');
   const [model, setModel] = useState(vehicleDetails.model || '');
   const [year, setYear] = useState(vehicleDetails.year || '');
@@ -80,7 +76,6 @@ const VehicleSelection: React.FC<VehicleSelectionProps> = ({ selectedVehicle, ve
 
   // Show phone message for airplane selection
   if (selectedVehicle === 'airplane') {
-    const phoneNumber = siteData.contact?.phone ?? 'us';
     return (
       <div className="mb-8 absolute top-[45%] left-1/2 transform -translate-x-1/2 w-full max-w-xl">
         <div className="px-4">

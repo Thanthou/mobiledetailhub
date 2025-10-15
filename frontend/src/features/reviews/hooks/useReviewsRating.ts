@@ -1,9 +1,5 @@
-import siteDataRaw from '@/data/mobile-detailing/site.json';
 import { useDataOptional } from '@/shared/contexts/DataContext';
 import { useWebsiteContent } from '@/shared/contexts/WebsiteContentContext';
-import type { MainSiteConfig } from '@/shared/types/location';
-
-const siteData = siteDataRaw as MainSiteConfig;
 
 interface UseReviewsRatingReturn {
   averageRating: number;
@@ -27,16 +23,16 @@ export const useReviewsRating = (): UseReviewsRatingReturn => {
     };
   }
   
-  // Pull from database first, then fall back to site data
-  const averageRating = websiteContent?.reviews_avg_rating 
-    ?? (siteData.reviews?.ratingValue ? parseFloat(siteData.reviews.ratingValue) : 4.9);
-    
-  const totalReviews = websiteContent?.reviews_total_count 
-    ?? siteData.reviews?.reviewCount 
-    ?? 112;
-    
-  const googleBusinessUrl = siteData.socials?.googleBusiness 
-    ?? 'https://share.google/fx8oPIguzvJmTarrl';
+  // Pull reviews data from database, with sensible defaults
+  const averageRating = websiteContent?.reviews_avg_rating ?? 4.9;
+  const totalReviews = websiteContent?.reviews_total_count ?? 112;
+  
+  // Get Google Business URL from tenant's social media data (from DataContext)
+  // Fall back to legacy site.json if available, then to a default placeholder
+  const googleBusinessUrl = 
+    data?.socialMedia?.googleBusiness 
+    ?? data?.siteConfig?.socials?.googleBusiness 
+    ?? '#';
 
   return {
     averageRating,

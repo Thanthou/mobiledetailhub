@@ -1,0 +1,58 @@
+{
+  "$schema": "../../schemas/defaults-faq.schema.json",
+  "description": "Default FAQ content for lawn care tenants",
+  
+  "faqs": [
+    {
+      "category": "general",
+      "question": "What areas do you service?",
+      "answer": "We provide lawn care services throughout the local area. Contact us to confirm service availability for your specific location."
+    },
+    {
+      "category": "general",
+      "question": "How often should I have my lawn mowed?",
+      "answer": "Most lawns benefit from weekly mowing during the growing season. In peak growth periods, weekly service maintains optimal lawn health and appearance. We can adjust frequency based on your lawn's needs and your budget."
+    },
+    {
+      "category": "services",
+      "question": "Do you provide all your own equipment?",
+      "answer": "Yes! We bring all necessary equipment including mowers, trimmers, edgers, and blowers. You don't need to provide anything."
+    },
+    {
+      "category": "services",
+      "question": "What happens to grass clippings?",
+      "answer": "We typically mulch clippings back into the lawn as natural fertilizer. If you prefer bagging and removal, we offer that service as well."
+    },
+    {
+      "category": "services",
+      "question": "Do you offer fertilization programs?",
+      "answer": "Yes! We provide customized fertilization and treatment programs designed for your specific grass type and local climate conditions."
+    },
+    {
+      "category": "booking",
+      "question": "How do I schedule service?",
+      "answer": "You can schedule service through our website, by phone, or by email. We'll set up a regular schedule that works for your property."
+    },
+    {
+      "category": "booking",
+      "question": "What if it rains on my scheduled day?",
+      "answer": "If weather prevents service on your scheduled day, we'll reschedule and complete your service as soon as conditions allow."
+    },
+    {
+      "category": "booking",
+      "question": "Do I need to be home during service?",
+      "answer": "No, you don't need to be home. As long as we have access to your property, we can complete the work and leave an invoice."
+    },
+    {
+      "category": "maintenance",
+      "question": "When is the best time to aerate my lawn?",
+      "answer": "For cool-season grasses, fall is ideal. For warm-season grasses, late spring to early summer is best. We can recommend the optimal timing for your specific lawn type."
+    },
+    {
+      "category": "maintenance",
+      "question": "How can I improve my lawn's health?",
+      "answer": "Regular mowing, proper fertilization, adequate watering, and annual aeration are key. We offer comprehensive lawn care programs that address all these factors."
+    }
+  ]
+}
+

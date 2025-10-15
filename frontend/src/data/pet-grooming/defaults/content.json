@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schemas/defaults-content.schema.json",
+  "description": "Default content for new pet grooming tenants - used during provisioning",
+  
+  "hero": {
+    "h1": "Professional Pet Grooming Services",
+    "subtitle": "Expert grooming for dogs and cats of all breeds and sizes. From basic baths to full spa treatments, we treat your pets like family.",
+    "cta": {
+      "primary": {
+        "label": "Book Appointment",
+        "href": "/quote"
+      },
+      "secondary": {
+        "label": "View Services",
+        "href": "/services"
+      }
+    }
+  },
+
+  "about": {
+    "title": "About Our Pet Grooming Service",
+    "content": "We provide professional pet grooming services with a gentle, caring approach. Our experienced groomers are trained in breed-specific styling and handling techniques to ensure your pet's comfort and safety.\n\nWhether your pet needs a simple bath or a full grooming service, we deliver high-quality results in a calm, stress-free environment.",
+    "highlights": [
+      "Certified, experienced groomers",
+      "Gentle, fear-free approach",
+      "Breed-specific styling",
+      "Premium products and equipment"
+    ]
+  },
+
+  "footer": {
+    "tagline": "Professional pet grooming with a gentle touch",
+    "description": "Expert grooming services for dogs and cats, delivered with care and attention to your pet's comfort."
+  },
+
+  "contact": {
+    "callToAction": "Ready to pamper your pet?",
+    "description": "Contact us today to schedule a grooming appointment or request information about our services."
+  }
+}
+

@@ -1,0 +1,16 @@
+{
+  "description": "Default text content for new lawncare tenants - placeholder for future implementation",
+  "hero": {
+    "h1": "",
+    "subTitle": ""
+  },
+  "reviews": {
+    "title": "",
+    "subtitle": ""
+  },
+  "faq": {
+    "title": "",
+    "subtitle": ""
+  }
+}
+

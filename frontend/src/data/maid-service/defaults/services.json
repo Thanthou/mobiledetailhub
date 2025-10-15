@@ -1,0 +1,85 @@
+{
+  "$schema": "../../schemas/defaults-services.schema.json",
+  "description": "Default service descriptions for maid service tenants (informational only, no pricing)",
+  
+  "services": [
+    {
+      "slug": "standard-cleaning",
+      "title": "Standard Cleaning",
+      "shortDescription": "Regular maintenance cleaning for your home",
+      "description": "Our standard cleaning service covers all the essential areas of your home with thorough attention to detail. Perfect for regular maintenance to keep your home consistently clean and fresh.",
+      "benefits": [
+        "All rooms dusted and vacuumed",
+        "Bathrooms cleaned and sanitized",
+        "Kitchen surfaces cleaned",
+        "Floors mopped and vacuumed",
+        "Trash removed"
+      ],
+      "duration": "2-3 hours",
+      "category": "maintenance"
+    },
+    {
+      "slug": "deep-cleaning",
+      "title": "Deep Cleaning",
+      "shortDescription": "Thorough, detailed cleaning service",
+      "description": "Our deep cleaning service goes beyond standard maintenance to address areas that need extra attention. Ideal for spring cleaning, move-in preparation, or when your home needs a thorough refresh.",
+      "benefits": [
+        "Everything in standard cleaning",
+        "Baseboards and trim cleaned",
+        "Cabinet fronts and appliance exteriors",
+        "Window sills and tracks",
+        "Light fixtures and ceiling fans",
+        "Behind furniture cleaning"
+      ],
+      "duration": "4-6 hours",
+      "category": "deep-clean"
+    },
+    {
+      "slug": "move-in-out-cleaning",
+      "title": "Move In/Out Cleaning",
+      "shortDescription": "Comprehensive cleaning for moving",
+      "description": "Specialized cleaning service for move-in or move-out situations. We ensure the property is spotless and ready for new occupants, covering areas that are typically inaccessible during regular cleaning.",
+      "benefits": [
+        "All deep cleaning tasks",
+        "Interior windows",
+        "Inside cabinets and drawers",
+        "Oven and refrigerator interior",
+        "Closets cleaned",
+        "Wall washing"
+      ],
+      "duration": "Full day",
+      "category": "specialized"
+    },
+    {
+      "slug": "recurring-cleaning",
+      "title": "Recurring Cleaning Service",
+      "shortDescription": "Regular scheduled cleaning",
+      "description": "Consistent, reliable cleaning on your schedule. Choose weekly, bi-weekly, or monthly service to maintain a consistently clean home without the hassle of scheduling each visit.",
+      "benefits": [
+        "Same team each visit",
+        "Consistent quality",
+        "Flexible scheduling",
+        "Priority booking",
+        "Discounted rates"
+      ],
+      "duration": "2-3 hours",
+      "category": "maintenance"
+    },
+    {
+      "slug": "post-event-cleaning",
+      "title": "Post-Event Cleaning",
+      "shortDescription": "Cleanup after parties and events",
+      "description": "Quick turnaround cleaning after parties, gatherings, or special events. We handle the cleanup so you can enjoy your event and relax afterward.",
+      "benefits": [
+        "Fast turnaround",
+        "Flexible scheduling",
+        "Complete cleanup",
+        "Trash and recycling removal",
+        "Kitchen and bathroom focus"
+      ],
+      "duration": "2-4 hours",
+      "category": "specialized"
+    }
+  ]
+}
+

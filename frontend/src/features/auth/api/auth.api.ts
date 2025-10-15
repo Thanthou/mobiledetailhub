@@ -1,3 +1,5 @@
+import { config } from '@/shared/env';
+
 import type { 
   AuthErrorResponse,
   AuthResponse,
@@ -7,7 +9,7 @@ import type {
   User} from '../schemas/auth.schemas';
 
 // API base URL - should match your backend configuration
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL as string) || 'http://localhost:3001';
+const API_BASE_URL = config.apiBaseUrl;
 
 // Custom error class for auth-specific errors
 export class AuthError extends Error {

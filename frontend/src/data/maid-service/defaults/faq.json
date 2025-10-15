@@ -1,0 +1,68 @@
+{
+  "$schema": "../../schemas/defaults-faq.schema.json",
+  "description": "Default FAQ content for maid service tenants",
+  
+  "faqs": [
+    {
+      "category": "general",
+      "question": "What areas do you serve?",
+      "answer": "We provide cleaning services throughout the local area. Contact us to confirm service availability for your specific location."
+    },
+    {
+      "category": "general",
+      "question": "Are your cleaners insured and background-checked?",
+      "answer": "Yes! All our team members are thoroughly background-checked, trained, and insured for your peace of mind and protection."
+    },
+    {
+      "category": "general",
+      "question": "Do you bring your own cleaning supplies?",
+      "answer": "Yes, we bring all necessary cleaning supplies and equipment. If you prefer we use specific products, just let us know and we're happy to accommodate."
+    },
+    {
+      "category": "services",
+      "question": "What's the difference between standard and deep cleaning?",
+      "answer": "Standard cleaning covers regular maintenance tasks like dusting, vacuuming, and surface cleaning. Deep cleaning includes all standard tasks plus detailed work like baseboards, cabinet fronts, inside appliances, and areas typically cleaned less frequently."
+    },
+    {
+      "category": "services",
+      "question": "Do you clean windows?",
+      "answer": "Standard cleaning includes interior window sills. Interior window washing is included in deep cleaning and move-in/out services. Exterior window cleaning is available as an add-on service."
+    },
+    {
+      "category": "services",
+      "question": "Can I customize the cleaning tasks?",
+      "answer": "Absolutely! We're happy to customize our service to focus on your priorities and skip tasks you handle yourself."
+    },
+    {
+      "category": "services",
+      "question": "Do you use eco-friendly cleaning products?",
+      "answer": "Yes, we offer eco-friendly and green cleaning products upon request at no additional charge."
+    },
+    {
+      "category": "booking",
+      "question": "Do I need to be home during the cleaning?",
+      "answer": "No, you don't need to be home. Many clients provide access and we securely lock up when finished. We'll leave an invoice and checklist of completed tasks."
+    },
+    {
+      "category": "booking",
+      "question": "How do I schedule a cleaning?",
+      "answer": "You can schedule service through our website, by phone, or by email. We offer flexible scheduling including evenings and weekends."
+    },
+    {
+      "category": "booking",
+      "question": "What is your cancellation policy?",
+      "answer": "We require 24-48 hours notice for cancellations or rescheduling. Late cancellations may incur a fee."
+    },
+    {
+      "category": "payment",
+      "question": "How much does cleaning cost?",
+      "answer": "Pricing depends on home size, service type, and frequency. Contact us for a free, customized quote based on your specific needs."
+    },
+    {
+      "category": "payment",
+      "question": "What payment methods do you accept?",
+      "answer": "We accept cash, checks, all major credit cards, and digital payment methods. Payment is due upon completion of service or can be set up for automatic billing with recurring service."
+    }
+  ]
+}
+

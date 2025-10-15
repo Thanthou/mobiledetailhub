@@ -3,6 +3,8 @@
  * Disables logging in production to avoid console noise
  */
 
+import { env } from '@/shared/env';
+
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 interface LoggerConfig {
@@ -11,7 +13,7 @@ interface LoggerConfig {
 }
 
 const config: LoggerConfig = {
-  enabled: import.meta.env.DEV,
+  enabled: env.DEV,
   level: 'debug'
 };
 

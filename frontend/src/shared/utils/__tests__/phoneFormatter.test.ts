@@ -3,6 +3,8 @@
  * This file demonstrates how the phone formatter works with various inputs
  */
 
+import { env } from '@/shared/env';
+
 import { formatPhoneNumber, getPhoneDigits, isCompletePhoneNumber } from '../phoneFormatter';
 
 // Test examples - you can run these in the browser console to see how they work
@@ -31,7 +33,7 @@ export const testExamples = [
 
 // Function to run all tests
 export function runPhoneFormatterTests() {
-  if (import.meta.env.DEV) {
+  if (env.DEV) {
     // Running Phone Formatter Tests
   }
   
@@ -40,7 +42,7 @@ export function runPhoneFormatterTests() {
     const isComplete = isCompletePhoneNumber(input);
     const digits = getPhoneDigits(input);
     
-    if (import.meta.env.DEV) {
+    if (env.DEV) {
       // eslint-disable-next-line no-console -- Debug output for manual test execution
       console.log(`Test ${(index + 1).toString()}:`, {
         input,
@@ -53,7 +55,7 @@ export function runPhoneFormatterTests() {
     }
   });
   
-  if (import.meta.env.DEV) {
+  if (env.DEV) {
     // Test Complete
   }
 }

@@ -148,11 +148,12 @@ export function affiliateToTenantConfig(affiliate: {
   // Determine industry (default to mobile-detailing)
   const industry = affiliate.industry || 'mobile-detailing';
   
-  // Build logo URL - use affiliate's logo if provided, otherwise use industry default via asset locator
+  // Build logo URL - use affiliate's logo if provided, otherwise use industry default
+  // Only check tenant uploads if a custom logo_url exists in the database
   const logoUrl = affiliate.logo_url || getTenantAssetUrl({
-    tenantId: affiliate.id?.toString(),
     vertical: industry,
     type: 'logo',
+    forceVerticalDefault: true, // Always use industry default if no custom logo
   });
   
   // Safely convert industry to Vertical type

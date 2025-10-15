@@ -59,6 +59,7 @@ router.post('/signup', sensitiveAuthLimiter, asyncHandler(async (req, res) => {
     selectedPlan,
     planPrice,
     industry = 'mobile-detailing', // Default industry
+    defaults, // Industry-specific defaults from frontend
   } = req.body;
 
   // Validate required fields
@@ -161,17 +162,48 @@ router.post('/signup', sensitiveAuthLimiter, asyncHandler(async (req, res) => {
     const tenantId = tenantResult.rows[0].id;
     const tenantSlug = tenantResult.rows[0].slug;
 
-    // Create default website content record
+    // Create default website content record using industry-specific defaults
+    const heroTitle = defaults?.content?.hero?.h1 || `Welcome to ${businessName}`;
+    const heroSubtitle = defaults?.content?.hero?.subTitle || `Professional ${industry.replace('-', ' ')} services in ${businessAddress?.city || 'your area'}`;
+    const reviewsTitle = defaults?.content?.reviews?.title || 'What Our Customers Say';
+    const reviewsSubtitle = defaults?.content?.reviews?.subtitle || '';
+    const faqTitle = defaults?.content?.faq?.title || 'Frequently Asked Questions';
+    const faqSubtitle = defaults?.content?.faq?.subtitle || '';
+    
+    // SEO defaults
+    const seoTitle = defaults?.seo?.title || `${businessName} | Professional ${industry.replace('-', ' ')}`;
+    const seoDescription = defaults?.seo?.description || `Professional ${industry.replace('-', ' ')} services in ${businessAddress?.city || 'your area'}`;
+    const seoKeywords = defaults?.seo?.keywords || '';
+    const seoOgImage = defaults?.seo?.ogImage || '';
+    const seoTwitterImage = defaults?.seo?.twitterImage || '';
+    const seoCanonicalPath = defaults?.seo?.canonicalPath || '/';
+    const seoRobots = defaults?.seo?.robots || 'index,follow';
+    
     await client.query(
       `INSERT INTO website.content (
         business_id, hero_title, hero_subtitle,
+        reviews_title, reviews_subtitle,
+        faq_title, faq_subtitle,
+        seo_title, seo_description, seo_keywords,
+        seo_og_image, seo_twitter_image, seo_canonical_path, seo_robots,
         created_at, updated_at
       )
-      VALUES ($1, $2, $3, NOW(), NOW())`,
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW(), NOW())`,
       [
         tenantId,
-        `Welcome to ${businessName}`,
-        `Professional ${industry.replace('-', ' ')} services in ${businessAddress?.city || 'your area'}`
+        heroTitle,
+        heroSubtitle,
+        reviewsTitle,
+        reviewsSubtitle,
+        faqTitle,
+        faqSubtitle,
+        seoTitle,
+        seoDescription,
+        seoKeywords,
+        seoOgImage,
+        seoTwitterImage,
+        seoCanonicalPath,
+        seoRobots
       ]
     );
 
@@ -219,14 +251,19 @@ router.get('/:slug', apiLimiter, async (req, res) => {
     
     const query = `
       SELECT 
-        id, slug, business_name, owner, first_name, last_name, user_id,
-        application_status, business_start_date, business_phone, personal_phone,
-        business_email, personal_email, twilio_phone, sms_phone, website,
-        gbp_url, facebook_url, instagram_url, youtube_url, tiktok_url,
-        source, notes, service_areas, application_date, approved_date,
-        last_activity, created_at, updated_at, industry
-      FROM tenants.business 
-      WHERE slug = $1 AND application_status = 'approved'
+        b.id, b.slug, b.business_name, b.owner, b.first_name, b.last_name, b.user_id,
+        b.application_status, b.business_start_date, b.business_phone, b.personal_phone,
+        b.business_email, b.personal_email, b.twilio_phone, b.sms_phone, b.website,
+        b.gbp_url, b.facebook_url, b.instagram_url, b.youtube_url, b.tiktok_url,
+        b.source, b.notes, b.service_areas, b.application_date, b.approved_date,
+        b.last_activity, b.created_at, b.updated_at, b.industry,
+        c.hero_title, c.hero_subtitle, c.reviews_title, c.reviews_subtitle,
+        c.faq_title, c.faq_subtitle, c.faq_items,
+        c.seo_title, c.seo_description, c.seo_keywords, c.seo_og_image,
+        c.seo_twitter_image, c.seo_canonical_path, c.seo_robots
+      FROM tenants.business b
+      LEFT JOIN website.content c ON b.id = c.business_id
+      WHERE b.slug = $1 AND b.application_status = 'approved'
     `;
     
     const result = await pool.query(query, [slug]);

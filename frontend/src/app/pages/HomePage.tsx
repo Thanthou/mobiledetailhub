@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 
 import { FAQ } from '@/features/faq';
-import { MDH_FAQ_ITEMS } from '@/features/faq/utils';
 import { Gallery } from '@/features/gallery';
 import { Header } from '@/features/header';
 import { Hero } from '@/features/hero';
@@ -42,9 +41,9 @@ const HomePage: React.FC<HomePageProps> = ({ onRequestQuote, locationData }) => 
   // Generate and inject Schema.org JSON-LD for tenant site
   useEffect(() => {
     if (!locationData) {
-      // Generate schema for tenant site using static site data
-      const generalFAQs = convertFAQItemsToSchemaFormat(MDH_FAQ_ITEMS);
-      injectAllSchemas([generalFAQs]);
+      // Schema generation for FAQs is now handled by the FAQ component itself
+      // using industry-specific data loaded dynamically
+      injectAllSchemas([]);
     }
   }, [locationData]);
 

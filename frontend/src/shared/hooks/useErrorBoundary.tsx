@@ -1,5 +1,7 @@
 import { useCallback, useEffect,useState } from 'react';
 
+import { env } from '@/shared/env';
+
 interface ErrorBoundaryState {
   hasError: boolean;
   error?: Error;
@@ -17,7 +19,7 @@ export const useErrorBoundary = () => {
     });
 
     // Log to external service in production
-    if (import.meta.env.PROD) {
+    if (env.PROD) {
       console.error('Production error:', { error, errorInfo });
     }
   }, []);
