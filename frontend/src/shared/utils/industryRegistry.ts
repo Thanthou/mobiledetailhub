@@ -70,7 +70,7 @@ export async function getIndustryTemplate(
     switch (industry) {
       case 'mobile-detailing': {
         const { loadMobileDetailingConfig } = await import('@/data/mobile-detailing');
-        config = await loadMobileDetailingConfig();
+        config = loadMobileDetailingConfig();
         break;
       }
       case 'pet-grooming': {

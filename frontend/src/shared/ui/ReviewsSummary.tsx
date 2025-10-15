@@ -2,8 +2,8 @@ import React from 'react';
 import { Star, Users } from 'lucide-react';
 
 import { useReviewsRating } from '@/features/reviews/hooks';
-import { useDataOptional } from '@/shared/contexts/DataContext';
 import { useReviewsAvailability } from '@/shared/hooks';
+import { useDataOptional } from '@/shared/hooks/useData';
 import type { ReviewsSummaryProps } from '@/shared/types/reviews';
 
 const ReviewsSummary: React.FC<ReviewsSummaryProps> = ({ 

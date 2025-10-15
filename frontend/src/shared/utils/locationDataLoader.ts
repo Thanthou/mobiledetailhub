@@ -160,8 +160,9 @@ export class LocationDataLoader {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- response.json() returns any
-    this.mainConfigCache = await response.json();
-    return this.mainConfigCache;
+    const config: MainSiteConfig = await response.json();
+    this.mainConfigCache = config;
+    return config;
   }
 
   /**

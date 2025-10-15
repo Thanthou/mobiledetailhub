@@ -26,27 +26,27 @@ export const FAQItemAutoSaveField: React.FC<FAQItemAutoSaveFieldProps> = ({
   const { contentData, updateContent } = useWebsiteContent();
   
   const getInitialValue = (): string => {
-    if (!contentData?.faq_content) return '';
-    const faqItem = contentData.faq_content[faqIndex];
+    if (!contentData?.faq_items) return '';
+    const faqItem = contentData.faq_items[faqIndex];
     if (!faqItem) return '';
     return faqItem[field] || '';
   };
 
   const saveField = async (value: string) => {
-    if (!contentData?.faq_content) return;
+    if (!contentData?.faq_items) return;
     
-    const currentItem = contentData.faq_content[faqIndex];
+    const currentItem = contentData.faq_items[faqIndex];
     if (!currentItem) return;
     
-    // Create updated FAQ content array
-    const updatedFaqContent: FAQItem[] = [...contentData.faq_content];
-    updatedFaqContent[faqIndex] = {
+    // Create updated FAQ items array
+    const updatedFaqItems: FAQItem[] = [...contentData.faq_items];
+    updatedFaqItems[faqIndex] = {
       ...currentItem,
       [field]: value
     };
     
-    // Update the entire faq_content array
-    await updateContent({ faq_content: updatedFaqContent });
+    // Update the entire faq_items array
+    await updateContent({ faq_items: updatedFaqItems });
   };
 
   const { value, setValue, isSaving, error } = useAutoSave(

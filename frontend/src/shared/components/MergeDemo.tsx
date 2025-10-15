@@ -6,7 +6,9 @@
  * mobile-detailing no longer uses site.json, uses assets.json + content-defaults.json instead
  */
 
-// import React, { useState } from 'react';
+import React from 'react';
+
+// import { useState } from 'react';
 
 // import bullheadCityData from '@/data/locations/az/bullhead-city.json';
 // import lasVegasData from '@/data/locations/nv/las-vegas.json';

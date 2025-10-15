@@ -20,7 +20,7 @@ export function validateLocationFile(locationData: unknown, filename?: string): 
     }
   }
   
-  return result;
+  return result as unknown as ValidationResult<LocationPage>;
 }
 
 /**
@@ -60,7 +60,7 @@ export function validateMainSiteFile(siteData: unknown, filename?: string): Vali
     }
   }
   
-  return result;
+  return result as unknown as ValidationResult<MainSiteConfig>;
 }
 
 /**
@@ -137,7 +137,7 @@ export function validateLocationWithDetails(locationData: unknown): {
     isValid: result.success,
     errors,
     warnings,
-    data: result.data || undefined
+    ...(result.data ? { data: result.data as unknown as LocationPage } : {})
   };
 }
 

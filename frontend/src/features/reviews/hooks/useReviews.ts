@@ -1,8 +1,8 @@
 // Hook for fetching reviews
 import { useCallback,useEffect, useState } from 'react';
 
-import { useDataOptional } from '@/shared/contexts/DataContext';
 import dummyReviewsData from '@/shared/data/dummyReviews.json';
+import { useDataOptional } from '@/shared/hooks/useData';
 
 import { reviewsApi } from '../api';
 import type { DatabaseReview,Review, ReviewQueryParams } from '../types';

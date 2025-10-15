@@ -107,7 +107,7 @@ export function useLocationValidationDebug(locationData: LocationPage | null | u
   const validation = useLocationValidation(locationData);
   
   useMemo(() => {
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       const prefix = label ? `[${label}] ` : '';
       
       if (!validation.isValid) {

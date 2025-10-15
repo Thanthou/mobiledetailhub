@@ -35,6 +35,7 @@ export function transformSocialMedia(business: Business): SocialMediaLinks {
   const socials: SocialMediaLinks = {};
   
   // Only include non-empty social media links
+  // Note: Despite type definitions, these fields can be null at runtime
   if (business.facebook_url?.trim()) {
     socials.facebook = business.facebook_url;
   }
@@ -72,13 +73,18 @@ export function transformSocialMedia(business: Business): SocialMediaLinks {
  * ```
  */
 export function getPrimaryLocation(business: Business): string {
-  if (!business.service_areas || business.service_areas.length === 0) {
+  if (business.service_areas.length === 0) {
     return '';
   }
   
   // Find primary service area
   const primaryArea = business.service_areas.find(area => area.primary);
-  const area = primaryArea || business.service_areas[0];
+  const area = primaryArea ?? business.service_areas[0];
+  
+  // At this point, area is guaranteed to exist due to length check above
+  if (!area) {
+    return '';
+  }
   
   return `${area.city}, ${area.state}`;
 }
@@ -90,7 +96,7 @@ export function getPrimaryLocation(business: Business): string {
  * @returns Array of primary service areas
  */
 export function getPrimaryServiceAreas(business: Business) {
-  if (!business.service_areas || business.service_areas.length === 0) {
+  if (business.service_areas.length === 0) {
     return [];
   }
   

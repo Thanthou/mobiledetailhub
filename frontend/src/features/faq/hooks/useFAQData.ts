@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 
 import { useData } from '@/shared/hooks';
 
-import { loadIndustryFAQs } from '../utils';
 import type { FAQItem } from '../types';
+import { loadIndustryFAQs } from '../utils';
 
 export const useFAQData = () => {
   const [openItems, setOpenItems] = useState<Set<string>>(new Set());
@@ -16,7 +16,7 @@ export const useFAQData = () => {
     
     loadIndustryFAQs(industry)
       .then(setFaqData)
-      .catch(error => {
+      .catch((error: unknown) => {
         console.error('Failed to load FAQs:', error);
         setFaqData([]);
       });

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useData } from '@/shared/contexts';
+import { useData } from '@/shared/hooks/useData';
 import CTAButtons from '@/shared/ui/buttons/CTAButtons';
 import FooterLocations from '@/shared/ui/navigation/FooterLocations';
 import { formatPhoneNumber } from '@/shared/utils/phoneFormatter';

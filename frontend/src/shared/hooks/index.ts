@@ -41,7 +41,8 @@ export { useImageRotation, useImageRotationHover } from './useImageRotation';
 export { useIndustrySiteData } from './useIndustrySiteData';
 
 // Config loaders (centralized tenant + industry configuration)
-export { DataContext, DataProvider,useData, useDataOptional } from '../contexts/DataContext';
+export { DataContext, DataProvider } from '../contexts/DataContext';
+export { useData, useDataOptional } from './useData';
 export { prefetchIndustryConfig,useIndustryConfig } from './useIndustryConfig';
 
 // Tenant data hooks

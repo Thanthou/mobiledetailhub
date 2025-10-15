@@ -1,5 +1,5 @@
-import { useDataOptional } from '@/shared/contexts/DataContext';
 import { useWebsiteContent } from '@/shared/contexts/WebsiteContentContext';
+import { useDataOptional } from '@/shared/hooks/useData';
 
 interface UseReviewsRatingReturn {
   averageRating: number;
@@ -30,8 +30,8 @@ export const useReviewsRating = (): UseReviewsRatingReturn => {
   // Get Google Business URL from tenant's social media data (from DataContext)
   // Fall back to legacy site.json if available, then to a default placeholder
   const googleBusinessUrl = 
-    data?.socialMedia?.googleBusiness 
-    ?? data?.siteConfig?.socials?.googleBusiness 
+    data?.socialMedia.googleBusiness
+    ?? data?.siteConfig?.socials?.googleBusiness
     ?? '#';
 
   return {

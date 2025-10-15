@@ -1,4 +1,4 @@
-import { useData } from '@/shared/contexts';
+import { useData } from '@/shared/hooks/useData';
 
 interface BookingCapabilities {
   hasOnlineBooking: boolean;

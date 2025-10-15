@@ -7,7 +7,7 @@
  * Business logic is delegated to hooks, API clients, and utility functions
  */
 
-import React, { createContext, useContext } from 'react';
+import React, { createContext } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 import { fetchIndustryConfig } from '@/shared/api/industryConfigApi';
@@ -17,14 +17,14 @@ import type { MainSiteConfig } from '@/shared/types/location';
 import {
   getBusinessEmail,
   getPrimaryLocation,
+  type SocialMediaLinks,
   transformSocialMedia,
-  type SocialMediaLinks
 } from '@/shared/utils/tenantDataTransform';
 
 /**
  * Data context type definition
  */
-interface DataContextType {
+export interface DataContextType {
   // Tenant data (from API)
   businessName: string;
   phone: string;
@@ -51,10 +51,7 @@ interface DataContextType {
   isPreview?: boolean;
 }
 
-const DataContext = createContext<DataContextType | null>(null);
-
-// Export the context so preview pages can inject mock data
-export { DataContext };
+export const DataContext = createContext<DataContextType | null>(null);
 
 interface DataProviderProps {
   children: React.ReactNode;
@@ -118,40 +115,5 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   );
 };
 
-/**
- * Hook to access data context
- * Throws error if used outside DataProvider
- * 
- * @example
- * ```tsx
- * function MyComponent() {
- *   const { businessName, phone, siteConfig } = useData();
- *   return <div>{businessName}</div>;
- * }
- * ```
- */
-export const useData = (): DataContextType => {
-  const context = useContext(DataContext);
-  if (!context) {
-    throw new Error('useData must be used within a DataProvider');
-  }
-  return context;
-};
-
-/**
- * Optional version of useData that returns null if not in a provider
- * Useful for components that may or may not be wrapped in DataProvider
- * 
- * @example
- * ```tsx
- * function OptionalComponent() {
- *   const data = useDataOptional();
- *   if (!data) return <div>No tenant data available</div>;
- *   return <div>{data.businessName}</div>;
- * }
- * ```
- */
-export const useDataOptional = (): DataContextType | null => {
-  const context = useContext(DataContext);
-  return context;
-};
+// Note: useData and useDataOptional hooks have been moved to @/shared/hooks/useData
+// This keeps this file focused on the component provider (for Fast Refresh compatibility)

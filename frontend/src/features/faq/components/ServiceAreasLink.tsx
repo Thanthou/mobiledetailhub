@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { useData } from '@/shared/contexts';
+import { useData } from '@/shared/hooks/useData';
 import ServiceAreasModal from '@/shared/ui/modals/ServiceAreasModal';
 
 interface ServiceAreasLinkProps {

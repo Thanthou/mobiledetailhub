@@ -1,31 +1,13 @@
 import React from 'react';
 
-// Define types for the chart data
-type MetricKey = 'protection' | 'longevity' | 'ease' | 'chipResistance';
-type ProductKey = 'wax' | 'sealant' | 'ceramic' | 'ppf';
-type Ratings = Record<ProductKey, Record<MetricKey, 1|2|3|4|5>>;
-
-// Default ratings data
-const DEFAULT_RATINGS: Ratings = {
-  wax:      { protection: 1, longevity: 1, ease: 2, chipResistance: 1 },
-  sealant:  { protection: 2, longevity: 2, ease: 2, chipResistance: 1 },
-  ceramic:  { protection: 4, longevity: 4, ease: 4, chipResistance: 1 },
-  ppf:      { protection: 5, longevity: 5, ease: 3, chipResistance: 5 },
-};
-
-const METRIC_LABELS: Record<MetricKey, string> = {
-  protection: 'Protection',
-  longevity: 'Longevity',
-  ease: 'Ease of Wash',
-  chipResistance: 'Rock-Chip Resistance',
-};
-
-const PRODUCT_LABELS: Record<ProductKey, string> = {
-  wax: 'Wax',
-  sealant: 'Sealant',
-  ceramic: 'Ceramic',
-  ppf: 'PPF',
-};
+import {
+  DEFAULT_RATINGS,
+  METRIC_LABELS,
+  type MetricKey,
+  PRODUCT_LABELS,
+  type ProductKey,
+  type Ratings
+} from '@/features/services/utils/protectionComparison';
 
 export interface ProtectionComparisonChartProps {
   ratings?: Ratings;

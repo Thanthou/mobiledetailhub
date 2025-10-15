@@ -65,7 +65,7 @@ export function legacyToTenantConfig(
     // Core identity
     id: affiliateId || slug,
     slug: slug,
-    vertical: 'detailing',  // Default to detailing
+    vertical: 'mobile-detailing',  // Default to mobile-detailing
     status: 'active',
     
     // Branding
@@ -145,21 +145,18 @@ export function affiliateToTenantConfig(affiliate: {
   // Find primary service area or use first one
   const primaryArea = affiliate.service_areas?.find(area => area.primary) || affiliate.service_areas?.[0];
   
-  // Determine industry (default to mobile-detailing)
-  const industry = affiliate.industry || 'mobile-detailing';
-  
-  // Build logo URL - use affiliate's logo if provided, otherwise use industry default
-  // Only check tenant uploads if a custom logo_url exists in the database
-  const logoUrl = affiliate.logo_url || getTenantAssetUrl({
-    vertical: industry,
-    type: 'logo',
-    forceVerticalDefault: true, // Always use industry default if no custom logo
-  });
-  
   // Safely convert industry to Vertical type
   const vertical: Vertical = isValidVertical(affiliate.industry) 
     ? affiliate.industry 
     : 'mobile-detailing';
+  
+  // Build logo URL - use affiliate's logo if provided, otherwise use industry default
+  // Only check tenant uploads if a custom logo_url exists in the database
+  const logoUrl = affiliate.logo_url || getTenantAssetUrl({
+    vertical: vertical,
+    type: 'logo',
+    forceVerticalDefault: true, // Always use industry default if no custom logo
+  });
   
   return {
     // Core identity

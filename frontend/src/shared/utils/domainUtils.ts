@@ -125,7 +125,7 @@ export function getDomainMappings(): Record<string, string> {
  * @returns True if the subdomain is reserved
  */
 export function isReservedSubdomain(hostname: string): boolean {
-  const subdomain = hostname.split('.')[0];
+  const subdomain = hostname.split('.')[0]!;
   return RESERVED_SUBDOMAINS.includes(subdomain);
 }
 

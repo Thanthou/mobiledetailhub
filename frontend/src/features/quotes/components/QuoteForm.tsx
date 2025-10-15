@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useDataOptional } from '@/shared/contexts/DataContext';
+import { useDataOptional } from '@/shared/hooks/useData';
 import { Button } from '@/shared/ui';
 
 import { type QuoteFormData } from '../types';

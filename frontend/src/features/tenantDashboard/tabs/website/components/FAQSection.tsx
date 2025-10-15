@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { ChevronDown, ChevronRight, Eye, FileText, HelpCircle, Plus, Save, X } from 'lucide-react';
 
-import { loadIndustryFAQs } from '@/features/faq/utils';
 import { useData } from '@/shared/hooks';
+import { loadIndustryFAQs } from '@/shared/utils/faqLoader';
 
 import { FAQItemAutoSaveField } from './FAQItemAutoSaveField';
 import { WebsiteAutoSaveField } from './WebsiteAutoSaveField';
@@ -48,7 +48,9 @@ export const FAQSection: React.FC<FAQSectionProps> = ({
     if (!industry) return;
     loadIndustryFAQs(industry)
       .then(setIndustryFAQs)
-      .catch(() => setIndustryFAQs([]));
+      .catch(() => {
+        setIndustryFAQs([]);
+      });
   }, [industry]);
   
   const _categoryFaqMap = useMemo(() => {

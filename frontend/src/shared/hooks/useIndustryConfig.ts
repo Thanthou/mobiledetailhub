@@ -13,7 +13,6 @@
 import { type QueryClient, useQuery } from '@tanstack/react-query';
 
 import { fetchIndustryConfig } from '@/shared/api/industryConfigApi';
-import type { MainSiteConfig } from '@/shared/types/location';
 
 /**
  * Hook to access industry-specific site configuration

@@ -1,12 +1,12 @@
 import { useNavigate, useParams } from 'react-router-dom';
 
+import assetsData from '@/data/mobile-detailing/assets.json';
 import autoDetailingData from '@/data/mobile-detailing/services/auto-detailing.json';
 import ceramicCoatingData from '@/data/mobile-detailing/services/ceramic-coating.json';
 import marineDetailingData from '@/data/mobile-detailing/services/marine-detailing.json';
 import paintCorrectionData from '@/data/mobile-detailing/services/paint-correction.json';
 import ppfData from '@/data/mobile-detailing/services/ppf.json';
 import rvDetailingData from '@/data/mobile-detailing/services/rv-detailing.json';
-import assetsData from '@/data/mobile-detailing/assets.json';
 import { Service } from '@/features/services/types/service.types';
 import { env } from '@/shared/env';
 import type { LocationPage } from '@/shared/types/location';
@@ -29,12 +29,12 @@ const getServicesFromSiteData = (locationData: LocationPage | null | undefined, 
 
     // Get location-specific image if available, otherwise use default thumbnail
     const imageData = serviceRole && locationData 
-      ? getServiceImageFromLocation(locationData, serviceRole, thumbnail?.url || '')
+      ? getServiceImageFromLocation(locationData, serviceRole, thumbnail.url || '')
       : {
-          url: thumbnail?.url || '',
-          alt: thumbnail?.alt || '',
-          width: thumbnail?.width || 400,
-          height: thumbnail?.height || 300,
+          url: thumbnail.url || '',
+          alt: thumbnail.alt || '',
+          width: thumbnail.width || 400,
+          height: thumbnail.height || 300,
           priority: service.priority
         };
 
@@ -49,6 +49,7 @@ const getServicesFromSiteData = (locationData: LocationPage | null | undefined, 
     return {
       id: (index + 1).toString(),
       title: service.title,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- service.alt from JSON, type refinement planned
       description: service.alt, // Using alt text as description
       imageUrl: imageData.url,
       route: route,

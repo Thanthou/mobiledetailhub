@@ -1,4 +1,8 @@
-// src/lib/protectionComparison.ts
+/**
+ * Protection comparison utilities for mobile detailing services
+ * Used to compare wax, sealant, ceramic coating, and PPF protection options
+ */
+
 export type MetricKey = 'protection' | 'longevity' | 'ease' | 'chipResistance';
 
 export type ProductKey = 'wax' | 'sealant' | 'ceramic' | 'ppf';
@@ -32,3 +36,4 @@ export const PRODUCT_COLORS: Record<ProductKey, string> = {
   ceramic: 'bg-purple-500',
   ppf: 'bg-emerald-500',
 };
+

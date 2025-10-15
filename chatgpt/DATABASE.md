@@ -1,9 +1,9 @@
 # Database Overview (Auto-Generated)
 
-Generated: 2025-10-14T22:28:57.436Z
+Generated: 2025-10-15T04:02:25.575Z
 
 ```
-[dotenv@17.2.2] injecting env (19) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[dotenv@17.2.2] injecting env (19) from .env -- tip: 📡 auto-backup env with Radar: https://dotenvx.com/radar
 
 🔍 Database: ThatSmartSite
 ============================================================
@@ -573,6 +573,13 @@ Generated: 2025-10-14T22:28:57.436Z
       • updated_at: timestamp with time zone NULL = CURRENT_TIMESTAMP
       • reviews_avg_rating: numeric NULL = 0.00
       • reviews_total_count: integer NULL = 0
+      • seo_title: character varying(255) NULL
+      • seo_description: text NULL
+      • seo_keywords: text NULL
+      • seo_og_image: character varying(500) NULL
+      • seo_twitter_image: character varying(500) NULL
+      • seo_canonical_path: character varying(500) NULL
+      • seo_robots: character varying(50) NULL = 'index,follow'::character vary
 
 ✅ Done!
 

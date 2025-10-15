@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useDataOptional } from '@/shared/contexts/DataContext';
+import { useDataOptional } from '@/shared/hooks/useData';
 import { cn } from '@/shared/utils/cn';
 
 import BookNow from './BookNow';

@@ -54,21 +54,20 @@ export const useFAQContent = (props?: UseFAQContentProps): UseFAQContentReturn =
   
   // Get FAQ items from database or fallback to industry-specific FAQs
   const databaseFAQs: FAQItem[] = useMemo(() => {
-    if (!websiteContent?.faq_content || !Array.isArray(websiteContent.faq_content)) {
+    if (!websiteContent?.faq_items || !Array.isArray(websiteContent.faq_items)) {
       return [];
     }
     
-    return websiteContent.faq_content.map((faq, index) => ({
+    return websiteContent.faq_items.map((faq, index) => ({
       id: `db-${String(index)}`,
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- faq properties from database might be null
       question: String(faq.question ?? ''),
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- faq properties from database might be null
       answer: String(faq.answer ?? ''),
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- faq properties from database might be null
-      category: String(faq.category ?? 'General'),
-      services: undefined // optional field
-    } as FAQItem));
-  }, [websiteContent?.faq_content]);
+      category: String(faq.category ?? 'General')
+    }));
+  }, [websiteContent?.faq_items]);
   
   // Convert location FAQs to FAQItem format if available
   const locationFAQs: FAQItem[] = useMemo(() => {

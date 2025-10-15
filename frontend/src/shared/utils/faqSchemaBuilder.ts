@@ -165,16 +165,17 @@ export function generateFAQSchemaManifest(
     mainSite: {
       hasSchema: generalFAQs.length > 0,
       faqCount: generalFAQs.length,
-      schemaPath: generalFAQs.length > 0 ? '/schemas/main-site-faq.json' : undefined
+      ...(generalFAQs.length > 0 ? { schemaPath: '/schemas/main-site-faq.json' } : {})
     },
-    locations: locationDataArray.map(location => ({
-      slug: location.slug,
-      hasSchema: !!(location.faqs && location.faqs.length > 0),
-      faqCount: location.faqs?.length || 0,
-      schemaPath: (location.faqs && location.faqs.length > 0) 
-        ? `/schemas/locations/${location.slug}-faq.json` 
-        : undefined
-    })),
+    locations: locationDataArray.map(location => {
+      const hasFAQs = !!(location.faqs && location.faqs.length > 0);
+      return {
+        slug: location.slug,
+        hasSchema: hasFAQs,
+        faqCount: location.faqs?.length || 0,
+        ...(hasFAQs ? { schemaPath: `/schemas/locations/${location.slug}-faq.json` } : {})
+      };
+    }),
     statistics,
     validation
   };

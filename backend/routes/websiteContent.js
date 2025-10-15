@@ -30,7 +30,7 @@ router.put('/:tenantSlug', async (req, res) => {
         reviews_total_count,
         faq_title,
         faq_subtitle,
-        faq_content,
+        faq_items,
         updated_at
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, NOW()
@@ -53,7 +53,7 @@ router.put('/:tenantSlug', async (req, res) => {
         reviews_total_count = EXCLUDED.reviews_total_count,
         faq_title = EXCLUDED.faq_title,
         faq_subtitle = EXCLUDED.faq_subtitle,
-        faq_content = EXCLUDED.faq_content,
+        faq_items = EXCLUDED.faq_items,
         updated_at = NOW()
       RETURNING *
     `;
@@ -76,7 +76,7 @@ router.put('/:tenantSlug', async (req, res) => {
       contentData.reviews_total_count || 0,
       contentData.faq_title || '',
       contentData.faq_subtitle || '',
-      JSON.stringify(contentData.faq_content || [])
+      JSON.stringify(contentData.faq_items || [])
     ];
 
     const result = await pool.query(upsertQuery, values);
@@ -136,7 +136,7 @@ router.get('/:tenantSlug', async (req, res) => {
           reviews_total_count: 0,
           faq_title: '',
           faq_subtitle: '',
-          faq_content: []
+          faq_items: []
         }
       });
     }
@@ -162,7 +162,7 @@ router.get('/:tenantSlug', async (req, res) => {
         reviews_total_count: content.reviews_total_count || 0,
         faq_title: content.faq_title || '',
         faq_subtitle: content.faq_subtitle || '',
-        faq_content: content.faq_content || []
+        faq_items: content.faq_items || []
       }
     };
 

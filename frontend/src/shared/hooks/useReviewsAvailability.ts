@@ -1,6 +1,6 @@
 import { useReviews } from '@/features/reviews/hooks/useReviews';
 import type { ReviewQueryParams } from '@/features/reviews/types';
-import { useDataOptional } from '@/shared/contexts/DataContext';
+import { useDataOptional } from '@/shared/hooks/useData';
 
 /**
  * Hook to check if reviews are available for the current site

@@ -98,8 +98,10 @@ export function useTenantData(options: UseTenantDataOptions): UseTenantDataRetur
   return {
     data,
     isLoading,
-    error: error as Error | null,
-    refetch
+    error: error || null,
+    refetch: () => {
+      void refetch();
+    }
   };
 }
 

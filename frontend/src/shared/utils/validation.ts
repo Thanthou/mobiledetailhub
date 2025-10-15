@@ -61,11 +61,9 @@ export function validateTextField(
     }
   }
 
-  return {
-    isValid: errors.length === 0,
-    errors,
-    sanitizedValue: errors.length === 0 ? sanitizedValue : undefined
-  };
+  return errors.length === 0
+    ? { isValid: true, errors: [], sanitizedValue }
+    : { isValid: false, errors };
 }
 
 /**

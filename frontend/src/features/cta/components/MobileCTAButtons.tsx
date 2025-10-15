@@ -1,7 +1,7 @@
 import React from 'react';
 import { Calendar, MessageSquare, Phone } from 'lucide-react';
 
-import { useData } from '@/shared/contexts';
+import { useData } from '@/shared/hooks/useData';
 import { cn } from '@/shared/utils/cn';
 
 interface MobileCTAButtonsProps {

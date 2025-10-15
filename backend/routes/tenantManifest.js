@@ -19,13 +19,11 @@ router.get('/:slug/manifest.json', async (req, res) => {
     // Fetch tenant business info
     const query = `
       SELECT 
-        name,
+        business_name,
         slug,
-        industry,
-        primary_color,
-        logo_url
+        industry
       FROM tenants.business
-      WHERE slug = $1 AND status = 'active'
+      WHERE slug = $1 AND application_status = 'approved'
     `;
 
     const result = await pool.query(query, [slug]);
@@ -38,15 +36,15 @@ router.get('/:slug/manifest.json', async (req, res) => {
 
     const tenant = result.rows[0];
     
-    // Get primary color or use default
-    const themeColor = tenant.primary_color || '#ea580c'; // Orange-600 default
+    // Use default theme colors (could be customizable in future)
+    const themeColor = '#ea580c'; // Orange-600 default
     const backgroundColor = '#1c1917'; // Stone-900
     
     // Generate tenant-specific manifest
     const manifest = {
-      name: `${tenant.name} - Dashboard`,
-      short_name: tenant.name,
-      description: `Manage your ${tenant.name} website and business`,
+      name: `${tenant.business_name} - Dashboard`,
+      short_name: tenant.business_name,
+      description: `Manage your ${tenant.business_name} website and business`,
       start_url: `/${slug}/dashboard`,
       display: 'standalone',
       background_color: backgroundColor,
@@ -57,19 +55,19 @@ router.get('/:slug/manifest.json', async (req, res) => {
       categories: ['business', 'productivity'],
       icons: [
         {
-          src: tenant.logo_url || '/shared/icons/default-dashboard-icon-192.png',
+          src: '/shared/icons/default-dashboard-icon-192.png',
           sizes: '192x192',
           type: 'image/png',
           purpose: 'any'
         },
         {
-          src: tenant.logo_url || '/shared/icons/default-dashboard-icon-512.png',
+          src: '/shared/icons/default-dashboard-icon-512.png',
           sizes: '512x512',
           type: 'image/png',
           purpose: 'any'
         },
         {
-          src: tenant.logo_url || '/shared/icons/default-dashboard-icon-maskable.png',
+          src: '/shared/icons/default-dashboard-icon-maskable.png',
           sizes: '512x512',
           type: 'image/png',
           purpose: 'maskable'

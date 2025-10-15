@@ -169,6 +169,7 @@ router.post('/signup', sensitiveAuthLimiter, asyncHandler(async (req, res) => {
     const reviewsSubtitle = defaults?.content?.reviews?.subtitle || '';
     const faqTitle = defaults?.content?.faq?.title || 'Frequently Asked Questions';
     const faqSubtitle = defaults?.content?.faq?.subtitle || '';
+    const faqItems = defaults?.faqItems || [];
     
     // SEO defaults
     const seoTitle = defaults?.seo?.title || `${businessName} | Professional ${industry.replace('-', ' ')}`;
@@ -183,12 +184,12 @@ router.post('/signup', sensitiveAuthLimiter, asyncHandler(async (req, res) => {
       `INSERT INTO website.content (
         business_id, hero_title, hero_subtitle,
         reviews_title, reviews_subtitle,
-        faq_title, faq_subtitle,
+        faq_title, faq_subtitle, faq_items,
         seo_title, seo_description, seo_keywords,
         seo_og_image, seo_twitter_image, seo_canonical_path, seo_robots,
         created_at, updated_at
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW(), NOW())`,
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, NOW(), NOW())`,
       [
         tenantId,
         heroTitle,
@@ -197,6 +198,7 @@ router.post('/signup', sensitiveAuthLimiter, asyncHandler(async (req, res) => {
         reviewsSubtitle,
         faqTitle,
         faqSubtitle,
+        JSON.stringify(faqItems),
         seoTitle,
         seoDescription,
         seoKeywords,

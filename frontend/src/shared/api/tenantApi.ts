@@ -5,8 +5,8 @@
  */
 
 import { env } from '../env';
-import type { Business, BusinessResponse } from '../types/tenant-business.types';
 import type { Vertical } from '../types/tenant.types';
+import type { Business, BusinessResponse } from '../types/tenant-business.types';
 
 const API_BASE_URL = env.VITE_API_URL || 'http://localhost:3001';
 

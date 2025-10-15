@@ -15,7 +15,7 @@ export interface WebsiteContentData {
   reviews_total_count?: number;
   faq_title?: string;
   faq_subtitle?: string;
-  faq_content?: FAQItem[];
+  faq_items?: FAQItem[];
   created_at?: string;
   updated_at?: string;
 }

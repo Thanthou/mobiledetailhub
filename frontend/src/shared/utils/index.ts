@@ -77,17 +77,6 @@ export {
   preloadCriticalModals,
   useModalTriggerRef} from './modalCodeSplitting';
 
-// Product comparison utilities
-export {
-  DEFAULT_RATINGS,
-  METRIC_LABELS,
-  type MetricKey,
-  PRODUCT_COLORS,
-  PRODUCT_LABELS,
-  type ProductKey,
-  type Ratings
-} from './protectionComparison';
-
 // Business utilities
 export { findBusinessByLocation } from './findBusinessByLocation';
 

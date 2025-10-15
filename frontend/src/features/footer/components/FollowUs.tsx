@@ -1,7 +1,7 @@
 import React from 'react';
 import { SiFacebook, SiInstagram, SiTiktok, SiYoutube } from 'react-icons/si';
 
-import { useData } from '@/shared/contexts/DataContext';
+import { useData } from '@/shared/hooks/useData';
 
 interface FollowUsProps {
   socialMedia?: {

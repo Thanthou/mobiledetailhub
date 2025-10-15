@@ -7,7 +7,7 @@ import { ChevronLeft } from 'lucide-react';
 import { config } from '@/shared/env';
 import { useBrowserTab } from '@/shared/hooks';
 import { Button } from '@/shared/ui';
-import { loadDefaults, type IndustrySlug } from '@/shared/utils/loadDefaults';
+import { type IndustrySlug,loadDefaults } from '@/shared/utils/loadDefaults';
 
 import { useAutoSave } from '../hooks/useAutoSave';
 import {

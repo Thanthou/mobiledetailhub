@@ -4,6 +4,7 @@
  */
 
 import type { MainSiteConfig } from '@/shared/types/location';
+
 import assetsData from './assets.json';
 import contentDefaults from './content-defaults.json';
 import seoDefaults from './seo-defaults.json';
@@ -12,7 +13,7 @@ import seoDefaults from './seo-defaults.json';
  * Load and assemble mobile-detailing config from modular files
  * This replaces the legacy site.json approach
  */
-export async function loadMobileDetailingConfig(): Promise<MainSiteConfig> {
+export function loadMobileDetailingConfig(): MainSiteConfig {
   // Transform assets.json hero images to match MainSiteConfig format
   const heroImages = assetsData.hero.map(heroItem => ({
     url: heroItem.desktop.url,
@@ -62,16 +63,19 @@ export async function loadMobileDetailingConfig(): Promise<MainSiteConfig> {
       sub: 'Professional mobile detailing at your location'
     },
     
-    servicesGrid: assetsData.services.grid.map(service => ({
-      slug: service.slug,
-      title: service.title,
-      image: assetsData.services.thumbnails[service.slug as keyof typeof assetsData.services.thumbnails]?.url || '',
-      alt: assetsData.services.thumbnails[service.slug as keyof typeof assetsData.services.thumbnails]?.alt || service.title,
-      href: service.href,
-      width: assetsData.services.thumbnails[service.slug as keyof typeof assetsData.services.thumbnails]?.width,
-      height: assetsData.services.thumbnails[service.slug as keyof typeof assetsData.services.thumbnails]?.height,
-      priority: service.priority
-    })),
+    servicesGrid: assetsData.services.grid.map(service => {
+      const thumbnail = assetsData.services.thumbnails[service.slug as keyof typeof assetsData.services.thumbnails];
+      return {
+        slug: service.slug,
+        title: service.title,
+        image: thumbnail.url || '',
+        alt: thumbnail.alt || service.title,
+        href: service.href,
+        width: thumbnail.width,
+        height: thumbnail.height,
+        priority: service.priority
+      };
+    }),
     
     reviews: {
       title: contentDefaults.reviews.title,

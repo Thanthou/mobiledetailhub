@@ -8,9 +8,6 @@
  */
 
 import type { MainSiteConfig } from '@/shared/types/location';
-import assetsData from './assets.json';
-import contentDefaults from './content-defaults.json';
-import seoDefaults from './seo-defaults.json';
 
 /**
  * Load and assemble lawncare config from modular files
@@ -19,10 +16,12 @@ import seoDefaults from './seo-defaults.json';
 export async function loadLawncareConfig(): Promise<MainSiteConfig> {
   // TODO: Populate modular files with actual lawncare data
   // For now, import the legacy site.json from archive as fallback
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Legacy JSON import, typing refactor planned
   const legacyConfig = await import('./_archive/site.json.legacy');
   
   // Return legacy config until modular files are populated
   // Once populated, replace with assembled config like mobile-detailing
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- Legacy JSON import, typing refactor planned
   return legacyConfig.default as MainSiteConfig;
 }
 

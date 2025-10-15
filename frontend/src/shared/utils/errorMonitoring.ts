@@ -66,10 +66,11 @@ class ErrorMonitor {
   private setupGlobalErrorHandlers(): void {
     // Catch all unhandled errors
     window.addEventListener('error', (event) => {
+      const stack = getErrorStack(event.error);
       this.captureError({
         type: 'unhandled',
         message: event.message,
-        stack: getErrorStack(event.error),
+        ...(stack ? { stack } : {}),
         url: event.filename,
         line: event.lineno,
         column: event.colno,
@@ -78,10 +79,11 @@ class ErrorMonitor {
 
     // Catch unhandled promise rejections
     window.addEventListener('unhandledrejection', (event) => {
+      const stack = getErrorStack(event.reason);
       this.captureError({
         type: 'promise',
         message: getErrorMessage(event.reason),
-        stack: getErrorStack(event.reason),
+        ...(stack ? { stack } : {}),
       });
     });
 
@@ -118,19 +120,21 @@ class ErrorMonitor {
     const originalConsoleWarn = console.warn;
 
     console.error = (...args: unknown[]) => {
+      const stack = new Error().stack;
       this.captureError({
         type: 'console',
         message: args.map(arg => typeof arg === 'string' ? arg : JSON.stringify(arg)).join(' '),
-        stack: new Error().stack,
+        ...(stack ? { stack } : {}),
       });
       originalConsoleError.apply(console, args);
     };
 
     console.warn = (...args: unknown[]) => {
+      const stack = new Error().stack;
       this.captureError({
         type: 'console',
         message: `WARNING: ${args.map(arg => typeof arg === 'string' ? arg : JSON.stringify(arg)).join(' ')}`,
-        stack: new Error().stack,
+        ...(stack ? { stack } : {}),
       });
       originalConsoleWarn.apply(console, args);
     };
@@ -209,7 +213,7 @@ class ErrorMonitor {
       url: window.location.href,
       userAgent: navigator.userAgent,
       sessionId: this.sessionId,
-      userId: this.userId,
+      ...(this.userId ? { userId: this.userId } : {}),
       ...errorData,
     };
 
@@ -224,7 +228,7 @@ class ErrorMonitor {
     this.listeners.forEach(listener => { listener(error); });
 
     // Log to console in development
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       console.group(`🚨 Error Captured (${error.type.toUpperCase()})`);
       console.error('Message:', error.message);
       console.error('Timestamp:', error.timestamp.toISOString());
@@ -238,11 +242,13 @@ class ErrorMonitor {
 
   // Public methods
   public captureReactError(error: Error, errorInfo: ReactErrorInfo, componentStack?: string): void {
+    const stack = error.stack;
+    const component = componentStack || errorInfo.componentStack;
     this.captureError({
       type: 'react',
       message: error.message,
-      stack: error.stack,
-      componentStack: componentStack || errorInfo.componentStack,
+      ...(stack ? { stack } : {}),
+      ...(component ? { componentStack: component } : {}),
     });
   }
 

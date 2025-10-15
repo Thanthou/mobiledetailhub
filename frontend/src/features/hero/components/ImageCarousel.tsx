@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { useData } from '@/shared/contexts';
 import { useImageRotation } from '@/shared/hooks';
+import { useData } from '@/shared/hooks/useData';
 import { getTransitionStyles } from '@/shared/utils/imageRotation';
 // Available when needed: toAvif, toWebp for modern image format support
 

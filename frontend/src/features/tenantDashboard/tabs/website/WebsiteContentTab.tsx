@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo,useState } from 'react';
 
-import { loadIndustryFAQs } from '@/features/faq/utils';
 import { useData } from '@/shared/hooks';
+import { loadIndustryFAQs } from '@/shared/utils/faqLoader';
 import { useAutoSave } from '@/shared/utils/useAutoSave';
 
 import { getWebsiteContent, saveWebsiteContent } from '../../api/websiteContentApi';
@@ -77,7 +77,9 @@ const WebsiteContentTab: React.FC<WebsiteContentTabProps> = ({ tenantSlug }) => 
     if (!industry) return;
     loadIndustryFAQs(industry)
       .then(setIndustryFAQs)
-      .catch(() => setIndustryFAQs([]));
+      .catch(() => {
+        setIndustryFAQs([]);
+      });
   }, [industry]);
   
   // Group FAQs by category

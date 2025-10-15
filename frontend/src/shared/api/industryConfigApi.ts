@@ -26,7 +26,7 @@ export async function fetchIndustryConfig(industry: string): Promise<MainSiteCon
     switch (industry) {
       case 'mobile-detailing': {
         const { loadMobileDetailingConfig } = await import('@/data/mobile-detailing');
-        return await loadMobileDetailingConfig();
+        return loadMobileDetailingConfig();
       }
       
       case 'pet-grooming': {

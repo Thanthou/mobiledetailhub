@@ -17,7 +17,7 @@ export function getToday(): string {
  * @returns Date object in local timezone
  */
 export function parseLocalDate(dateString: string): Date {
-  const [year, month, day] = dateString.split('-').map(Number);
+  const [year = 0, month = 1, day = 1] = dateString.split('-').map(Number);
   return new Date(year, month - 1, day);
 }
 
@@ -122,8 +122,8 @@ export function getWeekDates(dateString: string): string[] {
  */
 export function formatWeekRange(dateString: string): string {
   const weekDates = getWeekDates(dateString);
-  const startDate = parseLocalDate(weekDates[0]);
-  const endDate = parseLocalDate(weekDates[6]);
+  const startDate = parseLocalDate(weekDates[0]!);
+  const endDate = parseLocalDate(weekDates[6]!);
   
   const startFormatted = startDate.toLocaleDateString('en-US', { 
     month: 'short', 

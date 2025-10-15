@@ -18,7 +18,7 @@
 //   lasVegasData as LocationPage
 // );
 
-export const locationRoutes: Array<{ path: string; element: JSX.Element }> = [
+export const locationRoutes: Array<{ path: string; element: unknown }> = [
   // Legacy location routes - disabled until refactored for multi-tenant
   // {
   //   path: "/az/bullhead-city",

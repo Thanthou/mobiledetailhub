@@ -9,7 +9,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sparkles } from 'lucide-react';
 
-import { useData } from '@/shared/contexts/DataContext';
+import { useData } from '@/shared/hooks/useData';
 
 interface PreviewCTAButtonProps {
   position?: 'left' | 'right';
