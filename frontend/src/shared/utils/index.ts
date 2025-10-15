@@ -2,7 +2,7 @@
 export { cn } from './cn';
 
 // Performance utilities
-export { performanceMonitor, usePerformanceMonitor } from './performance';
+export { performanceMonitor } from './performance';
 
 // Scroll utilities
 export { scrollRestoration, useScrollRestoration } from './scrollRestoration';
@@ -75,7 +75,6 @@ export {
   type ModalType,
   type PrefetchStrategy,
   preloadCriticalModals,
-  useModalPrefetch,
   useModalTriggerRef} from './modalCodeSplitting';
 
 // Product comparison utilities

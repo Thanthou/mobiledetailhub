@@ -8,7 +8,8 @@ import { Reviews } from '@/features/reviews';
 import { useReviewsAvailability } from '@/features/reviews/hooks/useReviewsAvailability';
 import { ServicesGrid } from '@/features/services';
 import { useIsDesktop, useScrollSpy, useSEO } from '@/shared/hooks';
-import { convertFAQItemsToSchemaFormat, injectAllSchemas } from '@/shared/utils/schemaUtils';
+import type { SectionId } from '@/shared/state/sectionStore';
+import { injectAllSchemas } from '@/shared/utils/schemaUtils';
 
 interface HomePageProps {
   onRequestQuote?: () => void;
@@ -28,7 +29,7 @@ const HomePage: React.FC<HomePageProps> = ({ onRequestQuote, locationData }) => 
   const isDesktop = useIsDesktop();
   
   // Set up scroll spy to track active section - use correct IDs for mobile vs desktop
-  const sectionIds = isDesktop 
+  const sectionIds: SectionId[] = isDesktop 
     ? ['top', 'services-desktop', 'reviews', 'faq', 'gallery-desktop']
     : ['top', 'services', 'reviews', 'faq', 'gallery', 'footer'];
   

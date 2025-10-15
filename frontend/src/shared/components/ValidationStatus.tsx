@@ -22,7 +22,7 @@ export const ValidationStatus: React.FC<ValidationStatusProps> = ({
   const validation = useLocationValidation(locationData);
 
   // Don't render anything in production
-  if (process.env.NODE_ENV === 'production') {
+  if (import.meta.env.PROD) {
     return null;
   }
 

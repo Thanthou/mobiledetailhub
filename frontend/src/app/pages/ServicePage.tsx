@@ -79,11 +79,11 @@ const ServicePage: React.FC<ServicePageProps> = ({ onRequestQuote }) => {
     <DataProvider>
       <main className="bg-stone-900 text-white">
         <Header />
-        <ServiceHero serviceData={serviceData} onRequestQuote={onRequestQuote} />
+        <ServiceHero serviceData={serviceData} {...(onRequestQuote && { onRequestQuote })} />
         <WhatItIs serviceData={serviceData} />
         <Process serviceData={serviceData} />
         <Results serviceData={serviceData} />
-        <ServiceCTA serviceData={serviceData} onRequestQuote={onRequestQuote} />
+        <ServiceCTA serviceData={serviceData} {...(onRequestQuote && { onRequestQuote })} />
       </main>
     </DataProvider>
   );

@@ -56,7 +56,7 @@ export const SeoHead: React.FC<SeoHeadProps> = ({
     // Helper to set or remove meta tag
     const setMetaTag = (name: string, content: string | undefined, property = false) => {
       const attr = property ? 'property' : 'name';
-      const tag = document.querySelector(`meta[${attr}="${name}"]`);
+      const tag = document.querySelector(`meta[${attr}="${name}"]`) as HTMLMetaElement | null;
       
       if (content) {
         if (tag) {
@@ -91,7 +91,7 @@ export const SeoHead: React.FC<SeoHeadProps> = ({
     setMetaTag('twitter:image', ogImage);
 
     // Set canonical URL
-    const canonicalTag = document.querySelector('link[rel="canonical"]');
+    const canonicalTag = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
     if (canonicalUrl) {
       if (canonicalTag) {
         canonicalTag.href = canonicalUrl;

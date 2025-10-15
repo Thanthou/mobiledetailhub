@@ -17,7 +17,7 @@ export * from './hooks';
 export * from './utils';
 
 // Shared data
-export * from './data';
+export * from './data/states';
 
 // Google Maps utilities and types
 export * from './types/googlePlaces.types';
