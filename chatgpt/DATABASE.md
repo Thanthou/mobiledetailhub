@@ -1,9 +1,9 @@
 # Database Overview (Auto-Generated)
 
-Generated: 2025-10-15T04:02:25.575Z
+Generated: 2025-10-15T04:50:45.113Z
 
 ```
-[dotenv@17.2.2] injecting env (19) from .env -- tip: 📡 auto-backup env with Radar: https://dotenvx.com/radar
+[dotenv@17.2.2] injecting env (19) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
 
 🔍 Database: ThatSmartSite
 ============================================================
