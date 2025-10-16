@@ -1,12 +1,12 @@
 # SEO Report (Auto-Generated)
 
-Generated: 2025-10-16T04:50:53.305Z
+Generated: 2025-10-16T05:31:57.104Z
 
 This file summarizes detected SEO signals and TODOs. Edit conventions in `/docs/SEO.md` by replacing this file with a curated version if needed.
 
 ## Snapshot
-- Total files scanned: **885**
-- By extension: `{".js":89,".md":52,".sql":42,".json":93,".ts":339,".html":1,".tsx":267,".css":1,".cjs":1}`
+- Total files scanned: **884**
+- By extension: `{".js":88,".md":53,".sql":42,".json":93,".ts":339,".html":1,".tsx":267,".css":1}`
 
 ## Detected signals
 - [x] robots.txt

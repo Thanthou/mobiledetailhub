@@ -9,7 +9,7 @@ import type {
   User} from '../schemas/auth.schemas';
 
 // API base URL - should match your backend configuration
-const API_BASE_URL = config.apiBaseUrl;
+const API_BASE_URL = config.apiUrl || ''; // Empty string uses relative URLs (Vite proxy)
 
 // Custom error class for auth-specific errors
 export class AuthError extends Error {

@@ -25,7 +25,7 @@ export interface PaymentToken {
  */
 export const usePaymentMethods = (affiliateId?: string) => {
   return useQuery({
-    queryKey: ['paymentMethods', affiliateId],
+    queryKey: ['booking','paymentMethods', affiliateId],
     queryFn: async (): Promise<PaymentMethod[]> => {
       // TODO: Replace with actual API call
       // For now, return mock data
@@ -80,7 +80,7 @@ export const usePaymentMethods = (affiliateId?: string) => {
  */
 export const usePaymentTokens = (userId?: string) => {
   return useQuery({
-    queryKey: ['paymentTokens', userId],
+    queryKey: ['booking','paymentTokens', userId],
     queryFn: async (): Promise<PaymentToken[]> => {
       // TODO: Replace with actual API call
       // For now, return mock data

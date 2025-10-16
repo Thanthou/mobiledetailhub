@@ -1,37 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
 
+import { tenantApi } from '../api/tenant.api';
+
 export interface Tenant {
   slug: string;
   name: string;
   website: string;
 }
 
-interface TenantsResponse {
-  success: boolean;
-  data: Tenant[];
-  count: number;
-}
-
-const fetchTenants = async (): Promise<Tenant[]> => {
-  const response = await fetch('/api/tenants');
-  
-  if (!response.ok) {
-    throw new Error('Failed to fetch tenants');
-  }
-  
-  const result = await response.json() as TenantsResponse;
-  
-  if (!result.success) {
-    throw new Error('API returned error');
-  }
-  
-  return result.data;
-};
-
 export const useTenants = () => {
   return useQuery({
-    queryKey: ['tenants'],
-    queryFn: fetchTenants,
+    queryKey: ['header','tenants'],
+    queryFn: tenantApi.getTenants,
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 2,
   });

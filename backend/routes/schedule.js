@@ -1,47 +1,20 @@
 const express = require('express');
 const { pool } = require('../database/pool');
 const { authenticateToken } = require('../middleware/auth');
+const { withTenantByUser } = require('../middleware/withTenant');
 const { validateBody } = require('../middleware/validation');
 const { apiLimiter } = require('../middleware/rateLimiter');
+const { asyncHandler } = require('../middleware/errorHandler');
 // TODO: Add request logging middleware when needed
 // const { requestLogger } = require('../middleware/requestLogger');
 
 const router = express.Router();
 
-// Helper function to get tenant_id from user_id
-const getTenantId = async (userId, isAdmin = false) => {
-  // For admin users, get the first available business or allow them to work without tenant context
-  if (isAdmin) {
-    // For now, let's get the first business for admin users
-    const tenantQuery = `
-      SELECT id FROM tenants.business ORDER BY id LIMIT 1
-    `;
-    const tenantResult = await pool.query(tenantQuery);
-    
-    if (tenantResult.rows.length === 0) {
-      throw new Error('No tenant businesses found in the system');
-    }
-    
-    return tenantResult.rows[0].id;
-  }
-  
-  // For regular users, get their specific business
-  const tenantQuery = `
-    SELECT id FROM tenants.business WHERE user_id = $1
-  `;
-  const tenantResult = await pool.query(tenantQuery, [userId]);
-  
-  if (tenantResult.rows.length === 0) {
-    throw new Error('No tenant business found for this user');
-  }
-  
-  return tenantResult.rows[0].id;
-};
-
 // Apply middleware
 // router.use(requestLogger); // Temporarily disabled due to env validation issues
 router.use(apiLimiter);
 router.use(authenticateToken);
+router.use(withTenantByUser);
 
 // Validation schemas
 const appointmentSchema = {
@@ -95,7 +68,7 @@ router.get('/appointments', async (req, res) => {
       return res.status(400).json({ error: 'startDate and endDate are required' });
     }
 
-    const tenantId = await getTenantId(userId, req.user.isAdmin);
+    const tenantId = req.tenant.id;
 
     const query = `
       SELECT * FROM schedule.appointments 
@@ -421,7 +394,7 @@ router.get('/time-blocks', async (req, res) => {
       return res.status(400).json({ error: 'startDate and endDate are required' });
     }
 
-    const tenantId = await getTenantId(userId, req.user.isAdmin);
+    const tenantId = req.tenant.id;
 
     const query = `
       SELECT * FROM schedule.time_blocks 
@@ -593,7 +566,7 @@ router.get('/blocked-days', async (req, res) => {
       return res.status(400).json({ error: 'startDate and endDate are required' });
     }
 
-    const tenantId = await getTenantId(userId, req.user.isAdmin);
+    const tenantId = req.tenant.id;
 
     const query = `
       SELECT blocked_date, reason, is_recurring, recurrence_pattern, recurrence_end_date
@@ -625,7 +598,7 @@ router.post('/blocked-days/toggle', async (req, res) => {
       return res.status(400).json({ error: 'date is required' });
     }
 
-    const tenantId = await getTenantId(userId, req.user.isAdmin);
+    const tenantId = req.tenant.id;
 
     // Check if date is already blocked
     const checkQuery = `

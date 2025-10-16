@@ -1,72 +1,41 @@
 const express = require('express');
 const { pool } = require('../database/pool');
+const { withTenantBySlug } = require('../middleware/withTenant');
+const { validateBody } = require('../middleware/zodValidation');
+const { serviceAreaSchemas } = require('../schemas/apiSchemas');
+const { asyncHandler } = require('../middleware/errorHandler');
 const router = express.Router();
 
 // Get service areas for a tenant
-router.get('/service-areas/:tenantSlug', async (req, res) => {
-  try {
-    const { tenantSlug } = req.params;
-    
-    const result = await pool.query(
-      'SELECT service_areas FROM tenants.business WHERE slug = $1',
-      [tenantSlug]
-    );
-    
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Tenant not found' });
-    }
-    
-    const serviceAreas = result.rows[0].service_areas || [];
-    res.json(serviceAreas);
-  } catch (error) {
-    console.error('Error fetching service areas:', error);
-    res.status(500).json({ error: 'Failed to fetch service areas' });
-  }
-});
+router.get('/service-areas/:slug', withTenantBySlug, asyncHandler(async (req, res) => {
+  const serviceAreas = req.tenant.service_areas || [];
+  res.json(serviceAreas);
+}));
 
 // Update service areas for a tenant
-router.put('/service-areas/:tenantSlug', async (req, res) => {
-  try {
-    const { tenantSlug } = req.params;
+router.put('/service-areas/:slug', 
+  withTenantBySlug, 
+  validateBody(serviceAreaSchemas.update),
+  asyncHandler(async (req, res) => {
     const { serviceAreas } = req.body;
     
-    if (!Array.isArray(serviceAreas)) {
-      return res.status(400).json({ error: 'Service areas must be an array' });
-    }
-    
-    const result = await pool.query(
-      'UPDATE tenants.business SET service_areas = $1, updated_at = NOW() WHERE slug = $2 RETURNING slug',
-      [JSON.stringify(serviceAreas), tenantSlug]
+    await pool.query(
+      'UPDATE tenants.business SET service_areas = $1, updated_at = NOW() WHERE id = $2',
+      [JSON.stringify(serviceAreas), req.tenant.id]
     );
-    
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Tenant not found' });
-    }
     
     res.json({ success: true, serviceAreas });
-  } catch (error) {
-    console.error('Error updating service areas:', error);
-    res.status(500).json({ error: 'Failed to update service areas' });
-  }
-});
+  })
+);
 
 // Add a new service area
-router.post('/service-areas/:tenantSlug', async (req, res) => {
-  try {
-    const { tenantSlug } = req.params;
+router.post('/service-areas/:slug', 
+  withTenantBySlug, 
+  validateBody(serviceAreaSchemas.add),
+  asyncHandler(async (req, res) => {
     const { city, state, zip, minimum, multiplier } = req.body;
     
-    // Get current service areas
-    const currentResult = await pool.query(
-      'SELECT service_areas FROM tenants.business WHERE slug = $1',
-      [tenantSlug]
-    );
-    
-    if (currentResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Tenant not found' });
-    }
-    
-    const currentServiceAreas = currentResult.rows[0].service_areas || [];
+    const currentServiceAreas = req.tenant.service_areas || [];
     
     // Add new service area
     const newServiceArea = {
@@ -82,46 +51,28 @@ router.post('/service-areas/:tenantSlug', async (req, res) => {
     
     // Update database
     await pool.query(
-      'UPDATE tenants.business SET service_areas = $1, updated_at = NOW() WHERE slug = $2 RETURNING slug',
-      [JSON.stringify(updatedServiceAreas), tenantSlug]
+      'UPDATE tenants.business SET service_areas = $1, updated_at = NOW() WHERE id = $2',
+      [JSON.stringify(updatedServiceAreas), req.tenant.id]
     );
     
     res.json({ success: true, serviceArea: newServiceArea });
-  } catch (error) {
-    console.error('Error adding service area:', error);
-    res.status(500).json({ error: 'Failed to add service area' });
-  }
-});
+  })
+);
 
 // Delete a service area
-router.delete('/service-areas/:tenantSlug/:areaId', async (req, res) => {
-  try {
-    const { tenantSlug, areaId } = req.params;
-    
-    // Get current service areas
-    const currentResult = await pool.query(
-      'SELECT service_areas FROM tenants.business WHERE slug = $1',
-      [tenantSlug]
-    );
-    
-    if (currentResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Tenant not found' });
-    }
-    
-    const currentServiceAreas = currentResult.rows[0].service_areas || [];
-    const updatedServiceAreas = currentServiceAreas.filter(area => area.id !== areaId);
-    
-    // Update database
-    await pool.query(
-      'UPDATE tenants.business SET service_areas = $1, updated_at = NOW() WHERE slug = $2 RETURNING slug',
-      [JSON.stringify(updatedServiceAreas), tenantSlug]
-    );
-    
-    res.json({ success: true });
-  } catch (error) {
-    console.error('Error deleting service area:', error);
-    res.status(500).json({ error: 'Failed to delete service area' });
-  }
-});
+router.delete('/service-areas/:slug/:areaId', withTenantBySlug, asyncHandler(async (req, res) => {
+  const { areaId } = req.params;
+  
+  const currentServiceAreas = req.tenant.service_areas || [];
+  const updatedServiceAreas = currentServiceAreas.filter(area => area.id !== areaId);
+  
+  // Update database
+  await pool.query(
+    'UPDATE tenants.business SET service_areas = $1, updated_at = NOW() WHERE id = $2',
+    [JSON.stringify(updatedServiceAreas), req.tenant.id]
+  );
+  
+  res.json({ success: true });
+}));
 
 module.exports = router;

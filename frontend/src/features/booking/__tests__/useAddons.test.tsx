@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useAddons } from '../hooks/useAddons';
 
 // Mock the dynamic imports
-vi.mock('@/data/affiliate-services/cars/addons/windows/service.json', () => ({
+vi.mock('@/data/mobile-detailing/pricing/cars/addons/windows/service.json', () => ({
   default: {
     'Window Tinting': {
       cost: 200,
@@ -23,7 +23,7 @@ vi.mock('@/data/affiliate-services/cars/addons/windows/service.json', () => ({
   }
 }));
 
-vi.mock('@/data/affiliate-services/cars/addons/windows/features.json', () => ({
+vi.mock('@/data/mobile-detailing/pricing/cars/addons/windows/features.json', () => ({
   default: {
     tint1: { name: 'UV Protection' },
     tint2: { name: 'Privacy Enhancement' },

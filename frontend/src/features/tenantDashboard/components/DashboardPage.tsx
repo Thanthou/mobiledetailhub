@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import type { DashboardTab, DetailerData } from '@/features/tenantDashboard/types';
 import { useBrowserTab } from '@/shared/hooks';
 
+import { dashboardApi } from '../api/dashboard.api';
 import { DashboardHeader } from './DashboardHeader';
 import { DashboardLayout } from './DashboardLayout';
 import { DashboardTabs } from './DashboardTabs';
@@ -34,54 +35,26 @@ const DashboardPage: React.FC = () => {
 
       try {
         setLoading(true);
-        const token = localStorage.getItem('token');
-        const url = `/api/tenants/${slug}`;
-        // eslint-disable-next-line no-restricted-globals, no-restricted-syntax -- Dashboard component needs direct fetch for initialization
-        const response = await fetch(url, {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token ?? ''}`
-          }
-        });
-
-        if (response.ok) {
-          const data = await response.json() as { success: boolean; data?: unknown };
-          if (data.success && data.data) {
-            const tenant = data.data as {
-              business_name?: string;
-              first_name?: string;
-              last_name?: string;
-              owner?: string;
-              business_email?: string;
-              personal_email?: string;
-              phone?: string;
-              service_areas?: Array<{ city: string; state: string }>;
-              created_at?: string;
-            };
-            // Transform tenant data to DetailerData format
-            const transformedData: DetailerData = {
-              business_name: tenant.business_name || 'Unknown Business',
-              first_name: tenant.first_name || (tenant.owner ? tenant.owner.split(' ')[0] : '') || 'Unknown',
-              last_name: tenant.last_name || (tenant.owner ? tenant.owner.split(' ').slice(1).join(' ') : '') || 'Unknown',
-              email: tenant.business_email || tenant.personal_email || 'No email',
-              phone: tenant.phone || 'No phone',
-              location: tenant.service_areas && Array.isArray(tenant.service_areas) && tenant.service_areas.length > 0 
-                ? `${tenant.service_areas[0]?.city ?? ''}, ${tenant.service_areas[0]?.state ?? ''}` 
-                : 'No location',
-              services: tenant.service_areas && Array.isArray(tenant.service_areas) && tenant.service_areas.length > 0 
-                ? tenant.service_areas.map((area: { city: string }) => area.city).slice(0, 4)
-                : ['Mobile Detailing'],
-              memberSince: tenant.created_at ? new Date(tenant.created_at).getFullYear().toString() : 'Unknown'
-            };
-            setDetailerData(transformedData);
-          } else {
-            setError('Business not found');
-          }
-        } else {
-          setError('Failed to fetch business data');
-        }
-      } catch {
-        setError('Failed to fetch business data');
+        const tenant = await dashboardApi.getDashboardData(slug);
+        
+        // Transform tenant data to DetailerData format
+        const transformedData: DetailerData = {
+          business_name: tenant.business_name || 'Unknown Business',
+          first_name: tenant.first_name || 'Unknown',
+          last_name: tenant.last_name || 'Unknown',
+          email: tenant.business_email || tenant.personal_email || 'No email',
+          phone: tenant.business_phone || tenant.personal_phone || 'No phone',
+          location: tenant.service_areas && Array.isArray(tenant.service_areas) && tenant.service_areas.length > 0 
+            ? `${tenant.service_areas[0]?.city ?? ''}, ${tenant.service_areas[0]?.state ?? ''}` 
+            : 'No location',
+          services: tenant.service_areas && Array.isArray(tenant.service_areas) && tenant.service_areas.length > 0 
+            ? tenant.service_areas.map((area: { city: string }) => area.city).slice(0, 4)
+            : ['Mobile Detailing'],
+          memberSince: tenant.created_at ? new Date(tenant.created_at).getFullYear().toString() : 'Unknown'
+        };
+        setDetailerData(transformedData);
+      } catch (error) {
+        setError(error instanceof Error ? error.message : 'Failed to fetch business data');
       } finally {
         setLoading(false);
       }

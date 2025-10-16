@@ -54,15 +54,22 @@ const WhatItIs: React.FC<WhatItIsProps> = ({ serviceData }) => {
             <div className="flex flex-col justify-center">
               {serviceData.whatItIs?.image?.src && (
                 <div className="rounded-2xl bg-stone-700 ring-1 ring-white/10 overflow-hidden w-full max-w-lg mx-auto">
-                  <img 
-                    src={serviceData.whatItIs.image.src} 
-                    alt={serviceData.whatItIs.image.alt || "Service illustration"}
-                    width={500}
-                    height={400}
-                    loading="lazy"
-                    decoding="async"
-                    className="w-full h-full object-contain"
-                  />
+                  <picture>
+                    <source
+                      type="image/webp"
+                      srcSet={`${serviceData.whatItIs.image.src.replace(/\.(png|jpg|jpeg)$/i, '.webp')} 500w, ${serviceData.whatItIs.image.src.replace(/\.(png|jpg|jpeg)$/i, '.webp')} 800w`}
+                      sizes="(max-width: 640px) 100vw, 50vw"
+                    />
+                    <img 
+                      src={serviceData.whatItIs.image.src} 
+                      alt={serviceData.whatItIs.image.alt || "Service illustration"}
+                      width={500}
+                      height={400}
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-contain"
+                    />
+                  </picture>
                 </div>
               )}
               {serviceData.whatItIs?.video?.src && (
@@ -129,15 +136,22 @@ const WhatItIs: React.FC<WhatItIsProps> = ({ serviceData }) => {
             <div className="flex flex-col justify-center">
               {serviceData.whatItIs?.image?.src && (
                 <div className="rounded-2xl bg-stone-700 ring-1 ring-white/10 overflow-hidden w-full max-w-lg mx-auto">
-                  <img 
-                    src={serviceData.whatItIs.image.src} 
-                    alt={serviceData.whatItIs.image.alt || "Service illustration"}
-                    width={500}
-                    height={400}
-                    loading="lazy"
-                    decoding="async"
-                    className="w-full h-full object-contain"
-                  />
+                  <picture>
+                    <source
+                      type="image/webp"
+                      srcSet={`${serviceData.whatItIs.image.src.replace(/\.(png|jpg|jpeg)$/i, '.webp')} 500w, ${serviceData.whatItIs.image.src.replace(/\.(png|jpg|jpeg)$/i, '.webp')} 800w`}
+                      sizes="(max-width: 640px) 100vw, 50vw"
+                    />
+                    <img 
+                      src={serviceData.whatItIs.image.src} 
+                      alt={serviceData.whatItIs.image.alt || "Service illustration"}
+                      width={500}
+                      height={400}
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-contain"
+                    />
+                  </picture>
                 </div>
               )}
               {serviceData.whatItIs?.video?.src && (

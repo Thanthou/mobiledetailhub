@@ -1,130 +1,186 @@
 /**
- * Utility functions for responsive images
+ * Image optimization utilities for responsive images and WebP conversion
  */
 
 /**
- * Generate srcset from a base URL by detecting common patterns
- * Supports URLs like:
- * - /images/hero-1280.jpg -> /images/hero-640.jpg, /images/hero-1920.jpg
- * - /images/hero.jpg -> /images/hero-640.jpg, /images/hero-960.jpg (explicit widths)
- * 
- * @param baseUrl - The base image URL
- * @param widths - Optional array of widths to generate (defaults to common sizes)
+ * Converts image URL to WebP format
+ * @param imageUrl - Original image URL
+ * @returns WebP version of the image URL
  */
-export function generateSrcSet(
-  baseUrl: string,
-  widths: number[] = [640, 750, 828, 1080, 1280, 1920, 2048, 3840]
-): string | undefined {
-  const { base, ext, query } = splitUrl(baseUrl);
-  
-  if (!ext) {
-    // No extension found, return undefined (use src only)
-    return undefined;
-  }
-  
-  // Check if URL already has a size suffix pattern (e.g., -1280)
-  const sizePattern = /-(\d{3,4})$/;
-  const match = base.match(sizePattern);
-  
-  // Only generate srcset if URL already has a size suffix
-  // This prevents generating invalid URLs for images that don't follow the pattern
-  if (!match || !match[1]) {
-    return undefined;
-  }
-  
-  // URL already has size suffix - strip it and filter to relevant sizes
-  const currentSize = parseInt(match[1], 10);
-  const baseWithoutSize = base.replace(sizePattern, '');
-  // Only include sizes up to and slightly beyond the current size
-  const relevantSizes = widths.filter(s => s <= currentSize * 1.5);
-  
-  // Generate srcset string
-  return relevantSizes
-    .map(size => `${baseWithoutSize}-${size}${ext}${query} ${size}w`)
-    .join(', ');
-}
+export const toWebp = (imageUrl: string): string => {
+  if (!imageUrl) return imageUrl;
+  return imageUrl.replace(/\.(png|jpg|jpeg)$/i, '.webp');
+};
 
 /**
- * Convert a JPG/PNG/WebP srcset to AVIF by switching the extension in each URL.
- * If the original URLs already have ".avif", returns them unchanged.
+ * Generates responsive srcSet for WebP images
+ * @param imageUrl - Original image URL
+ * @param widths - Array of widths to generate
+ * @returns WebP srcSet string
  */
-export function toAvif(srcset: string): string {
-  return swapExtInSrcset(srcset, 'avif');
-}
+export const generateWebpSrcSet = (imageUrl: string, widths: number[]): string => {
+  const webpUrl = toWebp(imageUrl);
+  return widths.map(width => `${webpUrl} ${width}w`).join(', ');
+};
 
 /**
- * Convert a JPG/PNG/AVIF srcset to WebP by switching the extension in each URL.
+ * Generates responsive srcSet for fallback images
+ * @param imageUrl - Original image URL
+ * @param widths - Array of widths to generate
+ * @returns Fallback srcSet string
  */
-export function toWebp(srcset: string): string {
-  return swapExtInSrcset(srcset, 'webp');
-}
-
-/* -------------------- helpers -------------------- */
-
-function splitUrl(input: string): { base: string; ext: string; query: string } {
-  // Preserve query/hash
-  const parts = input.split(/([?#].*)/);
-  const path = parts[0] ?? '';
-  const query = parts[1] ?? '';
-
-  // Handle no-extension URLs (e.g., from a CDN) by treating entire path as base
-  const lastDot = path.lastIndexOf('.');
-  if (lastDot <= path.lastIndexOf('/')) {
-    // no extension
-    return { base: path, ext: '', query };
-  }
-
-  const base = path.substring(0, lastDot);
-  const ext = path.substring(lastDot); // includes the dot, e.g. ".jpg"
-  return { base, ext, query };
-}
-
-function swapExtInSrcset(srcset: string, newExt: 'avif' | 'webp'): string {
-  return srcset
-    .split(',')
-    .map((entry) => {
-      const parts = entry.trim().split(/\s+/); // url + "640w"
-      const u = parts[0] ?? '';
-      const w = parts[1] ?? '';
-      
-      if (!u) return entry;
-      
-      const { base, ext, query } = splitUrl(u);
-      const current = ext.toLowerCase();
-      // Only swap for common raster formats
-      if (!current || current === `.${newExt}`) return `${u} ${w}`.trim();
-      if (!/\.(jpe?g|png|webp|avif)$/i.test(current)) return `${u} ${w}`.trim();
-      return `${base}.${newExt}${query} ${w}`.trim();
-    })
-    .join(', ');
-}
+export const generateFallbackSrcSet = (imageUrl: string, widths: number[]): string => {
+  return widths.map(width => `${imageUrl} ${width}w`).join(', ');
+};
 
 /**
- * Get appropriate sizes attribute for hero images
- * Mobile-first approach with proper breakpoints
+ * Generates responsive srcSet (alias for generateFallbackSrcSet for backward compatibility)
+ * @param imageUrl - Original image URL
+ * @param widths - Array of widths to generate
+ * @returns Fallback srcSet string
  */
-export function getHeroImageSizes(): string {
-  return '(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 100vw';
-}
+export const generateSrcSet = (imageUrl: string, widths: number[]): string => {
+  return generateFallbackSrcSet(imageUrl, widths);
+};
 
 /**
- * Get appropriate sizes attribute for card/grid images
- * Cards are typically:
- * - 100vw on mobile
- * - 50vw on tablet (2 columns)
- * - 33vw on desktop (3 columns)
+ * Gets responsive image sizes for card components
+ * @returns Sizes string for card images
  */
-export function getCardImageSizes(): string {
+export const getCardImageSizes = (): string => {
   return '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw';
-}
+};
 
 /**
- * Get appropriate sizes attribute for service images
- * Service images are typically:
- * - 100vw on mobile
- * - 50vw on tablet and up
+ * Gets responsive image sizes for hero components
+ * @returns Sizes string for hero images
  */
-export function getServiceImageSizes(): string {
-  return '(max-width: 768px) 100vw, 50vw';
-}
+export const getHeroImageSizes = (): string => {
+  return '(max-width: 1024px) 100vw, 60vw';
+};
 
+/**
+ * Gets responsive image sizes for service components
+ * @returns Sizes string for service images
+ */
+export const getServiceImageSizes = (): string => {
+  return '(max-width: 640px) 100vw, 50vw';
+};
+
+/**
+ * Common responsive image configurations
+ */
+export const RESPONSIVE_CONFIGS = {
+  // Hero images - large, high priority
+  hero: {
+    widths: [800, 1200, 1600],
+    sizes: '(max-width: 1024px) 100vw, 60vw',
+    loading: 'eager' as const,
+    decoding: 'sync' as const,
+  },
+  
+  // Service cards - medium priority
+  serviceCard: {
+    widths: [600, 1200],
+    sizes: '(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 100vw',
+    loading: 'lazy' as const,
+    decoding: 'async' as const,
+  },
+  
+  // Content images - medium priority
+  content: {
+    widths: [500, 800],
+    sizes: '(max-width: 640px) 100vw, 50vw',
+    loading: 'lazy' as const,
+    decoding: 'async' as const,
+  },
+  
+  // Process step images
+  process: {
+    widths: [600, 800],
+    sizes: '(max-width: 640px) 100vw, 50vw',
+    loading: 'lazy' as const,
+    decoding: 'async' as const,
+  },
+  
+  // Before/after slider images
+  slider: {
+    widths: [600, 1200],
+    sizes: '100vw',
+    loading: 'lazy' as const,
+    decoding: 'async' as const,
+  },
+  
+  // Profile avatars - small, low priority
+  avatar: {
+    widths: [64],
+    sizes: '64px',
+    loading: 'lazy' as const,
+    decoding: 'async' as const,
+  },
+  
+  // Icons - very small, low priority
+  icon: {
+    widths: [20, 32],
+    sizes: '20px, 32px',
+    loading: 'lazy' as const,
+    decoding: 'async' as const,
+  },
+} as const;
+
+/**
+ * Generates optimized image props for a given configuration
+ * @param imageUrl - Original image URL
+ * @param config - Responsive configuration
+ * @param alt - Alt text
+ * @param additionalProps - Additional props to merge
+ * @returns Optimized image props
+ */
+export const generateImageProps = (
+  imageUrl: string,
+  config: typeof RESPONSIVE_CONFIGS[keyof typeof RESPONSIVE_CONFIGS],
+  alt: string,
+  additionalProps: Record<string, unknown> = {}
+) => {
+  const webpSrcSet = generateWebpSrcSet(imageUrl, config.widths);
+  const fallbackSrcSet = generateFallbackSrcSet(imageUrl, config.widths);
+  
+  return {
+    alt,
+    loading: config.loading,
+    decoding: config.decoding,
+    srcSet: fallbackSrcSet,
+    sizes: config.sizes,
+    ...additionalProps,
+    // WebP source will be handled by <picture> element
+    webpSrcSet,
+  };
+};
+
+/**
+ * Creates a responsive picture element with WebP support
+ * @param imageUrl - Original image URL
+ * @param config - Responsive configuration
+ * @param alt - Alt text
+ * @param additionalProps - Additional props for the img element
+ * @returns JSX for picture element
+ */
+export const createResponsivePicture = (
+  imageUrl: string,
+  config: typeof RESPONSIVE_CONFIGS[keyof typeof RESPONSIVE_CONFIGS],
+  alt: string,
+  additionalProps: Record<string, unknown> = {}
+) => {
+  const webpSrcSet = generateWebpSrcSet(imageUrl, config.widths);
+  const fallbackSrcSet = generateFallbackSrcSet(imageUrl, config.widths);
+  
+  return {
+    webpSrcSet,
+    fallbackSrcSet,
+    sizes: config.sizes,
+    alt,
+    loading: config.loading,
+    decoding: config.decoding,
+    ...additionalProps,
+  };
+};

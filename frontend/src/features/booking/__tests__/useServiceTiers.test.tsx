@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useServiceTiers } from '../hooks/useServiceTiers';
 
 // Mock the dynamic imports
-vi.mock('@/data/affiliate-services/cars/service/services.json', () => ({
+vi.mock('@/data/mobile-detailing/pricing/cars/service/services.json', () => ({
   default: {
     'Basic Wash': {
       cost: 50,
@@ -23,7 +23,7 @@ vi.mock('@/data/affiliate-services/cars/service/services.json', () => ({
   }
 }));
 
-vi.mock('@/data/affiliate-services/cars/service/features.json', () => ({
+vi.mock('@/data/mobile-detailing/pricing/cars/service/features.json', () => ({
   default: {
     feature1: { name: 'Exterior Wash' },
     feature2: { name: 'Tire Cleaning' },

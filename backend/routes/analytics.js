@@ -9,16 +9,14 @@ const logger = require('../utils/logger');
  * Track custom analytics events
  */
 router.post('/track', asyncHandler(async (req, res) => {
-  try {
-    const { event, parameters, userProperties, customDimensions, timestamp } = req.body;
-    
-    // Validate required fields
-    if (!event) {
-      return res.status(400).json({
-        error: 'Missing required field: event',
-        message: 'Event name is required for analytics tracking'
-      });
-    }
+  const { event, parameters, userProperties, customDimensions, timestamp } = req.body;
+  
+  // Validate required fields
+  if (!event) {
+    const error = new Error('Event name is required for analytics tracking');
+    error.statusCode = 400;
+    throw error;
+  }
 
     // Get client information
     const clientInfo = {
@@ -86,19 +84,11 @@ router.post('/track', asyncHandler(async (req, res) => {
       parameters: parameters ? Object.keys(parameters).length : 0
     });
 
-    res.status(200).json({
-      success: true,
-      message: 'Analytics event tracked successfully',
-      eventId: Date.now() // Simple event ID for confirmation
-    });
-
-  } catch (error) {
-    logger.error('Error tracking analytics event:', error);
-    res.status(500).json({
-      error: 'Failed to track analytics event',
-      message: 'Internal server error while processing analytics data'
-    });
-  }
+  res.status(200).json({
+    success: true,
+    message: 'Analytics event tracked successfully',
+    eventId: Date.now() // Simple event ID for confirmation
+  });
 }));
 
 /**
@@ -106,16 +96,14 @@ router.post('/track', asyncHandler(async (req, res) => {
  * Get analytics events for a tenant (admin only)
  */
 router.get('/events/:tenantId', asyncHandler(async (req, res) => {
-  try {
-    const { tenantId } = req.params;
-    const { limit = 100, offset = 0, eventType } = req.query;
+  const { tenantId } = req.params;
+  const { limit = 100, offset = 0, eventType } = req.query;
 
-    if (!pool) {
-      return res.status(503).json({
-        error: 'Database unavailable',
-        message: 'Analytics data is not available'
-      });
-    }
+  if (!pool) {
+    const error = new Error('Analytics data is not available');
+    error.statusCode = 503;
+    throw error;
+  }
 
     let query = `
       SELECT 
@@ -142,21 +130,13 @@ router.get('/events/:tenantId', asyncHandler(async (req, res) => {
 
     const result = await pool.query(query, queryParams);
 
-    res.json({
-      success: true,
-      events: result.rows,
-      total: result.rows.length,
-      limit: parseInt(limit),
-      offset: parseInt(offset)
-    });
-
-  } catch (error) {
-    logger.error('Error fetching analytics events:', error);
-    res.status(500).json({
-      error: 'Failed to fetch analytics events',
-      message: 'Internal server error while retrieving analytics data'
-    });
-  }
+  res.json({
+    success: true,
+    events: result.rows,
+    total: result.rows.length,
+    limit: parseInt(limit),
+    offset: parseInt(offset)
+  });
 }));
 
 /**
@@ -164,16 +144,14 @@ router.get('/events/:tenantId', asyncHandler(async (req, res) => {
  * Get analytics summary for a tenant (admin only)
  */
 router.get('/summary/:tenantId', asyncHandler(async (req, res) => {
-  try {
-    const { tenantId } = req.params;
-    const { days = 30 } = req.query;
+  const { tenantId } = req.params;
+  const { days = 30 } = req.query;
 
-    if (!pool) {
-      return res.status(503).json({
-        error: 'Database unavailable',
-        message: 'Analytics summary is not available'
-      });
-    }
+  if (!pool) {
+    const error = new Error('Analytics summary is not available');
+    error.statusCode = 503;
+    throw error;
+  }
 
     const result = await pool.query(`
       SELECT 
@@ -218,19 +196,11 @@ router.get('/summary/:tenantId', asyncHandler(async (req, res) => {
       summary.eventsByDay[date] += parseInt(row.event_count);
     });
 
-    res.json({
-      success: true,
-      summary,
-      days: parseInt(days)
-    });
-
-  } catch (error) {
-    logger.error('Error generating analytics summary:', error);
-    res.status(500).json({
-      error: 'Failed to generate analytics summary',
-      message: 'Internal server error while processing analytics data'
-    });
-  }
+  res.json({
+    success: true,
+    summary,
+    days: parseInt(days)
+  });
 }));
 
 module.exports = router;

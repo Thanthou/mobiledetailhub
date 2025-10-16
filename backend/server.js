@@ -6,6 +6,7 @@ const path = require('path');
 
 // Import typed environment variables
 const { env } = require('./config/env');
+const { initializeCronJobs } = require('./services/cronService');
 
 // Import environment validator
 const { validateEnvironment } = require('./utils/envValidator');
@@ -415,6 +416,9 @@ async function startServer() {
     process.exit(1);
   }
 
+  // Initialize cron jobs for token cleanup
+  initializeCronJobs();
+  
   // Start server after successful database setup
   server = app.listen(PORT, '0.0.0.0', () => {
     // Check if we're already shutting down

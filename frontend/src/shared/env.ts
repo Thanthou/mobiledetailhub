@@ -56,7 +56,7 @@ export const config = {
   
   // API Configuration
   apiBaseUrl: env.VITE_API_BASE_URL || 'http://192.168.4.21:3001', // Use network IP for mobile compatibility
-  apiUrl: env.VITE_API_URL || (env.PROD ? env.VITE_API_URL_LIVE || '' : ''),
+  apiUrl: env.VITE_API_URL || (env.PROD ? env.VITE_API_URL_LIVE || '' : ''), // Empty in dev to use Vite proxy
   apiUrls: {
     local: env.VITE_API_URL_LOCAL || 'http://localhost:3001',
     live: env.VITE_API_URL_LIVE || '',

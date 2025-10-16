@@ -1,6 +1,7 @@
 import { useCallback,useEffect, useRef, useState } from 'react';
 
 import { GalleryImage } from '../types';
+import { galleryApi } from '../api/gallery.api';
 
 // Fisher-Yates shuffle algorithm
 function shuffleArray<T>(array: T[]): T[] {
@@ -53,9 +54,7 @@ export function useRotatingGallery() {
     let cancelled = false;
     void (async (): Promise<void> => {
         try {
-          const res = await fetch('/mobile-detailing/data/gallery.json');
-          if (!res.ok) throw new Error(`Failed to fetch gallery data: ${res.status}`);
-          const data = await res.json() as GalleryImage[];
+          const data = await galleryApi.getGalleryImages();
 
           // Check if component is still mounted before updating state
           // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- cancelled can be set to true by cleanup function before async completes

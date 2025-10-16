@@ -75,8 +75,8 @@ export const useAddons = (vehicleType: string, category: string) => {
         // Try to load service.json first (for windows), then fall back to category-specific files
         try {
           const [addonsData, featuresData] = await Promise.all([
-            import(`@/data/affiliate-services/${folderName}/addons/${category}/service.json`) as Promise<ImportedModule>,
-            import(`@/data/affiliate-services/${folderName}/addons/${category}/features.json`) as Promise<{ default: FeatureData }>
+            import(`@/data/mobile-detailing/pricing/${folderName}/addons/${category}/service.json`) as Promise<ImportedModule>,
+            import(`@/data/mobile-detailing/pricing/${folderName}/addons/${category}/features.json`) as Promise<{ default: FeatureData }>
           ]);
           
           return {
@@ -86,7 +86,7 @@ export const useAddons = (vehicleType: string, category: string) => {
           };
         } catch {
           // Try to load category-specific file (wheels.json, trim.json, etc.)
-          const categoryData = await import(`@/data/affiliate-services/${folderName}/addons/${category}/${category}.json`) as Promise<ImportedModule>;
+          const categoryData = await import(`@/data/mobile-detailing/pricing/${folderName}/addons/${category}/${category}.json`) as Promise<ImportedModule>;
           
           return {
             addons: categoryData.default as AddonDataRecord,

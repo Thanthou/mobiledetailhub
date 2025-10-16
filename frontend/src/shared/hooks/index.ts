@@ -20,8 +20,6 @@ export { withAsyncErrorBoundary, withErrorBoundary } from './withErrorBoundary';
 export { useDebouncedValue } from './useDebouncedValue';
 export { useEventListener } from './useEventListener';
 export { useLocalStorage } from './useLocalStorage';
-export { useMobileDetection } from './useMobileDetection';
-export { usePWAStatus } from './usePWAStatus';
 export { 
   BREAKPOINTS,
   useBreakpoint,
@@ -31,8 +29,10 @@ export {
   useIsTablet,
   useMediaQuery
 } from './useMediaQuery';
-export { useModalPrefetch, usePrefetch } from './usePrefetch';
+export { useMobileDetection } from './useMobileDetection';
 export { usePerformanceMonitor } from './usePerformanceMonitor';
+export { useModalPrefetch, usePrefetch } from './usePrefetch';
+export { usePWAStatus } from './usePWAStatus';
 export { useScrollSpy } from './useScrollSpy';
 export { useScrollToTop } from './useScrollToTop';
 

@@ -49,7 +49,7 @@ export const useServiceTiers = (vehicleType: string): {
 
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['serviceTiers', vehicleType],
+    queryKey: ['booking','serviceTiers', vehicleType],
     queryFn: async () => {
       const folderName = toFolderName(vehicleType);
       
@@ -59,8 +59,8 @@ export const useServiceTiers = (vehicleType: string): {
 
       // Dynamically import the services data for the specific vehicle type
       const [servicesModule, featuresModule] = await Promise.all([
-        import(`@/data/affiliate-services/${folderName}/service/services.json`),
-        import(`@/data/affiliate-services/${folderName}/service/features.json`)
+        import(`@/data/mobile-detailing/pricing/${folderName}/service/services.json`),
+        import(`@/data/mobile-detailing/pricing/${folderName}/service/features.json`)
       ]) as [{ default: Record<string, ServiceEntry> }, { default: FeatureData }];
 
       

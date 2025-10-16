@@ -1,5 +1,7 @@
 // Services feature public exports
+export { default as BeforeAfterSlider } from './components/BeforeAfterSlider';
 export { default as Process } from './components/Process';
+export { ProtectionComparisonChart } from './components/ProtectionComparisonChart';
 export { default as Results } from './components/Results';
 export { default as ServiceCard } from './components/ServiceCard';
 export { default as ServiceCTA } from './components/ServiceCTA';

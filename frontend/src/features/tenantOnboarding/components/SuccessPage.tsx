@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CheckCircle, Sparkles, Settings } from 'lucide-react';
+import { CheckCircle, Settings,Sparkles } from 'lucide-react';
 
-import { Button } from '@/shared/ui';
 import { useAuth } from '@/shared/hooks';
+import { Button } from '@/shared/ui';
 
 
 const SuccessPage: React.FC = () => {

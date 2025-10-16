@@ -35,11 +35,22 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ review, isOpen, onClose }) =>
                   className="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center text-white font-semibold text-xl overflow-hidden hover:bg-orange-600 transition-colors"
                 >
                   {review.profileImage ? (
-                    <img 
-                      src={review.profileImage} 
-                      alt={review.customerName}
-                      className="w-full h-full object-cover rounded-full"
-                    />
+                    <picture>
+                      <source
+                        type="image/webp"
+                        srcSet={`${review.profileImage.replace(/\.(png|jpg|jpeg)$/i, '.webp')} 64w`}
+                        sizes="64px"
+                      />
+                      <img 
+                        src={review.profileImage} 
+                        alt={review.customerName}
+                        className="w-full h-full object-cover rounded-full"
+                        width={64}
+                        height={64}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </picture>
                   ) : (
                     review.customerName.charAt(0).toUpperCase()
                   )}
@@ -47,11 +58,22 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ review, isOpen, onClose }) =>
               ) : (
                 <div className="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center text-white font-semibold text-xl overflow-hidden">
                   {review.profileImage ? (
-                    <img 
-                      src={review.profileImage} 
-                      alt={review.customerName}
-                      className="w-full h-full object-cover rounded-full"
-                    />
+                    <picture>
+                      <source
+                        type="image/webp"
+                        srcSet={`${review.profileImage.replace(/\.(png|jpg|jpeg)$/i, '.webp')} 64w`}
+                        sizes="64px"
+                      />
+                      <img 
+                        src={review.profileImage} 
+                        alt={review.customerName}
+                        className="w-full h-full object-cover rounded-full"
+                        width={64}
+                        height={64}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </picture>
                   ) : (
                     review.customerName.charAt(0).toUpperCase()
                   )}
@@ -92,19 +114,41 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ review, isOpen, onClose }) =>
                   rel="noopener noreferrer"
                   className="hover:opacity-80 transition-opacity"
                 >
+                  <picture>
+                    <source
+                      type="image/webp"
+                      srcSet={`/shared/icons/${review.reviewSource}.webp`}
+                      sizes="32px"
+                    />
+                    <img 
+                      src={`/shared/icons/${review.reviewSource}.png`}
+                      alt={review.reviewSource}
+                      className="w-8 h-8 rounded"
+                      width={32}
+                      height={32}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </picture>
+                </a>
+              )}
+              {review.reviewSource && !review.reviewerUrl && (
+                <picture>
+                  <source
+                    type="image/webp"
+                    srcSet={`/shared/icons/${review.reviewSource}.webp`}
+                    sizes="32px"
+                  />
                   <img 
                     src={`/shared/icons/${review.reviewSource}.png`}
                     alt={review.reviewSource}
                     className="w-8 h-8 rounded"
+                    width={32}
+                    height={32}
+                    loading="lazy"
+                    decoding="async"
                   />
-                </a>
-              )}
-              {review.reviewSource && !review.reviewerUrl && (
-                <img 
-                  src={`/shared/icons/${review.reviewSource}.png`}
-                  alt={review.reviewSource}
-                  className="w-8 h-8 rounded"
-                />
+                </picture>
               )}
             </div>
           </div>

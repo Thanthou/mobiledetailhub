@@ -1,4 +1,5 @@
 const { v4: uuidv4 } = require('uuid');
+const { createRequestLogger: createPinoRequestLogger, logApiRequest } = require('../config/logger');
 const logger = require('../utils/logger');
 
 // PII patterns for redaction
@@ -65,6 +66,10 @@ const requestLogger = (req, res, next) => {
   
   // Add correlation ID to response headers for client tracking
   res.setHeader('X-Request-ID', req.id);
+  res.setHeader('X-Correlation-ID', req.id);
+  
+  // Create request-scoped logger
+  req.logger = createPinoRequestLogger(req, res, next);
   
   // Log request start
   logger.info('Request started', {
@@ -82,16 +87,8 @@ const requestLogger = (req, res, next) => {
   res.end = function(chunk, encoding) {
     const duration = Date.now() - req.startTime;
     
-    // Log request completion
-    logger.info('Request completed', {
-      requestId: req.id,
-      method: req.method,
-      path: req.path,
-      statusCode: res.statusCode,
-      duration: `${duration}ms`,
-      ip: req.ip,
-      userAgent: req.get('User-Agent')
-    });
+    // Use the new pino API request logging
+    logApiRequest(req, res, duration);
     
     // Clean up global request context
     global.currentRequest = null;

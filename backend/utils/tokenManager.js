@@ -8,21 +8,14 @@ const crypto = require('crypto');
 const logger = require('./logger');
 const { env } = require('../config/env');
 const { pool } = require('../database/pool');
+const { AUTH_CONFIG } = require('../config/auth');
 
 /**
  * Token configuration
  */
 const TOKEN_CONFIG = {
-  // Access token: short-lived for security
-  ACCESS_TOKEN: {
-    expiresIn: '15m', // 15 minutes
-    algorithm: 'HS256'
-  },
-  // Refresh token: longer-lived but revocable
-  REFRESH_TOKEN: {
-    expiresIn: '7d', // 7 days
-    algorithm: 'HS256'
-  }
+  ACCESS_TOKEN: { expiresIn: AUTH_CONFIG.ACCESS_EXPIRES_IN, algorithm: 'HS256' },
+  REFRESH_TOKEN: { expiresIn: AUTH_CONFIG.REFRESH_EXPIRES_IN, algorithm: 'HS256' },
 };
 
 /**
@@ -42,8 +35,8 @@ const generateAccessToken = (payload) => {
   return jwt.sign(payload, env.JWT_SECRET, {
     expiresIn: TOKEN_CONFIG.ACCESS_TOKEN.expiresIn,
     algorithm: TOKEN_CONFIG.ACCESS_TOKEN.algorithm,
-    issuer: 'platform-backend',
-    audience: 'platform-users',
+    issuer: AUTH_CONFIG.ISSUER,
+    audience: AUTH_CONFIG.AUDIENCE,
     jwtid: jwtid,
     header: { 
       kid: env.JWT_KID || 'primary' // Key ID for future key rotation
@@ -70,8 +63,8 @@ const generateRefreshToken = (payload) => {
   return jwt.sign(payload, secret, {
     expiresIn: TOKEN_CONFIG.REFRESH_TOKEN.expiresIn,
     algorithm: TOKEN_CONFIG.REFRESH_TOKEN.algorithm,
-    issuer: 'platform-backend',
-    audience: 'platform-users',
+    issuer: AUTH_CONFIG.ISSUER,
+    audience: AUTH_CONFIG.AUDIENCE,
     jwtid: jwtid,
     header: { 
       kid: env.JWT_KID || 'primary' // Key ID for future key rotation
@@ -112,8 +105,8 @@ const verifyAccessToken = (token) => {
   try {
     return jwt.verify(token, env.JWT_SECRET, {
       algorithms: [TOKEN_CONFIG.ACCESS_TOKEN.algorithm],
-      issuer: 'mdh-backend',
-      audience: 'mdh-users'
+      issuer: AUTH_CONFIG.ISSUER,
+      audience: AUTH_CONFIG.AUDIENCE,
     });
   } catch (error) {
     if (error.name === 'TokenExpiredError') {
@@ -141,8 +134,8 @@ const verifyRefreshToken = (token) => {
   try {
     return jwt.verify(token, secret, {
       algorithms: [TOKEN_CONFIG.REFRESH_TOKEN.algorithm],
-      issuer: 'mdh-backend',
-      audience: 'mdh-users'
+      issuer: AUTH_CONFIG.ISSUER,
+      audience: AUTH_CONFIG.AUDIENCE,
     });
   } catch (error) {
     if (error.name === 'TokenExpiredError') {

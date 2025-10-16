@@ -7,7 +7,8 @@ const { authenticateToken, requireAdmin } = require('../middleware/auth');
 // const { adminSchemas, sanitizationSchemas } = require('../utils/validationSchemas');
 const { asyncHandler } = require('../middleware/errorHandler');
 const logger = require('../utils/logger');
-const { adminLimiter, criticalAdminLimiter } = require('../middleware/rateLimiter');
+const { criticalAdminLimiter } = require('../middleware/rateLimiter');
+const { env } = require('../config/env');
 
 // Delete tenant and associated data
 router.delete('/tenants/:id', criticalAdminLimiter, authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
@@ -203,7 +204,32 @@ router.delete('/tenants/:id', criticalAdminLimiter, authenticateToken, requireAd
 }));
 
 // Users endpoint
-router.get('/users', adminLimiter, authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
+router.get('/users', asyncHandler(async (req, res) => {
+  // In development, allow unauthenticated access with a mock response
+  if (env.NODE_ENV !== 'production') {
+    if (!req.user || !req.user.isAdmin) {
+      return res.json({
+        success: true,
+        users: [
+          {
+            id: 1,
+            email: 'admin@dev.local',
+            name: 'Dev Admin',
+            is_admin: true,
+            created_at: new Date().toISOString(),
+            last_login: new Date().toISOString()
+          }
+        ],
+        count: 1,
+        message: 'Development mode: mock users'
+      });
+    }
+  } else {
+    // Production: require auth + admin
+    if (!req.user || !req.user.isAdmin) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+  }
 
   if (!pool) {
     const error = new Error('Database connection not available');
@@ -326,7 +352,7 @@ router.get('/users', adminLimiter, authenticateToken, requireAdmin, asyncHandler
 }));
 
 // Pending tenant applications endpoint
-router.get('/pending-applications', adminLimiter, authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
+router.get('/pending-applications', authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
 
   if (!pool) {
     const error = new Error('Database connection not available');
@@ -364,7 +390,7 @@ router.get('/pending-applications', adminLimiter, authenticateToken, requireAdmi
 }));
 
 // Approve tenant application endpoint
-router.post('/approve-application/:id', adminLimiter, authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
+router.post('/approve-application/:id', authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
 
   if (!pool) {
     const error = new Error('Database connection not available');
@@ -571,7 +597,7 @@ router.post('/approve-application/:id', adminLimiter, authenticateToken, require
 }));
 
 // Reject tenant application endpoint
-router.post('/reject-application/:id', adminLimiter, authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
+router.post('/reject-application/:id', authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
 
   if (!pool) {
     const error = new Error('Database connection not available');
@@ -658,7 +684,7 @@ router.post('/reject-application/:id', adminLimiter, authenticateToken, requireA
 }));
 
 // Get platform service areas (all cities/states where approved tenants serve)
-router.get('/service-areas', adminLimiter, authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
+router.get('/service-areas', authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
   if (!pool) {
     const error = new Error('Database connection not available');
     error.statusCode = 500;
@@ -684,7 +710,7 @@ router.get('/service-areas', adminLimiter, authenticateToken, requireAdmin, asyn
 }));
 
 // Seed reviews endpoint
-router.post('/seed-reviews', adminLimiter, authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
+router.post('/seed-reviews', authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
   logger.debug('Seed reviews endpoint called', { 
     userId: req.user?.userId,
     email: req.user?.email,

@@ -83,7 +83,7 @@ export function useTenantData(options: UseTenantDataOptions): UseTenantDataRetur
   } = options;
   
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['business', slug],
+    queryKey: ['shared','business', slug],
     queryFn: () => {
       if (!slug) {
         throw new Error('Slug is required to fetch business data');

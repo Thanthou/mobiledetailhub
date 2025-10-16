@@ -1,246 +1,32 @@
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcryptjs');
-const { pool } = require('../database/pool');
 const { authenticateToken } = require('../middleware/auth');
-const { validateBody, sanitize } = require('../middleware/validation');
-const { authSchemas, sanitizationSchemas } = require('../utils/validationSchemas');
-const { generateTokenPair, blacklistToken } = require('../utils/tokenManager');
-const { 
-  storeRefreshToken, 
-  validateRefreshToken, 
-  revokeRefreshToken, 
-  revokeAllUserTokens,
-  revokeDeviceToken,
-  generateDeviceId,
-  getUserTokens
-} = require('../services/refreshTokenService');
+const { validateBody, validateQuery } = require('../middleware/zodValidation');
+const { authSchemas } = require('../schemas/apiSchemas');
 const { asyncHandler } = require('../middleware/errorHandler');
-// TODO: Add proper logging throughout auth routes
-// const logger = require('../utils/logger');
 const { authLimiter, sensitiveAuthLimiter, refreshTokenLimiter } = require('../middleware/rateLimiter');
-const { env } = require('../config/env');
+const authController = require('../controllers/authController');
+const passwordResetController = require('../controllers/passwordResetController');
 
 // Check if email exists (for onboarding validation)
-router.get('/check-email',
-  authLimiter,
-  asyncHandler(async (req, res) => {
-    const { email } = req.query;
-
-    if (!email) {
-      return res.status(400).json({
-        success: false,
-        message: 'Email is required'
-      });
-    }
-
-    // Check if user already exists
-    const existingUser = await pool.query('SELECT id FROM auth.users WHERE email = $1', [email]);
-    
-    res.json({
-      success: true,
-      exists: existingUser.rows.length > 0
-    });
-  })
+router.get('/check-email', 
+  authLimiter, 
+  validateQuery(authSchemas.checkEmail),
+  asyncHandler(authController.checkEmail)
 );
 
 // User Registration
 router.post('/register', 
   sensitiveAuthLimiter,
-  sanitize(sanitizationSchemas.auth),
   validateBody(authSchemas.register),
-  asyncHandler(async (req, res) => {
-    const { email, password, name, phone } = req.body;
-
-
-    if (!pool) {
-      const error = new Error('Database connection not available');
-      error.statusCode = 500;
-      throw error;
-    }
-    
-    // Check if user already exists
-    const existingUser = await pool.query('SELECT id FROM auth.users WHERE email = $1', [email]);
-    if (existingUser.rows.length > 0) {
-      const error = new Error('User already exists');
-      error.statusCode = 400;
-      throw error;
-    }
-
-    // Hash password
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-    // Check if user should be admin based on environment variable
-    const ADMIN_EMAILS = env.ADMIN_EMAILS?.split(',') || [];
-    const isAdmin = ADMIN_EMAILS.includes(email);
-
-    // Create user with admin status if applicable
-    const result = await pool.query(
-      'INSERT INTO auth.users (email, password_hash, name, phone, is_admin, created_at) VALUES ($1, $2, $3, $4, $5, NOW()) RETURNING id, email, name, phone, is_admin, created_at',
-      [email, hashedPassword, name, phone, isAdmin]
-    );
-
-    // Generate token pair (access + refresh)
-    const tokenPayload = { 
-      userId: result.rows[0].id, 
-      email: result.rows[0].email, 
-      isAdmin 
-    };
-    
-    const tokens = generateTokenPair(tokenPayload);
-    
-    // Store refresh token in database
-    const deviceId = generateDeviceId(req.get('User-Agent'), req.ip);
-    const tokenHash = require('crypto').createHash('sha256').update(tokens.refreshToken).digest('hex');
-    
-    await storeRefreshToken(
-      result.rows[0].id,
-      tokenHash,
-      new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
-      req.ip,
-      req.get('User-Agent'),
-      deviceId
-    );
-
-    if (isAdmin) {
-      // Admin user created
-    }
-
-    // Set HttpOnly cookies for enhanced security
-    res.cookie('access_token', tokens.accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 15 * 60 * 1000 // 15 minutes (matches access token expiry)
-    });
-    
-    res.cookie('refresh_token', tokens.refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days (matches refresh token expiry)
-    });
-
-    res.json({
-      success: true,
-      user: {
-        id: result.rows[0].id,
-        email: result.rows[0].email,
-        name: result.rows[0].name,
-        phone: result.rows[0].phone,
-        is_admin: isAdmin
-      },
-      accessToken: tokens.accessToken,
-      refreshToken: tokens.refreshToken,
-      expiresIn: tokens.expiresIn,
-      refreshExpiresIn: tokens.refreshExpiresIn
-    });
-  })
+  asyncHandler(authController.register)
 );
 
 // User Login
 router.post('/login', 
-  sensitiveAuthLimiter, // Apply sensitive auth rate limiting
-  sanitize(sanitizationSchemas.auth),
+  sensitiveAuthLimiter,
   validateBody(authSchemas.login),
-  asyncHandler(async (req, res) => {
-    const { email, password } = req.body;
-
-    if (!pool) {
-      const error = new Error('Database connection not available');
-      error.statusCode = 500;
-      throw error;
-    }
-    
-    // Find user
-    const result = await pool.query('SELECT * FROM auth.users WHERE email = $1', [email]);
-    
-    if (result.rows.length === 0) {
-      const error = new Error('Email or password is incorrect');
-      error.statusCode = 401;
-      error.code = 'INVALID_CREDENTIALS';
-      throw error;
-    }
-
-    const user = result.rows[0];
-
-    // Check password
-    const validPassword = await bcrypt.compare(password, user.password_hash);
-    
-    if (!validPassword) {
-      const error = new Error('Email or password is incorrect');
-      error.statusCode = 401;
-      error.code = 'INVALID_CREDENTIALS';
-      throw error;
-    }
-
-    // Check if user should be admin based on environment variable
-    const ADMIN_EMAILS = env.ADMIN_EMAILS?.split(',') || [];
-    let isAdmin = user.is_admin || false;
-    
-    // Auto-promote to admin if email is in ADMIN_EMAILS list
-    if (ADMIN_EMAILS.includes(user.email) && !user.is_admin) {
-      await pool.query('UPDATE auth.users SET is_admin = TRUE WHERE id = $1', [user.id]);
-      isAdmin = true;
-    }
-
-    // Generate token pair (access + refresh)
-    const tokenPayload = { 
-      userId: user.id, 
-      email: user.email, 
-      isAdmin 
-    };
-    
-    const tokens = generateTokenPair(tokenPayload);
-    
-    // Store refresh token in database
-    const deviceId = generateDeviceId(req.get('User-Agent'), req.ip);
-    const tokenHash = require('crypto').createHash('sha256').update(tokens.refreshToken).digest('hex');
-    
-    await storeRefreshToken(
-      user.id,
-      tokenHash,
-      new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
-      req.ip,
-      req.get('User-Agent'),
-      deviceId
-    );
-
-    // Set HttpOnly cookies for enhanced security
-    res.cookie('access_token', tokens.accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 15 * 60 * 1000 // 15 minutes (matches access token expiry)
-    });
-    
-    res.cookie('refresh_token', tokens.refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days (matches refresh token expiry)
-    });
-
-    res.json({
-      success: true,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        phone: user.phone,
-        is_admin: isAdmin
-      },
-      accessToken: tokens.accessToken,
-      refreshToken: tokens.refreshToken,
-      expiresIn: tokens.expiresIn,
-      refreshExpiresIn: tokens.refreshExpiresIn
-    });
-  })
+  asyncHandler(authController.login)
 );
 
 // Get Current User (Protected Route)
@@ -347,6 +133,7 @@ router.post('/refresh', refreshTokenLimiter, asyncHandler(async (req, res) => {
   await revokeRefreshToken(tokenHash);
 
   // Set HttpOnly cookies for enhanced security
+  const { AUTH_CONFIG } = require('../config/auth');
   res.cookie('access_token', tokens.accessToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
@@ -355,13 +142,7 @@ router.post('/refresh', refreshTokenLimiter, asyncHandler(async (req, res) => {
     maxAge: 15 * 60 * 1000 // 15 minutes (matches access token expiry)
   });
   
-  res.cookie('refresh_token', tokens.refreshToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    path: '/',
-    maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days (matches refresh token expiry)
-  });
+  res.cookie(AUTH_CONFIG.REFRESH_COOKIE_NAME, tokens.refreshToken, AUTH_CONFIG.getRefreshCookieOptions());
 
   // Consistent response format matching login endpoint
   res.json({
@@ -403,12 +184,8 @@ router.post('/logout', authenticateToken, asyncHandler(async (req, res) => {
     path: '/'
   });
   
-  res.clearCookie('refresh_token', {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    path: '/'
-  });
+  const { AUTH_CONFIG: AUTH_CFG } = require('../config/auth');
+  res.clearCookie(AUTH_CFG.REFRESH_COOKIE_NAME, AUTH_CFG.getRefreshCookieOptions());
 
   res.json({ success: true, message: 'Logged out successfully' });
 }));
@@ -450,6 +227,29 @@ router.get('/sessions', authenticateToken, asyncHandler(async (req, res) => {
     }))
   });
 }));
+
+// Password Reset Routes
+router.post('/request-password-reset', 
+  authLimiter,
+  validateBody(authSchemas.requestPasswordReset),
+  passwordResetController.requestPasswordReset
+);
+
+router.post('/reset-password', 
+  authLimiter,
+  validateBody(authSchemas.resetPassword),
+  passwordResetController.resetPassword
+);
+
+router.get('/validate-reset-token', 
+  authLimiter,
+  passwordResetController.validateResetToken
+);
+
+router.get('/reset-stats', 
+  authenticateToken,
+  passwordResetController.getResetStats
+);
 
 // Admin promotion endpoint (for development)
 router.post('/promote-admin', authLimiter, asyncHandler(async (req, res) => {

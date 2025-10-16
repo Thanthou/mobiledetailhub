@@ -26,7 +26,7 @@ interface UnknownApiResponse {
   [key: string]: unknown;
 }
 
-const API_BASE_URL = config.apiUrl;
+const API_BASE_URL = config.apiUrl || ''; // Empty string uses relative URLs (Vite proxy)
 
 export interface QuoteFormData {
   name: string;
@@ -294,39 +294,21 @@ class ApiService {
       ? `/api/admin/users?status=${status}`
       : '/api/admin/users';
     
-    // Use relative URL to leverage Vite proxy
-    const url = endpoint;
-    
     // Get token from localStorage (optional in development mode)
     const token = localStorage.getItem('token');
     
-    try {
-      const headers: HeadersInit = {
-        'Content-Type': 'application/json',
-      };
-      
-      // Only add Authorization header if token exists
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-      
-      const response = await fetch(url, {
-        headers,
-      });
-      
-      const data = await response.json() as UsersResponse;
-      
-      if (!response.ok) {
-        const errorMessage = data.message || 'Network response was not ok';
-        throw new Error(errorMessage);
-      }
-      
-      return data;
-      
-    } catch (error) {
-      console.error('API request failed:', error);
-      throw new Error(error instanceof Error ? error.message : 'An error occurred');
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+    
+    // Only add Authorization header if token exists
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
     }
+    
+    return this.makeRequest<UsersResponse>(endpoint, {
+      headers,
+    });
   }
 
   async getPendingApplications(): Promise<ApplicationsResponse> {

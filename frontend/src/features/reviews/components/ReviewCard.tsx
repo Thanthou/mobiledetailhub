@@ -32,11 +32,22 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, onReviewClick }) => {
         <div className="flex items-center space-x-4">
           <div className="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center text-white font-semibold overflow-hidden">
             {review.profileImage ? (
-              <img 
-                src={review.profileImage} 
-                alt={review.customerName}
-                className="w-full h-full object-cover rounded-full"
-              />
+              <picture>
+                <source
+                  type="image/webp"
+                  srcSet={`${review.profileImage.replace(/\.(png|jpg|jpeg)$/i, '.webp')} 64w`}
+                  sizes="64px"
+                />
+                <img 
+                  src={review.profileImage} 
+                  alt={review.customerName}
+                  className="w-full h-full object-cover rounded-full"
+                  width={64}
+                  height={64}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </picture>
             ) : (
               review.customerName.charAt(0).toUpperCase()
             )}
@@ -86,11 +97,22 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, onReviewClick }) => {
         </div>
         <div>
           {review.reviewSource && (
-            <img 
-              src={`/shared/icons/${review.reviewSource}.png`}
-              alt={review.reviewSource}
-              className="w-5 h-5 rounded"
-            />
+            <picture>
+              <source
+                type="image/webp"
+                srcSet={`/shared/icons/${review.reviewSource}.webp`}
+                sizes="20px"
+              />
+              <img 
+                src={`/shared/icons/${review.reviewSource}.png`}
+                alt={review.reviewSource}
+                className="w-5 h-5 rounded"
+                width={20}
+                height={20}
+                loading="lazy"
+                decoding="async"
+              />
+            </picture>
           )}
         </div>
       </div>

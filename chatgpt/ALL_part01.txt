@@ -274,13 +274,12 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, '/api'),
-        configure: (proxy, options) => {
-          proxy.on('proxyReq', (proxyReq, req, res) => {
-            console.log('[Vite Proxy] →', req.method, req.url, '→', proxyReq.getHeader('host'));
+        configure: (proxy, _options) => {
+          proxy.on('proxyReq', (_proxyReq, _req, _res) => {
+            // Debug logging removed for production
           });
-          proxy.on('error', (err, req, res) => {
-            console.error('[Vite Proxy Error]', err.message);
-            console.error('[Vite Proxy Error] Request:', req.method, req.url);
+          proxy.on('error', (_err, _req, _res) => {
+            // Error logging removed for production
           });
         },
       },
@@ -19052,219 +19051,6 @@ inspectDatabase(level);
 
 *** END FILE ***
 
-*** FILE: backend\scripts\provision-seo-config.js ***
-#!/usr/bin/env node
-
-/**
- * SEO Configuration Provisioning Script
- * 
- * Extends tenant provisioning to include SEO configuration.
- * This ensures Cursor's schema diff sees website.seo_config and
- * ties the new SEO layer to real data.
- */
-
-import { pool } from '../database/pool.js';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-/**
- * Load industry SEO defaults from JSON files
- */
-function loadIndustryDefaults(industry) {
-  const defaultsPath = path.resolve(__dirname, '../../frontend/src/shared/seo/seoDefaults', `${industry}.json`);
-  
-  if (!fs.existsSync(defaultsPath)) {
-    console.warn(`⚠️  No SEO defaults found for industry: ${industry}`);
-    return null;
-  }
-  
-  try {
-    const content = fs.readFileSync(defaultsPath, 'utf8');
-    return JSON.parse(content);
-  } catch (error) {
-    console.error(`❌ Error loading SEO defaults for ${industry}:`, error.message);
-    return null;
-  }
-}
-
-/**
- * Provision SEO configuration for a tenant
- */
-async function provisionSeoConfig(tenantId, industry, businessName) {
-  const defaults = loadIndustryDefaults(industry);
-  
-  if (!defaults) {
-    console.log(`⚠️  Skipping SEO config for tenant ${tenantId} (no defaults for ${industry})`);
-    return false;
-  }
-  
-  // Generate tenant-specific SEO content
-  const metaTitle = `${businessName} - ${defaults.title}`;
-  const metaDescription = defaults.description.replace('Expert', `${businessName} provides expert`);
-  const keywords = [...defaults.keywords];
-  
-  try {
-    await pool.query(`
-      INSERT INTO website.seo_config (
-        business_id, 
-        meta_title, 
-        meta_description, 
-        keywords,
-        created_at,
-        updated_at
-      ) VALUES ($1, $2, $3, $4, NOW(), NOW())
-      ON CONFLICT (business_id) 
-      DO UPDATE SET
-        meta_title = EXCLUDED.meta_title,
-        meta_description = EXCLUDED.meta_description,
-        keywords = EXCLUDED.keywords,
-        updated_at = NOW()
-    `, [tenantId, metaTitle, metaDescription, keywords]);
-    
-    console.log(`✅ SEO config provisioned for tenant ${tenantId} (${industry})`);
-    return true;
-  } catch (error) {
-    console.error(`❌ Error provisioning SEO config for tenant ${tenantId}:`, error.message);
-    return false;
-  }
-}
-
-/**
- * Provision SEO config for all existing tenants
- */
-async function provisionAllTenants() {
-  console.log('🚀 Starting SEO configuration provisioning...\n');
-  
-  try {
-    // Get all tenants
-    const result = await pool.query(`
-      SELECT 
-        b.id,
-        b.name as business_name,
-        b.industry,
-        b.created_at
-      FROM tenants.business b
-      LEFT JOIN website.seo_config sc ON sc.business_id = b.id
-      WHERE sc.id IS NULL
-      ORDER BY b.created_at DESC
-    `);
-    
-    if (result.rows.length === 0) {
-      console.log('✅ All tenants already have SEO configuration');
-      return;
-    }
-    
-    console.log(`📊 Found ${result.rows.length} tenants without SEO configuration\n`);
-    
-    let successCount = 0;
-    let failCount = 0;
-    
-    for (const tenant of result.rows) {
-      console.log(`🔧 Processing tenant: ${tenant.business_name} (${tenant.industry})`);
-      
-      const success = await provisionSeoConfig(
-        tenant.id, 
-        tenant.industry, 
-        tenant.business_name
-      );
-      
-      if (success) {
-        successCount++;
-      } else {
-        failCount++;
-      }
-    }
-    
-    console.log('\n📈 Provisioning Summary:');
-    console.log(`   ✅ Successful: ${successCount}`);
-    console.log(`   ❌ Failed: ${failCount}`);
-    console.log(`   📊 Total: ${result.rows.length}`);
-    
-  } catch (error) {
-    console.error('❌ Error during SEO provisioning:', error.message);
-    throw error;
-  }
-}
-
-/**
- * Create SEO config for a specific tenant
- */
-async function provisionSingleTenant(tenantId) {
-  console.log(`🚀 Provisioning SEO config for tenant ${tenantId}...\n`);
-  
-  try {
-    const result = await pool.query(`
-      SELECT id, name as business_name, industry
-      FROM tenants.business 
-      WHERE id = $1
-    `, [tenantId]);
-    
-    if (result.rows.length === 0) {
-      console.error(`❌ Tenant ${tenantId} not found`);
-      return false;
-    }
-    
-    const tenant = result.rows[0];
-    console.log(`📊 Tenant: ${tenant.business_name} (${tenant.industry})`);
-    
-    const success = await provisionSeoConfig(tenant.id, tenant.industry, tenant.business_name);
-    
-    if (success) {
-      console.log('✅ SEO configuration provisioned successfully');
-    }
-    
-    return success;
-    
-  } catch (error) {
-    console.error('❌ Error provisioning SEO config:', error.message);
-    return false;
-  }
-}
-
-// Main execution
-const args = process.argv.slice(2);
-
-if (args.includes('--help')) {
-  console.log(`
-🔧 SEO Configuration Provisioning Script
-
-Usage:
-  node backend/scripts/provision-seo-config.js [options] [tenantId]
-
-Arguments:
-  tenantId    Optional. Provision SEO config for specific tenant ID
-
-Options:
-  --help      Show this help message
-  --all       Provision SEO config for all tenants (default)
-
-Examples:
-  node backend/scripts/provision-seo-config.js --all
-  node backend/scripts/provision-seo-config.js 123
-    `);
-} else {
-  const tenantId = args.find(arg => !arg.startsWith('--'));
-  
-  if (tenantId) {
-    provisionSingleTenant(tenantId)
-      .then(() => process.exit(0))
-      .catch(() => process.exit(1));
-  } else {
-    provisionAllTenants()
-      .then(() => process.exit(0))
-      .catch(() => process.exit(1));
-  }
-}
-
-export { provisionSeoConfig, provisionAllTenants, provisionSingleTenant };
-
-
-*** END FILE ***
-
 *** FILE: backend\scripts\test-email.js ***
 /**
  * Test Email Service
@@ -25148,6 +24934,277 @@ module.exports = {
   getVehiclesByDatabaseId,
   getPrimaryVehicleType
 };
+
+
+*** END FILE ***
+
+*** FILE: current-cleanup.md ***
+Here’s a **high-impact, sequential code-review plan** tailored to your current codebase, priorities from `.cursorrules`, and what Cursor detected across the frontend + backend + database layers.
+This isn’t nit-picking — it’s focused on *architecture, maintainability, and multi-tenant scalability.*
+
+---
+
+## 🧱 1. Architecture & Folder Hygiene
+
+### Problem 1 – Feature Bleed-Through
+
+Some hooks and utils still reference cross-feature logic (e.g., booking logic calling services helpers).
+**Solution:**
+Create or extend `/shared/` sub-domains:
+
+```
+shared/
+  ├─ analytics/
+  ├─ seo/
+  ├─ tenancy/
+  ├─ ui/
+```
+
+Move any code used by multiple features here and update imports to `@/shared/...` to respect your Cursor rules on boundaries.
+
+---
+
+### Problem 2 – Mixed Responsibilities in “features”
+
+A few feature folders (esp. onboarding & reviews) still mix UI + data logic.
+**Solution:**
+Split long components:
+
+```
+PaymentSection.tsx → components/PaymentSection.tsx
+                     hooks/usePaymentFlow.ts
+```
+
+Keep presentational pieces pure, and side-effects inside hooks as mandated in `.cursorrules`.
+
+---
+
+### Problem 3 – Missing Barrel Consistency
+
+Some features have `index.ts` exports, others don’t.
+**Solution:**
+Every feature root (`features/<domain>/`) should have:
+
+```ts
+export * from './components'
+export * from './hooks'
+export * from './api'
+```
+
+→ Simplifies imports & improves Cursor auto-completion.
+
+---
+
+## ⚙️ 2. Backend Service Layer
+
+### Problem 4 – Thin but Scattered Controllers
+
+Your Express routes contain both business logic and response formatting.
+**Solution:**
+Adopt:
+
+```
+/controllers/
+/services/
+/routes/
+```
+
+Pattern:
+
+* routes → validation + controller call
+* controllers → parameter parsing + service orchestration
+* services → pure logic (DB, email, Stripe, etc.)
+
+This matches your rule: “no business logic in presentational components / keep side-effects isolated”, applied to backend too.
+
+---
+
+### Problem 5 – No Central Error Handling
+
+Try/catch duplicated in routes.
+**Solution:**
+Add global Express error middleware:
+
+```ts
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(err.status || 500).json({ error: err.message });
+});
+```
+
+Simplifies flow and keeps logs consistent.
+
+---
+
+### Problem 6 – Email/Stripe Logic Tightly Coupled
+
+The onboarding route performs DB + Stripe + SendGrid in-line.
+**Solution:**
+Split into services:
+
+```ts
+services/paymentsService.ts
+services/emailService.ts
+services/tenantProvisionService.ts
+```
+
+and call sequentially inside the controller; improves testability and isolates failures.
+
+---
+
+## 🧩 3. Database & Tenancy Model Refactors
+
+### Problem 7 – Tenant Duplication Logic
+
+Multiple modules manually filter by tenant_id.
+**Solution:**
+Create a `withTenant(context, query)` helper or SQL view enforcing `WHERE tenant_id=$1`.
+Wrap queries with this helper to stay DRY.
+
+---
+
+### Problem 8 – Schema Consistency
+
+`website.content` table mixes JSON/text blobs; risk of untyped inserts.
+**Solution:**
+Add JSON schema validation via Zod in backend before inserts, mirroring your frontend zod forms.
+Keeps data contracts strict and matches `.cursorrules` rule “Zod-validate external data at the boundary”.
+
+---
+
+### Problem 9 – Migrations Naming & Audit
+
+Migrations don’t always follow `YYYYMMDD_description.sql`.
+**Solution:**
+Rename or enforce via script. Adds auditability for Render deploys.
+
+---
+
+## 🧠 4. Frontend Consistency & Performance
+
+### Problem 10 – API Calls in Components
+
+Some legacy pages still call `fetch` directly.
+**Solution:**
+Move them into `features/<domain>/api/...` clients. Cursor rules explicitly forbid fetch in components.
+
+---
+
+### Problem 11 – Zustand Stores Doing Async Work
+
+At least one store initializes async data (shouldn’t).
+**Solution:**
+Move async logic to hooks (e.g., `useTenantData`) and update store only via setter.
+
+---
+
+### Problem 12 – Image Optimization Pipeline
+
+Images loaded without consistent `srcset` or `toWebp` utilities.
+**Solution:**
+Use your shared `imageUtils` everywhere; ensure lazy-loading + width/height attributes per SEO convention.
+
+---
+
+### Problem 13 – React Query Key Naming
+
+Query keys inconsistent (`['tenants',slug]` vs `['tenant',slug]`).
+**Solution:**
+Prefix all with feature domain: `['tenant','detail',slug]`.
+Avoid collisions when features grow.
+
+---
+
+## 🔐 5. Auth & Security Improvements
+
+### Problem 14 – JWT Secrets Hardcoded or Scattered
+
+Tokens handled in multiple files.
+**Solution:**
+Centralize to `/backend/utils/jwt.ts` and import secret from env.
+Add `verifyTenantToken()` to wrap both onboarding & preview logic.
+
+---
+
+### Problem 15 – Password Policy / Reset UX
+
+Auth schema supports reset tokens but no cron to purge expired ones.
+**Solution:**
+Add nightly job (Render cron or node-cron) to delete expired tokens.
+
+---
+
+## 🧩 6. Developer Experience (DevEx)
+
+### Problem 16 – No Unified Logger
+
+Console scattered (`console.log`, `console.error`).
+**Solution:**
+Add pino or winston wrapper:
+
+```ts
+import logger from '@/shared/utils/logger'
+logger.info('Tenant created', { id })
+```
+
+Enables structured logs in Render.
+
+---
+
+### Problem 17 – Testing Coverage Gaps
+
+No test directories for new shared modules (SEO, onboarding).
+**Solution:**
+Create minimal `__tests__/seo/` verifying `generateSitemap`, `robotsHandler`, and `jsonld` output.
+
+---
+
+### Problem 18 – Env Management
+
+Different env vars across frontend/backend with inconsistent names.
+**Solution:**
+Add `/shared/env.ts` with shape-validated env (zod) imported both sides.
+
+---
+
+## 📦 7. SEO & Analytics (Polish)
+
+### Problem 19 – Sitemap Runtime Query
+
+Still using DB fetch per request; could be cached.
+**Solution:**
+Cache generated sitemap XML for 24 h per tenant in memory or Redis.
+Reduces DB hits & boosts TTFB.
+
+---
+
+### Problem 20 – Analytics Hooks Missing for Bookings & Form Submit
+
+GA4 detection only global.
+**Solution:**
+Add hook in `/shared/hooks/useAnalytics.ts`:
+
+```ts
+logEvent('booking_completed', { tenant, value })
+```
+
+Aligns with SEO report recommendation for GA4 events.
+
+---
+
+## ✅ Summary of Impact
+
+| Priority | Category                                       | ROI  |
+| -------- | ---------------------------------------------- | ---- |
+| 1        | Proxy/feature isolation + DRY backend services | ⭐⭐⭐⭐ |
+| 2        | Database tenant helpers & schema validation    | ⭐⭐⭐⭐ |
+| 3        | Unified logging + error middleware             | ⭐⭐⭐  |
+| 4        | Image/SEO polish + analytics                   | ⭐⭐   |
+| 5        | Minor DX/test/env improvements                 | ⭐    |
+
+---
+
+Would you like me to produce a **follow-up “refactor roadmap” markdown** (Week 1–4 schedule) that you can drop directly into `current-goals.md` so Cursor tracks these improvements automatically?
 
 
 *** END FILE ***
@@ -63303,11 +63360,10 @@ export const updateSEO = async (data: SEOUpdateRequest): Promise<SEOConfig> => {
  * Hook for managing tenant SEO configuration
  */
 
-import { useState, useEffect } from 'react';
-
-import type { SEOConfig, SEOUpdateRequest } from '../types/seo.types';
+import { useEffect, useState } from 'react';
 
 import { fetchSEO, updateSEO } from '../api/seo.api';
+import type { SEOConfig, SEOUpdateRequest } from '../types/seo.types';
 
 export const useTenantSEO = () => {
   const [seo, setSeo] = useState<SEOConfig>({});
@@ -65517,10 +65573,10 @@ interface AddToHomeScreenProps {
 }
 
 export const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
-  tenantSlug,
-  businessName = 'Dashboard',
-  onClose,
-  autoShow = true
+  tenantSlug: _tenantSlug,
+  businessName: _businessName = 'Dashboard',
+  onClose: _onClose,
+  autoShow: _autoShow = true
 }) => {
   // DISABLED FOR NOW - Component moved from onboarding to dashboard
   // TODO: Enable when ready to add PWA functionality to tenant dashboard
@@ -81268,11 +81324,11 @@ export default OperatingBasicsSection;
 
 *** FILE: frontend\src\features\tenantOnboarding\components\PaymentSection.tsx ***
 import React, { useState } from 'react';
-import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { CardElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import { AlertCircle, CreditCard, Lock, Shield } from 'lucide-react';
 
-import { Input } from '@/shared/ui';
 import { env } from '@/shared/env';
+import { Input } from '@/shared/ui';
 
 import { confirmPayment, createPaymentIntent } from '../api/payments.api';
 import type { Address } from '../types';
@@ -81342,7 +81398,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
   };
 
 
-  const handleCardChange = (event: { error?: { message: string } }) => {
+  const handleCardChange = (event: { error?: { message: string } | undefined }) => {
     if (event.error) {
       setCardError(event.error.message);
     } else {
@@ -81644,7 +81700,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
             </button>
             
             <p className="text-center text-xs text-gray-400 mt-2">
-              You'll be charged ${(formData.planPrice / 100).toFixed(2)} monthly. Cancel anytime.
+              You&apos;ll be charged ${(formData.planPrice / 100).toFixed(2)} monthly. Cancel anytime.
             </p>
           </div>
 
@@ -82342,10 +82398,10 @@ export default SubmitSection;
 *** FILE: frontend\src\features\tenantOnboarding\components\SuccessPage.tsx ***
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CheckCircle, Settings, Sparkles } from 'lucide-react';
+import { CheckCircle, Settings,Sparkles } from 'lucide-react';
 
-import { Button } from '@/shared/ui';
 import { useAuth } from '@/shared/hooks';
+import { Button } from '@/shared/ui';
 
 
 const SuccessPage: React.FC = () => {
@@ -82394,14 +82450,14 @@ const SuccessPage: React.FC = () => {
         sessionStorage.removeItem('tenantEmail');
         
         // Navigate to dashboard
-        navigate(dashboardUrl);
+        void navigate(dashboardUrl);
       } else {
         // Fallback: navigate to dashboard URL anyway (user can login manually)
-        navigate(dashboardUrl);
+        void navigate(dashboardUrl);
       }
-    } catch (error) {
+    } catch {
       // Fallback: navigate to dashboard URL anyway
-      navigate(dashboardUrl);
+      void navigate(dashboardUrl);
     } finally {
       setIsLoggingIn(false);
     }
@@ -82432,10 +82488,10 @@ const SuccessPage: React.FC = () => {
               Your website is live at: <span className="text-green-400 font-mono text-xs">{websiteUrl}</span>
             </p>
             <p className="text-gray-300 text-sm mb-6 text-center">
-              Now let's customize it to make it perfect for your business!
+              Now let&apos;s customize it to make it perfect for your business!
             </p>
             <Button 
-              onClick={handleGoToDashboard}
+              onClick={() => { void handleGoToDashboard(); }}
               disabled={isLoggingIn}
               variant="primary"
               size="lg"
@@ -82492,7 +82548,7 @@ const SuccessPage: React.FC = () => {
             </Button>
           </Link>
           <Button 
-            onClick={() => { navigate('/contact'); }}
+            onClick={() => { void navigate('/contact'); }}
             variant="primary"
             size="lg"
             className="w-full sm:w-auto bg-orange-600 hover:bg-orange-700"
@@ -86108,7 +86164,6 @@ export const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
       const dismissed = localStorage.getItem('pwa-ios-prompt-dismissed');
       if (!dismissed) {
         setShowPrompt(true);
-      } else {
       }
     }
 
@@ -86130,21 +86185,16 @@ export const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
         const dismissed = localStorage.getItem('pwa-ios-prompt-dismissed');
         if (!dismissed) {
           setShowPrompt(true);
-        } else {
         }
       }
       // For Android, check if previously dismissed
       else {
         const dismissed = localStorage.getItem('pwa-android-prompt-dismissed');
         if (!dismissed) {
-          if (deferredPrompt) {
-          } else {
-          }
+          // Show prompt regardless of deferred prompt availability
           setShowPrompt(true);
-        } else {
         }
       }
-    } else {
     }
   }, [isMobile, deferredPrompt, isInstalled, showPrompt, autoShow, userDismissed]);
 
@@ -86178,8 +86228,8 @@ export const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
 
         // Clear the deferred prompt
         setDeferredPrompt(null);
-        setTimeout(() => setShowPrompt(false), 2000);
-      } catch (error) {
+        setTimeout(() => { setShowPrompt(false); }, 2000);
+      } catch {
         setInstallStatus('❌ Install failed. Try manual install.');
       }
     } else {
@@ -88136,8 +88186,6 @@ export { withAsyncErrorBoundary, withErrorBoundary } from './withErrorBoundary';
 export { useDebouncedValue } from './useDebouncedValue';
 export { useEventListener } from './useEventListener';
 export { useLocalStorage } from './useLocalStorage';
-export { useMobileDetection } from './useMobileDetection';
-export { usePWAStatus } from './usePWAStatus';
 export { 
   BREAKPOINTS,
   useBreakpoint,
@@ -88147,8 +88195,10 @@ export {
   useIsTablet,
   useMediaQuery
 } from './useMediaQuery';
-export { useModalPrefetch, usePrefetch } from './usePrefetch';
+export { useMobileDetection } from './useMobileDetection';
 export { usePerformanceMonitor } from './usePerformanceMonitor';
+export { useModalPrefetch, usePrefetch } from './usePrefetch';
+export { usePWAStatus } from './usePWAStatus';
 export { useScrollSpy } from './useScrollSpy';
 export { useScrollToTop } from './useScrollToTop';
 
@@ -88582,7 +88632,7 @@ function updateFavicon(url: string): void {
  */
 function updateManifest(url: string): void {
   // Find existing manifest link or create new one
-  let manifestElement = document.querySelector('link[rel="manifest"]') as HTMLLinkElement;
+  let manifestElement = document.querySelector('link[rel="manifest"]');
   
   if (!manifestElement) {
     // Create new manifest link if none exists
@@ -103485,484 +103535,6 @@ export default defineConfig({
 
 *** END FILE ***
 
-*** FILE: scripts\diagnose-api-connectivity.cjs ***
-#!/usr/bin/env node
-
-/**
- * API Connectivity Diagnostic Script
- * Tests all key endpoints to identify "ghost 200 response" issues
- */
-
-const http = require('http');
-const https = require('https');
-
-const config = {
-  backend: {
-    host: '192.168.4.21',
-    port: 3001,
-    baseUrl: 'http://192.168.4.21:3001'
-  },
-  frontend: {
-    host: '192.168.4.21', 
-    port: 5175,
-    baseUrl: 'http://192.168.4.21:5175'
-  }
-};
-
-const tests = [
-  {
-    name: 'Backend Health Check',
-    url: `${config.backend.baseUrl}/api/health`,
-    method: 'GET',
-    expectedStatus: 200
-  },
-  {
-    name: 'Frontend Health Check (via proxy)',
-    url: `${config.frontend.baseUrl}/api/health`,
-    method: 'GET', 
-    expectedStatus: 200
-  },
-  {
-    name: 'Payment Create Intent (Backend Direct)',
-    url: `${config.backend.baseUrl}/api/payments/create-intent`,
-    method: 'POST',
-    body: JSON.stringify({
-      amount: 10000,
-      customerEmail: 'test@example.com',
-      businessName: 'Test Business',
-      planType: 'Pro',
-      metadata: { industry: 'mobile-detailing' }
-    }),
-    headers: { 'Content-Type': 'application/json' },
-    expectedStatus: 200
-  },
-  {
-    name: 'Payment Create Intent (via Frontend Proxy)',
-    url: `${config.frontend.baseUrl}/api/payments/create-intent`,
-    method: 'POST',
-    body: JSON.stringify({
-      amount: 10000,
-      customerEmail: 'test@example.com', 
-      businessName: 'Test Business',
-      planType: 'Pro',
-      metadata: { industry: 'mobile-detailing' }
-    }),
-    headers: { 'Content-Type': 'application/json' },
-    expectedStatus: 200
-  },
-  {
-    name: 'Payment Confirm (Backend Direct)',
-    url: `${config.backend.baseUrl}/api/payments/confirm`,
-    method: 'POST',
-    body: JSON.stringify({
-      paymentIntentId: 'pi_test_123',
-      tenantData: { businessName: 'Test Business' }
-    }),
-    headers: { 'Content-Type': 'application/json' },
-    expectedStatus: 400 // Expected to fail due to invalid payment intent
-  },
-  {
-    name: 'Payment Confirm (via Frontend Proxy)', 
-    url: `${config.frontend.baseUrl}/api/payments/confirm`,
-    method: 'POST',
-    body: JSON.stringify({
-      paymentIntentId: 'pi_test_123',
-      tenantData: { businessName: 'Test Business' }
-    }),
-    headers: { 'Content-Type': 'application/json' },
-    expectedStatus: 400 // Expected to fail due to invalid payment intent
-  }
-];
-
-async function makeRequest(test) {
-  return new Promise((resolve) => {
-    const url = new URL(test.url);
-    const options = {
-      hostname: url.hostname,
-      port: url.port,
-      path: url.pathname + url.search,
-      method: test.method,
-      headers: {
-        'Content-Type': 'application/json',
-        ...test.headers
-      },
-      timeout: 10000
-    };
-
-    const req = http.request(options, (res) => {
-      let data = '';
-      res.on('data', (chunk) => data += chunk);
-      res.on('end', () => {
-        resolve({
-          success: true,
-          status: res.statusCode,
-          headers: res.headers,
-          data: data,
-          isHtml: data.includes('<html') || data.includes('<!DOCTYPE'),
-          isJson: res.headers['content-type']?.includes('application/json')
-        });
-      });
-    });
-
-    req.on('error', (error) => {
-      resolve({
-        success: false,
-        error: error.message
-      });
-    });
-
-    req.on('timeout', () => {
-      req.destroy();
-      resolve({
-        success: false,
-        error: 'Request timeout'
-      });
-    });
-
-    if (test.body) {
-      req.write(test.body);
-    }
-    req.end();
-  });
-}
-
-async function runDiagnostics() {
-  console.log('🔍 API Connectivity Diagnostics\n');
-  console.log('Testing endpoints to identify "ghost 200 response" issues...\n');
-
-  const results = [];
-
-  for (const test of tests) {
-    process.stdout.write(`Testing ${test.name}... `);
-    
-    const result = await makeRequest(test);
-    results.push({ ...test, result });
-
-    if (!result.success) {
-      console.log(`❌ FAILED - ${result.error}`);
-    } else {
-      const statusOk = result.status === test.expectedStatus;
-      const isGhost = result.status === 200 && result.isHtml && !result.isJson;
-      
-      if (isGhost) {
-        console.log(`👻 GHOST RESPONSE - Got 200 HTML instead of JSON`);
-      } else if (statusOk) {
-        console.log(`✅ OK - Status ${result.status}`);
-      } else {
-        console.log(`⚠️  UNEXPECTED - Status ${result.status} (expected ${test.expectedStatus})`);
-      }
-    }
-  }
-
-  console.log('\n📊 Detailed Results:\n');
-
-  results.forEach(({ name, url, result }) => {
-    console.log(`--- ${name} ---`);
-    console.log(`URL: ${url}`);
-    
-    if (!result.success) {
-      console.log(`❌ Error: ${result.error}`);
-    } else {
-      console.log(`Status: ${result.status}`);
-      console.log(`Content-Type: ${result.headers['content-type'] || 'unknown'}`);
-      console.log(`Is HTML: ${result.isHtml}`);
-      console.log(`Is JSON: ${result.isJson}`);
-      
-      if (result.isHtml && result.status === 200) {
-        console.log(`👻 GHOST RESPONSE DETECTED - This is likely a Vite fallback serving index.html`);
-      }
-      
-      if (result.data.length < 200) {
-        console.log(`Response: ${result.data}`);
-      } else {
-        console.log(`Response: ${result.data.substring(0, 200)}...`);
-      }
-    }
-    console.log('');
-  });
-
-  // Analysis
-  console.log('🎯 Analysis:\n');
-  
-  const ghostResponses = results.filter(r => 
-    r.result.success && 
-    r.result.status === 200 && 
-    r.result.isHtml
-  );
-
-  if (ghostResponses.length > 0) {
-    console.log('🚨 GHOST RESPONSES DETECTED:');
-    ghostResponses.forEach(r => {
-      console.log(`   - ${r.name}: Getting HTML instead of API response`);
-    });
-    console.log('\n💡 This confirms the "ghost 200 response" issue - Vite is serving index.html for API routes.');
-  } else {
-    console.log('✅ No ghost responses detected - API routing appears correct.');
-  }
-
-  const backendDirect = results.filter(r => r.url.includes(':3001'));
-  const frontendProxy = results.filter(r => r.url.includes(':5174'));
-  
-  const backendWorking = backendDirect.every(r => r.result.success);
-  const proxyWorking = frontendProxy.every(r => r.result.success && !r.result.isHtml);
-
-  console.log(`Backend Direct (${config.backend.baseUrl}): ${backendWorking ? '✅ Working' : '❌ Issues'}`);
-  console.log(`Frontend Proxy (${config.frontend.baseUrl}): ${proxyWorking ? '✅ Working' : '❌ Issues'}`);
-
-  if (!proxyWorking) {
-    console.log('\n🔧 Recommended Fixes:');
-    console.log('1. Restart both frontend and backend servers');
-    console.log('2. Check Vite proxy configuration in vite.config.ts');
-    console.log('3. Verify no duplicate backend processes on port 3001');
-    console.log('4. Check backend CORS configuration');
-  }
-}
-
-// Run diagnostics
-runDiagnostics().catch(console.error);
-
-
-*** END FILE ***
-
-*** FILE: scripts\diagnose-api-connectivity.js ***
-#!/usr/bin/env node
-
-/**
- * API Connectivity Diagnostic Script
- * Tests all key endpoints to identify "ghost 200 response" issues
- */
-
-const http = require('http');
-const https = require('https');
-
-const config = {
-  backend: {
-    host: '192.168.4.21',
-    port: 3001,
-    baseUrl: 'http://192.168.4.21:3001'
-  },
-  frontend: {
-    host: '192.168.4.21', 
-    port: 5174,
-    baseUrl: 'http://192.168.4.21:5174'
-  }
-};
-
-const tests = [
-  {
-    name: 'Backend Health Check',
-    url: `${config.backend.baseUrl}/api/health`,
-    method: 'GET',
-    expectedStatus: 200
-  },
-  {
-    name: 'Frontend Health Check (via proxy)',
-    url: `${config.frontend.baseUrl}/api/health`,
-    method: 'GET', 
-    expectedStatus: 200
-  },
-  {
-    name: 'Payment Create Intent (Backend Direct)',
-    url: `${config.backend.baseUrl}/api/payments/create-intent`,
-    method: 'POST',
-    body: JSON.stringify({
-      amount: 10000,
-      customerEmail: 'test@example.com',
-      businessName: 'Test Business',
-      planType: 'Pro',
-      metadata: { industry: 'mobile-detailing' }
-    }),
-    headers: { 'Content-Type': 'application/json' },
-    expectedStatus: 200
-  },
-  {
-    name: 'Payment Create Intent (via Frontend Proxy)',
-    url: `${config.frontend.baseUrl}/api/payments/create-intent`,
-    method: 'POST',
-    body: JSON.stringify({
-      amount: 10000,
-      customerEmail: 'test@example.com', 
-      businessName: 'Test Business',
-      planType: 'Pro',
-      metadata: { industry: 'mobile-detailing' }
-    }),
-    headers: { 'Content-Type': 'application/json' },
-    expectedStatus: 200
-  },
-  {
-    name: 'Payment Confirm (Backend Direct)',
-    url: `${config.backend.baseUrl}/api/payments/confirm`,
-    method: 'POST',
-    body: JSON.stringify({
-      paymentIntentId: 'pi_test_123',
-      tenantData: { businessName: 'Test Business' }
-    }),
-    headers: { 'Content-Type': 'application/json' },
-    expectedStatus: 400 // Expected to fail due to invalid payment intent
-  },
-  {
-    name: 'Payment Confirm (via Frontend Proxy)', 
-    url: `${config.frontend.baseUrl}/api/payments/confirm`,
-    method: 'POST',
-    body: JSON.stringify({
-      paymentIntentId: 'pi_test_123',
-      tenantData: { businessName: 'Test Business' }
-    }),
-    headers: { 'Content-Type': 'application/json' },
-    expectedStatus: 400 // Expected to fail due to invalid payment intent
-  }
-];
-
-async function makeRequest(test) {
-  return new Promise((resolve) => {
-    const url = new URL(test.url);
-    const options = {
-      hostname: url.hostname,
-      port: url.port,
-      path: url.pathname + url.search,
-      method: test.method,
-      headers: {
-        'Content-Type': 'application/json',
-        ...test.headers
-      },
-      timeout: 10000
-    };
-
-    const req = http.request(options, (res) => {
-      let data = '';
-      res.on('data', (chunk) => data += chunk);
-      res.on('end', () => {
-        resolve({
-          success: true,
-          status: res.statusCode,
-          headers: res.headers,
-          data: data,
-          isHtml: data.includes('<html') || data.includes('<!DOCTYPE'),
-          isJson: res.headers['content-type']?.includes('application/json')
-        });
-      });
-    });
-
-    req.on('error', (error) => {
-      resolve({
-        success: false,
-        error: error.message
-      });
-    });
-
-    req.on('timeout', () => {
-      req.destroy();
-      resolve({
-        success: false,
-        error: 'Request timeout'
-      });
-    });
-
-    if (test.body) {
-      req.write(test.body);
-    }
-    req.end();
-  });
-}
-
-async function runDiagnostics() {
-  console.log('🔍 API Connectivity Diagnostics\n');
-  console.log('Testing endpoints to identify "ghost 200 response" issues...\n');
-
-  const results = [];
-
-  for (const test of tests) {
-    process.stdout.write(`Testing ${test.name}... `);
-    
-    const result = await makeRequest(test);
-    results.push({ ...test, result });
-
-    if (!result.success) {
-      console.log(`❌ FAILED - ${result.error}`);
-    } else {
-      const statusOk = result.status === test.expectedStatus;
-      const isGhost = result.status === 200 && result.isHtml && !result.isJson;
-      
-      if (isGhost) {
-        console.log(`👻 GHOST RESPONSE - Got 200 HTML instead of JSON`);
-      } else if (statusOk) {
-        console.log(`✅ OK - Status ${result.status}`);
-      } else {
-        console.log(`⚠️  UNEXPECTED - Status ${result.status} (expected ${test.expectedStatus})`);
-      }
-    }
-  }
-
-  console.log('\n📊 Detailed Results:\n');
-
-  results.forEach(({ name, url, result }) => {
-    console.log(`--- ${name} ---`);
-    console.log(`URL: ${url}`);
-    
-    if (!result.success) {
-      console.log(`❌ Error: ${result.error}`);
-    } else {
-      console.log(`Status: ${result.status}`);
-      console.log(`Content-Type: ${result.headers['content-type'] || 'unknown'}`);
-      console.log(`Is HTML: ${result.isHtml}`);
-      console.log(`Is JSON: ${result.isJson}`);
-      
-      if (result.isHtml && result.status === 200) {
-        console.log(`👻 GHOST RESPONSE DETECTED - This is likely a Vite fallback serving index.html`);
-      }
-      
-      if (result.data.length < 200) {
-        console.log(`Response: ${result.data}`);
-      } else {
-        console.log(`Response: ${result.data.substring(0, 200)}...`);
-      }
-    }
-    console.log('');
-  });
-
-  // Analysis
-  console.log('🎯 Analysis:\n');
-  
-  const ghostResponses = results.filter(r => 
-    r.result.success && 
-    r.result.status === 200 && 
-    r.result.isHtml
-  );
-
-  if (ghostResponses.length > 0) {
-    console.log('🚨 GHOST RESPONSES DETECTED:');
-    ghostResponses.forEach(r => {
-      console.log(`   - ${r.name}: Getting HTML instead of API response`);
-    });
-    console.log('\n💡 This confirms the "ghost 200 response" issue - Vite is serving index.html for API routes.');
-  } else {
-    console.log('✅ No ghost responses detected - API routing appears correct.');
-  }
-
-  const backendDirect = results.filter(r => r.url.includes(':3001'));
-  const frontendProxy = results.filter(r => r.url.includes(':5174'));
-  
-  const backendWorking = backendDirect.every(r => r.result.success);
-  const proxyWorking = frontendProxy.every(r => r.result.success && !r.result.isHtml);
-
-  console.log(`Backend Direct (${config.backend.baseUrl}): ${backendWorking ? '✅ Working' : '❌ Issues'}`);
-  console.log(`Frontend Proxy (${config.frontend.baseUrl}): ${proxyWorking ? '✅ Working' : '❌ Issues'}`);
-
-  if (!proxyWorking) {
-    console.log('\n🔧 Recommended Fixes:');
-    console.log('1. Restart both frontend and backend servers');
-    console.log('2. Check Vite proxy configuration in vite.config.ts');
-    console.log('3. Verify no duplicate backend processes on port 3001');
-    console.log('4. Check backend CORS configuration');
-  }
-}
-
-// Run diagnostics
-runDiagnostics().catch(console.error);
-
-
-*** END FILE ***
-
 *** FILE: scripts\error-monitor\index.js ***
 #!/usr/bin/env node
 
@@ -104204,251 +103776,6 @@ export class FrontendMonitor {
   }
 }
 
-
-
-*** END FILE ***
-
-*** FILE: scripts\integrate-seo.js ***
-#!/usr/bin/env node
-
-/**
- * SEO Integration Script
- * 
- * This script helps integrate the new SEO components into existing pages
- * by providing automated suggestions and validation.
- */
-
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const INTEGRATION_TARGETS = [
-  {
-    file: 'frontend/src/app/pages/HomePage.tsx',
-    type: 'page',
-    priority: 'high',
-    changes: [
-      'Replace useSEO() with <SeoHead /> component',
-      'Add analytics tracking to quote requests'
-    ]
-  },
-  {
-    file: 'frontend/src/app/pages/ServicePage.tsx',
-    type: 'page',
-    priority: 'high',
-    changes: [
-      'Add preview detection with isPreview prop',
-      'Replace useSEO() with <SeoHead /> component'
-    ]
-  },
-  {
-    file: 'frontend/src/features/locations/LocationPage.tsx',
-    type: 'page',
-    priority: 'high',
-    changes: [
-      'Replace useMetaTags with <SeoHead /> component',
-      'Add location-specific keywords'
-    ]
-  },
-  {
-    file: 'frontend/src/features/cta/components/SmartCTAButtons.tsx',
-    type: 'component',
-    priority: 'medium',
-    changes: [
-      'Add analytics tracking to button clicks',
-      'Track conversion events'
-    ]
-  },
-  {
-    file: 'frontend/src/features/quotes/components/QuoteModal.tsx',
-    type: 'component',
-    priority: 'medium',
-    changes: [
-      'Add conversion tracking on quote submission',
-      'Track quote completion events'
-    ]
-  }
-];
-
-function checkFileExists(filePath) {
-  const fullPath = path.resolve(__dirname, '..', filePath);
-  return fs.existsSync(fullPath);
-}
-
-function readFileContent(filePath) {
-  const fullPath = path.resolve(__dirname, '..', filePath);
-  if (!fs.existsSync(fullPath)) {
-    return null;
-  }
-  return fs.readFileSync(fullPath, 'utf8');
-}
-
-function checkSEOIntegration(filePath, content) {
-  const checks = {
-    hasSeoHead: content.includes('SeoHead'),
-    hasUseSEO: content.includes('useSEO'),
-    hasUseMetaTags: content.includes('useMetaTags'),
-    hasAnalytics: content.includes('useAnalytics'),
-    hasOptimizedImage: content.includes('OptimizedImage')
-  };
-
-  return checks;
-}
-
-function generateIntegrationReport() {
-  console.log('🔍 SEO Integration Analysis Report\n');
-  console.log('=' .repeat(50));
-
-  let totalFiles = 0;
-  let integratedFiles = 0;
-  let partiallyIntegrated = 0;
-
-  INTEGRATION_TARGETS.forEach(target => {
-    console.log(`\n📄 ${target.file}`);
-    console.log(`   Type: ${target.type} | Priority: ${target.priority}`);
-    
-    if (!checkFileExists(target.file)) {
-      console.log('   ❌ File not found');
-      return;
-    }
-
-    totalFiles++;
-    const content = readFileContent(target.file);
-    const checks = checkSEOIntegration(target.file, content);
-
-    console.log('   Current Status:');
-    console.log(`   - SeoHead: ${checks.hasSeoHead ? '✅' : '❌'}`);
-    console.log(`   - useSEO: ${checks.hasUseSEO ? '⚠️' : '✅'} ${checks.hasUseSEO ? '(should be replaced)' : ''}`);
-    console.log(`   - useMetaTags: ${checks.hasUseMetaTags ? '⚠️' : '✅'} ${checks.hasUseMetaTags ? '(should be replaced)' : ''}`);
-    console.log(`   - Analytics: ${checks.hasAnalytics ? '✅' : '❌'}`);
-    console.log(`   - OptimizedImage: ${checks.hasOptimizedImage ? '✅' : '❌'}`);
-
-    if (checks.hasSeoHead && checks.hasAnalytics) {
-      integratedFiles++;
-      console.log('   🎉 Fully integrated!');
-    } else if (checks.hasSeoHead || checks.hasAnalytics) {
-      partiallyIntegrated++;
-      console.log('   🔄 Partially integrated');
-    } else {
-      console.log('   🚧 Needs integration');
-    }
-
-    console.log('   Required Changes:');
-    target.changes.forEach(change => {
-      console.log(`   - ${change}`);
-    });
-  });
-
-  console.log('\n' + '=' .repeat(50));
-  console.log('📊 Integration Summary:');
-  console.log(`   Total Files: ${totalFiles}`);
-  console.log(`   Fully Integrated: ${integratedFiles}`);
-  console.log(`   Partially Integrated: ${partiallyIntegrated}`);
-  console.log(`   Needs Integration: ${totalFiles - integratedFiles - partiallyIntegrated}`);
-  
-  const completionPercentage = Math.round(((integratedFiles + partiallyIntegrated * 0.5) / totalFiles) * 100);
-  console.log(`   Completion: ${completionPercentage}%`);
-
-  if (completionPercentage < 50) {
-    console.log('\n🚨 Priority Actions:');
-    console.log('   1. Integrate SeoHead component into main pages');
-    console.log('   2. Add analytics tracking to conversion points');
-    console.log('   3. Replace useSEO/useMetaTags with SeoHead');
-  } else if (completionPercentage < 80) {
-    console.log('\n🔄 Next Steps:');
-    console.log('   1. Complete remaining page integrations');
-    console.log('   2. Add analytics to all CTA components');
-    console.log('   3. Optimize remaining images');
-  } else {
-    console.log('\n🎉 Great progress! Final touches:');
-    console.log('   1. Test all integrations');
-    console.log('   2. Validate SEO performance');
-    console.log('   3. Monitor analytics data');
-  }
-}
-
-function generateIntegrationCode(filePath, target) {
-  console.log(`\n💡 Integration Code for ${filePath}:`);
-  console.log('-'.repeat(50));
-
-  if (target.type === 'page') {
-    console.log(`
-// 1. Add imports at the top
-import { SeoHead } from '@/shared/components/seo/SeoHead';
-import { useAnalytics } from '@/shared/hooks/useAnalytics';
-
-// 2. Replace useSEO() or useMetaTags() with:
-<SeoHead 
-  title="Your Page Title"
-  description="Your page description"
-  isPreview={isPreview} // Add this for preview detection
-/>
-
-// 3. Add analytics tracking (example):
-const analytics = useAnalytics();
-
-const handleConversion = () => {
-  analytics.trackConversion({
-    conversion_type: 'quote_request',
-    conversion_value: 150
-  });
-  // ... existing logic
-};
-`);
-  } else if (target.type === 'component') {
-    console.log(`
-// 1. Add import
-import { useAnalytics } from '@/shared/hooks/useAnalytics';
-
-// 2. Add analytics tracking
-const analytics = useAnalytics();
-
-const handleClick = () => {
-  analytics.trackEvent({
-    event: 'button_click',
-    parameters: { 
-      button_type: 'quote_request',
-      page: 'home'
-    }
-  });
-  // ... existing logic
-};
-`);
-  }
-}
-
-// Main execution
-const args = process.argv.slice(2);
-
-if (args.includes('--report')) {
-  generateIntegrationReport();
-} else if (args.includes('--help')) {
-  console.log(`
-🔧 SEO Integration Script
-
-Usage:
-  node scripts/integrate-seo.js [options]
-
-Options:
-  --report    Generate integration analysis report
-  --help      Show this help message
-
-Examples:
-  node scripts/integrate-seo.js --report
-    `);
-} else {
-  generateIntegrationReport();
-  console.log('\n💡 Use --help for more options');
-}
-
-export {
-  generateIntegrationReport,
-  generateIntegrationCode,
-  INTEGRATION_TARGETS
-};
 
 
 *** END FILE ***
@@ -105175,7 +104502,465 @@ analyzeHistory();
 
 *** END FILE ***
 
-*** FILE: scripts\test-seo-anchors.js ***
+*** FILE: scripts\seo\integrate.js ***
+#!/usr/bin/env node
+
+/**
+ * SEO Integration Script
+ * 
+ * This script helps integrate the new SEO components into existing pages
+ * by providing automated suggestions and validation.
+ */
+
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const INTEGRATION_TARGETS = [
+  {
+    file: 'frontend/src/app/pages/HomePage.tsx',
+    type: 'page',
+    priority: 'high',
+    changes: [
+      'Replace useSEO() with <SeoHead /> component',
+      'Add analytics tracking to quote requests'
+    ]
+  },
+  {
+    file: 'frontend/src/app/pages/ServicePage.tsx',
+    type: 'page',
+    priority: 'high',
+    changes: [
+      'Add preview detection with isPreview prop',
+      'Replace useSEO() with <SeoHead /> component'
+    ]
+  },
+  {
+    file: 'frontend/src/features/locations/LocationPage.tsx',
+    type: 'page',
+    priority: 'high',
+    changes: [
+      'Replace useMetaTags with <SeoHead /> component',
+      'Add location-specific keywords'
+    ]
+  },
+  {
+    file: 'frontend/src/features/cta/components/SmartCTAButtons.tsx',
+    type: 'component',
+    priority: 'medium',
+    changes: [
+      'Add analytics tracking to button clicks',
+      'Track conversion events'
+    ]
+  },
+  {
+    file: 'frontend/src/features/quotes/components/QuoteModal.tsx',
+    type: 'component',
+    priority: 'medium',
+    changes: [
+      'Add conversion tracking on quote submission',
+      'Track quote completion events'
+    ]
+  }
+];
+
+function checkFileExists(filePath) {
+  const fullPath = path.resolve(__dirname, '..', filePath);
+  return fs.existsSync(fullPath);
+}
+
+function readFileContent(filePath) {
+  const fullPath = path.resolve(__dirname, '..', filePath);
+  if (!fs.existsSync(fullPath)) {
+    return null;
+  }
+  return fs.readFileSync(fullPath, 'utf8');
+}
+
+function checkSEOIntegration(filePath, content) {
+  const checks = {
+    hasSeoHead: content.includes('SeoHead'),
+    hasUseSEO: content.includes('useSEO'),
+    hasUseMetaTags: content.includes('useMetaTags'),
+    hasAnalytics: content.includes('useAnalytics'),
+    hasOptimizedImage: content.includes('OptimizedImage')
+  };
+
+  return checks;
+}
+
+function generateIntegrationReport() {
+  console.log('🔍 SEO Integration Analysis Report\n');
+  console.log('=' .repeat(50));
+
+  let totalFiles = 0;
+  let integratedFiles = 0;
+  let partiallyIntegrated = 0;
+
+  INTEGRATION_TARGETS.forEach(target => {
+    console.log(`\n📄 ${target.file}`);
+    console.log(`   Type: ${target.type} | Priority: ${target.priority}`);
+    
+    if (!checkFileExists(target.file)) {
+      console.log('   ❌ File not found');
+      return;
+    }
+
+    totalFiles++;
+    const content = readFileContent(target.file);
+    const checks = checkSEOIntegration(target.file, content);
+
+    console.log('   Current Status:');
+    console.log(`   - SeoHead: ${checks.hasSeoHead ? '✅' : '❌'}`);
+    console.log(`   - useSEO: ${checks.hasUseSEO ? '⚠️' : '✅'} ${checks.hasUseSEO ? '(should be replaced)' : ''}`);
+    console.log(`   - useMetaTags: ${checks.hasUseMetaTags ? '⚠️' : '✅'} ${checks.hasUseMetaTags ? '(should be replaced)' : ''}`);
+    console.log(`   - Analytics: ${checks.hasAnalytics ? '✅' : '❌'}`);
+    console.log(`   - OptimizedImage: ${checks.hasOptimizedImage ? '✅' : '❌'}`);
+
+    if (checks.hasSeoHead && checks.hasAnalytics) {
+      integratedFiles++;
+      console.log('   🎉 Fully integrated!');
+    } else if (checks.hasSeoHead || checks.hasAnalytics) {
+      partiallyIntegrated++;
+      console.log('   🔄 Partially integrated');
+    } else {
+      console.log('   🚧 Needs integration');
+    }
+
+    console.log('   Required Changes:');
+    target.changes.forEach(change => {
+      console.log(`   - ${change}`);
+    });
+  });
+
+  console.log('\n' + '=' .repeat(50));
+  console.log('📊 Integration Summary:');
+  console.log(`   Total Files: ${totalFiles}`);
+  console.log(`   Fully Integrated: ${integratedFiles}`);
+  console.log(`   Partially Integrated: ${partiallyIntegrated}`);
+  console.log(`   Needs Integration: ${totalFiles - integratedFiles - partiallyIntegrated}`);
+  
+  const completionPercentage = Math.round(((integratedFiles + partiallyIntegrated * 0.5) / totalFiles) * 100);
+  console.log(`   Completion: ${completionPercentage}%`);
+
+  if (completionPercentage < 50) {
+    console.log('\n🚨 Priority Actions:');
+    console.log('   1. Integrate SeoHead component into main pages');
+    console.log('   2. Add analytics tracking to conversion points');
+    console.log('   3. Replace useSEO/useMetaTags with SeoHead');
+  } else if (completionPercentage < 80) {
+    console.log('\n🔄 Next Steps:');
+    console.log('   1. Complete remaining page integrations');
+    console.log('   2. Add analytics to all CTA components');
+    console.log('   3. Optimize remaining images');
+  } else {
+    console.log('\n🎉 Great progress! Final touches:');
+    console.log('   1. Test all integrations');
+    console.log('   2. Validate SEO performance');
+    console.log('   3. Monitor analytics data');
+  }
+}
+
+function generateIntegrationCode(filePath, target) {
+  console.log(`\n💡 Integration Code for ${filePath}:`);
+  console.log('-'.repeat(50));
+
+  if (target.type === 'page') {
+    console.log(`
+// 1. Add imports at the top
+import { SeoHead } from '@/shared/components/seo/SeoHead';
+import { useAnalytics } from '@/shared/hooks/useAnalytics';
+
+// 2. Replace useSEO() or useMetaTags() with:
+<SeoHead 
+  title="Your Page Title"
+  description="Your page description"
+  isPreview={isPreview} // Add this for preview detection
+/>
+
+// 3. Add analytics tracking (example):
+const analytics = useAnalytics();
+
+const handleConversion = () => {
+  analytics.trackConversion({
+    conversion_type: 'quote_request',
+    conversion_value: 150
+  });
+  // ... existing logic
+};
+`);
+  } else if (target.type === 'component') {
+    console.log(`
+// 1. Add import
+import { useAnalytics } from '@/shared/hooks/useAnalytics';
+
+// 2. Add analytics tracking
+const analytics = useAnalytics();
+
+const handleClick = () => {
+  analytics.trackEvent({
+    event: 'button_click',
+    parameters: { 
+      button_type: 'quote_request',
+      page: 'home'
+    }
+  });
+  // ... existing logic
+};
+`);
+  }
+}
+
+// Main execution
+const args = process.argv.slice(2);
+
+if (args.includes('--report')) {
+  generateIntegrationReport();
+} else if (args.includes('--help')) {
+  console.log(`
+🔧 SEO Integration Script
+
+Usage:
+  node scripts/integrate-seo.js [options]
+
+Options:
+  --report    Generate integration analysis report
+  --help      Show this help message
+
+Examples:
+  node scripts/integrate-seo.js --report
+    `);
+} else {
+  generateIntegrationReport();
+  console.log('\n💡 Use --help for more options');
+}
+
+export {
+  generateIntegrationReport,
+  generateIntegrationCode,
+  INTEGRATION_TARGETS
+};
+
+
+*** END FILE ***
+
+*** FILE: scripts\seo\provision-config.js ***
+#!/usr/bin/env node
+
+/**
+ * SEO Configuration Provisioning Script
+ * 
+ * Extends tenant provisioning to include SEO configuration.
+ * This ensures Cursor's schema diff sees website.seo_config and
+ * ties the new SEO layer to real data.
+ */
+
+import { pool } from '../database/pool.js';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+/**
+ * Load industry SEO defaults from JSON files
+ */
+function loadIndustryDefaults(industry) {
+  const defaultsPath = path.resolve(__dirname, '../../frontend/src/shared/seo/seoDefaults', `${industry}.json`);
+  
+  if (!fs.existsSync(defaultsPath)) {
+    console.warn(`⚠️  No SEO defaults found for industry: ${industry}`);
+    return null;
+  }
+  
+  try {
+    const content = fs.readFileSync(defaultsPath, 'utf8');
+    return JSON.parse(content);
+  } catch (error) {
+    console.error(`❌ Error loading SEO defaults for ${industry}:`, error.message);
+    return null;
+  }
+}
+
+/**
+ * Provision SEO configuration for a tenant
+ */
+async function provisionSeoConfig(tenantId, industry, businessName) {
+  const defaults = loadIndustryDefaults(industry);
+  
+  if (!defaults) {
+    console.log(`⚠️  Skipping SEO config for tenant ${tenantId} (no defaults for ${industry})`);
+    return false;
+  }
+  
+  // Generate tenant-specific SEO content
+  const metaTitle = `${businessName} - ${defaults.title}`;
+  const metaDescription = defaults.description.replace('Expert', `${businessName} provides expert`);
+  const keywords = [...defaults.keywords];
+  
+  try {
+    await pool.query(`
+      INSERT INTO website.seo_config (
+        business_id, 
+        meta_title, 
+        meta_description, 
+        keywords,
+        created_at,
+        updated_at
+      ) VALUES ($1, $2, $3, $4, NOW(), NOW())
+      ON CONFLICT (business_id) 
+      DO UPDATE SET
+        meta_title = EXCLUDED.meta_title,
+        meta_description = EXCLUDED.meta_description,
+        keywords = EXCLUDED.keywords,
+        updated_at = NOW()
+    `, [tenantId, metaTitle, metaDescription, keywords]);
+    
+    console.log(`✅ SEO config provisioned for tenant ${tenantId} (${industry})`);
+    return true;
+  } catch (error) {
+    console.error(`❌ Error provisioning SEO config for tenant ${tenantId}:`, error.message);
+    return false;
+  }
+}
+
+/**
+ * Provision SEO config for all existing tenants
+ */
+async function provisionAllTenants() {
+  console.log('🚀 Starting SEO configuration provisioning...\n');
+  
+  try {
+    // Get all tenants
+    const result = await pool.query(`
+      SELECT 
+        b.id,
+        b.name as business_name,
+        b.industry,
+        b.created_at
+      FROM tenants.business b
+      LEFT JOIN website.seo_config sc ON sc.business_id = b.id
+      WHERE sc.id IS NULL
+      ORDER BY b.created_at DESC
+    `);
+    
+    if (result.rows.length === 0) {
+      console.log('✅ All tenants already have SEO configuration');
+      return;
+    }
+    
+    console.log(`📊 Found ${result.rows.length} tenants without SEO configuration\n`);
+    
+    let successCount = 0;
+    let failCount = 0;
+    
+    for (const tenant of result.rows) {
+      console.log(`🔧 Processing tenant: ${tenant.business_name} (${tenant.industry})`);
+      
+      const success = await provisionSeoConfig(
+        tenant.id, 
+        tenant.industry, 
+        tenant.business_name
+      );
+      
+      if (success) {
+        successCount++;
+      } else {
+        failCount++;
+      }
+    }
+    
+    console.log('\n📈 Provisioning Summary:');
+    console.log(`   ✅ Successful: ${successCount}`);
+    console.log(`   ❌ Failed: ${failCount}`);
+    console.log(`   📊 Total: ${result.rows.length}`);
+    
+  } catch (error) {
+    console.error('❌ Error during SEO provisioning:', error.message);
+    throw error;
+  }
+}
+
+/**
+ * Create SEO config for a specific tenant
+ */
+async function provisionSingleTenant(tenantId) {
+  console.log(`🚀 Provisioning SEO config for tenant ${tenantId}...\n`);
+  
+  try {
+    const result = await pool.query(`
+      SELECT id, name as business_name, industry
+      FROM tenants.business 
+      WHERE id = $1
+    `, [tenantId]);
+    
+    if (result.rows.length === 0) {
+      console.error(`❌ Tenant ${tenantId} not found`);
+      return false;
+    }
+    
+    const tenant = result.rows[0];
+    console.log(`📊 Tenant: ${tenant.business_name} (${tenant.industry})`);
+    
+    const success = await provisionSeoConfig(tenant.id, tenant.industry, tenant.business_name);
+    
+    if (success) {
+      console.log('✅ SEO configuration provisioned successfully');
+    }
+    
+    return success;
+    
+  } catch (error) {
+    console.error('❌ Error provisioning SEO config:', error.message);
+    return false;
+  }
+}
+
+// Main execution
+const args = process.argv.slice(2);
+
+if (args.includes('--help')) {
+  console.log(`
+🔧 SEO Configuration Provisioning Script
+
+Usage:
+  node backend/scripts/provision-seo-config.js [options] [tenantId]
+
+Arguments:
+  tenantId    Optional. Provision SEO config for specific tenant ID
+
+Options:
+  --help      Show this help message
+  --all       Provision SEO config for all tenants (default)
+
+Examples:
+  node backend/scripts/provision-seo-config.js --all
+  node backend/scripts/provision-seo-config.js 123
+    `);
+} else {
+  const tenantId = args.find(arg => !arg.startsWith('--'));
+  
+  if (tenantId) {
+    provisionSingleTenant(tenantId)
+      .then(() => process.exit(0))
+      .catch(() => process.exit(1));
+  } else {
+    provisionAllTenants()
+      .then(() => process.exit(0))
+      .catch(() => process.exit(1));
+  }
+}
+
+export { provisionSeoConfig, provisionAllTenants, provisionSingleTenant };
+
+
+*** END FILE ***
+
+*** FILE: scripts\seo\test-anchors.js ***
 #!/usr/bin/env node
 
 /**
@@ -105340,7 +105125,7 @@ export { testSEOAnchors };
 
 *** END FILE ***
 
-*** FILE: scripts\test-seo.js ***
+*** FILE: scripts\seo\test-endpoints.js ***
 #!/usr/bin/env node
 
 /**
@@ -105510,21 +105295,20 @@ export { runSEOTests };
 ## Summary
 ```json
 {
-  "generated": "2025-10-16T04:50:53.285Z",
+  "generated": "2025-10-16T05:31:57.086Z",
   "projectRoot": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh",
   "targetFolder": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh",
   "counts": {
-    "totalFilesInTarget": 885,
+    "totalFilesInTarget": 884,
     "byExtension": {
-      ".js": 89,
-      ".md": 52,
+      ".js": 88,
+      ".md": 53,
       ".sql": 42,
       ".json": 93,
       ".ts": 339,
       ".html": 1,
       ".tsx": 267,
-      ".css": 1,
-      ".cjs": 1
+      ".css": 1
     }
   },
   "bundles": [
@@ -105594,7 +105378,6 @@ mdh/
     scripts/
       db-inspect.js
       db-overview.js
-      provision-seo-config.js
       test-email.js
       test-webhook.js
     server.js
@@ -105628,6 +105411,7 @@ mdh/
       vehicleMapping.js
   chatgpt/
     ALL_part01.txt
+  current-cleanup.md
   current-goals.md
   docs/
     DATACONTEXT_REFACTOR.md
@@ -105698,16 +105482,16 @@ mdh/
   scripts/
     chatgpt/
       gitlogs/
-    diagnose-api-connectivity.cjs
-    diagnose-api-connectivity.js
     error-monitor/
       index.js
       lib/
-    integrate-seo.js
     project-overview.js
     scorecard.js
-    test-seo-anchors.js
-    test-seo.js
+    seo/
+      integrate.js
+      provision-config.js
+      test-anchors.js
+      test-endpoints.js
 ```
 
 ## Target Folder (full tree)
@@ -105841,7 +105625,6 @@ mdh/
     scripts/
       db-inspect.js
       db-overview.js
-      provision-seo-config.js
       test-email.js
       test-webhook.js
     server.js
@@ -105870,6 +105653,7 @@ mdh/
       validationSchemas.js
       validators.js
       vehicleMapping.js
+  current-cleanup.md
   current-goals.md
   docs/
     DATACONTEXT_REFACTOR.md
@@ -106842,18 +106626,18 @@ mdh/
     vitest.config.ts
   package.json
   scripts/
-    diagnose-api-connectivity.cjs
-    diagnose-api-connectivity.js
     error-monitor/
       index.js
       lib/
         backend-monitor.js
         cli.js
         frontend-monitor.js
-    integrate-seo.js
     project-overview.js
     scorecard.js
-    test-seo-anchors.js
-    test-seo.js
+    seo/
+      integrate.js
+      provision-config.js
+      test-anchors.js
+      test-endpoints.js
 ```
 *** END PROJECT_STRUCTURE ***

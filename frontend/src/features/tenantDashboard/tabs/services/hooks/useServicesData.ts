@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { Bike, Bot as Boat, Car, HelpCircle, Home, Mountain, Truck } from 'lucide-react';
 
+import { servicesApi } from '@/features/services/api/services.api';
 import type { Vehicle } from '../types';
 
 interface ApiResponse<T = unknown> {
@@ -83,13 +84,8 @@ export const useServicesAPI = (tenantId?: string) => {
         throw new Error('Invalid vehicle or category ID');
       }
       
-      const response = await fetch(`/api/services/tenant/${tenantId}/vehicle/${vehicleId}/category/${dbCategoryId}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch services');
-      }
-      
-      const data = await response.json() as ApiResponse<ServiceData[]>;
-      return data.data;
+      const services = await servicesApi.getServices(tenantId, vehicleId, dbCategoryId.toString());
+      return services as ServiceData[];
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch services');
       return null;
@@ -132,21 +128,8 @@ export const useServicesAPI = (tenantId?: string) => {
         requestBody.tiers = tiers;
       }
       
-      const response = await fetch('/api/services', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json() as ApiResponse;
-        throw new Error(errorData.message ?? 'Failed to create service');
-      }
-      
-      const data = await response.json() as ApiResponse<ServiceData>;
-      return data.data;
+      const service = await servicesApi.createService(requestBody);
+      return service as ServiceData;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create service');
       return null;
@@ -166,13 +149,8 @@ export const useServicesAPI = (tenantId?: string) => {
     setError(null);
     
     try {
-      const response = await fetch(`/api/services/${serviceId}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch service');
-      }
-      
-      const data = await response.json() as ApiResponse<ServiceData>;
-      return data.data;
+      const service = await servicesApi.getService(serviceId);
+      return service as ServiceData;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch service');
       return null;
@@ -191,21 +169,8 @@ export const useServicesAPI = (tenantId?: string) => {
     setError(null);
     
     try {
-      const response = await fetch(`/api/services/${serviceId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(serviceData),
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json() as ApiResponse;
-        throw new Error(errorData.message ?? 'Failed to update service');
-      }
-      
-      const data = await response.json() as ApiResponse<ServiceData>;
-      return data.data;
+      const service = await servicesApi.updateService(serviceId, serviceData);
+      return service as ServiceData;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update service');
       return null;
@@ -224,18 +189,7 @@ export const useServicesAPI = (tenantId?: string) => {
     setError(null);
     
     try {
-      const response = await fetch(`/api/services/${serviceId}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json() as ApiResponse;
-        throw new Error(errorData.message ?? 'Failed to delete service');
-      }
-      
+      await servicesApi.deleteService(serviceId);
       return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete service');

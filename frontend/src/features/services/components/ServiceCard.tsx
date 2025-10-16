@@ -37,17 +37,24 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
         className={`group relative block rounded-lg overflow-hidden shadow-lg transition-transform duration-300 hover:-translate-y-2 hover:shadow-xl cursor-pointer ${className}`}
       >
         <div className="h-52 sm:h-80 lg:h-96 xl:h-[28rem]">
-          <img 
-            src={service.imageUrl} 
-            alt="" /* decorative; title is visible text */
-            loading={service.imagePriority ? "eager" : "lazy"}
-            decoding={service.imagePriority ? "sync" : "async"}
-            // eslint-disable-next-line react/no-unknown-property -- fetchPriority is a valid HTML attribute
-            {...(service.imagePriority && { fetchPriority: 'high' as const })}
-            width={service.imageWidth || 600}
-            height={service.imageHeight || 400}
-            className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
+          <picture>
+            <source
+              type="image/webp"
+              srcSet={`${service.imageUrl.replace(/\.(png|jpg|jpeg)$/i, '.webp')} 600w, ${service.imageUrl.replace(/\.(png|jpg|jpeg)$/i, '.webp')} 1200w`}
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 100vw"
+            />
+            <img 
+              src={service.imageUrl} 
+              alt="" /* decorative; title is visible text */
+              loading={service.imagePriority ? "eager" : "lazy"}
+              decoding={service.imagePriority ? "sync" : "async"}
+              // eslint-disable-next-line react/no-unknown-property -- fetchPriority is a valid HTML attribute
+              {...(service.imagePriority && { fetchPriority: 'high' as const })}
+              width={service.imageWidth || 600}
+              height={service.imageHeight || 400}
+              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+          </picture>
         </div>
         
         {/* Content Overlay */}

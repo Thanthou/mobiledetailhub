@@ -150,7 +150,7 @@ function updateFavicon(url: string): void {
  */
 function updateManifest(url: string): void {
   // Find existing manifest link or create new one
-  let manifestElement = document.querySelector('link[rel="manifest"]') as HTMLLinkElement;
+  let manifestElement = document.querySelector('link[rel="manifest"]');
   
   if (!manifestElement) {
     // Create new manifest link if none exists

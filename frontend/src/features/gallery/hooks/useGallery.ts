@@ -1,6 +1,7 @@
-import { useEffect,useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { GalleryImage } from '../types';
+import { galleryApi } from '../api/gallery.api';
 
 export const useGallery = () => {
   const [images, setImages] = useState<GalleryImage[]>([]);
@@ -13,16 +14,8 @@ export const useGallery = () => {
         setLoading(true);
         setError(null);
         
-        const response = await fetch('/mobile-detailing/data/gallery.json');
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch gallery data: ${response.status}`);
-        }
-        
-        const data: unknown = await response.json();
-        // Gallery.json is an array directly, not an object with images property
-        const galleryImages = Array.isArray(data) ? data : ((data as { images?: unknown[] }).images || []);
-        setImages(galleryImages as GalleryImage[]);
+        const galleryImages = await galleryApi.getGalleryImages();
+        setImages(galleryImages);
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : 'Failed to load gallery data');
       } finally {

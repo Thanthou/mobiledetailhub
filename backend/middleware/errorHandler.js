@@ -11,7 +11,11 @@ const { errorMonitor } = require('../utils/errorMonitor');
  * Error handler middleware
  * Must be the last middleware in the chain
  */
-const errorHandler = (err, req, res, _next) => {
+const errorHandler = (err, req, res, next) => {
+  // If headers already sent, delegate to default Express handler to avoid double-send
+  if (res.headersSent) {
+    return next(err);
+  }
   // Log the error
   logger.error('Unhandled error:', {
     error: err.message,
@@ -34,6 +38,15 @@ const errorHandler = (err, req, res, _next) => {
         message: err.message,
         value: err.value
       }]
+    });
+  }
+
+  // Handle Zod validation errors
+  if (err.code === 'VALIDATION_ERROR' || err.code === 'SANITIZATION_ERROR') {
+    return res.status(400).json({
+      error: err.message,
+      code: err.code,
+      details: err.details || []
     });
   }
 

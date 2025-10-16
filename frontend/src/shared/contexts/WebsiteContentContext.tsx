@@ -42,7 +42,7 @@ export const WebsiteContentProvider: React.FC<WebsiteContentProviderProps> = ({ 
     error,
     refetch,
   } = useQuery({
-    queryKey: ['website-content', slug],
+    queryKey: ['shared','websiteContent', slug],
     queryFn: async () => {
       // Always use the tenant-specific endpoint since main site uses 'jps' tenant
       const result = await websiteContentApi.getWebsiteContent(slug);

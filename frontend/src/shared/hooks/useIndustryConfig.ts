@@ -38,7 +38,7 @@ export function useIndustryConfig(
   }
 ) {
   const { data: siteConfig, isLoading, error } = useQuery({
-    queryKey: ['industryConfig', industry],
+    queryKey: ['shared','industryConfig', industry],
     queryFn: () => {
       if (!industry) throw new Error('Industry is required');
       return fetchIndustryConfig(industry);

@@ -40,15 +40,22 @@ const ProcessStep = ({
     <div className={`${isReversed ? 'lg:col-start-1' : ''} flex justify-center lg:justify-start`}>
       <div className="aspect-[4/3] rounded-2xl bg-stone-700 ring-1 ring-white/10 overflow-hidden w-full max-w-md">
         {step.image?.src ? (
-          <img 
-            src={step.image.src} 
-            alt={step.image.alt || step.title}
-            width={600}
-            height={450}
-            loading="lazy"
-            decoding="async"
-            className="w-full h-full object-cover"
-          />
+          <picture>
+            <source
+              type="image/webp"
+              srcSet={`${step.image.src.replace(/\.(png|jpg|jpeg)$/i, '.webp')} 600w, ${step.image.src.replace(/\.(png|jpg|jpeg)$/i, '.webp')} 800w`}
+              sizes="(max-width: 640px) 100vw, 50vw"
+            />
+            <img 
+              src={step.image.src} 
+              alt={step.image.alt || step.title}
+              width={600}
+              height={450}
+              loading="lazy"
+              decoding="async"
+              className="w-full h-full object-cover"
+            />
+          </picture>
         ) : (
           <div className="w-full h-full flex items-center justify-center text-white/50">
             Step {step.number} Image

@@ -35,15 +35,19 @@ const Logo: React.FC = () => {
       className="flex items-center hover:opacity-80 transition-opacity flex-shrink-0"
       aria-label={`${industry} home`}
     >
-      <img 
-        src={src} 
-        alt={alt} 
-        className="h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 lg:h-16 lg:w-16"
-        width={64}
-        height={64}
-        decoding="async"
-        loading="eager"
-      />
+      <picture>
+        {/* Prefer WebP when available; fall back to original */}
+        <source srcSet={`${src.endsWith('.webp') ? src : src.replace(/\.(png|jpg|jpeg)$/i, '.webp')}`} type="image/webp" />
+        <img 
+          src={src} 
+          alt={alt} 
+          className="h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 lg:h-16 lg:w-16"
+          width={64}
+          height={64}
+          decoding="async"
+          loading="eager"
+        />
+      </picture>
     </button>
   );
 };

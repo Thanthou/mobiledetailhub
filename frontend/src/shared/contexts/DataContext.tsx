@@ -75,7 +75,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   // Step 3: Fetch industry config based on tenant's industry
   const industry = businessData?.industry || 'mobile-detailing';
   const { data: siteConfig, isLoading: isLoadingSiteConfig } = useQuery({
-    queryKey: ['siteConfig', industry],
+    queryKey: ['shared','siteConfig', industry],
     queryFn: () => fetchIndustryConfig(industry),
     enabled: !!businessData?.industry,
     staleTime: 10 * 60 * 1000, // 10 minutes
