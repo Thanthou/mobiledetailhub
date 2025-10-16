@@ -1,9 +1,9 @@
 # Database Overview (Auto-Generated)
 
-Generated: 2025-10-15T04:50:45.113Z
+Generated: 2025-10-16T04:50:53.528Z
 
 ```
-[dotenv@17.2.2] injecting env (19) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[dotenv@17.2.2] injecting env (21) from .env -- tip: 📡 observe env with Radar: https://dotenvx.com/radar
 
 🔍 Database: ThatSmartSite
 ============================================================
@@ -430,7 +430,6 @@ Generated: 2025-10-15T04:50:45.113Z
       • personal_email: character varying(255) NULL
       • twilio_phone: character varying(20) NULL
       • sms_phone: character varying(20) NULL
-      • website: text NULL
       • gbp_url: text NULL
       • facebook_url: text NULL
       • instagram_url: text NULL
@@ -444,6 +443,7 @@ Generated: 2025-10-15T04:50:45.113Z
       • last_activity: timestamp with time zone NULL
       • created_at: timestamp with time zone NULL = CURRENT_TIMESTAMP
       • updated_at: timestamp with time zone NULL = CURRENT_TIMESTAMP
+      • website: text NULL
 
    tenants.service_tiers
       • id: integer NOT NULL = nextval('tenants.service_tiers

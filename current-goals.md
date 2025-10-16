@@ -16,10 +16,6 @@
     ❌ SSL (automatic)
     • No automatic SSL certificate provisioning
     • SSL is handled at the hosting/CDN level, not in the application
-    ❌ Automatic icon to mobile homescreen
-    • PWA manifest exists but no automatic installation
-    • Users need to manually "Add to Home Screen"
-    • We have the AddToHomeScreen component but it's manual
     ✅ First-login to dashboard
     • Success page now has "Go to Dashboard" button
     • Automatically logs user in with temp password
@@ -122,6 +118,7 @@ Perfect for new or solo operators who just need a clean, trusted web presence wi
 ✅ Insightful: Personal dashboard with business metrics and performance overview
 ✅ Analytical: Google Analytics for traffic tracking
 ✅ High-Performing: Real-time Website Health check for speed, mobile readiness, and best practices
+
 💡 *You focus on your business — we make sure your site stays healthy and discoverable.*
 
 ---
@@ -132,12 +129,12 @@ Perfect for new or solo operators who just need a clean, trusted web presence wi
 Ideal for growing businesses ready to attract more leads and respond faster.
 
 ✅ Everything in Starter
-✅ Domain: yourdomain.com
-✅ Email: service@yourdomain.com
+✅ Domain: Custom Professionl Domain -- yourdomain.com
+✅ Email: Multiple Professional Emails service@yourdomain.com
 ✅ Custom domain & SSL for a polished, branded web address
-✅ Expanded service areas to reach more local customers
-✅ Analytics dashboard with customer activity insights
-✅ **Instant Quote Text Alerts** — get a text the second someone requests a quote, so you can follow up immediately
+✅ Locations: 3 custom city/state service area pages to reach more local customers via SEO
+✅ Texting: **Instant Quote Text Alerts** — get a text the second someone requests a quote, so you can follow up immediately
+
 💡 *Never miss another lead — respond faster, book more jobs, and build your reputation.*
 
 ---

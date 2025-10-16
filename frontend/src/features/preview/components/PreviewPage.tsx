@@ -15,6 +15,7 @@ import { LazyRequestQuoteModal } from '@/features/quotes';
 import { Reviews } from '@/features/reviews';
 import { ServicesGrid } from '@/features/services';
 import { useBrowserTab, useIsDesktop, useScrollSpy } from '@/shared/hooks';
+import { SeoHead } from '@/shared/seo';
 import type { SectionId } from '@/shared/state/sectionStore';
 
 import { usePreviewParams } from '../hooks/usePreviewParams';
@@ -66,6 +67,13 @@ const PreviewPage: React.FC = () => {
   // Render preview with injected data
   return (
     <PreviewDataProvider payload={payload}>
+      {/* SEO Head with noindex for preview pages */}
+      <SeoHead 
+        title={payload.businessName ? `${payload.businessName} - Preview` : 'Platform Preview'}
+        description={`Preview of ${payload.businessName || 'business'} website`}
+        noindex={true}
+      />
+      
       {/* Fixed "Get This Site" buttons in both corners */}
       <PreviewCTAButton position="left" />
       <PreviewCTAButton position="right" />

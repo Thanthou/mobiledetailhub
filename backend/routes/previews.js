@@ -11,6 +11,12 @@ const router = express.Router();
 const { signPreview, verifyPreview } = require('../utils/previewToken');
 const logger = require('../utils/logger');
 
+// Middleware to add noindex headers for preview routes
+router.use((req, res, next) => {
+  res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+  next();
+});
+
 // Validation schema for preview payload
 const PreviewPayloadSchema = z.object({
   businessName: z.string().min(2, 'Business name must be at least 2 characters').max(100),

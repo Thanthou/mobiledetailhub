@@ -31,8 +31,8 @@ export {
   useIsTablet,
   useMediaQuery
 } from './useMediaQuery';
-export { usePerformanceMonitor } from './usePerformanceMonitor';
 export { useModalPrefetch, usePrefetch } from './usePrefetch';
+export { usePerformanceMonitor } from './usePerformanceMonitor';
 export { useScrollSpy } from './useScrollSpy';
 export { useScrollToTop } from './useScrollToTop';
 

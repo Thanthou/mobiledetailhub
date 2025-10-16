@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 interface PWAStatus {
   isInstalled: boolean;
@@ -23,7 +23,7 @@ export const usePWAStatus = (): PWAStatus => {
       );
       const displayMode = active ?? 'browser';
       const isStandaloneIOS =
-        'standalone' in navigator && (navigator as any).standalone;
+        'standalone' in navigator && (navigator as { standalone?: boolean }).standalone;
       const isStandalone = displayMode !== 'browser' || !!isStandaloneIOS;
 
       // Additional detection methods
@@ -31,15 +31,7 @@ export const usePWAStatus = (): PWAStatus => {
       const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches;
       const isPWAInstalled = isStandalone || hasAppBanner || isInStandaloneMode;
 
-      console.log('📱 PWA Detection:', {
-        displayMode,
-        isStandaloneIOS,
-        isStandalone,
-        hasAppBanner,
-        isInStandaloneMode,
-        isPWAInstalled,
-        userAgent: navigator.userAgent.substring(0, 50) + '...'
-      });
+      // Debug logging removed for production
 
       setStatus((prev) => ({
         ...prev,

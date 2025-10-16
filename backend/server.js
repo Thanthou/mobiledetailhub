@@ -33,6 +33,8 @@ const websiteContentRoutes = require('./routes/websiteContent');
 const previewsRoutes = require('./routes/previews');
 const tenantManifestRoutes = require('./routes/tenantManifest');
 const paymentsRoutes = require('./routes/payments');
+const seoRoutes = require('./routes/seo');
+const analyticsRoutes = require('./routes/analytics');
 
 // Get the update function from health routes
 const { updateShutdownStatus } = healthRoutes;
@@ -374,6 +376,10 @@ app.use('/api/previews', apiLimiter, previewsRoutes); // Preview token generatio
 app.use('/api/preview', previewsRoutes); // Preview verification (no rate limit for link opens)
 app.use('/api/tenant-manifest', tenantManifestRoutes); // Tenant PWA manifests (no rate limit)
 app.use('/api/payments', sensitiveAuthLimiter, paymentsRoutes); // Payment processing (sensitive auth rate limiting)
+app.use('/api/analytics', apiLimiter, analyticsRoutes); // Analytics tracking (rate limited)
+
+// SEO routes (no rate limit for crawlers)
+app.use('/', seoRoutes); // robots.txt and sitemap.xml
 
 // Error handling middleware (must be last)
 app.use(notFoundHandler);
@@ -410,14 +416,15 @@ async function startServer() {
   }
 
   // Start server after successful database setup
-  server = app.listen(PORT, () => {
+  server = app.listen(PORT, '0.0.0.0', () => {
     // Check if we're already shutting down
     if (isShuttingDown) {
       logger.warn('Server startup cancelled - shutdown in progress');
       return;
     }
     
-    logger.startup(`Server running on port ${PORT}`);
+    logger.startup(`Server running on 0.0.0.0:${PORT}`);
+    logger.startup(`Accessible from: http://localhost:${PORT} and http://192.168.4.21:${PORT}`);
     logger.startup('Server is fully ready and operational!');
     
     // Start periodic shutdown status updates

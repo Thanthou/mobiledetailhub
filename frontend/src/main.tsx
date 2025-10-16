@@ -1,4 +1,5 @@
 import { createRoot } from 'react-dom/client';
+import { HelmetProvider } from 'react-helmet-async';
 
 import { config } from '@/shared/env';
 
@@ -21,7 +22,7 @@ if (!rootElement) {
 }
 
 createRoot(rootElement).render(
-  <>
+  <HelmetProvider>
     <App />
-  </>
+  </HelmetProvider>
 );

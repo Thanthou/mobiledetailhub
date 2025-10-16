@@ -6,7 +6,6 @@ const { asyncHandler } = require('../middleware/errorHandler');
 const { sensitiveAuthLimiter } = require('../middleware/rateLimiter');
 const StripeService = require('../services/stripeService');
 const emailService = require('../services/emailService');
-const { env } = require('../config/env');
 
 /**
  * POST /api/payments/create-intent
@@ -78,6 +77,9 @@ router.post('/create-intent', sensitiveAuthLimiter, asyncHandler(async (req, res
  * Confirm payment and activate tenant
  */
 router.post('/confirm', sensitiveAuthLimiter, asyncHandler(async (req, res) => {
+  console.log('🔥🔥🔥 PAYMENT CONFIRMATION ENDPOINT CALLED - THIS SHOULD DEFINITELY SHOW UP! 🔥🔥🔥');
+  console.log('📋 Request Body:', JSON.stringify(req.body, null, 2));
+  console.log('📋 Request Headers:', JSON.stringify(req.headers, null, 2));
   const {
     paymentIntentId,
     tenantData
@@ -305,6 +307,7 @@ router.post('/confirm', sensitiveAuthLimiter, asyncHandler(async (req, res) => {
       console.log('================================\n');
 
       // Send welcome email to the new tenant
+      console.log('📧 Starting welcome email process...');
       const welcomeEmailData = {
         personalEmail: tenantData.personalEmail,
         businessEmail: tenantData.businessEmail || tenantData.personalEmail, // Fallback to personal if no business email
@@ -315,7 +318,10 @@ router.post('/confirm', sensitiveAuthLimiter, asyncHandler(async (req, res) => {
         tempPassword: tenantData.tempPassword
       };
 
+      console.log('📧 Welcome email data:', JSON.stringify(welcomeEmailData, null, 2));
       const emailResult = await emailService.sendWelcomeEmail(welcomeEmailData);
+      console.log('📧 Email service result:', JSON.stringify(emailResult, null, 2));
+      
       if (emailResult.success) {
         console.log('✅ Welcome email sent successfully to:', emailResult.emailsSent.join(', '));
       } else {

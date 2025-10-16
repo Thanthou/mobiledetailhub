@@ -1,6 +1,6 @@
 /* eslint-disable max-lines -- Complex component with multiple sub-tabs, refactoring planned */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Loader2, Trash2, UserCheck, UserCog, UserPlus, Users, UserX } from 'lucide-react';
+import { ExternalLink, Loader2, Plus, Settings, Trash2, UserCheck, UserCog, UserPlus, Users, UserX } from 'lucide-react';
 
 import { ApplicationModal, DeleteConfirmationModal, Toast } from '@/features/adminDashboard/components/shared';
 import type { UserSubTab } from '@/features/adminDashboard/types';
@@ -460,6 +460,32 @@ export const UsersTab: React.FC = () => {
                     <p>Created: {new Date(user.created_at).toLocaleDateString()}</p>
                   </div>
                   
+                  {/* Action buttons for tenants */}
+                  {user.role === 'tenant' && user.slug && (
+                    <div className="flex items-center gap-2">
+                      <a
+                        href={`/${user.slug}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 px-3 py-1.5 text-white text-xs rounded transition-colors bg-blue-600 hover:bg-blue-700"
+                        title="View tenant website"
+                      >
+                        <ExternalLink className="w-3 h-3" />
+                        Website
+                      </a>
+                      <a
+                        href={`/${user.slug}/dashboard`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 px-3 py-1.5 text-white text-xs rounded transition-colors bg-green-600 hover:bg-green-700"
+                        title="View tenant dashboard"
+                      >
+                        <Settings className="w-3 h-3" />
+                        Dashboard
+                      </a>
+                    </div>
+                  )}
+                  
                   {/* Delete button for tenants */}
                   {user.role === 'tenant' && (
                     <button
@@ -523,25 +549,39 @@ export const UsersTab: React.FC = () => {
         
         {/* Sub-tabs */}
         <div className="px-6 py-3 border-b border-gray-700">
-          <nav className="flex space-x-6">
-            {subTabs.map((subTab) => {
-              const Icon = subTab.icon;
-              return (
-                <button
-                  key={subTab.id}
-                  onClick={() => { handleSubTabChange(subTab.id); }}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    activeSubTab === subTab.id
-                      ? 'bg-blue-900 text-blue-300 border-b-2 border-blue-400'
-                      : 'text-gray-300 hover:text-white hover:bg-gray-700'
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  {subTab.label}
-                </button>
-              );
-            })}
-          </nav>
+          <div className="flex items-center justify-between">
+            <nav className="flex space-x-6">
+              {subTabs.map((subTab) => {
+                const Icon = subTab.icon;
+                return (
+                  <button
+                    key={subTab.id}
+                    onClick={() => { handleSubTabChange(subTab.id); }}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                      activeSubTab === subTab.id
+                        ? 'bg-blue-900 text-blue-300 border-b-2 border-blue-400'
+                        : 'text-gray-300 hover:text-white hover:bg-gray-700'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    {subTab.label}
+                  </button>
+                );
+              })}
+            </nav>
+            
+            {/* Tenant Onboarding Button */}
+            <a
+              href="/tenant-onboarding"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md transition-colors"
+              title="Open tenant onboarding form"
+            >
+              <Plus className="w-4 h-4" />
+              New Tenant
+            </a>
+          </div>
         </div>
         
         <div className="p-6">

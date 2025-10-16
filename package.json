@@ -14,7 +14,9 @@
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,css,scss}\"",
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md,css,scss}\"",
     "prepare": "husky install",
-    "overview": "node scripts/generate-codebase-overview.js"
+    "overview": "node scripts/project-overview.js",
+    "seo:provision": "node backend/scripts/provision-seo-config.js --all",
+    "seo:test": "node scripts/test-seo-anchors.js"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

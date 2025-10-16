@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { CreditCard, Lock, Shield, AlertCircle } from 'lucide-react';
+import { CardElement, useElements, useStripe } from '@stripe/react-stripe-js';
+import { AlertCircle, CreditCard, Lock, Shield } from 'lucide-react';
 
+import { env } from '@/shared/env';
 import { Input } from '@/shared/ui';
-import { env, config } from '@/shared/env';
 
+import { confirmPayment, createPaymentIntent } from '../api/payments.api';
 import type { Address } from '../types';
 import { addressSchema } from '../utils/validation';
 
@@ -72,7 +73,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
   };
 
 
-  const handleCardChange = (event: any) => {
+  const handleCardChange = (event: { error?: { message: string } | undefined }) => {
     if (event.error) {
       setCardError(event.error.message);
     } else {
@@ -82,33 +83,24 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
 
   // Create payment intent when component mounts
   React.useEffect(() => {
-    const createPaymentIntent = async () => {
+    const createPaymentIntentAsync = async () => {
       try {
-        const response = await fetch(`${config.apiBaseUrl}/api/payments/create-intent`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            amount: formData.planPrice,
-            customerEmail: formData.personalEmail,
-            businessName: formData.businessName,
-            planType: formData.selectedPlan,
-            metadata: {
-              industry: formData.industry,
-            }
-          }),
+        const result = await createPaymentIntent({
+          amount: formData.planPrice,
+          customerEmail: formData.personalEmail,
+          businessName: formData.businessName,
+          planType: formData.selectedPlan,
+          metadata: {
+            industry: formData.industry,
+          }
         });
-
-        const result = await response.json();
         
-        if (result.success) {
+        if (result.success && result.clientSecret) {
           setClientSecret(result.clientSecret);
         } else {
           setCardError(result.error || 'Failed to initialize payment');
         }
       } catch (error) {
-        console.error('Error creating payment intent:', error);
         if (error instanceof TypeError && error.message.includes('fetch')) {
           setCardError('Unable to connect to server. Please check your network connection.');
         } else {
@@ -117,7 +109,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
       }
     };
 
-    void createPaymentIntent();
+    void createPaymentIntentAsync();
   }, [formData.planPrice, formData.personalEmail, formData.businessName, formData.selectedPlan, formData.industry]);
 
   const handlePayment = async () => {
@@ -168,23 +160,15 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                            Math.random().toString(36).substring(2, 15);
 
         // Confirm payment and create tenant (let backend handle password hashing)
-        const confirmResponse = await fetch(`${config.apiBaseUrl}/api/payments/confirm`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            paymentIntentId: paymentIntent.id,
-            tenantData: {
-              ...formData,
-              tempPassword, // Send plain password, let backend hash it
-            }
-          }),
+        const confirmResult = await confirmPayment({
+          paymentIntentId: paymentIntent.id,
+          tenantData: {
+            ...formData,
+            tempPassword, // Send plain password, let backend hash it
+          }
         });
-
-        const confirmResult = await confirmResponse.json();
         
-        if (confirmResult.success) {
+        if (confirmResult.success && confirmResult.data) {
           // Store the temporary password for the success page
           sessionStorage.setItem('tempPassword', tempPassword);
           sessionStorage.setItem('tenantEmail', formData.personalEmail);
@@ -196,7 +180,6 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
         }
       }
     } catch (error) {
-      console.error('Payment error:', error);
       if (error instanceof TypeError && error.message.includes('fetch')) {
         setCardError('Unable to connect to server. Please check your network connection.');
       } else {
@@ -369,7 +352,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
           <div className="pt-4 border-t border-stone-700">
             <button
               type="button"
-              onClick={handlePayment}
+              onClick={() => { void handlePayment(); }}
               disabled={!stripe || !clientSecret || isProcessing}
               className={`
                 w-full py-4 px-6 rounded-lg font-semibold text-lg
@@ -392,7 +375,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
             </button>
             
             <p className="text-center text-xs text-gray-400 mt-2">
-              You'll be charged ${(formData.planPrice / 100).toFixed(2)} monthly. Cancel anytime.
+              You&apos;ll be charged ${(formData.planPrice / 100).toFixed(2)} monthly. Cancel anytime.
             </p>
           </div>
 

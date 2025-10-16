@@ -8,8 +8,8 @@
 import React, { useEffect, useState } from 'react';
 import { Download, Smartphone, X } from 'lucide-react';
 
-import { Button } from '@/shared/ui';
 import { useMobileDetection } from '@/shared/hooks/useMobileDetection';
+import { Button } from '@/shared/ui';
 
 interface AddToHomeScreenProps {
   tenantSlug?: string;
@@ -37,62 +37,44 @@ export const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
   const [installStatus, setInstallStatus] = useState<string>('');
   const isMobile = useMobileDetection();
 
-  // Debug logging for mobile (console only)
-  const addDebugMessage = (message: string) => {
-    const timestamp = new Date().toLocaleTimeString();
-    console.log(`[${timestamp}] 📱 PWA: ${message}`);
-  };
+  // Debug logging removed for production
 
   useEffect(() => {
-    addDebugMessage('🎯 AddToHomeScreen component mounted');
-    addDebugMessage(`Props: tenantSlug=${tenantSlug}, businessName=${businessName}, autoShow=${autoShow}`);
     
     // Check localStorage for previous dismissals
     const iosDismissed = localStorage.getItem('pwa-ios-prompt-dismissed');
     const androidDismissed = localStorage.getItem('pwa-android-prompt-dismissed');
-    addDebugMessage(`localStorage check: iOS dismissed=${!!iosDismissed}, Android dismissed=${!!androidDismissed}`);
     
     // TEMPORARY: Clear dismissal flags for testing
     if (iosDismissed || androidDismissed) {
-      addDebugMessage('Clearing dismissal flags for testing...');
       localStorage.removeItem('pwa-ios-prompt-dismissed');
       localStorage.removeItem('pwa-android-prompt-dismissed');
       setUserDismissed(false);
     }
     
     // Check if already installed (both display-mode and navigator.standalone for iOS)
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as { standalone?: boolean }).standalone;
     if (isStandalone) {
-      console.log('📱 PWA: Already installed (standalone mode)');
-      addDebugMessage('Already installed (standalone mode)');
       setIsInstalled(true);
       return;
     }
 
     // Only proceed if on mobile device
     if (!isMobile) {
-      console.log('📱 PWA: Not mobile device, skipping prompt');
-      addDebugMessage('Not mobile device, skipping prompt');
       return;
     }
 
-    console.log('📱 PWA: Mobile device detected, setting up prompt');
-    addDebugMessage('Mobile device detected, setting up prompt');
 
     // Detect iOS
     const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     setIsIOS(iOS);
-    addDebugMessage(`iOS detected: ${iOS}`);
 
     // Listen for the beforeinstallprompt event (Android)
     const handleBeforeInstallPrompt = (e: Event) => {
-      console.log('📱 PWA: beforeinstallprompt event received');
-      addDebugMessage('beforeinstallprompt event received');
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
       if (autoShow) {
         setShowPrompt(true);
-        addDebugMessage('Showing prompt (Android)');
       }
     };
 
@@ -111,12 +93,7 @@ export const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
       // Don't show if they've dismissed it before
       const dismissed = localStorage.getItem('pwa-ios-prompt-dismissed');
       if (!dismissed) {
-        console.log('📱 PWA: Showing iOS prompt');
-        addDebugMessage('Showing iOS prompt');
         setShowPrompt(true);
-      } else {
-        console.log('📱 PWA: iOS prompt was dismissed before');
-        addDebugMessage('iOS prompt was dismissed before');
       }
     }
 
@@ -128,42 +105,26 @@ export const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
 
   // Separate effect to handle mobile detection changes
   useEffect(() => {
-    addDebugMessage(`Mobile effect: isMobile=${isMobile}, isInstalled=${isInstalled}, showPrompt=${showPrompt}, autoShow=${autoShow}, userDismissed=${userDismissed}`);
     
     if (isMobile && !isInstalled && autoShow && !showPrompt && !userDismissed) {
-      addDebugMessage('Mobile detected - checking for PWA events');
       
       const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-      addDebugMessage(`Device type: iOS=${iOS}, hasDeferredPrompt=${!!deferredPrompt}`);
       
       // For iOS, always show manual prompt (no beforeinstallprompt event)
       if (iOS) {
         const dismissed = localStorage.getItem('pwa-ios-prompt-dismissed');
-        addDebugMessage(`iOS dismissed check: ${!!dismissed}`);
         if (!dismissed) {
-          addDebugMessage('iOS device - showing manual prompt');
           setShowPrompt(true);
-        } else {
-          addDebugMessage('iOS prompt was previously dismissed');
         }
       }
       // For Android, check if previously dismissed
       else {
         const dismissed = localStorage.getItem('pwa-android-prompt-dismissed');
-        addDebugMessage(`Android dismissed check: ${!!dismissed}`);
         if (!dismissed) {
-          if (deferredPrompt) {
-            addDebugMessage('Android - found deferred prompt, showing native prompt');
-          } else {
-            addDebugMessage('Android - no deferred prompt, showing manual prompt');
-          }
+          // Show prompt regardless of deferred prompt availability
           setShowPrompt(true);
-        } else {
-          addDebugMessage('Android prompt was previously dismissed');
         }
       }
-    } else {
-      addDebugMessage(`Not showing prompt - isMobile:${isMobile}, isInstalled:${isInstalled}, autoShow:${autoShow}, showPrompt:${showPrompt}, userDismissed:${userDismissed}`);
     }
   }, [isMobile, deferredPrompt, isInstalled, showPrompt, autoShow, userDismissed]);
 
@@ -190,23 +151,19 @@ export const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
         const choiceResult = await deferredPrompt.userChoice;
 
         if (choiceResult.outcome === 'accepted') {
-          setInstallStatus('✅ Install accepted! Check your home screen.');
-          addDebugMessage('User accepted the install prompt');
+        setInstallStatus('✅ Install accepted! Check your home screen.');
         } else {
-          setInstallStatus('Install dialog dismissed');
-          addDebugMessage('User dismissed the install prompt');
+        setInstallStatus('Install dialog dismissed');
         }
 
         // Clear the deferred prompt
         setDeferredPrompt(null);
-        setTimeout(() => setShowPrompt(false), 2000);
-      } catch (error) {
+        setTimeout(() => { setShowPrompt(false); }, 2000);
+      } catch {
         setInstallStatus('❌ Install failed. Try manual install.');
-        addDebugMessage(`Error showing install prompt: ${error}`);
       }
     } else {
       setInstallStatus('📱 Use browser menu (⋮) → "Add to Home screen"');
-      addDebugMessage('No native install prompt available - manual installation required');
       
       // For manual installation, keep the prompt open so user can see instructions
       setTimeout(() => {
@@ -216,7 +173,6 @@ export const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
   };
 
   const handleClose = () => {
-    console.log('📱 PWA: handleClose called');
     setShowPrompt(false);
     setUserDismissed(true);
     if (isIOS) {
@@ -231,17 +187,12 @@ export const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
 
   // Log render state (moved to useEffect to avoid race conditions)
   useEffect(() => {
-    console.log('📱 PWA: AddToHomeScreen render called - isMobile:', isMobile, 'showPrompt:', showPrompt);
-    addDebugMessage(`Render: isMobile=${isMobile}, showPrompt=${showPrompt}, isInstalled=${isInstalled}`);
   }, [isMobile, showPrompt, isInstalled]);
 
   // Don't show if not mobile, already installed, or no prompt available
   if (!isMobile || isInstalled || !showPrompt) {
-    console.log('📱 PWA: Component returning null - isMobile:', isMobile, 'isInstalled:', isInstalled, 'showPrompt:', showPrompt);
     return null;
   }
-
-  console.log('📱 PWA: Component rendering PWA prompt');
 
   return (
     <>
@@ -272,8 +223,8 @@ export const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
                   <p>Install the app for quick access to your dashboard.</p>
                   <ol className="list-decimal list-inside space-y-1 text-xs text-gray-400">
                     <li>Tap the menu button (⋮) in your browser</li>
-                    <li>Look for "Add to Home screen" or "Install app"</li>
-                    <li>Tap "Add" to confirm</li>
+                    <li>Look for &quot;Add to Home screen&quot; or &quot;Install app&quot;</li>
+                    <li>Tap &quot;Add&quot; to confirm</li>
                   </ol>
                   <p className="text-xs text-gray-400 mt-2">
                     Works offline and loads instantly!
@@ -283,10 +234,7 @@ export const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
             </div>
 
             <button
-              onClick={() => {
-                console.log('📱 PWA: Close button clicked');
-                handleClose();
-              }}
+              onClick={() => { handleClose(); }}
               className="flex-shrink-0 p-2 text-gray-400 hover:text-white hover:bg-stone-800 rounded-lg transition-colors"
               aria-label="Close"
             >
@@ -304,10 +252,7 @@ export const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
           <div className="mt-4 flex flex-col gap-3">
             {!isIOS && (
               <Button
-                onClick={() => { 
-                  console.log('📱 PWA: Install button clicked');
-                  void handleInstallClick();
-                }}
+                onClick={() => { void handleInstallClick(); }}
                 variant="primary"
                 size="lg"
                 className="w-full bg-orange-600 hover:bg-orange-700 flex items-center justify-center gap-2"
@@ -317,10 +262,7 @@ export const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
               </Button>
             )}
             <Button
-              onClick={() => {
-                console.log('📱 PWA: Maybe Later button clicked');
-                handleClose();
-              }}
+              onClick={() => { handleClose(); }}
               variant="outline"
               size="lg"
               className="w-full border-stone-600 text-gray-300 hover:bg-stone-800"

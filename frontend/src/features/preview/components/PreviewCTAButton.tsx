@@ -41,8 +41,7 @@ export const PreviewCTAButton: React.FC<PreviewCTAButtonProps> = ({ position = '
                           currentSection === 'gallery-desktop' || 
                           currentSection === 'footer';
 
-  // Debug: Log current section (remove this after testing)
-  console.log('PreviewCTAButton - Current section:', currentSection, 'Should show:', shouldShowButton);
+  // Debug logging removed for production
 
   // Don't render if not in an allowed section
   if (!shouldShowButton) {
@@ -67,7 +66,7 @@ export const PreviewCTAButton: React.FC<PreviewCTAButtonProps> = ({ position = '
 
   // Left button: positioned below header on mobile, top-left on desktop
   return (
-    <div className={`fixed left-4 z-[10000] ${position === 'left' ? 'top-[88px] md:top-4' : ''}`} style={{ pointerEvents: 'auto' }}>
+    <div className="fixed left-4 z-[10000] top-[88px] md:top-4" style={{ pointerEvents: 'auto' }}>
       <button
         type="button"
         onClick={handleGetThisSite}

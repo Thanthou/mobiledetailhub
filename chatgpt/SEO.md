@@ -1,20 +1,24 @@
 # SEO Report (Auto-Generated)
 
-Generated: 2025-10-15T04:50:44.905Z
+Generated: 2025-10-16T04:50:53.305Z
 
 This file summarizes detected SEO signals and TODOs. Edit conventions in `/docs/SEO.md` by replacing this file with a curated version if needed.
 
 ## Snapshot
-- Total files scanned: **837**
-- By extension: `{".js":77,".md":44,".sql":39,".json":89,".ts":322,".html":1,".tsx":264,".css":1}`
+- Total files scanned: **885**
+- By extension: `{".js":89,".md":52,".sql":42,".json":93,".ts":339,".html":1,".tsx":267,".css":1,".cjs":1}`
 
 ## Detected signals
-- [ ] robots.txt
-- [ ] sitemap generator
-- [ ] seo feature folder
-- [ ] ld-json helpers
+- [x] robots.txt
+- [x] sitemap generator
+- [x] seo shared folder
+- [x] seo feature folder
+- [x] ld-json helpers
+- [x] SeoHead component
+- [x] backend SEO routes
+- [x] SEO defaults (industry)
 - [x] preview route
-- [ ] head manager (Helmet/NextHead)
+- [x] head manager (Helmet/NextHead)
 
 ## Conventions (recommended)
 - **Canonicals**: live → custom domain; subdomain plan canonicalizes to subdomain; previews are **noindex,nofollow** with X-Robots-Tag.

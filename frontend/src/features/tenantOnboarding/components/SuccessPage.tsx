@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { CheckCircle, Sparkles, Settings } from 'lucide-react';
 
-// PWA component moved to tenant dashboard - not needed during onboarding
 import { Button } from '@/shared/ui';
 import { useAuth } from '@/shared/hooks';
 
@@ -14,12 +13,6 @@ const SuccessPage: React.FC = () => {
   const [websiteUrl, setWebsiteUrl] = useState<string | null>(null);
   const [dashboardUrl, setDashboardUrl] = useState<string | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const [debugMessages, setDebugMessages] = useState<string[]>([]);
-
-  const addDebugMessage = (message: string) => {
-    const timestamp = new Date().toLocaleTimeString();
-    setDebugMessages(prev => [...prev, `[${timestamp}] ${message}`]);
-  };
 
   useEffect(() => {
     // Retrieve the tenant info from session storage
@@ -36,46 +29,15 @@ const SuccessPage: React.FC = () => {
       sessionStorage.removeItem('newTenantSlug');
       sessionStorage.removeItem('newTenantWebsiteUrl');
       sessionStorage.removeItem('newTenantDashboardUrl');
-    } else {
-      console.log('🏠 SuccessPage: No tenant slug found in session storage');
-      addDebugMessage('❌ No tenant slug found in session storage');
     }
   }, []);
 
-  // Add mobile detection debugging
-  useEffect(() => {
-    const userAgent = navigator.userAgent;
-    const isMobileUA = /android|webos|iphone|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
-    const isSmallScreen = window.innerWidth <= 768;
-    const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    const isMobile = (isMobileUA && isSmallScreen) || (isSmallScreen && hasTouch && window.innerWidth <= 1024);
-    
-    addDebugMessage(`Mobile Detection: UA=${isMobileUA}, Screen=${isSmallScreen}px, Touch=${hasTouch}, Mobile=${isMobile}`);
-    addDebugMessage(`User Agent: ${userAgent}`);
-    addDebugMessage(`Screen Size: ${window.innerWidth}x${window.innerHeight}`);
-  }, []);
-
-  // Add PWA debug messages
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (window.pwaDebugMessages && window.pwaDebugMessages.length > 0) {
-        window.pwaDebugMessages.forEach((msg: string) => {
-          if (!debugMessages.includes(msg)) {
-            addDebugMessage(msg);
-          }
-        });
-      }
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [debugMessages]);
 
   const handleGoToDashboard = async () => {
     const tempPassword = sessionStorage.getItem('tempPassword');
     const tenantEmail = sessionStorage.getItem('tenantEmail');
     
     if (!tempPassword || !tenantEmail || !dashboardUrl) {
-      console.error('Missing credentials for dashboard login');
       return;
     }
 
@@ -90,16 +52,14 @@ const SuccessPage: React.FC = () => {
         sessionStorage.removeItem('tenantEmail');
         
         // Navigate to dashboard
-        navigate(dashboardUrl);
+        void navigate(dashboardUrl);
       } else {
-        console.error('Dashboard login failed:', result.error);
         // Fallback: navigate to dashboard URL anyway (user can login manually)
-        navigate(dashboardUrl);
+        void navigate(dashboardUrl);
       }
-    } catch (error) {
-      console.error('Dashboard login error:', error);
+    } catch {
       // Fallback: navigate to dashboard URL anyway
-      navigate(dashboardUrl);
+      void navigate(dashboardUrl);
     } finally {
       setIsLoggingIn(false);
     }
@@ -127,13 +87,13 @@ const SuccessPage: React.FC = () => {
               🎉 Your Website is Ready!
             </h3>
             <p className="text-gray-300 text-sm mb-4 text-center">
-              Your website is live at: <span className="text-green-400 font-mono text-xs">{window.location.origin}{websiteUrl}</span>
+              Your website is live at: <span className="text-green-400 font-mono text-xs">{websiteUrl}</span>
             </p>
             <p className="text-gray-300 text-sm mb-6 text-center">
-              Now let's customize it to make it perfect for your business!
+              Now let&apos;s customize it to make it perfect for your business!
             </p>
             <Button 
-              onClick={handleGoToDashboard}
+              onClick={() => { void handleGoToDashboard(); }}
               disabled={isLoggingIn}
               variant="primary"
               size="lg"

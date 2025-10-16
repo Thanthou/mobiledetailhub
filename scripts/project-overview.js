@@ -295,19 +295,29 @@ function detectSeoSignals(projectRoot) {
   
   const checks = [];
   const hasRobots = fs.existsSync(path.join(projectRoot, 'public', 'robots.txt')) ||
-                    fs.existsSync(path.join(projectRoot, 'frontend', 'public', 'robots.txt'));
+                    fs.existsSync(path.join(projectRoot, 'frontend', 'public', 'robots.txt')) ||
+                    /robots/i.test(rels);
   const hasSitemapGen = /sitemap/i.test(rels);
   const hasSeoFeature = fs.existsSync(path.join(projectRoot, 'frontend', 'src', 'features', 'seo'));
-  const hasLdJsonHelpers = /ldjson|structured.?data|json-ld/i.test(rels);
+  const hasSeoShared = fs.existsSync(path.join(projectRoot, 'frontend', 'src', 'shared', 'seo'));
+  const hasLdJsonHelpers = /ldjson|structured.?data|json-ld|getLocalBusinessSchema|getServiceSchema|getFAQSchema/i.test(rels) ||
+    files.some(f => f.rel.includes('jsonld.ts') && fs.existsSync(f.full));
   const hasPreviewRoute = /preview/i.test(rels);
-  const hasHelmetOrHead = /react-helmet|next\/head/i.test(
-    JSON.stringify(walkDir(projectRoot, { allowAll: true }).map(f => f.rel))
-  );
+  const hasHelmetOrHead = /react-helmet|next\/head|HelmetProvider|Helmet/i.test(rels) ||
+    fs.existsSync(path.join(projectRoot, 'frontend', 'src', 'main.tsx')) && 
+    fs.readFileSync(path.join(projectRoot, 'frontend', 'src', 'main.tsx'), 'utf8').includes('HelmetProvider');
+  const hasSeoHead = /SeoHead/i.test(rels);
+  const hasBackendSeoRoutes = fs.existsSync(path.join(projectRoot, 'backend', 'routes', 'seo'));
+  const hasSeoDefaults = fs.existsSync(path.join(projectRoot, 'frontend', 'src', 'shared', 'seo', 'seoDefaults'));
 
   checks.push({ key: 'robots.txt', present: hasRobots });
   checks.push({ key: 'sitemap generator', present: hasSitemapGen });
+  checks.push({ key: 'seo shared folder', present: hasSeoShared });
   checks.push({ key: 'seo feature folder', present: hasSeoFeature });
   checks.push({ key: 'ld-json helpers', present: hasLdJsonHelpers });
+  checks.push({ key: 'SeoHead component', present: hasSeoHead });
+  checks.push({ key: 'backend SEO routes', present: hasBackendSeoRoutes });
+  checks.push({ key: 'SEO defaults (industry)', present: hasSeoDefaults });
   checks.push({ key: 'preview route', present: hasPreviewRoute });
   checks.push({ key: 'head manager (Helmet/NextHead)', present: hasHelmetOrHead });
 

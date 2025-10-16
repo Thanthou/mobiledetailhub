@@ -17,11 +17,28 @@ export default defineConfig({
     exclude: ['lucide-react'],
   },
   server: {
-    host: true, // Allow access from network
-    port: 5173, // Preferred port, but will try next available if taken
+    host: '0.0.0.0', // Allow access from network
+    port: 5175, // Use current port
     proxy: {
-      '/api': 'http://192.168.4.21:3001',
-      '/uploads': 'http://192.168.4.21:3001',
+      '/api': {
+        target: 'http://192.168.4.21:3001',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api/, '/api'),
+        configure: (proxy, _options) => {
+          proxy.on('proxyReq', (_proxyReq, _req, _res) => {
+            // Debug logging removed for production
+          });
+          proxy.on('error', (_err, _req, _res) => {
+            // Error logging removed for production
+          });
+        },
+      },
+      '/uploads': {
+        target: 'http://192.168.4.21:3001',
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
   build: {

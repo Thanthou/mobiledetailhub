@@ -55,7 +55,7 @@ export const config = {
   mode: env.MODE,
   
   // API Configuration
-  apiBaseUrl: env.VITE_API_BASE_URL || 'http://192.168.4.21:3001',
+  apiBaseUrl: env.VITE_API_BASE_URL || 'http://192.168.4.21:3001', // Use network IP for mobile compatibility
   apiUrl: env.VITE_API_URL || (env.PROD ? env.VITE_API_URL_LIVE || '' : ''),
   apiUrls: {
     local: env.VITE_API_URL_LOCAL || 'http://localhost:3001',

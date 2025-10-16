@@ -56,7 +56,7 @@ const emailTemplates = {
             <h3>🔐 Your Login Credentials</h3>
             <div class="credentials">
               <p><strong>Dashboard URL:</strong> <a href="${data.dashboardUrl}">${data.dashboardUrl}</a></p>
-              <p><strong>Email:</strong> ${data.email}</p>
+              <p><strong>Email:</strong> ${data.personalEmail}</p>
               <p><strong>Temporary Password:</strong> ${data.tempPassword}</p>
             </div>
             
@@ -103,7 +103,7 @@ Your Website: ${data.websiteUrl}
 Dashboard: ${data.dashboardUrl}
 
 Your Login Credentials:
-- Email: ${data.email}
+- Email: ${data.personalEmail}
 - Temporary Password: ${data.tempPassword}
 
 ⚠️ Important: Please change your password after your first login for security.
