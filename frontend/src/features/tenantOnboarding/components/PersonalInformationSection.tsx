@@ -27,10 +27,10 @@ const PersonalInformationSection: React.FC<PersonalInformationSectionProps> = ({
   };
 
   const handleAutoFill = () => {
-    handleInputChange('firstName', 'Jess');
-    handleInputChange('lastName', 'Brister');
-    handleInputChange('personalPhone', formatPhoneNumber('7024203140'));
-    handleInputChange('personalEmail', 'jessbrister27@gmail.com');
+    handleInputChange('firstName', 'John');
+    handleInputChange('lastName', 'Doe');
+    handleInputChange('personalPhone', formatPhoneNumber('5551112222'));
+    handleInputChange('personalEmail', 'coleman143@hotmail.com');
   };
 
   return (

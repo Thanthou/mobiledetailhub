@@ -5,6 +5,7 @@ const { pool } = require('../database/pool');
 const { asyncHandler } = require('../middleware/errorHandler');
 const { sensitiveAuthLimiter } = require('../middleware/rateLimiter');
 const StripeService = require('../services/stripeService');
+const emailService = require('../services/emailService');
 const { env } = require('../config/env');
 
 /**
@@ -166,7 +167,9 @@ router.post('/confirm', sensitiveAuthLimiter, asyncHandler(async (req, res) => {
           [slug]
         );
         
-        if (existingSlug.rowCount === 0) break;
+        if (existingSlug.rowCount === 0) {
+          break;
+        }
         
         slug = `${baseSlug}-${counter}`;
         counter++;
@@ -213,6 +216,8 @@ router.post('/confirm', sensitiveAuthLimiter, asyncHandler(async (req, res) => {
 
       const tenantId = tenantResult.rows[0].id;
       const tenantSlug = tenantResult.rows[0].slug;
+
+      // Note: website column is generated automatically from slug
 
       // Create subscription record
       await client.query(
@@ -293,11 +298,29 @@ router.post('/confirm', sensitiveAuthLimiter, asyncHandler(async (req, res) => {
       console.log(`Owner: ${tenantData.firstName} ${tenantData.lastName}`);
       console.log(`Email: ${tenantData.personalEmail}`);
       console.log(`Slug: ${tenantSlug}`);
-      console.log(`Website URL: ${env.FRONTEND_URL}/${tenantSlug}`);
-      console.log(`Dashboard URL: ${env.FRONTEND_URL}/${tenantSlug}/dashboard`);
+      console.log(`Website URL: http://${tenantSlug}.thatsmartsite.com`);
+      console.log(`Dashboard URL: http://${tenantSlug}.thatsmartsite.com/dashboard`);
       console.log(`Plan: ${tenantData.selectedPlan} ($${tenantData.planPrice}/month)`);
       console.log(`Payment: ${paymentIntentId} - $${paymentIntent.amount / 100}`);
       console.log('================================\n');
+
+      // Send welcome email to the new tenant
+      const welcomeEmailData = {
+        personalEmail: tenantData.personalEmail,
+        businessEmail: tenantData.businessEmail || tenantData.personalEmail, // Fallback to personal if no business email
+        firstName: tenantData.firstName,
+        businessName: tenantData.businessName,
+        websiteUrl: `http://${tenantSlug}.thatsmartsite.com`,
+        dashboardUrl: `http://${tenantSlug}.thatsmartsite.com/dashboard`,
+        tempPassword: tenantData.tempPassword
+      };
+
+      const emailResult = await emailService.sendWelcomeEmail(welcomeEmailData);
+      if (emailResult.success) {
+        console.log('✅ Welcome email sent successfully to:', emailResult.emailsSent.join(', '));
+      } else {
+        console.log('⚠️ Failed to send welcome email:', emailResult.error);
+      }
 
       res.json({
         success: true,
@@ -306,8 +329,8 @@ router.post('/confirm', sensitiveAuthLimiter, asyncHandler(async (req, res) => {
           tenantId,
           slug: tenantSlug,
           userId,
-          websiteUrl: `/${tenantSlug}`,
-          dashboardUrl: `/${tenantSlug}/dashboard`,
+          websiteUrl: `http://${tenantSlug}.thatsmartsite.com`,
+          dashboardUrl: `http://${tenantSlug}.thatsmartsite.com/dashboard`,
           paymentIntentId
         }
       });
@@ -415,7 +438,7 @@ async function handlePaymentIntentSucceeded(paymentIntent) {
 /**
  * Handle failed payment intent
  */
-async function handlePaymentIntentFailed(paymentIntent) {
+function handlePaymentIntentFailed(paymentIntent) {
   console.log('\n=== STRIPE WEBHOOK: Payment Failed ===');
   console.log(`Payment Intent ID: ${paymentIntent.id}`);
   console.log(`Last Payment Error:`, paymentIntent.last_payment_error);
@@ -428,7 +451,7 @@ async function handlePaymentIntentFailed(paymentIntent) {
 /**
  * Handle canceled payment intent
  */
-async function handlePaymentIntentCanceled(paymentIntent) {
+function handlePaymentIntentCanceled(paymentIntent) {
   console.log('\n=== STRIPE WEBHOOK: Payment Canceled ===');
   console.log(`Payment Intent ID: ${paymentIntent.id}`);
   console.log(`Cancellation Reason:`, paymentIntent.cancellation_reason);
@@ -518,6 +541,29 @@ router.get('/test-cards', (req, res) => {
     testCards: StripeService.getTestCards()
   });
 });
+
+/**
+ * POST /api/payments/test-email
+ * Send a test email (for development)
+ */
+router.post('/test-email', asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  
+  if (!email) {
+    return res.status(400).json({
+      success: false,
+      error: 'Email address is required'
+    });
+  }
+
+  const result = await emailService.sendTestEmail(email);
+  
+  res.json({
+    success: result.success,
+    message: result.success ? 'Test email sent successfully' : 'Failed to send test email',
+    error: result.error
+  });
+}));
 
 /**
  * POST /api/payments/test-webhook

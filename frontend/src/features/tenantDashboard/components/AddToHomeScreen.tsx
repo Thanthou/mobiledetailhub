@@ -5,6 +5,15 @@
  * Desktop and tablet users will not see this prompt
  */
 
+/**
+ * AddToHomeScreen Component - DISABLED FOR NOW
+ * 
+ * This component provides PWA "Add to Home Screen" functionality for tenant dashboards.
+ * Moved from onboarding flow to dashboard where it makes more sense.
+ * 
+ * TODO: Enable this component in the tenant dashboard when ready.
+ */
+
 import React, { useEffect, useState } from 'react';
 import { Download, Smartphone, X } from 'lucide-react';
 
@@ -29,6 +38,9 @@ export const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
   onClose,
   autoShow = true
 }) => {
+  // DISABLED FOR NOW - Component moved from onboarding to dashboard
+  // TODO: Enable when ready to add PWA functionality to tenant dashboard
+  return null;
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [isIOS, setIsIOS] = useState(false);

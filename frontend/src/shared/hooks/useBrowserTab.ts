@@ -75,6 +75,9 @@ export const useBrowserTab = (options: UseBrowserTabOptions = {}) => {
     || (industry ? getTenantAssetUrl({ vertical: industry as Vertical, type: 'logo' }) : null)
     || '/shared/icons/logo-white.svg'; // Platform logo fallback (white for clean favicon)
 
+  // Determine the manifest URL - use tenant-specific manifest if we're in a tenant context
+  const manifestUrl = data?.slug ? `/${data.slug}/manifest.json` : '/manifest.webmanifest';
+
   useEffect(() => {
     // Don't update if data is still loading (unless custom values provided)
     if (!customTitle && !customFavicon && (isDataLoading || isConfigLoading)) {
@@ -88,11 +91,15 @@ export const useBrowserTab = (options: UseBrowserTabOptions = {}) => {
     if (faviconUrl) {
       updateFavicon(faviconUrl);
     }
-  }, [pageTitle, faviconUrl, customTitle, customFavicon, isDataLoading, isConfigLoading]);
+
+    // Update manifest URL
+    updateManifest(manifestUrl);
+  }, [pageTitle, faviconUrl, manifestUrl, customTitle, customFavicon, isDataLoading, isConfigLoading]);
 
   return {
     title: pageTitle,
     favicon: faviconUrl,
+    manifest: manifestUrl,
   };
 };
 
@@ -136,6 +143,24 @@ function updateFavicon(url: string): void {
   if (appleTouchIcon) {
     appleTouchIcon.href = url;
   }
+}
+
+/**
+ * Update the PWA manifest URL
+ */
+function updateManifest(url: string): void {
+  // Find existing manifest link or create new one
+  let manifestElement = document.querySelector('link[rel="manifest"]') as HTMLLinkElement;
+  
+  if (!manifestElement) {
+    // Create new manifest link if none exists
+    manifestElement = document.createElement('link');
+    manifestElement.rel = 'manifest';
+    document.head.appendChild(manifestElement);
+  }
+  
+  // Update the manifest URL
+  manifestElement.href = url;
 }
 
 /**

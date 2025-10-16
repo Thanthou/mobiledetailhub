@@ -22,7 +22,7 @@ const RESERVED_SUBDOMAINS = ['www', 'thatsmartsite', 'api', 'admin', 'staging', 
 
 /**
  * Extract tenant slug from subdomain
- * Example: jps.mobiledetailhub.com -> 'jps'
+ * Example: jps.thatsmartsite.com -> 'jps'
  * 
  * @param hostname - The hostname to parse
  * @returns Tenant slug or null if not a valid subdomain
@@ -64,7 +64,7 @@ function getTenantFromCustomDomain(hostname: string): string | null {
  * 
  * @example
  * ```ts
- * // Subdomain: jps.mobiledetailhub.com -> 'jps'
+ * // Subdomain: jps.thatsmartsite.com -> 'jps'
  * const slug = getTenantFromDomain();
  * 
  * // Custom domain: jpsdetailing.com -> 'jps'

@@ -21,6 +21,7 @@ export { useDebouncedValue } from './useDebouncedValue';
 export { useEventListener } from './useEventListener';
 export { useLocalStorage } from './useLocalStorage';
 export { useMobileDetection } from './useMobileDetection';
+export { usePWAStatus } from './usePWAStatus';
 export { 
   BREAKPOINTS,
   useBreakpoint,

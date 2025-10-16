@@ -7,9 +7,12 @@
 ✅ Include post-provision confirmation screen + "View my site" button  
 ✅ Validate full run: business info → pay → live `[slug].thatsmartsite.com` → dashboard login  
 
-    ❌ Welcome email
-    • No email sending functionality implemented
-    • No email service configured
+    ✅ Welcome email
+    • SendGrid email service integrated
+    • Welcome email template with login credentials
+    • Automated email sending after successful payment
+    • Sends to both personal and business emails (if different)
+    • Test email endpoint for development
     ❌ SSL (automatic)
     • No automatic SSL certificate provisioning
     • SSL is handled at the hosting/CDN level, not in the application
@@ -17,9 +20,10 @@
     • PWA manifest exists but no automatic installation
     • Users need to manually "Add to Home Screen"
     • We have the AddToHomeScreen component but it's manual
-    ❌ First-login to dashboard
-    • No automatic redirect to dashboard after login
-    • Dashboard routes exist but no post-login flow
+    ✅ First-login to dashboard
+    • Success page now has "Go to Dashboard" button
+    • Automatically logs user in with temp password
+    • Redirects to /{slug}/dashboard after successful login
 
 **Acceptance:** I can paste a business’s info, pay, and get a live site + dashboard.
 
@@ -128,6 +132,8 @@ Perfect for new or solo operators who just need a clean, trusted web presence wi
 Ideal for growing businesses ready to attract more leads and respond faster.
 
 ✅ Everything in Starter
+✅ Domain: yourdomain.com
+✅ Email: service@yourdomain.com
 ✅ Custom domain & SSL for a polished, branded web address
 ✅ Expanded service areas to reach more local customers
 ✅ Analytics dashboard with customer activity insights

@@ -13,7 +13,7 @@ INSERT INTO auth.users (
     created_at,
     updated_at
 ) VALUES (
-    'admin@mobiledetailhub.com',
+    'admin@thatsmartsite.com',
     'Brandan Coleman',
     true,
     '$2a$10$EAY3D9OdVXpYgby.ATOmheJwqrlTZ423Yg2a.qLzN1Ku1/oj2/LzS',
@@ -59,7 +59,7 @@ INSERT INTO auth.users (
     created_at,
     updated_at
 ) VALUES (
-    'dev@mobiledetailhub.com',
+    'dev@thatsmartsite.com',
     'Development User',
     true,
     '$2a$10$dev.hash.for.development.only',

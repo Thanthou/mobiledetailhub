@@ -55,19 +55,19 @@ router.get('/:slug/manifest.json', async (req, res) => {
       categories: ['business', 'productivity'],
       icons: [
         {
-          src: `/${tenant.industry}/icons/favicon.svg`,
+          src: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/${tenant.industry}/icons/favicon.svg`,
           sizes: 'any',
           type: 'image/svg+xml',
           purpose: 'any'
         },
         {
-          src: `/${tenant.industry}/icons/favicon-192.webp`,
+          src: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/${tenant.industry}/icons/favicon-192.webp`,
           sizes: '192x192',
           type: 'image/webp',
           purpose: 'any'
         },
         {
-          src: `/${tenant.industry}/icons/favicon-512.webp`,
+          src: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/${tenant.industry}/icons/favicon-512.webp`,
           sizes: '512x512',
           type: 'image/webp',
           purpose: 'any'
@@ -79,14 +79,14 @@ router.get('/:slug/manifest.json', async (req, res) => {
           short_name: 'Dashboard',
           description: 'Open your dashboard',
           url: `/${slug}/dashboard`,
-          icons: [{ src: `/${tenant.industry}/icons/favicon.svg`, sizes: '96x96' }]
+          icons: [{ src: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/${tenant.industry}/icons/favicon.svg`, sizes: '96x96' }]
         },
         {
           name: 'View Website',
           short_name: 'Website',
           description: 'View your live website',
           url: `/${slug}`,
-          icons: [{ src: `/${tenant.industry}/icons/favicon.svg`, sizes: '96x96' }]
+          icons: [{ src: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/${tenant.industry}/icons/favicon.svg`, sizes: '96x96' }]
         }
       ]
     };

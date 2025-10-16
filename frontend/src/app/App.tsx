@@ -31,7 +31,7 @@ export default function App() {
   const routes = (
     <Suspense fallback={<div className="p-8 text-white">Loading…</div>}>
       <Routes>
-        <Route path="/" element={<Navigate to="/jps" replace />} />
+        <Route path="/" element={<Navigate to="/admin-dashboard" replace />} />
         
         {/* Admin Dashboard - must come before tenant routes */}
         <Route path="/admin-dashboard" element={

@@ -53,6 +53,10 @@ const EnvSchema = z.object({
   STRIPE_SECRET_KEY: z.string().startsWith('sk_'),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
   
+  // Email Service (SendGrid)
+  SENDGRID_API_KEY: z.string().startsWith('SG.').optional(),
+  FROM_EMAIL: z.string().email().default('hello@thatsmartsite.com'),
+  
   // Frontend URL for redirects
   FRONTEND_URL: z.string().url().optional().default('http://localhost:5173'),
   

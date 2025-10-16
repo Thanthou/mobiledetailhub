@@ -71,6 +71,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
     }
   };
 
+
   const handleCardChange = (event: any) => {
     if (event.error) {
       setCardError(event.error.message);

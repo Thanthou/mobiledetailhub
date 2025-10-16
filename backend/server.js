@@ -88,7 +88,11 @@ const ALLOWED_ORIGINS = {
     'http://localhost:3000',    // React dev server (default)
     'http://localhost:3001',    // Backend server (for test pages)
     'http://localhost:5173',    // Vite dev server (default)
+    'https://localhost:5173',   // Vite dev server (HTTPS)
     'http://localhost:5174',    // Vite dev server (alternate)
+    'http://localhost:5175',    // Vite dev server (alternate)
+    'http://localhost:5176',    // Vite dev server (alternate)
+    'http://localhost:5177',    // Vite dev server (alternate)
     'http://localhost:4173',    // Vite preview server
     'http://127.0.0.1:3000',   // React dev server (IP variant)
     'http://127.0.0.1:3001',   // Backend server (IP variant)
@@ -99,13 +103,17 @@ const ALLOWED_ORIGINS = {
     'http://192.168.4.21:3001', // Network backend server
     'http://192.168.4.21:5173', // Network Vite dev server
     'http://192.168.4.21:5174', // Network Vite dev server (alternate)
+    'http://192.168.4.21:5175', // Network Vite dev server (alternate)
+    'http://192.168.4.21:5176', // Network Vite dev server (alternate)
+    'http://192.168.4.21:5177', // Network Vite dev server (alternate)
     'http://192.168.4.21:4173'  // Network Vite preview server
   ],
   staging: [
     // Staging domains from environment + localhost for testing
     ...(Array.isArray(env.ALLOWED_ORIGINS) ? env.ALLOWED_ORIGINS : []),
     'http://localhost:3000',
-    'http://localhost:5173'
+    'http://localhost:5173',
+    'https://localhost:5173'
   ],
   production: Array.isArray(env.ALLOWED_ORIGINS) ? env.ALLOWED_ORIGINS : []
 };
@@ -210,11 +218,11 @@ app.use(helmet({
       imgSrc: [
         "'self'",
         "data:",
-        "https://*.mobiledetailhub.com"
+        "https://*.thatsmartsite.com"
       ],
       connectSrc: [
         "'self'",
-        "https://*.mobiledetailhub.com"
+        "https://*.thatsmartsite.com"
       ],
       fontSrc: ["'self'", "data:"],
       objectSrc: ["'none'"],

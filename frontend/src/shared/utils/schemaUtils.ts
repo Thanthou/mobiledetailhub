@@ -367,19 +367,19 @@ export function generateBreadcrumbSchema(locationData: LocationPage): Record<str
         "@type": "ListItem",
         "position": 1,
         "name": "Home",
-        "item": "https://mobiledetailhub.com/"
+        "item": "https://thatsmartsite.com/"
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": locationData.state,
-        "item": `https://mobiledetailhub.com/${locationData.stateCode.toLowerCase()}/`
+        "item": `https://thatsmartsite.com/${locationData.stateCode.toLowerCase()}/`
       },
       {
         "@type": "ListItem",
         "position": 3,
         "name": locationData.city,
-        "item": `https://mobiledetailhub.com${locationData.urlPath}`
+        "item": `https://thatsmartsite.com${locationData.urlPath}`
       }
     ]
   };

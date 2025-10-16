@@ -44,7 +44,7 @@ export const PreviewError: React.FC<PreviewErrorProps> = ({ error }) => {
             </a>
             
             <a
-              href="mailto:sales@mobiledetailhub.com"
+              href="mailto:hello@thatsmartsite.com"
               className="flex items-center justify-center space-x-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-md transition-colors"
             >
               <Mail className="h-4 w-4" />

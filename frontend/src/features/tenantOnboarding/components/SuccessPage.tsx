@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CheckCircle, ExternalLink, Sparkles, Settings } from 'lucide-react';
+import { CheckCircle, Sparkles, Settings } from 'lucide-react';
 
-import { AddToHomeScreen } from '@/shared/components';
+// PWA component moved to tenant dashboard - not needed during onboarding
 import { Button } from '@/shared/ui';
 import { useAuth } from '@/shared/hooks';
+
 
 const SuccessPage: React.FC = () => {
   const navigate = useNavigate();
@@ -13,6 +14,12 @@ const SuccessPage: React.FC = () => {
   const [websiteUrl, setWebsiteUrl] = useState<string | null>(null);
   const [dashboardUrl, setDashboardUrl] = useState<string | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [debugMessages, setDebugMessages] = useState<string[]>([]);
+
+  const addDebugMessage = (message: string) => {
+    const timestamp = new Date().toLocaleTimeString();
+    setDebugMessages(prev => [...prev, `[${timestamp}] ${message}`]);
+  };
 
   useEffect(() => {
     // Retrieve the tenant info from session storage
@@ -29,8 +36,39 @@ const SuccessPage: React.FC = () => {
       sessionStorage.removeItem('newTenantSlug');
       sessionStorage.removeItem('newTenantWebsiteUrl');
       sessionStorage.removeItem('newTenantDashboardUrl');
+    } else {
+      console.log('🏠 SuccessPage: No tenant slug found in session storage');
+      addDebugMessage('❌ No tenant slug found in session storage');
     }
   }, []);
+
+  // Add mobile detection debugging
+  useEffect(() => {
+    const userAgent = navigator.userAgent;
+    const isMobileUA = /android|webos|iphone|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+    const isSmallScreen = window.innerWidth <= 768;
+    const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const isMobile = (isMobileUA && isSmallScreen) || (isSmallScreen && hasTouch && window.innerWidth <= 1024);
+    
+    addDebugMessage(`Mobile Detection: UA=${isMobileUA}, Screen=${isSmallScreen}px, Touch=${hasTouch}, Mobile=${isMobile}`);
+    addDebugMessage(`User Agent: ${userAgent}`);
+    addDebugMessage(`Screen Size: ${window.innerWidth}x${window.innerHeight}`);
+  }, []);
+
+  // Add PWA debug messages
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (window.pwaDebugMessages && window.pwaDebugMessages.length > 0) {
+        window.pwaDebugMessages.forEach((msg: string) => {
+          if (!debugMessages.includes(msg)) {
+            addDebugMessage(msg);
+          }
+        });
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [debugMessages]);
 
   const handleGoToDashboard = async () => {
     const tempPassword = sessionStorage.getItem('tempPassword');
@@ -84,40 +122,26 @@ const SuccessPage: React.FC = () => {
         </div>
         
         {tenantSlug && websiteUrl && (
-          <div className="bg-gradient-to-br from-blue-900/30 to-blue-800/20 border border-blue-600/50 rounded-lg p-6 mb-6">
+            <div className="bg-gradient-to-br from-green-900/30 to-green-800/20 border border-green-600/50 rounded-lg p-6 mb-6">
             <h3 className="font-semibold text-white text-lg mb-3 text-center">
-              🌐 Your Website is Live!
+              🎉 Your Website is Ready!
             </h3>
             <p className="text-gray-300 text-sm mb-4 text-center">
-              View your new website at:
+              Your website is live at: <span className="text-green-400 font-mono text-xs">{window.location.origin}{websiteUrl}</span>
             </p>
-            <div className="bg-stone-900/50 rounded-lg p-3 mb-4">
-              <code className="text-blue-400 text-sm break-all">
-                {window.location.origin}{websiteUrl}
-              </code>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Link to={websiteUrl} className="flex-1">
-                <Button 
-                  variant="primary"
-                  size="lg"
-                  className="w-full bg-blue-600 hover:bg-blue-700 flex items-center justify-center gap-2"
-                >
-                  <ExternalLink className="w-5 h-5" />
-                  View My Website
-                </Button>
-              </Link>
-              <Button 
-                onClick={handleGoToDashboard}
-                disabled={isLoggingIn}
-                variant="primary"
-                size="lg"
-                className="flex-1 bg-green-600 hover:bg-green-700 flex items-center justify-center gap-2"
-              >
-                <Settings className="w-5 h-5" />
-                {isLoggingIn ? 'Logging In...' : 'Go to Dashboard'}
-              </Button>
-            </div>
+            <p className="text-gray-300 text-sm mb-6 text-center">
+              Now let's customize it to make it perfect for your business!
+            </p>
+            <Button 
+              onClick={handleGoToDashboard}
+              disabled={isLoggingIn}
+              variant="primary"
+              size="lg"
+              className="w-full bg-green-600 hover:bg-green-700 flex items-center justify-center gap-2"
+            >
+              <Settings className="w-5 h-5" />
+              {isLoggingIn ? 'Logging In...' : 'Go to Dashboard'}
+            </Button>
           </div>
         )}
 
@@ -129,15 +153,15 @@ const SuccessPage: React.FC = () => {
               <ul className="space-y-2 text-gray-300 text-sm">
                 <li className="flex items-start">
                   <span className="text-orange-400 mr-2">•</span>
-                  <span>Click &quot;Go to Dashboard&quot; above to access your site settings</span>
+                  <span>Customize your site content, photos, and business information</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-orange-400 mr-2">•</span>
+                  <span>Add your services, pricing, and contact information</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-orange-400 mr-2">•</span>
                   <span>You&apos;ll receive a welcome email with your login credentials</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-orange-400 mr-2">•</span>
-                  <span>Customize your site content, photos, and business information</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-orange-400 mr-2">•</span>
@@ -184,14 +208,7 @@ const SuccessPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Add to Home Screen Prompt */}
-      {tenantSlug && (
-        <AddToHomeScreen 
-          tenantSlug={tenantSlug}
-          businessName="Your Dashboard"
-          autoShow={true}
-        />
-      )}
+      {/* PWA Add to Home Screen moved to tenant dashboard */}
     </>
   );
 };

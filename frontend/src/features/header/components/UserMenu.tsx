@@ -43,7 +43,7 @@ const UserMenu: React.FC = () => {
       window.open(`http://localhost:5173/${slug}`, '_blank', 'noopener,noreferrer');
     } else {
       // In production, use the actual website URL
-      window.open(`http://mobiledetailhub.com/${slug}`, '_blank', 'noopener,noreferrer');
+      window.open(`http://thatsmartsite.com/${slug}`, '_blank', 'noopener,noreferrer');
     }
     setIsTenantsOpen(false);
   }, []);

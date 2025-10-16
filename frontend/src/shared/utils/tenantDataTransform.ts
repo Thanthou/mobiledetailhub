@@ -162,7 +162,7 @@ export function hasSocialMedia(business: Business): boolean {
  * @param fallback - Fallback email if none exists
  * @returns Email address
  */
-export function getBusinessEmail(business: Business, fallback: string = 'service@mobiledetailhub.com'): string {
+export function getBusinessEmail(business: Business, fallback: string = 'hello@thatsmartsite.com'): string {
   return business.business_email?.trim() || fallback;
 }
 

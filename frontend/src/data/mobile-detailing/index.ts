@@ -91,13 +91,13 @@ export function loadMobileDetailingConfig(): MainSiteConfig {
     },
     
     contact: {
-      email: 'service@mobiledetailhub.com',
+      email: 'hello@thatsmartsite.com',
       phone: '(555) 123-4567'
     },
     
     socials: {
-      facebook: 'https://www.facebook.com/mobiledetailhub',
-      instagram: 'https://www.instagram.com/mobiledetailhub',
+      facebook: 'https://www.facebook.com/thatsmartsite',
+      instagram: 'https://www.instagram.com/thatsmartsite',
       googleBusiness: 'https://share.google/mobiledetailing'
     }
   };

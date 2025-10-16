@@ -41,10 +41,10 @@ const BusinessInformationSection: React.FC<BusinessInformationSectionProps> = ({
   };
 
   const handleAutoFill = () => {
-    handleInputChange('businessName', "JP's Mobile Detail");
+    handleInputChange('businessName', "Testing Mobile Detail");
     handleInputChange('industry', 'mobile-detailing');
-    handleInputChange('businessPhone', formatPhoneNumber('7024203140'));
-    handleInputChange('businessEmail', 'jpsmobiledetailing@hotmail.com');
+    handleInputChange('businessPhone', formatPhoneNumber('7024206066'));
+    handleInputChange('businessEmail', 'bcoleman143@gmail.com');
     handleAddressChange('address', '2550 Country Club Dr');
     handleAddressChange('city', 'Bullhead City');
     handleAddressChange('state', 'AZ');

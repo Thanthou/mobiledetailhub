@@ -19,7 +19,7 @@ const ContactColumn: React.FC<ContactColumnProps> = ({
 }) => {
   const contactInfo = {
     phone: config?.phone ?? '(555) 123-4567',
-    email: config?.email ?? 'service@mobiledetailhub.com',
+    email: config?.email ?? 'hello@thatsmartsite.com',
     location: config?.base_location?.city && config.base_location.state_name 
       ? `${config.base_location.city}, ${config.base_location.state_name}`
       : 'Select Location'
