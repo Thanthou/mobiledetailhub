@@ -1,12 +1,12 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const { asyncHandler } = require('../middleware/errorHandler');
-const { validateBody, validateParams, validateQuery } = require('../middleware/zodValidation');
-const { tenantSchemas } = require('../schemas/apiSchemas');
+import { asyncHandler } from '../middleware/errorHandler.js';
+import { validateBody, validateParams, validateQuery } from '../middleware/zodValidation.js';
+import { tenantSchemas } from '../schemas/apiSchemas.js';
 // TODO: Add authentication to protected routes
-// const { authenticateToken } = require('../middleware/auth');
-const { apiLimiter, sensitiveAuthLimiter } = require('../middleware/rateLimiter');
-const tenantController = require('../controllers/tenantController');
+// import { authenticateToken } from '../middleware/auth.js';
+import { apiLimiter, sensitiveAuthLimiter } from '../middleware/rateLimiter.js';
+import * as tenantController from '../controllers/tenantController.js';
 
 /**
  * POST /api/tenants/signup
@@ -44,4 +44,4 @@ router.get('/',
  */
 router.get('/industries/list', apiLimiter, asyncHandler(tenantController.getIndustries));
 
-module.exports = router;
+export default router;

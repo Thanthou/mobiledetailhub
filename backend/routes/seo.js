@@ -11,6 +11,12 @@ const { pool } = require('../database/pool');
 const { asyncHandler } = require('../middleware/errorHandler');
 const logger = require('../utils/logger');
 
+// Simple in-memory cache for sitemap responses
+// Keyed by host; stores { xml: string, expiresAt: number }
+const sitemapCache = new Map();
+const ONE_HOUR_MS = 60 * 60 * 1000;
+const TWENTY_FOUR_HOURS_MS = 24 * ONE_HOUR_MS;
+
 // Import the modular SEO routes
 // TODO: Fix TypeScript imports - these are .ts files in ./seo/ directory
 // const { robotsRoute, sitemapRoute, seoConfigRoute, previewRoute } = require('./seo');
@@ -25,7 +31,7 @@ const logger = require('../utils/logger');
  * GET /robots.txt
  * Generate tenant-specific robots.txt
  */
-router.get('/robots.txt', asyncHandler(async (req, res) => {
+router.get('/robots.txt', asyncHandler((req, res) => {
   try {
     // Get tenant domain from request
     const host = req.get('host');
@@ -89,6 +95,18 @@ router.get('/sitemap.xml', asyncHandler(async (req, res) => {
     
     // Check if this is a preview domain
     const isPreview = host.includes('preview') || host.includes('localhost');
+
+    // Check cache first (separate TTLs for preview vs live)
+    const cacheEntry = sitemapCache.get(host);
+    const now = Date.now();
+    if (cacheEntry && cacheEntry.expiresAt > now) {
+      res.set({
+        'Content-Type': 'application/xml',
+        'Cache-Control': 'public, max-age=3600', // Client cache 1 hour
+        'X-Sitemap-Cache': 'HIT'
+      });
+      return res.send(cacheEntry.xml);
+    }
     
     if (isPreview) {
       // Return empty sitemap for preview domains
@@ -96,11 +114,16 @@ router.get('/sitemap.xml', asyncHandler(async (req, res) => {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 </urlset>`;
       
+      // Populate cache for preview domains with shorter TTL
+      sitemapCache.set(host, {
+        xml: emptySitemap,
+        expiresAt: now + ONE_HOUR_MS
+      });
       res.set({
         'Content-Type': 'application/xml',
         'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
+        'X-Sitemap-Cache': 'MISS'
       });
-      
       return res.send(emptySitemap);
     }
     
@@ -218,11 +241,16 @@ ${urls.map(url => `  <url>
   </url>`).join('\n')}
 </urlset>`;
     
+    // Cache live sitemaps for 24 hours by host
+    sitemapCache.set(host, {
+      xml: sitemapXml,
+      expiresAt: now + TWENTY_FOUR_HOURS_MS
+    });
     res.set({
       'Content-Type': 'application/xml',
-      'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
+      'Cache-Control': 'public, max-age=3600', // Client cache 1 hour
+      'X-Sitemap-Cache': 'MISS'
     });
-    
     res.send(sitemapXml);
     
     logger.info(`Sitemap served for ${host}`, {

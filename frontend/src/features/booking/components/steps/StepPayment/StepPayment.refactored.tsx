@@ -4,7 +4,7 @@ import { usePaymentData, usePaymentForm } from '@/features/booking/hooks';
 import { useBookingPayment } from '@/features/booking/state';
 
 import { PaymentOption } from '../../payment/PaymentOption';
-import { PaymentTabs, PaymentSummary, SummarySection, VehicleSection } from './components';
+import { PaymentSummary, PaymentTabs, SummarySection, VehicleSection } from './components';
 
 interface StepPaymentProps {
   onPaymentComplete?: () => void;
@@ -68,7 +68,7 @@ const StepPayment: React.FC<StepPaymentProps> = ({ onPaymentComplete }) => {
             <div className="bg-gray-800 rounded-lg p-6">
               <h3 className="text-xl font-semibold text-white mb-4">Service Location</h3>
               <p className="text-gray-300">
-                {paymentData.bookingData.location || 'Location will be confirmed during scheduling'}
+                {paymentData.bookingData.location}
               </p>
             </div>
           )}

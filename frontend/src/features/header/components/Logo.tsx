@@ -37,7 +37,7 @@ const Logo: React.FC = () => {
     >
       <picture>
         {/* Prefer WebP when available; fall back to original */}
-        <source srcSet={`${src.endsWith('.webp') ? src : src.replace(/\.(png|jpg|jpeg)$/i, '.webp')}`} type="image/webp" />
+        <source srcSet={src.endsWith('.webp') ? src : src.replace(/\.(png|jpg|jpeg)$/i, '.webp')} type="image/webp" />
         <img 
           src={src} 
           alt={alt} 

@@ -2,7 +2,7 @@
  * Centralized JWT/Auth configuration
  */
 
-const { env } = require('./env');
+import { env } from './env.js';
 
 const AUTH_CONFIG = {
   ISSUER: 'mdh-backend',
@@ -21,6 +21,6 @@ const AUTH_CONFIG = {
   },
 };
 
-module.exports = { AUTH_CONFIG };
+export { AUTH_CONFIG };
 
 

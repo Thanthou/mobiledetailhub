@@ -19,7 +19,9 @@ const PaymentTabs: React.FC<PaymentTabsProps> = ({ activeTab, onTabChange }) => 
       {tabs.map(({ id, label, icon: Icon }) => (
         <button
           key={id}
-          onClick={() => onTabChange(id)}
+          onClick={() => { 
+            onTabChange(id); 
+          }}
           className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-colors ${
             activeTab === id
               ? 'bg-blue-600 text-white'

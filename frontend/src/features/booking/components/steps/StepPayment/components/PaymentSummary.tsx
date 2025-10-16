@@ -18,7 +18,6 @@ interface PaymentSummaryProps {
 
 const PaymentSummary: React.FC<PaymentSummaryProps> = ({
   servicePrice,
-  addonsPrice,
   subtotal,
   tax,
   total,

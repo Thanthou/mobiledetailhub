@@ -1,13 +1,13 @@
-const express = require('express');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+import express from 'express';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 const router = express.Router();
-const { authenticateToken, requireAdmin } = require('../middleware/auth');
-const { generateAvatarFilename, ensureUploadsDir } = require('../utils/avatarUtils');
-const { asyncHandler } = require('../middleware/errorHandler');
-const { validateFileMagic } = require('../utils/uploadValidator');
-const logger = require('../utils/logger');
+import { authenticateToken, requireAdmin } from '../middleware/auth.js';
+import { generateAvatarFilename, ensureUploadsDir } from '../utils/avatarUtils.js';
+import { asyncHandler } from '../middleware/errorHandler.js';
+import { validateFileMagic } from '../utils/uploadValidator.js';
+import logger from '../utils/logger.js';
 
 // Configure multer for avatar uploads
 const storage = multer.diskStorage({
@@ -287,4 +287,4 @@ router.delete('/:reviewId', authenticateToken, requireAdmin, asyncHandler((req, 
   }
 }));
 
-module.exports = router;
+export default router;

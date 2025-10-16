@@ -1,13 +1,14 @@
 import { useCallback, useState } from 'react';
 import { Bike, Bot as Boat, Car, HelpCircle, Home, Mountain, Truck } from 'lucide-react';
 
-import { servicesApi } from '@/features/services/api/services.api';
+import { servicesApi } from '@/shared/api/services.api';
+
 import type { Vehicle } from '../types';
 
-interface ApiResponse<T = unknown> {
-  data: T;
-  message?: string;
-}
+// interface ApiResponse<T = unknown> {
+//   data: T;
+//   message?: string;
+// }
 
 interface ServiceTier {
   id: string;

@@ -3,12 +3,12 @@
  * Handles secure password reset with token management and cleanup
  */
 
-const crypto = require('crypto');
-const bcrypt = require('bcryptjs');
-const { pool } = require('../database/pool');
-const { env } = require('../config/env');
-const { emailService } = require('./emailService');
-const { createModuleLogger } = require('../config/logger');
+import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
+import { pool } from '../database/pool.js';
+import { env } from '../config/env.js';
+import * as emailService from './emailService.js';
+import { createModuleLogger } from '../config/logger.js';
 const logger = createModuleLogger('passwordResetService');
 
 const RESET_TOKEN_EXPIRY = 15 * 60 * 1000; // 15 minutes
@@ -284,7 +284,7 @@ const getResetTokenStats = async () => {
   }
 };
 
-module.exports = {
+export {
   requestPasswordReset,
   resetPassword,
   validateResetToken,

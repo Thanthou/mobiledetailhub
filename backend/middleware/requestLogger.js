@@ -1,6 +1,6 @@
-const { v4: uuidv4 } = require('uuid');
-const { createRequestLogger: createPinoRequestLogger, logApiRequest } = require('../config/logger');
-const logger = require('../utils/logger');
+import { v4 as uuidv4 } from 'uuid';
+import { createRequestLogger as createPinoRequestLogger, logApiRequest } from '../config/logger.js';
+import logger from '../utils/logger.js';
 
 // PII patterns for redaction
 const PII_PATTERNS = {
@@ -154,7 +154,7 @@ const createRequestLogger = (req) => {
   return requestScopedLogger;
 };
 
-module.exports = {
+export {
   requestLogger,
   createRequestLogger,
   scrubPII,

@@ -81,7 +81,7 @@ const UserMenu: React.FC = () => {
               tenants.map((tenant) => (
                 <div key={tenant.slug} className="border-b border-gray-100 last:border-b-0">
                   <div className="px-4 py-2 text-sm font-medium text-gray-900 bg-gray-50">
-                    <div className="font-semibold">{tenant.name}</div>
+                    <div className="font-semibold">{tenant.branding.businessName}</div>
                     <div className="text-xs text-gray-500 font-mono">/{tenant.slug}</div>
                   </div>
                   
@@ -94,7 +94,7 @@ const UserMenu: React.FC = () => {
                     <div className="flex flex-col items-start">
                       <span>Homepage</span>
                       <span className="text-xs text-gray-500 font-mono">
-                        {env.DEV ? `http://localhost:5173/${tenant.slug}` : tenant.website}
+                        {env.DEV ? `http://localhost:5173/${tenant.slug}` : tenant.contact.socials.facebook || 'No website'}
                       </span>
                     </div>
                   </button>

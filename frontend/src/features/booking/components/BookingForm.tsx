@@ -5,9 +5,11 @@
 
 import React, { useCallback } from 'react';
 
-import { useBookingStore } from '../state/bookingStore';
+import { useAnalytics } from '@/shared/hooks/useAnalytics';
+
 import { useBookingAsync } from '../hooks/useBookingAsync';
 import { useBookingPersistence } from '../hooks/useBookingAsync';
+import { useBookingStore } from '../state/bookingStore';
 
 interface BookingFormProps {
   onSuccess?: (bookingId: string) => void;
@@ -16,7 +18,7 @@ interface BookingFormProps {
 
 export const BookingForm: React.FC<BookingFormProps> = ({ onSuccess, onError }) => {
   // Get store state and actions
-  const { bookingData, updateBookingData, setLoading, setErrors } = useBookingStore();
+  const { bookingData, updateBookingData, setErrors } = useBookingStore();
   
   // Get async operations
   const {
@@ -30,6 +32,9 @@ export const BookingForm: React.FC<BookingFormProps> = ({ onSuccess, onError }) 
 
   // Get persistence features
   const { autoSaveEnabled } = useBookingPersistence();
+
+  // Analytics
+  const { logEvent } = useAnalytics();
 
   // Handle form submission
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
@@ -47,6 +52,12 @@ export const BookingForm: React.FC<BookingFormProps> = ({ onSuccess, onError }) 
       const result = await submitBooking(bookingData);
       
       if (result.success && result.bookingId) {
+        logEvent('booking_completed', {
+          booking_id: result.bookingId,
+          vehicle: bookingData.vehicle || 'unknown',
+          city: bookingData.location.city || '',
+          revenue: Number(result.amount || 0),
+        });
         onSuccess?.(result.bookingId);
       } else {
         onError?.(result.error || 'Submission failed');
@@ -55,7 +66,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({ onSuccess, onError }) 
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       onError?.(errorMessage);
     }
-  }, [bookingData, validateBooking, submitBooking, setErrors, onSuccess, onError]);
+  }, [bookingData, validateBooking, submitBooking, setErrors, onSuccess, onError, logEvent]);
 
   // Handle auto-save
   const handleAutoSave = useCallback(async () => {
@@ -79,7 +90,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({ onSuccess, onError }) 
       )}
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={(e) => { void handleSubmit(e); }} className="space-y-4">
         {/* Vehicle Selection */}
         <div>
           <label htmlFor="vehicle" className="block text-sm font-medium text-white mb-2">
@@ -88,7 +99,9 @@ export const BookingForm: React.FC<BookingFormProps> = ({ onSuccess, onError }) 
           <select
             id="vehicle"
             value={bookingData.vehicle}
-            onChange={(e) => handleInputChange('vehicle', e.target.value)}
+            onChange={(e) => { 
+              handleInputChange('vehicle', e.target.value); 
+            }}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Select vehicle type</option>
@@ -111,7 +124,9 @@ export const BookingForm: React.FC<BookingFormProps> = ({ onSuccess, onError }) 
                 type="text"
                 id="make"
                 value={bookingData.vehicleDetails.make}
-                onChange={(e) => handleInputChange('vehicleDetails', { ...bookingData.vehicleDetails, make: e.target.value })}
+                onChange={(e) => { 
+                  handleInputChange('vehicleDetails', { ...bookingData.vehicleDetails, make: e.target.value }); 
+                }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="e.g., Toyota"
               />
@@ -124,7 +139,9 @@ export const BookingForm: React.FC<BookingFormProps> = ({ onSuccess, onError }) 
                 type="text"
                 id="model"
                 value={bookingData.vehicleDetails.model}
-                onChange={(e) => handleInputChange('vehicleDetails', { ...bookingData.vehicleDetails, model: e.target.value })}
+                onChange={(e) => { 
+                  handleInputChange('vehicleDetails', { ...bookingData.vehicleDetails, model: e.target.value }); 
+                }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="e.g., Camry"
               />
@@ -137,7 +154,9 @@ export const BookingForm: React.FC<BookingFormProps> = ({ onSuccess, onError }) 
                 type="text"
                 id="year"
                 value={bookingData.vehicleDetails.year}
-                onChange={(e) => handleInputChange('vehicleDetails', { ...bookingData.vehicleDetails, year: e.target.value })}
+                onChange={(e) => { 
+                  handleInputChange('vehicleDetails', { ...bookingData.vehicleDetails, year: e.target.value }); 
+                }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="e.g., 2020"
               />
@@ -154,7 +173,9 @@ export const BookingForm: React.FC<BookingFormProps> = ({ onSuccess, onError }) 
             type="text"
             id="address"
             value={bookingData.location.address}
-            onChange={(e) => handleInputChange('location', { ...bookingData.location, address: e.target.value })}
+            onChange={(e) => { 
+              handleInputChange('location', { ...bookingData.location, address: e.target.value }); 
+            }}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Enter service address"
           />
@@ -179,7 +200,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({ onSuccess, onError }) 
 
       {/* Auto-save trigger */}
       <button
-        onClick={handleAutoSave}
+        onClick={() => { void handleAutoSave(); }}
         className="text-sm text-gray-500 hover:text-gray-700"
       >
         Save Draft

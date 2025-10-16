@@ -3,9 +3,9 @@
  * Handles database operations for refresh tokens
  */
 
-const { pool } = require('../database/pool');
-const crypto = require('crypto');
-const logger = require('../utils/logger');
+import { pool } from '../database/pool.js';
+import crypto from 'crypto';
+import logger from '../utils/logger.js';
 
 /**
  * Generate a unique device ID based on user agent and IP
@@ -296,7 +296,7 @@ const getTokenStats = async () => {
   }
 };
 
-module.exports = {
+export {
   generateDeviceId,
   generateTokenFamily,
   storeRefreshToken,

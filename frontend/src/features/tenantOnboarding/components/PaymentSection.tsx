@@ -85,6 +85,18 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
   React.useEffect(() => {
     const createPaymentIntentAsync = async () => {
       try {
+        // Guard against missing required fields
+        if (!formData.planPrice || !formData.personalEmail || !formData.businessName || !formData.selectedPlan) {
+          console.error('Missing required fields for payment intent:', {
+            planPrice: formData.planPrice,
+            personalEmail: formData.personalEmail,
+            businessName: formData.businessName,
+            selectedPlan: formData.selectedPlan
+          });
+          setCardError('Please complete all required fields before proceeding to payment');
+          return;
+        }
+        
         const result = await createPaymentIntent({
           amount: formData.planPrice,
           customerEmail: formData.personalEmail,

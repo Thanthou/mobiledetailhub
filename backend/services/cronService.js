@@ -3,9 +3,9 @@
  * Manages scheduled tasks for token cleanup and maintenance
  */
 
-const cron = require('node-cron');
-const { cleanupTokens } = require('../scripts/cleanup-tokens');
-const { createModuleLogger } = require('../config/logger');
+import cron from 'node-cron';
+import { cleanupTokens } from '../scripts/cleanup-tokens.js';
+import { createModuleLogger } from '../config/logger.js';
 const logger = createModuleLogger('cronService');
 
 /**
@@ -65,7 +65,7 @@ const getCronStatus = () => {
   };
 };
 
-module.exports = {
+export {
   initializeCronJobs,
   stopCronJobs,
   getCronStatus

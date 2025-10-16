@@ -2,7 +2,7 @@
  * Payment API client for tenant onboarding
  */
 
-import { config } from '@/shared/env';
+import { apiClient } from '@/shared/api';
 
 export interface CreatePaymentIntentRequest {
   amount: number;
@@ -38,33 +38,9 @@ export interface ConfirmPaymentResponse {
 }
 
 export const createPaymentIntent = async (request: CreatePaymentIntentRequest): Promise<CreatePaymentIntentResponse> => {
-  const response = await fetch(`${config.apiBaseUrl}/api/payments/create-intent`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(request),
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to create payment intent: ${response.statusText}`);
-  }
-
-  return response.json() as Promise<CreatePaymentIntentResponse>;
+  return apiClient.post<CreatePaymentIntentResponse>('/api/payments/create-intent', request);
 };
 
 export const confirmPayment = async (request: ConfirmPaymentRequest): Promise<ConfirmPaymentResponse> => {
-  const response = await fetch(`${config.apiBaseUrl}/api/payments/confirm`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(request),
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to confirm payment: ${response.statusText}`);
-  }
-
-  return response.json() as Promise<ConfirmPaymentResponse>;
+  return apiClient.post<ConfirmPaymentResponse>('/api/payments/confirm', request);
 };

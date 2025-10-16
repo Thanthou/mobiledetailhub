@@ -3,8 +3,8 @@
  * Provides middleware functions for validating request data using Zod schemas
  */
 
-const { z } = require('zod');
-const { asyncHandler } = require('./errorHandler');
+import { z } from 'zod';
+import { asyncHandler } from './errorHandler.js';
 
 /**
  * Create validation middleware for request body
@@ -12,27 +12,27 @@ const { asyncHandler } = require('./errorHandler');
  * @returns {Function} Express middleware function
  */
 const validateBody = (schema) => {
-  return asyncHandler(async (req, res, next) => {
+  return asyncHandler((req, res, next) => {
     try {
       // Validate and parse the request body
       req.body = schema.parse(req.body);
       next();
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        const validationErrors = error.errors.map(err => ({
-          field: err.path.join('.'),
-          message: err.message,
-          value: err.input,
-          code: err.code
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        const validationErrors = err.errors.map(errItem => ({
+          field: errItem.path.join('.'),
+          message: errItem.message,
+          value: errItem.input,
+          code: errItem.code
         }));
 
-        const error = new Error('Validation failed');
-        error.statusCode = 400;
-        error.code = 'VALIDATION_ERROR';
-        error.details = validationErrors;
-        throw error;
+        const validationError = new Error('Validation failed');
+        validationError.statusCode = 400;
+        validationError.code = 'VALIDATION_ERROR';
+        validationError.details = validationErrors;
+        throw validationError;
       }
-      throw error;
+      throw err;
     }
   });
 };
@@ -43,27 +43,27 @@ const validateBody = (schema) => {
  * @returns {Function} Express middleware function
  */
 const validateParams = (schema) => {
-  return asyncHandler(async (req, res, next) => {
+  return asyncHandler((req, res, next) => {
     try {
       // Validate and parse the request parameters
       req.params = schema.parse(req.params);
       next();
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        const validationErrors = error.errors.map(err => ({
-          field: err.path.join('.'),
-          message: err.message,
-          value: err.input,
-          code: err.code
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        const validationErrors = err.errors.map(errItem => ({
+          field: errItem.path.join('.'),
+          message: errItem.message,
+          value: errItem.input,
+          code: errItem.code
         }));
 
-        const error = new Error('Validation failed');
-        error.statusCode = 400;
-        error.code = 'VALIDATION_ERROR';
-        error.details = validationErrors;
-        throw error;
+        const validationError = new Error('Validation failed');
+        validationError.statusCode = 400;
+        validationError.code = 'VALIDATION_ERROR';
+        validationError.details = validationErrors;
+        throw validationError;
       }
-      throw error;
+      throw err;
     }
   });
 };
@@ -74,27 +74,27 @@ const validateParams = (schema) => {
  * @returns {Function} Express middleware function
  */
 const validateQuery = (schema) => {
-  return asyncHandler(async (req, res, next) => {
+  return asyncHandler((req, res, next) => {
     try {
       // Validate and parse the request query parameters
       req.query = schema.parse(req.query);
       next();
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        const validationErrors = error.errors.map(err => ({
-          field: err.path.join('.'),
-          message: err.message,
-          value: err.input,
-          code: err.code
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        const validationErrors = err.errors.map(errItem => ({
+          field: errItem.path.join('.'),
+          message: errItem.message,
+          value: errItem.input,
+          code: errItem.code
         }));
 
-        const error = new Error('Validation failed');
-        error.statusCode = 400;
-        error.code = 'VALIDATION_ERROR';
-        error.details = validationErrors;
-        throw error;
+        const validationError = new Error('Validation failed');
+        validationError.statusCode = 400;
+        validationError.code = 'VALIDATION_ERROR';
+        validationError.details = validationErrors;
+        throw validationError;
       }
-      throw error;
+      throw err;
     }
   });
 };
@@ -108,74 +108,70 @@ const validateQuery = (schema) => {
  * @returns {Function} Express middleware function
  */
 const validate = (schemas) => {
-  return asyncHandler(async (req, res, next) => {
-    try {
-      const errors = [];
+  return asyncHandler((req, res, next) => {
+    const errors = [];
 
-      // Validate body if schema provided
-      if (schemas.body) {
-        try {
-          req.body = schemas.body.parse(req.body);
-        } catch (error) {
-          if (error instanceof z.ZodError) {
-            errors.push(...error.errors.map(err => ({
-              part: 'body',
-              field: err.path.join('.'),
-              message: err.message,
-              value: err.input,
-              code: err.code
-            })));
-          }
+    // Validate body if schema provided
+    if (schemas.body) {
+      try {
+        req.body = schemas.body.parse(req.body);
+      } catch (err) {
+        if (err instanceof z.ZodError) {
+          errors.push(...err.errors.map(errItem => ({
+            part: 'body',
+            field: errItem.path.join('.'),
+            message: errItem.message,
+            value: errItem.input,
+            code: errItem.code
+          })));
         }
       }
-
-      // Validate params if schema provided
-      if (schemas.params) {
-        try {
-          req.params = schemas.params.parse(req.params);
-        } catch (error) {
-          if (error instanceof z.ZodError) {
-            errors.push(...error.errors.map(err => ({
-              part: 'params',
-              field: err.path.join('.'),
-              message: err.message,
-              value: err.input,
-              code: err.code
-            })));
-          }
-        }
-      }
-
-      // Validate query if schema provided
-      if (schemas.query) {
-        try {
-          req.query = schemas.query.parse(req.query);
-        } catch (error) {
-          if (error instanceof z.ZodError) {
-            errors.push(...error.errors.map(err => ({
-              part: 'query',
-              field: err.path.join('.'),
-              message: err.message,
-              value: err.input,
-              code: err.code
-            })));
-          }
-        }
-      }
-
-      // If there are validation errors, throw them
-      if (errors.length > 0) {
-        const error = new Error('Validation failed');
-        error.statusCode = 400;
-        error.code = 'VALIDATION_ERROR';
-        error.details = errors;
-        throw error;
-      }
-
-      next();
-    } catch (error) {
-      throw error;
     }
+
+    // Validate params if schema provided
+    if (schemas.params) {
+      try {
+        req.params = schemas.params.parse(req.params);
+      } catch (err) {
+        if (err instanceof z.ZodError) {
+          errors.push(...err.errors.map(errItem => ({
+            part: 'params',
+            field: errItem.path.join('.'),
+            message: errItem.message,
+            value: errItem.input,
+            code: errItem.code
+          })));
+        }
+      }
+    }
+
+    // Validate query if schema provided
+    if (schemas.query) {
+      try {
+        req.query = schemas.query.parse(req.query);
+      } catch (err) {
+        if (err instanceof z.ZodError) {
+          errors.push(...err.errors.map(errItem => ({
+            part: 'query',
+            field: errItem.path.join('.'),
+            message: errItem.message,
+            value: errItem.input,
+            code: errItem.code
+          })));
+        }
+      }
+    }
+
+    // If there are validation errors, throw them
+    if (errors.length > 0) {
+      const validationError = new Error('Validation failed');
+      validationError.statusCode = 400;
+      validationError.code = 'VALIDATION_ERROR';
+      validationError.details = errors;
+      throw validationError;
+    }
+
+    next();
   });
 };
 
@@ -186,32 +182,32 @@ const validate = (schemas) => {
  * @returns {Function} Express middleware function
  */
 const sanitize = (schema) => {
-  return asyncHandler(async (req, res, next) => {
+  return asyncHandler((req, res, next) => {
     try {
       // Sanitize the request body using the schema
       req.body = schema.parse(req.body);
       next();
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        const validationErrors = error.errors.map(err => ({
-          field: err.path.join('.'),
-          message: err.message,
-          value: err.input,
-          code: err.code
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        const validationErrors = err.errors.map(errItem => ({
+          field: errItem.path.join('.'),
+          message: errItem.message,
+          value: errItem.input,
+          code: errItem.code
         }));
 
-        const error = new Error('Data sanitization failed');
-        error.statusCode = 400;
-        error.code = 'SANITIZATION_ERROR';
-        error.details = validationErrors;
-        throw error;
+        const validationError = new Error('Data sanitization failed');
+        validationError.statusCode = 400;
+        validationError.code = 'SANITIZATION_ERROR';
+        validationError.details = validationErrors;
+        throw validationError;
       }
-      throw error;
+      throw err;
     }
   });
 };
 
-module.exports = {
+export {
   validateBody,
   validateParams,
   validateQuery,

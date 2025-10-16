@@ -70,8 +70,8 @@ export const UsersTab: React.FC = () => {
   const subTabs = [
     { id: 'all-users' as UserSubTab, label: 'All Users', icon: Users },
     { id: 'admin' as UserSubTab, label: 'Admin', icon: UserCog },
-    { id: 'tenants' as UserSubTab, label: 'Tenants', icon: UserCheck },
-    { id: 'customers' as UserSubTab, label: 'Customers', icon: UserX },
+    { id: 'tenant' as UserSubTab, label: 'Tenants', icon: UserCheck },
+    { id: 'customer' as UserSubTab, label: 'Customers', icon: UserX },
     { id: 'pending' as UserSubTab, label: 'Pending', icon: UserPlus },
   ];
 
@@ -103,14 +103,10 @@ export const UsersTab: React.FC = () => {
             const response = await apiService.getPendingApplications();
             setPendingApplications(response.applications);
           } else {
-            // Fetch regular users
+            // Fetch regular users with roles
             const response = await apiService.getUsers(status);
-            // Map is_admin boolean to role string
-            const usersWithRole = response.users.map(user => ({
-              ...user,
-              role: user.is_admin ? 'admin' : (user.business_name ? 'tenant' : 'customer')
-            }));
-            setUsers(usersWithRole);
+            // Users now come with role already assigned from the backend
+            setUsers(response.users);
           }
         } catch (err) {
           setError(err instanceof Error ? err.message : 'An error occurred');
@@ -432,25 +428,45 @@ export const UsersTab: React.FC = () => {
 
     return (
       <div className="space-y-4">
-        <div className="text-sm text-gray-400 mb-4">
-          Showing {users.length} user{users.length !== 1 ? 's' : ''}
+        <div className="flex items-center justify-between text-sm text-gray-400 mb-4">
+          <span>
+            Showing {users.length} user{users.length !== 1 ? 's' : ''}
+          </span>
+          <button 
+            onClick={() => { fetchUsers(activeSubTab, true); }}
+            className="px-3 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-700 transition-colors"
+          >
+            Refresh
+          </button>
         </div>
         <div className="grid gap-4">
           {users.map((user) => (
             <div key={user.id} className="bg-gray-700 rounded-lg p-4 border border-gray-600">
               <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="font-medium text-white">{user.name}</h4>
-                  <p className="text-gray-300 text-sm">{user.email}</p>
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <h4 className="font-medium text-white text-lg">{user.name}</h4>
+                    {user.role && (
+                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                        user.role === 'admin' 
+                          ? 'bg-purple-600 text-purple-100' 
+                          : user.role === 'tenant'
+                          ? 'bg-green-600 text-green-100'
+                          : 'bg-blue-600 text-blue-100'
+                      }`}>
+                        {user.role.toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-gray-300 text-sm mb-1">{user.email}</p>
                   {user.business_name && (
-                    <p className="text-gray-300 text-sm">{user.business_name}</p>
+                    <p className="text-gray-300 text-sm mb-1">
+                      <span className="text-gray-400">Business:</span> {user.business_name}
+                    </p>
                   )}
                   {user.slug && (
-                    <p className="text-gray-400 text-xs">slug: {user.slug}</p>
-                  )}
-                  {user.role && (
-                    <p className="text-gray-400 text-xs mt-1">
-                      Role: <span className="text-blue-300 capitalize">{user.role}</span>
+                    <p className="text-gray-400 text-xs">
+                      <span className="text-gray-500">Slug:</span> {user.slug}
                     </p>
                   )}
                 </div>

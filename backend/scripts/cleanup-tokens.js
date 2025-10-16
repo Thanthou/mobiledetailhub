@@ -6,10 +6,10 @@
  * Run this as a cron job every hour
  */
 
-const { pool } = require('../database/pool');
-const passwordResetService = require('../services/passwordResetService');
-const { revokeExpiredTokens } = require('../services/refreshTokenService');
-const { createModuleLogger } = require('../config/logger');
+import { pool } from '../database/pool.js';
+import * as passwordResetService from '../services/passwordResetService.js';
+import { cleanupExpiredTokens } from '../services/refreshTokenService.js';
+import { createModuleLogger } from '../config/logger.js';
 const logger = createModuleLogger('cleanup-tokens');
 
 /**
@@ -29,7 +29,7 @@ async function cleanupTokens() {
     
     // Clean up expired refresh tokens
     console.log('  🔄 Cleaning refresh tokens...');
-    const refreshTokensCleaned = await revokeExpiredTokens();
+    const refreshTokensCleaned = await cleanupExpiredTokens();
     totalCleaned += refreshTokensCleaned;
     console.log(`  ✅ Cleaned ${refreshTokensCleaned} refresh tokens`);
     
@@ -63,7 +63,8 @@ async function cleanupTokens() {
 /**
  * Run cleanup if called directly
  */
-if (require.main === module) {
+// Run cleanup if this script is executed directly
+if (import.meta.url === `file://${process.argv[1]}`) {
   cleanupTokens()
     .then(() => {
       console.log('✅ Cleanup script completed successfully');
@@ -75,4 +76,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { cleanupTokens };
+export { cleanupTokens };

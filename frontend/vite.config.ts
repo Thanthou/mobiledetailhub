@@ -21,21 +21,21 @@ export default defineConfig({
     port: 5175, // Use current port
     proxy: {
       '/api': {
-        target: 'http://192.168.4.21:3001',
+        target: 'http://localhost:3001',
         changeOrigin: true,
         secure: false,
-        rewrite: (path) => path.replace(/^\/api/, '/api'),
+        rewrite: (path) => path,
         configure: (proxy, _options) => {
-          proxy.on('proxyReq', (_proxyReq, _req, _res) => {
-            // Debug logging removed for production
+          proxy.on('proxyReq', (_proxyReq, _req) => {
+            // console.log('Proxying:', req.method, req.url, req.headers['content-type']);
           });
-          proxy.on('error', (_err, _req, _res) => {
-            // Error logging removed for production
+          proxy.on('error', (err, _req, _res) => {
+            console.error('Proxy error:', err.message);
           });
         },
       },
       '/uploads': {
-        target: 'http://192.168.4.21:3001',
+        target: 'http://localhost:3001',
         changeOrigin: true,
         secure: false,
       },

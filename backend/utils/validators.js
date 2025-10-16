@@ -303,7 +303,7 @@ const sanitizers = {
   }
 };
 
-module.exports = {
+export {
   PATTERNS,
   ValidationError,
   validators,

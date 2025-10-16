@@ -4,7 +4,7 @@
  * Enforces strong secret policies and blocks weak defaults in production
  */
 
-const logger = require('./logger');
+import logger from './logger.js';
 
 const requiredEnvVars = {
   // Database Configuration
@@ -340,7 +340,7 @@ function getRequiredEnv(varName) {
   return value;
 }
 
-module.exports = {
+export {
   validateEnvironment,
   getEnv,
   getRequiredEnv,

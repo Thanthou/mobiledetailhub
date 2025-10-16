@@ -10,9 +10,9 @@
  */
 
 // Load environment variables from .env file
-require('dotenv').config();
+import 'dotenv/config';
 
-const { z } = require('zod');
+import { z } from 'zod';
 
 /**
  * Environment Schema
@@ -86,5 +86,5 @@ try {
 /**
  * Export validated environment configuration
  */
-module.exports = { env };
+export { env };
 

@@ -1,8 +1,8 @@
-const express = require('express');
-const { pool } = require('../database/pool');
-const { withTenantBySlug, getTenantBySlug } = require('../middleware/withTenant');
-const { env } = require('../config/env');
-const { asyncHandler } = require('../middleware/errorHandler');
+import express from 'express';
+import { pool } from '../database/pool.js';
+import { withTenantBySlug, getTenantBySlug } from '../middleware/withTenant.js';
+import { env } from '../config/env.js';
+import { asyncHandler } from '../middleware/errorHandler.js';
 const router = express.Router();
 
 // Save website content for a tenant
@@ -223,4 +223,4 @@ router.get('/main', (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

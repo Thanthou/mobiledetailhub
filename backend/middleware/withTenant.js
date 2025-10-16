@@ -1,5 +1,5 @@
-const { pool } = require('../database/pool');
-const { asyncHandler } = require('./errorHandler');
+import { pool } from '../database/pool.js';
+import { asyncHandler } from './errorHandler.js';
 
 /**
  * withTenant Middleware
@@ -266,7 +266,7 @@ const validateTenantExists = asyncHandler(async (req, res, next) => {
   next();
 });
 
-module.exports = {
+export {
   withTenantBySlug,
   withTenantByUser,
   withTenant,

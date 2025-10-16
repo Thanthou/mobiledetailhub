@@ -4,9 +4,9 @@
  * Separated from Zustand store to maintain clean separation of concerns
  */
 
-import { useCallback, useState, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef,useState } from 'react';
 
-import { useSectionStore, type SectionId } from '../state/sectionStore';
+import { type SectionId,useSectionStore } from '../state/sectionStore';
 
 export interface SectionIntersectionOptions {
   rootMargin?: string;
@@ -34,10 +34,10 @@ export const useSectionAsync = () => {
   /**
    * Scroll to a specific section
    */
-  const scrollToSection = useCallback(async (
+  const scrollToSection = useCallback((
     sectionId: SectionId, 
     options: SectionScrollOptions = {}
-  ): Promise<void> => {
+  ): void => {
     const element = document.getElementById(sectionId);
     if (!element) {
       console.warn(`Section with id "${sectionId}" not found`);
@@ -47,7 +47,7 @@ export const useSectionAsync = () => {
     setIsScrolling(true);
     
     try {
-      await element.scrollIntoView({
+      element.scrollIntoView({
         behavior: options.behavior || 'smooth',
         block: options.block || 'start',
         inline: options.inline || 'nearest'
@@ -72,14 +72,14 @@ export const useSectionAsync = () => {
   /**
    * Scroll to next section
    */
-  const scrollToNext = useCallback(async (): Promise<void> => {
+  const scrollToNext = useCallback((): void => {
     const sections: SectionId[] = ['top', 'services', 'reviews', 'faq', 'gallery', 'footer'];
     const currentIndex = sections.indexOf(current || 'top');
     
     if (currentIndex < sections.length - 1) {
       const nextSection = sections[currentIndex + 1];
       if (nextSection) {
-        await scrollToSection(nextSection);
+        scrollToSection(nextSection);
       }
     }
   }, [current, scrollToSection]);
@@ -87,14 +87,14 @@ export const useSectionAsync = () => {
   /**
    * Scroll to previous section
    */
-  const scrollToPrevious = useCallback(async (): Promise<void> => {
+  const scrollToPrevious = useCallback((): void => {
     const sections: SectionId[] = ['top', 'services', 'reviews', 'faq', 'gallery', 'footer'];
     const currentIndex = sections.indexOf(current || 'top');
     
     if (currentIndex > 0) {
       const prevSection = sections[currentIndex - 1];
       if (prevSection) {
-        await scrollToSection(prevSection);
+        scrollToSection(prevSection);
       }
     }
   }, [current, scrollToSection]);
@@ -115,9 +115,7 @@ export const useSectionAsync = () => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             const sectionId = entry.target.id as SectionId;
-            if (sectionId && sectionId !== current) {
-              setCurrent(sectionId);
-            }
+            setCurrent(sectionId);
             setIsIntersecting(true);
           } else {
             setIsIntersecting(false);
@@ -143,7 +141,7 @@ export const useSectionAsync = () => {
     });
 
     return observer;
-  }, [current, setCurrent]);
+  }, [setCurrent]);
 
   /**
    * Calculate scroll progress for current section
@@ -194,7 +192,9 @@ export const useSectionAsync = () => {
   // Set up scroll listener
   useEffect(() => {
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => { 
+      window.removeEventListener('scroll', handleScroll); 
+    };
   }, [handleScroll]);
 
   // Cleanup on unmount
@@ -237,7 +237,9 @@ export const useSectionPersistence = () => {
   // Set up intersection observer on mount
   useEffect(() => {
     const observer = setupIntersectionObserver();
-    return () => observer.disconnect();
+    return () => { 
+      observer.disconnect(); 
+    };
   }, [setupIntersectionObserver]);
 
   return {

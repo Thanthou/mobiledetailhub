@@ -1,5 +1,5 @@
-const bcrypt = require('bcryptjs');
-const { pool } = require('../database/pool');
+import bcrypt from 'bcryptjs';
+import { pool } from '../database/pool.js';
 
 /**
  * Tenant Service
@@ -373,7 +373,7 @@ async function getIndustries() {
   return result.rows;
 }
 
-module.exports = {
+export {
   createTenant,
   getTenantBySlug,
   getTenantsByIndustry,

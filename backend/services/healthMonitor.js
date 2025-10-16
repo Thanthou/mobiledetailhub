@@ -3,8 +3,8 @@
  * Monitors website performance, SEO, security, and uptime for tenant websites
  */
 
-const axios = require('axios');
-const logger = require('../utils/logger');
+import axios from 'axios';
+import logger from '../utils/logger.js';
 
 class HealthMonitor {
   constructor() {
@@ -468,4 +468,4 @@ class HealthMonitor {
 // Create singleton instance
 const healthMonitor = new HealthMonitor();
 
-module.exports = healthMonitor;
+export default healthMonitor;

@@ -159,8 +159,16 @@ const TenantApplicationPage: React.FC = () => {
 
           // Then check if email already exists
           try {
+            // Debug API URL configuration
+            // console.log('Check-email API URL config:', {
+            //   apiUrl: config.apiUrl,
+            //   apiBaseUrl: config.apiBaseUrl,
+            //   isDevelopment: config.isDevelopment,
+            //   fullUrl: `${config.apiUrl || ''}/api/auth/check-email?email=${encodeURIComponent(formData.personalEmail)}`
+            // });
+            
             // eslint-disable-next-line no-restricted-globals, no-restricted-syntax -- Isolated onboarding check, API client refactor planned
-            const response = await fetch(`${config.apiBaseUrl}/api/auth/check-email?email=${encodeURIComponent(formData.personalEmail)}`);
+            const response = await fetch(`${config.apiUrl || ''}/api/auth/check-email?email=${encodeURIComponent(formData.personalEmail)}`);
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Response typing improvement planned
             const result = await response.json();
             

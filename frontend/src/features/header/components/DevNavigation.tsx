@@ -52,8 +52,8 @@ const DevNavigation: React.FC = () => {
     } else {
       // In production, navigate to the actual website
       const tenant = tenants?.find(t => t.slug === slug);
-      if (tenant?.website) {
-        window.open(tenant.website, '_blank');
+      if (tenant && tenant.contact.socials.facebook) {
+        window.open(tenant.contact.socials.facebook, '_blank');
       }
     }
     setIsTenantsOpen(false);
@@ -150,6 +150,7 @@ const DevNavigation: React.FC = () => {
                   <div key={tenant.slug} className="border-b border-gray-100 last:border-b-0">
                     <div className="px-4 py-2 text-sm font-medium text-gray-900 bg-gray-50">
                       <div className="font-mono text-xs">{tenant.slug}</div>
+                      <div className="text-xs text-gray-600">{tenant.branding.businessName}</div>
                     </div>
                     <div className="px-2 py-1 space-y-1">
                       <button

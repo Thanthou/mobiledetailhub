@@ -1,6 +1,6 @@
-const cookie = require('cookie');
-const { verifyAccessToken, isTokenBlacklisted } = require('../utils/tokenManager');
-const logger = require('../utils/logger');
+import cookie from 'cookie';
+import { verifyAccessToken, isTokenBlacklisted } from '../utils/tokenManager.js';
+import logger from '../utils/logger.js';
 
 // Authentication Middleware
 const authenticateToken = async (req, res, next) => {
@@ -310,7 +310,7 @@ const requirePermission = (permission) => {
   };
 };
 
-module.exports = {
+export {
   authenticateToken,
   requireAdmin,
   requireRole,

@@ -1,14 +1,14 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const { pool } = require('../database/pool');
-const { authenticateToken, requireAdmin } = require('../middleware/auth');
+import { pool } from '../database/pool.js';
+import { authenticateToken, requireAdmin } from '../middleware/auth.js';
 // TODO: Re-enable validation middleware when schemas are implemented
-// const { validateBody, validateParams, sanitize } = require('../middleware/validation');
-// const { adminSchemas, sanitizationSchemas } = require('../utils/validationSchemas');
-const { asyncHandler } = require('../middleware/errorHandler');
-const logger = require('../utils/logger');
-const { criticalAdminLimiter } = require('../middleware/rateLimiter');
-const { env } = require('../config/env');
+// import { validateBody, validateParams, sanitize } from '../middleware/validation.js';
+// import { adminSchemas, sanitizationSchemas } from '../utils/validationSchemas.js';
+import { asyncHandler } from '../middleware/errorHandler.js';
+import logger from '../utils/logger.js';
+import { criticalAdminLimiter } from '../middleware/rateLimiter.js';
+// import { env } from '../config/env.js'; // Unused import
 
 // Delete tenant and associated data
 router.delete('/tenants/:id', criticalAdminLimiter, authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
@@ -203,39 +203,14 @@ router.delete('/tenants/:id', criticalAdminLimiter, authenticateToken, requireAd
   }
 }));
 
-// Users endpoint
-router.get('/users', asyncHandler(async (req, res) => {
-  // In development, allow unauthenticated access with a mock response
-  if (env.NODE_ENV !== 'production') {
-    if (!req.user || !req.user.isAdmin) {
-      return res.json({
-        success: true,
-        users: [
-          {
-            id: 1,
-            email: 'admin@dev.local',
-            name: 'Dev Admin',
-            is_admin: true,
-            created_at: new Date().toISOString(),
-            last_login: new Date().toISOString()
-          }
-        ],
-        count: 1,
-        message: 'Development mode: mock users'
-      });
-    }
-  } else {
-    // Production: require auth + admin
-    if (!req.user || !req.user.isAdmin) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-  }
-
+// Users endpoint - Get all users with their roles
+router.get('/users', authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
   if (!pool) {
     const error = new Error('Database connection not available');
     error.statusCode = 500;
     throw error;
   }
+  
   const { status } = req.query;
   
   // Audit log the users query
@@ -243,33 +218,27 @@ router.get('/users', asyncHandler(async (req, res) => {
     status: status || 'all-users',
     query: status === 'tenants' ? 'tenants_table' : 'users_table'
   }, {
-    userId: req.user.userId,
-    email: req.user.email
+    userId: req.user?.userId || 'anonymous',
+    email: req.user?.email || 'anonymous'
   });
   
   if (status === 'tenants') {
     // For tenants, query the tenants table directly
     try {
-      // Check if there are any tenants
-      const countCheck = await pool.query('SELECT COUNT(*) FROM tenants.business');
-      const tenantCount = parseInt(countCheck.rows[0].count);
-      
-      if (tenantCount === 0) {
-        res.json({
-          success: true,
-          users: [],
-          count: 0,
-          message: 'No tenants found'
-        });
-        return;
-      }
-      
       let query = `
         SELECT 
-          a.id, a.owner as name, a.business_email as email, a.created_at,
-          a.business_name, a.application_status, a.slug, a.business_phone as phone, a.service_areas
-        FROM tenants.business a
-        WHERE a.application_status = 'approved'
+          t.id,
+          t.business_name as name,
+          t.business_email as email,
+          t.owner,
+          t.slug,
+          t.application_status,
+          t.business_phone as phone,
+          t.created_at,
+          'tenant' as role,
+          t.service_areas
+        FROM tenants.business t
+        WHERE t.application_status = 'approved'
       `;
       
       const params = [];
@@ -277,19 +246,17 @@ router.get('/users', asyncHandler(async (req, res) => {
       
       // Add slug filter if provided
       if (req.query.slug) {
-        query += ` AND a.slug = $${paramIndex}`;
+        query += ` AND t.slug = $${paramIndex}`;
         params.push(req.query.slug);
         paramIndex++;
         logger.debug(`[ADMIN] Adding slug filter: ${req.query.slug}`);
       }
       
-      query += ' ORDER BY a.created_at DESC';
+      query += ' ORDER BY t.created_at DESC';
       
       const result = await pool.query(query, params);
       
       logger.debug(`[ADMIN] Tenants query returned ${result.rowCount} approved tenants`);
-      logger.debug(`[ADMIN] Tenant names:`, { names: result.rows.map(r => r.business_name) });
-      logger.debug(`[ADMIN] Query executed:`, { query, params, rowCount: result.rowCount });
       
       res.json({
         success: true,
@@ -304,7 +271,7 @@ router.get('/users', asyncHandler(async (req, res) => {
     }
   }
   
-  // Join with tenants.business to get tenant information
+  // Get all users with their roles (admin, tenant, customer)
   let query = `
     SELECT 
       u.id, 
@@ -314,28 +281,30 @@ router.get('/users', asyncHandler(async (req, res) => {
       u.created_at,
       t.id as tenant_id,
       t.business_name,
-      t.slug
+      t.slug,
+      CASE 
+        WHEN u.is_admin = true THEN 'admin'
+        WHEN t.id IS NOT NULL AND t.application_status = 'approved' THEN 'tenant'
+        ELSE 'customer'
+      END as role
     FROM auth.users u
-    LEFT JOIN tenants.business t ON u.id = t.user_id AND t.application_status = 'approved'
+    LEFT JOIN tenants.business t ON u.id = t.user_id
   `;
   const params = [];
+  let paramIndex = 1;
   
   if (status && status !== 'all-users') {
-    // Map frontend status to database fields
-    const statusMap = {
-      'admin': 'u.is_admin = $1',
-      'customers': 'u.is_admin = $1 AND t.id IS NULL'  // Not admin and not a tenant
-    };
-    
-    // Map frontend status to actual database values
-    const valueMap = {
-      'admin': true,
-      'customers': false
-    };
-    
-    if (statusMap[status]) {
-      query += ` WHERE ${statusMap[status]}`;
-      params.push(valueMap[status]);
+    // Filter by specific role
+    if (status === 'admin') {
+      query += ` WHERE u.is_admin = $${paramIndex}`;
+      params.push(true);
+      paramIndex++;
+    } else if (status === 'tenant') {
+      query += ` WHERE t.id IS NOT NULL AND t.application_status = 'approved'`;
+    } else if (status === 'customer') {
+      query += ` WHERE u.is_admin = $${paramIndex} AND t.id IS NULL`;
+      params.push(false);
+      paramIndex++;
     }
   }
   
@@ -343,9 +312,15 @@ router.get('/users', asyncHandler(async (req, res) => {
   
   const result = await pool.query(query, params);
   
+  // Transform the results to include role information
+  const usersWithRoles = result.rows.map(row => ({
+    ...row,
+    role: row.role || (row.is_admin ? 'admin' : row.tenant_id ? 'tenant' : 'customer')
+  }));
+  
   res.json({
     success: true,
-    users: result.rows,
+    users: usersWithRoles,
     count: result.rowCount,
     message: `Found ${result.rowCount} users in database`
   });
@@ -973,4 +948,4 @@ router.post('/seed-reviews', authenticateToken, requireAdmin, asyncHandler(async
   }
 }));
 
-module.exports = router;
+export default router;

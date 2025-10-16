@@ -6,7 +6,7 @@ import type {
   UpdateAppointmentRequest,
 } from '../types';
 
-const API_BASE = `${config.apiBaseUrl}/api/schedule`;
+const API_BASE = `${config.apiUrl || ''}/api/schedule`;
 
 // Generic API request function
 async function makeRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {

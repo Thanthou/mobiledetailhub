@@ -1,13 +1,16 @@
 import { useCallback } from 'react';
 
+import { useAnalytics } from '@/shared/hooks/useAnalytics';
+
 import { quotesApi } from '../api/quotes.api';
-import { type QuoteFormData, type QuoteRequest, quoteRequestSchema } from '../types';
+import { type QuoteFormData, quoteRequestSchema } from '../types';
 
 /**
  * Hook to handle quote form submission
  * Separates submission logic from form state
  */
 export const useQuoteSubmission = () => {
+  const { logEvent } = useAnalytics();
   const submitQuote = useCallback(async (
     formData: QuoteFormData,
     slug: string | undefined,
@@ -38,12 +41,18 @@ export const useQuoteSubmission = () => {
       };
 
       await quotesApi.submitQuoteRequest(apiData as Parameters<typeof quotesApi.submitQuoteRequest>[0]);
+      logEvent('quote_submitted', {
+        slug: slug || '',
+        services_count: validatedData.services.length,
+        vehicle_type: validatedData.vehicleType || '',
+        city: validatedData.city || '',
+      });
       onSuccess();
     } catch (err) {
       console.error('Quote submission error:', err);
       onError('Failed to submit quote. Please try again.');
     }
-  }, []);
+  }, [logEvent]);
 
   return {
     submitQuote

@@ -1,8 +1,8 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const { pool } = require('../database/pool');
-const { asyncHandler } = require('../middleware/errorHandler');
-const logger = require('../utils/logger');
+import { pool } from '../database/pool.js';
+import { asyncHandler } from '../middleware/errorHandler.js';
+import logger from '../utils/logger.js';
 
 /**
  * POST /api/analytics/track
@@ -203,4 +203,4 @@ router.get('/summary/:tenantId', asyncHandler(async (req, res) => {
   });
 }));
 
-module.exports = router;
+export default router;

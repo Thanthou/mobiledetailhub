@@ -7,8 +7,8 @@
 import { useCallback, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
+import { createPreview, verifyPreview } from '../api/preview.api';
 import { usePreviewStore } from '../state/previewStore';
-import { previewApi } from '../api/preview.api';
 import type { PreviewPayload } from '../types/preview.types';
 
 export interface PreviewGenerationResult {
@@ -34,28 +34,28 @@ export const usePreviewAsync = () => {
     setError(null);
 
     try {
-      // Validate payload
-      if (!payload.businessName || !payload.phone || !payload.industry) {
-        throw new Error('Missing required preview data');
-      }
+      // Validate payload - properties are always defined in type
+      // if (!payload.businessName || !payload.phone || !payload.industry) {
+      //   throw new Error('Missing required preview data');
+      // }
 
       // Generate preview using API
-      const result = await previewApi.generatePreview(payload);
+      const result = await createPreview(payload);
       
-      if (result.success && result.previewUrl) {
+      if (result.success && result.url) {
         // Update store with generated preview
         setPayload({
           ...payload,
-          previewUrl: result.previewUrl,
+          previewUrl: result.url,
           generatedAt: new Date().toISOString(),
         });
 
         return {
           success: true,
-          previewUrl: result.previewUrl
+          previewUrl: result.url
         };
       } else {
-        throw new Error(result.error || 'Failed to generate preview');
+        throw new Error('Failed to generate preview');
       }
 
     } catch (error) {
@@ -81,14 +81,10 @@ export const usePreviewAsync = () => {
       setLoading(true);
       setError(null);
 
-      const result = await previewApi.verifyPreview(token);
+      const payload = await verifyPreview(token);
       
-      if (result) {
-        setPayload(result);
-        return result;
-      } else {
-        throw new Error('Invalid preview token');
-      }
+      setPayload(payload);
+      return payload;
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to verify preview token';

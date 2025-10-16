@@ -4,10 +4,10 @@
  * Separated from Zustand store to maintain clean separation of concerns
  */
 
-import { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useEffect,useState } from 'react';
 
-import { useViewportStore } from '../state/viewportStore';
 import type { Viewport } from '../state/viewportStore';
+import { useViewportStore } from '../state/viewportStore';
 
 export interface ViewportDimensions {
   width: number;
@@ -118,7 +118,9 @@ export const useViewportAsync = () => {
     }
     
     // Reset resizing state after a short delay
-    setTimeout(() => setIsResizing(false), 150);
+    setTimeout(() => { 
+      setIsResizing(false); 
+    }, 150);
   }, [viewport, getViewportBreakpoint, setViewport]);
 
   /**
@@ -159,7 +161,9 @@ export const useViewportAsync = () => {
   // Set up resize listener
   useEffect(() => {
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    return () => { 
+      window.removeEventListener('resize', handleResize); 
+    };
   }, [handleResize]);
 
   return {

@@ -1,10 +1,11 @@
 import { type FormEvent, useCallback } from 'react';
 
+import { type QuoteFormData } from '../types';
 import { useQuoteFormState } from './useQuoteFormState';
-import { useQuoteVehicleData } from './useQuoteVehicleData';
-import { useQuoteValidation } from './useQuoteValidation';
 import { useQuoteSubmission } from './useQuoteSubmission';
 import { useQuoteTenantData } from './useQuoteTenantData';
+import { useQuoteValidation } from './useQuoteValidation';
+import { useQuoteVehicleData } from './useQuoteVehicleData';
 
 /**
  * Main hook that combines all quote form functionality
@@ -38,8 +39,8 @@ export const useQuoteFormLogic = () => {
   ];
 
   // Form handlers
-  const handleInputChange = useCallback((field: string, value: string) => {
-    formState.updateFormData(field as any, value);
+  const handleInputChange = useCallback((field: keyof QuoteFormData, value: string) => {
+    formState.updateFormData(field, value);
     formState.clearFieldErrors(field);
   }, [formState]);
 

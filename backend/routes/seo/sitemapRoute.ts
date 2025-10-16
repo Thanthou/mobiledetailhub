@@ -47,6 +47,7 @@ sitemapRoute.get("/sitemap.xml", async (req, res) => {
     const xml = generateSitemap(hostname, allPages);
     res.type("application/xml").send(xml);
   } catch (err) {
+    // eslint-disable-next-line no-console, no-undef
     console.error("Sitemap generation failed:", err);
     // Fallback to basic sitemap
     const pages = ["/", "/services", "/reviews", "/faq"];

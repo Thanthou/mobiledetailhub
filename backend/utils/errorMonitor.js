@@ -3,8 +3,13 @@
  * Provides comprehensive error tracking, logging, and terminal output
  */
 
-const fs = require('fs').promises;
-const path = require('path');
+import { promises as fs } from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// ESM __dirname equivalent
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 class BackendErrorMonitor {
   constructor() {
@@ -337,7 +342,7 @@ class BackendErrorMonitor {
 const errorMonitor = new BackendErrorMonitor();
 
 // Export the instance and class
-module.exports = {
+export {
   errorMonitor,
   BackendErrorMonitor,
 };

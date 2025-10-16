@@ -1,3 +1,5 @@
+import { config } from '@/shared/env';
+
 import type { AffiliateApplication } from '../types';
 
 interface ApiResponse {
@@ -18,7 +20,7 @@ export const postApplication = async (data: AffiliateApplication): Promise<ApiRe
     const controller = new AbortController();
     const timeoutId = setTimeout(() => { controller.abort(); }, 30000); // 30 second timeout
     
-    const response = await fetch('http://localhost:3001/api/affiliates/apply', {
+    const response = await fetch(`${config.apiUrl || ''}/api/affiliates/apply`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

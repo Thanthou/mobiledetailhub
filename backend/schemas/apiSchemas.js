@@ -3,7 +3,7 @@
  * Comprehensive schemas for all API endpoints with consistent validation
  */
 
-const { z } = require('zod');
+import { z } from 'zod';
 
 /**
  * Common field schemas for reuse
@@ -338,7 +338,7 @@ const analyticsSchemas = {
 /**
  * Export all schemas
  */
-module.exports = {
+export {
   commonFields,
   authSchemas,
   tenantSchemas,

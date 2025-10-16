@@ -3,8 +3,8 @@
  * Handles local avatar file management with standard naming convention
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 /**
  * Generate standard avatar filename
@@ -83,7 +83,7 @@ const ensureUploadsDir = () => {
   }
 };
 
-module.exports = {
+export {
   generateAvatarFilename,
   findCustomAvatar,
   getAvatarUrl,

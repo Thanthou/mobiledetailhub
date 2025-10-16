@@ -1,11 +1,11 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const { pool } = require('../database/pool');
-const { validateParams } = require('../middleware/validation');
-const { customerSchemas } = require('../utils/validationSchemas');
-const { asyncHandler } = require('../middleware/errorHandler');
+import { pool } from '../database/pool.js';
+import { validateParams } from '../middleware/validation.js';
+import { customerSchemas } from '../utils/validationSchemas.js';
+import { asyncHandler } from '../middleware/errorHandler.js';
 // TODO: Add proper logging for customer operations
-// const logger = require('../utils/logger');
+// import logger from '../utils/logger.js';
 
 // Get customers
 router.get('/', asyncHandler(async (req, res) => {
@@ -65,4 +65,4 @@ router.get('/field/:field',
   })
 );
 
-module.exports = router;
+export default router;

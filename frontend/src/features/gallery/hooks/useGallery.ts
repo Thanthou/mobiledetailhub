@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
-import { GalleryImage } from '../types';
 import { galleryApi } from '../api/gallery.api';
+import { GalleryImage } from '../types';
 
 export const useGallery = () => {
   const [images, setImages] = useState<GalleryImage[]>([]);

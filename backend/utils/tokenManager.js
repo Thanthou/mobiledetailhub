@@ -3,12 +3,12 @@
  * Handles JWT access tokens and refresh tokens with security best practices
  */
 
-const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
-const logger = require('./logger');
-const { env } = require('../config/env');
-const { pool } = require('../database/pool');
-const { AUTH_CONFIG } = require('../config/auth');
+import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
+import logger from './logger.js';
+import { env } from '../config/env.js';
+import { pool } from '../database/pool.js';
+import { AUTH_CONFIG } from '../config/auth.js';
 
 /**
  * Token configuration
@@ -422,7 +422,7 @@ const cleanupBlacklist = () => {
 // Clean up blacklist every hour
 setInterval(cleanupBlacklist, 60 * 60 * 1000);
 
-module.exports = {
+export {
   TOKEN_CONFIG,
   generateAccessToken,
   generateRefreshToken,

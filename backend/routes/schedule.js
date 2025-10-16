@@ -4,7 +4,7 @@ const { authenticateToken } = require('../middleware/auth');
 const { withTenantByUser } = require('../middleware/withTenant');
 const { validateBody } = require('../middleware/validation');
 const { apiLimiter } = require('../middleware/rateLimiter');
-const { asyncHandler } = require('../middleware/errorHandler');
+// const { asyncHandler } = require('../middleware/errorHandler'); // Unused import
 // TODO: Add request logging middleware when needed
 // const { requestLogger } = require('../middleware/requestLogger');
 
@@ -62,7 +62,6 @@ const timeBlockSchema = {
 router.get('/appointments', async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
-    const userId = req.user.userId;
 
     if (!startDate || !endDate) {
       return res.status(400).json({ error: 'startDate and endDate are required' });
@@ -388,7 +387,6 @@ router.get('/appointments/available-slots', async (req, res) => {
 router.get('/time-blocks', async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
-    const userId = req.user.userId;
 
     if (!startDate || !endDate) {
       return res.status(400).json({ error: 'startDate and endDate are required' });
@@ -560,7 +558,6 @@ router.delete('/time-blocks/:id', async (req, res) => {
 router.get('/blocked-days', async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
-    const userId = req.user.userId;
 
     if (!startDate || !endDate) {
       return res.status(400).json({ error: 'startDate and endDate are required' });
@@ -592,13 +589,13 @@ router.get('/blocked-days', async (req, res) => {
 router.post('/blocked-days/toggle', async (req, res) => {
   try {
     const { date, reason } = req.body;
-    const userId = req.user.userId;
 
     if (!date) {
       return res.status(400).json({ error: 'date is required' });
     }
 
     const tenantId = req.tenant.id;
+    const userId = req.user.id;
 
     // Check if date is already blocked
     const checkQuery = `

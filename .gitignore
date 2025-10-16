@@ -21,3 +21,6 @@ backend/tests/
 
 # Git logs (auto-generated)
 chatgpt/gitlogs/
+
+# Dynamic port files
+.frontend-port.json

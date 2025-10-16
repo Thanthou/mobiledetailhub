@@ -36,8 +36,7 @@ export const useQuoteFormState = () => {
 
   const clearFieldErrors = (field: string) => {
     setFieldErrors(prev => {
-      const newErrors = { ...prev };
-      delete newErrors[field];
+      const { [field]: _, ...newErrors } = prev;
       return newErrors;
     });
   };

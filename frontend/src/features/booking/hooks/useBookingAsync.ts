@@ -31,7 +31,7 @@ export const useBookingAsync = () => {
     setErrors, 
     addError, 
     clearErrors,
-    bookingData 
+    // bookingData 
   } = useBookingStore();
 
   /**
@@ -45,13 +45,13 @@ export const useBookingAsync = () => {
         if (!data.vehicle) {
           errors.push('Please select a vehicle type');
         }
-        if (!data.vehicleDetails?.make || !data.vehicleDetails?.model || !data.vehicleDetails?.year) {
+        if (!data.vehicleDetails?.make || !data.vehicleDetails.model || !data.vehicleDetails.year) {
           errors.push('Please provide complete vehicle details');
         }
         break;
 
       case 'location':
-        if (!data.location?.address || !data.location?.city || !data.location?.state) {
+        if (!data.location?.address || !data.location.city || !data.location.state) {
           errors.push('Please provide complete location information');
         }
         break;
@@ -166,7 +166,7 @@ export const useBookingAsync = () => {
   /**
    * Save booking data to server (draft)
    */
-  const saveBookingDraft = useCallback(async (data: BookingData): Promise<boolean> => {
+  const saveBookingDraft = useCallback(async (_data: BookingData): Promise<boolean> => {
     try {
       setLoading(true);
       
@@ -188,7 +188,7 @@ export const useBookingAsync = () => {
   /**
    * Load booking data from server
    */
-  const loadBookingData = useCallback(async (bookingId: string): Promise<BookingData | null> => {
+  const loadBookingData = useCallback(async (_bookingId: string): Promise<BookingData | null> => {
     try {
       setLoading(true);
       
@@ -215,7 +215,7 @@ export const useBookingAsync = () => {
       if (typeof value === 'string') return value.length > 0;
       if (Array.isArray(value)) return value.length > 0;
       if (typeof value === 'object' && value !== null) {
-        return Object.values(value).some(v => {
+        return Object.values(value as Record<string, unknown>).some(v => {
           if (typeof v === 'string') return v.length > 0;
           if (Array.isArray(v)) return v.length > 0;
           return false;
@@ -244,8 +244,8 @@ export const useBookingAsync = () => {
  * Hook for booking data persistence
  */
 export const useBookingPersistence = () => {
-  const { bookingData, updateBookingData } = useBookingStore();
-  const { saveBookingDraft, loadBookingData, hasUnsavedChanges } = useBookingAsync();
+  const { bookingData } = useBookingStore();
+  const { hasUnsavedChanges, saveBookingDraft } = useBookingAsync();
 
   // Auto-save booking data every 30 seconds
   const { data: autoSaveEnabled } = useQuery({

@@ -1,5 +1,5 @@
-const { pool } = require('../database/pool');
-const logger = require('./logger');
+import { pool } from '../database/pool.js';
+import logger from './logger.js';
 
 /**
  * Database initialization - minimal version
@@ -37,6 +37,6 @@ async function setupDatabase() {
   }
 }
 
-module.exports = {
+export {
   setupDatabase
 };

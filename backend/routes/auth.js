@@ -1,12 +1,14 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const { authenticateToken } = require('../middleware/auth');
-const { validateBody, validateQuery } = require('../middleware/zodValidation');
-const { authSchemas } = require('../schemas/apiSchemas');
-const { asyncHandler } = require('../middleware/errorHandler');
-const { authLimiter, sensitiveAuthLimiter, refreshTokenLimiter } = require('../middleware/rateLimiter');
-const authController = require('../controllers/authController');
-const passwordResetController = require('../controllers/passwordResetController');
+import { authenticateToken } from '../middleware/auth.js';
+import { validateBody, validateQuery } from '../middleware/zodValidation.js';
+import { authSchemas } from '../schemas/apiSchemas.js';
+import { asyncHandler } from '../middleware/errorHandler.js';
+import { authLimiter, sensitiveAuthLimiter, refreshTokenLimiter } from '../middleware/rateLimiter.js';
+import * as authController from '../controllers/authController.js';
+import * as passwordResetController from '../controllers/passwordResetController.js';
+import { pool } from '../database/pool.js';
+import * as authService from '../services/authService.js';
 
 // Check if email exists (for onboarding validation)
 router.get('/check-email', 
@@ -100,7 +102,7 @@ router.post('/refresh', refreshTokenLimiter, asyncHandler(async (req, res) => {
   const tokenHash = require('crypto').createHash('sha256').update(refreshToken).digest('hex');
   
   // Validate refresh token
-  const tokenRecord = await validateRefreshToken(tokenHash);
+  const tokenRecord = await authService.validateRefreshToken(tokenHash);
   if (!tokenRecord) {
     const error = new Error('Invalid or expired refresh token');
     error.statusCode = 401;
@@ -114,13 +116,13 @@ router.post('/refresh', refreshTokenLimiter, asyncHandler(async (req, res) => {
     isAdmin: tokenRecord.is_admin
   };
   
-  const tokens = generateTokenPair(tokenPayload);
+  const tokens = authService.generateTokenPair(tokenPayload);
   
   // Update refresh token in database
-  const deviceId = generateDeviceId(req.get('User-Agent'), req.ip);
+  const deviceId = authService.generateDeviceId(req.get('User-Agent'), req.ip);
   const newTokenHash = require('crypto').createHash('sha256').update(tokens.refreshToken).digest('hex');
   
-  await storeRefreshToken(
+  await authService.storeRefreshToken(
     tokenRecord.user_id,
     newTokenHash,
     new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
@@ -130,7 +132,7 @@ router.post('/refresh', refreshTokenLimiter, asyncHandler(async (req, res) => {
   );
 
   // Revoke old refresh token
-  await revokeRefreshToken(tokenHash);
+  await authService.revokeRefreshToken(tokenHash);
 
   // Set HttpOnly cookies for enhanced security
   const { AUTH_CONFIG } = require('../config/auth');
@@ -166,7 +168,7 @@ router.post('/logout', authenticateToken, asyncHandler(async (req, res) => {
   
   if (token) {
     // Blacklist the access token with additional context
-    await blacklistToken(token, {
+    await authService.blacklistToken(token, {
       reason: 'logout',
       ipAddress: req.ip,
       userAgent: req.get('User-Agent')
@@ -174,7 +176,7 @@ router.post('/logout', authenticateToken, asyncHandler(async (req, res) => {
   }
 
   // Revoke all refresh tokens for the user
-  await revokeAllUserTokens(req.user.userId);
+  await authService.revokeAllUserTokens(req.user.userId);
 
   // Clear HttpOnly cookies
   res.clearCookie('access_token', {
@@ -201,7 +203,7 @@ router.post('/logout-device', authenticateToken, asyncHandler(async (req, res) =
   }
 
   // Revoke refresh token for specific device
-  const revoked = await revokeDeviceToken(req.user.userId, deviceId);
+  const revoked = await authService.revokeDeviceToken(req.user.userId, deviceId);
   
   if (revoked) {
     res.json({ success: true, message: 'Device logged out successfully' });
@@ -214,7 +216,7 @@ router.post('/logout-device', authenticateToken, asyncHandler(async (req, res) =
 
 // Get user's active sessions
 router.get('/sessions', authenticateToken, asyncHandler(async (req, res) => {
-  const sessions = await getUserTokens(req.user.userId);
+  const sessions = await authService.getUserTokenList(req.user.userId);
   
   res.json({
     success: true,
@@ -281,4 +283,4 @@ router.post('/promote-admin', authLimiter, asyncHandler(async (req, res) => {
   });
 }));
 
-module.exports = router;
+export default router;

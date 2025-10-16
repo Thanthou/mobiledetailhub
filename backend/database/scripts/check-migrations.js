@@ -98,7 +98,7 @@ function main() {
   let validCount = 0;
   let invalidCount = 0;
   
-  files.forEach((filename, index) => {
+  files.forEach((filename, _index) => {
     const parsed = parseMigrationFile(filename);
     const filePath = path.join(migrationsDir, filename);
     const check = checkMigrationFile(filePath);

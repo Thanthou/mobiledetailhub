@@ -3,12 +3,12 @@
  * Provides endpoints for website health analysis and monitoring
  */
 
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const { pool } = require('../database/pool');
-const { asyncHandler } = require('../middleware/errorHandler');
-const logger = require('../utils/logger');
-const healthMonitor = require('../services/healthMonitor');
+import { pool } from '../database/pool.js';
+import { asyncHandler } from '../middleware/errorHandler.js';
+import logger from '../utils/logger.js';
+import healthMonitor from '../services/healthMonitor.js';
 
 /**
  * GET /api/health/:tenantSlug
@@ -432,4 +432,4 @@ function determineStatus(score) {
   return 'error';
 }
 
-module.exports = router;
+export default router;

@@ -1,13 +1,13 @@
-const express = require('express');
-const { pool } = require('../database/pool');
-const { withTenantBySlug } = require('../middleware/withTenant');
-const { validateBody } = require('../middleware/zodValidation');
-const { serviceAreaSchemas } = require('../schemas/apiSchemas');
-const { asyncHandler } = require('../middleware/errorHandler');
+import express from 'express';
+import { pool } from '../database/pool.js';
+import { withTenantBySlug } from '../middleware/withTenant.js';
+import { validateBody } from '../middleware/zodValidation.js';
+import { serviceAreaSchemas } from '../schemas/apiSchemas.js';
+import { asyncHandler } from '../middleware/errorHandler.js';
 const router = express.Router();
 
 // Get service areas for a tenant
-router.get('/service-areas/:slug', withTenantBySlug, asyncHandler(async (req, res) => {
+router.get('/service-areas/:slug', withTenantBySlug, asyncHandler((req, res) => {
   const serviceAreas = req.tenant.service_areas || [];
   res.json(serviceAreas);
 }));
@@ -75,4 +75,4 @@ router.delete('/service-areas/:slug/:areaId', withTenantBySlug, asyncHandler(asy
   res.json({ success: true });
 }));
 
-module.exports = router;
+export default router;

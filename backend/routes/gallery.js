@@ -1,7 +1,12 @@
-const express = require('express');
-const fs = require('fs');
-const path = require('path');
+import express from 'express';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 const router = express.Router();
+
+// ESM __dirname equivalent
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Get list of gallery images
 router.get('/images', (req, res) => {
@@ -34,4 +39,4 @@ router.get('/images', (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

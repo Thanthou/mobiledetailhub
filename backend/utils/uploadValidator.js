@@ -1,9 +1,10 @@
-const logger = require('./logger');
+import logger from './logger.js';
 
 // Import file-type for magic number validation (requires: npm install file-type)
 let fileTypeFromBuffer;
 try {
-  fileTypeFromBuffer = require('file-type').fileTypeFromBuffer;
+  const { fileTypeFromBuffer: ftfb } = await import('file-type');
+  fileTypeFromBuffer = ftfb;
 } catch (error) {
   logger.warn('file-type package not installed. Magic number validation disabled.', { error: error.message });
   fileTypeFromBuffer = null;
@@ -98,7 +99,7 @@ async function validateFileMagic(file, allowedMimeTypes) {
       fileBuffer = file.buffer;
     } else if (file.path) {
       // File is on disk (from disk storage)
-      const fs = require('fs');
+      const fs = await import('fs');
       fileBuffer = fs.readFileSync(file.path);
     } else {
       logger.warn('Cannot perform magic validation - no file buffer or path available');
@@ -434,7 +435,7 @@ function createMulterConfig(options = {}) {
   };
 }
 
-module.exports = {
+export {
   validateUploadRequest,
   validateFile,
   validateFiles,

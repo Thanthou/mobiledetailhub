@@ -3,9 +3,9 @@
  * Centralized pino logger with structured logging and environment-specific formatting
  */
 
-const pino = require('pino');
-const { env } = require('./env');
-const { getLoggingConfig } = require('./logging-environments');
+import pino from 'pino';
+// import { env } from './env.js'; // Unused import
+import { getLoggingConfig } from './logging-environments.js';
 
 /**
  * Create base logger configuration
@@ -22,7 +22,7 @@ const createLoggerConfig = () => {
       log: (object) => {
         // Add correlation ID if present
         if (object.correlationId) {
-          object.correlationId = object.correlationId;
+          // Keep correlation ID as is
         }
         return object;
       }
@@ -33,7 +33,9 @@ const createLoggerConfig = () => {
       err: pino.stdSerializers.err,
       // Custom serializers for our app
       user: (user) => {
-        if (!user) return user;
+        if (!user) {
+          return user;
+        }
         return {
           id: user.id,
           email: user.email,
@@ -42,7 +44,9 @@ const createLoggerConfig = () => {
         };
       },
       error: (error) => {
-        if (!error) return error;
+        if (!error) {
+          return error;
+        }
         return {
           message: error.message,
           stack: error.stack,
@@ -187,7 +191,7 @@ const logHealthCheck = (status, details = {}) => {
   }, `Health Check: ${status}`);
 };
 
-module.exports = {
+export {
   logger,
   createModuleLogger,
   createRequestLogger,

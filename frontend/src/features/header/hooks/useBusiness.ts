@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
-import type { Business } from '../types/business.types';
 import { tenantApi } from '../api/tenant.api';
+// import type { Business } from '../types/business.types';
 
 export const useBusiness = (slug: string) => {
   return useQuery({

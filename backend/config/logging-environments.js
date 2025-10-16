@@ -3,13 +3,13 @@
  * Defines different logging setups for development, test, and production
  */
 
-const { env } = require('./env');
+import { env } from './env.js';
 
 /**
  * Development logging configuration
  */
 const developmentConfig = {
-  level: 'debug',
+  level: env.LOG_LEVEL || 'error',
   transport: {
     target: 'pino-pretty',
     options: {
@@ -114,7 +114,7 @@ const getLoggingConfig = () => {
   }
 };
 
-module.exports = {
+export {
   developmentConfig,
   testConfig,
   productionConfig,

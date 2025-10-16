@@ -31,7 +31,7 @@ export async function createPreview(
   }
 
   try {
-    const response = await fetch(`${config.apiBaseUrl}/api/previews`, {
+    const response = await fetch(`${config.apiUrl || ''}/api/previews`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -64,7 +64,7 @@ export async function createPreview(
 export async function verifyPreview(token: string): Promise<PreviewPayload> {
   try {
     const response = await fetch(
-      `${config.apiBaseUrl}/api/preview/verify?t=${encodeURIComponent(token)}`,
+      `${config.apiUrl || ''}/api/preview/verify?t=${encodeURIComponent(token)}`,
       {
         method: 'GET',
         headers: {

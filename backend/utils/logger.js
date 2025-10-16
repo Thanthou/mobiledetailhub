@@ -1,5 +1,6 @@
 // Re-export the unified pino logger
-const { logger: pinoLogger, createModuleLogger } = require('../config/logger');
+import { logger as pinoLogger } from '../config/logger.js';
+// import { createModuleLogger } from '../config/logger.js'; // Unused import
 
 // Create the main logger instance
 const logger = pinoLogger;
@@ -101,4 +102,4 @@ const loggerWrapper = {
   }
 };
 
-module.exports = loggerWrapper;
+export default loggerWrapper;

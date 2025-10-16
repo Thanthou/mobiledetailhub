@@ -5,9 +5,9 @@
  * Provides templates for common email types
  */
 
-const sgMail = require('@sendgrid/mail');
-const { env } = require('../config/env');
-const logger = require('../utils/logger');
+import sgMail from '@sendgrid/mail';
+import { env } from '../config/env.js';
+import logger from '../utils/logger.js';
 
 // Initialize SendGrid
 if (env.SENDGRID_API_KEY) {
@@ -252,7 +252,7 @@ async function sendTestEmail(to) {
   }
 }
 
-module.exports = {
+export {
   sendWelcomeEmail,
   sendTestEmail,
   emailTemplates

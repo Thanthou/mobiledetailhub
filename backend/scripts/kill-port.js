@@ -3,7 +3,7 @@
 // Cross-platform port killer for npm prestart
 // Frees the port defined in PORT (default 3001) before starting the server
 
-const { execSync } = require('child_process');
+import { execSync } from 'child_process';
 
 const PORT = process.env.PORT || '3001';
 
@@ -12,12 +12,16 @@ function killOnWindows(port) {
     // Find PID(s) listening on the port
     const cmd = `PowerShell -NoProfile -Command "Get-NetTCPConnection -LocalPort ${port} -State Listen -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess | Sort-Object -Unique"`;
     const output = execSync(cmd, { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
-    if (!output) return 0;
+    if (!output) {
+      return 0;
+    }
     const pids = output.split(/\s+/).filter(Boolean);
     pids.forEach(pid => {
       try {
         execSync(`taskkill /PID ${pid} /F`, { stdio: 'ignore' });
-      } catch {}
+      } catch {
+        // Ignore kill errors
+      }
     });
     return pids.length;
   } catch {
@@ -35,11 +39,15 @@ function killOnUnix(port) {
         try {
           execSync(`kill -9 ${pid}`, { stdio: 'ignore' });
           killed++;
-        } catch {}
+        } catch {
+          // Ignore kill errors
+        }
       });
       return killed;
     }
-  } catch {}
+  } catch {
+    // Ignore lsof errors
+  }
 
   try {
     // Fallback to fuser
@@ -67,5 +75,3 @@ try {
   // Never fail prestart; just log minimal info
   console.log(`ℹ️ Port cleanup skipped: ${e.message}`);
 }
-
-

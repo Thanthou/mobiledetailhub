@@ -3,8 +3,8 @@
  * Handles password reset request and reset endpoints
  */
 
-const passwordResetService = require('../services/passwordResetService');
-const { asyncHandler } = require('../middleware/errorHandler');
+import * as passwordResetService from '../services/passwordResetService.js';
+import { asyncHandler } from '../middleware/errorHandler.js';
 
 /**
  * Request password reset
@@ -22,9 +22,9 @@ const requestPasswordReset = asyncHandler(async (req, res) => {
       success: true,
       message: 'If an account with that email exists, a password reset link has been sent.'
     });
-  } catch (error) {
+  } catch (err) {
     // Don't reveal specific error details for security
-    if (error.message.includes('rate limit') || error.message.includes('Too many')) {
+    if (err.message.includes('rate limit') || err.message.includes('Too many')) {
       res.status(429).json({
         success: false,
         message: 'Too many reset attempts. Please try again later.'
@@ -53,8 +53,8 @@ const resetPassword = asyncHandler(async (req, res) => {
       success: true,
       message: 'Password has been reset successfully. Please log in with your new password.'
     });
-  } catch (error) {
-    if (error.message.includes('Invalid or expired')) {
+  } catch (err) {
+    if (err.message.includes('Invalid or expired')) {
       res.status(400).json({
         success: false,
         message: 'Invalid or expired reset token. Please request a new password reset.'
@@ -99,7 +99,7 @@ const validateResetToken = asyncHandler(async (req, res) => {
       name: tokenInfo.name,
       expiresAt: tokenInfo.expiresAt
     });
-  } catch (error) {
+  } catch {
     res.status(500).json({
       success: false,
       message: 'An error occurred while validating the reset token'
@@ -127,7 +127,7 @@ const getResetStats = asyncHandler(async (req, res) => {
       success: true,
       data: stats
     });
-  } catch (error) {
+  } catch {
     res.status(500).json({
       success: false,
       message: 'An error occurred while fetching reset statistics'
@@ -135,7 +135,7 @@ const getResetStats = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = {
+export {
   requestPasswordReset,
   resetPassword,
   validateResetToken,

@@ -1,7 +1,8 @@
-const bcrypt = require('bcryptjs');
-const { pool } = require('../database/pool');
-const { generateTokenPair, blacklistToken } = require('../utils/tokenManager');
-const { 
+import bcrypt from 'bcryptjs';
+import { pool } from '../database/pool.js';
+import { generateTokenPair } from '../utils/tokenManager.js';
+// import { blacklistToken } from '../utils/tokenManager.js'; // Unused import
+import { 
   storeRefreshToken, 
   validateRefreshToken, 
   revokeRefreshToken, 
@@ -9,8 +10,8 @@ const {
   revokeDeviceToken,
   generateDeviceId,
   getUserTokens
-} = require('./refreshTokenService');
-const { env } = require('../config/env');
+} from './refreshTokenService.js';
+import { env } from '../config/env.js';
 
 /**
  * Auth Service
@@ -419,7 +420,7 @@ async function changePassword(userId, currentPassword, newPassword) {
   return { success: true };
 }
 
-module.exports = {
+export {
   checkEmailExists,
   registerUser,
   loginUser,

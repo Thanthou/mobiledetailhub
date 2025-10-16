@@ -44,10 +44,10 @@ const DashboardPage: React.FC = () => {
           last_name: tenant.last_name || 'Unknown',
           email: tenant.business_email || tenant.personal_email || 'No email',
           phone: tenant.business_phone || tenant.personal_phone || 'No phone',
-          location: tenant.service_areas && Array.isArray(tenant.service_areas) && tenant.service_areas.length > 0 
+          location: tenant.service_areas.length > 0 
             ? `${tenant.service_areas[0]?.city ?? ''}, ${tenant.service_areas[0]?.state ?? ''}` 
             : 'No location',
-          services: tenant.service_areas && Array.isArray(tenant.service_areas) && tenant.service_areas.length > 0 
+          services: tenant.service_areas.length > 0 
             ? tenant.service_areas.map((area: { city: string }) => area.city).slice(0, 4)
             : ['Mobile Detailing'],
           memberSince: tenant.created_at ? new Date(tenant.created_at).getFullYear().toString() : 'Unknown'

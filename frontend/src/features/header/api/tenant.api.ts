@@ -3,17 +3,18 @@
  * Handles all tenant-related API calls
  */
 
-import { Business, Tenant } from '@/shared/types/tenant';
+import { TenantConfig } from '@/shared/types/tenant.types';
+import { Business } from '@/shared/types/tenant-business.types';
 
 export interface TenantApiResponse {
   success: boolean;
-  data: Business | Tenant | Business[] | Tenant[];
+  data: Business;
   error?: string;
 }
 
 export interface TenantsListResponse {
   success: boolean;
-  data: Tenant[];
+  data: TenantConfig[];
   error?: string;
 }
 
@@ -21,7 +22,7 @@ export const tenantApi = {
   /**
    * Get all tenants
    */
-  getTenants: async (): Promise<Tenant[]> => {
+  getTenants: async (): Promise<TenantConfig[]> => {
     try {
       const response = await fetch('/api/tenants');
       
@@ -62,7 +63,7 @@ export const tenantApi = {
         throw new Error(result.error || 'Failed to fetch business');
       }
       
-      return result.data as Business;
+      return result.data;
     } catch (error) {
       console.error('Tenant API Error:', error);
       throw new Error(`Failed to load business: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -72,7 +73,7 @@ export const tenantApi = {
   /**
    * Get tenants by industry
    */
-  getTenantsByIndustry: async (industry: string): Promise<Tenant[]> => {
+  getTenantsByIndustry: async (industry: string): Promise<TenantConfig[]> => {
     try {
       const response = await fetch(`/api/tenants?industry=${encodeURIComponent(industry)}`);
       

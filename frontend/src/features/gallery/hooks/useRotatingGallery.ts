@@ -1,7 +1,7 @@
 import { useCallback,useEffect, useRef, useState } from 'react';
 
-import { GalleryImage } from '../types';
 import { galleryApi } from '../api/gallery.api';
+import { GalleryImage } from '../types';
 
 // Fisher-Yates shuffle algorithm
 function shuffleArray<T>(array: T[]): T[] {
@@ -60,7 +60,7 @@ export function useRotatingGallery() {
           // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- cancelled can be set to true by cleanup function before async completes
           if (cancelled) return;
           
-          const shuffledData = shuffleArray(data);
+          const shuffledData = shuffleArray(data) as GalleryImage[];
           setAllImages(shuffledData);
           allImagesRef.current = shuffledData;
 

@@ -1,4 +1,4 @@
-import { config } from '@/../config/env';
+// import { config } from '@/../config/env';
 
 // Extend Error interface for custom error codes
 interface CustomError extends Error {
@@ -26,7 +26,7 @@ interface UnknownApiResponse {
   [key: string]: unknown;
 }
 
-const API_BASE_URL = config.apiUrl || ''; // Empty string uses relative URLs (Vite proxy)
+const API_BASE_URL = ''; // Always use relative URLs to leverage Vite proxy
 
 export interface QuoteFormData {
   name: string;
@@ -165,8 +165,8 @@ class ApiService {
   }
 
   async login(email: string, password: string): Promise<LoginResponse> {
-    // Use config API URL for proper routing
-    const url = `${API_BASE_URL}/api/auth/login`;
+    // Use relative URL to leverage Vite proxy
+    const url = '/api/auth/login';
     try {
       // Create an AbortController for timeout
       const controller = new AbortController();

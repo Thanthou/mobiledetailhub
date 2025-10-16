@@ -3,10 +3,10 @@
  * Provides endpoints for system health monitoring (liveness, readiness, etc.)
  */
 
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const { pool } = require('../database/pool');
-const logger = require('../utils/logger');
+import { pool } from '../database/pool.js';
+import logger from '../utils/logger.js';
 
 // Track shutdown status for graceful shutdown
 let isShuttingDown = false;
@@ -225,5 +225,5 @@ function updateShutdownStatus(shuttingDown) {
 }
 
 // Export the router and the updateShutdownStatus function
-module.exports = router;
-module.exports.updateShutdownStatus = updateShutdownStatus;
+export default router;
+export { updateShutdownStatus };

@@ -1,5 +1,5 @@
-const rateLimit = require('express-rate-limit');
-const logger = require('../utils/logger');
+import rateLimit from 'express-rate-limit';
+import logger from '../utils/logger.js';
 
 // ⚠️  DEVELOPMENT MODE: Rate limiting is DISABLED
 // All limits set to 10,000 requests per window to prevent development issues
@@ -199,7 +199,7 @@ const apiLimiter = rateLimit({
   }
 });
 
-module.exports = {
+export {
   authLimiter,
   sensitiveAuthLimiter,
   refreshTokenLimiter,

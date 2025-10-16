@@ -1,8 +1,7 @@
-const bcrypt = require('bcryptjs');
-const { pool } = require('../database/pool');
-const StripeService = require('./stripeService');
-const emailService = require('./emailService');
-const tenantService = require('./tenantService');
+import bcrypt from 'bcryptjs';
+import { pool } from '../database/pool.js';
+import StripeService from './stripeService.js';
+import { sendWelcomeEmail as sendWelcomeEmailService } from './emailService.js';
 
 /**
  * Tenant Provision Service
@@ -310,7 +309,7 @@ async function sendWelcomeEmail(provisionResult, tenantData) {
   console.log('📧 Starting welcome email process...');
   console.log('📧 Welcome email data:', JSON.stringify(welcomeEmailData, null, 2));
   
-  const emailResult = await emailService.sendWelcomeEmail(welcomeEmailData);
+  const emailResult = await sendWelcomeEmailService(welcomeEmailData);
   console.log('📧 Email service result:', JSON.stringify(emailResult, null, 2));
   
   if (emailResult.success) {
@@ -322,7 +321,7 @@ async function sendWelcomeEmail(provisionResult, tenantData) {
   return emailResult;
 }
 
-module.exports = {
+export {
   provisionTenantWithPayment,
   provisionTenantDatabase,
   generateUniqueSlug,

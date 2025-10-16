@@ -1,6 +1,6 @@
 module.exports = {
   root: true,
-  env: { browser: true, es2022: true, node: true },
+  env: { browser: true, es2022: true, node: true, jest: true },
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaVersion: 'latest',
@@ -34,7 +34,26 @@ module.exports = {
   overrides: [
     { files: ['**/*.{js,cjs}'], parser: 'espree' },
     {
-      files: ['**/*.test.*','**/*.spec.*'],
+      files: ['**/*.test.*','**/*.spec.*','**/__tests__/**/*.js'],
+      env: {
+        jest: true,
+        node: true
+      },
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'script'
+      },
+      globals: {
+        jest: 'readonly',
+        describe: 'readonly',
+        it: 'readonly',
+        test: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly'
+      },
       rules: {
         '@typescript-eslint/no-unsafe-assignment': 'off',
         '@typescript-eslint/no-unsafe-member-access': 'off',

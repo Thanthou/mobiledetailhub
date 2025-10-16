@@ -1,6 +1,6 @@
-const { Pool } = require('pg');
-const logger = require('../utils/logger');
-const { env } = require('../config/env');
+import { Pool } from 'pg';
+import logger from '../utils/logger.js';
+import { env } from '../config/env.js';
 
 // Create a single global pool instance with improved configuration
 const pool = new Pool({
@@ -70,4 +70,4 @@ if (!global.__POOL_HEALTH_INTERVAL__) {
 // The server will call pool.end() during its shutdown sequence
 
 // Export the pool and health check function
-module.exports = { pool, checkPoolHealth };
+export { pool, checkPoolHealth };

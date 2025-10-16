@@ -40,7 +40,7 @@ const BusinessInfoDisplay: React.FC = () => {
     <div className="text-white">
       <h1 className="text-xl font-bold">{business.business_name}</h1>
       <div className="text-sm text-gray-300">
-        <div>Phone: {business.phone}</div>
+        <div>Phone: {business.business_phone}</div>
         <div>Owner: {business.owner}</div>
         {business.service_areas.length > 0 && (
           <div>

@@ -3,9 +3,9 @@
  * Provides centralized error handling for the application
  */
 
-const logger = require('../utils/logger');
-const { ValidationError } = require('../utils/validators');
-const { errorMonitor } = require('../utils/errorMonitor');
+import logger from '../utils/logger.js';
+import { ValidationError } from '../utils/validators.js';
+import { errorMonitor } from '../utils/errorMonitor.js';
 
 /**
  * Error handler middleware
@@ -212,7 +212,7 @@ const asyncHandler = (fn) => {
   };
 };
 
-module.exports = {
+export {
   errorHandler,
   notFoundHandler,
   asyncHandler
