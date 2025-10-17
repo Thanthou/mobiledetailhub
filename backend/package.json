@@ -18,7 +18,7 @@
     "migrate:status": "node scripts/migrate-commonjs.js list",
     "rollback": "node scripts/rollback.js",
     "rollback:list": "node scripts/rollback.js list",
-    "db:setup": "node scripts/init-database.js && node scripts/migrate-commonjs.js",
+    "db:setup": "node scripts/migrate-commonjs.js",
     "db:snapshot": "node scripts/db-inspect.js 3 > ../docs/DATABASE.md",
     "db:overview": "node scripts/db-overview.js"
   },
