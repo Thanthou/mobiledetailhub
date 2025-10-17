@@ -25,6 +25,7 @@ router.get('/:tenantSlug', asyncHandler(async (req, res) => {
       return res.status(500).json({ error: 'Database connection not available' });
     }
 
+
     // Get latest health status for all check types
     const result = await pool.query(`
       SELECT 
@@ -147,10 +148,10 @@ router.post('/:tenantSlug/scan', asyncHandler(async (req, res) => {
       return res.status(500).json({ error: 'Database connection not available' });
     }
 
-    // Get tenant's website URL
+    // Get tenant's website URL from database
     logger.info(`Querying database for tenant: ${tenantSlug}`);
     const tenantResult = await pool.query(`
-      SELECT website, google_maps_url, gbp_url
+      SELECT website, gbp_url
       FROM tenants.business
       WHERE slug = $1 AND application_status = 'approved'
     `, [tenantSlug]);
@@ -160,10 +161,10 @@ router.post('/:tenantSlug/scan', asyncHandler(async (req, res) => {
       return res.status(404).json({ error: 'Tenant not found' });
     }
 
-    // TODO: Use tenant data once ready
-    // const tenant = tenantResult.rows[0];
-    const websiteUrl = 'https://google.com'; // Use Google for testing to isolate the issue
-    logger.info(`Using test URL: ${websiteUrl}`);
+    // Use actual tenant website URL
+    const tenant = tenantResult.rows[0];
+    const websiteUrl = tenant.website || 'https://google.com';
+    logger.info(`Using tenant URL: ${websiteUrl}`);
 
     if (!websiteUrl) {
       return res.status(400).json({ error: 'No website URL found for this tenant' });
@@ -175,7 +176,7 @@ router.post('/:tenantSlug/scan', asyncHandler(async (req, res) => {
     logger.info(`Starting health analysis...`);
     const healthAnalysisPromise = healthMonitor.getWebsiteHealth(websiteUrl);
     const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Health analysis timeout')), 45000)
+      setTimeout(() => reject(new Error('Health analysis timeout after 5 minutes')), 300000) // 5 minutes
     );
     
     const healthAnalysis = await Promise.race([healthAnalysisPromise, timeoutPromise]);
@@ -196,14 +197,19 @@ router.post('/:tenantSlug/scan', asyncHandler(async (req, res) => {
     
     try {
       // First, delete existing records for this tenant to avoid duplicates
-      await pool.query(
-        'DELETE FROM system.health_monitoring WHERE tenant_slug = $1 AND check_type = $2',
-        [tenantSlug, 'performance']
-      );
-      logger.info(`Cleared existing health data for tenant: ${tenantSlug}`);
+      // Use transaction to ensure atomic database operations
+      await pool.query('BEGIN');
+      logger.info(`Starting database transaction for tenant: ${tenantSlug}`);
 
-      // Save mobile performance data
-      if (healthData.mobile) {
+      try {
+        await pool.query(
+          'DELETE FROM system.health_monitoring WHERE tenant_slug = $1 AND check_type = $2',
+          [tenantSlug, 'performance']
+        );
+        logger.info(`Cleared existing health data for tenant: ${tenantSlug}`);
+
+        // Save mobile performance data
+        if (healthData.mobile) {
         await pool.query(`
           INSERT INTO system.health_monitoring (
             tenant_slug, check_type, url, strategy,
@@ -266,6 +272,17 @@ router.post('/:tenantSlug/scan', asyncHandler(async (req, res) => {
           new Date()
         ]);
         logger.info(`Desktop performance data saved for tenant: ${tenantSlug}`);
+        }
+
+        // Commit the transaction
+        await pool.query('COMMIT');
+        logger.info(`Database transaction committed successfully for tenant: ${tenantSlug}`);
+
+      } catch (dbError) {
+        // Rollback the transaction on error
+        await pool.query('ROLLBACK');
+        logger.error(`Database transaction rolled back for tenant: ${tenantSlug}`, dbError);
+        throw dbError;
       }
 
       logger.info(`Health data saved successfully to database`);
@@ -431,5 +448,65 @@ function determineStatus(score) {
   if (score >= 50) {return 'critical';}
   return 'error';
 }
+
+/**
+ * GET /api/health-monitoring/test-api
+ * Test PageSpeed API connectivity
+ */
+router.get('/test-api', asyncHandler(async (req, res) => {
+  try {
+    logger.info('Testing PageSpeed API connectivity...');
+    
+    if (!healthMonitor.pageSpeedApiKey) {
+      return res.json({
+        success: false,
+        error: 'PageSpeed API key not configured'
+      });
+    }
+
+    // Test with a simple URL
+    const testUrl = 'https://google.com';
+    const result = await healthMonitor.fetchPageSpeedInsights(testUrl, 'mobile');
+    
+    res.json({
+      success: true,
+      apiKeyConfigured: true,
+      testResult: result,
+      message: result.success ? 'PageSpeed API is working correctly' : 'PageSpeed API call failed'
+    });
+
+  } catch (error) {
+    logger.error('PageSpeed API test error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+}));
+
+/**
+ * GET /api/health-monitoring/test-lighthouse
+ * Test Lighthouse CLI connectivity
+ */
+router.get('/test-lighthouse', asyncHandler(async (req, res) => {
+  try {
+    logger.info('Testing Lighthouse CLI...');
+    const testUrl = 'http://localhost:5175';
+    const result = await healthMonitor.runLighthouseLocal(testUrl, 'mobile');
+    
+    res.json({
+      success: true,
+      testResult: result,
+      message: result.success ? 'Lighthouse CLI is working correctly' : 'Lighthouse CLI call failed'
+    });
+
+  } catch (error) {
+    logger.error('Lighthouse test error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+}));
 
 export default router;

@@ -4,6 +4,8 @@
  */
 
 import axios from 'axios';
+import lighthouse from 'lighthouse';
+import * as chromeLauncher from 'chrome-launcher';
 import logger from '../utils/logger.js';
 
 class HealthMonitor {
@@ -86,6 +88,13 @@ class HealthMonitor {
 
     } catch (error) {
       logger.error('PageSpeed Insights API error:', error.message);
+      logger.error('Error details:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        url: error.config?.url,
+        params: error.config?.params
+      });
       return {
         success: false,
         error: error.message,
@@ -332,17 +341,65 @@ class HealthMonitor {
       let desktopPSI = { success: false, error: 'PageSpeed API key not configured' };
       let cruxData = { success: false, error: 'CrUX API key not configured' };
 
-      // Only fetch PageSpeed data if API key is configured
-      if (this.pageSpeedApiKey) {
-        logger.info(`Fetching mobile PageSpeed data...`);
-        mobilePSI = await this.fetchPageSpeedInsights(tenantUrl, 'mobile');
-        logger.info(`Mobile PageSpeed data fetched`);
+      // Check if this is a development/staging URL that might not be accessible to Google
+      const isDevelopmentUrl = this.isDevelopmentUrl(tenantUrl);
+      let testUrl = tenantUrl;
+
+      // For development URLs, use Lighthouse CLI instead of Google PageSpeed API
+      if (isDevelopmentUrl) {
+        logger.info('Development URL detected, using Lighthouse CLI for local analysis...');
         
-        logger.info(`Fetching desktop PageSpeed data...`);
-        desktopPSI = await this.fetchPageSpeedInsights(tenantUrl, 'desktop');
-        logger.info(`Desktop PageSpeed data fetched`);
+        // Convert development domain to localhost for analysis
+        const analysisUrl = this.convertToLocalhost(tenantUrl);
+        logger.info(`Converting ${tenantUrl} to ${analysisUrl} for Lighthouse analysis`);
+        
+        try {
+          // Run mobile analysis first
+          logger.info('Running Lighthouse for mobile...');
+          mobilePSI = await this.runLighthouseLocal(analysisUrl, 'mobile');
+          logger.info(`Mobile Lighthouse analysis completed - success: ${mobilePSI.success}`);
+          
+          // Wait a moment between analyses to ensure clean resource usage
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          
+          // Run desktop analysis second
+          logger.info('Running Lighthouse for desktop...');
+          desktopPSI = await this.runLighthouseLocal(analysisUrl, 'desktop');
+          logger.info(`Desktop Lighthouse analysis completed - success: ${desktopPSI.success}`);
+          
+          // If both analyses fail, return failure
+          if (!mobilePSI.success && !desktopPSI.success) {
+            logger.error('Lighthouse analysis failed for both mobile and desktop');
+          }
+        } catch (lighthouseError) {
+          logger.error(`Lighthouse CLI not available or failed: ${lighthouseError.message || lighthouseError.toString()}`);
+          logger.error('Lighthouse error details:', {
+            error: lighthouseError.message || lighthouseError.toString(),
+            stack: lighthouseError.stack,
+            cause: lighthouseError.cause
+          });
+        }
       } else {
-        logger.warn('PageSpeed API key not configured - skipping PageSpeed analysis');
+        // For production URLs, use Google PageSpeed API
+        if (this.pageSpeedApiKey) {
+          logger.info(`Production URL detected, using Google PageSpeed API for ${testUrl}...`);
+          logger.info(`Fetching mobile PageSpeed data for ${testUrl}...`);
+          mobilePSI = await this.fetchPageSpeedInsights(testUrl, 'mobile');
+          logger.info(`Mobile PageSpeed data fetched - success: ${mobilePSI.success}`);
+          
+          logger.info(`Fetching desktop PageSpeed data for ${testUrl}...`);
+          desktopPSI = await this.fetchPageSpeedInsights(testUrl, 'desktop');
+          logger.info(`Desktop PageSpeed data fetched - success: ${desktopPSI.success}`);
+        } else {
+          logger.warn('PageSpeed API key not configured - skipping PageSpeed analysis');
+        }
+
+        // For production URLs with failed API calls, log the errors
+        if (this.pageSpeedApiKey && !mobilePSI.success && !desktopPSI.success) {
+          logger.warn('PageSpeed API calls failed for production URL');
+          logger.warn('Mobile PSI error:', mobilePSI.error);
+          logger.warn('Desktop PSI error:', desktopPSI.error);
+        }
       }
 
       // Only fetch CrUX data if API key is configured
@@ -354,6 +411,13 @@ class HealthMonitor {
 
       // Calculate overall health score
       logger.info(`Calculating health score...`);
+      logger.info(`Mobile PSI success: ${mobilePSI.success}, Desktop PSI success: ${desktopPSI.success}`);
+      if (mobilePSI.success && mobilePSI.data) {
+        logger.info(`Mobile performance score: ${mobilePSI.data.performance}`);
+      }
+      if (desktopPSI.success && desktopPSI.data) {
+        logger.info(`Desktop performance score: ${desktopPSI.data.performance}`);
+      }
       const healthScore = this.calculateHealthScore(mobilePSI, desktopPSI, cruxData);
       logger.info(`Health score calculated: ${healthScore}`);
 
@@ -379,7 +443,12 @@ class HealthMonitor {
       };
 
     } catch (error) {
-      logger.error('Website health analysis error:', error.message);
+      logger.error('Website health analysis error:', {
+        message: error.message,
+        stack: error.stack,
+        cause: error.cause,
+        tenantUrl: tenantUrl
+      });
       return {
         success: false,
         error: error.message
@@ -413,6 +482,173 @@ class HealthMonitor {
   }
 
   /**
+   * Check if a URL is a development/staging URL that might not be accessible to Google
+   * @param {string} url - The URL to check
+   * @returns {boolean} True if this appears to be a development URL
+   */
+  isDevelopmentUrl(url) {
+    const developmentPatterns = [
+      /localhost/i,
+      /127\.0\.0\.1/i,
+      /\.local/i,
+      /\.dev/i,
+      /\.test/i,
+      /\.staging/i,
+      /thatsmartsite\.com/i, // Your development domain
+      /^http:\/\//i, // HTTP (not HTTPS) URLs
+      /192\.168\./i, // Local network IPs
+      /10\./i, // Local network IPs
+      /172\.(1[6-9]|2[0-9]|3[0-1])\./i // Local network IPs
+    ];
+    
+    return developmentPatterns.some(pattern => pattern.test(url));
+  }
+
+  /**
+   * Convert development domain to localhost for Lighthouse analysis
+   * @param {string} url - The original URL
+   * @returns {string} The localhost equivalent
+   */
+  convertToLocalhost(url) {
+    if (url.includes('thatsmartsite.com')) {
+      return 'http://localhost:5175';
+    }
+    return url;
+  }
+
+  /**
+   * Run Lighthouse locally for development URLs
+   * @param {string} url - The URL to analyze
+   * @param {string} strategy - 'mobile' or 'desktop'
+   * @returns {Promise<Object>} Lighthouse results
+   */
+  async runLighthouseLocal(url, strategy = 'mobile') {
+    let chrome = null;
+    try {
+      logger.info(`Running Lighthouse locally for ${url} (${strategy})`);
+      
+      // Launch Chrome
+      logger.info('Launching Chrome for Lighthouse analysis...');
+      chrome = await chromeLauncher.launch({
+        chromeFlags: [
+          '--headless',
+          '--disable-gpu',
+          '--no-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-extensions',
+          '--disable-software-rasterizer',
+          '--enable-logging',
+          '--v=1'
+        ]
+      });
+      logger.info(`Chrome launched successfully on port ${chrome.port}`);
+      
+      const config = {
+        extends: 'lighthouse:default',
+        settings: {
+          formFactor: strategy === 'mobile' ? 'mobile' : 'desktop',
+          throttling: {
+            rttMs: 40,
+            throughputKbps: 10240,
+            cpuSlowdownMultiplier: 1,
+            requestLatencyMs: 0,
+            downloadThroughputKbps: 0,
+            uploadThroughputKbps: 0
+          },
+          screenEmulation: {
+            mobile: strategy === 'mobile',
+            width: strategy === 'mobile' ? 375 : 1350,
+            height: strategy === 'mobile' ? 667 : 940,
+            deviceScaleFactor: 1,
+            disabled: false
+          }
+        }
+      };
+
+      // Run Lighthouse with timeout and detailed error handling
+      const lighthousePromise = lighthouse(url, {
+        port: chrome.port,
+        output: 'json',
+        logLevel: 'error'
+      }, config);
+      
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Lighthouse analysis timeout after 120 seconds')), 120000); // 120 second timeout
+      });
+      
+      let runnerResult;
+      try {
+        runnerResult = await Promise.race([lighthousePromise, timeoutPromise]);
+      } catch (err) {
+        logger.error('Lighthouse analysis failed:', {
+          error: err.message,
+          stack: err.stack,
+          cause: err.cause,
+          url: url,
+          strategy: strategy
+        });
+        throw new Error(`Lighthouse analysis failed: ${err.message}`);
+      }
+
+      if (runnerResult && runnerResult.lhr) {
+        const lhr = runnerResult.lhr;
+        
+        // Debug logging
+        logger.info(`Lighthouse analysis completed for ${url}`);
+        logger.info(`Lighthouse finalUrl: ${lhr.finalUrl}`);
+        
+        const performanceScore = Math.round((lhr.categories.performance?.score || 0) * 100);
+        const accessibilityScore = Math.round((lhr.categories.accessibility?.score || 0) * 100);
+        const bestPracticesScore = Math.round((lhr.categories['best-practices']?.score || 0) * 100);
+        const seoScore = Math.round((lhr.categories.seo?.score || 0) * 100);
+        
+        logger.info(`Calculated scores - Performance: ${performanceScore}, Accessibility: ${accessibilityScore}, Best Practices: ${bestPracticesScore}, SEO: ${seoScore}`);
+        
+        return {
+          success: true,
+          data: {
+            performance: performanceScore,
+            accessibility: accessibilityScore,
+            bestPractices: bestPracticesScore,
+            seo: seoScore,
+            coreWebVitals: this.extractCoreWebVitals(lhr),
+            metrics: this.extractMetrics(lhr),
+            opportunities: this.extractOpportunities(lhr.audits),
+            diagnostics: this.extractDiagnostics(lhr.audits),
+            strategy: strategy,
+            timestamp: new Date().toISOString(),
+            source: 'lighthouse-local'
+          }
+        };
+      }
+
+      return {
+        success: false,
+        error: 'Lighthouse returned empty results'
+      };
+
+    } catch (error) {
+      logger.error('Lighthouse local analysis error:', error.message);
+      return {
+        success: false,
+        error: error.message
+      };
+    } finally {
+      // Clean up Chrome instance
+      if (chrome) {
+        try {
+          await chrome.kill();
+          logger.info('Chrome instance cleaned up successfully');
+        } catch (killError) {
+          // Don't throw the error, just log it - Chrome cleanup failures are common on Windows
+          logger.warn(`Chrome cleanup failed (this is usually harmless): ${killError.message || killError.toString()}`);
+        }
+      }
+    }
+  }
+
+
+  /**
    * Generate health summary with recommendations
    * @param {Object} mobilePSI - Mobile PageSpeed Insights data
    * @param {Object} desktopPSI - Desktop PageSpeed Insights data
@@ -436,6 +672,11 @@ class HealthMonitor {
         savings: 0
       });
       return summary;
+    }
+
+    // Check if we're using Lighthouse local analysis
+    if (mobilePSI.success && mobilePSI.data && mobilePSI.data.source === 'lighthouse-local') {
+      summary.priority.push('Local Lighthouse analysis - Real metrics from your development site');
     }
 
     // Determine overall status

@@ -697,6 +697,11 @@ const EnvSchema = z.object({
   // Frontend URL for redirects
   FRONTEND_URL: z.string().url().optional().default('https://thatsmartsite.com'),
   
+  // Google OAuth (shared across all Google services)
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
+  GOOGLE_REDIRECT_URI: z.string().url().optional(),
+  
   // Logging
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'debug']).optional().default('info'),
   LOG_FILE: z.string().optional(),
@@ -709,6 +714,22 @@ const EnvSchema = z.object({
 let env;
 try {
   env = EnvSchema.parse(process.env);
+  
+  // Additional validation for Google OAuth (only warn, don't fail)
+  const missingGoogle = [];
+  if (!env.GOOGLE_CLIENT_ID) missingGoogle.push('GOOGLE_CLIENT_ID');
+  if (!env.GOOGLE_CLIENT_SECRET) missingGoogle.push('GOOGLE_CLIENT_SECRET');
+  if (!env.GOOGLE_REDIRECT_URI) missingGoogle.push('GOOGLE_REDIRECT_URI');
+  
+  if (missingGoogle.length > 0) {
+    console.warn('⚠️  Google OAuth environment variables missing:');
+    missingGoogle.forEach((varName) => {
+      console.warn(`  - ${varName}`);
+    });
+    console.warn('  Google services (Analytics, Reviews, etc.) will not be available until these are set.');
+    console.warn('  Add them to your .env file when ready to enable Google integrations.\n');
+  }
+  
 } catch (error) {
   console.error('❌ Environment variable validation failed:');
   if (error instanceof z.ZodError) {
@@ -5523,6 +5544,106 @@ COMMENT ON COLUMN auth.password_setup_tokens.user_agent IS 'User agent of the re
 
 *** END FILE ***
 
+*** FILE: backend\database\migrations\013_create_analytics_schema.sql ***
+-- Create analytics schema for Google Analytics and other analytics integrations
+-- Migration: 013_create_analytics_schema.sql
+
+-- Create the analytics schema
+CREATE SCHEMA IF NOT EXISTS analytics;
+
+-- Create Google Analytics tokens table
+CREATE TABLE IF NOT EXISTS analytics.google_analytics_tokens (
+    id SERIAL PRIMARY KEY,
+    tenant_id INTEGER NOT NULL,
+    access_token TEXT NOT NULL,
+    refresh_token TEXT,
+    property_id VARCHAR(255) NOT NULL,
+    expires_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    
+    -- Foreign key constraint
+    CONSTRAINT fk_ga_tokens_tenant_id 
+        FOREIGN KEY (tenant_id) 
+        REFERENCES tenants.business(id) 
+        ON DELETE CASCADE
+);
+
+-- Create unique constraint to ensure one token set per tenant
+CREATE UNIQUE INDEX IF NOT EXISTS idx_ga_tokens_tenant_unique 
+    ON analytics.google_analytics_tokens(tenant_id);
+
+-- Create index for performance on tenant_id lookups
+CREATE INDEX IF NOT EXISTS idx_ga_tokens_tenant_id 
+    ON analytics.google_analytics_tokens(tenant_id);
+
+-- Create index for expired token cleanup
+CREATE INDEX IF NOT EXISTS idx_ga_tokens_expires_at 
+    ON analytics.google_analytics_tokens(expires_at);
+
+-- Create trigger to automatically update updated_at timestamp
+CREATE OR REPLACE FUNCTION analytics.update_ga_tokens_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_ga_tokens_updated_at
+    BEFORE UPDATE ON analytics.google_analytics_tokens
+    FOR EACH ROW
+    EXECUTE FUNCTION analytics.update_ga_tokens_updated_at();
+
+-- Add comments for documentation
+COMMENT ON SCHEMA analytics IS 'Analytics integrations including Google Analytics, Facebook Analytics, etc.';
+COMMENT ON TABLE analytics.google_analytics_tokens IS 'OAuth tokens for Google Analytics integration per tenant';
+COMMENT ON COLUMN analytics.google_analytics_tokens.tenant_id IS 'Reference to the tenant business record';
+COMMENT ON COLUMN analytics.google_analytics_tokens.access_token IS 'Google Analytics API access token';
+COMMENT ON COLUMN analytics.google_analytics_tokens.refresh_token IS 'Google Analytics API refresh token for token renewal';
+COMMENT ON COLUMN analytics.google_analytics_tokens.property_id IS 'Google Analytics property ID (e.g., accounts/123456789)';
+COMMENT ON COLUMN analytics.google_analytics_tokens.expires_at IS 'When the access token expires';
+
+
+*** END FILE ***
+
+*** FILE: backend\database\migrations\014_make_property_id_nullable.sql ***
+-- Make property_id nullable in google_analytics_tokens table
+-- Migration: 014_make_property_id_nullable.sql
+
+-- Alter the column to allow NULL values
+ALTER TABLE analytics.google_analytics_tokens 
+ALTER COLUMN property_id DROP NOT NULL;
+
+-- Add comment explaining the change
+COMMENT ON COLUMN analytics.google_analytics_tokens.property_id IS 'Google Analytics property ID (e.g., accounts/123456789). Can be NULL if properties cannot be fetched during OAuth.';
+
+
+*** END FILE ***
+
+*** FILE: backend\database\migrations\015_enhance_analytics_tokens.sql ***
+-- Enhance analytics tokens table to support multiple Google services
+-- Migration: 015_enhance_analytics_tokens.sql
+
+-- Add columns for different service types
+ALTER TABLE analytics.google_analytics_tokens 
+ADD COLUMN IF NOT EXISTS service_type VARCHAR(50) DEFAULT 'analytics',
+ADD COLUMN IF NOT EXISTS scopes TEXT[],
+ADD COLUMN IF NOT EXISTS business_profile_id VARCHAR(255);
+
+-- Add index for service type lookups
+CREATE INDEX IF NOT EXISTS idx_ga_tokens_service_type 
+ON analytics.google_analytics_tokens(tenant_id, service_type);
+
+-- Update the table comment
+COMMENT ON TABLE analytics.google_analytics_tokens IS 'OAuth tokens for Google services integration per tenant (Analytics, Business Profile, etc.)';
+COMMENT ON COLUMN analytics.google_analytics_tokens.service_type IS 'Type of Google service (analytics, business_profile, etc.)';
+COMMENT ON COLUMN analytics.google_analytics_tokens.scopes IS 'Array of OAuth scopes granted';
+COMMENT ON COLUMN analytics.google_analytics_tokens.business_profile_id IS 'Google Business Profile ID if applicable';
+
+
+*** END FILE ***
+
 *** FILE: backend\database\migrations\20241201100000_100000_add_tenant_applications.sql ***
 -- Migration: Add tenant_applications table
 -- Version: 001
@@ -7225,6 +7346,52 @@ COMMENT ON TABLE analytics.sessions IS 'User sessions for tracking engagement an
 COMMENT ON TABLE analytics.page_views IS 'Individual page view tracking with engagement metrics';
 COMMENT ON TABLE analytics.conversions IS 'Business goal conversions (quotes, bookings, contacts)';
 COMMENT ON TABLE analytics.performance_metrics IS 'Core Web Vitals and performance metrics';
+
+
+*** END FILE ***
+
+*** FILE: backend\database\schemas\analytics\google_analytics_tokens.sql ***
+-- analytics.google_analytics_tokens table definition
+
+CREATE TABLE IF NOT EXISTS analytics.google_analytics_tokens (
+  id SERIAL PRIMARY KEY,
+  tenant_id INTEGER NOT NULL,
+  access_token TEXT NOT NULL,
+  refresh_token TEXT,
+  property_id VARCHAR(255) NOT NULL,
+  expires_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Foreign key constraint
+ALTER TABLE analytics.google_analytics_tokens 
+ADD CONSTRAINT fk_ga_tokens_tenant_id 
+FOREIGN KEY (tenant_id) 
+REFERENCES tenants.business(id) 
+ON DELETE CASCADE;
+
+-- Indexes
+CREATE UNIQUE INDEX IF NOT EXISTS idx_ga_tokens_tenant_unique ON analytics.google_analytics_tokens(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_ga_tokens_tenant_id ON analytics.google_analytics_tokens(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_ga_tokens_expires_at ON analytics.google_analytics_tokens(expires_at);
+
+-- Trigger for updated_at
+CREATE OR REPLACE FUNCTION analytics.update_ga_tokens_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_ga_tokens_updated_at
+    BEFORE UPDATE ON analytics.google_analytics_tokens
+    FOR EACH ROW
+    EXECUTE FUNCTION analytics.update_ga_tokens_updated_at();
+
+-- Table created: 2025-01-XX
+-- Extracted from database
 
 
 *** END FILE ***
@@ -13923,6 +14090,7 @@ export {
   "license": "ISC",
   "dependencies": {
     "@sendgrid/mail": "^8.1.6",
+    "axios": "^1.6.0",
     "bcryptjs": "^2.4.3",
     "compression": "^1.7.4",
     "cors": "^2.8.5",
@@ -13933,6 +14101,7 @@ export {
     "googleapis": "^164.0.0",
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
+    "lighthouse": "^11.0.0",
     "multer": "^1.4.5-lts.1",
     "node-cron": "^3.0.3",
     "pg": "^8.11.3",
@@ -16297,6 +16466,374 @@ export default router;
 
 *** END FILE ***
 
+*** FILE: backend\routes\googleAnalytics.js ***
+import express from 'express';
+import { asyncHandler } from '../middleware/errorHandler.js';
+import { logger } from '../config/logger.js';
+import { pool } from '../database/pool.js';
+import { env } from '../config/env.js';
+import * as analyticsService from '../services/googleAnalytics.js';
+
+const router = express.Router();
+
+/**
+ * Google Analytics OAuth Routes
+ * Handles OAuth flow for GA4 integration
+ */
+
+// Test route to verify the router is working
+router.get('/test', (req, res) => {
+  res.json({ message: 'Google Analytics routes are working!', timestamp: new Date().toISOString() });
+});
+
+/**
+ * GET /api/google/analytics/auth
+ * Initiates OAuth flow by redirecting to Google's consent screen
+ */
+router.get('/auth', asyncHandler(async (req, res) => {
+  console.log('Google Analytics auth route called');
+  try {
+    // Get tenant_id from session or query params
+    const tenantId = req.query.tenant_id || req.user?.tenant_id;
+    console.log('Tenant ID:', tenantId);
+    
+    if (!tenantId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Tenant ID is required',
+        message: 'Please provide a tenant_id parameter'
+      });
+    }
+
+    // Verify tenant exists and is approved
+    const tenantResult = await pool.query(
+      'SELECT id, slug FROM tenants.business WHERE id = $1 AND application_status = $2',
+      [tenantId, 'approved']
+    );
+
+    if (tenantResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Tenant not found',
+        message: 'Tenant not found or not approved'
+      });
+    }
+
+    // Build OAuth URL
+    console.log('Environment variables:', {
+      GOOGLE_CLIENT_ID: env.GOOGLE_CLIENT_ID ? 'SET' : 'MISSING',
+      GOOGLE_REDIRECT_URI: env.GOOGLE_REDIRECT_URI || 'MISSING'
+    });
+    
+    const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
+    authUrl.searchParams.append('client_id', env.GOOGLE_CLIENT_ID);
+    authUrl.searchParams.append('redirect_uri', `${env.GOOGLE_REDIRECT_URI.replace('/oauth/callback', '/analytics/callback')}`);
+    authUrl.searchParams.append('response_type', 'code');
+    authUrl.searchParams.append('scope', [
+      'https://www.googleapis.com/auth/analytics.readonly',
+      'https://www.googleapis.com/auth/business.manage',
+      'https://www.googleapis.com/auth/plus.business.manage'
+    ].join(' '));
+    authUrl.searchParams.append('access_type', 'offline');
+    authUrl.searchParams.append('prompt', 'consent');
+    authUrl.searchParams.append('state', tenantId); // Pass tenant_id in state for callback
+
+    logger.info('Redirecting tenant to Google Analytics OAuth', {
+      tenantId,
+      authUrl: authUrl.toString()
+    });
+
+    res.redirect(authUrl.toString());
+
+  } catch (error) {
+    logger.error('Error initiating Google Analytics OAuth:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to initiate OAuth flow',
+      message: error.message
+    });
+  }
+}));
+
+/**
+ * GET /api/google/analytics/callback
+ * Handles OAuth callback from Google and exchanges code for tokens
+ */
+router.get('/callback', asyncHandler(async (req, res) => {
+  try {
+    const { code, state, error } = req.query;
+
+    // Handle OAuth errors
+    if (error) {
+      logger.error('Google Analytics OAuth error:', { error, state });
+      return res.status(400).json({
+        success: false,
+        error: 'OAuth authorization failed',
+        message: `Google OAuth error: ${error}`
+      });
+    }
+
+    // Validate required parameters
+    if (!code || !state) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required parameters',
+        message: 'Authorization code and state are required'
+      });
+    }
+
+    const tenantId = state;
+
+    // Verify tenant exists
+    const tenantResult = await pool.query(
+      'SELECT id, slug, business_name FROM tenants.business WHERE id = $1 AND application_status = $2',
+      [tenantId, 'approved']
+    );
+
+    if (tenantResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Tenant not found',
+        message: 'Tenant not found or not approved'
+      });
+    }
+
+    const tenant = tenantResult.rows[0];
+
+    // Exchange authorization code for tokens
+    const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        client_id: env.GOOGLE_CLIENT_ID,
+        client_secret: env.GOOGLE_CLIENT_SECRET,
+        code: code,
+        grant_type: 'authorization_code',
+        redirect_uri: `${env.GOOGLE_REDIRECT_URI.replace('/oauth/callback', '/analytics/callback')}`,
+      }),
+    });
+
+    if (!tokenResponse.ok) {
+      const errorData = await tokenResponse.text();
+      logger.error('Failed to exchange code for tokens:', {
+        status: tokenResponse.status,
+        error: errorData
+      });
+      throw new Error(`Token exchange failed: ${tokenResponse.status}`);
+    }
+
+    const tokenData = await tokenResponse.json();
+    
+    // Get user's GA properties to find the default one
+    let propertyId = null; // Will be set to actual property ID if found
+    
+    try {
+      const propertiesResponse = await fetch(
+        'https://analyticsadmin.googleapis.com/v1beta/accounts',
+        {
+          headers: {
+            'Authorization': `Bearer ${tokenData.access_token}`,
+          },
+        }
+      );
+
+      if (propertiesResponse.ok) {
+        const propertiesData = await propertiesResponse.json();
+        
+        // For now, we'll store the first property found
+        // In a real implementation, you might want to let users choose
+        if (propertiesData.accounts && propertiesData.accounts.length > 0) {
+          const account = propertiesData.accounts[0];
+          propertyId = account.name; // This will be in format "accounts/123456789"
+        }
+      } else {
+        logger.warn('Failed to fetch GA properties, using default property ID:', {
+          status: propertiesResponse.status
+        });
+      }
+    } catch (propertyError) {
+      logger.warn('Error fetching GA properties, using default property ID:', propertyError);
+    }
+
+    // Calculate token expiration
+    const expiresAt = new Date();
+    expiresAt.setSeconds(expiresAt.getSeconds() + tokenData.expires_in);
+
+    // Store tokens in database
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      // Delete existing tokens for this tenant
+      await client.query(
+        'DELETE FROM analytics.google_analytics_tokens WHERE tenant_id = $1',
+        [tenantId]
+      );
+
+      // Insert new tokens with service information
+      await client.query(
+        `INSERT INTO analytics.google_analytics_tokens 
+         (tenant_id, access_token, refresh_token, property_id, expires_at, service_type, scopes, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())`,
+        [
+          tenantId,
+          tokenData.access_token,
+          tokenData.refresh_token || null,
+          propertyId,
+          expiresAt,
+          'unified_google_services', // Service type
+          [
+            'https://www.googleapis.com/auth/analytics.readonly',
+            'https://www.googleapis.com/auth/business.manage',
+            'https://www.googleapis.com/auth/plus.business.manage'
+          ] // Granted scopes
+        ]
+      );
+
+      await client.query('COMMIT');
+
+      logger.info('Google Analytics tokens stored successfully', {
+        tenantId: tenant.id,
+        tenantSlug: tenant.slug,
+        businessName: tenant.business_name,
+        propertyId
+      });
+
+      // Redirect back to tenant dashboard with success message
+      res.redirect(`${env.FRONTEND_URL}/${tenant.slug}/dashboard?ga_connected=true`);
+
+    } catch (dbError) {
+      await client.query('ROLLBACK');
+      throw dbError;
+    } finally {
+      client.release();
+    }
+
+  } catch (error) {
+    logger.error('Error in Google Analytics OAuth callback:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to complete OAuth flow',
+      message: error.message
+    });
+  }
+}));
+
+/**
+ * GET /api/google/analytics/status
+ * Check if tenant has connected Google Analytics
+ */
+router.get('/status', asyncHandler(async (req, res) => {
+  try {
+    const tenantId = req.query.tenant_id || req.user?.tenant_id;
+    
+    if (!tenantId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Tenant ID is required'
+      });
+    }
+
+    const result = await pool.query(
+      'SELECT id, property_id, expires_at, created_at FROM analytics.google_analytics_tokens WHERE tenant_id = $1',
+      [tenantId]
+    );
+
+    const isConnected = result.rows.length > 0;
+    const tokenData = result.rows[0] || null;
+
+    res.json({
+      success: true,
+      connected: isConnected,
+      data: tokenData ? {
+        propertyId: tokenData.property_id,
+        expiresAt: tokenData.expires_at,
+        connectedAt: tokenData.created_at
+      } : null
+    });
+
+  } catch (error) {
+    logger.error('Error checking Google Analytics status:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to check connection status',
+      message: error.message
+    });
+  }
+}));
+
+/**
+ * GET /api/google/analytics/summary
+ * Get analytics summary data for a tenant
+ */
+router.get('/summary', asyncHandler(async (req, res) => {
+  try {
+    const tenantId = req.query.tenant_id || req.user?.tenant_id;
+    const days = parseInt(req.query.days) || 7;
+    
+    if (!tenantId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Tenant ID is required'
+      });
+    }
+
+    const summary = await analyticsService.getAnalyticsSummary(tenantId, days);
+
+    res.json({
+      success: true,
+      data: summary
+    });
+
+  } catch (error) {
+    logger.error('Error fetching analytics summary:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch analytics data',
+      message: error.message
+    });
+  }
+}));
+
+/**
+ * GET /api/google/analytics/realtime
+ * Get real-time analytics data for a tenant
+ */
+router.get('/realtime', asyncHandler(async (req, res) => {
+  try {
+    const tenantId = req.query.tenant_id || req.user?.tenant_id;
+    
+    if (!tenantId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Tenant ID is required'
+      });
+    }
+
+    const realtimeData = await analyticsService.getRealtimeData(tenantId);
+
+    res.json({
+      success: true,
+      data: realtimeData
+    });
+
+  } catch (error) {
+    logger.error('Error fetching realtime data:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch realtime data',
+      message: error.message
+    });
+  }
+}));
+
+export default router;
+
+
+*** END FILE ***
+
 *** FILE: backend\routes\googleAuth.js ***
 /**
  * Google OAuth Routes
@@ -16972,6 +17509,7 @@ router.get('/:tenantSlug', asyncHandler(async (req, res) => {
       return res.status(500).json({ error: 'Database connection not available' });
     }
 
+
     // Get latest health status for all check types
     const result = await pool.query(`
       SELECT 
@@ -17094,10 +17632,10 @@ router.post('/:tenantSlug/scan', asyncHandler(async (req, res) => {
       return res.status(500).json({ error: 'Database connection not available' });
     }
 
-    // Get tenant's website URL
+    // Get tenant's website URL from database
     logger.info(`Querying database for tenant: ${tenantSlug}`);
     const tenantResult = await pool.query(`
-      SELECT website, google_maps_url, gbp_url
+      SELECT website, gbp_url
       FROM tenants.business
       WHERE slug = $1 AND application_status = 'approved'
     `, [tenantSlug]);
@@ -17107,10 +17645,10 @@ router.post('/:tenantSlug/scan', asyncHandler(async (req, res) => {
       return res.status(404).json({ error: 'Tenant not found' });
     }
 
-    // TODO: Use tenant data once ready
-    // const tenant = tenantResult.rows[0];
-    const websiteUrl = 'https://google.com'; // Use Google for testing to isolate the issue
-    logger.info(`Using test URL: ${websiteUrl}`);
+    // Use actual tenant website URL
+    const tenant = tenantResult.rows[0];
+    const websiteUrl = tenant.website || 'https://google.com';
+    logger.info(`Using tenant URL: ${websiteUrl}`);
 
     if (!websiteUrl) {
       return res.status(400).json({ error: 'No website URL found for this tenant' });
@@ -17378,6 +17916,66 @@ function determineStatus(score) {
   if (score >= 50) {return 'critical';}
   return 'error';
 }
+
+/**
+ * GET /api/health-monitoring/test-api
+ * Test PageSpeed API connectivity
+ */
+router.get('/test-api', asyncHandler(async (req, res) => {
+  try {
+    logger.info('Testing PageSpeed API connectivity...');
+    
+    if (!healthMonitor.pageSpeedApiKey) {
+      return res.json({
+        success: false,
+        error: 'PageSpeed API key not configured'
+      });
+    }
+
+    // Test with a simple URL
+    const testUrl = 'https://google.com';
+    const result = await healthMonitor.fetchPageSpeedInsights(testUrl, 'mobile');
+    
+    res.json({
+      success: true,
+      apiKeyConfigured: true,
+      testResult: result,
+      message: result.success ? 'PageSpeed API is working correctly' : 'PageSpeed API call failed'
+    });
+
+  } catch (error) {
+    logger.error('PageSpeed API test error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+}));
+
+/**
+ * GET /api/health-monitoring/test-lighthouse
+ * Test Lighthouse CLI connectivity
+ */
+router.get('/test-lighthouse', asyncHandler(async (req, res) => {
+  try {
+    logger.info('Testing Lighthouse CLI...');
+    const testUrl = 'http://localhost:5175';
+    const result = await healthMonitor.runLighthouseLocal(testUrl, 'mobile');
+    
+    res.json({
+      success: true,
+      testResult: result,
+      message: result.success ? 'Lighthouse CLI is working correctly' : 'Lighthouse CLI call failed'
+    });
+
+  } catch (error) {
+    logger.error('Lighthouse test error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+}));
 
 export default router;
 
@@ -22420,6 +23018,192 @@ testEmailService().catch(console.error);
 
 *** END FILE ***
 
+*** FILE: backend\scripts\test-lighthouse.js ***
+#!/usr/bin/env node
+
+/**
+ * Test script for Lighthouse CLI integration
+ * Run this to verify Lighthouse is working correctly
+ */
+
+import lighthouse from 'lighthouse';
+import * as chromeLauncher from 'chrome-launcher';
+import logger from '../utils/logger.js';
+
+async function testLighthouse() {
+  console.log('🧪 Testing Lighthouse CLI integration...\n');
+  let chrome = null;
+
+  try {
+    // Test with localhost (the actual running development server)
+    const testUrl = 'http://localhost:5175';
+    console.log(`Testing Lighthouse with: ${testUrl}`);
+
+    // Launch Chrome
+    console.log('Launching Chrome...');
+    chrome = await chromeLauncher.launch({
+      chromeFlags: ['--headless', '--disable-gpu', '--no-sandbox']
+    });
+    console.log(`Chrome launched on port ${chrome.port}`);
+
+    const config = {
+      extends: 'lighthouse:default',
+      settings: {
+        formFactor: 'mobile',
+        throttling: {
+          rttMs: 40,
+          throughputKbps: 10240,
+          cpuSlowdownMultiplier: 1
+        }
+      }
+    };
+
+    console.log('Running Lighthouse analysis...');
+    const runnerResult = await lighthouse(testUrl, {
+      port: chrome.port,
+      output: 'json'
+    }, config);
+
+    if (runnerResult && runnerResult.lhr) {
+      const lhr = runnerResult.lhr;
+      console.log('✅ Lighthouse analysis successful!');
+      console.log('\n📊 Results:');
+      console.log(`Performance: ${Math.round((lhr.categories.performance?.score || 0) * 100)}`);
+      console.log(`Accessibility: ${Math.round((lhr.categories.accessibility?.score || 0) * 100)}`);
+      console.log(`Best Practices: ${Math.round((lhr.categories['best-practices']?.score || 0) * 100)}`);
+      console.log(`SEO: ${Math.round((lhr.categories.seo?.score || 0) * 100)}`);
+      
+      console.log('\n🎯 Core Web Vitals:');
+      console.log(`LCP: ${lhr.audits['largest-contentful-paint']?.displayValue || 'N/A'}`);
+      console.log(`FID: ${lhr.audits['max-potential-fid']?.displayValue || 'N/A'}`);
+      console.log(`CLS: ${lhr.audits['cumulative-layout-shift']?.displayValue || 'N/A'}`);
+      
+      console.log('\n✅ Lighthouse CLI is working correctly!');
+      console.log('You can now run health scans on development URLs.');
+      
+    } else {
+      console.log('❌ Lighthouse returned empty results');
+      process.exit(1);
+    }
+
+  } catch (error) {
+    console.log('❌ Lighthouse test failed:');
+    console.log(error.message);
+    
+    if (error.message.includes('ECONNREFUSED')) {
+      console.log('\n💡 Chrome connection failed. This might be due to:');
+      console.log('   - Chrome not being installed');
+      console.log('   - Antivirus blocking Chrome');
+      console.log('   - System permissions issues');
+    }
+    
+    process.exit(1);
+  } finally {
+    // Clean up Chrome instance
+    if (chrome) {
+      try {
+        await chrome.kill();
+        console.log('Chrome instance cleaned up');
+      } catch (killError) {
+        console.log('Error killing Chrome:', killError.message);
+      }
+    }
+  }
+}
+
+// Run the test
+testLighthouse().catch(console.error);
+
+
+*** END FILE ***
+
+*** FILE: backend\scripts\test-site-access.js ***
+#!/usr/bin/env node
+
+/**
+ * Test script to check if the development site is accessible
+ */
+
+import axios from 'axios';
+
+async function testSiteAccess() {
+  const testUrl = 'http://testing-mobile-detail.thatsmartsite.com';
+  console.log(`🧪 Testing site accessibility: ${testUrl}\n`);
+
+  try {
+    console.log('Making HTTP request...');
+    const response = await axios.get(testUrl, {
+      timeout: 10000,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+      }
+    });
+
+    console.log('✅ Site is accessible!');
+    console.log(`Status: ${response.status}`);
+    console.log(`Content-Type: ${response.headers['content-type']}`);
+    console.log(`Content Length: ${response.data.length} characters`);
+    
+    // Check if it's HTML
+    if (response.data.includes('<html')) {
+      console.log('✅ Site returns HTML content');
+      
+      // Check for common issues
+      if (response.data.includes('<!DOCTYPE html>')) {
+        console.log('✅ Has DOCTYPE declaration');
+      } else {
+        console.log('⚠️  Missing DOCTYPE declaration');
+      }
+      
+      if (response.data.includes('<title>')) {
+        console.log('✅ Has title tag');
+      } else {
+        console.log('⚠️  Missing title tag');
+      }
+      
+      if (response.data.includes('<head>')) {
+        console.log('✅ Has head section');
+      } else {
+        console.log('⚠️  Missing head section');
+      }
+      
+      if (response.data.includes('<body>')) {
+        console.log('✅ Has body section');
+      } else {
+        console.log('⚠️  Missing body section');
+      }
+      
+    } else {
+      console.log('❌ Site does not return HTML content');
+      console.log('First 200 characters:', response.data.substring(0, 200));
+    }
+
+  } catch (error) {
+    console.log('❌ Site is not accessible:');
+    
+    if (error.code === 'ECONNREFUSED') {
+      console.log('   - Connection refused - site is not running');
+      console.log('   - Make sure your frontend development server is running');
+    } else if (error.code === 'ENOTFOUND') {
+      console.log('   - Domain not found - DNS issue');
+    } else if (error.code === 'ETIMEDOUT') {
+      console.log('   - Request timed out - site is slow or not responding');
+    } else {
+      console.log(`   - Error: ${error.message}`);
+    }
+    
+    console.log('\n💡 Solutions:');
+    console.log('   1. Start your frontend development server');
+    console.log('   2. Check if the site is running on the correct port');
+    console.log('   3. Verify the domain configuration');
+  }
+}
+
+testSiteAccess().catch(console.error);
+
+
+*** END FILE ***
+
 *** FILE: backend\scripts\test-webhook.js ***
 #!/usr/bin/env node
 
@@ -22675,6 +23459,8 @@ import locationsRoutes from './routes/locations.js'
 import websiteContentRoutes from './routes/websiteContent.js'
 import googleReviewsRoutes from './routes/googleReviews.js'
 import googleAuthRoutes from './routes/googleAuth.js'
+import googleAnalyticsRoutes from './routes/googleAnalytics.js'
+import healthMonitoringRoutes from './routes/healthMonitoring.js'
 
 // Suppress debug/info noise in development
 if (process.env.LOG_LEVEL !== 'debug') {
@@ -22725,7 +23511,9 @@ app.use('/api/admin', adminRoutes)
 app.use('/api/locations', locationsRoutes)
 app.use('/api/website-content', websiteContentRoutes)
 app.use('/api/google-reviews', googleReviewsRoutes)
+app.use('/api/google/analytics', googleAnalyticsRoutes)
 app.use('/api/google', googleAuthRoutes)
+app.use('/api/health-monitoring', healthMonitoringRoutes)
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, '0.0.0.0', () => {
@@ -23491,6 +24279,353 @@ export {
 
 *** END FILE ***
 
+*** FILE: backend\services\googleAnalytics.js ***
+import { pool } from '../database/pool.js';
+import { logger } from '../config/logger.js';
+
+/**
+ * Google Analytics Data Service
+ * Handles fetching analytics data from GA4 using stored OAuth tokens
+ */
+
+/**
+ * Get stored tokens for a tenant
+ */
+async function getStoredTokens(tenantId) {
+  try {
+    const result = await pool.query(
+      'SELECT access_token, refresh_token, expires_at, property_id, scopes FROM analytics.google_analytics_tokens WHERE tenant_id = $1',
+      [tenantId]
+    );
+
+    if (result.rows.length === 0) {
+      throw new Error('No Google Analytics tokens found for tenant');
+    }
+
+    return result.rows[0];
+  } catch (error) {
+    logger.error('Error getting stored tokens:', error);
+    throw error;
+  }
+}
+
+/**
+ * Refresh access token using refresh token
+ */
+async function refreshAccessToken(refreshToken) {
+  try {
+    const response = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        client_id: process.env.GOOGLE_CLIENT_ID,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET,
+        refresh_token: refreshToken,
+        grant_type: 'refresh_token',
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Token refresh failed: ${response.status}`);
+    }
+
+    const tokenData = await response.json();
+    return tokenData.access_token;
+  } catch (error) {
+    logger.error('Error refreshing access token:', error);
+    throw error;
+  }
+}
+
+/**
+ * Update stored access token in database
+ */
+async function updateStoredToken(tenantId, newAccessToken, expiresIn) {
+  try {
+    const expiresAt = new Date();
+    expiresAt.setSeconds(expiresAt.getSeconds() + expiresIn);
+
+    await pool.query(
+      'UPDATE analytics.google_analytics_tokens SET access_token = $1, expires_at = $2, updated_at = NOW() WHERE tenant_id = $3',
+      [newAccessToken, expiresAt, tenantId]
+    );
+
+    logger.info('Updated access token for tenant', { tenantId });
+  } catch (error) {
+    logger.error('Error updating stored token:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get valid access token (refresh if needed)
+ */
+async function getValidAccessToken(tenantId) {
+  const tokens = await getStoredTokens(tenantId);
+  const { access_token, refresh_token, expires_at } = tokens;
+
+  // Check if token is expired or expires within 5 minutes
+  const now = new Date();
+  const expiresAt = new Date(expires_at);
+  const fiveMinutesFromNow = new Date(now.getTime() + 5 * 60 * 1000);
+
+  if (expiresAt <= fiveMinutesFromNow) {
+    logger.info('Access token expired or expiring soon, refreshing...', { tenantId });
+    
+    if (!refresh_token) {
+      throw new Error('No refresh token available - tenant needs to re-authenticate');
+    }
+
+    const tokenData = await refreshAccessToken(refresh_token);
+    await updateStoredToken(tenantId, tokenData.access_token, tokenData.expires_in);
+    
+    return tokenData.access_token;
+  }
+
+  return access_token;
+}
+
+/**
+ * Get GA4 property ID for tenant
+ */
+async function getGA4PropertyId(tenantId) {
+  try {
+    const tokens = await getStoredTokens(tenantId);
+    let propertyId = tokens.property_id;
+
+    // If no property ID stored, try to fetch it
+    if (!propertyId || propertyId === 'unknown') {
+      const accessToken = await getValidAccessToken(tenantId);
+      
+      const response = await fetch(
+        'https://analyticsadmin.googleapis.com/v1beta/accounts',
+        {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.accounts && data.accounts.length > 0) {
+          propertyId = data.accounts[0].name; // First account
+          
+          // Update the stored property ID
+          await pool.query(
+            'UPDATE analytics.google_analytics_tokens SET property_id = $1 WHERE tenant_id = $2',
+            [propertyId, tenantId]
+          );
+        }
+      }
+    }
+
+    return propertyId;
+  } catch (error) {
+    logger.error('Error getting GA4 property ID:', error);
+    throw error;
+  }
+}
+
+/**
+ * Fetch analytics summary data from GA4
+ */
+async function getAnalyticsSummary(tenantId, days = 7) {
+  try {
+    const accessToken = await getValidAccessToken(tenantId);
+    const propertyId = await getGA4PropertyId(tenantId);
+
+    if (!propertyId) {
+      throw new Error('No Google Analytics property found');
+    }
+
+    // Extract property ID from full path (e.g., "accounts/123456789" -> "123456789")
+    const propertyIdOnly = propertyId.replace('accounts/', '');
+
+    const endDate = new Date().toISOString().split('T')[0]; // Today
+    const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0]; // N days ago
+
+    const requestBody = {
+      metrics: [
+        { name: 'sessions' },
+        { name: 'totalUsers' },
+        { name: 'screenPageViews' },
+        { name: 'bounceRate' },
+        { name: 'averageSessionDuration' }
+      ],
+      dimensions: [
+        { name: 'date' }
+      ],
+      dateRanges: [
+        {
+          startDate: startDate,
+          endDate: endDate
+        }
+      ],
+      orderBys: [
+        {
+          dimension: { dimensionName: 'date' }
+        }
+      ]
+    };
+
+    const response = await fetch(
+      `https://analyticsdata.googleapis.com/v1beta/properties/${propertyIdOnly}:runReport`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      logger.error('GA4 API error:', { status: response.status, error: errorText });
+      throw new Error(`GA4 API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    // Process the data into a more usable format
+    const summary = {
+      totalSessions: 0,
+      totalUsers: 0,
+      totalPageViews: 0,
+      averageBounceRate: 0,
+      averageSessionDuration: 0,
+      dailyData: [],
+      period: `${days} days`,
+      lastUpdated: new Date().toISOString()
+    };
+
+    if (data.rows && data.rows.length > 0) {
+      let totalBounceRate = 0;
+      let totalSessionDuration = 0;
+      let dayCount = 0;
+
+      data.rows.forEach(row => {
+        const date = row.dimensionValues[0].value;
+        const sessions = parseInt(row.metricValues[0].value) || 0;
+        const users = parseInt(row.metricValues[1].value) || 0;
+        const pageViews = parseInt(row.metricValues[2].value) || 0;
+        const bounceRate = parseFloat(row.metricValues[3].value) || 0;
+        const sessionDuration = parseFloat(row.metricValues[4].value) || 0;
+
+        summary.totalSessions += sessions;
+        summary.totalUsers += users;
+        summary.totalPageViews += pageViews;
+        totalBounceRate += bounceRate;
+        totalSessionDuration += sessionDuration;
+        dayCount++;
+
+        summary.dailyData.push({
+          date,
+          sessions,
+          users,
+          pageViews,
+          bounceRate,
+          sessionDuration
+        });
+      });
+
+      summary.averageBounceRate = dayCount > 0 ? totalBounceRate / dayCount : 0;
+      summary.averageSessionDuration = dayCount > 0 ? totalSessionDuration / dayCount : 0;
+    }
+
+    logger.info('Analytics summary fetched successfully', { 
+      tenantId, 
+      totalSessions: summary.totalSessions,
+      totalUsers: summary.totalUsers 
+    });
+
+    return summary;
+
+  } catch (error) {
+    logger.error('Error fetching analytics summary:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get real-time analytics data
+ */
+async function getRealtimeData(tenantId) {
+  try {
+    const accessToken = await getValidAccessToken(tenantId);
+    const propertyId = await getGA4PropertyId(tenantId);
+
+    if (!propertyId) {
+      throw new Error('No Google Analytics property found');
+    }
+
+    const propertyIdOnly = propertyId.replace('accounts/', '');
+
+    const response = await fetch(
+      `https://analyticsdata.googleapis.com/v1beta/properties/${propertyIdOnly}:runRealtimeReport`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          metrics: [
+            { name: 'activeUsers' }
+          ],
+          dimensions: [
+            { name: 'country' }
+          ]
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      logger.error('GA4 Realtime API error:', { status: response.status, error: errorText });
+      throw new Error(`GA4 Realtime API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    const realtimeData = {
+      activeUsers: 0,
+      countries: [],
+      lastUpdated: new Date().toISOString()
+    };
+
+    if (data.rows && data.rows.length > 0) {
+      data.rows.forEach(row => {
+        const country = row.dimensionValues[0].value;
+        const users = parseInt(row.metricValues[0].value) || 0;
+        
+        realtimeData.activeUsers += users;
+        realtimeData.countries.push({ country, users });
+      });
+    }
+
+    return realtimeData;
+
+  } catch (error) {
+    logger.error('Error fetching realtime data:', error);
+    throw error;
+  }
+}
+
+export {
+  getAnalyticsSummary,
+  getRealtimeData,
+  getValidAccessToken,
+  getGA4PropertyId
+};
+
+
+*** END FILE ***
+
 *** FILE: backend\services\googleApi.js ***
 /**
  * Google Business Profile API Service
@@ -23946,6 +25081,8 @@ module.exports = scraper;
  */
 
 import axios from 'axios';
+import lighthouse from 'lighthouse';
+import * as chromeLauncher from 'chrome-launcher';
 import logger from '../utils/logger.js';
 
 class HealthMonitor {
@@ -24028,6 +25165,13 @@ class HealthMonitor {
 
     } catch (error) {
       logger.error('PageSpeed Insights API error:', error.message);
+      logger.error('Error details:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        url: error.config?.url,
+        params: error.config?.params
+      });
       return {
         success: false,
         error: error.message,
@@ -24274,17 +25418,55 @@ class HealthMonitor {
       let desktopPSI = { success: false, error: 'PageSpeed API key not configured' };
       let cruxData = { success: false, error: 'CrUX API key not configured' };
 
-      // Only fetch PageSpeed data if API key is configured
-      if (this.pageSpeedApiKey) {
-        logger.info(`Fetching mobile PageSpeed data...`);
-        mobilePSI = await this.fetchPageSpeedInsights(tenantUrl, 'mobile');
-        logger.info(`Mobile PageSpeed data fetched`);
+      // Check if this is a development/staging URL that might not be accessible to Google
+      const isDevelopmentUrl = this.isDevelopmentUrl(tenantUrl);
+      let testUrl = tenantUrl;
+
+      // For development URLs, use Lighthouse CLI instead of Google PageSpeed API
+      if (isDevelopmentUrl) {
+        logger.info('Development URL detected, using Lighthouse CLI for local analysis...');
         
-        logger.info(`Fetching desktop PageSpeed data...`);
-        desktopPSI = await this.fetchPageSpeedInsights(tenantUrl, 'desktop');
-        logger.info(`Desktop PageSpeed data fetched`);
+        // Convert development domain to localhost for analysis
+        const analysisUrl = this.convertToLocalhost(tenantUrl);
+        logger.info(`Converting ${tenantUrl} to ${analysisUrl} for Lighthouse analysis`);
+        
+        try {
+          logger.info('Running Lighthouse for mobile...');
+          mobilePSI = await this.runLighthouseLocal(analysisUrl, 'mobile');
+          logger.info(`Mobile Lighthouse analysis completed - success: ${mobilePSI.success}`);
+          
+          logger.info('Running Lighthouse for desktop...');
+          desktopPSI = await this.runLighthouseLocal(analysisUrl, 'desktop');
+          logger.info(`Desktop Lighthouse analysis completed - success: ${desktopPSI.success}`);
+          
+          // If Lighthouse fails, return failure
+          if (!mobilePSI.success && !desktopPSI.success) {
+            logger.error('Lighthouse analysis failed for both mobile and desktop');
+          }
+        } catch (lighthouseError) {
+          logger.error('Lighthouse CLI not available or failed:', lighthouseError.message);
+        }
       } else {
-        logger.warn('PageSpeed API key not configured - skipping PageSpeed analysis');
+        // For production URLs, use Google PageSpeed API
+        if (this.pageSpeedApiKey) {
+          logger.info(`Production URL detected, using Google PageSpeed API for ${testUrl}...`);
+          logger.info(`Fetching mobile PageSpeed data for ${testUrl}...`);
+          mobilePSI = await this.fetchPageSpeedInsights(testUrl, 'mobile');
+          logger.info(`Mobile PageSpeed data fetched - success: ${mobilePSI.success}`);
+          
+          logger.info(`Fetching desktop PageSpeed data for ${testUrl}...`);
+          desktopPSI = await this.fetchPageSpeedInsights(testUrl, 'desktop');
+          logger.info(`Desktop PageSpeed data fetched - success: ${desktopPSI.success}`);
+        } else {
+          logger.warn('PageSpeed API key not configured - skipping PageSpeed analysis');
+        }
+
+        // For production URLs with failed API calls, log the errors
+        if (this.pageSpeedApiKey && !mobilePSI.success && !desktopPSI.success) {
+          logger.warn('PageSpeed API calls failed for production URL');
+          logger.warn('Mobile PSI error:', mobilePSI.error);
+          logger.warn('Desktop PSI error:', desktopPSI.error);
+        }
       }
 
       // Only fetch CrUX data if API key is configured
@@ -24296,6 +25478,13 @@ class HealthMonitor {
 
       // Calculate overall health score
       logger.info(`Calculating health score...`);
+      logger.info(`Mobile PSI success: ${mobilePSI.success}, Desktop PSI success: ${desktopPSI.success}`);
+      if (mobilePSI.success && mobilePSI.data) {
+        logger.info(`Mobile performance score: ${mobilePSI.data.performance}`);
+      }
+      if (desktopPSI.success && desktopPSI.data) {
+        logger.info(`Desktop performance score: ${desktopPSI.data.performance}`);
+      }
       const healthScore = this.calculateHealthScore(mobilePSI, desktopPSI, cruxData);
       logger.info(`Health score calculated: ${healthScore}`);
 
@@ -24355,6 +25544,150 @@ class HealthMonitor {
   }
 
   /**
+   * Check if a URL is a development/staging URL that might not be accessible to Google
+   * @param {string} url - The URL to check
+   * @returns {boolean} True if this appears to be a development URL
+   */
+  isDevelopmentUrl(url) {
+    const developmentPatterns = [
+      /localhost/i,
+      /127\.0\.0\.1/i,
+      /\.local/i,
+      /\.dev/i,
+      /\.test/i,
+      /\.staging/i,
+      /thatsmartsite\.com/i, // Your development domain
+      /^http:\/\//i, // HTTP (not HTTPS) URLs
+      /192\.168\./i, // Local network IPs
+      /10\./i, // Local network IPs
+      /172\.(1[6-9]|2[0-9]|3[0-1])\./i // Local network IPs
+    ];
+    
+    return developmentPatterns.some(pattern => pattern.test(url));
+  }
+
+  /**
+   * Convert development domain to localhost for Lighthouse analysis
+   * @param {string} url - The original URL
+   * @returns {string} The localhost equivalent
+   */
+  convertToLocalhost(url) {
+    if (url.includes('thatsmartsite.com')) {
+      return 'http://localhost:5175';
+    }
+    return url;
+  }
+
+  /**
+   * Run Lighthouse locally for development URLs
+   * @param {string} url - The URL to analyze
+   * @param {string} strategy - 'mobile' or 'desktop'
+   * @returns {Promise<Object>} Lighthouse results
+   */
+  async runLighthouseLocal(url, strategy = 'mobile') {
+    let chrome = null;
+    try {
+      logger.info(`Running Lighthouse locally for ${url} (${strategy})`);
+      
+      // Launch Chrome
+      logger.info('Launching Chrome for Lighthouse analysis...');
+      chrome = await chromeLauncher.launch({
+        chromeFlags: ['--headless', '--disable-gpu', '--no-sandbox', '--disable-dev-shm-usage', '--disable-extensions']
+      });
+      logger.info(`Chrome launched successfully on port ${chrome.port}`);
+      
+      const config = {
+        extends: 'lighthouse:default',
+        settings: {
+          formFactor: strategy === 'mobile' ? 'mobile' : 'desktop',
+          throttling: {
+            rttMs: 40,
+            throughputKbps: 10240,
+            cpuSlowdownMultiplier: 1,
+            requestLatencyMs: 0,
+            downloadThroughputKbps: 0,
+            uploadThroughputKbps: 0
+          },
+          screenEmulation: {
+            mobile: strategy === 'mobile',
+            width: strategy === 'mobile' ? 375 : 1350,
+            height: strategy === 'mobile' ? 667 : 940,
+            deviceScaleFactor: 1,
+            disabled: false
+          }
+        }
+      };
+
+      // Run Lighthouse with timeout
+      const lighthousePromise = lighthouse(url, {
+        port: chrome.port,
+        output: 'json'
+      }, config);
+      
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Lighthouse analysis timeout')), 60000); // 60 second timeout
+      });
+      
+      const runnerResult = await Promise.race([lighthousePromise, timeoutPromise]);
+
+      if (runnerResult && runnerResult.lhr) {
+        const lhr = runnerResult.lhr;
+        
+        // Debug logging
+        logger.info(`Lighthouse analysis completed for ${url}`);
+        logger.info(`Lighthouse finalUrl: ${lhr.finalUrl}`);
+        
+        const performanceScore = Math.round((lhr.categories.performance?.score || 0) * 100);
+        const accessibilityScore = Math.round((lhr.categories.accessibility?.score || 0) * 100);
+        const bestPracticesScore = Math.round((lhr.categories['best-practices']?.score || 0) * 100);
+        const seoScore = Math.round((lhr.categories.seo?.score || 0) * 100);
+        
+        logger.info(`Calculated scores - Performance: ${performanceScore}, Accessibility: ${accessibilityScore}, Best Practices: ${bestPracticesScore}, SEO: ${seoScore}`);
+        
+        return {
+          success: true,
+          data: {
+            performance: performanceScore,
+            accessibility: accessibilityScore,
+            bestPractices: bestPracticesScore,
+            seo: seoScore,
+            coreWebVitals: this.extractCoreWebVitals(lhr),
+            metrics: this.extractMetrics(lhr),
+            opportunities: this.extractOpportunities(lhr.audits),
+            diagnostics: this.extractDiagnostics(lhr.audits),
+            strategy: strategy,
+            timestamp: new Date().toISOString(),
+            source: 'lighthouse-local'
+          }
+        };
+      }
+
+      return {
+        success: false,
+        error: 'Lighthouse returned empty results'
+      };
+
+    } catch (error) {
+      logger.error('Lighthouse local analysis error:', error.message);
+      return {
+        success: false,
+        error: error.message
+      };
+    } finally {
+      // Clean up Chrome instance
+      if (chrome) {
+        try {
+          await chrome.kill();
+          logger.info('Chrome instance cleaned up successfully');
+        } catch (killError) {
+          logger.warn('Error killing Chrome:', killError.message);
+        }
+      }
+    }
+  }
+
+
+  /**
    * Generate health summary with recommendations
    * @param {Object} mobilePSI - Mobile PageSpeed Insights data
    * @param {Object} desktopPSI - Desktop PageSpeed Insights data
@@ -24378,6 +25711,11 @@ class HealthMonitor {
         savings: 0
       });
       return summary;
+    }
+
+    // Check if we're using Lighthouse local analysis
+    if (mobilePSI.success && mobilePSI.data && mobilePSI.data.source === 'lighthouse-local') {
+      summary.priority.push('Local Lighthouse analysis - Real metrics from your development site');
     }
 
     // Determine overall status
@@ -72524,6 +73862,111 @@ export const PRODUCT_COLORS: Record<ProductKey, string> = {
 
 *** END FILE ***
 
+*** FILE: frontend\src\features\tenantDashboard\api\analytics.ts ***
+import { useQuery } from '@tanstack/react-query';
+
+export interface AnalyticsSummary {
+  totalSessions: number;
+  totalUsers: number;
+  totalPageViews: number;
+  averageBounceRate: number;
+  averageSessionDuration: number;
+  dailyData: Array<{
+    date: string;
+    sessions: number;
+    users: number;
+    pageViews: number;
+    bounceRate: number;
+    sessionDuration: number;
+  }>;
+  period: string;
+  lastUpdated: string;
+}
+
+export interface RealtimeData {
+  activeUsers: number;
+  countries: Array<{
+    country: string;
+    users: number;
+  }>;
+  lastUpdated: string;
+}
+
+export interface GoogleAnalyticsStatus {
+  connected: boolean;
+  propertyId?: string;
+  lastSync?: string;
+  scopes?: string[];
+}
+
+/**
+ * Hook to fetch Google Analytics connection status
+ */
+export function useGoogleAnalyticsStatus(tenantId?: number) {
+  return useQuery<GoogleAnalyticsStatus>({
+    queryKey: ['analytics', 'status', tenantId],
+    queryFn: async () => {
+      const response = await fetch(`/api/google/analytics/status?tenant_id=${tenantId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch analytics status');
+      }
+      const data = await response.json();
+      return data.data;
+    },
+    enabled: !!tenantId,
+    refetchInterval: 30000, // Refetch every 30 seconds
+  });
+}
+
+/**
+ * Hook to fetch Google Analytics summary data
+ */
+export function useAnalyticsSummary(tenantId?: number, days: number = 7) {
+  return useQuery<AnalyticsSummary>({
+    queryKey: ['analytics', 'summary', tenantId, days],
+    queryFn: async () => {
+      const response = await fetch(`/api/google/analytics/summary?tenant_id=${tenantId}&days=${days}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch analytics summary');
+      }
+      const data = await response.json();
+      return data.data;
+    },
+    enabled: !!tenantId,
+    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
+  });
+}
+
+/**
+ * Hook to fetch real-time analytics data
+ */
+export function useRealtimeData(tenantId?: number) {
+  return useQuery<RealtimeData>({
+    queryKey: ['analytics', 'realtime', tenantId],
+    queryFn: async () => {
+      const response = await fetch(`/api/google/analytics/realtime?tenant_id=${tenantId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch realtime data');
+      }
+      const data = await response.json();
+      return data.data;
+    },
+    enabled: !!tenantId,
+    refetchInterval: 30 * 1000, // Refetch every 30 seconds
+  });
+}
+
+/**
+ * Function to initiate Google Analytics OAuth flow
+ */
+export function initiateGoogleAnalyticsAuth(tenantId: number): void {
+  const authUrl = `/api/google/analytics/auth?tenant_id=${tenantId}`;
+  window.open(authUrl, '_blank', 'width=600,height=700');
+}
+
+
+*** END FILE ***
+
 *** FILE: frontend\src\features\tenantDashboard\api\dashboard.api.ts ***
 /**
  * Dashboard API Layer
@@ -87087,51 +88530,77 @@ export default WebsiteHealthTab;
 
 *** FILE: frontend\src\features\tenantDashboard\tabs\website\WebsitePerformanceTab.tsx ***
 import React, { useState } from 'react';
-import { BarChart3, Clock, Eye, Globe, Monitor,Smartphone, TrendingUp, Users } from 'lucide-react';
+import { BarChart3, Clock, Eye, Globe, Monitor, Smartphone, TrendingUp, Users, AlertCircle, RefreshCw } from 'lucide-react';
+
+import { useAnalyticsSummary, useRealtimeData, useGoogleAnalyticsStatus, initiateGoogleAnalyticsAuth } from '../../api/analytics';
+import { useTenantId } from '../services/hooks/useTenantId';
+import { useParams } from 'react-router-dom';
 
 const WebsitePerformanceTab: React.FC = () => {
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('30d');
+  
+  // Get tenant ID and convert to number for API calls
+  const tenantIdString = useTenantId();
+  const tenantId = tenantIdString ? parseInt(tenantIdString) : undefined;
+  const { businessSlug } = useParams<{ businessSlug: string }>();
+  
+  // Convert time range to days for API
+  const days = timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : 90;
+  
+  // Fetch real data
+  const { data: analyticsStatus, isLoading: statusLoading } = useGoogleAnalyticsStatus(tenantId);
+  const { data: analyticsData, isLoading: analyticsLoading, error: analyticsError } = useAnalyticsSummary(tenantId, days);
+  const { data: realtimeData, isLoading: realtimeLoading } = useRealtimeData(tenantId);
+  
+  const isLoading = statusLoading || analyticsLoading || realtimeLoading;
 
-  // Mock data - in real implementation, this would come from analytics API
-  const performanceData = {
-    visitors: {
-      total: 1247,
-      change: 12.5,
-      trend: 'up'
-    },
-    pageViews: {
-      total: 3421,
-      change: 8.3,
-      trend: 'up'
-    },
-    bounceRate: {
-      total: 42.1,
-      change: -5.2,
-      trend: 'down'
-    },
-    avgSessionDuration: {
-      total: '2m 34s',
-      change: 15.8,
-      trend: 'up'
-    },
-    topPages: [
-      { page: '/', views: 1247, percentage: 36.4 },
-      { page: '/services', views: 892, percentage: 26.1 },
-      { page: '/about', views: 456, percentage: 13.3 },
-      { page: '/contact', views: 234, percentage: 6.8 },
-      { page: '/gallery', views: 189, percentage: 5.5 },
-    ],
-    trafficSources: [
-      { source: 'Direct', visitors: 456, percentage: 36.6 },
-      { source: 'Google Search', visitors: 389, percentage: 31.2 },
-      { source: 'Social Media', visitors: 234, percentage: 18.8 },
-      { source: 'Referrals', visitors: 168, percentage: 13.4 },
-    ],
-    deviceBreakdown: [
-      { device: 'Desktop', visitors: 623, percentage: 50.0 },
-      { device: 'Mobile', visitors: 498, percentage: 39.9 },
-      { device: 'Tablet', visitors: 126, percentage: 10.1 },
-    ]
+  // Connection status component
+  const ConnectionStatus = () => {
+    if (!analyticsStatus) return null;
+    
+    if (!analyticsStatus.connected) {
+      return (
+        <div className="bg-stone-800 rounded-lg p-6 border border-stone-700">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <AlertCircle className="h-6 w-6 text-yellow-400 mr-3" />
+              <div>
+                <h3 className="text-lg font-semibold text-white">Google Analytics Not Connected</h3>
+                <p className="text-gray-400 mt-1">Connect your Google Analytics account to view website performance data</p>
+              </div>
+            </div>
+            <button
+              onClick={() => tenantId && initiateGoogleAnalyticsAuth(tenantId)}
+              className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors flex items-center"
+            >
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Connect Analytics
+            </button>
+          </div>
+        </div>
+      );
+    }
+    
+    return (
+      <div className="bg-stone-800 rounded-lg p-4 border border-stone-700">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <div className="h-3 w-3 bg-green-400 rounded-full mr-3"></div>
+            <div>
+              <span className="text-white font-medium">Google Analytics Connected</span>
+              <p className="text-gray-400 text-sm">Last sync: {analyticsStatus.lastSync ? new Date(analyticsStatus.lastSync).toLocaleString() : 'Never'}</p>
+            </div>
+          </div>
+          <button
+            onClick={() => window.location.reload()}
+            className="p-2 text-gray-400 hover:text-white transition-colors"
+            title="Refresh data"
+          >
+            <RefreshCw className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+    );
   };
 
   const StatCard = ({ 
@@ -87153,21 +88622,32 @@ const WebsitePerformanceTab: React.FC = () => {
           <Icon className="h-5 w-5 text-orange-400 mr-2" />
           <h3 className="text-sm font-medium text-gray-300">{title}</h3>
         </div>
-        <div className={`flex items-center text-sm ${
-          trend === 'up' ? 'text-green-400' : 'text-red-400'
-        }`}>
-          <TrendingUp className={`h-4 w-4 mr-1 ${
-            trend === 'down' ? 'rotate-180' : ''
-          }`} />
-          {Math.abs(change)}%
-        </div>
+        {change !== 0 && (
+          <div className={`flex items-center text-sm ${
+            trend === 'up' ? 'text-green-400' : 'text-red-400'
+          }`}>
+            <TrendingUp className={`h-4 w-4 mr-1 ${
+              trend === 'down' ? 'rotate-180' : ''
+            }`} />
+            {Math.abs(change)}%
+          </div>
+        )}
       </div>
       <div className="text-2xl font-bold text-white mb-1">{value}</div>
-      <div className="text-xs text-gray-400">
-        {trend === 'up' ? '↗' : '↘'} {change > 0 ? '+' : ''}{change}% from last period
-      </div>
+      {change !== 0 && (
+        <div className="text-xs text-gray-400">
+          {trend === 'up' ? '↗' : '↘'} {change > 0 ? '+' : ''}{change}% from last period
+        </div>
+      )}
     </div>
   );
+
+  // Helper function to format session duration
+  const formatSessionDuration = (seconds: number): string => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes}m ${remainingSeconds}s`;
+  };
 
   return (
     <div className="space-y-6">
@@ -87177,137 +88657,144 @@ const WebsitePerformanceTab: React.FC = () => {
           <h2 className="text-2xl font-bold text-white">Website Performance</h2>
           <p className="text-gray-400 mt-1">Analytics and performance metrics for your website</p>
         </div>
-        <div className="flex space-x-2">
-          {(['7d', '30d', '90d'] as const).map((range) => (
-            <button
-              key={range}
-              onClick={() => { setTimeRange(range); }}
-              className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                timeRange === range
-                  ? 'bg-orange-500 text-white'
-                  : 'bg-stone-700 text-gray-300 hover:bg-stone-600'
-              }`}
-            >
-              {range === '7d' ? '7 Days' : range === '30d' ? '30 Days' : '90 Days'}
-            </button>
-          ))}
-        </div>
+        {analyticsStatus?.connected && (
+          <div className="flex space-x-2">
+            {(['7d', '30d', '90d'] as const).map((range) => (
+              <button
+                key={range}
+                onClick={() => { setTimeRange(range); }}
+                className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                  timeRange === range
+                    ? 'bg-orange-500 text-white'
+                    : 'bg-stone-700 text-gray-300 hover:bg-stone-600'
+                }`}
+              >
+                {range === '7d' ? '7 Days' : range === '30d' ? '30 Days' : '90 Days'}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
+
+      {/* Connection Status */}
+      <ConnectionStatus />
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          title="Total Visitors"
-          value={performanceData.visitors.total.toLocaleString()}
-          change={performanceData.visitors.change}
-          trend={performanceData.visitors.trend}
-          icon={Users}
-        />
-        <StatCard
-          title="Page Views"
-          value={performanceData.pageViews.total.toLocaleString()}
-          change={performanceData.pageViews.change}
-          trend={performanceData.pageViews.trend}
-          icon={Eye}
-        />
-        <StatCard
-          title="Bounce Rate"
-          value={`${performanceData.bounceRate.total}%`}
-          change={performanceData.bounceRate.change}
-          trend={performanceData.bounceRate.trend}
-          icon={BarChart3}
-        />
-        <StatCard
-          title="Avg. Session"
-          value={performanceData.avgSessionDuration.total}
-          change={performanceData.avgSessionDuration.change}
-          trend={performanceData.avgSessionDuration.trend}
-          icon={Clock}
-        />
-      </div>
+      {analyticsStatus?.connected && (
+        <>
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="bg-stone-800 rounded-lg p-6 border border-stone-700 animate-pulse">
+                  <div className="h-4 bg-stone-700 rounded mb-4"></div>
+                  <div className="h-8 bg-stone-700 rounded mb-2"></div>
+                  <div className="h-3 bg-stone-700 rounded"></div>
+                </div>
+              ))}
+            </div>
+          ) : analyticsError ? (
+            <div className="bg-stone-800 rounded-lg p-6 border border-stone-700">
+              <div className="flex items-center">
+                <AlertCircle className="h-6 w-6 text-red-400 mr-3" />
+                <div>
+                  <h3 className="text-lg font-semibold text-white">Error Loading Analytics</h3>
+                  <p className="text-gray-400 mt-1">Failed to fetch analytics data. Please try refreshing.</p>
+                </div>
+              </div>
+            </div>
+          ) : analyticsData ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <StatCard
+                title="Total Sessions"
+                value={analyticsData.totalSessions.toLocaleString()}
+                change={0}
+                trend="up"
+                icon={Users}
+              />
+              <StatCard
+                title="Total Users"
+                value={analyticsData.totalUsers.toLocaleString()}
+                change={0}
+                trend="up"
+                icon={Eye}
+              />
+              <StatCard
+                title="Bounce Rate"
+                value={`${analyticsData.averageBounceRate.toFixed(1)}%`}
+                change={0}
+                trend="down"
+                icon={BarChart3}
+              />
+              <StatCard
+                title="Avg. Session"
+                value={formatSessionDuration(analyticsData.averageSessionDuration)}
+                change={0}
+                trend="up"
+                icon={Clock}
+              />
+            </div>
+          ) : null}
 
-      {/* Detailed Analytics */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Top Pages */}
-        <div className="bg-stone-800 rounded-lg p-6 border border-stone-700">
-          <h3 className="text-lg font-semibold text-white mb-4">Top Pages</h3>
-          <div className="space-y-3">
-            {performanceData.topPages.map((page, index) => (
-              <div key={index} className="flex items-center justify-between">
+          {/* Real-time Data */}
+          {realtimeData && (
+            <div className="bg-stone-800 rounded-lg p-6 border border-stone-700">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-white">Real-time Activity</h3>
                 <div className="flex items-center">
-                  <div className="w-2 h-2 bg-orange-400 rounded-full mr-3"></div>
-                  <span className="text-gray-300">{page.page}</span>
-                </div>
-                <div className="text-right">
-                  <div className="text-white font-medium">{page.views.toLocaleString()}</div>
-                  <div className="text-xs text-gray-400">{page.percentage}%</div>
+                  <div className="h-2 w-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
+                  <span className="text-sm text-gray-400">Live</span>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Traffic Sources */}
-        <div className="bg-stone-800 rounded-lg p-6 border border-stone-700">
-          <h3 className="text-lg font-semibold text-white mb-4">Traffic Sources</h3>
-          <div className="space-y-3">
-            {performanceData.trafficSources.map((source, index) => (
-              <div key={index} className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <Globe className="h-4 w-4 text-gray-400 mr-3" />
-                  <span className="text-gray-300">{source.source}</span>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-white">{realtimeData.activeUsers}</div>
+                  <div className="text-sm text-gray-400">Active Users</div>
                 </div>
-                <div className="text-right">
-                  <div className="text-white font-medium">{source.visitors.toLocaleString()}</div>
-                  <div className="text-xs text-gray-400">{source.percentage}%</div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-white">{realtimeData.countries.length}</div>
+                  <div className="text-sm text-gray-400">Countries</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-sm text-gray-400">Last Updated</div>
+                  <div className="text-sm text-gray-300">
+                    {new Date(realtimeData.lastUpdated).toLocaleTimeString()}
+                  </div>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Device Breakdown */}
-      <div className="bg-stone-800 rounded-lg p-6 border border-stone-700">
-        <h3 className="text-lg font-semibold text-white mb-4">Device Breakdown</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {performanceData.deviceBreakdown.map((device, index) => {
-            const Icon = device.device === 'Desktop' ? Monitor : 
-                        device.device === 'Mobile' ? Smartphone : Monitor;
-            return (
-              <div key={index} className="text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <Icon className="h-6 w-6 text-orange-400 mr-2" />
-                  <span className="text-gray-300">{device.device}</span>
-                </div>
-                <div className="text-2xl font-bold text-white mb-1">
-                  {device.visitors.toLocaleString()}
-                </div>
-                <div className="text-sm text-gray-400">{device.percentage}%</div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+            </div>
+          )}
+        </>
+      )}
 
       {/* Quick Actions */}
-      <div className="bg-stone-800 rounded-lg p-6 border border-stone-700">
-        <h3 className="text-lg font-semibold text-white mb-4">Quick Actions</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button className="flex items-center justify-center px-4 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
-            <BarChart3 className="h-4 w-4 mr-2" />
-            View Full Analytics
-          </button>
-          <button className="flex items-center justify-center px-4 py-3 bg-stone-700 text-white rounded-lg hover:bg-stone-600 transition-colors">
-            <Globe className="h-4 w-4 mr-2" />
-            Open Website
-          </button>
-          <button className="flex items-center justify-center px-4 py-3 bg-stone-700 text-white rounded-lg hover:bg-stone-600 transition-colors">
-            <TrendingUp className="h-4 w-4 mr-2" />
-            Export Report
-          </button>
+      {analyticsStatus?.connected && (
+        <div className="bg-stone-800 rounded-lg p-6 border border-stone-700">
+          <h3 className="text-lg font-semibold text-white mb-4">Quick Actions</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <button 
+              onClick={() => window.open('https://analytics.google.com', '_blank')}
+              className="flex items-center justify-center px-4 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+            >
+              <BarChart3 className="h-4 w-4 mr-2" />
+              View Full Analytics
+            </button>
+            <button 
+              onClick={() => window.open(`https://${businessSlug}.thatsmartsite.com`, '_blank')}
+              className="flex items-center justify-center px-4 py-3 bg-stone-700 text-white rounded-lg hover:bg-stone-600 transition-colors"
+            >
+              <Globe className="h-4 w-4 mr-2" />
+              Open Website
+            </button>
+            <button 
+              onClick={() => window.location.reload()}
+              className="flex items-center justify-center px-4 py-3 bg-stone-700 text-white rounded-lg hover:bg-stone-600 transition-colors"
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Refresh Data
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
@@ -113931,6 +115418,8 @@ const MAX_LINES_PER_DAY = 10000;    // cap extreme days
 
 // --- Parse git log ---
 function getGitHistory() {
+  // const logCmd = `git log origin/main --pretty=format:"%ad|%s" --date=short --shortstat --no-merges`;
+
   const logCmd = `git log --pretty=format:"%ad|%s" --date=short --shortstat --no-merges`;
   const raw = execSync(logCmd, { encoding: "utf-8" });
   const lines = raw.split("\n").filter(Boolean);
@@ -114935,17 +116424,17 @@ vite.on('close', (code) => {
 ## Summary
 ```json
 {
-  "generated": "2025-10-17T02:57:48.427Z",
+  "generated": "2025-10-17T06:25:57.431Z",
   "projectRoot": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh",
   "targetFolder": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh",
   "counts": {
-    "totalFilesInTarget": 954,
+    "totalFilesInTarget": 963,
     "byExtension": {
-      ".js": 119,
+      ".js": 123,
       ".md": 57,
-      ".sql": 44,
+      ".sql": 48,
       ".json": 94,
-      ".ts": 362,
+      ".ts": 363,
       ".html": 3,
       ".tsx": 273,
       ".css": 1,
@@ -115013,6 +116502,7 @@ mdh/
       avatar.js
       customers.js
       gallery.js
+      googleAnalytics.js
       googleAuth.js
       googleReviews.js
       health.js
@@ -115042,6 +116532,8 @@ mdh/
       kill-node-processes.js
       kill-port.js
       test-email.js
+      test-lighthouse.js
+      test-site-access.js
       test-webhook.js
       test-welcome-email.js
     server.js
@@ -115049,6 +116541,7 @@ mdh/
       authService.js
       cronService.js
       emailService.js
+      googleAnalytics.js
       googleApi.js
       googleBusinessScraper.js
       healthMonitor.js
@@ -115208,6 +116701,9 @@ mdh/
         WEBSITE_SCHEMA_REVIEW.md
       migrations/
         012_create_password_setup_tokens.sql
+        013_create_analytics_schema.sql
+        014_make_property_id_nullable.sql
+        015_enhance_analytics_tokens.sql
         20241201100000_100000_add_tenant_applications.sql
         20241201100100_100100_add_subscriptions.sql
         20241201100200_100200_alter_business_add_subscription_fields.sql
@@ -115223,6 +116719,7 @@ mdh/
       schemas/
         analytics/
           analytics.sql
+          google_analytics_tokens.sql
         auth/
           login_attempts.sql
           password_reset_tokens.sql
@@ -115302,6 +116799,7 @@ mdh/
       avatar.js
       customers.js
       gallery.js
+      googleAnalytics.js
       googleAuth.js
       googleReviews.js
       health.js
@@ -115336,6 +116834,8 @@ mdh/
       kill-node-processes.js
       kill-port.js
       test-email.js
+      test-lighthouse.js
+      test-site-access.js
       test-webhook.js
       test-welcome-email.js
     server.js
@@ -115343,6 +116843,7 @@ mdh/
       authService.js
       cronService.js
       emailService.js
+      googleAnalytics.js
       googleApi.js
       googleBusinessScraper.js
       healthMonitor.js
@@ -115967,6 +117468,7 @@ mdh/
             protectionComparison.ts
         tenantDashboard/
           api/
+            analytics.ts
             dashboard.api.ts
             healthApi.ts
             locationsApi.ts

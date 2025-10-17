@@ -15,6 +15,7 @@ import websiteContentRoutes from './routes/websiteContent.js'
 import googleReviewsRoutes from './routes/googleReviews.js'
 import googleAuthRoutes from './routes/googleAuth.js'
 import googleAnalyticsRoutes from './routes/googleAnalytics.js'
+import healthMonitoringRoutes from './routes/healthMonitoring.js'
 
 // Suppress debug/info noise in development
 if (process.env.LOG_LEVEL !== 'debug') {
@@ -67,6 +68,19 @@ app.use('/api/website-content', websiteContentRoutes)
 app.use('/api/google-reviews', googleReviewsRoutes)
 app.use('/api/google/analytics', googleAnalyticsRoutes)
 app.use('/api/google', googleAuthRoutes)
+app.use('/api/health-monitoring', healthMonitoringRoutes)
+
+// Centralized error handler middleware
+app.use((err, req, res, next) => {
+  console.error('Express error handler caught:', err);
+  if (!res.headersSent) {
+    res.status(500).json({ 
+      success: false, 
+      error: err.message || 'Internal server error',
+      ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+    });
+  }
+});
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, '0.0.0.0', () => {

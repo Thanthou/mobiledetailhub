@@ -1,6 +1,6 @@
 # Database Overview (Auto-Generated)
 
-Generated: 2025-10-17T02:57:48.663Z
+Generated: 2025-10-17T06:25:57.701Z
 
 ```
 
@@ -8,6 +8,7 @@ Generated: 2025-10-17T02:57:48.663Z
 ============================================================
 
 📁 SCHEMAS:
+   • analytics
    • auth
    • booking
    • customers
@@ -18,6 +19,9 @@ Generated: 2025-10-17T02:57:48.663Z
    • website
 
 📋 TABLES BY SCHEMA:
+
+   analytics/
+      └─ google_analytics_tokens
 
    auth/
       └─ login_attempts
@@ -65,6 +69,16 @@ Generated: 2025-10-17T02:57:48.663Z
 
 🔧 COLUMNS BY TABLE:
 ============================================================
+
+   analytics.google_analytics_tokens
+      • id: integer NOT NULL = nextval('analytics.google_anal
+      • tenant_id: integer NOT NULL
+      • access_token: text NOT NULL
+      • refresh_token: text NULL
+      • property_id: character varying(255) NULL
+      • expires_at: timestamp with time zone NULL
+      • created_at: timestamp with time zone NULL = CURRENT_TIMESTAMP
+      • updated_at: timestamp with time zone NULL = CURRENT_TIMESTAMP
 
    auth.login_attempts
       • id: integer NOT NULL = nextval('auth.login_attempts_i

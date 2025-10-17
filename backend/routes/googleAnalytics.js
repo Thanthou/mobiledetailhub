@@ -3,6 +3,7 @@ import { asyncHandler } from '../middleware/errorHandler.js';
 import { logger } from '../config/logger.js';
 import { pool } from '../database/pool.js';
 import { env } from '../config/env.js';
+import * as analyticsService from '../services/googleAnalytics.js';
 
 const router = express.Router();
 
@@ -289,6 +290,71 @@ router.get('/status', asyncHandler(async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Failed to check connection status',
+      message: error.message
+    });
+  }
+}));
+
+/**
+ * GET /api/google/analytics/summary
+ * Get analytics summary data for a tenant
+ */
+router.get('/summary', asyncHandler(async (req, res) => {
+  try {
+    const tenantId = req.query.tenant_id || req.user?.tenant_id;
+    const days = parseInt(req.query.days) || 7;
+    
+    if (!tenantId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Tenant ID is required'
+      });
+    }
+
+    const summary = await analyticsService.getAnalyticsSummary(tenantId, days);
+
+    res.json({
+      success: true,
+      data: summary
+    });
+
+  } catch (error) {
+    logger.error('Error fetching analytics summary:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch analytics data',
+      message: error.message
+    });
+  }
+}));
+
+/**
+ * GET /api/google/analytics/realtime
+ * Get real-time analytics data for a tenant
+ */
+router.get('/realtime', asyncHandler(async (req, res) => {
+  try {
+    const tenantId = req.query.tenant_id || req.user?.tenant_id;
+    
+    if (!tenantId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Tenant ID is required'
+      });
+    }
+
+    const realtimeData = await analyticsService.getRealtimeData(tenantId);
+
+    res.json({
+      success: true,
+      data: realtimeData
+    });
+
+  } catch (error) {
+    logger.error('Error fetching realtime data:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch realtime data',
       message: error.message
     });
   }

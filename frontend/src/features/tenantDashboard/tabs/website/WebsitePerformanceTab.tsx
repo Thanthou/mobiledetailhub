@@ -1,49 +1,75 @@
 import React, { useState } from 'react';
-import { BarChart3, Clock, Eye, Globe, Monitor,Smartphone, TrendingUp, Users } from 'lucide-react';
+import { BarChart3, Clock, Eye, Globe, Monitor, Smartphone, TrendingUp, Users, AlertCircle, RefreshCw } from 'lucide-react';
+
+import { useAnalyticsSummary, useRealtimeData, useGoogleAnalyticsStatus, initiateGoogleAnalyticsAuth } from '../../api/analytics';
+import { useTenantId } from '../services/hooks/useTenantId';
+import { useParams } from 'react-router-dom';
 
 const WebsitePerformanceTab: React.FC = () => {
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('30d');
+  
+  // Get tenant ID and convert to number for API calls
+  const tenantIdString = useTenantId();
+  const tenantId = tenantIdString ? parseInt(tenantIdString) : undefined;
+  const { businessSlug } = useParams<{ businessSlug: string }>();
+  
+  // Convert time range to days for API
+  const days = timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : 90;
+  
+  // Fetch real data
+  const { data: analyticsStatus, isLoading: statusLoading } = useGoogleAnalyticsStatus(tenantId);
+  const { data: analyticsData, isLoading: analyticsLoading, error: analyticsError } = useAnalyticsSummary(tenantId, days);
+  const { data: realtimeData, isLoading: realtimeLoading } = useRealtimeData(tenantId);
+  
+  const isLoading = statusLoading || analyticsLoading || realtimeLoading;
 
-  // Mock data - in real implementation, this would come from analytics API
-  const performanceData = {
-    visitors: {
-      total: 1247,
-      change: 12.5,
-      trend: 'up'
-    },
-    pageViews: {
-      total: 3421,
-      change: 8.3,
-      trend: 'up'
-    },
-    bounceRate: {
-      total: 42.1,
-      change: -5.2,
-      trend: 'down'
-    },
-    avgSessionDuration: {
-      total: '2m 34s',
-      change: 15.8,
-      trend: 'up'
-    },
-    topPages: [
-      { page: '/', views: 1247, percentage: 36.4 },
-      { page: '/services', views: 892, percentage: 26.1 },
-      { page: '/about', views: 456, percentage: 13.3 },
-      { page: '/contact', views: 234, percentage: 6.8 },
-      { page: '/gallery', views: 189, percentage: 5.5 },
-    ],
-    trafficSources: [
-      { source: 'Direct', visitors: 456, percentage: 36.6 },
-      { source: 'Google Search', visitors: 389, percentage: 31.2 },
-      { source: 'Social Media', visitors: 234, percentage: 18.8 },
-      { source: 'Referrals', visitors: 168, percentage: 13.4 },
-    ],
-    deviceBreakdown: [
-      { device: 'Desktop', visitors: 623, percentage: 50.0 },
-      { device: 'Mobile', visitors: 498, percentage: 39.9 },
-      { device: 'Tablet', visitors: 126, percentage: 10.1 },
-    ]
+  // Connection status component
+  const ConnectionStatus = () => {
+    if (!analyticsStatus) return null;
+    
+    if (!analyticsStatus.connected) {
+      return (
+        <div className="bg-stone-800 rounded-lg p-6 border border-stone-700">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <AlertCircle className="h-6 w-6 text-yellow-400 mr-3" />
+              <div>
+                <h3 className="text-lg font-semibold text-white">Google Analytics Not Connected</h3>
+                <p className="text-gray-400 mt-1">Connect your Google Analytics account to view website performance data</p>
+              </div>
+            </div>
+            <button
+              onClick={() => tenantId && initiateGoogleAnalyticsAuth(tenantId)}
+              className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors flex items-center"
+            >
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Connect Analytics
+            </button>
+          </div>
+        </div>
+      );
+    }
+    
+    return (
+      <div className="bg-stone-800 rounded-lg p-4 border border-stone-700">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <div className="h-3 w-3 bg-green-400 rounded-full mr-3"></div>
+            <div>
+              <span className="text-white font-medium">Google Analytics Connected</span>
+              <p className="text-gray-400 text-sm">Last sync: {analyticsStatus.lastSync ? new Date(analyticsStatus.lastSync).toLocaleString() : 'Never'}</p>
+            </div>
+          </div>
+          <button
+            onClick={() => window.location.reload()}
+            className="p-2 text-gray-400 hover:text-white transition-colors"
+            title="Refresh data"
+          >
+            <RefreshCw className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+    );
   };
 
   const StatCard = ({ 
@@ -65,21 +91,32 @@ const WebsitePerformanceTab: React.FC = () => {
           <Icon className="h-5 w-5 text-orange-400 mr-2" />
           <h3 className="text-sm font-medium text-gray-300">{title}</h3>
         </div>
-        <div className={`flex items-center text-sm ${
-          trend === 'up' ? 'text-green-400' : 'text-red-400'
-        }`}>
-          <TrendingUp className={`h-4 w-4 mr-1 ${
-            trend === 'down' ? 'rotate-180' : ''
-          }`} />
-          {Math.abs(change)}%
-        </div>
+        {change !== 0 && (
+          <div className={`flex items-center text-sm ${
+            trend === 'up' ? 'text-green-400' : 'text-red-400'
+          }`}>
+            <TrendingUp className={`h-4 w-4 mr-1 ${
+              trend === 'down' ? 'rotate-180' : ''
+            }`} />
+            {Math.abs(change)}%
+          </div>
+        )}
       </div>
       <div className="text-2xl font-bold text-white mb-1">{value}</div>
-      <div className="text-xs text-gray-400">
-        {trend === 'up' ? '↗' : '↘'} {change > 0 ? '+' : ''}{change}% from last period
-      </div>
+      {change !== 0 && (
+        <div className="text-xs text-gray-400">
+          {trend === 'up' ? '↗' : '↘'} {change > 0 ? '+' : ''}{change}% from last period
+        </div>
+      )}
     </div>
   );
+
+  // Helper function to format session duration
+  const formatSessionDuration = (seconds: number): string => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes}m ${remainingSeconds}s`;
+  };
 
   return (
     <div className="space-y-6">
@@ -89,137 +126,144 @@ const WebsitePerformanceTab: React.FC = () => {
           <h2 className="text-2xl font-bold text-white">Website Performance</h2>
           <p className="text-gray-400 mt-1">Analytics and performance metrics for your website</p>
         </div>
-        <div className="flex space-x-2">
-          {(['7d', '30d', '90d'] as const).map((range) => (
-            <button
-              key={range}
-              onClick={() => { setTimeRange(range); }}
-              className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                timeRange === range
-                  ? 'bg-orange-500 text-white'
-                  : 'bg-stone-700 text-gray-300 hover:bg-stone-600'
-              }`}
-            >
-              {range === '7d' ? '7 Days' : range === '30d' ? '30 Days' : '90 Days'}
-            </button>
-          ))}
-        </div>
+        {analyticsStatus?.connected && (
+          <div className="flex space-x-2">
+            {(['7d', '30d', '90d'] as const).map((range) => (
+              <button
+                key={range}
+                onClick={() => { setTimeRange(range); }}
+                className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                  timeRange === range
+                    ? 'bg-orange-500 text-white'
+                    : 'bg-stone-700 text-gray-300 hover:bg-stone-600'
+                }`}
+              >
+                {range === '7d' ? '7 Days' : range === '30d' ? '30 Days' : '90 Days'}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
+
+      {/* Connection Status */}
+      <ConnectionStatus />
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          title="Total Visitors"
-          value={performanceData.visitors.total.toLocaleString()}
-          change={performanceData.visitors.change}
-          trend={performanceData.visitors.trend}
-          icon={Users}
-        />
-        <StatCard
-          title="Page Views"
-          value={performanceData.pageViews.total.toLocaleString()}
-          change={performanceData.pageViews.change}
-          trend={performanceData.pageViews.trend}
-          icon={Eye}
-        />
-        <StatCard
-          title="Bounce Rate"
-          value={`${performanceData.bounceRate.total}%`}
-          change={performanceData.bounceRate.change}
-          trend={performanceData.bounceRate.trend}
-          icon={BarChart3}
-        />
-        <StatCard
-          title="Avg. Session"
-          value={performanceData.avgSessionDuration.total}
-          change={performanceData.avgSessionDuration.change}
-          trend={performanceData.avgSessionDuration.trend}
-          icon={Clock}
-        />
-      </div>
+      {analyticsStatus?.connected && (
+        <>
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="bg-stone-800 rounded-lg p-6 border border-stone-700 animate-pulse">
+                  <div className="h-4 bg-stone-700 rounded mb-4"></div>
+                  <div className="h-8 bg-stone-700 rounded mb-2"></div>
+                  <div className="h-3 bg-stone-700 rounded"></div>
+                </div>
+              ))}
+            </div>
+          ) : analyticsError ? (
+            <div className="bg-stone-800 rounded-lg p-6 border border-stone-700">
+              <div className="flex items-center">
+                <AlertCircle className="h-6 w-6 text-red-400 mr-3" />
+                <div>
+                  <h3 className="text-lg font-semibold text-white">Error Loading Analytics</h3>
+                  <p className="text-gray-400 mt-1">Failed to fetch analytics data. Please try refreshing.</p>
+                </div>
+              </div>
+            </div>
+          ) : analyticsData ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <StatCard
+                title="Total Sessions"
+                value={analyticsData.totalSessions.toLocaleString()}
+                change={0}
+                trend="up"
+                icon={Users}
+              />
+              <StatCard
+                title="Total Users"
+                value={analyticsData.totalUsers.toLocaleString()}
+                change={0}
+                trend="up"
+                icon={Eye}
+              />
+              <StatCard
+                title="Bounce Rate"
+                value={`${analyticsData.averageBounceRate.toFixed(1)}%`}
+                change={0}
+                trend="down"
+                icon={BarChart3}
+              />
+              <StatCard
+                title="Avg. Session"
+                value={formatSessionDuration(analyticsData.averageSessionDuration)}
+                change={0}
+                trend="up"
+                icon={Clock}
+              />
+            </div>
+          ) : null}
 
-      {/* Detailed Analytics */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Top Pages */}
-        <div className="bg-stone-800 rounded-lg p-6 border border-stone-700">
-          <h3 className="text-lg font-semibold text-white mb-4">Top Pages</h3>
-          <div className="space-y-3">
-            {performanceData.topPages.map((page, index) => (
-              <div key={index} className="flex items-center justify-between">
+          {/* Real-time Data */}
+          {realtimeData && (
+            <div className="bg-stone-800 rounded-lg p-6 border border-stone-700">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-white">Real-time Activity</h3>
                 <div className="flex items-center">
-                  <div className="w-2 h-2 bg-orange-400 rounded-full mr-3"></div>
-                  <span className="text-gray-300">{page.page}</span>
-                </div>
-                <div className="text-right">
-                  <div className="text-white font-medium">{page.views.toLocaleString()}</div>
-                  <div className="text-xs text-gray-400">{page.percentage}%</div>
+                  <div className="h-2 w-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
+                  <span className="text-sm text-gray-400">Live</span>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Traffic Sources */}
-        <div className="bg-stone-800 rounded-lg p-6 border border-stone-700">
-          <h3 className="text-lg font-semibold text-white mb-4">Traffic Sources</h3>
-          <div className="space-y-3">
-            {performanceData.trafficSources.map((source, index) => (
-              <div key={index} className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <Globe className="h-4 w-4 text-gray-400 mr-3" />
-                  <span className="text-gray-300">{source.source}</span>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-white">{realtimeData.activeUsers}</div>
+                  <div className="text-sm text-gray-400">Active Users</div>
                 </div>
-                <div className="text-right">
-                  <div className="text-white font-medium">{source.visitors.toLocaleString()}</div>
-                  <div className="text-xs text-gray-400">{source.percentage}%</div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-white">{realtimeData.countries.length}</div>
+                  <div className="text-sm text-gray-400">Countries</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-sm text-gray-400">Last Updated</div>
+                  <div className="text-sm text-gray-300">
+                    {new Date(realtimeData.lastUpdated).toLocaleTimeString()}
+                  </div>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Device Breakdown */}
-      <div className="bg-stone-800 rounded-lg p-6 border border-stone-700">
-        <h3 className="text-lg font-semibold text-white mb-4">Device Breakdown</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {performanceData.deviceBreakdown.map((device, index) => {
-            const Icon = device.device === 'Desktop' ? Monitor : 
-                        device.device === 'Mobile' ? Smartphone : Monitor;
-            return (
-              <div key={index} className="text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <Icon className="h-6 w-6 text-orange-400 mr-2" />
-                  <span className="text-gray-300">{device.device}</span>
-                </div>
-                <div className="text-2xl font-bold text-white mb-1">
-                  {device.visitors.toLocaleString()}
-                </div>
-                <div className="text-sm text-gray-400">{device.percentage}%</div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+            </div>
+          )}
+        </>
+      )}
 
       {/* Quick Actions */}
-      <div className="bg-stone-800 rounded-lg p-6 border border-stone-700">
-        <h3 className="text-lg font-semibold text-white mb-4">Quick Actions</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button className="flex items-center justify-center px-4 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
-            <BarChart3 className="h-4 w-4 mr-2" />
-            View Full Analytics
-          </button>
-          <button className="flex items-center justify-center px-4 py-3 bg-stone-700 text-white rounded-lg hover:bg-stone-600 transition-colors">
-            <Globe className="h-4 w-4 mr-2" />
-            Open Website
-          </button>
-          <button className="flex items-center justify-center px-4 py-3 bg-stone-700 text-white rounded-lg hover:bg-stone-600 transition-colors">
-            <TrendingUp className="h-4 w-4 mr-2" />
-            Export Report
-          </button>
+      {analyticsStatus?.connected && (
+        <div className="bg-stone-800 rounded-lg p-6 border border-stone-700">
+          <h3 className="text-lg font-semibold text-white mb-4">Quick Actions</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <button 
+              onClick={() => window.open('https://analytics.google.com', '_blank')}
+              className="flex items-center justify-center px-4 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+            >
+              <BarChart3 className="h-4 w-4 mr-2" />
+              View Full Analytics
+            </button>
+            <button 
+              onClick={() => window.open(`https://${businessSlug}.thatsmartsite.com`, '_blank')}
+              className="flex items-center justify-center px-4 py-3 bg-stone-700 text-white rounded-lg hover:bg-stone-600 transition-colors"
+            >
+              <Globe className="h-4 w-4 mr-2" />
+              Open Website
+            </button>
+            <button 
+              onClick={() => window.location.reload()}
+              className="flex items-center justify-center px-4 py-3 bg-stone-700 text-white rounded-lg hover:bg-stone-600 transition-colors"
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Refresh Data
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
