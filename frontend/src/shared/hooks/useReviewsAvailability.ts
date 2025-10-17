@@ -10,7 +10,7 @@ export const useReviewsAvailability = (): boolean => {
   const data = useDataOptional();
   const isTenant = data?.isTenant || false;
   
-  // Build query parameters to match what Reviews component uses
+  // Build query parameters for availability check only
   const queryParams: ReviewQueryParams = {
     limit: 1
   };

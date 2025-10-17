@@ -22,7 +22,9 @@
     "prepare": "husky install",
     "overview": "node scripts/project-overview.js",
     "seo:provision": "node backend/scripts/provision-seo-config.js --all",
-    "seo:test": "node scripts/test-seo-anchors.js"
+    "seo:test": "node scripts/test-seo-anchors.js",
+    "deploy:check": "node scripts/deploy-render.js",
+    "deploy:build": "cd frontend && npm run build && cd ../backend && npm run migrate"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

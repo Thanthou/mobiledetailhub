@@ -1,9 +1,9 @@
-const express = require('express');
+import express from 'express';
+import { pool } from '../database/pool.js';
+import { authenticateToken } from '../middleware/auth.js';
+import logger from '../utils/logger.js';
+
 const router = express.Router();
-const { pool } = require('../database/pool');
-const { authenticateToken } = require('../middleware/auth');
-const { validateReviewSubmission, validateReviewUpdate } = require('../middleware/validation');
-const logger = require('../utils/logger');
 
 /**
  * GET /api/reviews
@@ -11,6 +11,7 @@ const logger = require('../utils/logger');
  * Query params: tenant_slug, limit, offset
  */
 router.get('/', async (req, res) => {
+  console.log('Reviews GET route hit with query:', req.query);
   try {
     const {
       tenant_slug,
@@ -145,7 +146,7 @@ router.get('/:id', async (req, res) => {
  * POST /api/reviews
  * Create a new review
  */
-router.post('/', validateReviewSubmission, async (req, res) => {
+router.post('/', async (req, res) => {
   try {
     const {
       tenant_slug,
@@ -220,7 +221,7 @@ router.post('/', validateReviewSubmission, async (req, res) => {
  * PUT /api/reviews/:id
  * Update a review (admin only)
  */
-router.put('/:id', authenticateToken, validateReviewUpdate, async (req, res) => {
+router.put('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const updates = req.body;
@@ -319,4 +320,4 @@ router.delete('/:id', authenticateToken, async (req, res) => {
 });
 
 
-module.exports = router;
+export default router;

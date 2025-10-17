@@ -5,6 +5,7 @@
 
 import axios from 'axios';
 import lighthouse from 'lighthouse';
+import puppeteer from 'puppeteer';
 import * as chromeLauncher from 'chrome-launcher';
 import logger from '../utils/logger.js';
 
@@ -354,9 +355,9 @@ class HealthMonitor {
         logger.info(`Converting ${tenantUrl} to ${analysisUrl} for Lighthouse analysis`);
         
         try {
-          // Run mobile analysis first
+          // Run mobile analysis first with retry
           logger.info('Running Lighthouse for mobile...');
-          mobilePSI = await this.runLighthouseLocal(analysisUrl, 'mobile');
+          mobilePSI = await this.runLighthouseLocalWithRetry(analysisUrl, 'mobile');
           logger.info(`Mobile Lighthouse analysis completed - success: ${mobilePSI.success}`);
           
           // Wait a moment between analyses to ensure clean resource usage
@@ -511,9 +512,43 @@ class HealthMonitor {
    */
   convertToLocalhost(url) {
     if (url.includes('thatsmartsite.com')) {
-      return 'http://localhost:5175';
+      return 'http://localhost:4173';
     }
     return url;
+  }
+
+  /**
+   * Run Lighthouse locally with retry for mobile (more prone to timing issues)
+   * @param {string} url - The URL to analyze
+   * @param {string} strategy - 'mobile' or 'desktop'
+   * @returns {Promise<Object>} Lighthouse results
+   */
+  async runLighthouseLocalWithRetry(url, strategy = 'mobile', maxRetries = 2) {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        logger.info(`Lighthouse ${strategy} analysis attempt ${attempt}/${maxRetries}`);
+        const result = await this.runLighthouseLocal(url, strategy);
+        if (result.success) {
+          return result;
+        }
+        if (attempt < maxRetries) {
+          logger.warn(`Lighthouse ${strategy} attempt ${attempt} failed, retrying...`);
+          await new Promise(resolve => setTimeout(resolve, 3000)); // Wait 3 seconds before retry
+        }
+      } catch (error) {
+        logger.warn(`Lighthouse ${strategy} attempt ${attempt} failed: ${error.message || error.toString()}`);
+        if (attempt < maxRetries) {
+          await new Promise(resolve => setTimeout(resolve, 3000)); // Wait 3 seconds before retry
+        }
+      }
+    }
+    
+    // All attempts failed
+    logger.error(`Lighthouse ${strategy} analysis failed after ${maxRetries} attempts`);
+    return {
+      success: false,
+      error: `Lighthouse ${strategy} analysis failed after ${maxRetries} attempts`
+    };
   }
 
   /**
@@ -523,27 +558,95 @@ class HealthMonitor {
    * @returns {Promise<Object>} Lighthouse results
    */
   async runLighthouseLocal(url, strategy = 'mobile') {
-    let chrome = null;
+    let browser = null;
     try {
-      logger.info(`Running Lighthouse locally for ${url} (${strategy})`);
+      logger.info(`Running Lighthouse locally for ${url} (${strategy}) with Puppeteer`);
       
-      // Launch Chrome
-      logger.info('Launching Chrome for Lighthouse analysis...');
-      chrome = await chromeLauncher.launch({
-        chromeFlags: [
-          '--headless',
-          '--disable-gpu',
+      // Launch Chrome with Puppeteer
+      logger.info('Launching Chrome with Puppeteer for Lighthouse analysis...');
+      browser = await puppeteer.launch({
+        headless: true,
+        args: [
           '--no-sandbox',
+          '--disable-gpu',
           '--disable-dev-shm-usage',
           '--disable-extensions',
-          '--disable-software-rasterizer',
-          '--enable-logging',
-          '--v=1'
-        ]
+          '--disable-software-rasterizer'
+        ],
       });
-      logger.info(`Chrome launched successfully on port ${chrome.port}`);
       
-      const config = {
+      const page = await browser.newPage();
+      logger.info('Navigating to page and waiting for React to render...');
+      
+      // Load the page and wait for network to be idle
+      await page.goto(url, { 
+        waitUntil: 'networkidle2', 
+        timeout: 120000 
+      });
+      
+      // Wait for React to render real content
+      logger.info('Waiting for React SPA to fully render...');
+      
+      // First, let's see what's actually in the root element
+      const rootContent = await page.evaluate(() => {
+        const root = document.querySelector('#root');
+        return {
+          exists: !!root,
+          innerHTML: root ? root.innerHTML : 'null',
+          innerText: root ? root.innerText : 'null',
+          childrenCount: root ? root.children.length : 0
+        };
+      });
+      
+      logger.info('Root element debug info:', rootContent);
+      
+      // Try multiple wait conditions
+      try {
+        // Wait for any content in root (more lenient)
+        await page.waitForFunction(() => {
+          const root = document.querySelector('#root');
+          return root && (root.children.length > 0 || root.innerText.trim().length > 10);
+        }, { timeout: 30000 });
+        logger.info('React content detected with lenient condition');
+      } catch (error) {
+        logger.warn('Lenient wait failed, trying to wait for any DOM changes...');
+        
+        // Even more lenient - just wait for any content
+        try {
+          await page.waitForFunction(() => {
+            const root = document.querySelector('#root');
+            return root && root.innerHTML !== '';
+          }, { timeout: 15000 });
+          logger.info('React content detected with very lenient condition');
+        } catch (error2) {
+          logger.warn('All wait conditions failed, waiting 10 seconds as fallback...');
+          await new Promise(resolve => setTimeout(resolve, 10000));
+        }
+      }
+      
+      logger.info('Proceeding with Lighthouse analysis...');
+      
+      // Get Puppeteer's debugging port for Lighthouse
+      const wsEndpoint = browser.wsEndpoint();
+      const port = new URL(wsEndpoint).port;
+      
+      const options = {
+        logLevel: 'error',
+        output: 'json',
+        port: parseInt(port),
+        onlyCategories: ['performance', 'accessibility', 'best-practices', 'seo'],
+        formFactor: strategy,
+        screenEmulation: { 
+          mobile: strategy === 'mobile',
+          width: strategy === 'mobile' ? 375 : 1350,
+          height: strategy === 'mobile' ? 667 : 940,
+          deviceScaleFactor: 1,
+          disabled: false
+        },
+        throttlingMethod: 'provided',
+      };
+
+      const config = { 
         extends: 'lighthouse:default',
         settings: {
           formFactor: strategy === 'mobile' ? 'mobile' : 'desktop',
@@ -554,42 +657,13 @@ class HealthMonitor {
             requestLatencyMs: 0,
             downloadThroughputKbps: 0,
             uploadThroughputKbps: 0
-          },
-          screenEmulation: {
-            mobile: strategy === 'mobile',
-            width: strategy === 'mobile' ? 375 : 1350,
-            height: strategy === 'mobile' ? 667 : 940,
-            deviceScaleFactor: 1,
-            disabled: false
           }
         }
       };
-
-      // Run Lighthouse with timeout and detailed error handling
-      const lighthousePromise = lighthouse(url, {
-        port: chrome.port,
-        output: 'json',
-        logLevel: 'error'
-      }, config);
       
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Lighthouse analysis timeout after 120 seconds')), 120000); // 120 second timeout
-      });
+      // Run Lighthouse using the same Chrome instance
+      const runnerResult = await lighthouse(url, options, config);
       
-      let runnerResult;
-      try {
-        runnerResult = await Promise.race([lighthousePromise, timeoutPromise]);
-      } catch (err) {
-        logger.error('Lighthouse analysis failed:', {
-          error: err.message,
-          stack: err.stack,
-          cause: err.cause,
-          url: url,
-          strategy: strategy
-        });
-        throw new Error(`Lighthouse analysis failed: ${err.message}`);
-      }
-
       if (runnerResult && runnerResult.lhr) {
         const lhr = runnerResult.lhr;
         
@@ -628,16 +702,16 @@ class HealthMonitor {
       };
 
     } catch (error) {
-      logger.error('Lighthouse local analysis error:', error.message);
+      logger.error(`Lighthouse local analysis error: ${error.message || error.toString()}`);
       return {
         success: false,
-        error: error.message
+        error: error.message || error.toString()
       };
     } finally {
-      // Clean up Chrome instance
-      if (chrome) {
+      // Clean up browser instance
+      if (browser) {
         try {
-          await chrome.kill();
+          await browser.close();
           logger.info('Chrome instance cleaned up successfully');
         } catch (killError) {
           // Don't throw the error, just log it - Chrome cleanup failures are common on Windows

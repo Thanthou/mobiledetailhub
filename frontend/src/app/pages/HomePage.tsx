@@ -7,7 +7,7 @@ import { Hero } from '@/features/hero';
 import { Reviews } from '@/features/reviews';
 import { useReviewsAvailability } from '@/features/reviews/hooks/useReviewsAvailability';
 import { ServicesGrid } from '@/features/services';
-import { useIsDesktop, useScrollSpy, useSEO } from '@/shared/hooks';
+import { useIsDesktop, useScrollSpy, useSEO, useTenantSlug } from '@/shared/hooks';
 import type { SectionId } from '@/shared/state/sectionStore';
 import { injectAllSchemas } from '@/shared/utils/schemaUtils';
 
@@ -18,6 +18,9 @@ interface HomePageProps {
 
 const HomePage: React.FC<HomePageProps> = ({ onRequestQuote, locationData }) => {
   // Legacy useSiteContext removed - now using tenant-based routing
+  
+  // Get tenant slug from URL
+  const tenantSlug = useTenantSlug();
   
   // Update SEO metadata (title, description, etc.)
   useSEO();
@@ -60,7 +63,7 @@ const HomePage: React.FC<HomePageProps> = ({ onRequestQuote, locationData }) => 
       
               {/* Only show reviews if there are reviews available */}
               {hasReviews && (
-                <Reviews />
+                <Reviews tenantSlug={tenantSlug} />
               )}
       
       <FAQ />
