@@ -16,7 +16,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Load environment variables
-dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL ||
@@ -45,14 +45,46 @@ async function ensureMigrationsTable() {
   try {
     await pool.query(`
       CREATE SCHEMA IF NOT EXISTS system;
-      CREATE TABLE IF NOT EXISTS system.schema_migrations (
-        id SERIAL PRIMARY KEY,
-        filename TEXT UNIQUE NOT NULL,
-        applied_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-        checksum TEXT,
-        rollback_sql TEXT
-      );
     `);
+    
+    // Check if table exists and what structure it has
+    const { rows } = await pool.query(`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_schema = 'system' 
+      AND table_name = 'schema_migrations'
+    `);
+    
+    const hasFilename = rows.some(row => row.column_name === 'filename');
+    
+    if (rows.length === 0) {
+      // Table doesn't exist, create it with new structure
+      log('🔄 Creating new migrations table...', 'yellow');
+      await pool.query(`
+        CREATE TABLE system.schema_migrations (
+          id SERIAL PRIMARY KEY,
+          filename TEXT UNIQUE NOT NULL,
+          applied_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+          checksum TEXT,
+          rollback_sql TEXT
+        );
+      `);
+      
+      // Create indexes
+      await pool.query(`
+        CREATE INDEX IF NOT EXISTS idx_schema_migrations_filename 
+        ON system.schema_migrations(filename);
+      `);
+      
+      await pool.query(`
+        CREATE INDEX IF NOT EXISTS idx_schema_migrations_applied_at 
+        ON system.schema_migrations(applied_at);
+      `);
+    } else if (!hasFilename) {
+      // Table exists but has old structure - let the migration handle it
+      log('⚠️  Old migrations table detected - will be updated by migration', 'yellow');
+    }
+    
     log('✅ Migrations table ready', 'green');
   } catch (error) {
     log(`❌ Failed to create migrations table: ${error.message}`, 'red');
@@ -70,7 +102,7 @@ async function getAppliedMigrations() {
   }
 }
 
-function calculateChecksum(content) {
+async function calculateChecksum(content) {
   const crypto = await import('crypto');
   return crypto.createHash('md5').update(content).digest('hex');
 }
@@ -112,10 +144,29 @@ async function applyMigration(filename) {
     const rollbackMatch = sql.match(/--\s*ROLLBACK:\s*([\s\S]*?)(?=\n--|\n$|$)/i);
     const rollbackSql = rollbackMatch ? rollbackMatch[1].trim() : null;
     
-    await client.query(
-      'INSERT INTO system.schema_migrations (filename, checksum, rollback_sql) VALUES ($1, $2, $3)',
-      [filename, checksum, rollbackSql]
-    );
+    // Check if we need to insert with version or without
+    const { rows: tableInfo } = await client.query(`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_schema = 'system' 
+      AND table_name = 'schema_migrations'
+      AND column_name = 'version'
+    `);
+    
+    if (tableInfo.length > 0) {
+      // Old table structure - insert with version
+      const version = filename.replace('.sql', '').replace(/_/g, '-');
+      await client.query(
+        'INSERT INTO system.schema_migrations (version, filename, checksum, rollback_sql, description) VALUES ($1, $2, $3, $4, $5)',
+        [version, filename, checksum, rollbackSql, `Migration: ${filename}`]
+      );
+    } else {
+      // New table structure - insert without version
+      await client.query(
+        'INSERT INTO system.schema_migrations (filename, checksum, rollback_sql) VALUES ($1, $2, $3)',
+        [filename, checksum, rollbackSql]
+      );
+    }
     
     await client.query('COMMIT');
     log(`✅ Applied ${filename}`, 'green');
