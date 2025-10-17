@@ -10,7 +10,7 @@
     "build": "cd frontend && npm run build",
     "dev": "concurrently \"cd frontend && npm run dev\" \"cd backend && npm run dev\" \"node scripts/error-monitor/index.js --target=all\"",
     "dev:backend": "cd backend && npm run dev",
-    "dev:frontend": "node scripts/find-free-port.js && cd frontend && node -e \"const p=require('../.frontend-port.json').port; require('child_process').spawn('vite',['--port',p,'--host'],{stdio:'inherit'})\"",
+    "dev:frontend": "node scripts/find-free-port.js && node scripts/start-frontend.js",
     "dev:monitor": "node scripts/dev-monitor.js",
     "predev:all": "node backend/scripts/kill-node-processes.js",
     "dev:all": "npm run predev:all && concurrently -n FRONTEND,BACKEND -c cyan,yellow \"npm run dev:frontend\" \"npm run dev:backend\"",
@@ -1124,31 +1124,43 @@ async function register(req, res) {
  * Login user
  */
 async function login(req, res) {
+  console.log('=== LOGIN DEBUG ===');
+  console.log('Request body:', req.body);
+  console.log('User agent:', req.get('User-Agent'));
+  console.log('IP address:', req.ip);
+  
   const credentials = req.body;
   const userAgent = req.get('User-Agent');
   const ipAddress = req.ip;
   
-  const result = await authService.loginUser(credentials, userAgent, ipAddress);
-  
-  // Set HttpOnly cookies for enhanced security
-  res.cookie('access_token', result.tokens.accessToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    path: '/',
-    maxAge: 15 * 60 * 1000 // 15 minutes (matches access token expiry)
-  });
-  
-  res.cookie(AUTH_CONFIG.REFRESH_COOKIE_NAME, result.tokens.refreshToken, AUTH_CONFIG.getRefreshCookieOptions())
-  
-  res.json({
-    success: true,
-    user: result.user,
-    accessToken: result.tokens.accessToken,
-    refreshToken: result.tokens.refreshToken,
-    expiresIn: result.tokens.expiresIn,
-    refreshExpiresIn: result.tokens.refreshExpiresIn
-  });
+  try {
+    const result = await authService.loginUser(credentials, userAgent, ipAddress);
+    console.log('Login successful for:', credentials.email);
+    
+    // Set HttpOnly cookies for enhanced security
+    res.cookie('access_token', result.tokens.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 15 * 60 * 1000 // 15 minutes (matches access token expiry)
+    });
+    
+    res.cookie(AUTH_CONFIG.REFRESH_COOKIE_NAME, result.tokens.refreshToken, AUTH_CONFIG.getRefreshCookieOptions())
+    
+    res.json({
+      success: true,
+      user: result.user,
+      accessToken: result.tokens.accessToken,
+      refreshToken: result.tokens.refreshToken,
+      expiresIn: result.tokens.expiresIn,
+      refreshExpiresIn: result.tokens.refreshExpiresIn
+    });
+  } catch (error) {
+    console.error('Login error:', error.message);
+    console.error('Error stack:', error.stack);
+    throw error;
+  }
 }
 
 /**
@@ -13547,6 +13559,79 @@ export {
 
 *** END FILE ***
 
+*** FILE: backend\mocks\mockReviews.json ***
+[
+  {
+    "reviewId": "demo-1",
+    "reviewer": {
+      "displayName": "Sarah Johnson",
+      "profilePhotoUrl": "/shared/preview-avatars/avatar-1.jfif"
+    },
+    "comment": "Excellent service! The team was professional, punctual, and did an amazing job. My car looks brand new. Highly recommend!",
+    "starRating": "FIVE",
+    "createTime": "2024-12-01T14:30:00Z",
+    "updateTime": "2024-12-01T14:30:00Z"
+  },
+  {
+    "reviewId": "demo-2",
+    "reviewer": {
+      "displayName": "Mike Rodriguez",
+      "profilePhotoUrl": "/shared/preview-avatars/avatar-2.jfif"
+    },
+    "comment": "Very professional and thorough. Great communication throughout the process. Will definitely use again!",
+    "starRating": "FIVE",
+    "createTime": "2024-11-28T10:15:00Z",
+    "updateTime": "2024-11-28T10:15:00Z"
+  },
+  {
+    "reviewId": "demo-3",
+    "reviewer": {
+      "displayName": "Emily Chen",
+      "profilePhotoUrl": "/shared/preview-avatars/avatar-3.jfif"
+    },
+    "comment": "Fast, efficient, and great results. The booking process was easy and they arrived right on time. Very satisfied!",
+    "starRating": "FOUR",
+    "createTime": "2024-11-25T16:45:00Z",
+    "updateTime": "2024-11-25T16:45:00Z"
+  },
+  {
+    "reviewId": "demo-4",
+    "reviewer": {
+      "displayName": "David Thompson",
+      "profilePhotoUrl": "/shared/preview-avatars/avatar-4.jfif"
+    },
+    "comment": "Outstanding work! They went above and beyond to make sure everything was perfect. Worth every penny.",
+    "starRating": "FIVE",
+    "createTime": "2024-11-22T09:20:00Z",
+    "updateTime": "2024-11-22T09:20:00Z"
+  },
+  {
+    "reviewId": "demo-5",
+    "reviewer": {
+      "displayName": "Lisa Anderson",
+      "profilePhotoUrl": "/shared/preview-avatars/avatar-5.jfif"
+    },
+    "comment": "Great service and easy booking process. The team was friendly and did excellent work. Highly recommend!",
+    "starRating": "FIVE",
+    "createTime": "2024-11-20T13:10:00Z",
+    "updateTime": "2024-11-20T13:10:00Z"
+  },
+  {
+    "reviewId": "demo-6",
+    "reviewer": {
+      "displayName": "Robert Wilson",
+      "profilePhotoUrl": "/shared/preview-avatars/avatar-6.jfif"
+    },
+    "comment": "Professional service with attention to detail. They arrived on time and completed the work efficiently.",
+    "starRating": "FOUR",
+    "createTime": "2024-11-18T11:30:00Z",
+    "updateTime": "2024-11-18T11:30:00Z"
+  }
+]
+
+
+*** END FILE ***
+
 *** FILE: backend\package.json ***
 {
   "name": "backend",
@@ -14250,22 +14335,23 @@ router.delete('/tenants/:id', criticalAdminLimiter, authenticateToken, requireAd
 
 // Users endpoint - Get all users with their roles
 router.get('/users', authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
-  if (!pool) {
-    const error = new Error('Database connection not available');
-    error.statusCode = 500;
-    throw error;
-  }
-  
-  const { status } = req.query;
-  
-  // Audit log the users query
-  logger.adminAction('QUERY_USERS', 'users', { 
-    status: status || 'all-users',
-    query: status === 'tenants' ? 'tenants_table' : 'users_table'
-  }, {
-    userId: req.user?.userId || 'anonymous',
-    email: req.user?.email || 'anonymous'
-  });
+  try {
+    if (!pool) {
+      const error = new Error('Database connection not available');
+      error.statusCode = 500;
+      throw error;
+    }
+    
+    const { status } = req.query;
+    
+    // Audit log the users query
+    logger.adminAction('QUERY_USERS', 'users', { 
+      status: status || 'all-users',
+      query: status === 'tenants' ? 'tenants_table' : 'users_table'
+    }, {
+      userId: req.user?.userId || 'anonymous',
+      email: req.user?.email || 'anonymous'
+    });
   
   if (status === 'tenants') {
     // For tenants, query the tenants table directly
@@ -14363,12 +14449,21 @@ router.get('/users', authenticateToken, requireAdmin, asyncHandler(async (req, r
     role: row.role || (row.is_admin ? 'admin' : row.tenant_id ? 'tenant' : 'customer')
   }));
   
-  res.json({
-    success: true,
-    users: usersWithRoles,
-    count: result.rowCount,
-    message: `Found ${result.rowCount} users in database`
-  });
+    res.json({
+      success: true,
+      users: usersWithRoles,
+      count: result.rowCount,
+      message: `Found ${result.rowCount} users in database`
+    });
+  } catch (error) {
+    logger.error('Error in admin users endpoint:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user?.userId,
+      email: req.user?.email
+    });
+    throw error;
+  }
 }));
 
 // Pending tenant applications endpoint
@@ -15915,6 +16010,163 @@ export default router;
 
 *** END FILE ***
 
+*** FILE: backend\routes\googleReviews.js ***
+/**
+ * Google Reviews API Routes
+ * 
+ * Fetches reviews from Google Business Profile with mock fallback
+ * Supports OAuth integration and graceful degradation
+ */
+
+import express from 'express';
+import { getGoogleReviews } from '../services/googleApi.js';
+import { isDummyTenant } from '../utils/tenantUtils.js';
+import logger from '../utils/logger.js';
+
+const router = express.Router();
+
+/**
+ * GET /api/google-reviews/:tenantSlug
+ * Fetch Google Business Profile reviews for a tenant
+ * Falls back to mock reviews if no OAuth or empty profile
+ */
+router.get('/:tenantSlug', async (req, res) => {
+  try {
+    const { tenantSlug } = req.params;
+    
+    // Validate tenant slug
+    if (!tenantSlug || tenantSlug.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        error: 'Tenant slug is required',
+        message: 'Please provide a valid tenant slug'
+      });
+    }
+
+    logger.info('Fetching Google reviews', { tenantSlug });
+
+    // Attempt to fetch real Google reviews
+    const reviews = await getGoogleReviews(tenantSlug);
+
+    // Check if this is the dummy tenant that should show mock reviews
+    const isDummy = isDummyTenant(tenantSlug);
+
+    // If no reviews and this is the dummy tenant, use mock data
+    if ((!reviews || reviews.length === 0) && isDummy) {
+      logger.info('Using mock reviews for dummy tenant', { tenantSlug });
+      
+      // Import mock data dynamically to avoid startup issues
+      const { default: mockReviews } = await import('../mocks/mockReviews.json', {
+        assert: { type: 'json' }
+      });
+      
+      return res.json({
+        success: true,
+        data: mockReviews,
+        source: 'mock',
+        tenantSlug,
+        message: 'Mock reviews returned for dummy tenant'
+      });
+    }
+
+    // For real tenants with no reviews, return empty array
+    if (!reviews || reviews.length === 0) {
+      logger.info('No reviews found for tenant', { tenantSlug });
+      return res.json({
+        success: true,
+        data: [],
+        source: 'google',
+        tenantSlug,
+        message: 'No reviews found'
+      });
+    }
+
+    // Return real Google reviews
+    res.json({
+      success: true,
+      data: reviews,
+      source: 'google',
+      tenantSlug,
+      message: 'Google reviews fetched successfully'
+    });
+
+  } catch (error) {
+    logger.error('Error fetching Google reviews', { 
+      error: error.message, 
+      tenantSlug: req.params.tenantSlug 
+    });
+
+    try {
+      // Only fallback to mock data for dummy tenants
+      const isDummy = isDummyTenant(req.params.tenantSlug);
+      
+      if (isDummy) {
+        const { default: mockReviews } = await import('../mocks/mockReviews.json', {
+          assert: { type: 'json' }
+        });
+        
+        res.json({
+          success: true,
+          data: mockReviews,
+          source: 'mock',
+          tenantSlug: req.params.tenantSlug,
+          message: 'Mock reviews returned (error fetching Google reviews)'
+        });
+      } else {
+        // For real tenants, return empty array on error
+        res.json({
+          success: true,
+          data: [],
+          source: 'google',
+          tenantSlug: req.params.tenantSlug,
+          message: 'No reviews available (error fetching Google reviews)'
+        });
+      }
+    } catch (mockError) {
+      logger.error('Failed to load mock reviews', { error: mockError.message });
+      res.status(500).json({
+        success: false,
+        error: 'Failed to fetch reviews',
+        message: 'Unable to fetch reviews from Google'
+      });
+    }
+  }
+});
+
+/**
+ * GET /api/google-reviews/:tenantSlug/health
+ * Health check for Google Reviews service
+ */
+router.get('/:tenantSlug/health', async (req, res) => {
+  try {
+    const { tenantSlug } = req.params;
+    
+    res.json({
+      success: true,
+      service: 'google-reviews',
+      tenantSlug,
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      features: {
+        googleOAuth: process.env.GOOGLE_OAUTH_CLIENT_ID ? 'configured' : 'not_configured',
+        mockFallback: 'enabled'
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      service: 'google-reviews',
+      error: error.message,
+      status: 'unhealthy'
+    });
+  }
+});
+
+export default router;
+
+
+*** END FILE ***
+
 *** FILE: backend\routes\health.js ***
 /**
  * System Health Check Routes
@@ -16672,9 +16924,12 @@ export default router;
 
 *** FILE: backend\routes\payments.js ***
 import express from 'express'
+import { pool } from '../database/pool.js'
+import bcrypt from 'bcryptjs'
+import { sendWelcomeEmail } from '../services/emailService.js'
 const router = express.Router()
 
-router.post('/create-intent', (req, res, next) => {
+router.post('/create-intent', async (req, res, next) => {
   try {
     // Debug
     console.log('=== PAYMENT INTENT DEBUG ===')
@@ -16685,47 +16940,185 @@ router.post('/create-intent', (req, res, next) => {
       throw new Error('Missing required fields: amount, customerEmail, businessName, planType')
     }
 
-    // TODO: Stripe logic here
-    // For now, return a mock client secret
-    const mockClientSecret = `pi_mock_${Date.now()}_secret_mock_${Math.random().toString(36).substring(2)}`
+    // Use real Stripe test mode
+    const { default: StripeService } = await import('../services/stripeService.js');
     
-    res.json({ 
-      success: true, 
-      clientSecret: mockClientSecret,
-      paymentIntentId: `pi_mock_${Date.now()}`,
-      received: { amount, customerEmail, businessName, planType, metadata } 
-    })
+    const result = await StripeService.createPaymentIntent({
+      amount,
+      customerEmail,
+      metadata: {
+        businessName,
+        planType,
+        ...metadata
+      }
+    });
+    
+    if (result.success) {
+      res.json({ 
+        success: true, 
+        clientSecret: result.clientSecret,
+        paymentIntentId: result.paymentIntentId,
+        received: { amount, customerEmail, businessName, planType, metadata } 
+      });
+    } else {
+      throw new Error(result.error || 'Failed to create payment intent');
+    }
   } catch (err) {
     next(err)
   }
 })
 
-router.post('/confirm', (req, res, next) => {
+router.post('/confirm', async (req, res, next) => {
   try {
     console.log('=== PAYMENT CONFIRM DEBUG ===')
     console.log('Request body:', req.body)
+    console.log('Request headers:', req.headers)
+    console.log('Request method:', req.method)
+    console.log('Request URL:', req.url)
 
     const { paymentIntentId, tenantData } = req.body || {}
     if (!paymentIntentId || !tenantData) {
       throw new Error('Missing required fields: paymentIntentId, tenantData')
     }
 
-    // TODO: Process payment confirmation and create tenant
-    // For now, return mock success response
-    const mockSlug = tenantData.businessName?.toLowerCase().replace(/[^a-z0-9]/g, '-') || 'test-business'
+    if (!pool) {
+      const error = new Error('Database connection not available');
+      error.statusCode = 500;
+      throw error;
+    }
+
+                // Verify payment intent with Stripe
+                const { default: StripeService } = await import('../services/stripeService.js');
+                const paymentResult = await StripeService.retrievePaymentIntent(paymentIntentId);
+                
+                console.log('Payment intent status:', paymentResult.paymentIntent?.status);
+                console.log('Payment intent charges:', paymentResult.paymentIntent?.charges?.data?.length);
+                
+                if (!paymentResult.success || paymentResult.paymentIntent.status !== 'succeeded') {
+                  throw new Error(`Payment not confirmed or failed. Status: ${paymentResult.paymentIntent?.status}`);
+                }
+
+    // Generate tenant slug
+    const baseSlug = tenantData.businessName?.toLowerCase().replace(/[^a-z0-9]/g, '-') || 'business';
+    let slug = baseSlug;
+    let counter = 1;
     
-    res.json({
-      success: true,
-      data: {
-        slug: mockSlug,
-        websiteUrl: `/${mockSlug}`,
-        dashboardUrl: `/${mockSlug}/dashboard`,
-        tenantId: `tenant_${Date.now()}`,
-        userId: `user_${Date.now()}`,
-        paymentIntentId
+    // Ensure slug is unique
+    while (true) {
+      const existingTenant = await pool.query('SELECT id FROM tenants.business WHERE slug = $1', [slug]);
+      if (existingTenant.rows.length === 0) {
+        break;
       }
-    })
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+
+    // Start transaction
+    const client = await pool.connect();
+    
+    try {
+      await client.query('BEGIN');
+      
+                  // Create user record WITHOUT password (they'll set it via email)
+                  const userResult = await client.query(`
+                    INSERT INTO auth.users (email, name, phone, password_hash, is_admin, account_status)
+                    VALUES ($1, $2, $3, $4, $5, $6)
+                    RETURNING id, email, name
+                  `, [
+                    tenantData.personalEmail,
+                    `${tenantData.firstName} ${tenantData.lastName}`,
+                    tenantData.personalPhone || null,
+                    null, // No password - they'll set it via email
+                    false,
+                    'active' // Account status active - they can login once they set password
+                  ]);
+      
+      const user = userResult.rows[0];
+      
+      // Create tenant record
+      const tenantResult = await client.query(`
+        INSERT INTO tenants.business (
+          user_id, business_name, business_email, business_phone,
+          first_name, last_name, personal_email, personal_phone,
+          industry, application_status, application_date,
+          service_areas, notes, slug
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+        RETURNING id, slug, business_name
+      `, [
+        user.id,
+        tenantData.businessName,
+        tenantData.businessEmail,
+        tenantData.businessPhone,
+        tenantData.firstName,
+        tenantData.lastName,
+        tenantData.personalEmail,
+        tenantData.personalPhone || null,
+        tenantData.industry,
+        'approved', // Auto-approve for now
+        new Date(),
+        JSON.stringify([{
+          zip: tenantData.businessAddress?.zip || '',
+          city: tenantData.businessAddress?.city || '',
+          state: tenantData.businessAddress?.state || '',
+          minimum: 0,
+          primary: true,
+          multiplier: 1
+        }]),
+        `Payment: ${paymentIntentId}\nPlan: ${tenantData.selectedPlan}\nAddress: ${JSON.stringify(tenantData.businessAddress)}`,
+        slug
+      ]);
+      
+      const tenant = tenantResult.rows[0];
+      
+      await client.query('COMMIT');
+      
+      console.log('✅ Tenant created successfully:', { userId: user.id, tenantId: tenant.id, slug });
+      
+      // Send welcome email
+      try {
+        const emailData = {
+          firstName: tenantData.firstName,
+          businessName: tenantData.businessName,
+          personalEmail: tenantData.personalEmail,
+          businessEmail: tenantData.businessEmail,
+          websiteUrl: `http://${tenant.slug}.thatsmartsite.com`,
+          dashboardUrl: `/${tenant.slug}/dashboard`,
+          tempPassword: 'Please set your password via email' // Updated message since no temp password
+        };
+        
+        const emailResult = await sendWelcomeEmail(emailData);
+        if (emailResult.success) {
+          console.log('✅ Welcome email sent successfully');
+        } else {
+          console.warn('⚠️ Failed to send welcome email:', emailResult.error);
+        }
+      } catch (emailError) {
+        console.warn('⚠️ Email sending error:', emailError.message);
+        // Don't fail the entire transaction if email fails
+      }
+      
+      res.json({
+        success: true,
+        data: {
+          slug: tenant.slug,
+          websiteUrl: `http://${tenant.slug}.thatsmartsite.com`,
+          dashboardUrl: `/${tenant.slug}/dashboard`,
+          tenantId: tenant.id,
+          userId: user.id,
+          paymentIntentId
+        }
+      });
+      
+    } catch (transactionError) {
+      await client.query('ROLLBACK');
+      throw transactionError;
+    } finally {
+      client.release();
+    }
+    
   } catch (err) {
+    console.error('Payment confirmation error:', err);
     next(err)
   }
 })
@@ -21130,13 +21523,21 @@ inspectDatabase();
 *** FILE: backend\scripts\db-overview.js ***
 #!/usr/bin/env node
 
-const { Pool } = require('pg');
-require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
+import pkg from 'pg';
+const { Pool } = pkg;
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.join(__dirname, '../.env') });
 
 const dbConfig = {
   host: process.env.DB_HOST || 'localhost',
   port: process.env.DB_PORT || 5432,
-  database: process.env.DB_NAME || 'mdh',
+  database: process.env.DB_NAME || 'ThatSmartSite',
   user: process.env.DB_USER || 'postgres',
   password: process.env.DB_PASSWORD || 'password',
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
@@ -21573,6 +21974,7 @@ import tenantsRoutes from './routes/tenants.js'
 import adminRoutes from './routes/admin.js'
 import locationsRoutes from './routes/locations.js'
 import websiteContentRoutes from './routes/websiteContent.js'
+import googleReviewsRoutes from './routes/googleReviews.js'
 
 // Suppress debug/info noise in development
 if (process.env.LOG_LEVEL !== 'debug') {
@@ -21590,8 +21992,11 @@ app.use(cors({
     }
     const ok =
       origin.startsWith('http://localhost:5175') ||
+      origin.startsWith('http://localhost:5177') ||
       origin.startsWith('http://127.0.0.1:5175') ||
-      /^http:\/\/192\.168\.\d{1,3}\.\d{1,3}:5175$/.test(origin)
+      origin.startsWith('http://127.0.0.1:5177') ||
+      /^http:\/\/192\.168\.\d{1,3}\.\d{1,3}:5175$/.test(origin) ||
+      /^http:\/\/192\.168\.\d{1,3}\.\d{1,3}:5177$/.test(origin)
     cb(null, ok)
   },
   credentials: true,
@@ -21619,6 +22024,7 @@ app.use('/api/tenants', tenantsRoutes)
 app.use('/api/admin', adminRoutes)
 app.use('/api/locations', locationsRoutes)
 app.use('/api/website-content', websiteContentRoutes)
+app.use('/api/google-reviews', googleReviewsRoutes)
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, '0.0.0.0', () => {
@@ -21655,6 +22061,12 @@ async function checkEmailExists(email) {
   if (!email) {
     const error = new Error('Email is required');
     error.statusCode = 400;
+    throw error;
+  }
+
+  if (!pool) {
+    const error = new Error('Database connection not available');
+    error.statusCode = 500;
     throw error;
   }
 
@@ -22204,11 +22616,11 @@ const emailTemplates = {
             <div class="credentials">
               <p><strong>Dashboard URL:</strong> <a href="${data.dashboardUrl}">${data.dashboardUrl}</a></p>
               <p><strong>Email:</strong> ${data.personalEmail}</p>
-              <p><strong>Temporary Password:</strong> ${data.tempPassword}</p>
+              <p><strong>Password Setup:</strong> You'll need to set your password before logging in</p>
             </div>
             
             <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; border-radius: 4px;">
-              <p><strong>⚠️ Important:</strong> Please change your password after your first login for security.</p>
+              <p><strong>🔑 Password Setup Required:</strong> You'll receive a separate email with instructions to set your password. Please check your inbox and follow the setup process before logging in.</p>
             </div>
             
             <h3>🚀 What's Next?</h3>
@@ -22251,9 +22663,9 @@ Dashboard: ${data.dashboardUrl}
 
 Your Login Credentials:
 - Email: ${data.personalEmail}
-- Temporary Password: ${data.tempPassword}
+- Password Setup: You'll need to set your password before logging in
 
-⚠️ Important: Please change your password after your first login for security.
+🔑 Password Setup Required: You'll receive a separate email with instructions to set your password. Please check your inbox and follow the setup process before logging in.
 
 What's Next?
 - Customize your site - Add your photos, services, and business information
@@ -22404,6 +22816,227 @@ export {
   sendTestEmail,
   emailTemplates
 };
+
+
+*** END FILE ***
+
+*** FILE: backend\services\googleApi.js ***
+/**
+ * Google Business Profile API Service
+ * 
+ * Handles OAuth integration and review fetching from Google Business Profile
+ * Falls back gracefully when OAuth is not configured
+ */
+
+import { env } from '../config/env.js';
+import logger from '../utils/logger.js';
+
+/**
+ * Fetch Google Business Profile reviews for a tenant
+ * @param {string} tenantSlug - The tenant's business slug
+ * @returns {Promise<Array>} Array of review objects
+ */
+export async function getGoogleReviews(tenantSlug) {
+  try {
+    // Check if Google OAuth is configured
+    if (!env.GOOGLE_OAUTH_CLIENT_ID || !env.GOOGLE_OAUTH_CLIENT_SECRET) {
+      logger.info('Google OAuth not configured, returning empty reviews', { tenantSlug });
+      return [];
+    }
+
+    // TODO: Implement real Google Business Profile API integration
+    // This will be implemented when OAuth tokens are available
+    logger.info('Google OAuth configured but not yet implemented', { 
+      tenantSlug,
+      clientId: env.GOOGLE_OAUTH_CLIENT_ID ? 'configured' : 'missing'
+    });
+
+    // For now, return empty array to trigger mock fallback
+    return [];
+
+    /* 
+    // Future implementation will look like this:
+    
+    const accessToken = await getTenantAccessToken(tenantSlug);
+    if (!accessToken) {
+      logger.info('No OAuth token found for tenant', { tenantSlug });
+      return [];
+    }
+
+    const response = await fetch(
+      `https://mybusiness.googleapis.com/v4/accounts/${accountId}/locations/${locationId}/reviews`,
+      {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Google API error: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data.reviews || [];
+    */
+
+  } catch (error) {
+    logger.error('Error fetching Google reviews', { 
+      error: error.message, 
+      tenantSlug 
+    });
+    throw error;
+  }
+}
+
+/**
+ * Get OAuth access token for a tenant
+ * @param {string} tenantSlug - The tenant's business slug
+ * @returns {Promise<string|null>} Access token or null if not available
+ */
+export async function getTenantAccessToken(tenantSlug) {
+  try {
+    // TODO: Implement token retrieval from database
+    // This will query the tenants.oauth_tokens table
+    
+    logger.info('OAuth token retrieval not yet implemented', { tenantSlug });
+    return null;
+
+    /*
+    // Future implementation:
+    const { pool } = require('../database/pool.js');
+    const result = await pool.query(
+      'SELECT access_token, refresh_token, expires_at FROM tenants.oauth_tokens WHERE tenant_slug = $1 AND provider = $2',
+      [tenantSlug, 'google']
+    );
+
+    if (result.rows.length === 0) {
+      return null;
+    }
+
+    const tokenData = result.rows[0];
+    
+    // Check if token is expired and refresh if needed
+    if (new Date() > new Date(tokenData.expires_at)) {
+      return await refreshGoogleToken(tokenData.refresh_token, tenantSlug);
+    }
+
+    return tokenData.access_token;
+    */
+
+  } catch (error) {
+    logger.error('Error retrieving OAuth token', { 
+      error: error.message, 
+      tenantSlug 
+    });
+    return null;
+  }
+}
+
+/**
+ * Refresh Google OAuth token
+ * @param {string} refreshToken - The refresh token
+ * @param {string} tenantSlug - The tenant's business slug
+ * @returns {Promise<string|null>} New access token or null if refresh failed
+ */
+export async function refreshGoogleToken(refreshToken, tenantSlug) {
+  try {
+    // TODO: Implement token refresh logic
+    logger.info('Token refresh not yet implemented', { tenantSlug });
+    return null;
+
+    /*
+    // Future implementation:
+    const response = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: new URLSearchParams({
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+        client_id: env.GOOGLE_OAUTH_CLIENT_ID,
+        client_secret: env.GOOGLE_OAUTH_CLIENT_SECRET
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Token refresh failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    // Update token in database
+    await updateTenantToken(tenantSlug, data.access_token, data.expires_in);
+    
+    return data.access_token;
+    */
+
+  } catch (error) {
+    logger.error('Error refreshing Google token', { 
+      error: error.message, 
+      tenantSlug 
+    });
+    return null;
+  }
+}
+
+/**
+ * Update tenant OAuth token in database
+ * @param {string} tenantSlug - The tenant's business slug
+ * @param {string} accessToken - New access token
+ * @param {number} expiresIn - Token expiration in seconds
+ */
+export async function updateTenantToken(tenantSlug, accessToken, expiresIn) {
+  try {
+    // TODO: Implement database update
+    logger.info('Token database update not yet implemented', { tenantSlug });
+    
+    /*
+    // Future implementation:
+    const { pool } = require('../database/pool.js');
+    const expiresAt = new Date(Date.now() + (expiresIn * 1000));
+    
+    await pool.query(
+      `INSERT INTO tenants.oauth_tokens (tenant_slug, provider, access_token, expires_at, updated_at)
+       VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
+       ON CONFLICT (tenant_slug, provider)
+       DO UPDATE SET 
+         access_token = EXCLUDED.access_token,
+         expires_at = EXCLUDED.expires_at,
+         updated_at = CURRENT_TIMESTAMP`,
+      [tenantSlug, 'google', accessToken, expiresAt]
+    );
+    */
+
+  } catch (error) {
+    logger.error('Error updating tenant token', { 
+      error: error.message, 
+      tenantSlug 
+    });
+  }
+}
+
+/**
+ * Check if Google OAuth is configured
+ * @returns {boolean} True if OAuth credentials are available
+ */
+export function isGoogleOAuthConfigured() {
+  return !!(env.GOOGLE_OAUTH_CLIENT_ID && env.GOOGLE_OAUTH_CLIENT_SECRET);
+}
+
+/**
+ * Get Google OAuth configuration status
+ * @returns {Object} Configuration status object
+ */
+export function getOAuthStatus() {
+  return {
+    configured: isGoogleOAuthConfigured(),
+    clientId: env.GOOGLE_OAUTH_CLIENT_ID ? 'configured' : 'missing',
+    clientSecret: env.GOOGLE_OAUTH_CLIENT_SECRET ? 'configured' : 'missing'
+  };
+}
 
 
 *** END FILE ***
@@ -23754,9 +24387,8 @@ class StripeService {
       const paymentIntent = await stripe.paymentIntents.create({
         amount,
         currency,
-        automatic_payment_methods: {
-          enabled: true,
-        },
+        payment_method_types: ['card'],
+        confirmation_method: 'automatic',
         metadata: {
           ...metadata,
           customer_email: customerEmail,
@@ -26438,6 +27070,65 @@ module.exports = {
 
 *** END FILE ***
 
+*** FILE: backend\utils\tenantUtils.js ***
+/**
+ * Tenant Utility Functions
+ * 
+ * Helper functions for tenant-related operations
+ */
+
+/**
+ * Check if a tenant slug is a dummy/test tenant
+ * @param {string} tenantSlug - The tenant slug to check
+ * @returns {boolean} True if this is a dummy tenant
+ */
+export function isDummyTenant(tenantSlug) {
+  if (!tenantSlug) return false;
+  
+  const dummyTenants = [
+    'demo-tenant',
+    'brandan-test', 
+    'test-tenant',
+    'mock-tenant',
+    'preview-tenant',
+    'testing-mobile-detail'
+  ];
+  
+  return dummyTenants.includes(tenantSlug.toLowerCase());
+}
+
+/**
+ * Get list of dummy tenant slugs
+ * @returns {string[]} Array of dummy tenant slugs
+ */
+export function getDummyTenantSlugs() {
+  return [
+    'demo-tenant',
+    'brandan-test', 
+    'test-tenant',
+    'mock-tenant',
+    'preview-tenant',
+    'testing-mobile-detail'
+  ];
+}
+
+/**
+ * Validate tenant slug format
+ * @param {string} tenantSlug - The tenant slug to validate
+ * @returns {boolean} True if valid format
+ */
+export function isValidTenantSlug(tenantSlug) {
+  if (!tenantSlug || typeof tenantSlug !== 'string') return false;
+  
+  // Allow alphanumeric, hyphens, and underscores
+  // Length between 3-50 characters
+  const slugRegex = /^[a-zA-Z0-9_-]{3,50}$/;
+  return slugRegex.test(tenantSlug);
+}
+
+
+*** END FILE ***
+
 *** FILE: backend\utils\tokenManager.js ***
 /**
  * Token Manager
@@ -28593,10 +29284,10 @@ Would you like me to produce a **follow-up “refactor roadmap” markdown** (We
 ---
 
 ## 🌐 2. SEO Foundation
-❌ Implement per-tenant `robots.txt`  
-❌ Auto-generate `sitemap.xml` per tenant  
-❌ Add canonical + noindex for previews  
-❌ Create centralized JSON-LD helpers (LocalBusiness, Service, FAQ)  
+✅ Implement per-tenant `robots.txt`  
+✅ Auto-generate `sitemap.xml` per tenant  
+✅ Add canonical + noindex for previews  
+✅ Create centralized JSON-LD helpers (LocalBusiness, Service, FAQ)  
 ❌ SEO audit: Lighthouse SEO ≥ 90  
 
 **Acceptance:** Tenant pages emit valid canonical + JSON-LD, `/robots.txt` + `/sitemap.xml` resolve.
@@ -28605,9 +29296,9 @@ Would you like me to produce a **follow-up “refactor roadmap” markdown** (We
 
 ## 🎗️ 3. Multi-Tenant Routing & Config Loader
 ✅ Detect subdomain/custom domain (basic router scaffold exists)  
-❌ Load `{industry, theme, city/service pages}` from DB  
-❌ Fallback to `/data/<industry>.json` when DB empty  
-❌ Swap entire branding/config when switching subdomains  
+✅ Load `{industry, theme, city/service pages}` from DB  
+✅ Fallback to `/data/<industry>.json` when DB empty  
+✅ Swap entire branding/config when switching subdomains  
 ❌ Verify preview vs live domain logic  
 
 **Acceptance:** Switching subdomains fully swaps branding, services, and locations without code changes.
@@ -28615,11 +29306,11 @@ Would you like me to produce a **follow-up “refactor roadmap” markdown** (We
 ---
 
 ## 🗕️ 4. Booking System (Tier 2/3 Feature)
-❌ Define schema: Services → Time Slots → Bookings (tables exist but flow unimplemented)  
+✅ Define schema: Services → Time Slots → Bookings (tables exist but flow unimplemented)  
 ❌ Generate time slots from business hours  
-❌ Create booking from public site  
+✅ Create booking from public site  
 ❌ Send confirmation emails (tenant + client)  
-❌ Record booking in `booking.bookings`  
+✅ Record booking in `booking.bookings`  
 
 **Acceptance:** From public site, a client can select service → time → book → record saved.
 
@@ -28628,9 +29319,9 @@ Would you like me to produce a **follow-up “refactor roadmap” markdown** (We
 ## ⭐ 5. Reviews Ingestion & Display v1
 ✅ Database schema ready (`reputation.reviews`)  
 ❌ Mock nightly job or API pull  
-❌ Dashboard moderation toggle (“Approved”)  
-❌ Display reviews on homepage + /reviews  
-❌ Include structured Review schema markup  
+✅ Dashboard moderation toggle ("Approved")  
+✅ Display reviews on homepage + /reviews  
+✅ Include structured Review schema markup  
 
 **Acceptance:** Reviews render on site with SEO data and can be toggled visible via dashboard.
 
@@ -28638,12 +29329,12 @@ Would you like me to produce a **follow-up “refactor roadmap” markdown** (We
 
 ## 🧯 6. Tenant Dashboard — Minimal CMS
 ✅ Skeleton dashboard in progress  
-❌ “Business Profile” section (editable fields)  
-❌ “Services & Tiers” management  
-❌ “Service Areas & Hours” modules  
-❌ “Theme” customization (logo/colors)  
-❌ “Reviews Moderation” tab  
-❌ Mark default vs customized fields; include “Reset to Default”  
+✅ "Business Profile" section (editable fields)  
+✅ "Services & Tiers" management  
+✅ "Service Areas & Hours" modules  
+✅ "Theme" customization (logo/colors)  
+✅ "Reviews Moderation" tab  
+❌ Mark default vs customized fields; include "Reset to Default"  
 
 **Acceptance:** Tenant can replace default text/images through dashboard.
 
@@ -28652,9 +29343,9 @@ Would you like me to produce a **follow-up “refactor roadmap” markdown** (We
 ## ⚙️ 7. Quality Gates & Ops
 ✅ Feature-boundary lint rule (`check-import-boundaries.ts`)  
 ✅ Strict TypeScript config  
-❌ Add unit test coverage for hooks/utils  
+✅ Add unit test coverage for hooks/utils  
 ❌ Create seed script: one demo tenant per industry  
-❌ Scheduled Lighthouse/health check → write to `system.health_monitoring`  
+✅ Scheduled Lighthouse/health check → write to `system.health_monitoring`  
 ❌ Ensure CI blocks rule violations  
 
 **Acceptance:** Local build can spin demo tenant; CI + nightly checks pass cleanly.
@@ -28662,9 +29353,9 @@ Would you like me to produce a **follow-up “refactor roadmap” markdown** (We
 ---
 
 ## 🎯 8. Launch Readiness Checklist
-❌ Verify default emails (welcome, booking, review invite)  
-❌ Add SEO meta defaults (title, description, OG)  
-❌ Add Lighthouse + SSL verification script  
+✅ Verify default emails (welcome, booking, review invite)  
+✅ Add SEO meta defaults (title, description, OG)  
+✅ Add Lighthouse + SSL verification script  
 ❌ Final test with demo tenant → real subdomain → Stripe live mode  
 
 **Acceptance:** Demo tenant behaves like a real tenant with fully working SEO, booking, and dashboard.
@@ -28762,8 +29453,8 @@ Build on Reviews API first (Google, Facebook), then expand to posting automation
 ❌ Generate `get_public_configs()` endpoint from `system` schema  
 ❌ Finish tier gating via `has_plan_access(business_id, plan)`  
 ❌ Add industry seed data for Lawn Care / Maid / Grooming  
-❌ Implement health-monitor dashboard view using `system.tenant_health_summary`  
-❌ Add “AI Business Manager” insights (Phase 3)
+✅ Implement health-monitor dashboard view using `system.tenant_health_summary`  
+❌ Add "AI Business Manager" insights (Phase 3)
 
 
 
@@ -60324,14 +61015,15 @@ export const galleryApi = {
       // Filter out images that might be used for avatars (you can customize this logic)
       const backgroundImages = allImages.filter((img) => {
         if (!isValidGalleryImage(img)) return false;
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access -- TypeScript type inference issue with GalleryImage interface
         const src = img.src.toLowerCase();
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access -- TypeScript type inference issue with GalleryImage interface
         return !src.includes('avatar') && !src.includes('profile');
       });
       
       // Shuffle and take the requested count
-      const shuffled: GalleryImage[] = [...backgroundImages].sort(() => Math.random() - 0.5);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- TypeScript type inference issue with filter result
+      const shuffled = [...backgroundImages].sort(() => Math.random() - 0.5);
       return shuffled.slice(0, Math.min(count, shuffled.length));
     } catch (error) {
       console.error('Random Gallery API Error:', error);
@@ -60355,7 +61047,7 @@ export const galleryApi = {
       const allImages = await response.json() as GalleryImage[];
       return allImages.filter((img) => {
         if (!isValidGalleryImage(img)) return false;
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access -- TypeScript type inference issue with GalleryImage interface
         return img.tags.some((tag: string) => tag.toLowerCase().includes(category.toLowerCase()));
       });
     } catch (error) {
@@ -67052,6 +67744,133 @@ export const reviewsApi = {
 
 *** END FILE ***
 
+*** FILE: frontend\src\features\reviews\components\GoogleReviewsTest.tsx ***
+/**
+ * GoogleReviewsTest Component
+ * 
+ * Test component to demonstrate Google Reviews integration
+ * Shows how to use the useGoogleReviews hook
+ */
+
+import React from 'react';
+import { useGoogleReviews } from '../hooks';
+
+interface GoogleReviewsTestProps {
+  tenantSlug: string;
+}
+
+const GoogleReviewsTest: React.FC<GoogleReviewsTestProps> = ({ tenantSlug }) => {
+  const {
+    reviews,
+    summary,
+    isLoading,
+    isError,
+    error,
+    source,
+    message,
+    shouldShowReviews
+  } = useGoogleReviews({ tenantSlug });
+
+  if (isLoading) {
+    return (
+      <div className="p-4 bg-gray-50 rounded-lg">
+        <p className="text-gray-600">Loading Google reviews...</p>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+        <p className="text-red-600">Error loading reviews: {error?.message}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6 bg-white border border-gray-200 rounded-lg">
+      <div className="mb-4">
+        <h3 className="text-lg font-semibold text-gray-900">Google Reviews Test</h3>
+        <p className="text-sm text-gray-600">
+          Source: <span className="font-mono bg-gray-100 px-2 py-1 rounded">{source}</span>
+        </p>
+        {message && (
+          <p className="text-xs text-gray-500 mt-1">{message}</p>
+        )}
+      </div>
+
+      {summary && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <h4 className="font-medium text-blue-900 mb-2">Review Summary</h4>
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <span className="text-blue-700">Total Reviews:</span>
+              <span className="ml-2 font-semibold">{summary.totalReviews}</span>
+            </div>
+            <div>
+              <span className="text-blue-700">Average Rating:</span>
+              <span className="ml-2 font-semibold">{summary.averageRating}/5</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="space-y-4">
+        <h4 className="font-medium text-gray-900">Reviews ({reviews.length})</h4>
+        {reviews.map((review) => (
+          <div key={review.id} className="border border-gray-200 rounded-lg p-4">
+            <div className="flex items-start space-x-3">
+              {review.profileImage && (
+                <img
+                  src={review.profileImage}
+                  alt={review.customerName}
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+              )}
+              <div className="flex-1">
+                <div className="flex items-center space-x-2 mb-1">
+                  <span className="font-medium text-gray-900">{review.customerName}</span>
+                  <div className="flex items-center">
+                    {[...Array(5)].map((_, i) => (
+                      <span
+                        key={i}
+                        className={`text-sm ${
+                          i < review.rating ? 'text-yellow-400' : 'text-gray-300'
+                        }`}
+                      >
+                        ★
+                      </span>
+                    ))}
+                  </div>
+                  <span className="text-sm text-gray-500">{review.rating}/5</span>
+                </div>
+                <p className="text-gray-700 text-sm">{review.reviewText}</p>
+                <p className="text-xs text-gray-500 mt-2">
+                  {new Date(review.date).toLocaleDateString()}
+                </p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {!shouldShowReviews && (
+        <div className="text-center py-8 text-gray-500">
+          <p>No reviews found for this tenant.</p>
+          <p className="text-sm mt-2">
+            {source === 'mock' ? 'Mock reviews are only shown for dummy tenants.' : 'Reviews will appear here once Google OAuth is connected and reviews are available.'}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default GoogleReviewsTest;
+
+
+*** END FILE ***
+
 *** FILE: frontend\src\features\reviews\components\index.ts ***
 // Reviews feature components
 export { default as ReviewCard } from './ReviewCard';
@@ -67793,6 +68612,192 @@ export * from './useReviews';
 export * from './useReviewsContent';
 export * from './useReviewsRating';
 export * from './useRotatingReviews';
+export * from './useGoogleReviews';
+
+
+*** END FILE ***
+
+*** FILE: frontend\src\features\reviews\hooks\useGoogleReviews.ts ***
+/**
+ * useGoogleReviews Hook
+ * 
+ * Fetches Google Business Profile reviews with mock fallback
+ * Integrates with the backend Google Reviews API
+ */
+
+import { useQuery } from '@tanstack/react-query';
+import { useMemo } from 'react';
+
+export interface GoogleReview {
+  reviewId: string;
+  reviewer: {
+    displayName: string;
+    profilePhotoUrl?: string;
+  };
+  comment: string;
+  starRating: 'ONE' | 'TWO' | 'THREE' | 'FOUR' | 'FIVE';
+  createTime: string;
+  updateTime: string;
+}
+
+export interface GoogleReviewsResponse {
+  success: boolean;
+  data: GoogleReview[];
+  source: 'google' | 'mock';
+  tenantSlug: string;
+  message: string;
+}
+
+export interface UseGoogleReviewsOptions {
+  tenantSlug?: string;
+  enabled?: boolean;
+  refetchInterval?: number;
+}
+
+/**
+ * Convert Google star rating to number
+ */
+function starRatingToNumber(rating: string): number {
+  const ratingMap: Record<string, number> = {
+    'ONE': 1,
+    'TWO': 2,
+    'THREE': 3,
+    'FOUR': 4,
+    'FIVE': 5
+  };
+  return ratingMap[rating] || 5;
+}
+
+/**
+ * Transform Google review to frontend format
+ */
+function transformGoogleReview(review: GoogleReview) {
+  return {
+    id: review.reviewId,
+    customerName: review.reviewer.displayName,
+    profileImage: review.reviewer.profilePhotoUrl,
+    rating: starRatingToNumber(review.starRating),
+    reviewText: review.comment,
+    date: review.createTime,
+    isVerified: true, // Google reviews are verified
+    isFeatured: false,
+    source: 'google' as const
+  };
+}
+
+/**
+ * Hook to fetch Google Business Profile reviews
+ */
+export function useGoogleReviews(options: UseGoogleReviewsOptions = {}) {
+  const { tenantSlug, enabled = true, refetchInterval } = options;
+
+  const {
+    data: response,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    isRefetching
+  } = useQuery({
+    queryKey: ['google-reviews', tenantSlug],
+    queryFn: async (): Promise<GoogleReviewsResponse> => {
+      if (!tenantSlug) {
+        throw new Error('Tenant slug is required');
+      }
+
+      const response = await fetch(`/api/google-reviews/${tenantSlug}`);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch reviews: ${response.status} ${response.statusText}`);
+      }
+
+      return response.json();
+    },
+    enabled: enabled && !!tenantSlug,
+    refetchInterval,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 2
+  });
+
+  // Transform the data for frontend consumption
+  const reviews = useMemo(() => {
+    if (!response?.data) return [];
+    return response.data.map(transformGoogleReview);
+  }, [response?.data]);
+
+  // Calculate summary statistics
+  const summary = useMemo(() => {
+    if (!reviews.length) return null;
+
+    const totalReviews = reviews.length;
+    const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+    const averageRating = totalRating / totalReviews;
+    const ratingDistribution = reviews.reduce((dist, review) => {
+      dist[review.rating] = (dist[review.rating] || 0) + 1;
+      return dist;
+    }, {} as Record<number, number>);
+
+    return {
+      totalReviews,
+      averageRating: Math.round(averageRating * 10) / 10,
+      ratingDistribution,
+      source: response?.source || 'unknown'
+    };
+  }, [reviews, response?.source]);
+
+  // Determine if review section should be shown
+  const shouldShowReviews = reviews.length > 0;
+
+  return {
+    reviews,
+    summary,
+    isLoading,
+    isError,
+    error: error as Error | null,
+    refetch,
+    isRefetching,
+    source: response?.source,
+    message: response?.message,
+    shouldShowReviews
+  };
+}
+
+/**
+ * Hook to get Google Reviews health status
+ */
+export function useGoogleReviewsHealth(tenantSlug?: string) {
+  const {
+    data: health,
+    isLoading,
+    isError,
+    error
+  } = useQuery({
+    queryKey: ['google-reviews-health', tenantSlug],
+    queryFn: async () => {
+      if (!tenantSlug) {
+        throw new Error('Tenant slug is required');
+      }
+
+      const response = await fetch(`/api/google-reviews/${tenantSlug}/health`);
+      
+      if (!response.ok) {
+        throw new Error(`Health check failed: ${response.status} ${response.statusText}`);
+      }
+
+      return response.json();
+    },
+    enabled: !!tenantSlug,
+    refetchInterval: 60 * 1000, // Check every minute
+    staleTime: 30 * 1000 // 30 seconds
+  });
+
+  return {
+    health,
+    isLoading,
+    isError,
+    error: error as Error | null
+  };
+}
 
 
 *** END FILE ***
@@ -86814,7 +87819,33 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
         throw new Error('Card element not found');
       }
 
+      // Check payment intent status before confirming
+      console.log('Checking payment intent status before confirmation...');
+      const { error: retrieveError, paymentIntent: existingIntent } = await stripe.retrievePaymentIntent(clientSecret);
+      if (retrieveError) {
+        console.error('Error retrieving payment intent:', retrieveError);
+      } else {
+        console.log('Payment intent status before confirmation:', existingIntent.status);
+        
+        // If already succeeded, skip confirmation
+        if (existingIntent.status === 'succeeded') {
+          console.log('Payment already succeeded, proceeding with tenant creation...');
+          const confirmResult = await confirmPayment({
+            paymentIntentId: existingIntent.id,
+            tenantData: formData
+          });
+          
+          if (confirmResult.success && confirmResult.data) {
+            onPaymentSuccess(confirmResult.data);
+          } else {
+            setCardError(confirmResult.error || 'Failed to create your account');
+          }
+          return;
+        }
+      }
+
       // Confirm payment with Stripe
+      console.log('Confirming payment with client secret:', clientSecret);
       const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(
         clientSecret,
         {
@@ -86835,31 +87866,23 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
           },
         }
       );
+      
+      console.log('Payment confirmation result:', { stripeError, paymentIntent });
 
       if (stripeError) {
+        console.error('Stripe payment error:', stripeError);
         setCardError(stripeError.message || 'Payment failed');
         return;
       }
 
       if (paymentIntent.status === 'succeeded') {
-        // Generate a temporary password for the user
-        const tempPassword = Math.random().toString(36).substring(2, 15) + 
-                           Math.random().toString(36).substring(2, 15);
-
-        // Confirm payment and create tenant (let backend handle password hashing)
+        // Confirm payment and create tenant
         const confirmResult = await confirmPayment({
           paymentIntentId: paymentIntent.id,
-          tenantData: {
-            ...formData,
-            tempPassword, // Send plain password, let backend hash it
-          }
+          tenantData: formData
         });
         
         if (confirmResult.success && confirmResult.data) {
-          // Store the temporary password for the success page
-          sessionStorage.setItem('tempPassword', tempPassword);
-          sessionStorage.setItem('tenantEmail', formData.personalEmail);
-          
           // Call success callback
           onPaymentSuccess(confirmResult.data);
         } else {
@@ -86867,10 +87890,11 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
         }
       }
     } catch (error) {
+      console.error('Payment processing error:', error);
       if (error instanceof TypeError && error.message.includes('fetch')) {
         setCardError('Unable to connect to server. Please check your network connection.');
       } else {
-        setCardError('Payment failed. Please try again.');
+        setCardError(`Payment failed: ${error instanceof Error ? error.message : 'Please try again.'}`);
       }
     } finally {
       setIsProcessing(false);
@@ -87793,35 +88817,10 @@ const SuccessPage: React.FC = () => {
   }, []);
 
 
-  const handleGoToDashboard = async () => {
-    const tempPassword = sessionStorage.getItem('tempPassword');
-    const tenantEmail = sessionStorage.getItem('tenantEmail');
-    
-    if (!tempPassword || !tenantEmail || !dashboardUrl) {
-      return;
-    }
-
-    setIsLoggingIn(true);
-    
-    try {
-      const result = await login(tenantEmail, tempPassword);
-      
-      if (result.success) {
-        // Clean up temporary credentials
-        sessionStorage.removeItem('tempPassword');
-        sessionStorage.removeItem('tenantEmail');
-        
-        // Navigate to dashboard
-        void navigate(dashboardUrl);
-      } else {
-        // Fallback: navigate to dashboard URL anyway (user can login manually)
-        void navigate(dashboardUrl);
-      }
-    } catch {
-      // Fallback: navigate to dashboard URL anyway
+  const handleGoToDashboard = () => {
+    // Simply navigate to dashboard - user will need to login with their email-set password
+    if (dashboardUrl) {
       void navigate(dashboardUrl);
-    } finally {
-      setIsLoggingIn(false);
     }
   };
 
@@ -87853,14 +88852,13 @@ const SuccessPage: React.FC = () => {
               Now let&apos;s customize it to make it perfect for your business!
             </p>
             <Button 
-              onClick={() => { void handleGoToDashboard(); }}
-              disabled={isLoggingIn}
+              onClick={handleGoToDashboard}
               variant="primary"
               size="lg"
               className="w-full bg-green-600 hover:bg-green-700 flex items-center justify-center gap-2"
             >
               <Settings className="w-5 h-5" />
-              {isLoggingIn ? 'Logging In...' : 'Go to Dashboard'}
+              Go to Dashboard
             </Button>
           </div>
         )}
@@ -87881,7 +88879,7 @@ const SuccessPage: React.FC = () => {
                 </li>
                 <li className="flex items-start">
                   <span className="text-orange-400 mr-2">•</span>
-                  <span>You&apos;ll receive a welcome email with your login credentials</span>
+                  <span>You&apos;ll receive a welcome email with instructions to set your password</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-orange-400 mr-2">•</span>
@@ -88110,6 +89108,11 @@ const TenantApplicationPage: React.FC = () => {
             
             // eslint-disable-next-line no-restricted-globals, no-restricted-syntax -- Isolated onboarding check, API client refactor planned
             const response = await fetch(`${config.apiUrl || ''}/api/auth/check-email?email=${encodeURIComponent(formData.personalEmail)}`);
+            
+            if (!response.ok) {
+              throw new Error(`Email check failed: ${response.status} ${response.statusText}`);
+            }
+            
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Response typing improvement planned
             const result = await response.json();
             
@@ -88120,8 +89123,9 @@ const TenantApplicationPage: React.FC = () => {
             }
           } catch (emailCheckError) {
             console.error('Error checking email:', emailCheckError);
-            // If the email check fails, we'll allow them to proceed
-            // The backend will catch duplicates during signup
+            // Show a warning but allow them to proceed
+            setErrors({ personalEmail: 'Unable to verify email availability. You can still proceed - duplicates will be caught during signup.' });
+            // Don't block the user, just warn them
           }
           
           return true;
@@ -93115,7 +94119,7 @@ interface WebsiteContentProviderProps {
 export const WebsiteContentProvider: React.FC<WebsiteContentProviderProps> = ({ children }) => {
   // Get tenant slug from URL params (same logic as DataProvider)
   const params = useParams();
-  const slug = params.businessSlug || params.tenantSlug || params.slug || 'jps';
+  const slug = params.businessSlug || params.tenantSlug || params.slug;
 
   // Skip fetching for non-tenant routes (admin, onboarding, login, etc.)
   const currentPath = window.location.pathname;
@@ -93136,7 +94140,10 @@ export const WebsiteContentProvider: React.FC<WebsiteContentProviderProps> = ({ 
   } = useQuery({
     queryKey: ['shared','websiteContent', slug],
     queryFn: async () => {
-      // Always use the tenant-specific endpoint since main site uses 'jps' tenant
+      // Only fetch if we have a valid slug
+      if (!slug) {
+        return null;
+      }
       const result = await websiteContentApi.getWebsiteContent(slug);
       return result;
     },
@@ -112547,25 +113554,63 @@ export { runSEOTests };
 
 *** END FILE ***
 
+*** FILE: scripts\start-frontend.js ***
+// scripts/start-frontend.js
+import fs from 'fs';
+import { spawn } from 'child_process';
+import path from 'path';
+
+// Read the port from .frontend-port.json
+let port = 5175;
+try {
+  const data = JSON.parse(fs.readFileSync('.frontend-port.json', 'utf8'));
+  port = data.port;
+} catch (error) {
+  console.warn('⚠️ No .frontend-port.json found, using default port 5175');
+}
+
+console.log(`🚀 Starting frontend on port ${port}...`);
+
+// Change to frontend directory and run vite
+process.chdir('frontend');
+
+// Use npx to ensure we get the locally installed vite
+const vite = spawn('npx', ['vite', '--port', port.toString(), '--host'], {
+  stdio: 'inherit',
+  shell: true // This helps with Windows compatibility
+});
+
+vite.on('error', (error) => {
+  console.error('❌ Failed to start Vite:', error.message);
+  process.exit(1);
+});
+
+vite.on('close', (code) => {
+  console.log(`Frontend process exited with code ${code}`);
+});
+
+
+*** END FILE ***
+
 *** PROJECT_STRUCTURE ***
 # Project Structure
 
 ## Summary
 ```json
 {
-  "generated": "2025-10-16T22:57:36.648Z",
+  "generated": "2025-10-17T01:24:09.545Z",
   "projectRoot": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh",
   "targetFolder": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh",
   "counts": {
-    "totalFilesInTarget": 940,
+    "totalFilesInTarget": 947,
     "byExtension": {
-      ".js": 111,
+      ".js": 115,
       ".md": 57,
       ".sql": 43,
-      ".json": 93,
-      ".ts": 361,
+      ".json": 94,
+      ".ts": 362,
       ".html": 1,
-      ".tsx": 272,
+      ".tsx": 273,
       ".css": 1,
       ".bat": 1
     }
@@ -112617,6 +113662,8 @@ mdh/
       validation.js
       withTenant.js
       zodValidation.js
+    mocks/
+      mockReviews.json
     package-lock.json
     package.json
     README.md
@@ -112628,6 +113675,7 @@ mdh/
       avatar.js
       customers.js
       gallery.js
+      googleReviews.js
       health.js
       healthMonitoring.js
       locations.js
@@ -112661,6 +113709,7 @@ mdh/
       authService.js
       cronService.js
       emailService.js
+      googleApi.js
       googleBusinessScraper.js
       healthMonitor.js
       passwordResetService.js
@@ -112685,6 +113734,7 @@ mdh/
       migrationTracker.js
       previewToken.js
       serviceAreaProcessor.js
+      tenantUtils.js
       tokenManager.js
       uploadValidator.js
       validationSchemas.js
@@ -112782,6 +113832,7 @@ mdh/
       provision-config.js
       test-anchors.js
       test-endpoints.js
+    start-frontend.js
   thatsmartsite-frontend@0.0.0
   thatsmartsite@1.0.0
   vite
@@ -112899,6 +113950,8 @@ mdh/
       validation.js
       withTenant.js
       zodValidation.js
+    mocks/
+      mockReviews.json
     package.json
     routes/
       __tests__/
@@ -112909,6 +113962,7 @@ mdh/
       avatar.js
       customers.js
       gallery.js
+      googleReviews.js
       health.js
       healthMonitoring.js
       locations.js
@@ -112947,6 +114001,7 @@ mdh/
       authService.js
       cronService.js
       emailService.js
+      googleApi.js
       googleBusinessScraper.js
       healthMonitor.js
       passwordResetService.js
@@ -112968,6 +114023,7 @@ mdh/
       migrationTracker.js
       previewToken.js
       serviceAreaProcessor.js
+      tenantUtils.js
       tokenManager.js
       uploadValidator.js
       validationSchemas.js
@@ -113507,6 +114563,7 @@ mdh/
             index.ts
             reviewsApi.ts
           components/
+            GoogleReviewsTest.tsx
             ReviewCard.tsx
             ReviewModal.tsx
             Reviews.tsx
@@ -113515,6 +114572,7 @@ mdh/
             index.ts
           hooks/
             index.ts
+            useGoogleReviews.ts
             useReviews.ts
             useReviewsAvailability.ts
             useReviewsContent.ts
@@ -113997,5 +115055,6 @@ mdh/
       provision-config.js
       test-anchors.js
       test-endpoints.js
+    start-frontend.js
 ```
 *** END PROJECT_STRUCTURE ***

@@ -28,6 +28,12 @@ async function checkEmailExists(email) {
     throw error;
   }
 
+  if (!pool) {
+    const error = new Error('Database connection not available');
+    error.statusCode = 500;
+    throw error;
+  }
+
   const result = await pool.query('SELECT id FROM auth.users WHERE email = $1', [email]);
   return result.rows.length > 0;
 }

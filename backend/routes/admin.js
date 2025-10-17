@@ -205,22 +205,23 @@ router.delete('/tenants/:id', criticalAdminLimiter, authenticateToken, requireAd
 
 // Users endpoint - Get all users with their roles
 router.get('/users', authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
-  if (!pool) {
-    const error = new Error('Database connection not available');
-    error.statusCode = 500;
-    throw error;
-  }
-  
-  const { status } = req.query;
-  
-  // Audit log the users query
-  logger.adminAction('QUERY_USERS', 'users', { 
-    status: status || 'all-users',
-    query: status === 'tenants' ? 'tenants_table' : 'users_table'
-  }, {
-    userId: req.user?.userId || 'anonymous',
-    email: req.user?.email || 'anonymous'
-  });
+  try {
+    if (!pool) {
+      const error = new Error('Database connection not available');
+      error.statusCode = 500;
+      throw error;
+    }
+    
+    const { status } = req.query;
+    
+    // Audit log the users query
+    logger.adminAction('QUERY_USERS', 'users', { 
+      status: status || 'all-users',
+      query: status === 'tenants' ? 'tenants_table' : 'users_table'
+    }, {
+      userId: req.user?.userId || 'anonymous',
+      email: req.user?.email || 'anonymous'
+    });
   
   if (status === 'tenants') {
     // For tenants, query the tenants table directly
@@ -318,12 +319,21 @@ router.get('/users', authenticateToken, requireAdmin, asyncHandler(async (req, r
     role: row.role || (row.is_admin ? 'admin' : row.tenant_id ? 'tenant' : 'customer')
   }));
   
-  res.json({
-    success: true,
-    users: usersWithRoles,
-    count: result.rowCount,
-    message: `Found ${result.rowCount} users in database`
-  });
+    res.json({
+      success: true,
+      users: usersWithRoles,
+      count: result.rowCount,
+      message: `Found ${result.rowCount} users in database`
+    });
+  } catch (error) {
+    logger.error('Error in admin users endpoint:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user?.userId,
+      email: req.user?.email
+    });
+    throw error;
+  }
 }));
 
 // Pending tenant applications endpoint

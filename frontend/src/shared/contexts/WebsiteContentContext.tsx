@@ -23,7 +23,7 @@ interface WebsiteContentProviderProps {
 export const WebsiteContentProvider: React.FC<WebsiteContentProviderProps> = ({ children }) => {
   // Get tenant slug from URL params (same logic as DataProvider)
   const params = useParams();
-  const slug = params.businessSlug || params.tenantSlug || params.slug || 'jps';
+  const slug = params.businessSlug || params.tenantSlug || params.slug;
 
   // Skip fetching for non-tenant routes (admin, onboarding, login, etc.)
   const currentPath = window.location.pathname;
@@ -44,7 +44,10 @@ export const WebsiteContentProvider: React.FC<WebsiteContentProviderProps> = ({ 
   } = useQuery({
     queryKey: ['shared','websiteContent', slug],
     queryFn: async () => {
-      // Always use the tenant-specific endpoint since main site uses 'jps' tenant
+      // Only fetch if we have a valid slug
+      if (!slug) {
+        return null;
+      }
       const result = await websiteContentApi.getWebsiteContent(slug);
       return result;
     },

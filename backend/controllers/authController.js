@@ -55,31 +55,43 @@ async function register(req, res) {
  * Login user
  */
 async function login(req, res) {
+  console.log('=== LOGIN DEBUG ===');
+  console.log('Request body:', req.body);
+  console.log('User agent:', req.get('User-Agent'));
+  console.log('IP address:', req.ip);
+  
   const credentials = req.body;
   const userAgent = req.get('User-Agent');
   const ipAddress = req.ip;
   
-  const result = await authService.loginUser(credentials, userAgent, ipAddress);
-  
-  // Set HttpOnly cookies for enhanced security
-  res.cookie('access_token', result.tokens.accessToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    path: '/',
-    maxAge: 15 * 60 * 1000 // 15 minutes (matches access token expiry)
-  });
-  
-  res.cookie(AUTH_CONFIG.REFRESH_COOKIE_NAME, result.tokens.refreshToken, AUTH_CONFIG.getRefreshCookieOptions())
-  
-  res.json({
-    success: true,
-    user: result.user,
-    accessToken: result.tokens.accessToken,
-    refreshToken: result.tokens.refreshToken,
-    expiresIn: result.tokens.expiresIn,
-    refreshExpiresIn: result.tokens.refreshExpiresIn
-  });
+  try {
+    const result = await authService.loginUser(credentials, userAgent, ipAddress);
+    console.log('Login successful for:', credentials.email);
+    
+    // Set HttpOnly cookies for enhanced security
+    res.cookie('access_token', result.tokens.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 15 * 60 * 1000 // 15 minutes (matches access token expiry)
+    });
+    
+    res.cookie(AUTH_CONFIG.REFRESH_COOKIE_NAME, result.tokens.refreshToken, AUTH_CONFIG.getRefreshCookieOptions())
+    
+    res.json({
+      success: true,
+      user: result.user,
+      accessToken: result.tokens.accessToken,
+      refreshToken: result.tokens.refreshToken,
+      expiresIn: result.tokens.expiresIn,
+      refreshExpiresIn: result.tokens.refreshExpiresIn
+    });
+  } catch (error) {
+    console.error('Login error:', error.message);
+    console.error('Error stack:', error.stack);
+    throw error;
+  }
 }
 
 /**

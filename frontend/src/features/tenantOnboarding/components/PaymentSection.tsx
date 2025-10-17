@@ -139,7 +139,33 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
         throw new Error('Card element not found');
       }
 
+      // Check payment intent status before confirming
+      console.log('Checking payment intent status before confirmation...');
+      const { error: retrieveError, paymentIntent: existingIntent } = await stripe.retrievePaymentIntent(clientSecret);
+      if (retrieveError) {
+        console.error('Error retrieving payment intent:', retrieveError);
+      } else {
+        console.log('Payment intent status before confirmation:', existingIntent.status);
+        
+        // If already succeeded, skip confirmation
+        if (existingIntent.status === 'succeeded') {
+          console.log('Payment already succeeded, proceeding with tenant creation...');
+          const confirmResult = await confirmPayment({
+            paymentIntentId: existingIntent.id,
+            tenantData: formData
+          });
+          
+          if (confirmResult.success && confirmResult.data) {
+            onPaymentSuccess(confirmResult.data);
+          } else {
+            setCardError(confirmResult.error || 'Failed to create your account');
+          }
+          return;
+        }
+      }
+
       // Confirm payment with Stripe
+      console.log('Confirming payment with client secret:', clientSecret);
       const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(
         clientSecret,
         {
@@ -160,31 +186,23 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
           },
         }
       );
+      
+      console.log('Payment confirmation result:', { stripeError, paymentIntent });
 
       if (stripeError) {
+        console.error('Stripe payment error:', stripeError);
         setCardError(stripeError.message || 'Payment failed');
         return;
       }
 
       if (paymentIntent.status === 'succeeded') {
-        // Generate a temporary password for the user
-        const tempPassword = Math.random().toString(36).substring(2, 15) + 
-                           Math.random().toString(36).substring(2, 15);
-
-        // Confirm payment and create tenant (let backend handle password hashing)
+        // Confirm payment and create tenant
         const confirmResult = await confirmPayment({
           paymentIntentId: paymentIntent.id,
-          tenantData: {
-            ...formData,
-            tempPassword, // Send plain password, let backend hash it
-          }
+          tenantData: formData
         });
         
         if (confirmResult.success && confirmResult.data) {
-          // Store the temporary password for the success page
-          sessionStorage.setItem('tempPassword', tempPassword);
-          sessionStorage.setItem('tenantEmail', formData.personalEmail);
-          
           // Call success callback
           onPaymentSuccess(confirmResult.data);
         } else {
@@ -192,10 +210,11 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
         }
       }
     } catch (error) {
+      console.error('Payment processing error:', error);
       if (error instanceof TypeError && error.message.includes('fetch')) {
         setCardError('Unable to connect to server. Please check your network connection.');
       } else {
-        setCardError('Payment failed. Please try again.');
+        setCardError(`Payment failed: ${error instanceof Error ? error.message : 'Please try again.'}`);
       }
     } finally {
       setIsProcessing(false);

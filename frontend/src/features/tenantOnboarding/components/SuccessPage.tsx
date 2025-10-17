@@ -33,35 +33,10 @@ const SuccessPage: React.FC = () => {
   }, []);
 
 
-  const handleGoToDashboard = async () => {
-    const tempPassword = sessionStorage.getItem('tempPassword');
-    const tenantEmail = sessionStorage.getItem('tenantEmail');
-    
-    if (!tempPassword || !tenantEmail || !dashboardUrl) {
-      return;
-    }
-
-    setIsLoggingIn(true);
-    
-    try {
-      const result = await login(tenantEmail, tempPassword);
-      
-      if (result.success) {
-        // Clean up temporary credentials
-        sessionStorage.removeItem('tempPassword');
-        sessionStorage.removeItem('tenantEmail');
-        
-        // Navigate to dashboard
-        void navigate(dashboardUrl);
-      } else {
-        // Fallback: navigate to dashboard URL anyway (user can login manually)
-        void navigate(dashboardUrl);
-      }
-    } catch {
-      // Fallback: navigate to dashboard URL anyway
+  const handleGoToDashboard = () => {
+    // Simply navigate to dashboard - user will need to login with their email-set password
+    if (dashboardUrl) {
       void navigate(dashboardUrl);
-    } finally {
-      setIsLoggingIn(false);
     }
   };
 
@@ -93,14 +68,13 @@ const SuccessPage: React.FC = () => {
               Now let&apos;s customize it to make it perfect for your business!
             </p>
             <Button 
-              onClick={() => { void handleGoToDashboard(); }}
-              disabled={isLoggingIn}
+              onClick={handleGoToDashboard}
               variant="primary"
               size="lg"
               className="w-full bg-green-600 hover:bg-green-700 flex items-center justify-center gap-2"
             >
               <Settings className="w-5 h-5" />
-              {isLoggingIn ? 'Logging In...' : 'Go to Dashboard'}
+              Go to Dashboard
             </Button>
           </div>
         )}
@@ -121,7 +95,7 @@ const SuccessPage: React.FC = () => {
                 </li>
                 <li className="flex items-start">
                   <span className="text-orange-400 mr-2">•</span>
-                  <span>You&apos;ll receive a welcome email with your login credentials</span>
+                  <span>You&apos;ll receive a welcome email with instructions to set your password</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-orange-400 mr-2">•</span>

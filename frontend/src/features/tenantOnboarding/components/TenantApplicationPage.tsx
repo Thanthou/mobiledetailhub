@@ -169,6 +169,11 @@ const TenantApplicationPage: React.FC = () => {
             
             // eslint-disable-next-line no-restricted-globals, no-restricted-syntax -- Isolated onboarding check, API client refactor planned
             const response = await fetch(`${config.apiUrl || ''}/api/auth/check-email?email=${encodeURIComponent(formData.personalEmail)}`);
+            
+            if (!response.ok) {
+              throw new Error(`Email check failed: ${response.status} ${response.statusText}`);
+            }
+            
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Response typing improvement planned
             const result = await response.json();
             
@@ -179,8 +184,9 @@ const TenantApplicationPage: React.FC = () => {
             }
           } catch (emailCheckError) {
             console.error('Error checking email:', emailCheckError);
-            // If the email check fails, we'll allow them to proceed
-            // The backend will catch duplicates during signup
+            // Show a warning but allow them to proceed
+            setErrors({ personalEmail: 'Unable to verify email availability. You can still proceed - duplicates will be caught during signup.' });
+            // Don't block the user, just warn them
           }
           
           return true;

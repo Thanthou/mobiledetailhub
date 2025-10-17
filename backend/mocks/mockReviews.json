@@ -1,0 +1,68 @@
+[
+  {
+    "reviewId": "demo-1",
+    "reviewer": {
+      "displayName": "Sarah Johnson",
+      "profilePhotoUrl": "/shared/preview-avatars/avatar-1.jfif"
+    },
+    "comment": "Excellent service! The team was professional, punctual, and did an amazing job. My car looks brand new. Highly recommend!",
+    "starRating": "FIVE",
+    "createTime": "2024-12-01T14:30:00Z",
+    "updateTime": "2024-12-01T14:30:00Z"
+  },
+  {
+    "reviewId": "demo-2",
+    "reviewer": {
+      "displayName": "Mike Rodriguez",
+      "profilePhotoUrl": "/shared/preview-avatars/avatar-2.jfif"
+    },
+    "comment": "Very professional and thorough. Great communication throughout the process. Will definitely use again!",
+    "starRating": "FIVE",
+    "createTime": "2024-11-28T10:15:00Z",
+    "updateTime": "2024-11-28T10:15:00Z"
+  },
+  {
+    "reviewId": "demo-3",
+    "reviewer": {
+      "displayName": "Emily Chen",
+      "profilePhotoUrl": "/shared/preview-avatars/avatar-3.jfif"
+    },
+    "comment": "Fast, efficient, and great results. The booking process was easy and they arrived right on time. Very satisfied!",
+    "starRating": "FOUR",
+    "createTime": "2024-11-25T16:45:00Z",
+    "updateTime": "2024-11-25T16:45:00Z"
+  },
+  {
+    "reviewId": "demo-4",
+    "reviewer": {
+      "displayName": "David Thompson",
+      "profilePhotoUrl": "/shared/preview-avatars/avatar-4.jfif"
+    },
+    "comment": "Outstanding work! They went above and beyond to make sure everything was perfect. Worth every penny.",
+    "starRating": "FIVE",
+    "createTime": "2024-11-22T09:20:00Z",
+    "updateTime": "2024-11-22T09:20:00Z"
+  },
+  {
+    "reviewId": "demo-5",
+    "reviewer": {
+      "displayName": "Lisa Anderson",
+      "profilePhotoUrl": "/shared/preview-avatars/avatar-5.jfif"
+    },
+    "comment": "Great service and easy booking process. The team was friendly and did excellent work. Highly recommend!",
+    "starRating": "FIVE",
+    "createTime": "2024-11-20T13:10:00Z",
+    "updateTime": "2024-11-20T13:10:00Z"
+  },
+  {
+    "reviewId": "demo-6",
+    "reviewer": {
+      "displayName": "Robert Wilson",
+      "profilePhotoUrl": "/shared/preview-avatars/avatar-6.jfif"
+    },
+    "comment": "Professional service with attention to detail. They arrived on time and completed the work efficiently.",
+    "starRating": "FOUR",
+    "createTime": "2024-11-18T11:30:00Z",
+    "updateTime": "2024-11-18T11:30:00Z"
+  }
+]

@@ -12,6 +12,7 @@ import tenantsRoutes from './routes/tenants.js'
 import adminRoutes from './routes/admin.js'
 import locationsRoutes from './routes/locations.js'
 import websiteContentRoutes from './routes/websiteContent.js'
+import googleReviewsRoutes from './routes/googleReviews.js'
 
 // Suppress debug/info noise in development
 if (process.env.LOG_LEVEL !== 'debug') {
@@ -29,8 +30,11 @@ app.use(cors({
     }
     const ok =
       origin.startsWith('http://localhost:5175') ||
+      origin.startsWith('http://localhost:5177') ||
       origin.startsWith('http://127.0.0.1:5175') ||
-      /^http:\/\/192\.168\.\d{1,3}\.\d{1,3}:5175$/.test(origin)
+      origin.startsWith('http://127.0.0.1:5177') ||
+      /^http:\/\/192\.168\.\d{1,3}\.\d{1,3}:5175$/.test(origin) ||
+      /^http:\/\/192\.168\.\d{1,3}\.\d{1,3}:5177$/.test(origin)
     cb(null, ok)
   },
   credentials: true,
@@ -58,6 +62,7 @@ app.use('/api/tenants', tenantsRoutes)
 app.use('/api/admin', adminRoutes)
 app.use('/api/locations', locationsRoutes)
 app.use('/api/website-content', websiteContentRoutes)
+app.use('/api/google-reviews', googleReviewsRoutes)
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, '0.0.0.0', () => {

@@ -57,11 +57,11 @@ const emailTemplates = {
             <div class="credentials">
               <p><strong>Dashboard URL:</strong> <a href="${data.dashboardUrl}">${data.dashboardUrl}</a></p>
               <p><strong>Email:</strong> ${data.personalEmail}</p>
-              <p><strong>Temporary Password:</strong> ${data.tempPassword}</p>
+              <p><strong>Password Setup:</strong> You'll need to set your password before logging in</p>
             </div>
             
             <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; border-radius: 4px;">
-              <p><strong>⚠️ Important:</strong> Please change your password after your first login for security.</p>
+              <p><strong>🔑 Password Setup Required:</strong> You'll receive a separate email with instructions to set your password. Please check your inbox and follow the setup process before logging in.</p>
             </div>
             
             <h3>🚀 What's Next?</h3>
@@ -104,9 +104,9 @@ Dashboard: ${data.dashboardUrl}
 
 Your Login Credentials:
 - Email: ${data.personalEmail}
-- Temporary Password: ${data.tempPassword}
+- Password Setup: You'll need to set your password before logging in
 
-⚠️ Important: Please change your password after your first login for security.
+🔑 Password Setup Required: You'll receive a separate email with instructions to set your password. Please check your inbox and follow the setup process before logging in.
 
 What's Next?
 - Customize your site - Add your photos, services, and business information
