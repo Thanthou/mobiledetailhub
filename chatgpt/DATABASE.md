@@ -1,6 +1,6 @@
 # Database Overview (Auto-Generated)
 
-Generated: 2025-10-17T20:08:16.405Z
+Generated: 2025-10-17T23:09:05.148Z
 
 ```
 
@@ -423,9 +423,11 @@ Generated: 2025-10-17T20:08:16.405Z
       • business_id: integer NULL
 
    system.schema_migrations
-      • version: character varying(50) NOT NULL
+      • id: integer NOT NULL = nextval('system.schema_migrati
+      • filename: text NOT NULL
       • applied_at: timestamp with time zone NULL = CURRENT_TIMESTAMP
-      • description: text NOT NULL
+      • checksum: text NULL
+      • rollback_sql: text NULL
 
    system.system_config
       • id: integer NOT NULL = nextval('system.system_config_
@@ -469,6 +471,7 @@ Generated: 2025-10-17T20:08:16.405Z
       • created_at: timestamp with time zone NULL = CURRENT_TIMESTAMP
       • updated_at: timestamp with time zone NULL = CURRENT_TIMESTAMP
       • website: text NULL
+      • example_field: text NULL
 
    tenants.service_tiers
       • id: integer NOT NULL = nextval('tenants.service_tiers

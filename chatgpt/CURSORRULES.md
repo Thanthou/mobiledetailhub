@@ -1,6 +1,6 @@
 # Cursor Rules (Auto-Generated)
 
-Generated: 2025-10-17T20:08:16.188Z
+Generated: 2025-10-17T23:09:04.936Z
 
 Source: `.cursorrules`
 
@@ -102,6 +102,36 @@ Multi-tenant, white-label website generator for industry-specific local services
         "TypeScript: no implicit any; no eslint-disable unless justified.",
         "Named exports by default; avoid default exports except for pages/components that are consumed by routers.",
         "Use absolute imports with '@/' alias."
+      ]
+    },
+    {
+      "pattern": "backend/migrations/**/*.sql",
+      "instructions": [
+        "Migration files must follow naming convention: YYYY-MM-DD_HHMM_description.sql",
+        "Include both forward migration SQL and optional rollback SQL in comments.",
+        "When a new migration is added, run `npm run migrate` to apply it locally.",
+        "After applying, run `npm run db:snapshot` to regenerate docs/DATABASE.md.",
+        "Never modify existing migration files once committed to version control.",
+        "Always test migrations on staging environment before production.",
+        "Include rollback instructions when possible using -- ROLLBACK: comment format."
+      ]
+    },
+    {
+      "pattern": "backend/scripts/migrate.js",
+      "instructions": [
+        "Migration script handles automatic detection and application of pending migrations.",
+        "Tracks applied migrations in system.schema_migrations table with checksums.",
+        "Provides safety checks to prevent double-application and content changes.",
+        "Supports both 'migrate' and 'list' commands for status checking."
+      ]
+    },
+    {
+      "pattern": "backend/scripts/rollback.js",
+      "instructions": [
+        "Rollback script safely reverses the last applied migration.",
+        "Requires explicit user confirmation before executing rollback.",
+        "Uses rollback SQL stored in system.schema_migrations table.",
+        "Provides 'list' command to show recent migrations and rollback availability."
       ]
     }
   ]

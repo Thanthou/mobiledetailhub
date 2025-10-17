@@ -3,6 +3,10 @@ if (!process.env.LOG_LEVEL) {
   process.env.LOG_LEVEL = 'error'
 }
 
+// Load environment variables from root .env file
+import dotenv from 'dotenv'
+dotenv.config({ path: path.resolve(process.cwd(), '../.env') })
+
 import express from 'express'
 import cors from 'cors'
 import path from 'path'
