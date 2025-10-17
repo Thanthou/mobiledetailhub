@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "build:analyze": "cross-env ANALYZE=true vite build",
-    "prebuild": "npm run optimize-images",
+    "prebuild": "echo 'Skipping image optimization for now'",
     "lint": "eslint . && npm run lint:boundaries",
     "lint:fix": "eslint . --fix",
     "lint:boundaries": "tsx scripts/check-import-boundaries.ts",
