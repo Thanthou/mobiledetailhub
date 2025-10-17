@@ -95,6 +95,27 @@ const ReviewsTab: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Google Reviews Integration */}
+      <div className="bg-blue-900 rounded-lg p-6 border border-blue-700">
+        <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+          <Star className="w-5 h-5 text-yellow-400" />
+          Google Reviews Integration
+        </h2>
+        <p className="text-blue-200 mb-4">
+          Connect your Google Business Profile to automatically fetch and display reviews on your website.
+        </p>
+        <a 
+          href="http://localhost:3001/api/google/auth"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+        >
+          <Star className="w-4 h-4" />
+          Connect Google Reviews
+        </a>
+        <p className="text-xs text-blue-300 mt-2">
+          This will open Google's authorization screen to connect your business profile.
+        </p>
+      </div>
+
       <div className="bg-gray-800 rounded-lg p-6">
         <h2 className="text-xl font-semibold text-white mb-4">Seed Reviews</h2>
         <p className="text-gray-300 mb-6">

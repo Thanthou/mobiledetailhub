@@ -7,6 +7,7 @@ import { asyncHandler } from '../middleware/errorHandler.js';
 import { authLimiter, sensitiveAuthLimiter, refreshTokenLimiter } from '../middleware/rateLimiter.js';
 import * as authController from '../controllers/authController.js';
 import * as passwordResetController from '../controllers/passwordResetController.js';
+import * as passwordSetupController from '../controllers/passwordSetupController.js';
 import { pool } from '../database/pool.js';
 import * as authService from '../services/authService.js';
 
@@ -251,6 +252,27 @@ router.get('/validate-reset-token',
 router.get('/reset-stats', 
   authenticateToken,
   passwordResetController.getResetStats
+);
+
+// Password Setup Routes (for new users)
+router.post('/create-password-setup', 
+  authLimiter,
+  passwordSetupController.createPasswordSetup
+);
+
+router.post('/setup-password', 
+  authLimiter,
+  passwordSetupController.setupPassword
+);
+
+router.get('/validate-setup-token', 
+  authLimiter,
+  passwordSetupController.validateSetupToken
+);
+
+router.get('/setup-stats', 
+  authenticateToken,
+  passwordSetupController.getSetupStats
 );
 
 // Admin promotion endpoint (for development)

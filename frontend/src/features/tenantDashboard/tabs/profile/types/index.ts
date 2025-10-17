@@ -28,7 +28,6 @@ export interface BusinessData {
   last_activity: string;
   created_at: string;
   updated_at: string;
-  google_maps_url: string;
 }
 
 export interface ProfileFormProps {

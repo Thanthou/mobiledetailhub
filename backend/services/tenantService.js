@@ -358,6 +358,109 @@ async function getTenantsByIndustry(industry, status = 'approved') {
 }
 
 /**
+ * Update tenant business data by slug
+ */
+async function updateTenantBySlug(slug, updateData) {
+  console.log('updateTenantBySlug called with:', { slug, updateData });
+  
+  // Build dynamic update query
+  const updateFields = [];
+  const values = [];
+  let paramCount = 0;
+
+  // Map frontend field names to database column names
+  // Based on actual database schema from tenants.business table
+  const fieldMapping = {
+    business_name: 'business_name',
+    first_name: 'first_name', 
+    last_name: 'last_name',
+    business_email: 'business_email',
+    personal_email: 'personal_email',
+    business_phone: 'business_phone',
+    personal_phone: 'personal_phone',
+    twilio_phone: 'twilio_phone',
+    business_start_date: 'business_start_date',
+    website: 'website',
+    website_url: 'website', // Support both field names
+    gbp_url: 'gbp_url',
+    facebook_url: 'facebook_url',
+    youtube_url: 'youtube_url',
+    tiktok_url: 'tiktok_url',
+    instagram_url: 'instagram_url'
+    // Note: google_maps_url column doesn't exist in database
+  };
+
+  // Build update fields dynamically
+  Object.keys(updateData).forEach(key => {
+    if (updateData[key] !== undefined && fieldMapping[key]) {
+      paramCount++;
+      updateFields.push(`${fieldMapping[key]} = $${paramCount}`);
+      values.push(updateData[key]);
+      console.log(`Adding field: ${key} -> ${fieldMapping[key]} = ${updateData[key]}`);
+    } else if (updateData[key] !== undefined) {
+      console.log(`Skipping field: ${key} (not in fieldMapping)`);
+    }
+  });
+
+  console.log('Update fields:', updateFields);
+  console.log('Values:', values);
+
+  if (updateFields.length === 0) {
+    throw new Error('No valid fields to update');
+  }
+
+  // Add updated_at timestamp (no parameter needed)
+  updateFields.push(`updated_at = CURRENT_TIMESTAMP`);
+
+  // Add slug parameter
+  paramCount++;
+  values.push(slug);
+
+  const query = `
+    UPDATE tenants.business 
+    SET ${updateFields.join(', ')}
+    WHERE slug = $${paramCount} AND application_status = 'approved'
+    RETURNING 
+      id, slug, business_name, owner, first_name, last_name, user_id,
+      application_status, business_start_date, business_phone, personal_phone,
+      business_email, personal_email, twilio_phone, sms_phone, website,
+      gbp_url, facebook_url, instagram_url, youtube_url, tiktok_url,
+      source, notes, service_areas, application_date, approved_date,
+      last_activity, created_at, updated_at, industry
+  `;
+
+  console.log('Executing query:', query);
+  console.log('With values:', values);
+
+  let result;
+  try {
+    result = await pool.query(query, values);
+    console.log('Query result:', result.rows);
+
+    if (result.rows.length === 0) {
+      throw new Error('Tenant not found or not approved');
+    }
+  } catch (dbError) {
+    console.error('Database error:', dbError);
+    throw new Error(`Database error: ${dbError.message}`);
+  }
+
+  const tenant = result.rows[0];
+
+  // Parse service_areas JSON if it's a string
+  if (typeof tenant.service_areas === 'string') {
+    try {
+      tenant.service_areas = JSON.parse(tenant.service_areas);
+    } catch (parseError) {
+      console.error('Error parsing service_areas:', parseError);
+      tenant.service_areas = [];
+    }
+  }
+
+  return tenant;
+}
+
+/**
  * Get list of available industries
  */
 async function getIndustries() {
@@ -377,5 +480,6 @@ export {
   createTenant,
   getTenantBySlug,
   getTenantsByIndustry,
-  getIndustries
+  getIndustries,
+  updateTenantBySlug
 };

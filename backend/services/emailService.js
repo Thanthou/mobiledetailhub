@@ -6,8 +6,14 @@
  */
 
 import sgMail from '@sendgrid/mail';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { env } from '../config/env.js';
 import logger from '../utils/logger.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Initialize SendGrid
 if (env.SENDGRID_API_KEY) {
@@ -15,85 +21,50 @@ if (env.SENDGRID_API_KEY) {
 }
 
 /**
+ * Load HTML email template
+ */
+const loadEmailTemplate = (templateName) => {
+  try {
+    const templatePath = path.join(__dirname, '..', 'templates', `${templateName}.html`);
+    return fs.readFileSync(templatePath, 'utf8');
+  } catch (error) {
+    logger.error(`Failed to load email template: ${templateName}`, { error: error.message });
+    return null;
+  }
+};
+
+/**
  * Email Templates
  */
 const emailTemplates = {
   welcome: {
-    subject: 'Welcome to ThatSmartSite! Your website is ready 🎉',
-    html: (data) => `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Welcome to ThatSmartSite</title>
-        <style>
-          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #f97316, #ea580c); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
-          .content { background: #f8fafc; padding: 30px; border-radius: 0 0 8px 8px; }
-          .button { display: inline-block; background: #f97316; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; margin: 10px 0; }
-          .credentials { background: #e2e8f0; padding: 20px; border-radius: 6px; margin: 20px 0; }
-          .footer { text-align: center; margin-top: 30px; color: #64748b; font-size: 14px; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h1>🎉 Welcome to ThatSmartSite!</h1>
-            <p>Your professional website is ready to go live</p>
+    subject: 'Welcome to That Smart Site! Set up your account 🎉',
+    html: (data) => {
+      const template = loadEmailTemplate('welcome');
+      if (!template) {
+        // Fallback to simple template if file loading fails
+        return `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <h1 style="color: #4F46E5;">Welcome to That Smart Site!</h1>
+            <p>Hi ${data.firstName}!</p>
+            <p>Your website for <strong>${data.businessName}</strong> is ready!</p>
+            <p><a href="${data.passwordLink}" style="background: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">Set Your Password</a></p>
+            <p><a href="${data.dashboardUrl}">Go to Dashboard</a></p>
           </div>
-          
-          <div class="content">
-            <h2>Hi ${data.firstName}!</h2>
-            
-            <p>Congratulations! Your website for <strong>${data.businessName}</strong> has been successfully created and is now live at:</p>
-            
-            <div style="text-align: center; margin: 25px 0;">
-              <a href="${data.websiteUrl}" class="button">View Your Website</a>
-            </div>
-            
-            <h3>🔐 Your Login Credentials</h3>
-            <div class="credentials">
-              <p><strong>Dashboard URL:</strong> <a href="${data.dashboardUrl}">${data.dashboardUrl}</a></p>
-              <p><strong>Email:</strong> ${data.personalEmail}</p>
-              <p><strong>Password Setup:</strong> You'll need to set your password before logging in</p>
-            </div>
-            
-            <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; border-radius: 4px;">
-              <p><strong>🔑 Password Setup Required:</strong> You'll receive a separate email with instructions to set your password. Please check your inbox and follow the setup process before logging in.</p>
-            </div>
-            
-            <h3>🚀 What's Next?</h3>
-            <ul>
-              <li><strong>Customize your site</strong> - Add your photos, services, and business information</li>
-              <li><strong>Set up your schedule</strong> - Configure your availability and booking system</li>
-              <li><strong>Add your locations</strong> - Define your service areas</li>
-              <li><strong>Review your content</strong> - Make sure everything looks perfect</li>
-            </ul>
-            
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${data.dashboardUrl}" class="button">Go to Dashboard</a>
-            </div>
-            
-            <h3>💬 Need Help?</h3>
-            <p>Our team is here to help you get started! If you have any questions:</p>
-            <ul>
-              <li>📧 Email us at <a href="mailto:hello@thatsmartsite.com">hello@thatsmartsite.com</a></li>
-              <li>📞 Call us at <a href="tel:(555) 123-4567">(555) 123-4567</a></li>
-            </ul>
-            
-            <div class="footer">
-              <p>Thank you for choosing ThatSmartSite!</p>
-              <p>Best regards,<br>The ThatSmartSite Team</p>
-            </div>
-          </div>
-        </div>
-      </body>
-      </html>
-    `,
+        `;
+      }
+      
+      return template
+        .replace(/\{\{firstName\}\}/g, data.firstName || '')
+        .replace(/\{\{businessName\}\}/g, data.businessName || '')
+        .replace(/\{\{planType\}\}/g, data.planType || 'Starter')
+        .replace(/\{\{websiteUrl\}\}/g, data.websiteUrl || '')
+        .replace(/\{\{dashboardUrl\}\}/g, data.dashboardUrl || '')
+        .replace(/\{\{passwordLink\}\}/g, data.passwordLink || '')
+        .replace(/\{\{logoUrl\}\}/g, data.logoUrl || '/shared/icons/logo.png');
+    },
     text: (data) => `
-Welcome to ThatSmartSite!
+Welcome to That Smart Site!
 
 Hi ${data.firstName}!
 
@@ -101,27 +72,25 @@ Congratulations! Your website for ${data.businessName} has been successfully cre
 
 Your Website: ${data.websiteUrl}
 Dashboard: ${data.dashboardUrl}
+Plan: ${data.planType || 'Starter'}
 
-Your Login Credentials:
-- Email: ${data.personalEmail}
-- Password Setup: You'll need to set your password before logging in
-
-🔑 Password Setup Required: You'll receive a separate email with instructions to set your password. Please check your inbox and follow the setup process before logging in.
+🔑 Password Setup Required:
+Set your password: ${data.passwordLink}
 
 What's Next?
+- Set your password using the link above
 - Customize your site - Add your photos, services, and business information
 - Set up your schedule - Configure your availability and booking system
 - Add your locations - Define your service areas
 - Review your content - Make sure everything looks perfect
 
 Need Help?
-- Email us at hello@thatsmartsite.com
-- Call us at (555) 123-4567
+- Email us at support@thatsmartsite.com
 
-Thank you for choosing ThatSmartSite!
+Thank you for choosing That Smart Site!
 
 Best regards,
-The ThatSmartSite Team
+The That Smart Site Team
     `
   }
 };
@@ -136,7 +105,8 @@ The ThatSmartSite Team
  * @param {string} data.businessName - Business name
  * @param {string} data.websiteUrl - Website URL
  * @param {string} data.dashboardUrl - Dashboard URL
- * @param {string} data.tempPassword - Temporary password
+ * @param {string} data.planType - Plan type
+ * @param {string} data.passwordLink - Password setup link
  * @returns {Promise<Object>} Send result
  */
 async function sendWelcomeEmail(data) {

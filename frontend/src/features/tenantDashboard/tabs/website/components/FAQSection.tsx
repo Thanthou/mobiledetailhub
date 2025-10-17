@@ -14,7 +14,7 @@ interface FAQItem {
 }
 
 interface FAQSectionProps {
-  faqContent: FAQItem[];
+  faqContent?: FAQItem[];
   onUpdateContent: (field: string, value: unknown) => void;
   onResetToDefault: () => void;
 }
@@ -65,7 +65,8 @@ export const FAQSection: React.FC<FAQSectionProps> = ({
   }, [industryFAQs]);
 
   const handleAddFAQ = () => {
-    const newContent = [...faqContent, { 
+    const currentContent = faqContent || [];
+    const newContent = [...currentContent, { 
       question: `New ${activeCategory} question`, 
       answer: `New ${activeCategory} answer`, 
       category: activeCategory 
@@ -74,11 +75,12 @@ export const FAQSection: React.FC<FAQSectionProps> = ({
   };
 
   const handleRemoveFAQ = (globalIndex: number) => {
-    const newContent = faqContent.filter((_item, i) => i !== globalIndex);
+    const currentContent = faqContent || [];
+    const newContent = currentContent.filter((_item, i) => i !== globalIndex);
     onUpdateContent('content', newContent);
   };
 
-  const customFaqs = faqContent.filter((faq) => faq.category === activeCategory);
+  const customFaqs = (faqContent || []).filter((faq) => faq.category === activeCategory);
 
   return (
     <div className="bg-stone-800 rounded-lg p-6 border border-stone-700">
@@ -201,7 +203,8 @@ export const FAQSection: React.FC<FAQSectionProps> = ({
                   
                   <div className="space-y-3">
                     {customFaqs.map((faq, categoryIndex) => {
-                      const globalIndex = faqContent.findIndex((item) => item === faq);
+                      const currentContent = faqContent || [];
+                      const globalIndex = currentContent.findIndex((item) => item === faq);
                       
                       return (
                         <div key={`${activeCategory}-${categoryIndex}`} className="rounded-lg p-4 bg-stone-700 border border-stone-600">

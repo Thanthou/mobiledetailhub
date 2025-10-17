@@ -16,9 +16,8 @@ interface BusinessData {
   last_name?: string;
   twilio_phone?: string;
   business_start_date?: string;
-  website_url?: string;
+  website?: string;
   gbp_url?: string;
-  google_maps_url?: string;
   facebook_url?: string;
   youtube_url?: string;
   tiktok_url?: string;
@@ -108,9 +107,8 @@ export const useProfileData = (): UseProfileDataReturn => {
       if (data.business_phone !== undefined) updateData.business_phone = data.business_phone;
       if (data.twilio_phone !== undefined) updateData.twilio_phone = data.twilio_phone;
       if (data.business_start_date !== undefined) updateData.business_start_date = data.business_start_date;
-      if (data.website_url !== undefined) updateData.website_url = data.website_url;
+      if (data.website !== undefined) updateData.website = data.website;
       if (data.gbp_url !== undefined) updateData.gbp_url = data.gbp_url;
-      if (data.google_maps_url !== undefined) updateData.google_maps_url = data.google_maps_url;
       if (data.facebook_url !== undefined) updateData.facebook_url = data.facebook_url;
       if (data.youtube_url !== undefined) updateData.youtube_url = data.youtube_url;
       if (data.tiktok_url !== undefined) updateData.tiktok_url = data.tiktok_url;

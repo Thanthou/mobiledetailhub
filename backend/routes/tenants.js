@@ -29,6 +29,16 @@ router.get('/:slug',
 );
 
 /**
+ * PUT /api/tenants/:slug
+ * Update tenant business data by slug
+ */
+router.put('/:slug', 
+  apiLimiter, 
+  validateParams(tenantSchemas.getBySlug),
+  asyncHandler(tenantController.updateTenantBySlug)
+);
+
+/**
  * GET /api/tenants
  * Fetch tenants by industry (optional filter)
  */

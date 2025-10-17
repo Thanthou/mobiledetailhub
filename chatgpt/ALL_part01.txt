@@ -695,7 +695,7 @@ const EnvSchema = z.object({
   FROM_EMAIL: z.string().email().default('hello@thatsmartsite.com'),
   
   // Frontend URL for redirects
-  FRONTEND_URL: z.string().url().optional().default('http://localhost:5173'),
+  FRONTEND_URL: z.string().url().optional().default('https://thatsmartsite.com'),
   
   // Logging
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'debug']).optional().default('info'),
@@ -1449,6 +1449,196 @@ export {
 
 *** END FILE ***
 
+*** FILE: backend\controllers\passwordSetupController.js ***
+/**
+ * Password Setup Controller
+ * Handles password setup for new users with token validation
+ */
+
+import * as passwordSetupService from '../services/passwordSetupService.js';
+import { asyncHandler } from '../middleware/errorHandler.js';
+
+/**
+ * Create password setup token for new user
+ * POST /api/auth/create-password-setup
+ */
+const createPasswordSetup = asyncHandler(async (req, res) => {
+  const { userId, email } = req.body;
+  const ipAddress = req.ip;
+  const userAgent = req.get('User-Agent');
+
+  if (!userId || !email) {
+    return res.status(400).json({
+      success: false,
+      message: 'User ID and email are required'
+    });
+  }
+
+  try {
+    const result = await passwordSetupService.createPasswordSetupToken(
+      userId, 
+      email, 
+      ipAddress, 
+      userAgent
+    );
+
+    res.json({
+      success: true,
+      message: 'Password setup token created successfully',
+      data: {
+        setupUrl: result.setupUrl,
+        expiresAt: result.expiresAt,
+        email: result.email,
+        name: result.name
+      }
+    });
+  } catch (err) {
+    if (err.message.includes('rate limit') || err.message.includes('Too many')) {
+      res.status(429).json({
+        success: false,
+        message: 'Too many setup attempts. Please contact support.'
+      });
+    } else if (err.message.includes('already has a password')) {
+      res.status(400).json({
+        success: false,
+        message: 'User already has a password set'
+      });
+    } else if (err.message.includes('not found')) {
+      res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: 'An error occurred while creating the setup token. Please try again.'
+      });
+    }
+  }
+});
+
+/**
+ * Set password using setup token
+ * POST /api/auth/setup-password
+ */
+const setupPassword = asyncHandler(async (req, res) => {
+  const { token, newPassword } = req.body;
+  const ipAddress = req.ip;
+
+  if (!token || !newPassword) {
+    return res.status(400).json({
+      success: false,
+      message: 'Token and new password are required'
+    });
+  }
+
+  // Basic password validation
+  if (newPassword.length < 8) {
+    return res.status(400).json({
+      success: false,
+      message: 'Password must be at least 8 characters long'
+    });
+  }
+
+  try {
+    await passwordSetupService.setPasswordWithToken(token, newPassword, ipAddress);
+
+    res.json({
+      success: true,
+      message: 'Password has been set successfully. You can now log in with your new password.'
+    });
+  } catch (err) {
+    if (err.message.includes('Invalid or expired')) {
+      res.status(400).json({
+        success: false,
+        message: 'Invalid or expired setup token. Please request a new password setup.'
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: 'An error occurred while setting your password. Please try again.'
+      });
+    }
+  }
+});
+
+/**
+ * Validate setup token
+ * GET /api/auth/validate-setup-token?token=...
+ */
+const validateSetupToken = asyncHandler(async (req, res) => {
+  const { token } = req.query;
+
+  if (!token) {
+    return res.status(400).json({
+      success: false,
+      message: 'Setup token is required'
+    });
+  }
+
+  try {
+    const tokenInfo = await passwordSetupService.validateSetupToken(token);
+
+    if (!tokenInfo) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired setup token'
+      });
+    }
+
+    res.json({
+      success: true,
+      valid: true,
+      email: tokenInfo.email,
+      name: tokenInfo.name,
+      expiresAt: tokenInfo.expiresAt
+    });
+  } catch {
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred while validating the setup token'
+    });
+  }
+});
+
+/**
+ * Get setup token statistics (admin only)
+ * GET /api/auth/setup-stats
+ */
+const getSetupStats = asyncHandler(async (req, res) => {
+  // This should be protected by admin middleware
+  if (!req.user || !req.user.isAdmin) {
+    return res.status(403).json({
+      success: false,
+      message: 'Admin access required'
+    });
+  }
+
+  try {
+    const stats = await passwordSetupService.getSetupTokenStats();
+
+    res.json({
+      success: true,
+      data: stats
+    });
+  } catch {
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred while fetching setup statistics'
+    });
+  }
+});
+
+export {
+  createPasswordSetup,
+  setupPassword,
+  validateSetupToken,
+  getSetupStats
+};
+
+
+*** END FILE ***
+
 *** FILE: backend\controllers\tenantController.js ***
 import * as tenantService from '../services/tenantService.js';
 
@@ -1519,6 +1709,46 @@ async function getTenantsByIndustry(req, res) {
 }
 
 /**
+ * Update tenant business data by slug
+ */
+async function updateTenantBySlug(req, res) {
+  const { slug } = req.params;
+  const updateData = req.body;
+  
+  try {
+    const updatedTenant = await tenantService.updateTenantBySlug(slug, updateData);
+    
+    res.json({
+      success: true,
+      data: updatedTenant,
+      message: 'Business profile updated successfully'
+    });
+  } catch (error) {
+    console.error('Error updating tenant:', error);
+    
+    if (error.message === 'Tenant not found or not approved') {
+      return res.status(404).json({
+        success: false,
+        error: 'Tenant not found or not approved'
+      });
+    }
+    
+    if (error.message === 'No valid fields to update') {
+      return res.status(400).json({
+        success: false,
+        error: 'No valid fields to update'
+      });
+    }
+    
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update business profile',
+      message: error.message
+    });
+  }
+}
+
+/**
  * Get list of available industries
  */
 async function getIndustries(req, res) {
@@ -1534,7 +1764,8 @@ export {
   createTenant,
   getTenantBySlug,
   getTenantsByIndustry,
-  getIndustries
+  getIndustries,
+  updateTenantBySlug
 };
 
 
@@ -5255,6 +5486,39 @@ Before deploying a migration:
 - [ ] Rollback procedure verified
 - [ ] Team notified of deployment
 - [ ] Monitoring in place for migration execution
+
+
+*** END FILE ***
+
+*** FILE: backend\database\migrations\012_create_password_setup_tokens.sql ***
+-- Create password setup tokens table
+-- This table stores tokens for new users to set their initial password
+
+CREATE TABLE IF NOT EXISTS auth.password_setup_tokens (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    token_hash VARCHAR(255) NOT NULL UNIQUE,
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    used_at TIMESTAMP WITH TIME ZONE NULL,
+    ip_address INET,
+    user_agent TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create indexes for performance
+CREATE INDEX IF NOT EXISTS idx_password_setup_tokens_user_id ON auth.password_setup_tokens(user_id);
+CREATE INDEX IF NOT EXISTS idx_password_setup_tokens_token_hash ON auth.password_setup_tokens(token_hash);
+CREATE INDEX IF NOT EXISTS idx_password_setup_tokens_expires_at ON auth.password_setup_tokens(expires_at);
+CREATE INDEX IF NOT EXISTS idx_password_setup_tokens_used_at ON auth.password_setup_tokens(used_at);
+
+-- Add comments
+COMMENT ON TABLE auth.password_setup_tokens IS 'Stores secure tokens for new users to set their initial password';
+COMMENT ON COLUMN auth.password_setup_tokens.token_hash IS 'SHA-256 hash of the setup token';
+COMMENT ON COLUMN auth.password_setup_tokens.expires_at IS 'Token expiration timestamp (24 hours from creation)';
+COMMENT ON COLUMN auth.password_setup_tokens.used_at IS 'Timestamp when token was used to set password';
+COMMENT ON COLUMN auth.password_setup_tokens.ip_address IS 'IP address of the request that created the token';
+COMMENT ON COLUMN auth.password_setup_tokens.user_agent IS 'User agent of the request that created the token';
 
 
 *** END FILE ***
@@ -13666,6 +13930,7 @@ export {
     "express": "^4.18.2",
     "express-rate-limit": "^7.1.5",
     "file-type": "^21.0.0",
+    "googleapis": "^164.0.0",
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
@@ -15314,6 +15579,7 @@ import { asyncHandler } from '../middleware/errorHandler.js';
 import { authLimiter, sensitiveAuthLimiter, refreshTokenLimiter } from '../middleware/rateLimiter.js';
 import * as authController from '../controllers/authController.js';
 import * as passwordResetController from '../controllers/passwordResetController.js';
+import * as passwordSetupController from '../controllers/passwordSetupController.js';
 import { pool } from '../database/pool.js';
 import * as authService from '../services/authService.js';
 
@@ -15558,6 +15824,27 @@ router.get('/validate-reset-token',
 router.get('/reset-stats', 
   authenticateToken,
   passwordResetController.getResetStats
+);
+
+// Password Setup Routes (for new users)
+router.post('/create-password-setup', 
+  authLimiter,
+  passwordSetupController.createPasswordSetup
+);
+
+router.post('/setup-password', 
+  authLimiter,
+  passwordSetupController.setupPassword
+);
+
+router.get('/validate-setup-token', 
+  authLimiter,
+  passwordSetupController.validateSetupToken
+);
+
+router.get('/setup-stats', 
+  authenticateToken,
+  passwordSetupController.getSetupStats
 );
 
 // Admin promotion endpoint (for development)
@@ -16004,6 +16291,263 @@ router.get('/images', (req, res) => {
     res.status(500).json({ error: 'Failed to read gallery images' });
   }
 });
+
+export default router;
+
+
+*** END FILE ***
+
+*** FILE: backend\routes\googleAuth.js ***
+/**
+ * Google OAuth Routes
+ * Handles Google Business Profile OAuth flow for reviews integration
+ */
+
+import express from 'express';
+import { google } from 'googleapis';
+import { pool } from '../database/pool.js';
+import { env } from '../config/env.js';
+import { asyncHandler } from '../middleware/errorHandler.js';
+import { createModuleLogger } from '../config/logger.js';
+
+const router = express.Router();
+const logger = createModuleLogger('googleAuth');
+
+// Initialize OAuth2 client
+const oauth2Client = new google.auth.OAuth2(
+  env.GOOGLE_CLIENT_ID,
+  env.GOOGLE_CLIENT_SECRET,
+  env.GOOGLE_REDIRECT_URI
+);
+
+// Scopes for Google Business Profile access
+const SCOPES = [
+  'https://www.googleapis.com/auth/business.manage',
+  'https://www.googleapis.com/auth/plus.business.manage'
+];
+
+/**
+ * GET /api/google/auth
+ * Initiates Google OAuth flow by redirecting to Google's consent screen
+ */
+router.get('/auth', asyncHandler(async (req, res) => {
+  try {
+    // Generate the authorization URL
+    const authUrl = oauth2Client.generateAuthUrl({
+      access_type: 'offline', // Request refresh token
+      scope: SCOPES,
+      prompt: 'consent', // Force consent screen to get refresh token
+      state: req.query.tenantId || 'default' // Optional: pass tenant ID for context
+    });
+
+    logger.info('Generated Google OAuth URL', { 
+      authUrl: authUrl.substring(0, 100) + '...',
+      tenantId: req.query.tenantId 
+    });
+
+    // Redirect to Google's consent screen
+    res.redirect(authUrl);
+
+  } catch (error) {
+    logger.error('Error generating OAuth URL', { error: error.message });
+    res.status(500).json({
+      success: false,
+      message: 'Failed to initiate Google OAuth flow',
+      error: error.message
+    });
+  }
+}));
+
+/**
+ * GET /api/google/oauth/callback
+ * Handles the OAuth callback from Google and exchanges code for tokens
+ */
+router.get('/oauth/callback', asyncHandler(async (req, res) => {
+  const { code, state, error } = req.query;
+
+  try {
+    // Check for OAuth errors
+    if (error) {
+      logger.error('Google OAuth error', { error, state });
+      return res.status(400).json({
+        success: false,
+        message: 'Google OAuth authorization failed',
+        error: error
+      });
+    }
+
+    // Check for authorization code
+    if (!code) {
+      logger.error('Missing authorization code', { query: req.query });
+      return res.status(400).json({
+        success: false,
+        message: 'Authorization code is required'
+      });
+    }
+
+    logger.info('Received OAuth callback', { 
+      code: code.substring(0, 10) + '...',
+      state,
+      hasCode: !!code
+    });
+
+    // Exchange authorization code for tokens
+    const { tokens } = await oauth2Client.getToken(code);
+    oauth2Client.setCredentials(tokens);
+
+    logger.info('✅ Tokens received from Google', {
+      hasAccessToken: !!tokens.access_token,
+      hasRefreshToken: !!tokens.refresh_token,
+      tokenType: tokens.token_type,
+      expiresIn: tokens.expiry_date ? new Date(tokens.expiry_date) : 'No expiry'
+    });
+
+    // Store tokens in database
+    const tenantId = state || 'default';
+    await storeOAuthTokens(tenantId, tokens);
+
+    // Return success response
+    res.json({
+      success: true,
+      message: '✅ Google Business Profile connected successfully!',
+      data: {
+        tenantId,
+        hasAccessToken: !!tokens.access_token,
+        hasRefreshToken: !!tokens.refresh_token,
+        expiresAt: tokens.expiry_date ? new Date(tokens.expiry_date) : null
+      }
+    });
+
+  } catch (error) {
+    logger.error('Error exchanging OAuth code for tokens', { 
+      error: error.message,
+      code: code ? code.substring(0, 10) + '...' : 'none'
+    });
+
+    res.status(500).json({
+      success: false,
+      message: 'Failed to exchange authorization code for tokens',
+      error: error.message
+    });
+  }
+}));
+
+/**
+ * Store OAuth tokens in database
+ * @param {string} tenantId - Tenant identifier
+ * @param {Object} tokens - OAuth tokens from Google
+ */
+async function storeOAuthTokens(tenantId, tokens) {
+  if (!pool) {
+    logger.warn('Database not available, storing tokens in memory only');
+    return;
+  }
+
+  try {
+    // Create oauth_tokens table if it doesn't exist
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS oauth_tokens (
+        id SERIAL PRIMARY KEY,
+        tenant_id VARCHAR(255) NOT NULL,
+        access_token TEXT,
+        refresh_token TEXT NOT NULL,
+        token_type VARCHAR(50),
+        expiry_date TIMESTAMP,
+        scope TEXT,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW(),
+        UNIQUE(tenant_id)
+      )
+    `);
+
+    // Insert or update tokens
+    await pool.query(`
+      INSERT INTO oauth_tokens (
+        tenant_id, access_token, refresh_token, token_type, 
+        expiry_date, scope, updated_at
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, NOW())
+      ON CONFLICT (tenant_id) 
+      DO UPDATE SET
+        access_token = EXCLUDED.access_token,
+        refresh_token = EXCLUDED.refresh_token,
+        token_type = EXCLUDED.token_type,
+        expiry_date = EXCLUDED.expiry_date,
+        scope = EXCLUDED.scope,
+        updated_at = NOW()
+    `, [
+      tenantId,
+      tokens.access_token,
+      tokens.refresh_token,
+      tokens.token_type,
+      tokens.expiry_date ? new Date(tokens.expiry_date) : null,
+      tokens.scope
+    ]);
+
+    logger.info('OAuth tokens stored successfully', { tenantId });
+
+  } catch (error) {
+    logger.error('Error storing OAuth tokens', { 
+      error: error.message,
+      tenantId 
+    });
+    throw error;
+  }
+}
+
+/**
+ * GET /api/google/tokens/:tenantId
+ * Retrieve stored OAuth tokens for a tenant
+ */
+router.get('/tokens/:tenantId', asyncHandler(async (req, res) => {
+  const { tenantId } = req.params;
+
+  try {
+    if (!pool) {
+      return res.status(500).json({
+        success: false,
+        message: 'Database not available'
+      });
+    }
+
+    const result = await pool.query(
+      'SELECT access_token, refresh_token, token_type, expiry_date, scope, updated_at FROM oauth_tokens WHERE tenant_id = $1',
+      [tenantId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'No OAuth tokens found for this tenant'
+      });
+    }
+
+    const tokens = result.rows[0];
+    res.json({
+      success: true,
+      data: {
+        hasAccessToken: !!tokens.access_token,
+        hasRefreshToken: !!tokens.refresh_token,
+        tokenType: tokens.token_type,
+        expiresAt: tokens.expiry_date,
+        scope: tokens.scope,
+        lastUpdated: tokens.updated_at
+      }
+    });
+
+  } catch (error) {
+    logger.error('Error retrieving OAuth tokens', { 
+      error: error.message,
+      tenantId 
+    });
+
+    res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve OAuth tokens',
+      error: error.message
+    });
+  }
+}));
 
 export default router;
 
@@ -20437,6 +20981,16 @@ router.get('/:slug',
 );
 
 /**
+ * PUT /api/tenants/:slug
+ * Update tenant business data by slug
+ */
+router.put('/:slug', 
+  apiLimiter, 
+  validateParams(tenantSchemas.getBySlug),
+  asyncHandler(tenantController.updateTenantBySlug)
+);
+
+/**
  * GET /api/tenants
  * Fetch tenants by industry (optional filter)
  */
@@ -21959,6 +22513,151 @@ module.exports = { testWebhook };
 
 *** END FILE ***
 
+*** FILE: backend\scripts\test-welcome-email.js ***
+/**
+ * Test script for welcome email and password setup flow
+ * This script tests the complete onboarding → email → activation flow
+ */
+
+import { pool } from '../database/pool.js';
+import { createPasswordSetupToken, setPasswordWithToken, validateSetupToken } from '../services/passwordSetupService.js';
+import { sendWelcomeEmail } from '../services/emailService.js';
+import { env } from '../config/env.js';
+
+async function testWelcomeEmailFlow() {
+  console.log('🧪 Testing Welcome Email and Password Setup Flow\n');
+
+  try {
+    // Test data
+    const testData = {
+      personalEmail: 'test@example.com',
+      businessEmail: 'business@example.com',
+      firstName: 'John',
+      businessName: 'Test Business',
+      websiteUrl: 'https://test.thatsmartsite.com',
+      dashboardUrl: 'https://test.thatsmartsite.com/dashboard',
+      planType: 'Starter',
+      passwordLink: 'https://app.thatsmartsite.com/setup-password?token=test-token'
+    };
+
+    console.log('📧 Testing welcome email template...');
+    
+    // Test email template loading
+    const emailResult = await sendWelcomeEmail(testData);
+    
+    if (emailResult.success) {
+      console.log('✅ Welcome email template test passed');
+      console.log('📧 Email would be sent to:', emailResult.emailsSent?.join(', ') || 'test@example.com');
+    } else {
+      console.log('❌ Welcome email template test failed:', emailResult.error);
+    }
+
+    console.log('\n🔑 Testing password setup token creation...');
+    
+    // Create a test user first
+    const testUserId = await createTestUser();
+    if (!testUserId) {
+      console.log('❌ Failed to create test user');
+      return;
+    }
+
+    // Test password setup token creation
+    const tokenResult = await createPasswordSetupToken(
+      testUserId,
+      testData.personalEmail,
+      '127.0.0.1',
+      'TestScript'
+    );
+
+    if (tokenResult.token) {
+      console.log('✅ Password setup token created successfully');
+      console.log('🔗 Setup URL:', tokenResult.setupUrl);
+      console.log('⏰ Expires at:', tokenResult.expiresAt);
+    } else {
+      console.log('❌ Password setup token creation failed');
+      return;
+    }
+
+    console.log('\n🔍 Testing token validation...');
+    
+    // Test token validation
+    const validationResult = await validateSetupToken(tokenResult.token);
+    
+    if (validationResult) {
+      console.log('✅ Token validation successful');
+      console.log('👤 User:', validationResult.name, '(' + validationResult.email + ')');
+    } else {
+      console.log('❌ Token validation failed');
+      return;
+    }
+
+    console.log('\n🔐 Testing password setup...');
+    
+    // Test password setup
+    const passwordSetupResult = await setPasswordWithToken(
+      tokenResult.token,
+      'TestPassword123!',
+      '127.0.0.1'
+    );
+
+    if (passwordSetupResult) {
+      console.log('✅ Password setup successful');
+    } else {
+      console.log('❌ Password setup failed');
+      return;
+    }
+
+    console.log('\n🎉 All tests passed! Welcome email and password setup flow is working correctly.');
+
+  } catch (error) {
+    console.error('❌ Test failed with error:', error.message);
+    console.error(error.stack);
+  } finally {
+    // Cleanup test user
+    await cleanupTestUser();
+    if (pool) {
+      await pool.end();
+    }
+  }
+}
+
+async function createTestUser() {
+  try {
+    const result = await pool.query(
+      `INSERT INTO auth.users (email, password_hash, name, phone, is_admin, created_at)
+       VALUES ($1, $2, $3, $4, $5, NOW())
+       RETURNING id`,
+      [
+        'test@example.com',
+        '', // Empty password for testing
+        'Test User',
+        '555-1234',
+        false
+      ]
+    );
+
+    return result.rows[0].id;
+  } catch (error) {
+    console.error('Error creating test user:', error.message);
+    return null;
+  }
+}
+
+async function cleanupTestUser() {
+  try {
+    await pool.query("DELETE FROM auth.users WHERE email = 'test@example.com'");
+    console.log('🧹 Test user cleaned up');
+  } catch (error) {
+    console.error('Error cleaning up test user:', error.message);
+  }
+}
+
+// Run the test
+testWelcomeEmailFlow();
+
+
+*** END FILE ***
+
 *** FILE: backend\server.js ***
 // Set default log level BEFORE any imports that might use logging
 if (!process.env.LOG_LEVEL) {
@@ -21975,6 +22674,7 @@ import adminRoutes from './routes/admin.js'
 import locationsRoutes from './routes/locations.js'
 import websiteContentRoutes from './routes/websiteContent.js'
 import googleReviewsRoutes from './routes/googleReviews.js'
+import googleAuthRoutes from './routes/googleAuth.js'
 
 // Suppress debug/info noise in development
 if (process.env.LOG_LEVEL !== 'debug') {
@@ -22025,6 +22725,7 @@ app.use('/api/admin', adminRoutes)
 app.use('/api/locations', locationsRoutes)
 app.use('/api/website-content', websiteContentRoutes)
 app.use('/api/google-reviews', googleReviewsRoutes)
+app.use('/api/google', googleAuthRoutes)
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, '0.0.0.0', () => {
@@ -22565,8 +23266,14 @@ export {
  */
 
 import sgMail from '@sendgrid/mail';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { env } from '../config/env.js';
 import logger from '../utils/logger.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Initialize SendGrid
 if (env.SENDGRID_API_KEY) {
@@ -22574,85 +23281,50 @@ if (env.SENDGRID_API_KEY) {
 }
 
 /**
+ * Load HTML email template
+ */
+const loadEmailTemplate = (templateName) => {
+  try {
+    const templatePath = path.join(__dirname, '..', 'templates', `${templateName}.html`);
+    return fs.readFileSync(templatePath, 'utf8');
+  } catch (error) {
+    logger.error(`Failed to load email template: ${templateName}`, { error: error.message });
+    return null;
+  }
+};
+
+/**
  * Email Templates
  */
 const emailTemplates = {
   welcome: {
-    subject: 'Welcome to ThatSmartSite! Your website is ready 🎉',
-    html: (data) => `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Welcome to ThatSmartSite</title>
-        <style>
-          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #f97316, #ea580c); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
-          .content { background: #f8fafc; padding: 30px; border-radius: 0 0 8px 8px; }
-          .button { display: inline-block; background: #f97316; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; margin: 10px 0; }
-          .credentials { background: #e2e8f0; padding: 20px; border-radius: 6px; margin: 20px 0; }
-          .footer { text-align: center; margin-top: 30px; color: #64748b; font-size: 14px; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h1>🎉 Welcome to ThatSmartSite!</h1>
-            <p>Your professional website is ready to go live</p>
+    subject: 'Welcome to That Smart Site! Set up your account 🎉',
+    html: (data) => {
+      const template = loadEmailTemplate('welcome');
+      if (!template) {
+        // Fallback to simple template if file loading fails
+        return `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <h1 style="color: #4F46E5;">Welcome to That Smart Site!</h1>
+            <p>Hi ${data.firstName}!</p>
+            <p>Your website for <strong>${data.businessName}</strong> is ready!</p>
+            <p><a href="${data.passwordLink}" style="background: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">Set Your Password</a></p>
+            <p><a href="${data.dashboardUrl}">Go to Dashboard</a></p>
           </div>
-          
-          <div class="content">
-            <h2>Hi ${data.firstName}!</h2>
-            
-            <p>Congratulations! Your website for <strong>${data.businessName}</strong> has been successfully created and is now live at:</p>
-            
-            <div style="text-align: center; margin: 25px 0;">
-              <a href="${data.websiteUrl}" class="button">View Your Website</a>
-            </div>
-            
-            <h3>🔐 Your Login Credentials</h3>
-            <div class="credentials">
-              <p><strong>Dashboard URL:</strong> <a href="${data.dashboardUrl}">${data.dashboardUrl}</a></p>
-              <p><strong>Email:</strong> ${data.personalEmail}</p>
-              <p><strong>Password Setup:</strong> You'll need to set your password before logging in</p>
-            </div>
-            
-            <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; border-radius: 4px;">
-              <p><strong>🔑 Password Setup Required:</strong> You'll receive a separate email with instructions to set your password. Please check your inbox and follow the setup process before logging in.</p>
-            </div>
-            
-            <h3>🚀 What's Next?</h3>
-            <ul>
-              <li><strong>Customize your site</strong> - Add your photos, services, and business information</li>
-              <li><strong>Set up your schedule</strong> - Configure your availability and booking system</li>
-              <li><strong>Add your locations</strong> - Define your service areas</li>
-              <li><strong>Review your content</strong> - Make sure everything looks perfect</li>
-            </ul>
-            
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${data.dashboardUrl}" class="button">Go to Dashboard</a>
-            </div>
-            
-            <h3>💬 Need Help?</h3>
-            <p>Our team is here to help you get started! If you have any questions:</p>
-            <ul>
-              <li>📧 Email us at <a href="mailto:hello@thatsmartsite.com">hello@thatsmartsite.com</a></li>
-              <li>📞 Call us at <a href="tel:(555) 123-4567">(555) 123-4567</a></li>
-            </ul>
-            
-            <div class="footer">
-              <p>Thank you for choosing ThatSmartSite!</p>
-              <p>Best regards,<br>The ThatSmartSite Team</p>
-            </div>
-          </div>
-        </div>
-      </body>
-      </html>
-    `,
+        `;
+      }
+      
+      return template
+        .replace(/\{\{firstName\}\}/g, data.firstName || '')
+        .replace(/\{\{businessName\}\}/g, data.businessName || '')
+        .replace(/\{\{planType\}\}/g, data.planType || 'Starter')
+        .replace(/\{\{websiteUrl\}\}/g, data.websiteUrl || '')
+        .replace(/\{\{dashboardUrl\}\}/g, data.dashboardUrl || '')
+        .replace(/\{\{passwordLink\}\}/g, data.passwordLink || '')
+        .replace(/\{\{logoUrl\}\}/g, data.logoUrl || '/shared/icons/logo.png');
+    },
     text: (data) => `
-Welcome to ThatSmartSite!
+Welcome to That Smart Site!
 
 Hi ${data.firstName}!
 
@@ -22660,27 +23332,25 @@ Congratulations! Your website for ${data.businessName} has been successfully cre
 
 Your Website: ${data.websiteUrl}
 Dashboard: ${data.dashboardUrl}
+Plan: ${data.planType || 'Starter'}
 
-Your Login Credentials:
-- Email: ${data.personalEmail}
-- Password Setup: You'll need to set your password before logging in
-
-🔑 Password Setup Required: You'll receive a separate email with instructions to set your password. Please check your inbox and follow the setup process before logging in.
+🔑 Password Setup Required:
+Set your password: ${data.passwordLink}
 
 What's Next?
+- Set your password using the link above
 - Customize your site - Add your photos, services, and business information
 - Set up your schedule - Configure your availability and booking system
 - Add your locations - Define your service areas
 - Review your content - Make sure everything looks perfect
 
 Need Help?
-- Email us at hello@thatsmartsite.com
-- Call us at (555) 123-4567
+- Email us at support@thatsmartsite.com
 
-Thank you for choosing ThatSmartSite!
+Thank you for choosing That Smart Site!
 
 Best regards,
-The ThatSmartSite Team
+The That Smart Site Team
     `
   }
 };
@@ -22695,7 +23365,8 @@ The ThatSmartSite Team
  * @param {string} data.businessName - Business name
  * @param {string} data.websiteUrl - Website URL
  * @param {string} data.dashboardUrl - Dashboard URL
- * @param {string} data.tempPassword - Temporary password
+ * @param {string} data.planType - Plan type
+ * @param {string} data.passwordLink - Password setup link
  * @returns {Promise<Object>} Send result
  */
 async function sendWelcomeEmail(data) {
@@ -24045,6 +24716,311 @@ export {
 
 *** END FILE ***
 
+*** FILE: backend\services\passwordSetupService.js ***
+/**
+ * Password Setup Service
+ * Handles secure password setup for new users with token management
+ */
+
+import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
+import { pool } from '../database/pool.js';
+import { env } from '../config/env.js';
+import { createModuleLogger } from '../config/logger.js';
+
+const logger = createModuleLogger('passwordSetupService');
+
+const SETUP_TOKEN_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
+const MAX_ATTEMPTS = 5; // Max setup attempts per user
+const ATTEMPT_WINDOW = 24 * 60 * 60 * 1000; // 24 hours
+
+/**
+ * Generate a secure setup token
+ * @returns {string} Secure random token
+ */
+const generateSetupToken = () => {
+  return crypto.randomBytes(32).toString('hex');
+};
+
+/**
+ * Hash a setup token for storage
+ * @param {string} token - Plain text token
+ * @returns {string} Hashed token
+ */
+const hashSetupToken = (token) => {
+  return crypto.createHash('sha256').update(token).digest('hex');
+};
+
+/**
+ * Create password setup token for new user
+ * @param {string} userId - User ID
+ * @param {string} email - User email
+ * @param {string} ipAddress - Request IP
+ * @param {string} userAgent - Request user agent
+ * @returns {Promise<Object>} Token info
+ */
+const createPasswordSetupToken = async (userId, email, ipAddress, userAgent) => {
+  if (!pool) {
+    throw new Error('Database connection not available');
+  }
+
+  try {
+    // Check if user exists and doesn't have a password set
+    const userResult = await pool.query(
+      'SELECT id, email, name, password_hash FROM auth.users WHERE id = $1',
+      [userId]
+    );
+
+    if (userResult.rows.length === 0) {
+      throw new Error('User not found');
+    }
+
+    const user = userResult.rows[0];
+
+    // Check if user already has a password set
+    if (user.password_hash && user.password_hash.trim() !== '') {
+      throw new Error('User already has a password set');
+    }
+
+    // Check rate limiting (max 5 attempts per 24 hours)
+    const oneDayAgo = new Date(Date.now() - ATTEMPT_WINDOW);
+    const attemptsResult = await pool.query(
+      `SELECT COUNT(*) as count FROM auth.password_setup_tokens 
+       WHERE user_id = $1 AND created_at > $2`,
+      [userId, oneDayAgo]
+    );
+
+    const attemptCount = parseInt(attemptsResult.rows[0].count);
+    if (attemptCount >= MAX_ATTEMPTS) {
+      logger.warn('Password setup rate limit exceeded', { userId, email, ipAddress, attempts: attemptCount });
+      throw new Error('Too many setup attempts. Please contact support.');
+    }
+
+    // Generate setup token
+    const setupToken = generateSetupToken();
+    const hashedToken = hashSetupToken(setupToken);
+    const expiresAt = new Date(Date.now() + SETUP_TOKEN_EXPIRY);
+
+    // Store setup token
+    await pool.query(
+      `INSERT INTO auth.password_setup_tokens 
+       (user_id, token_hash, expires_at, ip_address, user_agent)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [userId, hashedToken, expiresAt, ipAddress, userAgent]
+    );
+
+    // Create setup URL - redirect to login with token parameter
+    const setupUrl = `${env.FRONTEND_URL}/login?setup_token=${setupToken}`;
+
+    logger.info('Password setup token created', { 
+      userId, 
+      email: user.email, 
+      ipAddress 
+    });
+
+    return {
+      token: setupToken,
+      setupUrl,
+      expiresAt,
+      email: user.email,
+      name: user.name
+    };
+  } catch (error) {
+    logger.error('Error creating password setup token', { 
+      error: error.message, 
+      userId, 
+      email, 
+      ipAddress 
+    });
+    throw error;
+  }
+};
+
+/**
+ * Set password using setup token
+ * @param {string} token - Setup token
+ * @param {string} newPassword - New password
+ * @param {string} ipAddress - Request IP
+ * @returns {Promise<boolean>} Success status
+ */
+const setPasswordWithToken = async (token, newPassword, ipAddress) => {
+  if (!pool) {
+    throw new Error('Database connection not available');
+  }
+
+  try {
+    const hashedToken = hashSetupToken(token);
+
+    // Find valid setup token
+    const tokenResult = await pool.query(
+      `SELECT pst.*, u.email, u.name 
+       FROM auth.password_setup_tokens pst
+       JOIN auth.users u ON pst.user_id = u.id
+       WHERE pst.token_hash = $1 
+       AND pst.expires_at > NOW() 
+       AND pst.used_at IS NULL`,
+      [hashedToken]
+    );
+
+    if (tokenResult.rows.length === 0) {
+      throw new Error('Invalid or expired setup token');
+    }
+
+    const setupToken = tokenResult.rows[0];
+    const userId = setupToken.user_id;
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+    // Update password and mark token as used
+    await pool.query('BEGIN');
+
+    try {
+      // Update user password
+      await pool.query(
+        'UPDATE auth.users SET password_hash = $1, updated_at = NOW() WHERE id = $2',
+        [hashedPassword, userId]
+      );
+
+      // Mark token as used
+      await pool.query(
+        'UPDATE auth.password_setup_tokens SET used_at = NOW() WHERE id = $1',
+        [setupToken.id]
+      );
+
+      // Revoke all existing refresh tokens for security
+      await pool.query(
+        'UPDATE auth.refresh_tokens SET revoked_at = NOW() WHERE user_id = $1 AND revoked_at IS NULL',
+        [userId]
+      );
+
+      await pool.query('COMMIT');
+
+      logger.info('Password setup successful', { 
+        userId, 
+        email: setupToken.email, 
+        ipAddress 
+      });
+
+      return true;
+    } catch (error) {
+      await pool.query('ROLLBACK');
+      throw error;
+    }
+  } catch (error) {
+    logger.error('Error setting password with token', { 
+      error: error.message, 
+      ipAddress 
+    });
+    throw error;
+  }
+};
+
+/**
+ * Validate setup token
+ * @param {string} token - Setup token
+ * @returns {Promise<Object|null>} Token info if valid
+ */
+const validateSetupToken = async (token) => {
+  if (!pool) {
+    throw new Error('Database connection not available');
+  }
+
+  try {
+    const hashedToken = hashSetupToken(token);
+
+    const result = await pool.query(
+      `SELECT pst.*, u.email, u.name 
+       FROM auth.password_setup_tokens pst
+       JOIN auth.users u ON pst.user_id = u.id
+       WHERE pst.token_hash = $1 
+       AND pst.expires_at > NOW() 
+       AND pst.used_at IS NULL`,
+      [hashedToken]
+    );
+
+    if (result.rows.length === 0) {
+      return null;
+    }
+
+    return {
+      userId: result.rows[0].user_id,
+      email: result.rows[0].email,
+      name: result.rows[0].name,
+      expiresAt: result.rows[0].expires_at
+    };
+  } catch (error) {
+    logger.error('Error validating setup token', { error: error.message });
+    return null;
+  }
+};
+
+/**
+ * Clean up expired setup tokens
+ * @returns {Promise<number>} Number of tokens cleaned up
+ */
+const cleanupExpiredTokens = async () => {
+  if (!pool) {
+    logger.warn('Database connection not available for token cleanup');
+    return 0;
+  }
+
+  try {
+    const result = await pool.query(
+      'DELETE FROM auth.password_setup_tokens WHERE expires_at < NOW() OR used_at IS NOT NULL'
+    );
+
+    const cleanedCount = result.rowCount;
+    if (cleanedCount > 0) {
+      logger.info('Cleaned up expired password setup tokens', { count: cleanedCount });
+    }
+
+    return cleanedCount;
+  } catch (error) {
+    logger.error('Error cleaning up expired setup tokens', { error: error.message });
+    return 0;
+  }
+};
+
+/**
+ * Get setup token statistics
+ * @returns {Promise<Object>} Token statistics
+ */
+const getSetupTokenStats = async () => {
+  if (!pool) {
+    return { active: 0, expired: 0, used: 0 };
+  }
+
+  try {
+    const result = await pool.query(`
+      SELECT 
+        COUNT(CASE WHEN expires_at > NOW() AND used_at IS NULL THEN 1 END) as active,
+        COUNT(CASE WHEN expires_at <= NOW() AND used_at IS NULL THEN 1 END) as expired,
+        COUNT(CASE WHEN used_at IS NOT NULL THEN 1 END) as used
+      FROM auth.password_setup_tokens
+    `);
+
+    return result.rows[0];
+  } catch (error) {
+    logger.error('Error getting setup token stats', { error: error.message });
+    return { active: 0, expired: 0, used: 0 };
+  }
+};
+
+export {
+  createPasswordSetupToken,
+  setPasswordWithToken,
+  validateSetupToken,
+  cleanupExpiredTokens,
+  getSetupTokenStats,
+  SETUP_TOKEN_EXPIRY,
+  MAX_ATTEMPTS,
+  ATTEMPT_WINDOW
+};
+
+
+*** END FILE ***
+
 *** FILE: backend\services\refreshTokenService.js ***
 /**
  * Refresh Token Service
@@ -24549,6 +25525,7 @@ import bcrypt from 'bcryptjs';
 import { pool } from '../database/pool.js';
 import StripeService from './stripeService.js';
 import { sendWelcomeEmail as sendWelcomeEmailService } from './emailService.js';
+import { createPasswordSetupToken } from './passwordSetupService.js';
 
 /**
  * Tenant Provision Service
@@ -24626,18 +25603,14 @@ async function provisionTenantDatabase(tenantData, paymentIntent, stripeCustomer
   try {
     await client.query('BEGIN');
 
-    // Hash the temporary password
-    const passwordHash = tenantData.passwordHash || tenantData.tempPassword;
-    const hashedPassword = await bcrypt.hash(passwordHash, 12);
-
-    // Create user account
+    // Create user account without password (will be set via email token)
     const userResult = await client.query(
       `INSERT INTO auth.users (email, password_hash, name, phone, stripe_customer_id, is_admin, created_at)
        VALUES ($1, $2, $3, $4, $5, $6, NOW())
        RETURNING id`,
       [
         tenantData.personalEmail,
-        hashedPassword,
+        '', // Empty password - user will set via email token
         `${tenantData.firstName} ${tenantData.lastName}`,
         tenantData.personalPhone,
         stripeCustomerId || null,
@@ -24843,29 +25816,52 @@ async function createDefaultWebsiteContent(tenantId, tenantData, client) {
  * Send welcome email to new tenant
  */
 async function sendWelcomeEmail(provisionResult, tenantData) {
-  const welcomeEmailData = {
-    personalEmail: tenantData.personalEmail,
-    businessEmail: tenantData.businessEmail || tenantData.personalEmail,
-    firstName: tenantData.firstName,
-    businessName: tenantData.businessName,
-    websiteUrl: `http://${provisionResult.slug}.thatsmartsite.com`,
-    dashboardUrl: `http://${provisionResult.slug}.thatsmartsite.com/dashboard`,
-    tempPassword: tenantData.tempPassword
-  };
+  try {
+    // Create password setup token
+    console.log('🔑 Creating password setup token...');
+    const passwordSetupResult = await createPasswordSetupToken(
+      provisionResult.userId,
+      tenantData.personalEmail,
+      '127.0.0.1', // IP address for token creation
+      'TenantProvisionService' // User agent for token creation
+    );
 
-  console.log('📧 Starting welcome email process...');
-  console.log('📧 Welcome email data:', JSON.stringify(welcomeEmailData, null, 2));
-  
-  const emailResult = await sendWelcomeEmailService(welcomeEmailData);
-  console.log('📧 Email service result:', JSON.stringify(emailResult, null, 2));
-  
-  if (emailResult.success) {
-    console.log('✅ Welcome email sent successfully to:', emailResult.emailsSent.join(', '));
-  } else {
-    console.log('⚠️ Failed to send welcome email:', emailResult.error);
+    const welcomeEmailData = {
+      personalEmail: tenantData.personalEmail,
+      businessEmail: tenantData.businessEmail || tenantData.personalEmail,
+      firstName: tenantData.firstName,
+      businessName: tenantData.businessName,
+      websiteUrl: `http://${provisionResult.slug}.thatsmartsite.com`,
+      dashboardUrl: `${env.FRONTEND_URL || 'http://localhost:5173'}/${provisionResult.slug}/dashboard`,
+      planType: tenantData.selectedPlan || 'Starter',
+      passwordLink: passwordSetupResult.setupUrl,
+      logoUrl: `${env.FRONTEND_URL || 'http://localhost:5173'}/shared/icons/logo.png`
+    };
+
+    console.log('📧 Starting welcome email process...');
+    console.log('📧 Welcome email data:', JSON.stringify(welcomeEmailData, null, 2));
+    
+    const emailResult = await sendWelcomeEmailService(welcomeEmailData);
+    console.log('📧 Email service result:', JSON.stringify(emailResult, null, 2));
+    
+    if (emailResult.success) {
+      console.log('✅ Welcome email sent successfully to:', emailResult.emailsSent.join(', '));
+      console.log('🔑 Password setup URL:', passwordSetupResult.setupUrl);
+    } else {
+      console.log('⚠️ Failed to send welcome email:', emailResult.error);
+    }
+
+    return {
+      ...emailResult,
+      passwordSetupUrl: passwordSetupResult.setupUrl
+    };
+  } catch (error) {
+    console.error('❌ Error in sendWelcomeEmail:', error);
+    return {
+      success: false,
+      error: error.message
+    };
   }
-
-  return emailResult;
 }
 
 export {
@@ -25241,6 +26237,109 @@ async function getTenantsByIndustry(industry, status = 'approved') {
 }
 
 /**
+ * Update tenant business data by slug
+ */
+async function updateTenantBySlug(slug, updateData) {
+  console.log('updateTenantBySlug called with:', { slug, updateData });
+  
+  // Build dynamic update query
+  const updateFields = [];
+  const values = [];
+  let paramCount = 0;
+
+  // Map frontend field names to database column names
+  // Based on actual database schema from tenants.business table
+  const fieldMapping = {
+    business_name: 'business_name',
+    first_name: 'first_name', 
+    last_name: 'last_name',
+    business_email: 'business_email',
+    personal_email: 'personal_email',
+    business_phone: 'business_phone',
+    personal_phone: 'personal_phone',
+    twilio_phone: 'twilio_phone',
+    business_start_date: 'business_start_date',
+    website: 'website',
+    website_url: 'website', // Support both field names
+    gbp_url: 'gbp_url',
+    facebook_url: 'facebook_url',
+    youtube_url: 'youtube_url',
+    tiktok_url: 'tiktok_url',
+    instagram_url: 'instagram_url'
+    // Note: google_maps_url column doesn't exist in database
+  };
+
+  // Build update fields dynamically
+  Object.keys(updateData).forEach(key => {
+    if (updateData[key] !== undefined && fieldMapping[key]) {
+      paramCount++;
+      updateFields.push(`${fieldMapping[key]} = $${paramCount}`);
+      values.push(updateData[key]);
+      console.log(`Adding field: ${key} -> ${fieldMapping[key]} = ${updateData[key]}`);
+    } else if (updateData[key] !== undefined) {
+      console.log(`Skipping field: ${key} (not in fieldMapping)`);
+    }
+  });
+
+  console.log('Update fields:', updateFields);
+  console.log('Values:', values);
+
+  if (updateFields.length === 0) {
+    throw new Error('No valid fields to update');
+  }
+
+  // Add updated_at timestamp (no parameter needed)
+  updateFields.push(`updated_at = CURRENT_TIMESTAMP`);
+
+  // Add slug parameter
+  paramCount++;
+  values.push(slug);
+
+  const query = `
+    UPDATE tenants.business 
+    SET ${updateFields.join(', ')}
+    WHERE slug = $${paramCount} AND application_status = 'approved'
+    RETURNING 
+      id, slug, business_name, owner, first_name, last_name, user_id,
+      application_status, business_start_date, business_phone, personal_phone,
+      business_email, personal_email, twilio_phone, sms_phone, website,
+      gbp_url, facebook_url, instagram_url, youtube_url, tiktok_url,
+      source, notes, service_areas, application_date, approved_date,
+      last_activity, created_at, updated_at, industry
+  `;
+
+  console.log('Executing query:', query);
+  console.log('With values:', values);
+
+  let result;
+  try {
+    result = await pool.query(query, values);
+    console.log('Query result:', result.rows);
+
+    if (result.rows.length === 0) {
+      throw new Error('Tenant not found or not approved');
+    }
+  } catch (dbError) {
+    console.error('Database error:', dbError);
+    throw new Error(`Database error: ${dbError.message}`);
+  }
+
+  const tenant = result.rows[0];
+
+  // Parse service_areas JSON if it's a string
+  if (typeof tenant.service_areas === 'string') {
+    try {
+      tenant.service_areas = JSON.parse(tenant.service_areas);
+    } catch (parseError) {
+      console.error('Error parsing service_areas:', parseError);
+      tenant.service_areas = [];
+    }
+  }
+
+  return tenant;
+}
+
+/**
  * Get list of available industries
  */
 async function getIndustries() {
@@ -25260,8 +26359,233 @@ export {
   createTenant,
   getTenantBySlug,
   getTenantsByIndustry,
-  getIndustries
+  getIndustries,
+  updateTenantBySlug
 };
+
+
+*** END FILE ***
+
+*** FILE: backend\templates\welcome.html ***
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Welcome to That Smart Site</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
+    <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f5f5f5;">
+        <tr>
+            <td style="padding: 40px 20px;">
+                <table role="presentation" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-collapse: collapse; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
+                    <!-- Header with Logo -->
+                    <tr>
+                        <td style="padding: 40px 40px 30px 40px; text-align: center; border-bottom: 1px solid #e5e7eb;">
+                            <img src="{{logoUrl}}" alt="That Smart Site Logo" style="width: 120px; height: auto; display: block; margin: 0 auto;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <div style="display: none; font-size: 24px; font-weight: 700; color: #4F46E5;">That Smart Site</div>
+                        </td>
+                    </tr>
+
+                    <!-- Welcome Content -->
+                    <tr>
+                        <td style="padding: 40px 40px 30px 40px;">
+                            <h1 style="margin: 0 0 20px 0; font-size: 28px; font-weight: 700; color: #111827; line-height: 1.2;">Welcome to That Smart Site!</h1>
+                            <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #4b5563;">We're excited to have you on board. Your account has been created and you're just one step away from launching your smart website. Let's get you set up and ready to go.</p>
+                        </td>
+                    </tr>
+
+                    <!-- Account Summary -->
+                    <tr>
+                        <td style="padding: 0 40px 30px 40px;">
+                            <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb;">
+                                <tr>
+                                    <td style="padding: 24px;">
+                                        <h2 style="margin: 0 0 16px 0; font-size: 18px; font-weight: 600; color: #111827;">Your Account Details</h2>
+                                        <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                                            <tr>
+                                                <td style="padding: 8px 0; font-size: 14px; color: #6b7280; font-weight: 500;">Business Name:</td>
+                                                <td style="padding: 8px 0; font-size: 14px; color: #111827; font-weight: 600; text-align: right;">{{businessName}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 8px 0; font-size: 14px; color: #6b7280; font-weight: 500;">Plan Type:</td>
+                                                <td style="padding: 8px 0; font-size: 14px; color: #111827; font-weight: 600; text-align: right;">{{planType}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 8px 0; font-size: 14px; color: #6b7280; font-weight: 500;">Website URL:</td>
+                                                <td style="padding: 8px 0; font-size: 14px; color: #4F46E5; font-weight: 600; text-align: right;">{{websiteUrl}}</td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Primary CTA Button -->
+                    <tr>
+                        <td style="padding: 0 40px 30px 40px; text-align: center;">
+                            <table role="presentation" style="margin: 0 auto; border-collapse: collapse;">
+                                <tr>
+                                    <td style="border-radius: 8px; background-color: #4F46E5;">
+                                        <a href="{{passwordLink}}" style="display: inline-block; padding: 16px 40px; font-size: 16px; font-weight: 600; color: #ffffff; text-decoration: none; border-radius: 8px;">Set Your Password</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Next Steps Info -->
+                    <tr>
+                        <td style="padding: 0 40px 40px 40px; text-align: center;">
+                            <p style="margin: 0 0 12px 0; font-size: 14px; color: #6b7280;">Once you've set your password, you'll be able to access your dashboard and start customizing your website.</p>
+                        </td>
+                    </tr>
+
+                    <!-- Divider -->
+                    <tr>
+                        <td style="padding: 0 40px;">
+                            <div style="border-top: 1px solid #e5e7eb;"></div>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="padding: 30px 40px 40px 40px; text-align: center;">
+                            <p style="margin: 0 0 12px 0; font-size: 14px; color: #6b7280; line-height: 1.5;">Need help getting started? Our support team is here to assist you.</p>
+                            <p style="margin: 0 0 4px 0; font-size: 14px; color: #6b7280;">Contact us at:</p>
+                            <a href="mailto:support@thatsmartsite.com" style="font-size: 14px; color: #4F46E5; text-decoration: none; font-weight: 500;">support@thatsmartsite.com</a>
+                            <p style="margin: 20px 0 0 0; font-size: 12px; color: #9ca3af; line-height: 1.5;">© 2025 That Smart Site. All rights reserved.</p>
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- Email Footer -->
+                <table role="presentation" style="max-width: 600px; margin: 20px auto 0 auto; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 0 20px; text-align: center;">
+                            <p style="margin: 0; font-size: 12px; color: #9ca3af; line-height: 1.5;">You're receiving this email because you signed up for That Smart Site.</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+
+
+*** END FILE ***
+
+*** FILE: backend\test-email.html ***
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Welcome to That Smart Site</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
+    <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f5f5f5;">
+        <tr>
+            <td style="padding: 40px 20px;">
+                <table role="presentation" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-collapse: collapse; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
+                    <!-- Header with Logo -->
+                    <tr>
+                        <td style="padding: 40px 40px 30px 40px; text-align: center; border-bottom: 1px solid #e5e7eb;">
+                            <img src="http://localhost:5175/shared/icons/logo.png" alt="That Smart Site Logo" style="width: 120px; height: auto; display: block; margin: 0 auto;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <div style="display: none; font-size: 24px; font-weight: 700; color: #4F46E5;">That Smart Site</div>
+                        </td>
+                    </tr>
+
+                    <!-- Welcome Content -->
+                    <tr>
+                        <td style="padding: 40px 40px 30px 40px;">
+                            <h1 style="margin: 0 0 20px 0; font-size: 28px; font-weight: 700; color: #111827; line-height: 1.2;">Welcome to That Smart Site!</h1>
+                            <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #4b5563;">We're excited to have you on board. Your account has been created and you're just one step away from launching your smart website. Let's get you set up and ready to go.</p>
+                        </td>
+                    </tr>
+
+                    <!-- Account Summary -->
+                    <tr>
+                        <td style="padding: 0 40px 30px 40px;">
+                            <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb;">
+                                <tr>
+                                    <td style="padding: 24px;">
+                                        <h2 style="margin: 0 0 16px 0; font-size: 18px; font-weight: 600; color: #111827;">Your Account Details</h2>
+                                        <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                                            <tr>
+                                                <td style="padding: 8px 0; font-size: 14px; color: #6b7280; font-weight: 500;">Business Name:</td>
+                                                <td style="padding: 8px 0; font-size: 14px; color: #111827; font-weight: 600; text-align: right;">Test Business</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 8px 0; font-size: 14px; color: #6b7280; font-weight: 500;">Plan Type:</td>
+                                                <td style="padding: 8px 0; font-size: 14px; color: #111827; font-weight: 600; text-align: right;">Starter</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 8px 0; font-size: 14px; color: #6b7280; font-weight: 500;">Website URL:</td>
+                                                <td style="padding: 8px 0; font-size: 14px; color: #4F46E5; font-weight: 600; text-align: right;">https://test.thatsmartsite.com</td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Primary CTA Button -->
+                    <tr>
+                        <td style="padding: 0 40px 30px 40px; text-align: center;">
+                            <table role="presentation" style="margin: 0 auto; border-collapse: collapse;">
+                                <tr>
+                                    <td style="border-radius: 8px; background-color: #4F46E5;">
+                                        <a href="http://localhost:5175/login?setup_token=test-token-123" style="display: inline-block; padding: 16px 40px; font-size: 16px; font-weight: 600; color: #ffffff; text-decoration: none; border-radius: 8px;">Set Your Password</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Next Steps Info -->
+                    <tr>
+                        <td style="padding: 0 40px 40px 40px; text-align: center;">
+                            <p style="margin: 0 0 12px 0; font-size: 14px; color: #6b7280;">Once you've set your password, you'll be able to access your dashboard and start customizing your website.</p>
+                        </td>
+                    </tr>
+
+                    <!-- Divider -->
+                    <tr>
+                        <td style="padding: 0 40px;">
+                            <div style="border-top: 1px solid #e5e7eb;"></div>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="padding: 30px 40px 40px 40px; text-align: center;">
+                            <p style="margin: 0 0 12px 0; font-size: 14px; color: #6b7280; line-height: 1.5;">Need help getting started? Our support team is here to assist you.</p>
+                            <p style="margin: 0 0 4px 0; font-size: 14px; color: #6b7280;">Contact us at:</p>
+                            <a href="mailto:support@thatsmartsite.com" style="font-size: 14px; color: #4F46E5; text-decoration: none; font-weight: 500;">support@thatsmartsite.com</a>
+                            <p style="margin: 20px 0 0 0; font-size: 12px; color: #9ca3af; line-height: 1.5;">© 2025 That Smart Site. All rights reserved.</p>
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- Email Footer -->
+                <table role="presentation" style="max-width: 600px; margin: 20px auto 0 auto; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 0 20px; text-align: center;">
+                            <p style="margin: 0; font-size: 12px; color: #9ca3af; line-height: 1.5;">You're receiving this email because you signed up for That Smart Site.</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
 
 
 *** END FILE ***
@@ -49975,6 +51299,27 @@ const ReviewsTab: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Google Reviews Integration */}
+      <div className="bg-blue-900 rounded-lg p-6 border border-blue-700">
+        <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+          <Star className="w-5 h-5 text-yellow-400" />
+          Google Reviews Integration
+        </h2>
+        <p className="text-blue-200 mb-4">
+          Connect your Google Business Profile to automatically fetch and display reviews on your website.
+        </p>
+        <a 
+          href="http://localhost:3001/api/google/auth"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+        >
+          <Star className="w-4 h-4" />
+          Connect Google Reviews
+        </a>
+        <p className="text-xs text-blue-300 mt-2">
+          This will open Google's authorization screen to connect your business profile.
+        </p>
+      </div>
+
       <div className="bg-gray-800 rounded-lg p-6">
         <h2 className="text-xl font-semibold text-white mb-4">Seed Reviews</h2>
         <p className="text-gray-300 mb-6">
@@ -75485,14 +76830,6 @@ const ProfileForm: React.FC = () => {
               placeholder="https://business.google.com/your-business"
             />
           </div>
-          <div className="md:col-span-2">
-            <AutoSaveField
-              field="google_maps_url"
-              label="Google Maps URL"
-              type="url"
-              placeholder="https://maps.google.com/maps/place/your-business"
-            />
-          </div>
           <AutoSaveField
             field="facebook_url"
             label="Facebook URL"
@@ -75659,9 +76996,8 @@ interface BusinessData {
   last_name?: string;
   twilio_phone?: string;
   business_start_date?: string;
-  website_url?: string;
+  website?: string;
   gbp_url?: string;
-  google_maps_url?: string;
   facebook_url?: string;
   youtube_url?: string;
   tiktok_url?: string;
@@ -75751,9 +77087,8 @@ export const useProfileData = (): UseProfileDataReturn => {
       if (data.business_phone !== undefined) updateData.business_phone = data.business_phone;
       if (data.twilio_phone !== undefined) updateData.twilio_phone = data.twilio_phone;
       if (data.business_start_date !== undefined) updateData.business_start_date = data.business_start_date;
-      if (data.website_url !== undefined) updateData.website_url = data.website_url;
+      if (data.website !== undefined) updateData.website = data.website;
       if (data.gbp_url !== undefined) updateData.gbp_url = data.gbp_url;
-      if (data.google_maps_url !== undefined) updateData.google_maps_url = data.google_maps_url;
       if (data.facebook_url !== undefined) updateData.facebook_url = data.facebook_url;
       if (data.youtube_url !== undefined) updateData.youtube_url = data.youtube_url;
       if (data.tiktok_url !== undefined) updateData.tiktok_url = data.tiktok_url;
@@ -75891,7 +77226,6 @@ export interface BusinessData {
   last_activity: string;
   created_at: string;
   updated_at: string;
-  google_maps_url: string;
 }
 
 export interface ProfileFormProps {
@@ -83026,7 +84360,7 @@ interface FAQItem {
 }
 
 interface FAQSectionProps {
-  faqContent: FAQItem[];
+  faqContent?: FAQItem[];
   onUpdateContent: (field: string, value: unknown) => void;
   onResetToDefault: () => void;
 }
@@ -83077,7 +84411,8 @@ export const FAQSection: React.FC<FAQSectionProps> = ({
   }, [industryFAQs]);
 
   const handleAddFAQ = () => {
-    const newContent = [...faqContent, { 
+    const currentContent = faqContent || [];
+    const newContent = [...currentContent, { 
       question: `New ${activeCategory} question`, 
       answer: `New ${activeCategory} answer`, 
       category: activeCategory 
@@ -83086,11 +84421,12 @@ export const FAQSection: React.FC<FAQSectionProps> = ({
   };
 
   const handleRemoveFAQ = (globalIndex: number) => {
-    const newContent = faqContent.filter((_item, i) => i !== globalIndex);
+    const currentContent = faqContent || [];
+    const newContent = currentContent.filter((_item, i) => i !== globalIndex);
     onUpdateContent('content', newContent);
   };
 
-  const customFaqs = faqContent.filter((faq) => faq.category === activeCategory);
+  const customFaqs = (faqContent || []).filter((faq) => faq.category === activeCategory);
 
   return (
     <div className="bg-stone-800 rounded-lg p-6 border border-stone-700">
@@ -83213,7 +84549,8 @@ export const FAQSection: React.FC<FAQSectionProps> = ({
                   
                   <div className="space-y-3">
                     {customFaqs.map((faq, categoryIndex) => {
-                      const globalIndex = faqContent.findIndex((item) => item === faq);
+                      const currentContent = faqContent || [];
+                      const globalIndex = currentContent.findIndex((item) => item === faq);
                       
                       return (
                         <div key={`${activeCategory}-${categoryIndex}`} className="rounded-lg p-4 bg-stone-700 border border-stone-600">
@@ -113598,18 +114935,18 @@ vite.on('close', (code) => {
 ## Summary
 ```json
 {
-  "generated": "2025-10-17T01:24:09.545Z",
+  "generated": "2025-10-17T02:57:48.427Z",
   "projectRoot": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh",
   "targetFolder": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh",
   "counts": {
-    "totalFilesInTarget": 947,
+    "totalFilesInTarget": 954,
     "byExtension": {
-      ".js": 115,
+      ".js": 119,
       ".md": 57,
-      ".sql": 43,
+      ".sql": 44,
       ".json": 94,
       ".ts": 362,
-      ".html": 1,
+      ".html": 3,
       ".tsx": 273,
       ".css": 1,
       ".bat": 1
@@ -113635,6 +114972,7 @@ mdh/
     controllers/
       authController.js
       passwordResetController.js
+      passwordSetupController.js
       tenantController.js
     database/
       docs/
@@ -113675,6 +115013,7 @@ mdh/
       avatar.js
       customers.js
       gallery.js
+      googleAuth.js
       googleReviews.js
       health.js
       healthMonitoring.js
@@ -113704,6 +115043,7 @@ mdh/
       kill-port.js
       test-email.js
       test-webhook.js
+      test-welcome-email.js
     server.js
     services/
       authService.js
@@ -113713,6 +115053,7 @@ mdh/
       googleBusinessScraper.js
       healthMonitor.js
       passwordResetService.js
+      passwordSetupService.js
       refreshTokenService.js
       stripeService.js
       tenantProvisionService.js
@@ -113720,6 +115061,9 @@ mdh/
     src/
       features/
       shared/
+    templates/
+      welcome.html
+    test-email.html
     tests/
       test-affiliate-endpoint.js
       test-affiliate-security.js
@@ -113811,9 +115155,6 @@ mdh/
     tsconfig.node.json
     vite.config.ts
     vitest.config.ts
-  node
-  nodemon
-  npm
   package-lock.json
   package.json
   scripts/
@@ -113833,9 +115174,6 @@ mdh/
       test-anchors.js
       test-endpoints.js
     start-frontend.js
-  thatsmartsite-frontend@0.0.0
-  thatsmartsite@1.0.0
-  vite
 ```
 
 ## Target Folder (full tree)
@@ -113853,6 +115191,7 @@ mdh/
     controllers/
       authController.js
       passwordResetController.js
+      passwordSetupController.js
       tenantController.js
     database/
       MIGRATION_GUIDE.md
@@ -113868,6 +115207,7 @@ mdh/
         TIER1_CONTENT_FEATURES.md
         WEBSITE_SCHEMA_REVIEW.md
       migrations/
+        012_create_password_setup_tokens.sql
         20241201100000_100000_add_tenant_applications.sql
         20241201100100_100100_add_subscriptions.sql
         20241201100200_100200_alter_business_add_subscription_fields.sql
@@ -113962,6 +115302,7 @@ mdh/
       avatar.js
       customers.js
       gallery.js
+      googleAuth.js
       googleReviews.js
       health.js
       healthMonitoring.js
@@ -113996,6 +115337,7 @@ mdh/
       kill-port.js
       test-email.js
       test-webhook.js
+      test-welcome-email.js
     server.js
     services/
       authService.js
@@ -114005,10 +115347,14 @@ mdh/
       googleBusinessScraper.js
       healthMonitor.js
       passwordResetService.js
+      passwordSetupService.js
       refreshTokenService.js
       stripeService.js
       tenantProvisionService.js
       tenantService.js
+    templates/
+      welcome.html
+    test-email.html
     tests/
       test-affiliate-endpoint.js
       test-affiliate-security.js

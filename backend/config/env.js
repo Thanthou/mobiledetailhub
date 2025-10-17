@@ -58,7 +58,12 @@ const EnvSchema = z.object({
   FROM_EMAIL: z.string().email().default('hello@thatsmartsite.com'),
   
   // Frontend URL for redirects
-  FRONTEND_URL: z.string().url().optional().default('http://localhost:5173'),
+  FRONTEND_URL: z.string().url().optional().default('https://thatsmartsite.com'),
+  
+  // Google OAuth (shared across all Google services)
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
+  GOOGLE_REDIRECT_URI: z.string().url().optional(),
   
   // Logging
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'debug']).optional().default('info'),
@@ -72,6 +77,22 @@ const EnvSchema = z.object({
 let env;
 try {
   env = EnvSchema.parse(process.env);
+  
+  // Additional validation for Google OAuth (only warn, don't fail)
+  const missingGoogle = [];
+  if (!env.GOOGLE_CLIENT_ID) missingGoogle.push('GOOGLE_CLIENT_ID');
+  if (!env.GOOGLE_CLIENT_SECRET) missingGoogle.push('GOOGLE_CLIENT_SECRET');
+  if (!env.GOOGLE_REDIRECT_URI) missingGoogle.push('GOOGLE_REDIRECT_URI');
+  
+  if (missingGoogle.length > 0) {
+    console.warn('⚠️  Google OAuth environment variables missing:');
+    missingGoogle.forEach((varName) => {
+      console.warn(`  - ${varName}`);
+    });
+    console.warn('  Google services (Analytics, Reviews, etc.) will not be available until these are set.');
+    console.warn('  Add them to your .env file when ready to enable Google integrations.\n');
+  }
+  
 } catch (error) {
   console.error('❌ Environment variable validation failed:');
   if (error instanceof z.ZodError) {

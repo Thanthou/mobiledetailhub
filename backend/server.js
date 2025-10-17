@@ -13,6 +13,8 @@ import adminRoutes from './routes/admin.js'
 import locationsRoutes from './routes/locations.js'
 import websiteContentRoutes from './routes/websiteContent.js'
 import googleReviewsRoutes from './routes/googleReviews.js'
+import googleAuthRoutes from './routes/googleAuth.js'
+import googleAnalyticsRoutes from './routes/googleAnalytics.js'
 
 // Suppress debug/info noise in development
 if (process.env.LOG_LEVEL !== 'debug') {
@@ -63,6 +65,8 @@ app.use('/api/admin', adminRoutes)
 app.use('/api/locations', locationsRoutes)
 app.use('/api/website-content', websiteContentRoutes)
 app.use('/api/google-reviews', googleReviewsRoutes)
+app.use('/api/google/analytics', googleAnalyticsRoutes)
+app.use('/api/google', googleAuthRoutes)
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, '0.0.0.0', () => {

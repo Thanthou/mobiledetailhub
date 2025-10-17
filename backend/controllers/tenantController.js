@@ -67,6 +67,46 @@ async function getTenantsByIndustry(req, res) {
 }
 
 /**
+ * Update tenant business data by slug
+ */
+async function updateTenantBySlug(req, res) {
+  const { slug } = req.params;
+  const updateData = req.body;
+  
+  try {
+    const updatedTenant = await tenantService.updateTenantBySlug(slug, updateData);
+    
+    res.json({
+      success: true,
+      data: updatedTenant,
+      message: 'Business profile updated successfully'
+    });
+  } catch (error) {
+    console.error('Error updating tenant:', error);
+    
+    if (error.message === 'Tenant not found or not approved') {
+      return res.status(404).json({
+        success: false,
+        error: 'Tenant not found or not approved'
+      });
+    }
+    
+    if (error.message === 'No valid fields to update') {
+      return res.status(400).json({
+        success: false,
+        error: 'No valid fields to update'
+      });
+    }
+    
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update business profile',
+      message: error.message
+    });
+  }
+}
+
+/**
  * Get list of available industries
  */
 async function getIndustries(req, res) {
@@ -82,5 +122,6 @@ export {
   createTenant,
   getTenantBySlug,
   getTenantsByIndustry,
-  getIndustries
+  getIndustries,
+  updateTenantBySlug
 };

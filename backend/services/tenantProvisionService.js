@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import { pool } from '../database/pool.js';
 import StripeService from './stripeService.js';
 import { sendWelcomeEmail as sendWelcomeEmailService } from './emailService.js';
+import { createPasswordSetupToken } from './passwordSetupService.js';
 
 /**
  * Tenant Provision Service
@@ -79,18 +80,14 @@ async function provisionTenantDatabase(tenantData, paymentIntent, stripeCustomer
   try {
     await client.query('BEGIN');
 
-    // Hash the temporary password
-    const passwordHash = tenantData.passwordHash || tenantData.tempPassword;
-    const hashedPassword = await bcrypt.hash(passwordHash, 12);
-
-    // Create user account
+    // Create user account without password (will be set via email token)
     const userResult = await client.query(
       `INSERT INTO auth.users (email, password_hash, name, phone, stripe_customer_id, is_admin, created_at)
        VALUES ($1, $2, $3, $4, $5, $6, NOW())
        RETURNING id`,
       [
         tenantData.personalEmail,
-        hashedPassword,
+        '', // Empty password - user will set via email token
         `${tenantData.firstName} ${tenantData.lastName}`,
         tenantData.personalPhone,
         stripeCustomerId || null,
@@ -296,29 +293,52 @@ async function createDefaultWebsiteContent(tenantId, tenantData, client) {
  * Send welcome email to new tenant
  */
 async function sendWelcomeEmail(provisionResult, tenantData) {
-  const welcomeEmailData = {
-    personalEmail: tenantData.personalEmail,
-    businessEmail: tenantData.businessEmail || tenantData.personalEmail,
-    firstName: tenantData.firstName,
-    businessName: tenantData.businessName,
-    websiteUrl: `http://${provisionResult.slug}.thatsmartsite.com`,
-    dashboardUrl: `http://${provisionResult.slug}.thatsmartsite.com/dashboard`,
-    tempPassword: tenantData.tempPassword
-  };
+  try {
+    // Create password setup token
+    console.log('🔑 Creating password setup token...');
+    const passwordSetupResult = await createPasswordSetupToken(
+      provisionResult.userId,
+      tenantData.personalEmail,
+      '127.0.0.1', // IP address for token creation
+      'TenantProvisionService' // User agent for token creation
+    );
 
-  console.log('📧 Starting welcome email process...');
-  console.log('📧 Welcome email data:', JSON.stringify(welcomeEmailData, null, 2));
-  
-  const emailResult = await sendWelcomeEmailService(welcomeEmailData);
-  console.log('📧 Email service result:', JSON.stringify(emailResult, null, 2));
-  
-  if (emailResult.success) {
-    console.log('✅ Welcome email sent successfully to:', emailResult.emailsSent.join(', '));
-  } else {
-    console.log('⚠️ Failed to send welcome email:', emailResult.error);
+    const welcomeEmailData = {
+      personalEmail: tenantData.personalEmail,
+      businessEmail: tenantData.businessEmail || tenantData.personalEmail,
+      firstName: tenantData.firstName,
+      businessName: tenantData.businessName,
+      websiteUrl: `http://${provisionResult.slug}.thatsmartsite.com`,
+      dashboardUrl: `${env.FRONTEND_URL || 'http://localhost:5173'}/${provisionResult.slug}/dashboard`,
+      planType: tenantData.selectedPlan || 'Starter',
+      passwordLink: passwordSetupResult.setupUrl,
+      logoUrl: `${env.FRONTEND_URL || 'http://localhost:5173'}/shared/icons/logo.png`
+    };
+
+    console.log('📧 Starting welcome email process...');
+    console.log('📧 Welcome email data:', JSON.stringify(welcomeEmailData, null, 2));
+    
+    const emailResult = await sendWelcomeEmailService(welcomeEmailData);
+    console.log('📧 Email service result:', JSON.stringify(emailResult, null, 2));
+    
+    if (emailResult.success) {
+      console.log('✅ Welcome email sent successfully to:', emailResult.emailsSent.join(', '));
+      console.log('🔑 Password setup URL:', passwordSetupResult.setupUrl);
+    } else {
+      console.log('⚠️ Failed to send welcome email:', emailResult.error);
+    }
+
+    return {
+      ...emailResult,
+      passwordSetupUrl: passwordSetupResult.setupUrl
+    };
+  } catch (error) {
+    console.error('❌ Error in sendWelcomeEmail:', error);
+    return {
+      success: false,
+      error: error.message
+    };
   }
-
-  return emailResult;
 }
 
 export {

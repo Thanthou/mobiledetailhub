@@ -104,14 +104,6 @@ const ProfileForm: React.FC = () => {
               placeholder="https://business.google.com/your-business"
             />
           </div>
-          <div className="md:col-span-2">
-            <AutoSaveField
-              field="google_maps_url"
-              label="Google Maps URL"
-              type="url"
-              placeholder="https://maps.google.com/maps/place/your-business"
-            />
-          </div>
           <AutoSaveField
             field="facebook_url"
             label="Facebook URL"

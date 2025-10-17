@@ -1,6 +1,6 @@
 # Database Overview (Auto-Generated)
 
-Generated: 2025-10-17T01:24:09.777Z
+Generated: 2025-10-17T02:57:48.663Z
 
 ```
 
@@ -21,6 +21,7 @@ Generated: 2025-10-17T01:24:09.777Z
 
    auth/
       └─ login_attempts
+      └─ password_setup_tokens
       └─ refresh_tokens
       └─ user_sessions
       └─ users
@@ -75,6 +76,17 @@ Generated: 2025-10-17T01:24:09.777Z
       • attempted_at: timestamp with time zone NULL = CURRENT_TIMESTAMP
       • location_data: jsonb NULL = '{}'::jsonb
       • user_id: integer NULL
+
+   auth.password_setup_tokens
+      • id: integer NOT NULL = nextval('auth.password_setup_t
+      • user_id: integer NOT NULL
+      • token_hash: character varying(255) NOT NULL
+      • expires_at: timestamp with time zone NOT NULL
+      • used_at: timestamp with time zone NULL
+      • ip_address: inet NULL
+      • user_agent: text NULL
+      • created_at: timestamp with time zone NULL = now()
+      • updated_at: timestamp with time zone NULL = now()
 
    auth.refresh_tokens
       • id: integer NOT NULL = nextval('auth.refresh_tokens_i
