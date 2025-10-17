@@ -1,22 +1,37 @@
 #!/usr/bin/env node
 /**
- * Migration Runner
+ * Migration Runner (CommonJS version for Render)
  * - Tracks applied migrations in system.schema_migrations
  * - Runs new ones automatically in timestamp order
  * - Includes safety checks and rollback capabilities
  */
 
-import { Pool } from 'pg';
-import fs from 'fs';
-import path from 'path';
-import dotenv from 'dotenv';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const { Pool } = require('pg');
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
 
 // Load environment variables
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+
+// Build connection string with better error handling
+let connectionString;
+if (process.env.DATABASE_URL) {
+  connectionString = process.env.DATABASE_URL;
+} else if (process.env.DB_HOST && process.env.DB_USER && process.env.DB_PASSWORD && process.env.DB_NAME) {
+  connectionString = `postgres://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT || 5432}/${process.env.DB_NAME}`;
+} else {
+  console.error('❌ No database connection configuration found');
+  console.error('   Please set either DATABASE_URL or all DB_* environment variables');
+  process.exit(1);
+}
+
+const pool = new Pool({
+  connectionString,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+});
+
+const MIGRATIONS_DIR = path.resolve(__dirname, '../migrations');
 
 // ANSI color codes for pretty output
 const colors = {
@@ -33,24 +48,9 @@ function log(message, color = 'reset') {
   console.log(`${colors[color]}${message}${colors.reset}`);
 }
 
-// Build connection string with better error handling
-let connectionString;
-if (process.env.DATABASE_URL) {
-  connectionString = process.env.DATABASE_URL;
-} else if (process.env.DB_HOST && process.env.DB_USER && process.env.DB_PASSWORD && process.env.DB_NAME) {
-  connectionString = `postgres://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT || 5432}/${process.env.DB_NAME}`;
-} else {
-  log('❌ No database connection configuration found', 'red');
-  log('   Please set either DATABASE_URL or all DB_* environment variables', 'red');
-  process.exit(1);
+function calculateChecksum(content) {
+  return crypto.createHash('md5').update(content).digest('hex');
 }
-
-const pool = new Pool({
-  connectionString,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-});
-
-const MIGRATIONS_DIR = path.resolve(__dirname, '../migrations');
 
 async function ensureMigrationsTable() {
   try {
@@ -113,11 +113,6 @@ async function getAppliedMigrations() {
   }
 }
 
-async function calculateChecksum(content) {
-  const crypto = await import('crypto');
-  return crypto.createHash('md5').update(content).digest('hex');
-}
-
 async function applyMigration(filename) {
   const filePath = path.join(MIGRATIONS_DIR, filename);
   
@@ -126,7 +121,7 @@ async function applyMigration(filename) {
   }
 
   const sql = fs.readFileSync(filePath, 'utf8');
-  const checksum = await calculateChecksum(sql);
+  const checksum = calculateChecksum(sql);
   
   // Check if migration was already applied with different content
   const { rows } = await pool.query('SELECT checksum FROM system.schema_migrations WHERE filename = $1', [filename]);
@@ -203,7 +198,7 @@ async function listMigrations() {
   for (const file of all) {
     const appliedMigration = applied.find(m => m.filename === file);
     if (appliedMigration) {
-      log(`✅ ${file} (applied ${appliedMigration.applied_at})`, 'green');
+      log(`✅ ${file} (applied)`, 'green');
     } else {
       log(`⏳ ${file} (pending)`, 'yellow');
     }

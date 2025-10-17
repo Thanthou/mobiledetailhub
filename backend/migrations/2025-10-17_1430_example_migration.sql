@@ -2,6 +2,7 @@
 -- This demonstrates the migration file format and rollback structure
 
 -- Add example column to tenants.business table (only if it doesn't exist)
+-- Note: tenants.business table already exists with full structure
 DO $$ 
 BEGIN
     IF NOT EXISTS (
