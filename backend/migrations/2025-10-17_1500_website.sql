@@ -1,8 +1,5 @@
 -- Website Schema Migration
--- Creates website schema and all its tables
-
--- Create schema
-CREATE SCHEMA IF NOT EXISTS website;
+-- Creates website tables (schema already exists from 1400_create_schemas.sql)
 
 -- Create content table
 CREATE TABLE IF NOT EXISTS website.content (

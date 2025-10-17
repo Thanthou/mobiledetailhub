@@ -1,8 +1,5 @@
 -- Booking Schema Migration
--- Creates booking schema and all its tables
-
--- Create schema
-CREATE SCHEMA IF NOT EXISTS booking;
+-- Creates booking tables (schema already exists from 1400_create_schemas.sql)
 
 -- Create availability table
 CREATE TABLE IF NOT EXISTS booking.availability (

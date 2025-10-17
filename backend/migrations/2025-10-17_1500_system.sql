@@ -1,8 +1,5 @@
 -- System Schema Migration
--- Creates system schema and all its tables
-
--- Create schema
-CREATE SCHEMA IF NOT EXISTS system;
+-- Creates system tables (schema already exists from 1400_create_schemas.sql)
 
 -- Create schema_migrations table
 CREATE TABLE IF NOT EXISTS system.schema_migrations (

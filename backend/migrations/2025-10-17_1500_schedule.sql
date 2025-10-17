@@ -1,8 +1,5 @@
 -- Schedule Schema Migration
--- Creates schedule schema and all its tables
-
--- Create schema
-CREATE SCHEMA IF NOT EXISTS schedule;
+-- Creates schedule tables (schema already exists from 1400_create_schemas.sql)
 
 -- Create appointments table
 CREATE TABLE IF NOT EXISTS schedule.appointments (

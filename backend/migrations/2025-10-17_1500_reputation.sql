@@ -1,8 +1,5 @@
 -- Reputation Schema Migration
--- Creates reputation schema and all its tables
-
--- Create schema
-CREATE SCHEMA IF NOT EXISTS reputation;
+-- Creates reputation tables (schema already exists from 1400_create_schemas.sql)
 
 -- Create reviews table
 CREATE TABLE IF NOT EXISTS reputation.reviews (

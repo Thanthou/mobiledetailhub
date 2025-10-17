@@ -1,8 +1,5 @@
 -- Analytics Schema Migration
--- Creates analytics schema and all its tables
-
--- Create schema
-CREATE SCHEMA IF NOT EXISTS analytics;
+-- Creates analytics tables (schema already exists from 1400_create_schemas.sql)
 
 -- Create google_analytics_tokens table
 CREATE TABLE IF NOT EXISTS analytics.google_analytics_tokens (

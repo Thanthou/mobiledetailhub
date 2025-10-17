@@ -1,8 +1,5 @@
 -- Auth Schema Migration
--- Creates auth schema and all its tables
-
--- Create schema
-CREATE SCHEMA IF NOT EXISTS auth;
+-- Creates auth tables (schema already exists from 1400_create_schemas.sql)
 
 -- Create users table
 CREATE TABLE IF NOT EXISTS auth.users (

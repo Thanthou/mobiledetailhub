@@ -1,8 +1,5 @@
 -- Customers Schema Migration
--- Creates customers schema and all its tables
-
--- Create schema
-CREATE SCHEMA IF NOT EXISTS customers;
+-- Creates customers tables (schema already exists from 1400_create_schemas.sql)
 
 -- Create customers table
 CREATE TABLE IF NOT EXISTS customers.customers (

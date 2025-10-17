@@ -1,8 +1,5 @@
 -- Tenants Schema Migration
--- Creates tenants schema and all its tables
-
--- Create schema
-CREATE SCHEMA IF NOT EXISTS tenants;
+-- Creates tenants tables (schema already exists from 1400_create_schemas.sql)
 
 -- Create business table
 CREATE TABLE IF NOT EXISTS tenants.business (
