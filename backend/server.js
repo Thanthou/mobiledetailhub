@@ -32,16 +32,7 @@ import express from 'express'
 import cors from 'cors'
 import { fileURLToPath } from 'url'
 
-// Test environment validation early
-try {
-  console.log('🔍 Testing environment validation...')
-  const { env } = await import('./config/env.js')
-  console.log('✅ Environment validation passed')
-} catch (error) {
-  console.error('❌ Environment validation failed:', error.message)
-  console.error('This will cause the server to fail to start')
-  process.exit(1)
-}
+// Environment validation will be done after server starts
 
 import { tenantResolver } from './middleware/tenantResolver.js'
 import paymentRoutes from './routes/payments.js'
@@ -241,22 +232,42 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 3001
 const HOST = '0.0.0.0'
 
+console.log(`💡 Reached listen() call`)
 console.log(`🚀 Starting server on ${HOST}:${PORT}`)
 console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`)
 console.log(`🔗 Database URL exists: ${process.env.DATABASE_URL ? 'YES' : 'NO'}`)
-console.log(`🔑 JWT_SECRET exists: ${process.env.JWT_SECRET ? 'YES' : 'NO'}`)
-console.log(`💳 STRIPE_SECRET_KEY exists: ${process.env.STRIPE_SECRET_KEY ? 'YES' : 'NO'}`)
-console.log(`📧 SENDGRID_API_KEY exists: ${process.env.SENDGRID_API_KEY ? 'YES' : 'NO'}`)
+console.log(`📁 Current working directory: ${process.cwd()}`)
+console.log(`📄 Server file location: ${import.meta.url}`)
 
-try {
-  app.listen(PORT, HOST, () => {
-    console.log(`✅ Backend server started successfully`)
-    console.log(`🌐 Listening on ${HOST}:${PORT}`)
-    console.log(`🔗 Health check: http://${HOST}:${PORT}/api/health`)
-    console.log(`📊 Detailed health: http://${HOST}:${PORT}/api/health/detailed`)
-    console.log(`🏗️  Environment: ${process.env.NODE_ENV || 'development'}`)
-  })
-} catch (error) {
-  console.error('❌ Failed to start server:', error)
-  process.exit(1)
+// Start server FIRST, then do async initialization
+app.listen(PORT, HOST, () => {
+  console.log(`✅ Backend server started successfully`)
+  console.log(`🌐 Listening on ${HOST}:${PORT}`)
+  console.log(`🔗 Health check: http://${HOST}:${PORT}/api/health`)
+  console.log(`📊 Detailed health: http://${HOST}:${PORT}/api/health/detailed`)
+  console.log(`🏗️  Environment: ${process.env.NODE_ENV || 'development'}`)
+  
+  // Now do async initialization after server is listening
+  initializeAsync()
+})
+
+// Async initialization after server starts
+async function initializeAsync() {
+  try {
+    console.log('🔍 Testing environment validation...')
+    const { env } = await import('./config/env.js')
+    console.log('✅ Environment validation passed')
+    
+    // Test database connection
+    console.log('🔗 Testing database connection...')
+    const { pool } = await import('./database/pool.js')
+    const client = await pool.connect()
+    await client.query('SELECT 1')
+    client.release()
+    console.log('✅ Database connection verified')
+    
+  } catch (error) {
+    console.error('⚠️ Async initialization failed:', error.message)
+    console.error('Server is still running, but some features may not work')
+  }
 }

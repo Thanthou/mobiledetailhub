@@ -34,11 +34,13 @@ services:
       ls -la ../backend/public/assets/ || echo "ERROR: Assets not copied!"
 
     startCommand: |
-      cd backend
-      echo "==> Starting backend server..."
+      echo "==> Current working directory: $(pwd)"
+      echo "==> Checking if server.js exists and printing its first 10 lines:"
+      head backend/server.js
       echo "==> PORT: $PORT"
       echo "==> NODE_ENV: $NODE_ENV"
       echo "==> DATABASE_URL exists: $([ -n "$DATABASE_URL" ] && echo "YES" || echo "NO")"
+      cd backend
       echo "==> Starting server directly..."
       node server.js
 
