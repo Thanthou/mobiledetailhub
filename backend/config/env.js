@@ -72,3 +72,7 @@ export async function loadEnv() {
     return {}; // Never crash
   }
 }
+
+// --- Compatibility export for legacy imports ---
+// This allows existing code to still use `import { env } from './env.js'`
+export const env = await loadEnv();
