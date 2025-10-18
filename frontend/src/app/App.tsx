@@ -31,7 +31,7 @@ export default function App() {
   const routes = (
     <Suspense fallback={<div className="p-8 text-white">Loading…</div>}>
       <Routes>
-        <Route path="/" element={<Navigate to="/admin-dashboard" replace />} />
+        <Route path="/" element={<HomePage onRequestQuote={handleOpenQuoteModal} />} />
         
         {/* Admin Dashboard - must come before tenant routes */}
         <Route path="/admin-dashboard" element={
