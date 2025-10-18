@@ -11,6 +11,9 @@ buildCommand: |
   rm -rf node_modules package-lock.json
   npm cache clean --force
   npm install --omit=dev
+  # Ensure critical runtime dependencies are installed
+  echo "Installing critical runtime dependencies:"
+  npm install bcryptjs express pg cors dotenv jsonwebtoken
   # Verify critical dependencies are installed
   echo "Checking critical dependencies:"
   ls -la node_modules/bcryptjs/ || echo "bcryptjs missing!"
