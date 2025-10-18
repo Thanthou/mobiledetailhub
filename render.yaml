@@ -6,23 +6,35 @@ name: thatsmartsite
 env: node
 plan: starter
 buildCommand: |
-  # Install backend dependencies
-  cd backend && npm install
+  # Clean install backend dependencies (stay in backend context)
+  cd backend
+  rm -rf node_modules package-lock.json
+  npm cache clean --force
+  npm install --omit=dev
+  # Verify Express installation is complete
+  echo "Checking Express router module:"
+  ls -la node_modules/express/lib/router/ || echo "Router directory missing!"
+  # Run migrations
   npm run migrate
-  # Install frontend dependencies and build
-  cd ../frontend && npm install
+  # Install frontend dependencies and build (separate context)
+  cd ../frontend
+  rm -rf node_modules package-lock.json
+  npm install --omit=dev
   npm run build
-  # Debug: List frontend build contents
-  echo "Frontend build contents:"
-  ls -la dist/
   # Copy frontend build to backend public directory
-  rm -rf ../backend/public
   mkdir -p ../backend/public
   cp -r dist/* ../backend/public/
-  # Debug: Verify copy worked
+  # Final verification
   echo "Backend public contents:"
   ls -la ../backend/public/
-startCommand: cd backend && npm start
+  echo "Express router verification:"
+  ls -la ../backend/node_modules/express/lib/router/
+startCommand: |
+  cd backend
+  echo "Verifying Express installation before start:"
+  ls -la node_modules/express/lib/router/ || echo "ERROR: Express router missing!"
+  node -e "console.log('Testing Express import...'); import('express').then(e => console.log('Express version:', e.default.version)).catch(err => console.error('Express import failed:', err))"
+  npm start
 envVars:
   - key: NODE_ENV
     value: production
