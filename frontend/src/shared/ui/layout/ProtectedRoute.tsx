@@ -13,31 +13,27 @@ interface ProtectedRouteProps {
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
   children, 
   requiredRole = 'user',
-  fallbackPath = '/'
+  fallbackPath = '/login'
 }) => {
-  const authContext = useAuth() as { user: { id: string; name: string; email: string; role: 'admin' | 'affiliate' | 'user' } | null; loading: boolean };
+  const { user, loading, isAuthenticated, isAdmin } = useAuth();
   
-  // Safely extract user and loading with proper type checking
-  const user = authContext.user;
-  const loading = authContext.loading;
-  
-  // Allow admin access in development mode only
-  if (env.DEV) {
-    // Allow tenant access
-    if (Array.isArray(requiredRole) && requiredRole.includes('tenant')) {
-      return <>{children}</>;
-    }
-    if (requiredRole === 'tenant') {
-      return <>{children}</>;
-    }
-    // Allow admin access
-    if (Array.isArray(requiredRole) && requiredRole.includes('admin')) {
-      return <>{children}</>;
-    }
-    if (requiredRole === 'admin') {
-      return <>{children}</>;
-    }
-  }
+  // Allow admin access in development mode only (commented out for testing)
+  // if (env.DEV) {
+  //   // Allow tenant access
+  //   if (Array.isArray(requiredRole) && requiredRole.includes('tenant')) {
+  //     return <>{children}</>;
+  //   }
+  //   if (requiredRole === 'tenant') {
+  //     return <>{children}</>;
+  //   }
+  //   // Allow admin access
+  //   if (Array.isArray(requiredRole) && requiredRole.includes('admin')) {
+  //     return <>{children}</>;
+  //   }
+  //   if (requiredRole === 'admin') {
+  //     return <>{children}</>;
+  //   }
+  // }
   
   // Show loading while checking authentication
   if (loading) {
@@ -51,31 +47,24 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
   
   // Check if user is authenticated
-  if (!user) {
+  if (!isAuthenticated) {
     return <Navigate to={fallbackPath} replace />;
   }
   
   // Check if user has required role
   if (Array.isArray(requiredRole)) {
-    const userRole = user.role;
-    if (!requiredRole.includes(userRole)) {
+    if (requiredRole.includes('admin') && !isAdmin) {
+      return <Navigate to={fallbackPath} replace />;
+    }
+    if (requiredRole.includes('tenant') && isAdmin) {
       return <Navigate to={fallbackPath} replace />;
     }
   } else {
-    const userRole = user.role;
-    if (requiredRole === 'admin' && userRole !== 'admin') {
+    if (requiredRole === 'admin' && !isAdmin) {
       return <Navigate to={fallbackPath} replace />;
     }
     
-    if (requiredRole === 'tenant' && userRole !== 'tenant') {
-      return <Navigate to={fallbackPath} replace />;
-    }
-  }
-  
-  // Check if user has valid token for admin access
-  if (Array.isArray(requiredRole) ? requiredRole.includes('admin') : requiredRole === 'admin') {
-    const token = localStorage.getItem('token');
-    if (!token) {
+    if (requiredRole === 'tenant' && isAdmin) {
       return <Navigate to={fallbackPath} replace />;
     }
   }

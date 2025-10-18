@@ -1,220 +1,139 @@
-import React, { createContext, useCallback, useEffect, useState } from 'react';
-
-import { apiService } from '@/shared/api/api';
-import { apiClient } from '@/shared/api/apiClient';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { API_ENDPOINTS } from '../config/api';
 
 interface User {
-  id: string;
-  name: string;
+  id: number;
   email: string;
-  phone?: string | undefined;
-  role: 'user' | 'tenant' | 'admin';
-  tenant_id?: number | undefined;
+  name: string;
+  is_admin: boolean;
+  created_at: string;
+}
+
+interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+interface AuthResponse {
+  success: boolean;
+  user: User;
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: string;
+  refreshExpiresIn: string;
 }
 
 export interface AuthContextType {
   user: User | null;
-  isLoggedIn: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  register: (email: string, password: string, name: string, phone?: string) => Promise<{ success: boolean; error?: string }>;
-  logout: () => void;
   loading: boolean;
+  error: string | null;
+  login: (credentials: LoginCredentials) => Promise<boolean>;
+  logout: () => void;
+  isAuthenticated: boolean;
+  isAdmin: boolean;
 }
 
-export const AuthContext = createContext<AuthContextType | null>(null);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Helper function to map backend user data to frontend User interface
-const mapBackendUserToFrontend = (backendUser: unknown): User => {
-  const user = backendUser as {
-    id: string;
-    name: string;
-    email: string;
-    phone?: string;
-    role?: 'user' | 'tenant' | 'admin';
-    is_admin?: boolean;
-    tenant_id?: number;
-  };
-  // Handle both backend API response format and saved user format
-  let role: 'user' | 'tenant' | 'admin' = 'user';
-  
-  if (user.role !== undefined) {
-    // If role is already set (from saved user data)
-    role = user.role;
-  } else if (user.is_admin) {
-    // If is_admin flag is present (from API response)
-    role = 'admin';
-  } else if (user.tenant_id) {
-    // If tenant_id is present, user is a tenant
-    role = 'tenant';
-  }
-  
-  return {
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    phone: user.phone,
-    role: role,
-    tenant_id: user.tenant_id
-  };
-};
-
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const logout = useCallback(() => {
-    setUser(null);
-    localStorage.removeItem('token');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
+  // Check if user is logged in on mount
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      // Verify token with backend
+      fetch(API_ENDPOINTS.AUTH.ME, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setUser(data);
+        } else {
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+        }
+      })
+      .catch(() => {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+    } else {
+      setLoading(false);
+    }
   }, []);
 
-  const fetchUserData = useCallback(async () => {
+  const login = async (credentials: LoginCredentials): Promise<boolean> => {
     try {
-      const userData = await apiClient.get('/api/auth/me');
-      const mappedUser = mapBackendUserToFrontend(userData);
-      setUser(mappedUser);
-      // Update localStorage with properly mapped user data
-      localStorage.setItem('user', JSON.stringify(mappedUser));
-    } catch (error: unknown) {
-      console.error('AuthContext: Error fetching user data:', error);
-      // If it's an auth error, logout user
-      if (error instanceof Error && error.message.includes('Authentication failed')) {
-        logout();
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch(API_ENDPOINTS.AUTH.LOGIN, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credentials),
+      });
+
+      const data: AuthResponse = await response.json();
+
+      if (data.success) {
+        // Store tokens
+        localStorage.setItem('accessToken', data.accessToken);
+        localStorage.setItem('refreshToken', data.refreshToken);
+        
+        // Set user
+        setUser(data.user);
+        
+        return true;
+      } else {
+        setError(data.error || 'Login failed');
+        return false;
       }
+    } catch (err) {
+      setError('Network error. Please try again.');
+      return false;
     } finally {
       setLoading(false);
     }
-  }, [logout]);
-
-  // Check for existing token on mount
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    const refreshToken = localStorage.getItem('refreshToken');
-    const savedUser = localStorage.getItem('user');
-    
-    
-    if (token && refreshToken && savedUser) {
-      try {
-        const userData = JSON.parse(savedUser) as unknown;
-        // Map the saved user data to ensure proper role
-        const mappedUser = mapBackendUserToFrontend(userData);
-        setUser(mappedUser);
-        setLoading(false);
-        
-        // Verify token is still valid on mount
-        void fetchUserData();
-      } catch (error: unknown) {
-        console.error('Error parsing saved user data:', error);
-        // If parsing fails, fetch fresh data
-        void fetchUserData();
-      }
-    } else if (token && refreshToken) {
-      // Verify token and get user data
-      void fetchUserData();
-    } else {
-      // No valid tokens, clear any partial data
-      localStorage.removeItem('token');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('user');
-      setLoading(false);
-    }
-  }, [fetchUserData]);
-
-  // Periodic token validation (every 5 minutes)
-  useEffect(() => {
-    if (user === null) return;
-    
-    const interval = setInterval(() => {
-      void (async () => {
-        try {
-          // Use API client which handles token refresh automatically
-          await apiClient.get('/api/auth/me');
-        } catch (error: unknown) {
-          console.error('Error during periodic token check:', error);
-          // If it's an auth error, logout user
-          if (error instanceof Error && error.message.includes('Authentication failed')) {
-            logout();
-          }
-        }
-      })();
-    }, 5 * 60 * 1000); // Check every 5 minutes
-
-    return () => { clearInterval(interval); };
-  }, [user, logout]);
-
-  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
-    try {
-      const response = await apiService.login(email, password);
-
-      if (response.success) {
-        const mappedUser = mapBackendUserToFrontend(response.user);
-        setUser(mappedUser);
-        localStorage.setItem('token', response.accessToken);
-        localStorage.setItem('refreshToken', response.refreshToken);
-        localStorage.setItem('user', JSON.stringify(mappedUser));
-        return { success: true };
-      } else {
-        return { success: false, error: response.message || 'Login failed' };
-      }
-    } catch (error: unknown) {
-      console.error('AuthContext: Login error:', error);
-      const err = error as { code?: string; message?: string };
-      // Handle specific error codes
-      if (err.code === 'RATE_LIMITED') {
-        return { success: false, error: `Rate limited: ${err.message ?? 'Unknown error'}` };
-      }
-      if (err.code === 'INVALID_CREDENTIALS') {
-        return { success: false, error: 'Email or password is incorrect' };
-      }
-      if (err.code === 'FORBIDDEN') {
-        return { success: false, error: 'Access denied. Please contact support.' };
-      }
-      if (err.code === 'TIMEOUT') {
-        return { success: false, error: 'Login request timed out. Please check your connection and try again.' };
-      }
-      if (err.code === 'NETWORK_ERROR') {
-        return { success: false, error: 'Network error. Please check your connection and try again.' };
-      }
-      
-      return { success: false, error: err.message || 'Network error occurred' };
-    }
   };
 
-  const register = async (email: string, password: string, name: string, phone?: string): Promise<{ success: boolean; error?: string }> => {
-    try {
-      const response = await apiService.register(email, password, name, phone);
-
-      if (response.success) {
-        const mappedUser = mapBackendUserToFrontend(response.user);
-        setUser(mappedUser);
-        localStorage.setItem('token', response.accessToken);
-        localStorage.setItem('refreshToken', response.refreshToken);
-        localStorage.setItem('user', JSON.stringify(mappedUser));
-        return { success: true };
-      } else {
-        return { success: false, error: response.message || 'Registration failed' };
-      }
-    } catch (error: unknown) {
-      const err = error as { code?: string; message?: string };
-      // Handle specific error codes
-      if (err.code === 'RATE_LIMITED') {
-        return { success: false, error: `Rate limited: ${err.message ?? 'Unknown error'}` };
-      }
-      if (err.code === 'VALIDATION_ERROR') {
-        return { success: false, error: err.message || 'Validation failed' };
-      }
-      
-      return { success: false, error: err.message || 'Network error occurred' };
-    }
+  const logout = () => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    setUser(null);
   };
 
-  const isLoggedIn = !!user;
+  const value: AuthContextType = {
+    user,
+    loading,
+    error,
+    login,
+    logout,
+    isAuthenticated: !!user,
+    isAdmin: user?.is_admin || false,
+  };
 
   return (
-    <AuthContext.Provider value={{ user, isLoggedIn, login, register, logout, loading }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
 };
 
+export const useAuth = (): AuthContextType => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
