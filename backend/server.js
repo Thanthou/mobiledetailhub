@@ -100,18 +100,8 @@ app.use('/api/health-monitoring', healthMonitoringRoutes)
 app.use('/api/reviews', reviewsRoutes)
 console.log('Reviews routes loaded at /api/reviews')
 
-// Serve static files from frontend/dist in production
-if (process.env.NODE_ENV === 'production') {
-  const frontendPath = path.join(__dirname, '../frontend/dist');
-  app.use(express.static(frontendPath));
-  
-  // Serve frontend for all non-API routes (SPA routing)
-  app.get('*', (req, res) => {
-    // Serve index.html for all non-API routes
-    res.sendFile(path.join(frontendPath, 'index.html'));
-  });
-} else {
-  // Development: simple health check
+// Development: simple health check
+if (process.env.NODE_ENV !== 'production') {
   app.get('/', (_req, res) => res.send('Backend online 🚀'))
 }
 
