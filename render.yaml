@@ -36,15 +36,19 @@ services:
       rm -rf ../backend/public
       mkdir -p ../backend/public/tenant
       mkdir -p ../backend/public/admin
+      mkdir -p ../backend/public/assets
       
       echo "==> Copying tenant build..."
       cp -r dist/src/tenant-app/* ../backend/public/tenant/
       echo "==> Copying admin build..."
       cp -r dist/src/admin-app/* ../backend/public/admin/
+      echo "==> Copying shared assets..."
+      cp -r dist/assets/* ../backend/public/assets/
       
       echo "==> Final verification..."
       ls -la ../backend/public/tenant/
       ls -la ../backend/public/admin/
+      ls -la ../backend/public/assets/
       echo "==> Checking if index.html exists..."
       ls -la ../backend/public/tenant/index.html || echo "ERROR: tenant/index.html not found!"
       ls -la ../backend/public/admin/index.html || echo "ERROR: admin/index.html not found!"
