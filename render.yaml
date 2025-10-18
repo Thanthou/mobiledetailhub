@@ -10,6 +10,7 @@ services:
     autoDeployTrigger: commit
 
     buildCommand: |
+      echo "==> Starting build process..."
       echo "==> Installing backend dependencies..."
       cd backend
       npm install
@@ -24,18 +25,30 @@ services:
       npm install --include=dev
       echo "==> Building frontend with dual entry points..."
       npm run build
+      echo "==> Build completed, checking output..."
+      ls -la dist/
+      echo "==> Checking tenant build..."
+      ls -la dist/src/tenant-app/ || echo "ERROR: dist/src/tenant-app/ not found!"
+      echo "==> Checking admin build..."
+      ls -la dist/src/admin-app/ || echo "ERROR: dist/src/admin-app/ not found!"
+      
       echo "==> Replacing backend/public with fresh build (atomic copy)..."
       rm -rf ../backend/public
       mkdir -p ../backend/public/tenant
       mkdir -p ../backend/public/admin
+      
+      echo "==> Copying tenant build..."
       cp -r dist/src/tenant-app/* ../backend/public/tenant/
+      echo "==> Copying admin build..."
       cp -r dist/src/admin-app/* ../backend/public/admin/
+      
       echo "==> Final verification..."
       ls -la ../backend/public/tenant/
       ls -la ../backend/public/admin/
       echo "==> Checking if index.html exists..."
       ls -la ../backend/public/tenant/index.html || echo "ERROR: tenant/index.html not found!"
       ls -la ../backend/public/admin/index.html || echo "ERROR: admin/index.html not found!"
+      echo "==> Build process completed!"
 
     startCommand: |
       echo "==> Current working directory: $(pwd)"
