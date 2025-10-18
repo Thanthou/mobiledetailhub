@@ -264,6 +264,7 @@ import { fileURLToPath } from 'node:url';
 import { URL } from 'node:url';
 import { defineConfig } from 'vite';
 import { visualizer } from 'rollup-plugin-visualizer';
+import path from 'path';
 
 import { manualChunks } from './config/chunks';
 
@@ -326,6 +327,11 @@ export default defineConfig({
     // DEBUG: Always enable source maps for debugging
     sourcemap: true,
     rollupOptions: {
+      // Multiple entry points for admin and tenant apps
+      input: {
+        admin: path.resolve(__dirname, 'src/admin-app/index.html'),
+        tenant: path.resolve(__dirname, 'src/tenant-app/index.html'),
+      },
       // Exclude problematic files from build
       external: (id) => {
         return id.includes('.legacy') || id.includes('_archive');
@@ -22144,9 +22150,25 @@ app.use(express.static(path.join(__dirname, 'public'), {
   }
 }))
 
-// Catch-all handler: send back React's index.html file for any non-API routes
+// Dynamic routing middleware: serve correct app based on domain
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'))
+  const host = req.hostname.toLowerCase();
+  
+  // Admin domains - serve admin app
+  const isAdminDomain = [
+    'localhost',
+    '127.0.0.1',
+    'thatsmartsite.com',
+    'www.thatsmartsite.com',
+    'thatsmartsite-backend.onrender.com'
+  ].includes(host);
+
+  if (isAdminDomain) {
+    res.sendFile(path.join(__dirname, 'public', 'admin', 'index.html'));
+  } else {
+    // Tenant subdomains - serve tenant app
+    res.sendFile(path.join(__dirname, 'public', 'tenant', 'index.html'));
+  }
 })
 
 // Centralized error handler middleware
@@ -40396,6 +40418,105 @@ export { validateLocationData, validateAllLocationFiles };
 
 *** END FILE ***
 
+*** FILE: frontend\src\admin-app\AdminApp.tsx ***
+import { lazy, Suspense } from 'react';
+import { Navigate, Route, Routes } from 'react-router-dom';
+
+import { DashboardPage as AdminDashboard } from '@/features/adminDashboard';
+import { PreviewGeneratorPage, PreviewPage } from '@/features/preview';
+import { LoginPage, ProtectedRoute } from '@/shared/ui';
+
+// Heavy modules are NOT imported here - they stay out of the initial bundle
+const Booking = lazy(() => import('../features/booking/BookingApp'));
+
+export default function AdminApp() {
+  const routes = (
+    <Suspense fallback={<div className="p-8 text-white">Loading…</div>}>
+      <Routes>
+        {/* Admin Dashboard - redirect root to admin dashboard */}
+        <Route path="/" element={<Navigate to="/admin-dashboard" replace />} />
+        
+        {/* Login route */}
+        <Route path="/login" element={<LoginPage />} />
+        
+        {/* Admin Dashboard - protected route */}
+        <Route path="/admin-dashboard" element={
+          <ProtectedRoute requiredRole="admin" fallbackPath="/login">
+            <AdminDashboard />
+          </ProtectedRoute>
+        } />
+        
+        {/* Preview routes */}
+        <Route path="/preview-generator" element={<PreviewGeneratorPage />} />
+        <Route path="/preview/:tenantSlug" element={<PreviewPage />} />
+        
+        {/* Booking route for admin testing */}
+        <Route path="/booking" element={<Booking />} />
+        
+        {/* Catch all - redirect to admin dashboard */}
+        <Route path="*" element={<Navigate to="/admin-dashboard" replace />} />
+      </Routes>
+    </Suspense>
+  );
+
+  return (
+    <div className="min-h-screen bg-gray-900">
+      {routes}
+    </div>
+  );
+}
+
+
+*** END FILE ***
+
+*** FILE: frontend\src\admin-app\index.html ***
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/shared/icons/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b0b0b" />
+    <title>Admin Dashboard - That Smart Site</title>
+    <meta name="description" content="Admin dashboard for managing tenant websites and business data." />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="./main.tsx"></script>
+  </body>
+</html>
+
+
+*** END FILE ***
+
+*** FILE: frontend\src\admin-app\main.tsx ***
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+
+import { Providers } from '../app/providers';
+import AdminApp from './AdminApp';
+
+const container = document.getElementById('root');
+if (!container) {
+  throw new Error('Root element not found');
+}
+
+const root = createRoot(container);
+
+root.render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <Providers>
+        <AdminApp />
+      </Providers>
+    </BrowserRouter>
+  </React.StrictMode>
+);
+
+
+*** END FILE ***
+
 *** FILE: frontend\src\app\App.tsx ***
 import { lazy, Suspense, useState, useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
@@ -52443,6 +52564,7 @@ import type { UserSubTab } from '@/features/adminDashboard/types';
 import { apiService } from '@/shared/api/api';
 import { Button } from '@/shared/ui';
 import { tenantEventManager } from '@/shared/utils/tenantEventManager';
+import { generateTenantWebsiteUrl, generateTenantDashboardUrl, generateTenantOnboardingUrl } from '@/shared/utils/urlGenerator';
 
 interface User {
   id: number;
@@ -52916,7 +53038,7 @@ export const UsersTab: React.FC = () => {
                   {user.role === 'tenant' && user.slug && (
                     <div className="flex items-center gap-2">
                       <a
-                        href={`http://${user.slug}.lvh.me:${window.location.port}/`}
+                        href={generateTenantWebsiteUrl(user.slug)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-1 px-3 py-1.5 text-white text-xs rounded transition-colors bg-blue-600 hover:bg-blue-700"
@@ -52926,7 +53048,7 @@ export const UsersTab: React.FC = () => {
                         Website
                       </a>
                       <a
-                        href={`http://${user.slug}.lvh.me:${window.location.port}/dashboard`}
+                        href={generateTenantDashboardUrl(user.slug)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-1 px-3 py-1.5 text-white text-xs rounded transition-colors bg-green-600 hover:bg-green-700"
@@ -53024,7 +53146,7 @@ export const UsersTab: React.FC = () => {
             
             {/* Tenant Onboarding Button */}
             <a
-              href="/tenant-onboarding"
+              href={generateTenantOnboardingUrl()}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md transition-colors"
@@ -112959,6 +113081,81 @@ export const TENANT_EVENTS = {
 
 *** END FILE ***
 
+*** FILE: frontend\src\shared\utils\urlGenerator.ts ***
+/**
+ * Utility functions for generating URLs based on environment
+ */
+
+export interface EnvironmentConfig {
+  isDevelopment: boolean;
+  baseDomain: string;
+  port?: string;
+}
+
+/**
+ * Get the current environment configuration
+ */
+export function getEnvironmentConfig(): EnvironmentConfig {
+  const isDevelopment = import.meta.env.DEV;
+  
+  if (isDevelopment) {
+    return {
+      isDevelopment: true,
+      baseDomain: 'lvh.me',
+      port: window.location.port || '5175'
+    };
+  }
+  
+  // Production configuration
+  return {
+    isDevelopment: false,
+    baseDomain: 'thatsmartsite.com',
+    port: undefined // No port needed in production
+  };
+}
+
+/**
+ * Generate a tenant website URL
+ */
+export function generateTenantWebsiteUrl(slug: string): string {
+  const config = getEnvironmentConfig();
+  
+  if (config.isDevelopment) {
+    return `http://${slug}.${config.baseDomain}:${config.port}/`;
+  }
+  
+  return `https://${slug}.${config.baseDomain}/`;
+}
+
+/**
+ * Generate a tenant dashboard URL
+ */
+export function generateTenantDashboardUrl(slug: string): string {
+  const config = getEnvironmentConfig();
+  
+  if (config.isDevelopment) {
+    return `http://${slug}.${config.baseDomain}:${config.port}/dashboard`;
+  }
+  
+  return `https://${slug}.${config.baseDomain}/dashboard`;
+}
+
+/**
+ * Generate a tenant onboarding URL
+ */
+export function generateTenantOnboardingUrl(): string {
+  const config = getEnvironmentConfig();
+  
+  if (config.isDevelopment) {
+    return `http://localhost:${config.port}/tenant-onboarding`;
+  }
+  
+  return `https://${config.baseDomain}/tenant-onboarding`;
+}
+
+
+*** END FILE ***
+
 *** FILE: frontend\src\shared\utils\useAutoSave.ts ***
 import { useEffect, useRef, useState } from 'react';
 
@@ -113828,6 +114025,144 @@ export type ValidationResult<T> = {
 
 *** END FILE ***
 
+*** FILE: frontend\src\tenant-app\index.html ***
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/shared/icons/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b0b0b" />
+    <title>Professional Services - Quality service for your needs</title>
+    <meta name="description" content="Professional services with quality service for your needs. Book now or request a quote." />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="./main.tsx"></script>
+  </body>
+</html>
+
+
+*** END FILE ***
+
+*** FILE: frontend\src\tenant-app\main.tsx ***
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+
+import { Providers } from '../app/providers';
+import TenantApp from './TenantApp';
+
+const container = document.getElementById('root');
+if (!container) {
+  throw new Error('Root element not found');
+}
+
+const root = createRoot(container);
+
+root.render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <Providers>
+        <TenantApp />
+      </Providers>
+    </BrowserRouter>
+  </React.StrictMode>
+);
+
+
+*** END FILE ***
+
+*** FILE: frontend\src\tenant-app\TenantApp.tsx ***
+import { lazy, Suspense, useState } from 'react';
+import { Navigate, Route, Routes } from 'react-router-dom';
+
+import { DataProvider, TenantPage } from '@/features/header';
+import { LazyRequestQuoteModal } from '@/features/quotes';
+import { DashboardPage } from '@/features/tenantDashboard';
+import { TenantApplicationPage } from '@/features/tenantOnboarding';
+import { LoginPage, ProtectedRoute } from '@/shared/ui';
+
+import HomePage from '../app/pages/HomePage';
+import ServicePage from '../app/pages/ServicePage';
+
+// Heavy modules are NOT imported here - they stay out of the initial bundle
+const Booking = lazy(() => import('../features/booking/BookingApp'));
+
+export default function TenantApp() {
+  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
+
+  const handleOpenQuoteModal = () => {
+    setIsQuoteModalOpen(true);
+  };
+  const handleCloseQuoteModal = () => {
+    setIsQuoteModalOpen(false);
+  };
+
+  const routes = (
+    <Suspense fallback={<div className="p-8 text-white">Loading…</div>}>
+      <Routes>
+        {/* Root path - show tenant page */}
+        <Route path="/" element={<TenantPage />} />
+        
+        {/* Login route */}
+        <Route path="/login" element={<LoginPage />} />
+        
+        {/* Tenant Dashboard - protected route */}
+        <Route path="/dashboard" element={
+          <ProtectedRoute requiredRole={['admin', 'tenant']} fallbackPath="/">
+            <DashboardPage />
+          </ProtectedRoute>
+        } />
+        
+        {/* Tenant Application */}
+        <Route path="/tenant-onboarding" element={<TenantApplicationPage />} />
+        
+        {/* Booking route */}
+        <Route path="/booking" element={<Booking />} />
+        
+        {/* Redirect old service routes to tenant-based structure */}
+        <Route path="/services/:serviceType" element={<Navigate to="/services/:serviceType" replace />} />
+        
+        {/* Service routes - must come before generic businessSlug route */}
+        <Route path="/:businessSlug/services/:serviceType" element={<ServicePage />} />
+        
+        <Route path="/:businessSlug/dashboard" element={
+          <div style={{ padding: '20px', background: 'red', color: 'white' }}>
+            <h1>DASHBOARD ROUTE MATCHED!</h1>
+            <p>Business Slug: {window.location.pathname.split('/')[1]}</p>
+            <ProtectedRoute requiredRole={['admin', 'tenant']} fallbackPath="/">
+                <DashboardPage />
+            </ProtectedRoute>
+          </div>
+        } />
+        <Route path="/:businessSlug/booking" element={<Booking />} />
+        
+        {/* Tenant-specific routes */}
+        <Route path="/:businessSlug" element={<HomePage />} />
+        
+        {/* Catch all - redirect to root */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Suspense>
+  );
+
+  return (
+    <div className="min-h-screen bg-gray-900">
+      {routes}
+      
+      {/* Quote Modal */}
+      <LazyRequestQuoteModal 
+        isOpen={isQuoteModalOpen}
+        onClose={handleCloseQuoteModal}
+      />
+    </div>
+  );
+}
+
+
+*** END FILE ***
+
 *** FILE: frontend\src\types\global.d.ts ***
 // Global type declarations for MDH
 
@@ -114061,14 +114396,17 @@ services:
       echo "==> Installing frontend dependencies..."
       cd ../frontend
       npm install --include=dev
-      echo "==> Building frontend..."
+      echo "==> Building frontend with dual entry points..."
       npm run build
 
-      echo "==> Copying frontend build to backend public directory..."
-      mkdir -p ../backend/public
-      cp -r dist/* ../backend/public/
+      echo "==> Copying frontend builds to backend public directory..."
+      mkdir -p ../backend/public/admin
+      mkdir -p ../backend/public/tenant
+      cp -r dist/admin/* ../backend/public/admin/
+      cp -r dist/tenant/* ../backend/public/tenant/
       echo "==> Final verification..."
-      ls -la ../backend/public/ || echo "ERROR: Frontend build not copied!"
+      ls -la ../backend/public/admin/ || echo "ERROR: Admin build not copied!"
+      ls -la ../backend/public/tenant/ || echo "ERROR: Tenant build not copied!"
 
     startCommand: cd backend && npm start
     healthCheckPath: /api/health
@@ -116208,6 +116546,11 @@ vite.on('close', (code) => {
 
 *** END FILE ***
 
+*** FILE: todos\all-dev-prod.md ***
+
+
+*** END FILE ***
+
 *** FILE: todos\CUSTOM_DOMAIN_ISSUES_REPORT.md ***
 # Custom Domain Support Issues Report
 
@@ -116450,21 +116793,21 @@ const CUSTOM_DOMAIN_MAPPINGS: Record<string, string> = {
 ## Summary
 ```json
 {
-  "generated": "2025-10-18T07:04:10.298Z",
+  "generated": "2025-10-18T07:21:29.089Z",
   "projectRoot": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh",
   "targetFolder": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh",
   "counts": {
-    "totalFilesInTarget": 955,
+    "totalFilesInTarget": 963,
     "byExtension": {
       ".js": 137,
-      ".md": 62,
+      ".md": 63,
       ".json": 93,
       ".sql": 16,
-      ".ts": 364,
+      ".ts": 365,
       ".cjs": 1,
-      ".html": 3,
+      ".html": 5,
       "(noext)": 1,
-      ".tsx": 275,
+      ".tsx": 279,
       ".css": 1,
       ".yaml": 1,
       ".bat": 1
@@ -116692,6 +117035,7 @@ mdh/
       validate-location-data-refactored.ts
       validate-location-data.js
     src/
+      admin-app/
       app/
       data/
       env.d.ts
@@ -116700,6 +117044,7 @@ mdh/
       main.tsx
       routes/
       shared/
+      tenant-app/
       types/
       vite-env.d.ts
     tailwind.config.js
@@ -116732,6 +117077,7 @@ mdh/
       test-endpoints.js
     start-frontend.js
   todos/
+    all-dev-prod.md
     CUSTOM_DOMAIN_ISSUES_REPORT.md
 ```
 
@@ -116974,6 +117320,10 @@ mdh/
       validate-location-data-refactored.ts
       validate-location-data.js
     src/
+      admin-app/
+        AdminApp.tsx
+        index.html
+        main.tsx
       app/
         App.tsx
         pages/
@@ -117910,12 +118260,17 @@ mdh/
           tenantConfigMigration.ts
           tenantDataTransform.ts
           tenantEventManager.ts
+          urlGenerator.ts
           useAutoSave.ts
           validateLocationData.ts
           validation.ts
           vehicleMapping.ts
         validation/
           locationSchema.ts
+      tenant-app/
+        TenantApp.tsx
+        index.html
+        main.tsx
       types/
         global.d.ts
         google-maps.d.ts
@@ -117953,5 +118308,6 @@ mdh/
     start-frontend.js
   todos/
     CUSTOM_DOMAIN_ISSUES_REPORT.md
+    all-dev-prod.md
 ```
 *** END PROJECT_STRUCTURE ***
