@@ -1,3 +1,9 @@
+/**
+ * @fileoverview API routes for avatar
+ * @version 1.0.0
+ * @author That Smart Site
+ */
+
 import express from 'express';
 import multer from 'multer';
 import path from 'path';
@@ -163,7 +169,7 @@ router.post('/upload', authenticateToken, requireAdmin, upload.single('avatar'),
 
     // Update the review record with the new avatar URL
     try {
-      const { pool } = require('../database/pool');
+      import {  pool  } from '../database/pool';;
       await pool.query(
         'UPDATE reputation.reviews SET reviewer_avatar_url = $1 WHERE id = $2',
         [avatarUrl, parseInt(reviewId)]
@@ -216,7 +222,7 @@ router.get('/info/:reviewId', authenticateToken, requireAdmin, asyncHandler((req
     });
   }
 
-  const { findCustomAvatar } = require('../utils/avatarUtils');
+  import {  findCustomAvatar  } from '../utils/avatarUtils';;
   const customAvatar = findCustomAvatar(reviewerName, parseInt(reviewId));
   
   res.json({
@@ -240,7 +246,7 @@ router.delete('/:reviewId', authenticateToken, requireAdmin, asyncHandler((req, 
     });
   }
 
-  const { findCustomAvatar } = require('../utils/avatarUtils');
+  import {  findCustomAvatar  } from '../utils/avatarUtils';;
   const customAvatar = findCustomAvatar(reviewerName, parseInt(reviewId));
   
   if (!customAvatar) {

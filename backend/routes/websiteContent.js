@@ -1,15 +1,24 @@
+/**
+ * @fileoverview API routes for websiteContent
+ * @version 1.0.0
+ * @author That Smart Site
+ */
+
 import express from 'express';
-import { pool } from '../database/pool.js';
+import { getPool } from '../database/pool.js';
 import { withTenantBySlug, getTenantBySlug } from '../middleware/withTenant.js';
 import { env } from '../config/env.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
+import { createModuleLogger } from '../config/logger.js';
 const router = express.Router();
+const logger = createModuleLogger('routeName');
+
 
 // Save website content for a tenant
 router.put('/:slug', withTenantBySlug, asyncHandler(async (req, res) => {
   const contentData = req.body;
 
-  console.log('💾 Saving website content for tenant:', req.tenant.slug);
+  logger.info('💾 Saving website content for tenant:', req.tenant.slug);
 
   // Update or insert website content using the correct table: website.content
   const upsertQuery = `
@@ -82,7 +91,7 @@ router.put('/:slug', withTenantBySlug, asyncHandler(async (req, res) => {
 
   const result = await pool.query(upsertQuery, values);
   
-  console.log('✅ Website content saved successfully');
+  logger.info('✅ Website content saved successfully');
 
   res.json({ 
     success: true, 
@@ -127,7 +136,7 @@ router.get('/:slug', asyncHandler(async (req, res) => {
   }
 
   req.tenant = tenant;
-  console.log('🔍 Fetching website content for tenant:', req.tenant.slug);
+  logger.info('🔍 Fetching website content for tenant:', req.tenant.slug);
 
   // Query from the correct table: website.content
   const contentResult = await pool.query(
@@ -135,13 +144,13 @@ router.get('/:slug', asyncHandler(async (req, res) => {
     [req.tenant.id]
   );
   
-  console.log('🔍 Query result:', {
+  logger.info('🔍 Query result:', {
     rowCount: contentResult.rows.length,
     tenant: req.tenant.slug
   });
 
   if (contentResult.rows.length === 0) {
-    console.log('🔍 No data found for tenant, returning defaults');
+    logger.info('🔍 No data found for tenant, returning defaults');
     // Return default content structure
     return res.json({
       success: true,
@@ -218,7 +227,7 @@ router.get('/main', (req, res) => {
 
     res.json(result);
   } catch (error) {
-    console.error('Error fetching main site content:', error);
+    logger.error('Error fetching main site content:', error);
     res.status(500).json({ error: 'Failed to fetch main site content' });
   }
 });

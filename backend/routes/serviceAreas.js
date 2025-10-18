@@ -1,11 +1,17 @@
-const express = require('express');
+import express from 'express';
+import logger from '../utils/logger';
+import { asyncHandler } from '../middleware/errorHandler';
+import { getPlatformServiceAreas, getTenantsForCity } from '../utils/serviceAreaProcessor';
+import { pool } from '../database/pool';
+import { serviceAreaSchemas } from '../utils/validationSchemas';
+import { validateParams } from '../middleware/validation';
+
+/**
+ * @fileoverview API routes for serviceAreas
+ * @version 1.0.0
+ * @author That Smart Site
+ */
 const router = express.Router();
-const { pool } = require('../database/pool');
-const { validateParams } = require('../middleware/validation');
-const { serviceAreaSchemas } = require('../utils/validationSchemas');
-const { asyncHandler } = require('../middleware/errorHandler');
-const logger = require('../utils/logger');
-const { getPlatformServiceAreas, getTenantsForCity } = require('../utils/serviceAreaProcessor');
 
 // Get all service areas organized by state -> city -> slug for footer
 router.get('/footer', asyncHandler(async (req, res) => {
@@ -133,11 +139,7 @@ router.get('/:state_code',
   validateParams(serviceAreaSchemas.getCities),
   asyncHandler(async (req, res) => {
 
-    if (!pool) {
-      const error = new Error('Database connection not available');
-      error.statusCode = 500;
-      throw error;
-    }
+    const pool = await getPool();
     
     const { state_code } = req.params;
 
@@ -216,4 +218,4 @@ router.get('/city/:slug', asyncHandler(async (req, res) => {
   }
 }));
 
-module.exports = router;
+export default router;

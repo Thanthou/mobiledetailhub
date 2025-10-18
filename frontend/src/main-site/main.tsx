@@ -5,6 +5,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import { config } from '@/shared/env';
 
 import MainSiteApp from './MainSiteApp';
+import { MainSiteProviders } from './providers';
 
 import '../index.css';
 
@@ -25,7 +26,9 @@ if (!rootElement) {
 createRoot(rootElement).render(
   <HelmetProvider>
     <BrowserRouter>
-      <MainSiteApp />
+      <MainSiteProviders>
+        <MainSiteApp />
+      </MainSiteProviders>
     </BrowserRouter>
   </HelmetProvider>
 );

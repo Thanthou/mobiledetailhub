@@ -1,8 +1,11 @@
-const express = require('express');
+import express from 'express';
+import logger from '../utils/logger';
+import { UPLOAD_CONFIG } from '../utils/uploadValidator';
+import { asyncHandler } from '../middleware/errorHandler';
+import { singleFileUpload, multipleFilesUpload, memoryUpload } from '../middleware/upload';
+
+
 const router = express.Router();
-const { singleFileUpload, multipleFilesUpload, memoryUpload } = require('../middleware/upload');
-const { asyncHandler } = require('../middleware/errorHandler');
-const logger = require('../utils/logger');
 
 /**
  * Single file upload endpoint
@@ -127,7 +130,6 @@ router.post('/memory',
  * GET /api/upload/config
  */
 router.get('/config', (req, res) => {
-  const { UPLOAD_CONFIG } = require('../utils/uploadValidator');
   
   res.status(200).json({
     message: 'Upload configuration',
@@ -141,4 +143,4 @@ router.get('/config', (req, res) => {
   });
 });
 
-module.exports = router;
+export default router;

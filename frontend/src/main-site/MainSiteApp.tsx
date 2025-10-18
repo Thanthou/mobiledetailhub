@@ -13,7 +13,6 @@ import { LoginPage, ProtectedRoute } from '@/shared/ui';
 
 import HomePage from '@main/pages/HomePage';
 import ServicePage from '@main/pages/ServicePage';
-import { MainSiteProviders } from './providers';
 
 // Heavy modules are NOT imported here - they stay out of the initial bundle
 const Booking = lazy(() => import('../features/booking/BookingApp'));
@@ -31,10 +30,9 @@ export default function MainSiteApp() {
   };
 
   return (
-    <MainSiteProviders>
-      <div className="min-h-screen bg-gray-900">
-        <Suspense fallback={<div className="p-8 text-white">Loading…</div>}>
-        <Routes>
+    <div className="min-h-screen bg-gray-900">
+      <Suspense fallback={<div className="p-8 text-white">Loading…</div>}>
+      <Routes>
           {/* Root path - show main site landing page */}
           <Route path="/" element={<HomePage />} />
           
@@ -93,6 +91,5 @@ export default function MainSiteApp() {
           onClose={handleCloseQuoteModal}
         />
       </div>
-    </MainSiteProviders>
   );
 }

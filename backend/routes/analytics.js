@@ -1,6 +1,6 @@
 import express from 'express';
 const router = express.Router();
-import { pool } from '../database/pool.js';
+import { getPool } from '../database/pool.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import logger from '../utils/logger.js';
 

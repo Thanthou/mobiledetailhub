@@ -1,6 +1,12 @@
+/**
+ * @fileoverview API routes for customers
+ * @version 1.0.0
+ * @author That Smart Site
+ */
+
 import express from 'express';
 const router = express.Router();
-import { pool } from '../database/pool.js';
+import { getPool } from '../database/pool.js';
 import { validateParams } from '../middleware/validation.js';
 import { customerSchemas } from '../utils/validationSchemas.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
@@ -10,11 +16,7 @@ import { asyncHandler } from '../middleware/errorHandler.js';
 // Get customers
 router.get('/', asyncHandler(async (req, res) => {
 
-  if (!pool) {
-    const error = new Error('Database connection not available');
-    error.statusCode = 500;
-    throw error;
-  }
+  const pool = await getPool();
   
   const result = await pool.query('SELECT * FROM customers.customers LIMIT 1');
   if (result.rows.length === 0) {
@@ -32,11 +34,7 @@ router.get('/field/:field',
     const { field } = req.params;
     
   
-    if (!pool) {
-      const error = new Error('Database connection not available');
-      error.statusCode = 500;
-      throw error;
-    }
+    const pool = await getPool();
     
     // Use a safer approach with explicit field selection
     const fieldMap = {

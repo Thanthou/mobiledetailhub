@@ -1,15 +1,16 @@
+import express from 'express';
+import logger from '../utils/logger';
+import { asyncHandler } from '../middleware/errorHandler';
+import { pool } from '../database/pool';
+import { robotsRoute, sitemapRoute, seoConfigRoute, previewRoute } from './seo';
+
 /**
  * SEO Routes - Centralized SEO endpoint management
  * 
  * This module anchors Cursor's understanding of SEO backend functionality.
  * All SEO-related API endpoints should be defined here.
  */
-
-const express = require('express');
 const router = express.Router();
-const { pool } = require('../database/pool');
-const { asyncHandler } = require('../middleware/errorHandler');
-const logger = require('../utils/logger');
 
 // Simple in-memory cache for sitemap responses
 // Keyed by host; stores { xml: string, expiresAt: number }
@@ -18,8 +19,9 @@ const ONE_HOUR_MS = 60 * 60 * 1000;
 const TWENTY_FOUR_HOURS_MS = 24 * ONE_HOUR_MS;
 
 // Import the modular SEO routes
-// TODO: Fix TypeScript imports - these are .ts files in ./seo/ directory
-// const { robotsRoute, sitemapRoute, seoConfigRoute, previewRoute } = require('./seo');
+// TODO: Fix TypeScript
+imports - these are .ts files in ./seo/ directory
+//
 
 // Use the modular routes
 // router.use('/', robotsRoute);
@@ -271,4 +273,4 @@ ${urls.map(url => `  <url>
   }
 }));
 
-module.exports = router;
+export default router;

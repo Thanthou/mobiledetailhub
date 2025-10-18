@@ -1,5 +1,34 @@
-import { pool } from '../database/pool.js';
+import { getPool } from '../database/pool.js';
 import { asyncHandler } from './errorHandler.js';
+import { createModuleLogger } from '../config/logger.js';
+
+const logger = createModuleLogger('withTenant');
+
+/**
+ * Switch database schema for tenant-specific operations
+ * @param {Object} tenant - The tenant object with id and slug
+ */
+async function switchToTenantSchema(tenant) {
+  try {
+    const pool = await getPool();
+    await pool.query('SET search_path TO tenants, public');
+    
+    logger.info({
+      event: 'schema_switched',
+      tenantId: tenant.id,
+      tenantSlug: tenant.slug,
+      schema: 'tenants'
+    }, 'Switched to tenant schema');
+  } catch (error) {
+    logger.error({
+      event: 'schema_switch_error',
+      tenantId: tenant.id,
+      tenantSlug: tenant.slug,
+      error: error.message
+    }, 'Failed to switch to tenant schema');
+    throw error;
+  }
+}
 
 /**
  * withTenant Middleware
@@ -9,6 +38,7 @@ import { asyncHandler } from './errorHandler.js';
  * 2. Looking up tenant by user_id for authenticated users
  * 3. Validating tenant exists and is approved
  * 4. Attaching tenant data to req.tenant
+ * 5. Switching database schema to tenants schema
  * 
  * Usage:
  * - router.get('/:slug', withTenant, (req, res) => { ... })
@@ -19,11 +49,7 @@ import { asyncHandler } from './errorHandler.js';
  * Get tenant by slug from URL parameters
  */
 async function getTenantBySlug(slug) {
-  if (!pool) {
-    const error = new Error('Database connection not available');
-    error.statusCode = 500;
-    throw error;
-  }
+  const pool = await getPool();
 
   const query = `
     SELECT 
@@ -59,7 +85,7 @@ async function getTenantBySlug(slug) {
     try {
       tenant.service_areas = JSON.parse(tenant.service_areas);
     } catch (parseError) {
-      console.error('Error parsing service_areas:', parseError);
+      logger.error('Error parsing service_areas:', parseError);
       tenant.service_areas = [];
     }
   }
@@ -71,11 +97,7 @@ async function getTenantBySlug(slug) {
  * Get tenant by user_id for authenticated users
  */
 async function getTenantByUserId(userId, isAdmin = false) {
-  if (!pool) {
-    const error = new Error('Database connection not available');
-    error.statusCode = 500;
-    throw error;
-  }
+  const pool = await getPool();
 
   let query;
   let params;
@@ -146,7 +168,7 @@ async function getTenantByUserId(userId, isAdmin = false) {
     try {
       tenant.service_areas = JSON.parse(tenant.service_areas);
     } catch (parseError) {
-      console.error('Error parsing service_areas:', parseError);
+      logger.error('Error parsing service_areas:', parseError);
       tenant.service_areas = [];
     }
   }
@@ -169,6 +191,10 @@ const withTenantBySlug = asyncHandler(async (req, res, next) => {
 
   const tenant = await getTenantBySlug(slug);
   req.tenant = tenant;
+  
+  // Switch to tenant schema for subsequent operations
+  await switchToTenantSchema(tenant);
+  
   next();
 });
 
@@ -186,6 +212,10 @@ const withTenantByUser = asyncHandler(async (req, res, next) => {
   const isAdmin = req.user.isAdmin || false;
   const tenant = await getTenantByUserId(req.user.userId, isAdmin);
   req.tenant = tenant;
+  
+  // Switch to tenant schema for subsequent operations
+  await switchToTenantSchema(tenant);
+  
   next();
 });
 
@@ -199,6 +229,7 @@ const withTenant = asyncHandler(async (req, res, next) => {
     try {
       const tenant = await getTenantBySlug(req.params.slug);
       req.tenant = tenant;
+      await switchToTenantSchema(tenant);
       return next();
     } catch (error) {
       // If slug lookup fails and we have a user, try user lookup
@@ -206,6 +237,7 @@ const withTenant = asyncHandler(async (req, res, next) => {
         const isAdmin = req.user.isAdmin || false;
         const tenant = await getTenantByUserId(req.user.userId, isAdmin);
         req.tenant = tenant;
+        await switchToTenantSchema(tenant);
         return next();
       }
       // Otherwise, re-throw the slug error
@@ -218,6 +250,7 @@ const withTenant = asyncHandler(async (req, res, next) => {
     const isAdmin = req.user.isAdmin || false;
     const tenant = await getTenantByUserId(req.user.userId, isAdmin);
     req.tenant = tenant;
+    await switchToTenantSchema(tenant);
     return next();
   }
 
@@ -242,12 +275,7 @@ const validateTenantExists = asyncHandler(async (req, res, next) => {
     throw error;
   }
 
-  if (!pool) {
-    const error = new Error('Database connection not available');
-    error.statusCode = 500;
-    throw error;
-  }
-
+  const pool = await getPool();
   const result = await pool.query(
     'SELECT id, slug, business_name FROM tenants.business WHERE slug = $1 AND application_status = $2',
     [slug, 'approved']

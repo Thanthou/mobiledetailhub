@@ -1,7 +1,17 @@
-const express = require('express');
+/**
+ * @fileoverview API routes for services
+ * @version 1.0.0
+ * @author That Smart Site
+ */
+
+import express from 'express';
 const router = express.Router();
-const { pool } = require('../database/pool');
-const { getDatabaseId } = require('../utils/vehicleMapping');
+const logger = createModuleLogger('routeName');
+
+import {  pool  } from '../database/pool';import { createModuleLogger } from '../config/logger.js';
+import { asyncHandler } from '../middleware/errorHandler.js';
+;
+import {  getDatabaseId  } from '../utils/vehicleMapping';;
 
 
 // POST /api/services - Create a new service
@@ -75,11 +85,11 @@ router.post('/', async (req, res) => {
     
     // Create service tiers - use custom tiers if provided, otherwise create default tiers
     if (tiers && Array.isArray(tiers) && tiers.length > 0) {
-      console.log('Backend - Received tiers data:', JSON.stringify(tiers, null, 2));
+      logger.info('Backend - Received tiers data:', JSON.stringify(tiers, null, 2));
       // Use custom tiers provided by the frontend
       for (const tier of tiers) {
         if (tier.name && tier.name.trim() !== '') {
-          console.log('Backend - Processing tier:', tier.name, 'tierCopies:', tier.tierCopies);
+          logger.info('Backend - Processing tier:', tier.name, 'tierCopies:', tier.tierCopies);
           await pool.query(`
             INSERT INTO tenants.service_tiers (service_id, tier_name, price_cents, included_services, duration_minutes, metadata, is_active, is_featured, sort_order)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
@@ -131,7 +141,7 @@ router.post('/', async (req, res) => {
     }
     
   } catch (error) {
-    console.error('Error creating service:', error);
+    logger.error('Error creating service:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to create service',
@@ -238,11 +248,11 @@ router.put('/:serviceId', async (req, res) => {
       
       // Create new service tiers
       if (tiers && Array.isArray(tiers) && tiers.length > 0) {
-        console.log('Backend PUT - Received tiers data:', JSON.stringify(tiers, null, 2));
+        logger.info('Backend PUT - Received tiers data:', JSON.stringify(tiers, null, 2));
         // Use custom tiers provided by the frontend
         for (const tier of tiers) {
           if (tier.name && tier.name.trim() !== '') {
-            console.log('Backend PUT - Processing tier:', tier.name, 'tierCopies:', tier.tierCopies);
+            logger.info('Backend PUT - Processing tier:', tier.name, 'tierCopies:', tier.tierCopies);
             await client.query(`
               INSERT INTO tenants.service_tiers (service_id, tier_name, price_cents, included_services, duration_minutes, metadata, is_active, is_featured, sort_order)
               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
@@ -284,11 +294,9 @@ router.put('/:serviceId', async (req, res) => {
       // Commit the transaction
       await client.query('COMMIT');
       
-      res.json({
-        success: true,
-        data: serviceResult.rows[0],
+      res.json({ success: true, data: serviceResult.rows[0],
         message: 'Service updated successfully'
-      });
+       });
       
     } catch (error) {
       // Rollback the transaction on error
@@ -299,7 +307,7 @@ router.put('/:serviceId', async (req, res) => {
     }
     
   } catch (error) {
-    console.error('Error updating service:', error);
+    logger.error('Error updating service:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to update service',
@@ -363,7 +371,7 @@ router.delete('/:serviceId', async (req, res) => {
     }
     
   } catch (error) {
-    console.error('Error deleting service:', error);
+    logger.error('Error deleting service:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to delete service',
@@ -420,10 +428,8 @@ router.get('/tenant/:tenantId/vehicle/:vehicleId/category/:categoryId', async (r
     const result = await pool.query(query, queryParams);
     
     if (result.rows.length === 0) {
-      return res.json({
-        success: true,
-        data: []
-      });
+      return res.json({ success: true, data: []
+       });
     }
     
     // For each service, get its tiers
@@ -467,13 +473,11 @@ router.get('/tenant/:tenantId/vehicle/:vehicleId/category/:categoryId', async (r
       servicesWithTiers.push(serviceData);
     }
     
-    res.json({
-      success: true,
-      data: servicesWithTiers
-    });
+    res.json({ success: true, data: servicesWithTiers
+     });
     
   } catch (error) {
-    console.error('Error fetching service with tiers:', error);
+    logger.error('Error fetching service with tiers:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch service with tiers',

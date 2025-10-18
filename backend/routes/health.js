@@ -4,6 +4,7 @@
  */
 
 import express from 'express';
+import { asyncHandler } from '../middleware/errorHandler.js';
 const router = express.Router();
 import { getPool } from '../database/pool.js';
 import logger from '../utils/logger.js';

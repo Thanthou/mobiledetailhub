@@ -10,7 +10,9 @@ services:
     autoDeployTrigger: commit
 
     buildCommand: |
-      echo "==> Starting build process..."
+      echo "==> Starting 3-layer architecture build process..."
+      
+      # Backend setup
       echo "==> Installing backend dependencies..."
       cd backend
       npm ci
@@ -20,29 +22,55 @@ services:
       echo "==> Installing critical runtime dependencies..."
       npm install bcryptjs express pg cors dotenv jsonwebtoken
 
+      # Frontend setup
       echo "==> Installing frontend dependencies..."
       cd ../frontend
       npm ci --include=dev
-      echo "==> Building frontend with dual entry points..."
+      echo "==> Building 3-layer frontend (main, admin, tenant)..."
       npm run build
 
-      echo "==> Checking built structure..."
-      find dist -maxdepth 3 -type f -name "index.html" || true
+      # Validate build output
+      echo "==> Validating build structure..."
+      if [ ! -f "dist/main/index.html" ]; then
+        echo "❌ ERROR: Main site build missing!"
+        exit 1
+      fi
+      if [ ! -f "dist/admin/index.html" ]; then
+        echo "❌ ERROR: Admin app build missing!"
+        exit 1
+      fi
+      if [ ! -f "dist/tenant/index.html" ]; then
+        echo "❌ ERROR: Tenant app build missing!"
+        exit 1
+      fi
+      echo "✅ All 3 builds validated successfully!"
 
-      echo "==> Cleaning backend/public..."
+      # Prepare backend public directory
+      echo "==> Preparing backend/public for 3-layer deployment..."
       cd ..
       rm -rf backend/public
-      mkdir -p backend/public/{tenant,admin}
+      mkdir -p backend/public/{main,admin,tenant}
 
-      echo "==> Copying tenant build..."
-      cp -r frontend/dist/src/tenant-app/* backend/public/tenant/
-      echo "==> Copying admin build..."
+      # Copy builds (using current Vite output structure)
+      echo "==> Copying main site build..."
+      cp -r frontend/dist/src/main-site/* backend/public/main/
+      echo "==> Copying admin app build..."
       cp -r frontend/dist/src/admin-app/* backend/public/admin/
+      echo "==> Copying tenant app build..."
+      cp -r frontend/dist/src/tenant-app/* backend/public/tenant/
 
-      echo "--- backend/public structure after copy ---"
-      find backend/public -maxdepth 3 -type f -name "index.html" || true
+      # Final validation
+      echo "==> Final deployment structure validation..."
+      echo "Main site: $(find backend/public/main -name 'index.html' | wc -l) files"
+      echo "Admin app: $(find backend/public/admin -name 'index.html' | wc -l) files"
+      echo "Tenant app: $(find backend/public/tenant -name 'index.html' | wc -l) files"
+      
+      if [ $(find backend/public -name 'index.html' | wc -l) -ne 3 ]; then
+        echo "❌ ERROR: Expected 3 index.html files, found $(find backend/public -name 'index.html' | wc -l)"
+        exit 1
+      fi
 
-      echo "✅ Build process completed!"
+      echo "✅ 3-layer architecture build completed successfully!"
 
     startCommand: |
       echo "==> Current working directory: $(pwd)"

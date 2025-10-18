@@ -1,9 +1,21 @@
-const express = require('express');
+import express from 'express';
+import fs from 'fs';
+import path from 'path';
+import { asyncHandler } from '../middleware/errorHandler.js';
+import { pool } from '../database/pool';import { createModuleLogger } from '../config/logger.js';
+
+/**
+ * @fileoverview API routes for tenantImages
+ * @version 1.0.0
+ * @author That Smart Site
+ */
 // TODO: Add file system operations when implementing image management
-// const fs = require('fs');
-// const path = require('path');
-const { pool } = require('../database/pool');
+//
+//
+;
 const router = express.Router();
+const logger = createModuleLogger('routeName');
+
 
 // Get list of tenant-specific images
 router.get('/images', async (req, res) => {
@@ -29,7 +41,7 @@ router.get('/images', async (req, res) => {
     
     res.json(imageUrls);
   } catch (error) {
-    console.error('Error reading tenant images:', error);
+    logger.error('Error reading tenant images:', error);
     res.status(500).json({ error: 'Failed to read tenant images' });
   }
 });
@@ -50,9 +62,9 @@ router.post('/upload', (req, res) => {
     
     res.json({ message: 'Upload endpoint ready - implementation pending' });
   } catch (error) {
-    console.error('Error uploading tenant image:', error);
+    logger.error('Error uploading tenant image:', error);
     res.status(500).json({ error: 'Failed to upload image' });
   }
 });
 
-module.exports = router;
+export default router;

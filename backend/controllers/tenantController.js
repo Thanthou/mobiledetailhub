@@ -1,4 +1,8 @@
 import * as tenantService from '../services/tenantService.js';
+import { createModuleLogger } from '../config/logger.js';
+const logger = createModuleLogger('tenantController');
+
+
 
 /**
  * Tenant Controller
@@ -14,15 +18,15 @@ async function createTenant(req, res) {
   const result = await tenantService.createTenant(tenantData);
   
   // Log tenant creation for now (TODO: Send welcome email)
-  console.log('\n=== NEW TENANT SIGNUP ===');
-  console.log(`Business: ${tenantData.businessName}`);
-  console.log(`Owner: ${tenantData.firstName} ${tenantData.lastName}`);
-  console.log(`Email: ${tenantData.personalEmail}`);
-  console.log(`Slug: ${result.slug}`);
-  console.log(`Website URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}${result.websiteUrl}`);
-  console.log(`Dashboard URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}${result.dashboardUrl}`);
-  console.log(`Plan: ${tenantData.selectedPlan} ($${tenantData.planPrice}/month)`);
-  console.log('========================\n');
+  logger.info('\n=== NEW TENANT SIGNUP ===');
+  logger.info(`Business: ${tenantData.businessName}`);
+  logger.info(`Owner: ${tenantData.firstName} ${tenantData.lastName}`);
+  logger.info(`Email: ${tenantData.personalEmail}`);
+  logger.info(`Slug: ${result.slug}`);
+  logger.info(`Website URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}${result.websiteUrl}`);
+  logger.info(`Dashboard URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}${result.dashboardUrl}`);
+  logger.info(`Plan: ${tenantData.selectedPlan} ($${tenantData.planPrice}/month)`);
+  logger.info('========================\n');
 
   res.status(201).json({
     success: true,
@@ -82,7 +86,7 @@ async function updateTenantBySlug(req, res) {
       message: 'Business profile updated successfully'
     });
   } catch (error) {
-    console.error('Error updating tenant:', error);
+    logger.error('Error updating tenant:', error);
     
     if (error.message === 'Tenant not found or not approved') {
       return res.status(404).json({

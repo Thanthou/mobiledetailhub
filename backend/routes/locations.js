@@ -1,5 +1,11 @@
+/**
+ * @fileoverview API routes for locations
+ * @version 1.0.0
+ * @author That Smart Site
+ */
+
 import express from 'express';
-import { pool } from '../database/pool.js';
+import { getPool } from '../database/pool.js';
 import { withTenantBySlug } from '../middleware/withTenant.js';
 import { validateBody } from '../middleware/zodValidation.js';
 import { serviceAreaSchemas } from '../schemas/apiSchemas.js';

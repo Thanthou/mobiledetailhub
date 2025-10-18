@@ -1,7 +1,7 @@
 import express from 'express';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import { logger } from '../config/logger.js';
-import { pool } from '../database/pool.js';
+import { getPool } from '../database/pool.js';
 import { env } from '../config/env.js';
 import * as analyticsService from '../services/googleAnalytics.js';
 
@@ -22,11 +22,11 @@ router.get('/test', (req, res) => {
  * Initiates OAuth flow by redirecting to Google's consent screen
  */
 router.get('/auth', asyncHandler(async (req, res) => {
-  console.log('Google Analytics auth route called');
+  logger.info('Google Analytics auth route called');
   try {
     // Get tenant_id from session or query params
     const tenantId = req.query.tenant_id || req.user?.tenant_id;
-    console.log('Tenant ID:', tenantId);
+    logger.info('Tenant ID:', tenantId);
     
     if (!tenantId) {
       return res.status(400).json({
@@ -51,7 +51,7 @@ router.get('/auth', asyncHandler(async (req, res) => {
     }
 
     // Build OAuth URL
-    console.log('Environment variables:', {
+    logger.info('Environment variables:', {
       GOOGLE_CLIENT_ID: env.GOOGLE_CLIENT_ID ? 'SET' : 'MISSING',
       GOOGLE_REDIRECT_URI: env.GOOGLE_REDIRECT_URI || 'MISSING'
     });

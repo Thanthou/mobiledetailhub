@@ -1,4 +1,8 @@
 import bcrypt from 'bcryptjs';
+import { createModuleLogger } from '../config/logger.js';
+const logger = createModuleLogger('tenantProvisionService');
+
+
 import { pool } from '../database/pool.js';
 import StripeService from './stripeService.js';
 import { sendWelcomeEmail as sendWelcomeEmailService } from './emailService.js';
@@ -45,7 +49,7 @@ async function provisionTenantWithPayment(paymentIntentId, tenantData) {
   });
 
   if (!customerResult.success) {
-    console.error('Failed to create Stripe customer:', customerResult.error);
+    logger.error('Failed to create Stripe customer:', customerResult.error);
     // Continue with tenant creation even if customer creation fails
   }
 
@@ -56,7 +60,7 @@ async function provisionTenantWithPayment(paymentIntentId, tenantData) {
   try {
     await sendWelcomeEmail(provisionResult, tenantData);
   } catch (emailError) {
-    console.error('Failed to send welcome email:', emailError);
+    logger.error('Failed to send welcome email:', emailError);
     // Don't fail the entire process if email fails
   }
 
@@ -164,16 +168,16 @@ async function provisionTenantDatabase(tenantData, paymentIntent, stripeCustomer
 
     await client.query('COMMIT');
 
-    console.log('\n=== NEW PAID TENANT CREATED ===');
-    console.log(`Business: ${tenantData.businessName}`);
-    console.log(`Owner: ${tenantData.firstName} ${tenantData.lastName}`);
-    console.log(`Email: ${tenantData.personalEmail}`);
-    console.log(`Slug: ${tenantSlug}`);
-    console.log(`Website URL: http://${tenantSlug}.thatsmartsite.com`);
-    console.log(`Dashboard URL: http://${tenantSlug}.thatsmartsite.com/dashboard`);
-    console.log(`Plan: ${tenantData.selectedPlan} ($${tenantData.planPrice}/month)`);
-    console.log(`Payment: ${paymentIntent.id} - $${paymentIntent.amount / 100}`);
-    console.log('================================\n');
+    logger.info('\n=== NEW PAID TENANT CREATED ===');
+    logger.info(`Business: ${tenantData.businessName}`);
+    logger.info(`Owner: ${tenantData.firstName} ${tenantData.lastName}`);
+    logger.info(`Email: ${tenantData.personalEmail}`);
+    logger.info(`Slug: ${tenantSlug}`);
+    logger.info(`Website URL: http://${tenantSlug}.thatsmartsite.com`);
+    logger.info(`Dashboard URL: http://${tenantSlug}.thatsmartsite.com/dashboard`);
+    logger.info(`Plan: ${tenantData.selectedPlan} ($${tenantData.planPrice}/month)`);
+    logger.info(`Payment: ${paymentIntent.id} - $${paymentIntent.amount / 100}`);
+    logger.info('================================\n');
 
     return {
       tenantId,
@@ -295,7 +299,7 @@ async function createDefaultWebsiteContent(tenantId, tenantData, client) {
 async function sendWelcomeEmail(provisionResult, tenantData) {
   try {
     // Create password setup token
-    console.log('🔑 Creating password setup token...');
+    logger.info('🔑 Creating password setup token...');
     const passwordSetupResult = await createPasswordSetupToken(
       provisionResult.userId,
       tenantData.personalEmail,
@@ -315,17 +319,17 @@ async function sendWelcomeEmail(provisionResult, tenantData) {
       logoUrl: `${env.FRONTEND_URL || 'http://localhost:5173'}/shared/icons/logo.png`
     };
 
-    console.log('📧 Starting welcome email process...');
-    console.log('📧 Welcome email data:', JSON.stringify(welcomeEmailData, null, 2));
+    logger.info('📧 Starting welcome email process...');
+    logger.info('📧 Welcome email data:', JSON.stringify(welcomeEmailData, null, 2));
     
     const emailResult = await sendWelcomeEmailService(welcomeEmailData);
-    console.log('📧 Email service result:', JSON.stringify(emailResult, null, 2));
+    logger.info('📧 Email service result:', JSON.stringify(emailResult, null, 2));
     
     if (emailResult.success) {
-      console.log('✅ Welcome email sent successfully to:', emailResult.emailsSent.join(', '));
-      console.log('🔑 Password setup URL:', passwordSetupResult.setupUrl);
+      logger.info('✅ Welcome email sent successfully to:', emailResult.emailsSent.join(', '));
+      logger.info('🔑 Password setup URL:', passwordSetupResult.setupUrl);
     } else {
-      console.log('⚠️ Failed to send welcome email:', emailResult.error);
+      logger.info('⚠️ Failed to send welcome email:', emailResult.error);
     }
 
     return {
@@ -333,7 +337,7 @@ async function sendWelcomeEmail(provisionResult, tenantData) {
       passwordSetupUrl: passwordSetupResult.setupUrl
     };
   } catch (error) {
-    console.error('❌ Error in sendWelcomeEmail:', error);
+    logger.error('❌ Error in sendWelcomeEmail:', error);
     return {
       success: false,
       error: error.message

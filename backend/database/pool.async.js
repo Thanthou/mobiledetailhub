@@ -6,6 +6,10 @@
  */
 
 import pkg from 'pg';
+import { createModuleLogger } from '../config/logger.js';
+const logger = createModuleLogger('pool.async');
+
+
 import { loadEnv } from '../config/env.async.js';
 const { Pool } = pkg;
 
@@ -25,7 +29,7 @@ export async function getPool() {
   const env = await loadEnv();
 
   if (!env.DATABASE_URL) {
-    console.warn('⚠️  No DATABASE_URL — returning mock pool');
+    logger.warn('⚠️  No DATABASE_URL — returning mock pool');
     pool = {
       query: async () => { throw new Error('Database not configured'); },
       connect: async () => { throw new Error('Database not configured'); },
@@ -50,7 +54,7 @@ export async function getPool() {
   pool = new Pool(config);
 
   pool.on('error', err =>
-    console.error('⚠️  Idle client error:', err.message)
+    logger.error('⚠️  Idle client error:', err.message)
   );
 
   // Attempt first connection in background (non-fatal)
@@ -60,10 +64,10 @@ export async function getPool() {
         const client = await pool.connect();
         await client.query('SELECT 1');
         client.release();
-        console.log('✅ Database connection established');
+        logger.info('✅ Database connection established');
         break;
       } catch (err) {
-        console.warn(`⏳ DB retry ${i}/5 failed: ${err.message}`);
+        logger.warn(`⏳ DB retry ${i}/5 failed: ${err.message}`);
         await new Promise(r => setTimeout(r, i * 2000));
       }
     }
@@ -76,9 +80,9 @@ export async function getPool() {
         const client = await pool.connect();
         await client.query('SELECT 1');
         client.release();
-        console.log('✅ DB pool health OK');
+        logger.info('✅ DB pool health OK');
       } catch (err) {
-        console.warn('⚠️  DB pool health check failed:', err.message);
+        logger.warn('⚠️  DB pool health check failed:', err.message);
       }
     }, 5 * 60 * 1000);
   }
@@ -96,7 +100,7 @@ export async function checkPoolHealth() {
     client.release();
     return true;
   } catch (err) {
-    console.warn('⚠️  checkPoolHealth error:', err.message);
+    logger.warn('⚠️  checkPoolHealth error:', err.message);
     return false;
   }
 }

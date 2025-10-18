@@ -5,7 +5,7 @@
 
 import express from 'express';
 import { google } from 'googleapis';
-import { pool } from '../database/pool.js';
+import { getPool } from '../database/pool.js';
 import { env } from '../config/env.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import { createModuleLogger } from '../config/logger.js';

@@ -1,15 +1,19 @@
-const express = require('express');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+import express from 'express';
+import fs from 'fs';
+import googleBusinessScraper from '../services/googleBusinessScraper';
+import logger from '../utils/logger';
+import multer from 'multer';
+import path from 'path';
+import { authenticateToken } from '../middleware/auth';
+import { generateAvatarFilename, ensureUploadsDir } from '../utils/avatarUtils';
+import { pool } from '../database/pool';import { asyncHandler } from '../middleware/errorHandler.js';
+import { validateFileMagic } from '../utils/uploadValidator';
+
+
 const router = express.Router();
-const { pool } = require('../database/pool');
+;
 // TODO: Add authentication to protected routes
-// const { authenticateToken } = require('../middleware/auth');
-const { validateFileMagic } = require('../utils/uploadValidator');
-const { generateAvatarFilename, ensureUploadsDir } = require('../utils/avatarUtils');
-const googleBusinessScraper = require('../services/googleBusinessScraper');
-const logger = require('../utils/logger');
+//
 
 // Configure multer for avatar uploads
 const storage = multer.diskStorage({
@@ -306,11 +310,9 @@ router.get('/test-scraping', async (req, res) => {
     // Test basic page access
     const testResult = await googleBusinessScraper.scrapeBusinessProfile(url);
 
-    res.json({
-      success: true,
-      data: testResult,
+    res.json({ success: true, data: testResult,
       message: 'Test scraping completed'
-    });
+     });
 
   } catch (error) {
     logger.error('Test scraping error:', error);
@@ -511,4 +513,4 @@ router.post('/scrape-google-business', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

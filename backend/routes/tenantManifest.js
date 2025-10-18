@@ -1,12 +1,13 @@
+import express from 'express';
+import logger from '../utils/logger';
+import { pool } from '../database/pool';import { asyncHandler } from '../middleware/errorHandler.js';
+
 /**
  * Tenant PWA Manifest Generator
  * Generates tenant-specific manifest.json for "Add to Home Screen"
  */
-
-const express = require('express');
 const router = express.Router();
-const { pool } = require('../database/pool');
-const logger = require('../utils/logger');
+;
 
 /**
  * GET /:slug/manifest.json
@@ -104,7 +105,7 @@ router.get('/:slug/manifest.json', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
 
 
 

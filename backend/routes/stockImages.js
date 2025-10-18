@@ -1,3 +1,9 @@
+/**
+ * @fileoverview API routes for stockImages
+ * @version 1.0.0
+ * @author That Smart Site
+ */
+
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -29,7 +35,7 @@ router.get('/images', (req, res) => {
     
     res.json(imageUrls);
   } catch (error) {
-    console.error('Error reading stock images directory:', error);
+    logger.error('Error reading stock images directory:', error);
     res.status(500).json({ error: 'Failed to read stock images' });
   }
 });

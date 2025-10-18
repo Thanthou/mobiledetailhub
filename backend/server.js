@@ -36,11 +36,17 @@ import { logger, createModuleLogger } from './config/logger.js'
 // Environment validation will be done after server starts
 
 import { tenantResolver } from './middleware/tenantResolver.js'
+import { 
+  createSubdomainMiddleware, 
+  createAdminSubdomainMiddleware,
+  addTenantContext 
+} from './middleware/subdomainMiddleware.js'
 import paymentRoutes from './routes/payments.js'
 import healthRoutes from './routes/health.js'
 import authRoutes from './routes/auth.js'
 import tenantsRoutes from './routes/tenants.js'
 import adminRoutes from './routes/admin.js'
+import subdomainTestRoutes from './routes/subdomainTest.js'
 import locationsRoutes from './routes/locations.js'
 import websiteContentRoutes from './routes/websiteContent.js'
 import googleReviewsRoutes from './routes/googleReviews.js'
@@ -104,8 +110,22 @@ const corsOptions = {
 
 app.use(cors(corsOptions))
 
-// Tenant resolver middleware - must come before routes
+// Subdomain middleware - handles slug.thatsmartsite.com routing
+app.use(createSubdomainMiddleware({
+  defaultTenant: null,
+  redirectInvalid: false, // Disable redirect for development testing
+  enableCaching: true,
+  cacheTTL: 5 * 60 * 1000 // 5 minutes
+}))
+
+// Admin subdomain middleware - handles admin.thatsmartsite.com
+app.use(createAdminSubdomainMiddleware())
+
+// Legacy tenant resolver (for backward compatibility)
 app.use(tenantResolver)
+
+// Add tenant context to responses
+app.use(addTenantContext)
 
 // ✅ Global parsers BEFORE routes
 app.use(express.json({ limit: '1mb' }))
@@ -129,7 +149,9 @@ app.use('/api/google/analytics', googleAnalyticsRoutes)
 app.use('/api/google', googleAuthRoutes)
 app.use('/api/health-monitoring', healthMonitoringRoutes)
 app.use('/api/reviews', reviewsRoutes)
+app.use('/api/subdomain', subdomainTestRoutes)
 logger.info('Reviews routes loaded at /api/reviews')
+logger.info('Subdomain test routes loaded at /api/subdomain')
 
 // Development: simple health check
 if (process.env.NODE_ENV !== 'production') {

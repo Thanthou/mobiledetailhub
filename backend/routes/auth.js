@@ -1,5 +1,4 @@
 import express from 'express';
-const router = express.Router();
 import { authenticateToken } from '../middleware/auth.js';
 import { validateBody, validateQuery } from '../middleware/zodValidation.js';
 import { authSchemas } from '../schemas/apiSchemas.js';
@@ -8,8 +7,12 @@ import { authLimiter, sensitiveAuthLimiter, refreshTokenLimiter } from '../middl
 import * as authController from '../controllers/authController.js';
 import * as passwordResetController from '../controllers/passwordResetController.js';
 import * as passwordSetupController from '../controllers/passwordSetupController.js';
-import { pool } from '../database/pool.js';
+import { getPool } from '../database/pool.js';
 import * as authService from '../services/authService.js';
+import { createModuleLogger } from '../config/logger.js';
+
+const router = express.Router();
+const logger = createModuleLogger('authRoutes');
 
 // Check if email exists (for onboarding validation)
 router.get('/check-email', 
@@ -35,11 +38,7 @@ router.post('/login',
 // Get Current User (Protected Route)
 router.get('/me', authenticateToken, asyncHandler(async (req, res) => {
 
-  if (!pool) {
-    const error = new Error('Database connection not available');
-    error.statusCode = 500;
-    throw error;
-  }
+  const pool = await getPool();
   
   const result = await pool.query('SELECT id, email, name, phone, is_admin, created_at FROM auth.users WHERE id = $1', [req.user.userId]);
   if (result.rows.length === 0) {
@@ -100,7 +99,8 @@ router.post('/refresh', refreshTokenLimiter, asyncHandler(async (req, res) => {
   }
 
   // Hash the refresh token for database lookup
-  const tokenHash = require('crypto').createHash('sha256').update(refreshToken).digest('hex');
+  const crypto = await import('crypto');
+  const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
   
   // Validate refresh token
   const tokenRecord = await authService.validateRefreshToken(tokenHash);
@@ -121,7 +121,7 @@ router.post('/refresh', refreshTokenLimiter, asyncHandler(async (req, res) => {
   
   // Update refresh token in database
   const deviceId = authService.generateDeviceId(req.get('User-Agent'), req.ip);
-  const newTokenHash = require('crypto').createHash('sha256').update(tokens.refreshToken).digest('hex');
+  const newTokenHash = crypto.createHash('sha256').update(tokens.refreshToken).digest('hex');
   
   await authService.storeRefreshToken(
     tokenRecord.user_id,
@@ -136,7 +136,7 @@ router.post('/refresh', refreshTokenLimiter, asyncHandler(async (req, res) => {
   await authService.revokeRefreshToken(tokenHash);
 
   // Set HttpOnly cookies for enhanced security
-  const { AUTH_CONFIG } = require('../config/auth');
+  const { AUTH_CONFIG } = await import('../config/auth.js');
   res.cookie('access_token', tokens.accessToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
@@ -187,7 +187,7 @@ router.post('/logout', authenticateToken, asyncHandler(async (req, res) => {
     path: '/'
   });
   
-  const { AUTH_CONFIG: AUTH_CFG } = require('../config/auth');
+  const { AUTH_CONFIG: AUTH_CFG } = await import('../config/auth.js');
   res.clearCookie(AUTH_CFG.REFRESH_COOKIE_NAME, AUTH_CFG.getRefreshCookieOptions());
 
   res.json({ success: true, message: 'Logged out successfully' });
@@ -278,11 +278,7 @@ router.get('/setup-stats',
 // Admin promotion endpoint (for development)
 router.post('/promote-admin', authLimiter, asyncHandler(async (req, res) => {
 
-  if (!pool) {
-    const error = new Error('Database connection not available');
-    error.statusCode = 500;
-    throw error;
-  }
+  const pool = await getPool();
   
   const ADMIN_EMAILS = process.env.ADMIN_EMAILS?.split(',') || [];
   

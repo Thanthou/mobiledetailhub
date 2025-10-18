@@ -6,6 +6,7 @@
 ## Required for Production
 - `NODE_ENV=production` - Set in render.yaml
 - `PORT=10000` - Set in render.yaml
+- `BASE_DOMAIN=thatsmartsite.com` - Your production domain for subdomain routing
 - `JWT_SECRET` - Generate a secure random string
 - `JWT_REFRESH_SECRET` - Generate a different secure random string
 

@@ -96,7 +96,7 @@ This updates `SEO.md` with the new structure detected.
 
 ### 2. **Provision SEO Config**
 ```bash
-node backend/scripts/provision-seo-config.js --all
+node scripts/seo/provision-config.js --all
 ```
 This seeds the database with SEO configuration for existing tenants.
 

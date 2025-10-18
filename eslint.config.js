@@ -90,7 +90,7 @@ export default [
   
   // Frontend scripts (TypeScript)
   {
-    files: ['frontend/scripts/**/*.ts'],
+    files: ['scripts/frontend/**/*.ts'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',

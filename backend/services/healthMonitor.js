@@ -8,14 +8,17 @@ import lighthouse from 'lighthouse';
 import puppeteer from 'puppeteer';
 import * as chromeLauncher from 'chrome-launcher';
 import logger from '../utils/logger.js';
+import { loadEnv } from '../config/env.js';
 
 class HealthMonitor {
   constructor() {
     this.pageSpeedApiKey = process.env.GOOGLE_PAGESPEED_API_KEY;
     this.cruxApiKey = process.env.GOOGLE_CRUX_API_KEY;
+    this.baseDomain = process.env.BASE_DOMAIN || 'thatsmartsite.com';
     
     logger.info(`HealthMonitor initialized - PageSpeed API Key: ${this.pageSpeedApiKey ? 'SET' : 'NOT SET'}`);
     logger.info(`HealthMonitor initialized - CrUX API Key: ${this.cruxApiKey ? 'SET' : 'NOT SET'}`);
+    logger.info(`HealthMonitor initialized - Base Domain: ${this.baseDomain}`);
   }
 
   /**
@@ -511,7 +514,7 @@ class HealthMonitor {
    * @returns {string} The localhost equivalent
    */
   convertToLocalhost(url) {
-    if (url.includes('thatsmartsite.com')) {
+    if (url.includes(this.baseDomain)) {
       return 'http://localhost:4173';
     }
     return url;

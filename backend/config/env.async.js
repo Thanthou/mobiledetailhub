@@ -6,6 +6,10 @@
  */
 
 import 'dotenv/config';
+import { createModuleLogger } from '../config/logger.js';
+const logger = createModuleLogger('env.async');
+
+
 import { z } from 'zod';
 
 /** Schema definition */
@@ -51,20 +55,20 @@ export async function loadEnv() {
   try {
     const parsed = EnvSchema.safeParse(process.env);
     if (!parsed.success) {
-      console.warn('⚠️  Environment variable warnings:');
+      logger.warn('⚠️  Environment variable warnings:');
       parsed.error.errors.forEach(e =>
-        console.warn(`  - ${e.path.join('.')}: ${e.message}`)
+        logger.warn(`  - ${e.path.join('.')}: ${e.message}`)
       );
     }
 
     const env = parsed.success ? parsed.data : EnvSchema.parse({});
     if (!env.DATABASE_URL) {
-      console.warn('⚠️  DATABASE_URL not provided — DB connection will be lazy.');
+      logger.warn('⚠️  DATABASE_URL not provided — DB connection will be lazy.');
     }
 
     return env;
   } catch (err) {
-    console.error('❌ Failed to load environment:', err.message);
+    logger.error('❌ Failed to load environment:', err.message);
     return {}; // never crash server
   }
 }

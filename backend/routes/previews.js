@@ -5,11 +5,13 @@
  * Used by sales team to create demo sites for prospects.
  */
 
-const express = require('express');
-const { z } = require('zod');
+import express from 'express';
+import { z } from 'zod';
+import { signPreview, verifyPreview } from '../utils/previewToken.js';
+import { createModuleLogger } from '../config/logger.js';
+
 const router = express.Router();
-const { signPreview, verifyPreview } = require('../utils/previewToken');
-const logger = require('../utils/logger');
+const logger = createModuleLogger('previewRoutes');
 
 // Middleware to add noindex headers for preview routes
 router.use((req, res, next) => {
@@ -116,5 +118,5 @@ router.get('/verify', (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
 

@@ -1,14 +1,23 @@
+/**
+ * @fileoverview API routes for payments
+ * @version 1.0.0
+ * @author That Smart Site
+ */
+
 import express from 'express'
-import { pool } from '../database/pool.js'
+import { getPool } from '../database/pool.js'
 import bcrypt from 'bcryptjs'
 import { sendWelcomeEmail } from '../services/emailService.js'
 const router = express.Router()
+const logger = createModuleLogger('routeName');
 
+
+import { asyncHandler } from '../middleware/errorHandler.js';
 router.post('/create-intent', async (req, res, next) => {
   try {
     // Debug
-    console.log('=== PAYMENT INTENT DEBUG ===')
-    console.log('Request body:', req.body)
+    logger.info('=== PAYMENT INTENT DEBUG ===')
+    logger.info('Request body:', req.body)
 
     const { amount, customerEmail, businessName, planType, metadata } = req.body || {}
     if (!amount || !customerEmail || !businessName || !planType) {
@@ -18,7 +27,8 @@ router.post('/create-intent', async (req, res, next) => {
     // Use real Stripe test mode
     const { default: StripeService } = await import('../services/stripeService.js');
     
-    const result = await StripeService.createPaymentIntent({
+    import { createModuleLogger } from '../config/logger.js';
+const result = await StripeService.createPaymentIntent({
       amount,
       customerEmail,
       metadata: {
@@ -45,29 +55,25 @@ router.post('/create-intent', async (req, res, next) => {
 
 router.post('/confirm', async (req, res, next) => {
   try {
-    console.log('=== PAYMENT CONFIRM DEBUG ===')
-    console.log('Request body:', req.body)
-    console.log('Request headers:', req.headers)
-    console.log('Request method:', req.method)
-    console.log('Request URL:', req.url)
+    logger.info('=== PAYMENT CONFIRM DEBUG ===')
+    logger.info('Request body:', req.body)
+    logger.info('Request headers:', req.headers)
+    logger.info('Request method:', req.method)
+    logger.info('Request URL:', req.url)
 
     const { paymentIntentId, tenantData } = req.body || {}
     if (!paymentIntentId || !tenantData) {
       throw new Error('Missing required fields: paymentIntentId, tenantData')
     }
 
-    if (!pool) {
-      const error = new Error('Database connection not available');
-      error.statusCode = 500;
-      throw error;
-    }
+    const pool = await getPool();
 
                 // Verify payment intent with Stripe
                 const { default: StripeService } = await import('../services/stripeService.js');
                 const paymentResult = await StripeService.retrievePaymentIntent(paymentIntentId);
                 
-                console.log('Payment intent status:', paymentResult.paymentIntent?.status);
-                console.log('Payment intent charges:', paymentResult.paymentIntent?.charges?.data?.length);
+                logger.info('Payment intent status:', paymentResult.paymentIntent?.status);
+                logger.info('Payment intent charges:', paymentResult.paymentIntent?.charges?.data?.length);
                 
                 if (!paymentResult.success || paymentResult.paymentIntent.status !== 'succeeded') {
                   throw new Error(`Payment not confirmed or failed. Status: ${paymentResult.paymentIntent?.status}`);
@@ -148,7 +154,7 @@ router.post('/confirm', async (req, res, next) => {
       
       await client.query('COMMIT');
       
-      console.log('✅ Tenant created successfully:', { userId: user.id, tenantId: tenant.id, slug });
+      logger.info('✅ Tenant created successfully:', { userId: user.id, tenantId: tenant.id, slug });
       
       // Send welcome email
       try {
@@ -164,7 +170,7 @@ router.post('/confirm', async (req, res, next) => {
         
         const emailResult = await sendWelcomeEmail(emailData);
         if (emailResult.success) {
-          console.log('✅ Welcome email sent successfully');
+          logger.info('✅ Welcome email sent successfully');
         } else {
           console.warn('⚠️ Failed to send welcome email:', emailResult.error);
         }
@@ -193,7 +199,7 @@ router.post('/confirm', async (req, res, next) => {
     }
     
   } catch (err) {
-    console.error('Payment confirmation error:', err);
+    logger.error('Payment confirmation error:', err);
     next(err)
   }
 })

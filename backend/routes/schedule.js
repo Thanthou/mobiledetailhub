@@ -1,14 +1,23 @@
-const express = require('express');
-const { pool } = require('../database/pool');
-const { authenticateToken } = require('../middleware/auth');
-const { withTenantByUser } = require('../middleware/withTenant');
-const { validateBody } = require('../middleware/validation');
-const { apiLimiter } = require('../middleware/rateLimiter');
-// const { asyncHandler } = require('../middleware/errorHandler'); // Unused import
+/**
+ * @fileoverview API routes for schedule
+ * @version 1.0.0
+ * @author That Smart Site
+ */
+
+import express from 'express';
+import {  pool  } from '../database/pool';import { createModuleLogger } from '../config/logger.js';
+;
+import {  authenticateToken  } from '../middleware/auth';;
+import {  withTenantByUser  } from '../middleware/withTenant';;
+import {  validateBody  } from '../middleware/validation';;
+import {  apiLimiter  } from '../middleware/rateLimiter';;
+// import {  asyncHandler  } from '../middleware/errorHandler';; // Unused import
 // TODO: Add request logging middleware when needed
-// const { requestLogger } = require('../middleware/requestLogger');
+// import {  requestLogger  } from '../middleware/requestLogger';;
 
 const router = express.Router();
+const logger = createModuleLogger('routeName');
+
 
 // Apply middleware
 // router.use(requestLogger); // Temporarily disabled due to env validation issues
@@ -80,7 +89,7 @@ router.get('/appointments', async (req, res) => {
     const result = await pool.query(query, [tenantId, startDate, endDate]);
     res.json(result.rows);
   } catch (error) {
-    console.error('Error fetching appointments:', error);
+    logger.error('Error fetching appointments:', error);
     if (error.message === 'No tenant business found for this user') {
       return res.status(404).json({ error: error.message });
     }
@@ -104,7 +113,7 @@ router.get('/appointments/date/:date', async (req, res) => {
     const result = await pool.query(query, [tenantId, date]);
     res.json(result.rows);
   } catch (error) {
-    console.error('Error fetching appointments for date:', error);
+    logger.error('Error fetching appointments for date:', error);
     res.status(500).json({ error: 'Failed to fetch appointments' });
   }
 });
@@ -128,7 +137,7 @@ router.get('/appointments/:id', async (req, res) => {
 
     res.json(result.rows[0]);
   } catch (error) {
-    console.error('Error fetching appointment:', error);
+    logger.error('Error fetching appointment:', error);
     res.status(500).json({ error: 'Failed to fetch appointment' });
   }
 });
@@ -186,7 +195,7 @@ router.post('/appointments', validateBody(appointmentSchema.body), async (req, r
 
     res.status(201).json(result.rows[0]);
   } catch (error) {
-    console.error('Error creating appointment:', error);
+    logger.error('Error creating appointment:', error);
     res.status(500).json({ error: 'Failed to create appointment' });
   }
 });
@@ -244,7 +253,7 @@ router.put('/appointments/:id', validateBody(appointmentSchema.body), async (req
     const result = await pool.query(query, values);
     res.json(result.rows[0]);
   } catch (error) {
-    console.error('Error updating appointment:', error);
+    logger.error('Error updating appointment:', error);
     res.status(500).json({ error: 'Failed to update appointment' });
   }
 });
@@ -277,7 +286,7 @@ router.patch('/appointments/:id/status', async (req, res) => {
 
     res.json(result.rows[0]);
   } catch (error) {
-    console.error('Error updating appointment status:', error);
+    logger.error('Error updating appointment status:', error);
     res.status(500).json({ error: 'Failed to update appointment status' });
   }
 });
@@ -302,7 +311,7 @@ router.delete('/appointments/:id', async (req, res) => {
 
     res.status(204).send();
   } catch (error) {
-    console.error('Error deleting appointment:', error);
+    logger.error('Error deleting appointment:', error);
     res.status(500).json({ error: 'Failed to delete appointment' });
   }
 });
@@ -376,7 +385,7 @@ router.get('/appointments/available-slots', async (req, res) => {
 
     res.json(availableSlots);
   } catch (error) {
-    console.error('Error fetching available time slots:', error);
+    logger.error('Error fetching available time slots:', error);
     res.status(500).json({ error: 'Failed to fetch available time slots' });
   }
 });
@@ -405,7 +414,7 @@ router.get('/time-blocks', async (req, res) => {
     const result = await pool.query(query, [tenantId, startDate, endDate]);
     res.json(result.rows);
   } catch (error) {
-    console.error('Error fetching time blocks:', error);
+    logger.error('Error fetching time blocks:', error);
     if (error.message === 'No tenant business found for this user') {
       return res.status(404).json({ error: error.message });
     }
@@ -429,7 +438,7 @@ router.get('/time-blocks/date/:date', async (req, res) => {
     const result = await pool.query(query, [tenantId, date]);
     res.json(result.rows);
   } catch (error) {
-    console.error('Error fetching time blocks for date:', error);
+    logger.error('Error fetching time blocks for date:', error);
     res.status(500).json({ error: 'Failed to fetch time blocks' });
   }
 });
@@ -469,7 +478,7 @@ router.post('/time-blocks', validateBody(timeBlockSchema.body), async (req, res)
 
     res.status(201).json(result.rows[0]);
   } catch (error) {
-    console.error('Error creating time block:', error);
+    logger.error('Error creating time block:', error);
     res.status(500).json({ error: 'Failed to create time block' });
   }
 });
@@ -522,7 +531,7 @@ router.put('/time-blocks/:id', validateBody(timeBlockSchema.body), async (req, r
     const result = await pool.query(query, values);
     res.json(result.rows[0]);
   } catch (error) {
-    console.error('Error updating time block:', error);
+    logger.error('Error updating time block:', error);
     res.status(500).json({ error: 'Failed to update time block' });
   }
 });
@@ -547,7 +556,7 @@ router.delete('/time-blocks/:id', async (req, res) => {
 
     res.status(204).send();
   } catch (error) {
-    console.error('Error deleting time block:', error);
+    logger.error('Error deleting time block:', error);
     res.status(500).json({ error: 'Failed to delete time block' });
   }
 });
@@ -577,7 +586,7 @@ router.get('/blocked-days', async (req, res) => {
     const result = await pool.query(query, [tenantId, startDate, endDate]);
     res.json(result.rows);
   } catch (error) {
-    console.error('Error fetching blocked days:', error);
+    logger.error('Error fetching blocked days:', error);
     if (error.message === 'No tenant business found for this user') {
       return res.status(404).json({ error: error.message });
     }
@@ -636,7 +645,7 @@ router.post('/blocked-days/toggle', async (req, res) => {
       });
     }
   } catch (error) {
-    console.error('Error toggling blocked day:', error);
+    logger.error('Error toggling blocked day:', error);
     if (error.message === 'No tenant business found for this user') {
       return res.status(404).json({ error: error.message });
     }
@@ -681,7 +690,7 @@ router.post('/blocked-days', async (req, res) => {
 
     res.status(201).json(result.rows[0]);
   } catch (error) {
-    console.error('Error adding blocked day:', error);
+    logger.error('Error adding blocked day:', error);
     res.status(500).json({ error: 'Failed to add blocked day' });
   }
 });
@@ -709,7 +718,7 @@ router.delete('/blocked-days/:date', async (req, res) => {
       date: result.rows[0].blocked_date
     });
   } catch (error) {
-    console.error('Error removing blocked day:', error);
+    logger.error('Error removing blocked day:', error);
     res.status(500).json({ error: 'Failed to remove blocked day' });
   }
 });
@@ -734,7 +743,7 @@ router.get('/settings', async (req, res) => {
 
     res.json(result.rows[0]);
   } catch (error) {
-    console.error('Error fetching schedule settings:', error);
+    logger.error('Error fetching schedule settings:', error);
     res.status(500).json({ error: 'Failed to fetch schedule settings' });
   }
 });
@@ -785,7 +794,7 @@ router.put('/settings', async (req, res) => {
 
     res.json(result.rows[0]);
   } catch (error) {
-    console.error('Error updating schedule settings:', error);
+    logger.error('Error updating schedule settings:', error);
     res.status(500).json({ error: 'Failed to update schedule settings' });
   }
 });
@@ -828,7 +837,7 @@ router.post('/settings/reset', async (req, res) => {
     const result = await pool.query(query, [userId, tenantId]);
     res.json(result.rows[0]);
   } catch (error) {
-    console.error('Error resetting schedule settings:', error);
+    logger.error('Error resetting schedule settings:', error);
     res.status(500).json({ error: 'Failed to reset schedule settings' });
   }
 });

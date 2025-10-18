@@ -96,6 +96,8 @@ export default defineConfig({
         chunkFileNames: 'assets/[name]-[hash].js',
         entryFileNames: '[name]/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
+        // Ensure HTML files go to the correct location
+        dir: 'dist',
       },
     },
   },

@@ -1,8 +1,9 @@
 import express from 'express';
-import { pool } from '../database/pool.js';
+import { getPool } from '../database/pool.js';
 import { authenticateToken } from '../middleware/auth.js';
 import logger from '../utils/logger.js';
 
+import { asyncHandler } from '../middleware/errorHandler.js';
 const router = express.Router();
 
 /**
@@ -11,7 +12,7 @@ const router = express.Router();
  * Query params: tenant_slug, limit, offset
  */
 router.get('/', async (req, res) => {
-  console.log('Reviews GET route hit with query:', req.query);
+  logger.info('Reviews GET route hit with query:', req.query);
   try {
     const {
       tenant_slug,

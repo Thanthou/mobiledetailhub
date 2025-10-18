@@ -4,6 +4,10 @@
  */
 
 import { promises as fs } from 'fs';
+import { createModuleLogger } from '../config/logger.js';
+const logger = createModuleLogger('errorMonitor');
+
+
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -34,7 +38,7 @@ class BackendErrorMonitor {
     try {
       await fs.mkdir(logsDir, { recursive: true });
     } catch (error) {
-      console.warn('Could not create logs directory:', error.message);
+      logger.warn('Could not create logs directory:', error.message);
     }
   }
 
@@ -77,38 +81,38 @@ class BackendErrorMonitor {
     const userId = error.userId || 'N/A';
     const ip = error.ip || 'N/A';
 
-    console.log('\n' + '='.repeat(80));
-    console.log(`🚨 BACKEND ERROR CAPTURED - ${timestamp}`);
-    console.log('='.repeat(80));
-    console.log(`Type: ${type}`);
-    console.log(`Message: ${message}`);
-    console.log(`URL: ${method} ${url}`);
-    console.log(`Status Code: ${statusCode}`);
-    console.log(`User ID: ${userId}`);
-    console.log(`IP: ${ip}`);
-    console.log(`Session ID: ${error.sessionId}`);
+    logger.info('\n' + '='.repeat(80));
+    logger.info(`🚨 BACKEND ERROR CAPTURED - ${timestamp}`);
+    logger.info('='.repeat(80));
+    logger.info(`Type: ${type}`);
+    logger.info(`Message: ${message}`);
+    logger.info(`URL: ${method} ${url}`);
+    logger.info(`Status Code: ${statusCode}`);
+    logger.info(`User ID: ${userId}`);
+    logger.info(`IP: ${ip}`);
+    logger.info(`Session ID: ${error.sessionId}`);
     
     if (stack) {
-      console.log('\nStack Trace:');
-      console.log(stack);
+      logger.info('\nStack Trace:');
+      logger.info(stack);
     }
 
     if (error.details) {
-      console.log('\nAdditional Details:');
-      console.log(JSON.stringify(error.details, null, 2));
+      logger.info('\nAdditional Details:');
+      logger.info(JSON.stringify(error.details, null, 2));
     }
 
     if (error.requestBody) {
-      console.log('\nRequest Body:');
-      console.log(JSON.stringify(error.requestBody, null, 2));
+      logger.info('\nRequest Body:');
+      logger.info(JSON.stringify(error.requestBody, null, 2));
     }
 
     if (error.query) {
-      console.log('\nQuery:');
-      console.log(JSON.stringify(error.query, null, 2));
+      logger.info('\nQuery:');
+      logger.info(JSON.stringify(error.query, null, 2));
     }
 
-    console.log('='.repeat(80) + '\n');
+    logger.info('='.repeat(80) + '\n');
   }
 
   async rotateLogIfNeeded() {
@@ -136,9 +140,9 @@ class BackendErrorMonitor {
       const rotatedFile = this.errorLogFile.replace('.json', '.1.json');
       await fs.rename(this.errorLogFile, rotatedFile);
       
-      console.log(`🔄 Log rotated: ${path.basename(this.errorLogFile)} -> ${path.basename(rotatedFile)}`);
+      logger.info(`🔄 Log rotated: ${path.basename(this.errorLogFile)} -> ${path.basename(rotatedFile)}`);
     } catch (rotationError) {
-      console.warn('Failed to rotate log file:', rotationError.message);
+      logger.warn('Failed to rotate log file:', rotationError.message);
     }
   }
 
@@ -158,7 +162,7 @@ class BackendErrorMonitor {
         JSON.stringify(logEntry) + '\n'
       );
     } catch (fileError) {
-      console.warn('Failed to write error to log file:', fileError.message);
+      logger.warn('Failed to write error to log file:', fileError.message);
     }
   }
 
@@ -228,12 +232,12 @@ class BackendErrorMonitor {
   // Public methods
   enable() {
     this.isEnabled = true;
-    console.log('✅ Backend Error Monitor enabled');
+    logger.info('✅ Backend Error Monitor enabled');
   }
 
   disable() {
     this.isEnabled = false;
-    console.log('❌ Backend Error Monitor disabled');
+    logger.info('❌ Backend Error Monitor disabled');
   }
 
   getErrors() {
@@ -250,7 +254,7 @@ class BackendErrorMonitor {
 
   clearErrors() {
     this.errors = [];
-    console.log('🧹 Error history cleared');
+    logger.info('🧹 Error history cleared');
   }
 
   addListener(listener) {
@@ -278,29 +282,29 @@ class BackendErrorMonitor {
   }
 
   printErrorsToConsole() {
-    console.log('\n' + '='.repeat(80));
-    console.log('🔍 BACKEND ERROR MONITOR - ALL CAPTURED ERRORS');
-    console.log('='.repeat(80));
-    console.log(`Session ID: ${this.sessionId}`);
-    console.log(`Total Errors: ${this.errors.length}`);
+    logger.info('\n' + '='.repeat(80));
+    logger.info('🔍 BACKEND ERROR MONITOR - ALL CAPTURED ERRORS');
+    logger.info('='.repeat(80));
+    logger.info(`Session ID: ${this.sessionId}`);
+    logger.info(`Total Errors: ${this.errors.length}`);
     
     if (this.errors.length === 0) {
-      console.log('No errors captured yet.');
-      console.log('='.repeat(80) + '\n');
+      logger.info('No errors captured yet.');
+      logger.info('='.repeat(80) + '\n');
       return;
     }
 
     this.errors.forEach((error, index) => {
-      console.log(`\n--- Error ${index + 1} (${error.type}) ---`);
-      console.log(`Time: ${error.timestamp.toISOString()}`);
-      console.log(`Message: ${error.message}`);
-      if (error.url) {console.log(`URL: ${error.method} ${error.url}`);}
-      if (error.statusCode) {console.log(`Status: ${error.statusCode}`);}
-      if (error.userId) {console.log(`User: ${error.userId}`);}
-      if (error.stack) {console.log(`Stack: ${error.stack}`);}
+      logger.info(`\n--- Error ${index + 1} (${error.type}) ---`);
+      logger.info(`Time: ${error.timestamp.toISOString()}`);
+      logger.info(`Message: ${error.message}`);
+      if (error.url) {logger.info(`URL: ${error.method} ${error.url}`);}
+      if (error.statusCode) {logger.info(`Status: ${error.statusCode}`);}
+      if (error.userId) {logger.info(`User: ${error.userId}`);}
+      if (error.stack) {logger.info(`Stack: ${error.stack}`);}
     });
     
-    console.log('='.repeat(80) + '\n');
+    logger.info('='.repeat(80) + '\n');
   }
 
   async exportErrors() {
@@ -313,23 +317,23 @@ class BackendErrorMonitor {
 
     const exportFile = path.join(__dirname, '../logs/error-export.json');
     await fs.writeFile(exportFile, JSON.stringify(exportData, null, 2));
-    console.log(`📁 Errors exported to: ${exportFile}`);
+    logger.info(`📁 Errors exported to: ${exportFile}`);
     return exportFile;
   }
 
   // Real-time error monitoring
   startRealTimeMonitoring() {
-    console.log('🔄 Starting real-time error monitoring...');
-    console.log('Press Ctrl+C to stop monitoring\n');
+    logger.info('🔄 Starting real-time error monitoring...');
+    logger.info('Press Ctrl+C to stop monitoring\n');
 
     const unsubscribe = this.addListener((error) => {
       const timestamp = new Date().toLocaleTimeString();
-      console.log(`[${timestamp}] 🚨 ${error.type.toUpperCase()}: ${error.message}`);
+      logger.info(`[${timestamp}] 🚨 ${error.type.toUpperCase()}: ${error.message}`);
     });
 
     // Handle graceful shutdown
     process.on('SIGINT', () => {
-      console.log('\n🛑 Stopping error monitoring...');
+      logger.info('\n🛑 Stopping error monitoring...');
       unsubscribe();
       process.exit(0);
     });

@@ -1,8 +1,17 @@
+/**
+ * @fileoverview API routes for gallery
+ * @version 1.0.0
+ * @author That Smart Site
+ */
+
 import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { createModuleLogger } from '../config/logger.js';
 const router = express.Router();
+const logger = createModuleLogger('routeName');
+
 
 // ESM __dirname equivalent
 const __filename = fileURLToPath(import.meta.url);
@@ -34,7 +43,7 @@ router.get('/images', (req, res) => {
     
     res.json(imageUrls);
   } catch (error) {
-    console.error('Error reading gallery directory:', error);
+    logger.error('Error reading gallery directory:', error);
     res.status(500).json({ error: 'Failed to read gallery images' });
   }
 });

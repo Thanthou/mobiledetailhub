@@ -110,6 +110,19 @@
         "Uses rollback SQL stored in system.schema_migrations table.",
         "Provides 'list' command to show recent migrations and rollback availability."
       ]
+    },
+    {
+      "pattern": "scripts/**/*.js",
+      "instructions": [
+        "Script Organization: All audit/analysis scripts must output reports to a 'reports' subdirectory within their parent directory.",
+        "Report Location: scripts/audits/frontend/audit-*.js → scripts/audits/frontend/reports/",
+        "Report Location: scripts/audits/backend/audit-*.js → scripts/audits/backend/reports/",
+        "Report Location: scripts/project/project-*.js → scripts/project/reports/",
+        "Directory Creation: Scripts must create the 'reports' directory if it doesn't exist using fs.mkdirSync(reportsDir, { recursive: true }).",
+        "Path Resolution: Use __dirname for proper ES module path resolution: const __dirname = path.dirname(fileURLToPath(import.meta.url)).",
+        "Report Naming: Use descriptive names like 'ROUTE_PERFORMANCE_AUDIT.md', 'ARCHITECTURE_SCORECARD.md', etc.",
+        "No Global Reports: Never output reports to root-level directories like 'chatgpt/' or 'docs/' unless specifically requested."
+      ]
     }
   ]
 }

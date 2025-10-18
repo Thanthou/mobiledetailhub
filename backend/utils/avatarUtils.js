@@ -4,6 +4,10 @@
  */
 
 import fs from 'fs';
+import { createModuleLogger } from '../config/logger.js';
+const logger = createModuleLogger('avatarUtils');
+
+
 import path from 'path';
 
 /**
@@ -48,7 +52,7 @@ const findCustomAvatar = (reviewerName, reviewId) => {
       return `/uploads/avatars/${avatarFile}`;
     }
   } catch (error) {
-    console.error('Error checking for custom avatar:', error.message);
+    logger.error('Error checking for custom avatar:', error.message);
   }
   
   return null;

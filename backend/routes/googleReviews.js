@@ -10,6 +10,7 @@ import { getGoogleReviews } from '../services/googleApi.js';
 import { isDummyTenant } from '../utils/tenantUtils.js';
 import logger from '../utils/logger.js';
 
+import { asyncHandler } from '../middleware/errorHandler.js';
 const router = express.Router();
 
 /**

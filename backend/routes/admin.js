@@ -1,26 +1,32 @@
 import express from 'express';
-const router = express.Router();
-import { pool } from '../database/pool.js';
+import { getPool } from '../database/pool.js';
 import { authenticateToken, requireAdmin } from '../middleware/auth.js';
-// TODO: Re-enable validation middleware when schemas are implemented
-// import { validateBody, validateParams, sanitize } from '../middleware/validation.js';
-// import { adminSchemas, sanitizationSchemas } from '../utils/validationSchemas.js';
+import { validateBody, validateParams, sanitize } from '../middleware/validation.js';
+import { adminSchemas, sanitizationSchemas } from '../utils/validationSchemas.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
-import logger from '../utils/logger.js';
+import { createModuleLogger } from '../config/logger.js';
 import { criticalAdminLimiter } from '../middleware/rateLimiter.js';
-// import { env } from '../config/env.js'; // Unused import
 
-// Delete tenant and associated data
+const router = express.Router();
+const logger = createModuleLogger('adminRoutes');
+
+/**
+ * @fileoverview Admin API routes for tenant management, user administration, and platform operations
+ * @version 1.0.0
+ * @author That Smart Site
+ */
+
+/**
+ * DELETE /api/admin/tenants/:id
+ * Delete tenant and all associated data
+ * @param {string} id - Tenant ID
+ * @returns {Object} Success response with deleted tenant info
+ */
 router.delete('/tenants/:id', criticalAdminLimiter, authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
   logger.info('[ADMIN] DELETE /tenants/:id called with id:', { id: req.params.id });
   
 
-  if (!pool) {
-    const error = new Error('Database connection not available');
-    error.statusCode = 500;
-    throw error;
-  }
-  
+  const pool = await getPool();
   const { id } = req.params;
   
   // Start a transaction to ensure data consistency
@@ -203,14 +209,16 @@ router.delete('/tenants/:id', criticalAdminLimiter, authenticateToken, requireAd
   }
 }));
 
-// Users endpoint - Get all users with their roles
+/**
+ * GET /api/admin/users
+ * Get all users with their roles and tenant information
+ * @param {string} [status] - Filter by user status (admin, tenant, customer, all-users)
+ * @param {string} [slug] - Filter tenants by slug
+ * @returns {Object} Success response with users array and count
+ */
 router.get('/users', authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
   try {
-    if (!pool) {
-      const error = new Error('Database connection not available');
-      error.statusCode = 500;
-      throw error;
-    }
+    const pool = await getPool();
     
     const { status } = req.query;
     
@@ -336,14 +344,14 @@ router.get('/users', authenticateToken, requireAdmin, asyncHandler(async (req, r
   }
 }));
 
-// Pending tenant applications endpoint
+/**
+ * GET /api/admin/pending-applications
+ * Get all pending tenant applications
+ * @returns {Object} Success response with applications array and count
+ */
 router.get('/pending-applications', authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
 
-  if (!pool) {
-    const error = new Error('Database connection not available');
-    error.statusCode = 500;
-    throw error;
-  }
+  const pool = await getPool();
   
   // Audit log the pending applications query
   logger.adminAction('QUERY_PENDING_APPLICATIONS', 'tenants', { 
@@ -374,14 +382,17 @@ router.get('/pending-applications', authenticateToken, requireAdmin, asyncHandle
   });
 }));
 
-// Approve tenant application endpoint
+/**
+ * POST /api/admin/approve-application/:id
+ * Approve a pending tenant application
+ * @param {string} id - Application ID
+ * @param {string} approved_slug - Approved business slug
+ * @param {string} [admin_notes] - Optional admin notes
+ * @returns {Object} Success response with tenant info and temp password
+ */
 router.post('/approve-application/:id', authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
 
-  if (!pool) {
-    const error = new Error('Database connection not available');
-    error.statusCode = 500;
-    throw error;
-  }
+  const pool = await getPool();
   const { id } = req.params;
   const { approved_slug, admin_notes } = req.body;
   
@@ -484,7 +495,7 @@ router.post('/approve-application/:id', authenticateToken, requireAdmin, asyncHa
   
   // Generate a temporary password (tenant will reset this)
   const tempPassword = Math.random().toString(36).substring(2, 15);
-  const bcrypt = require('bcryptjs');
+  const bcrypt = await import('bcryptjs');
   const hashedPassword = await bcrypt.hash(tempPassword, 10);
   
   const userResult = await pool.query(userQuery, [
@@ -584,11 +595,7 @@ router.post('/approve-application/:id', authenticateToken, requireAdmin, asyncHa
 // Reject tenant application endpoint
 router.post('/reject-application/:id', authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
 
-  if (!pool) {
-    const error = new Error('Database connection not available');
-    error.statusCode = 500;
-    throw error;
-  }
+  const pool = await getPool();
   const { id } = req.params;
   const { rejection_reason, admin_notes } = req.body;
   
@@ -670,14 +677,10 @@ router.post('/reject-application/:id', authenticateToken, requireAdmin, asyncHan
 
 // Get platform service areas (all cities/states where approved tenants serve)
 router.get('/service-areas', authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
-  if (!pool) {
-    const error = new Error('Database connection not available');
-    error.statusCode = 500;
-    throw error;
-  }
+  const pool = await getPool();
 
   try {
-    const { getPlatformServiceAreas } = require('../utils/serviceAreaProcessor');
+    const { getPlatformServiceAreas } = await import('../utils/serviceAreaProcessor.js');
     const serviceAreas = await getPlatformServiceAreas();
     
     res.json({
@@ -702,11 +705,7 @@ router.post('/seed-reviews', authenticateToken, requireAdmin, asyncHandler(async
     ip: req.ip
   });
   
-  if (!pool) {
-    const error = new Error('Database connection not available');
-    error.statusCode = 500;
-    throw error;
-  }
+  const pool = await getPool();
 
   const { reviews } = req.body;
 
@@ -780,7 +779,7 @@ router.post('/seed-reviews', authenticateToken, requireAdmin, asyncHandler(async
         };
 
         // Import avatar utilities
-        const { getAvatarUrl, findCustomAvatar } = require('../utils/avatarUtils');
+        const { getAvatarUrl, findCustomAvatar } = await import('../utils/avatarUtils.js');
 
         // Helper function to determine service category from review content
         // TODO: Move to shared utils if needed elsewhere

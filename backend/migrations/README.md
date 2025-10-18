@@ -36,7 +36,7 @@ npm run migrate
 npm run migrate list
 
 # Apply specific migration (manual)
-node backend/scripts/migrate.js
+node scripts/backend/migrate.js
 ```
 
 ## Safety Notes

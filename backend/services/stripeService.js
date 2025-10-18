@@ -1,4 +1,8 @@
 import Stripe from 'stripe';
+import { createModuleLogger } from '../config/logger.js';
+const logger = createModuleLogger('stripeService');
+
+
 import { env } from '../config/env.js';
 
 // Initialize Stripe with secret key
@@ -38,7 +42,7 @@ class StripeService {
         paymentIntentId: paymentIntent.id,
       };
     } catch (error) {
-      console.error('Stripe Payment Intent Error:', error);
+      logger.error('Stripe Payment Intent Error:', error);
       return {
         success: false,
         error: error.message,
@@ -68,7 +72,7 @@ class StripeService {
         customer,
       };
     } catch (error) {
-      console.error('Stripe Customer Creation Error:', error);
+      logger.error('Stripe Customer Creation Error:', error);
       return {
         success: false,
         error: error.message,
@@ -89,7 +93,7 @@ class StripeService {
         paymentIntent,
       };
     } catch (error) {
-      console.error('Stripe Payment Intent Retrieval Error:', error);
+      logger.error('Stripe Payment Intent Retrieval Error:', error);
       return {
         success: false,
         error: error.message,
@@ -121,7 +125,7 @@ class StripeService {
         subscription,
       };
     } catch (error) {
-      console.error('Stripe Subscription Creation Error:', error);
+      logger.error('Stripe Subscription Creation Error:', error);
       return {
         success: false,
         error: error.message,
@@ -144,7 +148,7 @@ class StripeService {
       );
       return { success: true, event };
     } catch (error) {
-      console.error('Webhook signature verification failed:', error);
+      logger.error('Webhook signature verification failed:', error);
       return { success: false, error: error.message };
     }
   }
