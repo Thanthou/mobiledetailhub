@@ -19,6 +19,9 @@ services:
       ls -la node_modules/bcryptjs/ || echo "ERROR: bcryptjs missing!"
       echo "==> Running database migrations..."
       npm run migrate
+      
+      echo "==> Creating production admin user..."
+      node create-production-admin.js
 
       echo "==> Installing frontend dependencies..."
       cd ../frontend
@@ -58,6 +61,12 @@ services:
         sync: false
       - key: ADMIN_EMAILS
         value: admin@thatsmartsite.com
+      - key: ADMIN_EMAIL
+        value: admin@thatsmartsite.com
+      - key: ADMIN_PASSWORD
+        value: admin123
+      - key: ADMIN_NAME
+        value: Brandan Coleman
       - key: ALLOWED_ORIGINS
         value: https://thatsmartsite.com,https://www.thatsmartsite.com
 
