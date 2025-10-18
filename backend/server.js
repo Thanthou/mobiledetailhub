@@ -121,8 +121,8 @@ app.get('/api/health', (req, res) => {
   })
 })
 
-// Serve static frontend files with proper cache headers
-app.use(express.static(path.join(__dirname, 'public'), {
+// Serve static assets FIRST with proper cache headers
+app.use('/assets', express.static(path.join(__dirname, 'public', 'assets'), {
   maxAge: '1y', // Cache static assets for 1 year
   etag: true,
   lastModified: true,
@@ -134,7 +134,21 @@ app.use(express.static(path.join(__dirname, 'public'), {
   }
 }))
 
+// Serve other static files (shared, images, etc.)
+app.use(express.static(path.join(__dirname, 'public'), {
+  maxAge: '1y',
+  etag: true,
+  lastModified: true,
+  setHeaders: (res, path) => {
+    // Set immutable cache for hashed assets (JS/CSS)
+    if (path.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg)$/)) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
+    }
+  }
+}))
+
 // Dynamic routing middleware: serve correct app based on domain
+// This should be LAST to catch only non-static routes
 app.get('*', (req, res) => {
   const host = req.hostname.toLowerCase();
   
