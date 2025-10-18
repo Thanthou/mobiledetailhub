@@ -1,5 +1,6 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useRouterDebug } from '@/shared/useRouterDebug';
 
 import { AuthProvider, TenantConfigProvider } from '@/shared/contexts';
 import { WebsiteContentProvider } from '@/shared/contexts/WebsiteContentContext';
@@ -22,6 +23,7 @@ interface ProvidersProps {
 }
 
 export const Providers: React.FC<ProvidersProps> = ({ children }) => {
+  useRouterDebug('Providers');
   
   return (
     <ErrorBoundary>

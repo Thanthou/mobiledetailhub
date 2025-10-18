@@ -1,5 +1,6 @@
 import { lazy, Suspense, useState, useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { useRouterDebug } from '@/shared/useRouterDebug';
 
 import { DashboardPage as AdminDashboard } from '@/features/adminDashboard';
 import { DataProvider, TenantPage } from '@/features/header';
@@ -48,6 +49,7 @@ const RootRouteHandler = () => {
 };
 
 export default function App() {
+  useRouterDebug('App');
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
 
   const handleOpenQuoteModal = () => {

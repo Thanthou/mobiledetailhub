@@ -1,5 +1,6 @@
 import { lazy, Suspense, useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { useRouterDebug } from '@/shared/useRouterDebug';
 
 import { DataProvider, TenantPage } from '@/features/header';
 import { LazyRequestQuoteModal } from '@/features/quotes';
@@ -14,6 +15,7 @@ import ServicePage from '../app/pages/ServicePage';
 const Booking = lazy(() => import('../features/booking/BookingApp'));
 
 export default function TenantApp() {
+  useRouterDebug('TenantApp');
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
 
   const handleOpenQuoteModal = () => {
