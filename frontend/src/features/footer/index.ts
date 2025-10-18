@@ -2,7 +2,7 @@
 export { default as ContactColumn } from './components/ContactColumn';
 export { default as Disclaimer } from './components/Disclaimer';
 export { default as FollowUs } from './components/FollowUs';
-export { default as Footer } from './components/footer';
+export { default as Footer } from './components/Footer';
 export { default as FooterBottom } from './components/FooterBottom';
 export { default as GetInTouch } from './components/GetInTouch';
 export { default as ServiceAreas } from './components/ServiceAreas';

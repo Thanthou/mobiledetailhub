@@ -135,6 +135,10 @@ export default [
       'import/no-cycle': 'error',
       'import/no-self-import': 'error',
       
+      // Case-sensitivity note: Component files MUST use PascalCase (FAQ.tsx, Footer.tsx)
+      // Windows/macOS are case-insensitive, but Linux (Render) is case-sensitive.
+      // Imports must match the exact filename case to prevent build failures on Render.
+      
       // Import boundary rules for feature-first architecture
       'import/no-restricted-paths': [
         'error',
