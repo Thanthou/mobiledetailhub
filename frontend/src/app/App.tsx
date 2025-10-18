@@ -31,11 +31,27 @@ export default function App() {
   const routes = (
     <Suspense fallback={<div className="p-8 text-white">Loading…</div>}>
       <Routes>
-        <Route path="/" element={<HomePage onRequestQuote={handleOpenQuoteModal} />} />
+        <Route path="/" element={<Navigate to="/admin-dashboard" replace />} />
+        
+        {/* Login route for unauthenticated users */}
+        <Route path="/login" element={
+          <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+            <div className="text-center">
+              <h1 className="text-white text-3xl mb-4">Admin Login</h1>
+              <p className="text-gray-300 mb-8">Please log in to access the admin dashboard</p>
+              <button 
+                onClick={() => window.location.href = '/admin-dashboard'}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded"
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
+        } />
         
         {/* Admin Dashboard - must come before tenant routes */}
         <Route path="/admin-dashboard" element={
-          <ProtectedRoute requiredRole="admin" fallbackPath="/">
+          <ProtectedRoute requiredRole="admin" fallbackPath="/login">
             <AdminDashboard />
           </ProtectedRoute>
         } />
