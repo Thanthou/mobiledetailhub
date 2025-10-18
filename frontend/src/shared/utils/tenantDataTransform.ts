@@ -28,7 +28,7 @@ export interface SocialMediaPlatform {
 
 /**
  * Transform business social media data into a clean object
- * Uses new social_media structure with enabled/url fields
+ * Uses individual enabled/url columns
  * Only includes platforms that are enabled and have non-empty URLs
  * 
  * @param business - Business data from API
@@ -43,41 +43,22 @@ export interface SocialMediaPlatform {
 export function transformSocialMedia(business: Business): SocialMediaLinks {
   const socials: SocialMediaLinks = {};
   
-  // Use new social_media structure if available, otherwise fall back to old fields
-  if (business.social_media) {
-    // New structure: only show if enabled
-    if (business.social_media.facebook.enabled) {
-      socials.facebook = business.social_media.facebook.url || '';
-    }
-    
-    if (business.social_media.instagram.enabled) {
-      socials.instagram = business.social_media.instagram.url || '';
-    }
-    
-    if (business.social_media.youtube.enabled) {
-      socials.youtube = business.social_media.youtube.url || '';
-    }
-    
-    if (business.social_media.tiktok.enabled) {
-      socials.tiktok = business.social_media.tiktok.url || '';
-    }
-  } else {
-    // Fallback to old individual URL fields for backward compatibility
-    if (business.facebook_url?.trim()) {
-      socials.facebook = business.facebook_url;
-    }
-    
-    if (business.instagram_url?.trim()) {
-      socials.instagram = business.instagram_url;
-    }
-    
-    if (business.youtube_url?.trim()) {
-      socials.youtube = business.youtube_url;
-    }
-    
-    if (business.tiktok_url?.trim()) {
-      socials.tiktok = business.tiktok_url;
-    }
+  // Use individual enabled/url columns
+  // Show if enabled (with or without URL)
+  if (business.facebook_enabled) {
+    socials.facebook = business.facebook_url?.trim() || '';
+  }
+  
+  if (business.instagram_enabled) {
+    socials.instagram = business.instagram_url?.trim() || '';
+  }
+  
+  if (business.youtube_enabled) {
+    socials.youtube = business.youtube_url?.trim() || '';
+  }
+  
+  if (business.tiktok_enabled) {
+    socials.tiktok = business.tiktok_url?.trim() || '';
   }
   
   // Google Business Profile is still handled separately
@@ -175,23 +156,11 @@ export function formatBusinessPhone(phone?: string): string {
  * @returns True if at least one social media link exists
  */
 export function hasSocialMedia(business: Business): boolean {
-  // Use new social_media structure if available
-  if (business.social_media) {
-    return !!(
-      (business.social_media.facebook.enabled && business.social_media.facebook.url?.trim()) ||
-      (business.social_media.instagram.enabled && business.social_media.instagram.url?.trim()) ||
-      (business.social_media.youtube.enabled && business.social_media.youtube.url?.trim()) ||
-      (business.social_media.tiktok.enabled && business.social_media.tiktok.url?.trim()) ||
-      business.gbp_url?.trim()
-    );
-  }
-  
-  // Fallback to old individual URL fields
   return !!(
-    business.facebook_url?.trim() ||
-    business.instagram_url?.trim() ||
-    business.youtube_url?.trim() ||
-    business.tiktok_url?.trim() ||
+    business.facebook_enabled ||
+    business.instagram_enabled ||
+    business.youtube_enabled ||
+    business.tiktok_enabled ||
     business.gbp_url?.trim()
   );
 }

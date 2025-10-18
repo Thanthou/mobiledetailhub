@@ -20,15 +20,13 @@ export interface Business {
   website: string;
   gbp_url: string | null;
   facebook_url: string | null;
+  facebook_enabled: boolean;
   youtube_url: string | null;
+  youtube_enabled: boolean;
   tiktok_url: string | null;
+  tiktok_enabled: boolean;
   instagram_url: string | null;
-  social_media: {
-    facebook: { url: string; enabled: boolean };
-    instagram: { url: string; enabled: boolean };
-    tiktok: { url: string; enabled: boolean };
-    youtube: { url: string; enabled: boolean };
-  };
+  instagram_enabled: boolean;
   industry: string;
   created_at: string;
   updated_at: string;
