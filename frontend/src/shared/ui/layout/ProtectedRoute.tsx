@@ -21,7 +21,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const user = authContext.user;
   const loading = authContext.loading;
   
-  // In development mode, allow access to dashboards without authentication
+  // Allow admin access in development mode only
   if (env.DEV) {
     // Allow tenant access
     if (Array.isArray(requiredRole) && requiredRole.includes('tenant')) {

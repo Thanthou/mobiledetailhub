@@ -35,6 +35,7 @@ export { default as BookNow } from './buttons/BookNow';
 export { default as CTAButtons } from './buttons/CTAButtons';
 export { default as GetQuote } from './buttons/GetQuote';
 export { default as ErrorBoundary } from './layout/ErrorBoundary';
+export { default as LoginPage } from './layout/LoginPage';
 export { default as LocationEditModal } from './modals/LocationEditModal';
 export { default as QuoteModal } from './modals/QuoteModal';
 // export { default as LocationSearchBar } from './navigation/LocationSearchBar'; // Removed - unused

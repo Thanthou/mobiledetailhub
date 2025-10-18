@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import { pool } from '../database/pool.js';
 import { generateTokenPair } from '../utils/tokenManager.js';
 // import { blacklistToken } from '../utils/tokenManager.js'; // Unused import
@@ -63,7 +64,7 @@ async function registerUser(userData, userAgent, ipAddress) {
   const hashedPassword = await bcrypt.hash(password, saltRounds);
 
   // Check if user should be admin based on environment variable
-  const ADMIN_EMAILS = env.ADMIN_EMAILS?.split(',') || [];
+  const ADMIN_EMAILS = env.ADMIN_EMAILS || [];
   const isAdmin = ADMIN_EMAILS.includes(email);
 
   // Create user with admin status if applicable
@@ -83,15 +84,15 @@ async function registerUser(userData, userAgent, ipAddress) {
   
   // Store refresh token in database
   const deviceId = generateDeviceId(userAgent, ipAddress);
-  const tokenHash = require('crypto').createHash('sha256').update(tokens.refreshToken).digest('hex');
+  const tokenHash = crypto.createHash('sha256').update(tokens.refreshToken).digest('hex');
   
   await storeRefreshToken(
     result.rows[0].id,
     tokenHash,
     new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
-    deviceId,
+    ipAddress,
     userAgent,
-    ipAddress
+    deviceId
   );
 
   return {
@@ -138,7 +139,7 @@ async function loginUser(credentials, userAgent, ipAddress) {
   }
 
   // Check if user should be admin based on environment variable
-  const ADMIN_EMAILS = env.ADMIN_EMAILS?.split(',') || [];
+  const ADMIN_EMAILS = env.ADMIN_EMAILS || [];
   let isAdmin = user.is_admin || false;
   
   // Auto-promote to admin if email is in ADMIN_EMAILS list
@@ -158,15 +159,15 @@ async function loginUser(credentials, userAgent, ipAddress) {
   
   // Store refresh token
   const deviceId = generateDeviceId(userAgent, ipAddress);
-  const tokenHash = require('crypto').createHash('sha256').update(tokens.refreshToken).digest('hex');
+  const tokenHash = crypto.createHash('sha256').update(tokens.refreshToken).digest('hex');
   
   await storeRefreshToken(
     user.id,
     tokenHash,
     new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
-    deviceId,
+    ipAddress,
     userAgent,
-    ipAddress
+    deviceId
   );
 
   return {
