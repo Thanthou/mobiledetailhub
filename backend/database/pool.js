@@ -10,15 +10,15 @@ import pkg from 'pg';
 import { loadEnv } from '../config/env.js';
 const { Pool } = pkg;
 
-let pool = null;
+let _pool = null;
 let connecting = false;
 
 /** Initialize pool only when needed */
 export async function getPool() {
-  if (pool) return pool;
+  if (_pool) return _pool;
   if (connecting) {
     await new Promise(r => setTimeout(r, 500));
-    return pool;
+    return _pool;
   }
 
   connecting = true;
@@ -26,12 +26,12 @@ export async function getPool() {
 
   if (!env.DATABASE_URL) {
     console.warn('⚠️  No DATABASE_URL — returning mock pool.');
-    pool = {
+    _pool = {
       query: async () => { throw new Error('Database not configured'); },
       connect: async () => { throw new Error('Database not configured'); },
       end: async () => {}
     };
-    return pool;
+    return _pool;
   }
 
   const config = {
@@ -47,14 +47,14 @@ export async function getPool() {
     query_timeout: 30000
   };
 
-  pool = new Pool(config);
-  pool.on('error', err => console.error('⚠️  Idle client error:', err.message));
+  _pool = new Pool(config);
+  _pool.on('error', err => console.error('⚠️  Idle client error:', err.message));
 
   // Background connection test (non-fatal)
   (async () => {
     for (let i = 1; i <= 5; i++) {
       try {
-        const client = await pool.connect();
+        const client = await _pool.connect();
         await client.query('SELECT 1');
         client.release();
         console.log('✅ Database connection established');
@@ -70,7 +70,7 @@ export async function getPool() {
   if (!global.__POOL_HEALTH_INTERVAL__) {
     global.__POOL_HEALTH_INTERVAL__ = setInterval(async () => {
       try {
-        const client = await pool.connect();
+        const client = await _pool.connect();
         await client.query('SELECT 1');
         client.release();
         console.log('✅ DB pool health OK');
@@ -81,7 +81,7 @@ export async function getPool() {
   }
 
   connecting = false;
-  return pool;
+  return _pool;
 }
 
 /** Optional manual check for monitoring routes */
