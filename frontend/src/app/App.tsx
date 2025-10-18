@@ -124,10 +124,12 @@ export default function App() {
       
       {/* Global Quote Modal - Only render when open */}
       {isQuoteModalOpen && (
-        <LazyRequestQuoteModal 
-          isOpen={isQuoteModalOpen} 
-          onClose={handleCloseQuoteModal} 
-        />
+        <DataProvider>
+          <LazyRequestQuoteModal 
+            isOpen={isQuoteModalOpen} 
+            onClose={handleCloseQuoteModal} 
+          />
+        </DataProvider>
       )}
     </Providers>
   );
