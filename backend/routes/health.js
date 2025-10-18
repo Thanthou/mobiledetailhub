@@ -5,7 +5,7 @@
 
 import express from 'express';
 const router = express.Router();
-import { pool } from '../database/pool.js';
+import { getPool } from '../database/pool.js';
 import logger from '../utils/logger.js';
 
 // Track shutdown status for graceful shutdown
@@ -22,27 +22,26 @@ router.get('/', async (req, res) => {
     // Check database connectivity
     let dbStatus = { connected: false, status: 'Disconnected', queryTime: null, dbTime: null };
     
-    if (pool) {
-      try {
-        const dbStartTime = Date.now();
-        const result = await pool.query('SELECT NOW() as current_time');
-        const dbEndTime = Date.now();
-        
-        dbStatus = {
-          connected: true,
-          status: 'Connected',
-          queryTime: `${dbEndTime - dbStartTime}ms`,
-          dbTime: result.rows[0].current_time
-        };
-      } catch (dbError) {
-        dbStatus = {
-          connected: false,
-          status: 'Error',
-          queryTime: null,
-          dbTime: null,
-          error: dbError.message
-        };
-      }
+    try {
+      const pool = await getPool();
+      const dbStartTime = Date.now();
+      const result = await pool.query('SELECT NOW() as current_time');
+      const dbEndTime = Date.now();
+      
+      dbStatus = {
+        connected: true,
+        status: 'Connected',
+        queryTime: `${dbEndTime - dbStartTime}ms`,
+        dbTime: result.rows[0].current_time
+      };
+    } catch (dbError) {
+      dbStatus = {
+        connected: false,
+        status: 'Error',
+        queryTime: null,
+        dbTime: null,
+        error: dbError.message
+      };
     }
 
     const responseTime = Date.now() - startTime;
@@ -106,17 +105,9 @@ router.get('/ready', async (req, res) => {
       });
     }
 
-    // Check database connectivity
-    if (!pool) {
-      return res.status(503).json({
-        status: 'not_ready',
-        reason: 'database_pool_unavailable',
-        timestamp: new Date().toISOString()
-      });
-    }
-
     try {
       // Quick database ping
+      const pool = await getPool();
       const startTime = Date.now();
       await pool.query('SELECT 1');
       const responseTime = Date.now() - startTime;
@@ -166,13 +157,7 @@ router.get('/ready', async (req, res) => {
  */
 router.get('/db-status', async (req, res) => {
   try {
-    if (!pool) {
-      return res.status(503).json({
-        status: 'disconnected',
-        message: 'Database pool not available'
-      });
-    }
-
+    const pool = await getPool();
     const startTime = Date.now();
     const result = await pool.query('SELECT NOW() as current_time, version() as db_version');
     const responseTime = Date.now() - startTime;
@@ -198,6 +183,7 @@ router.get('/db-status', async (req, res) => {
  */
 router.get('/test-db', async (req, res) => {
   try {
+    const pool = await getPool();
     const startTime = Date.now();
     await pool.query('SELECT 1 as test');
     const responseTime = Date.now() - startTime;

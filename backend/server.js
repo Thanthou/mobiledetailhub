@@ -254,13 +254,17 @@ app.listen(PORT, HOST, () => {
 // Async initialization after server starts
 async function initializeAsync() {
   try {
-    console.log('🔍 Testing environment validation...')
-    const { env } = await import('./config/env.js')
+    console.log('🔍 Testing async environment validation...')
+    const { loadEnv } = await import('./config/env.js')
+    const env = await loadEnv()
     console.log('✅ Environment validation passed')
+    console.log(`📊 Environment: ${env.NODE_ENV}`)
+    console.log(`🔗 Database URL exists: ${env.DATABASE_URL ? 'YES' : 'NO'}`)
     
-    // Test database connection
+    // Test database connection (non-blocking)
     console.log('🔗 Testing database connection...')
-    const { pool } = await import('./database/pool.js')
+    const { getPool } = await import('./database/pool.js')
+    const pool = await getPool()
     const client = await pool.connect()
     await client.query('SELECT 1')
     client.release()
