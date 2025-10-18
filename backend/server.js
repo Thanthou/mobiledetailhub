@@ -165,7 +165,7 @@ app.use(
 
 // 2️⃣ Serve admin-specific files
 const adminPath = process.env.NODE_ENV === 'production'
-  ? path.join(__dirname, 'public', 'dist', 'admin')
+  ? path.join(__dirname, 'public', 'admin')
   : path.join(__dirname, '../frontend/dist/admin');
 
 app.use(
@@ -177,7 +177,7 @@ app.use(
 
 // 3️⃣ Serve tenant-specific files
 const tenantPath = process.env.NODE_ENV === 'production'
-  ? path.join(__dirname, 'public', 'dist', 'tenant')
+  ? path.join(__dirname, 'public', 'tenant')
   : path.join(__dirname, '../frontend/dist/tenant');
 
 app.use(
@@ -211,8 +211,8 @@ app.get('*', (req, res) => {
     host === 'thatsmartsite-backend.onrender.com';
 
   const htmlFile = isAdminDomain
-    ? path.join(__dirname, process.env.NODE_ENV === 'production' ? 'public/dist/admin/index.html' : '../frontend/dist/admin/index.html')
-    : path.join(__dirname, process.env.NODE_ENV === 'production' ? 'public/dist/tenant/index.html' : '../frontend/dist/tenant/index.html');
+    ? path.join(__dirname, process.env.NODE_ENV === 'production' ? 'public/admin/index.html' : '../frontend/dist/admin/index.html')
+    : path.join(__dirname, process.env.NODE_ENV === 'production' ? 'public/tenant/index.html' : '../frontend/dist/tenant/index.html');
 
   res.sendFile(htmlFile);
 })
