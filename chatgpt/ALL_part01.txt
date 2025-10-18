@@ -22137,8 +22137,8 @@ app.get('/api/health', (req, res) => {
   })
 })
 
-// Serve static frontend files with proper cache headers
-app.use(express.static(path.join(__dirname, 'public'), {
+// Serve static assets FIRST with proper cache headers
+app.use('/assets', express.static(path.join(__dirname, 'public', 'assets'), {
   maxAge: '1y', // Cache static assets for 1 year
   etag: true,
   lastModified: true,
@@ -22150,7 +22150,21 @@ app.use(express.static(path.join(__dirname, 'public'), {
   }
 }))
 
+// Serve other static files (shared, images, etc.)
+app.use(express.static(path.join(__dirname, 'public'), {
+  maxAge: '1y',
+  etag: true,
+  lastModified: true,
+  setHeaders: (res, path) => {
+    // Set immutable cache for hashed assets (JS/CSS)
+    if (path.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg)$/)) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
+    }
+  }
+}))
+
 // Dynamic routing middleware: serve correct app based on domain
+// This should be LAST to catch only non-static routes
 app.get('*', (req, res) => {
   const host = req.hostname.toLowerCase();
   
@@ -40469,6 +40483,44 @@ export default function AdminApp() {
 
 *** END FILE ***
 
+*** FILE: frontend\src\admin-app\AdminProviders.tsx ***
+import React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+import { AuthProvider } from '@/shared/contexts';
+import { ErrorBoundary } from '@/shared/ui';
+
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
+interface AdminProvidersProps {
+  children: React.ReactNode;
+}
+
+export const AdminProviders: React.FC<AdminProvidersProps> = ({ children }) => {
+  return (
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          {children}
+        </AuthProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
+  );
+};
+
+
+*** END FILE ***
+
 *** FILE: frontend\src\admin-app\index.html ***
 <!doctype html>
 <html lang="en">
@@ -40494,7 +40546,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 
-import { Providers } from '../app/providers';
+import { AdminProviders } from './AdminProviders';
 import AdminApp from './AdminApp';
 
 const container = document.getElementById('root');
@@ -40507,9 +40559,9 @@ const root = createRoot(container);
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-      <Providers>
+      <AdminProviders>
         <AdminApp />
-      </Providers>
+      </AdminProviders>
     </BrowserRouter>
   </React.StrictMode>
 );
@@ -116547,6 +116599,13 @@ vite.on('close', (code) => {
 *** END FILE ***
 
 *** FILE: todos\all-dev-prod.md ***
+ensure all development and productions urls are setup correctly
+
+🎯 URL Behavior
+Environment	Website URL	Dashboard URL
+Development	http://testing-mobile-detail.lvh.me:5175/	http://testing-mobile-detail.lvh.me:5175/dashboard
+Production	https://testing-mobile-detail.thatsmartsite.com/	https://testing-mobile-detail.thatsmartsite.com/dashboard
+
 
 
 *** END FILE ***
@@ -116793,11 +116852,11 @@ const CUSTOM_DOMAIN_MAPPINGS: Record<string, string> = {
 ## Summary
 ```json
 {
-  "generated": "2025-10-18T07:21:29.089Z",
+  "generated": "2025-10-18T07:39:46.839Z",
   "projectRoot": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh",
   "targetFolder": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh",
   "counts": {
-    "totalFilesInTarget": 963,
+    "totalFilesInTarget": 964,
     "byExtension": {
       ".js": 137,
       ".md": 63,
@@ -116807,7 +116866,7 @@ const CUSTOM_DOMAIN_MAPPINGS: Record<string, string> = {
       ".cjs": 1,
       ".html": 5,
       "(noext)": 1,
-      ".tsx": 279,
+      ".tsx": 280,
       ".css": 1,
       ".yaml": 1,
       ".bat": 1
@@ -117322,6 +117381,7 @@ mdh/
     src/
       admin-app/
         AdminApp.tsx
+        AdminProviders.tsx
         index.html
         main.tsx
       app/

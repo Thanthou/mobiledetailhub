@@ -121,20 +121,32 @@ app.get('/api/health', (req, res) => {
   })
 })
 
-// Serve static assets FIRST with proper cache headers
-app.use('/assets', express.static(path.join(__dirname, 'public', 'assets'), {
-  maxAge: '1y', // Cache static assets for 1 year
-  etag: true,
-  lastModified: true,
-  setHeaders: (res, path) => {
-    // Set immutable cache for hashed assets (JS/CSS)
-    if (path.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg)$/)) {
-      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
-    }
-  }
-}))
+// 1️⃣ Serve *all* built assets first (shared for both apps)
+app.use(
+  '/assets',
+  express.static(path.join(__dirname, '../frontend/dist/assets'), {
+    maxAge: '1y',
+    immutable: true,
+  })
+);
 
-// Serve other static files (shared, images, etc.)
+// 2️⃣ Serve admin-specific files
+app.use(
+  '/admin',
+  express.static(path.join(__dirname, '../frontend/dist/admin'), {
+    maxAge: '1h',
+  })
+);
+
+// 3️⃣ Serve tenant-specific files
+app.use(
+  '/tenant',
+  express.static(path.join(__dirname, '../frontend/dist/tenant'), {
+    maxAge: '1h',
+  })
+);
+
+// 4️⃣ Serve other static files (shared, images, etc.)
 app.use(express.static(path.join(__dirname, 'public'), {
   maxAge: '1y',
   etag: true,
@@ -147,26 +159,21 @@ app.use(express.static(path.join(__dirname, 'public'), {
   }
 }))
 
-// Dynamic routing middleware: serve correct app based on domain
-// This should be LAST to catch only non-static routes
+// 5️⃣ Fallback router (domain-based HTML only)
 app.get('*', (req, res) => {
   const host = req.hostname.toLowerCase();
-  
-  // Admin domains - serve admin app
-  const isAdminDomain = [
-    'localhost',
-    '127.0.0.1',
-    'thatsmartsite.com',
-    'www.thatsmartsite.com',
-    'thatsmartsite-backend.onrender.com'
-  ].includes(host);
+  const isAdminDomain =
+    host === 'thatsmartsite.com' ||
+    host === 'www.thatsmartsite.com' ||
+    host === 'localhost' ||
+    host === '127.0.0.1' ||
+    host === 'thatsmartsite-backend.onrender.com';
 
-  if (isAdminDomain) {
-    res.sendFile(path.join(__dirname, 'public', 'admin', 'index.html'));
-  } else {
-    // Tenant subdomains - serve tenant app
-    res.sendFile(path.join(__dirname, 'public', 'tenant', 'index.html'));
-  }
+  const filePath = isAdminDomain
+    ? path.join(__dirname, '../frontend/dist/admin/index.html')
+    : path.join(__dirname, '../frontend/dist/tenant/index.html');
+
+  res.sendFile(filePath);
 })
 
 // Centralized error handler middleware
