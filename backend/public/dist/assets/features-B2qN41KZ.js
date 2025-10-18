@@ -1,0 +1,147 @@
+const features = {
+	"full-exterior-detail": {
+	name: "Full Exterior Detail",
+	description: "Meticulous exterior cleaning and decontamination for a flawless finish.",
+	explanation: "A comprehensive wash and surface prep to remove dirt, road film, and bonded contaminants. Ideal foundation for paint correction or ceramic coating.",
+	features: [
+		"Hand wash with pH-balanced shampoo",
+		"Reverse osmosis mineral free soak & rinse",
+		"Iron and tar decontamination",
+		"Clay bar treatment for bonded contaminants",
+		"Wheel, tire, and wheel-well deep clean",
+		"Surface prep for polishing or coating"
+	],
+	duration: 180
+},
+	"full-interior-detail": {
+	name: "Full Interior Detail",
+	description: "Deep interior cleaning and rejuvenation of every surface.",
+	explanation: "Removes embedded dirt, allergens, and odors from carpets, seats, and hard surfaces to restore a fresh, like-new cabin environment.",
+	features: [
+		"Vacuuming of carpets, mats, and upholstery",
+		"Steam cleaning and shampoo extraction as needed",
+		"Wipe-down of all plastics, vinyl, and leather",
+		"UV-protective interior dressing",
+		"Streak-free glass cleaning inside and out"
+	],
+	duration: 180
+},
+	"fallout-removal": {
+	name: "Chemical Fallout & Iron Removal",
+	description: "Removes embedded rail dust, industrial fallout, and iron particles.",
+	explanation: "Specialized decontamination that dissolves metallic contaminants that washing and claying alone cannot fully remove, preventing long-term paint damage.",
+	features: [
+		"Iron-reactive fallout remover",
+		"Safe for paint, glass, and wheels",
+		"Restores smoothness before correction"
+	],
+	duration: 60
+},
+	"preparation-detail": {
+	name: "Paint Preparation Detail",
+	description: "Polish and surface inspection to ready paint for correction or coating.",
+	explanation: "Final prep step ensuring panels are perfectly clean and defect-free before machine polishing or ceramic application.",
+	features: [
+		"Panel wipe with isopropyl or solvent-based cleaner",
+		"Tape masking of sensitive edges and trim",
+		"Lighting inspection for hidden defects"
+	],
+	duration: 60
+},
+	"paint-enhancement": {
+	name: "Paint Enhancement",
+	description: "Single-step polish for added gloss without full correction.",
+	explanation: "A light machine polish to remove minor haze and boost depth, ideal when full correction isn’t required.",
+	features: [
+		"Gloss-intensive finishing polish",
+		"Removes micro-marring and light oxidation",
+		"Enhances color depth and reflection"
+	],
+	duration: 120
+},
+	"1-stage-paint-correction": {
+	name: "1-Stage Paint Correction",
+	description: "Single-step machine polishing to remove light swirls and boost clarity.",
+	explanation: "A balanced cut-and-polish process that safely removes light defects and restores a brilliant gloss in one pass.",
+	features: [
+		"Cut-and-polish with finishing compound",
+		"Removes light swirl marks and oxidation",
+		"Enhances color vibrancy and gloss"
+	],
+	duration: 240
+},
+	"2-stage-paint-correction": {
+	name: "2-Stage Paint Correction",
+	description: "Compounding and polishing to eliminate moderate defects.",
+	explanation: "First a heavier compound removes medium scratches and oxidation, followed by a refining polish for depth and clarity.",
+	features: [
+		"Heavy cut to level moderate defects",
+		"Finishing polish for mirror-like gloss",
+		"Removes most wash-induced marring"
+	],
+	duration: 360
+},
+	"3-stage-paint-correction": {
+	name: "3-Stage Paint Correction",
+	description: "Multi-step compounding, refining, and finishing for near-perfect paintwork.",
+	explanation: "Ideal for heavily marred finishes, this process delivers show-car gloss and extreme clarity through progressive cuts and final jeweling.",
+	features: [
+		"Initial heavy cut for deep defects",
+		"Intermediate polish for refined leveling",
+		"Final jeweling polish for maximum depth and reflection"
+	],
+	duration: 480
+},
+	"essential-ceramic-coating": {
+	name: "Essential Ceramic Coating",
+	description: "Entry-level ceramic protection with 1-year durability.",
+	explanation: "Adds hydrophobic protection, UV resistance, and a noticeable gloss boost for easy maintenance.",
+	features: [
+		"1-year protection",
+		"Enhanced gloss and slickness",
+		"UV and chemical resistance",
+		"Easier washing and drying"
+	],
+	duration: 120
+},
+	"enduring-ceramic-coating": {
+	name: "Enduring Ceramic Coating",
+	description: "Mid-tier ceramic coating lasting up to 3 years.",
+	explanation: "Professional-grade protection with stronger hydrophobic effect and improved chemical/UV resistance.",
+	features: [
+		"Up to 3-year durability",
+		"Deep, rich gloss",
+		"Superior UV and chemical resistance",
+		"Extreme water beading"
+	],
+	duration: 180
+},
+	"platinum-ceramic-coating": {
+	name: "Platinum Ceramic Coating",
+	description: "Premium 5-year ceramic coating for long-lasting defense.",
+	explanation: "High-end formula delivering exceptional hardness, deep gloss, and easy maintenance for years.",
+	features: [
+		"5-year protection",
+		"Show-quality finish",
+		"Maximum UV shielding",
+		"Advanced hydrophobic and self-cleaning properties",
+		"High chemical and light scratch resistance"
+	],
+	duration: 240
+},
+	"elite-ceramic-coating": {
+	name: "Elite Ceramic Coating",
+	description: "Ultimate 7+ year ceramic coating for maximum protection and depth.",
+	explanation: "Flagship coating providing unrivaled gloss, extreme hydrophobics, and the toughest environmental defense available.",
+	features: [
+		"7+ year durability",
+		"Concours-level gloss and depth",
+		"Highest UV, chemical, and abrasion resistance",
+		"Ultra-slick, self-cleaning surface"
+	],
+	duration: 300
+}
+};
+
+export { features as default };
+//# sourceMappingURL=features-B2qN41KZ.js.map

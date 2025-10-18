@@ -122,26 +122,40 @@ app.get('/api/health', (req, res) => {
 })
 
 // 1️⃣ Serve *all* built assets first (shared for both apps)
+// In production, assets are in backend/public/dist/assets
+// In development, they're in frontend/dist/assets
+const assetsPath = process.env.NODE_ENV === 'production' 
+  ? path.join(__dirname, 'public', 'dist', 'assets')
+  : path.join(__dirname, '../frontend/dist/assets');
+
 app.use(
   '/assets',
-  express.static(path.join(__dirname, '../frontend/dist/assets'), {
+  express.static(assetsPath, {
     maxAge: '1y',
     immutable: true,
   })
 );
 
 // 2️⃣ Serve admin-specific files
+const adminPath = process.env.NODE_ENV === 'production'
+  ? path.join(__dirname, 'public', 'dist', 'admin')
+  : path.join(__dirname, '../frontend/dist/admin');
+
 app.use(
   '/admin',
-  express.static(path.join(__dirname, '../frontend/dist/admin'), {
+  express.static(adminPath, {
     maxAge: '1h',
   })
 );
 
 // 3️⃣ Serve tenant-specific files
+const tenantPath = process.env.NODE_ENV === 'production'
+  ? path.join(__dirname, 'public', 'dist', 'tenant')
+  : path.join(__dirname, '../frontend/dist/tenant');
+
 app.use(
   '/tenant',
-  express.static(path.join(__dirname, '../frontend/dist/tenant'), {
+  express.static(tenantPath, {
     maxAge: '1h',
   })
 );
@@ -169,11 +183,11 @@ app.get('*', (req, res) => {
     host === '127.0.0.1' ||
     host === 'thatsmartsite-backend.onrender.com';
 
-  const filePath = isAdminDomain
-    ? path.join(__dirname, '../frontend/dist/admin/index.html')
-    : path.join(__dirname, '../frontend/dist/tenant/index.html');
+  const htmlFile = isAdminDomain
+    ? path.join(__dirname, process.env.NODE_ENV === 'production' ? 'public/dist/admin/index.html' : '../frontend/dist/admin/index.html')
+    : path.join(__dirname, process.env.NODE_ENV === 'production' ? 'public/dist/tenant/index.html' : '../frontend/dist/tenant/index.html');
 
-  res.sendFile(filePath);
+  res.sendFile(htmlFile);
 })
 
 // Centralized error handler middleware

@@ -1,0 +1,56 @@
+const features = {
+	"1-stage-window-correction": {
+	name: "1-Stage Window Correction",
+	description: "Basic window cleaning and light correction",
+	explanation: "Professional window cleaning with light correction to remove minor imperfections",
+	features: [
+		"Professional window cleaning",
+		"Light correction",
+		"Minor imperfection removal",
+		"Glass preparation"
+	],
+	duration: "30-45 minutes"
+},
+	"essential-window-ceramic-coating": {
+	name: "Essential Window Ceramic Coating",
+	description: "Basic window protection with 1-year durability",
+	explanation: "Entry-level window coating providing basic protection and water repellency",
+	features: [
+		"1-year protection",
+		"Water repellency",
+		"Basic UV protection",
+		"Easy maintenance"
+	],
+	duration: "15-30 minutes"
+},
+	"enduring-window-ceramic-coating": {
+	name: "Enduring Window Ceramic Coating",
+	description: "Enhanced window protection with 2-year durability",
+	explanation: "Mid-tier window coating offering superior protection and longer-lasting results",
+	features: [
+		"2-year protection",
+		"Superior water repellency",
+		"Advanced UV protection",
+		"Hydrophobic properties",
+		"Chemical resistance"
+	],
+	duration: "30-45 minutes"
+},
+	"elite-window-ceramic-coating": {
+	name: "Elite Window Ceramic Coating",
+	description: "Premium window protection with 3-year durability",
+	explanation: "High-end window coating delivering exceptional protection and maximum clarity",
+	features: [
+		"3-year protection",
+		"Maximum clarity",
+		"Superior UV protection",
+		"Ultra hydrophobic properties",
+		"Maximum chemical resistance",
+		"Self-cleaning properties"
+	],
+	duration: "45-60 minutes"
+}
+};
+
+export { features as default };
+//# sourceMappingURL=features-DR3z9Yat.js.map
