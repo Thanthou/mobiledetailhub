@@ -28,8 +28,8 @@ services:
       rm -rf ../backend/public
       mkdir -p ../backend/public/tenant
       mkdir -p ../backend/public/admin
-      cp -r dist/tenant/* ../backend/public/tenant/
-      cp -r dist/admin/* ../backend/public/admin/
+      cp -r dist/src/tenant-app/* ../backend/public/tenant/
+      cp -r dist/src/admin-app/* ../backend/public/admin/
       echo "==> Final verification..."
       ls -la ../backend/public/tenant/
       ls -la ../backend/public/admin/
