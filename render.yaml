@@ -13,7 +13,7 @@ services:
       echo "==> Starting build process..."
       echo "==> Installing backend dependencies..."
       cd backend
-      npm install
+      npm ci
       echo "==> Fixing debug module..."
       rm -rf node_modules/debug
       npm install debug --force
@@ -22,37 +22,27 @@ services:
 
       echo "==> Installing frontend dependencies..."
       cd ../frontend
-      npm install --include=dev
+      npm ci --include=dev
       echo "==> Building frontend with dual entry points..."
       npm run build
-      echo "==> Build completed, checking output..."
-      ls -la dist/
-      echo "==> Checking tenant build..."
-      ls -la dist/src/tenant-app/ || echo "ERROR: dist/src/tenant-app/ not found!"
-      echo "==> Checking admin build..."
-      ls -la dist/src/admin-app/ || echo "ERROR: dist/src/admin-app/ not found!"
-      
-      echo "==> Replacing backend/public with fresh build (atomic copy)..."
-      rm -rf ../backend/public
-      mkdir -p ../backend/public/tenant
-      mkdir -p ../backend/public/admin
-      mkdir -p ../backend/public/assets
-      
+
+      echo "==> Checking built structure..."
+      find dist -maxdepth 3 -type f -name "index.html" || true
+
+      echo "==> Cleaning backend/public..."
+      cd ..
+      rm -rf backend/public
+      mkdir -p backend/public/{tenant,admin}
+
       echo "==> Copying tenant build..."
-      cp -r dist/src/tenant-app/* ../backend/public/tenant/
+      cp -r frontend/dist/src/tenant-app/* backend/public/tenant/
       echo "==> Copying admin build..."
-      cp -r dist/src/admin-app/* ../backend/public/admin/
-      echo "==> Copying shared assets..."
-      cp -r dist/assets/* ../backend/public/assets/
-      
-      echo "==> Final verification..."
-      ls -la ../backend/public/tenant/
-      ls -la ../backend/public/admin/
-      ls -la ../backend/public/assets/
-      echo "==> Checking if index.html exists..."
-      ls -la ../backend/public/tenant/index.html || echo "ERROR: tenant/index.html not found!"
-      ls -la ../backend/public/admin/index.html || echo "ERROR: admin/index.html not found!"
-      echo "==> Build process completed!"
+      cp -r frontend/dist/src/admin-app/* backend/public/admin/
+
+      echo "--- backend/public structure after copy ---"
+      find backend/public -maxdepth 3 -type f -name "index.html" || true
+
+      echo "✅ Build process completed!"
 
     startCommand: |
       echo "==> Current working directory: $(pwd)"
@@ -103,4 +93,4 @@ databases:
   - name: thatsmartsite-db
     plan: basic-256mb
     region: oregon
-    ipAllowList: []  # internal access only
+    ipAllowList: []
