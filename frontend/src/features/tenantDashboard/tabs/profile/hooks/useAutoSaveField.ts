@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { formatPhoneNumber, getPhoneDigits, useAutoSave } from '@/shared/utils';
 
 import type { BusinessData } from '../types';
@@ -64,8 +65,8 @@ export function useAutoSaveField(options: UseAutoSaveFieldOptions) {
   const { debounce = 1000, field } = options;
   const { updateBusiness, businessData } = useProfileData();
   
-  // Get the initial value for this field
-  const getInitialValue = (): string => {
+  // Get the current value for this field (reactive to businessData changes)
+  const getCurrentValue = (): string => {
     if (!businessData) return '';
     
     switch (field) {
@@ -78,11 +79,21 @@ export function useAutoSaveField(options: UseAutoSaveFieldOptions) {
         return businessData[field] ? 
           new Date(businessData[field]).toISOString().split('T')[0] : '';
       default: {
-        const value = businessData[field] as string | number | unknown[];
+        const value = businessData[field] as string | number | unknown[] | null | undefined;
+        if (value === null || value === undefined || value === 'null' || value === '') {
+          return '';
+        }
         return typeof value === 'string' ? value : String(value);
       }
     }
   };
+
+  // Create a reactive value that updates when businessData changes
+  const [currentValue, setCurrentValue] = useState(() => getCurrentValue());
+  
+  useEffect(() => {
+    setCurrentValue(getCurrentValue());
+  }, [businessData, field]);
 
   const saveField = async (value: string) => {
     if (!businessData) return;
@@ -104,5 +115,5 @@ export function useAutoSaveField(options: UseAutoSaveFieldOptions) {
     }
   };
 
-  return useAutoSave(getInitialValue(), saveField, { debounce });
+  return useAutoSave(currentValue, saveField, { debounce });
 }

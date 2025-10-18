@@ -54,7 +54,7 @@ const SocialMediaIcons: React.FC = () => {
 
   const visibleLinks = socialLinks.filter(link => {
     const url = link.url;
-    return typeof url === 'string' && url.trim() !== '';
+    return typeof url === 'string'; // Show if URL exists (even if empty)
   });
 
   if (visibleLinks.length === 0) {
@@ -65,6 +65,7 @@ const SocialMediaIcons: React.FC = () => {
     <div className="flex items-center space-x-3 ml-4">
       {visibleLinks.map(({ platform, url, icon: Icon, ariaLabel }) => {
         const href = url as string;
+        const hasUrl = href && href.trim() !== '';
         
         // In preview mode, render as span instead of link
         if (isPreview) {
@@ -80,6 +81,21 @@ const SocialMediaIcons: React.FC = () => {
           );
         }
         
+        // If no URL, render as span (non-clickable)
+        if (!hasUrl) {
+          return (
+            <span
+              key={platform}
+              className="text-white hover:text-orange-400 transition-colors duration-200 cursor-pointer"
+              aria-label={ariaLabel}
+              title="Social media link not configured"
+            >
+              <Icon className="h-5 w-5" />
+            </span>
+          );
+        }
+        
+        // If has URL, render as clickable link
         return (
           <a 
             key={platform}

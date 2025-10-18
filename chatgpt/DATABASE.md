@@ -1,6 +1,6 @@
 # Database Overview (Auto-Generated)
 
-Generated: 2025-10-18T03:43:18.429Z
+Generated: 2025-10-18T06:17:20.986Z
 
 ```
 
@@ -472,6 +472,10 @@ Generated: 2025-10-18T03:43:18.429Z
       • updated_at: timestamp with time zone NULL = CURRENT_TIMESTAMP
       • website: text NULL
       • example_field: text NULL
+      • facebook_enabled: boolean NULL
+      • instagram_enabled: boolean NULL
+      • tiktok_enabled: boolean NULL
+      • youtube_enabled: boolean NULL
 
    tenants.service_tiers
       • id: integer NOT NULL = nextval('tenants.service_tiers

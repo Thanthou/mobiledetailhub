@@ -24,7 +24,7 @@ const RESERVED_SUBDOMAINS = ['www', 'thatsmartsite', 'api', 'admin', 'staging', 
 
 /**
  * Extract tenant slug from subdomain
- * Example: jps.thatsmartsite.com -> 'jps'
+ * Example: jps.thatsmartsite.com -> 'jps', testing-mobile-detail.lvh.me -> 'testing-mobile-detail'
  * 
  * @param hostname - The hostname to parse
  * @returns Tenant slug or null if not a valid subdomain
@@ -42,7 +42,13 @@ function getTenantFromSubdomain(hostname: string): string | null {
     return null;
   }
   
-  return subdomain;
+  // Handle both .thatsmartsite.com and .lvh.me domains
+  const domain = parts.slice(-2).join('.');
+  if (domain === 'thatsmartsite.com' || domain === 'lvh.me') {
+    return subdomain;
+  }
+  
+  return null;
 }
 
 /**

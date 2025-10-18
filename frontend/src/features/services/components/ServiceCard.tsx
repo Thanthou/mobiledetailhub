@@ -36,7 +36,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
         aria-label={`View ${service.title}`}
         className={`group relative block rounded-lg overflow-hidden shadow-lg transition-transform duration-300 hover:-translate-y-2 hover:shadow-xl cursor-pointer ${className}`}
       >
-        <div className="h-52 sm:h-80 lg:h-[32rem] xl:h-[36rem]">
+        <div className="h-40 sm:h-64 lg:h-[24rem] xl:h-[28rem]">
           <img 
             src={service.imageUrl} 
             alt="" /* decorative; title is visible text */

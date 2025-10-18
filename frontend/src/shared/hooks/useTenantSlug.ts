@@ -27,13 +27,21 @@ import { getTenantFromDomain } from '@/shared/utils/domainUtils';
 export function useTenantSlug(): string | undefined {
   const params = useParams();
   
-  // In development, get tenant from URL slug parameter
+  // First, try to get tenant from domain/subdomain (works in both dev and prod)
+  const domainSlug = getTenantFromDomain();
+  
+  
+  if (domainSlug && domainSlug !== 'main-site') {
+    return domainSlug;
+  }
+  
+  // Fallback: In development, get tenant from URL slug parameter
   // Check multiple param names for flexibility across different routes
   if (env.DEV) {
     return params['businessSlug'] || params['tenantSlug'] || params['slug'];
   }
   
-  // In production, tenant is determined by domain/subdomain
-  return getTenantFromDomain();
+  // No tenant found
+  return undefined;
 }
 

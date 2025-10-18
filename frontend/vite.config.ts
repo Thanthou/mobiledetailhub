@@ -28,7 +28,13 @@ export default defineConfig({
   },
   server: {
     host: '0.0.0.0', // Allow access from network
-    port: 5176, // Use current port
+    // port: 5177, // Let Vite auto-detect available port
+    allowedHosts: [
+      'localhost',
+      '127.0.0.1',
+      '.lvh.me', // Allow all lvh.me subdomains for local testing
+      '.thatsmartsite.com', // Allow all thatsmartsite.com subdomains
+    ],
     proxy: {
       '/api': {
         target: 'http://localhost:3001',

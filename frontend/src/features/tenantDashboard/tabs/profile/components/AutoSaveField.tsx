@@ -13,6 +13,7 @@ interface AutoSaveFieldProps {
   placeholder?: string;
   className?: string;
   debounce?: number;
+  disabled?: boolean;
 }
 
 /**

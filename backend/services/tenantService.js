@@ -281,7 +281,8 @@ async function getTenantBySlug(slug) {
       b.id, b.slug, b.business_name, b.owner, b.first_name, b.last_name, b.user_id,
       b.application_status, b.business_start_date, b.business_phone, b.personal_phone,
       b.business_email, b.personal_email, b.twilio_phone, b.sms_phone, b.website,
-      b.gbp_url, b.facebook_url, b.instagram_url, b.youtube_url, b.tiktok_url,
+      b.gbp_url, b.facebook_url, b.facebook_enabled, b.instagram_url, b.instagram_enabled, 
+      b.tiktok_url, b.tiktok_enabled, b.youtube_url, b.youtube_enabled,
       b.source, b.notes, b.service_areas, b.application_date, b.approved_date,
       b.last_activity, b.created_at, b.updated_at, b.industry,
       c.hero_title, c.hero_subtitle, c.reviews_title, c.reviews_subtitle,
@@ -300,6 +301,12 @@ async function getTenantBySlug(slug) {
   }
   
   const tenant = result.rows[0];
+  
+  // Ensure boolean fields are properly mapped
+  tenant.facebook_enabled = Boolean(tenant.facebook_enabled);
+  tenant.instagram_enabled = Boolean(tenant.instagram_enabled);
+  tenant.tiktok_enabled = Boolean(tenant.tiktok_enabled);
+  tenant.youtube_enabled = Boolean(tenant.youtube_enabled);
   
   // Parse service_areas JSON if it's a string
   if (typeof tenant.service_areas === 'string') {
@@ -380,13 +387,17 @@ async function updateTenantBySlug(slug, updateData) {
     personal_phone: 'personal_phone',
     twilio_phone: 'twilio_phone',
     business_start_date: 'business_start_date',
-    website: 'website',
-    website_url: 'website', // Support both field names
+    // website: 'website', // REMOVED: This is a generated column that cannot be updated
+    // website_url: 'website', // REMOVED: This is a generated column that cannot be updated
     gbp_url: 'gbp_url',
     facebook_url: 'facebook_url',
-    youtube_url: 'youtube_url',
+    facebook_enabled: 'facebook_enabled',
+    instagram_url: 'instagram_url',
+    instagram_enabled: 'instagram_enabled',
     tiktok_url: 'tiktok_url',
-    instagram_url: 'instagram_url'
+    tiktok_enabled: 'tiktok_enabled',
+    youtube_url: 'youtube_url',
+    youtube_enabled: 'youtube_enabled'
     // Note: google_maps_url column doesn't exist in database
   };
 
@@ -394,8 +405,11 @@ async function updateTenantBySlug(slug, updateData) {
   Object.keys(updateData).forEach(key => {
     if (updateData[key] !== undefined && fieldMapping[key]) {
       paramCount++;
+      
+      // Handle regular fields
       updateFields.push(`${fieldMapping[key]} = $${paramCount}`);
       values.push(updateData[key]);
+      
       console.log(`Adding field: ${key} -> ${fieldMapping[key]} = ${updateData[key]}`);
     } else if (updateData[key] !== undefined) {
       console.log(`Skipping field: ${key} (not in fieldMapping)`);

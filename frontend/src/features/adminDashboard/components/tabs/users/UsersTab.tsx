@@ -480,7 +480,7 @@ export const UsersTab: React.FC = () => {
                   {user.role === 'tenant' && user.slug && (
                     <div className="flex items-center gap-2">
                       <a
-                        href={`/${user.slug}`}
+                        href={`http://${user.slug}.lvh.me:${window.location.port}/`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-1 px-3 py-1.5 text-white text-xs rounded transition-colors bg-blue-600 hover:bg-blue-700"
@@ -490,7 +490,7 @@ export const UsersTab: React.FC = () => {
                         Website
                       </a>
                       <a
-                        href={`/${user.slug}/dashboard`}
+                        href={`http://${user.slug}.lvh.me:${window.location.port}/dashboard`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-1 px-3 py-1.5 text-white text-xs rounded transition-colors bg-green-600 hover:bg-green-700"

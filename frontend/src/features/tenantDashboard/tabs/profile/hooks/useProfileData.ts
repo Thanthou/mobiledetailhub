@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
 
 import { config } from '@/../config/env';
+import { useTenantSlug } from '@/shared/hooks/useTenantSlug';
 
 interface BusinessData {
   id: string;
@@ -40,7 +40,7 @@ export const useProfileData = (): UseProfileDataReturn => {
   const [error, setError] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
   
-  const { slug } = useParams<{ slug: string }>();
+  const slug = useTenantSlug();
 
   // Fetch business data
   useEffect(() => {
@@ -110,9 +110,13 @@ export const useProfileData = (): UseProfileDataReturn => {
       if (data.website !== undefined) updateData.website = data.website;
       if (data.gbp_url !== undefined) updateData.gbp_url = data.gbp_url;
       if (data.facebook_url !== undefined) updateData.facebook_url = data.facebook_url;
+      if (data.facebook_enabled !== undefined) updateData.facebook_enabled = data.facebook_enabled;
       if (data.youtube_url !== undefined) updateData.youtube_url = data.youtube_url;
+      if (data.youtube_enabled !== undefined) updateData.youtube_enabled = data.youtube_enabled;
       if (data.tiktok_url !== undefined) updateData.tiktok_url = data.tiktok_url;
+      if (data.tiktok_enabled !== undefined) updateData.tiktok_enabled = data.tiktok_enabled;
       if (data.instagram_url !== undefined) updateData.instagram_url = data.instagram_url;
+      if (data.instagram_enabled !== undefined) updateData.instagram_enabled = data.instagram_enabled;
 
 
       const response = await fetch(`${config.apiUrl}/api/tenants/${slug}`, {
@@ -130,9 +134,8 @@ export const useProfileData = (): UseProfileDataReturn => {
       const result = await response.json() as { data?: BusinessData };
       const updatedData = result.data;
       
-      if (updatedData) {
-        setBusinessData(updatedData);
-      }
+      // Always update local state with the specific field that was changed
+      setBusinessData(prev => ({ ...prev, ...updateData }));
       
       return true;
     } catch (err) {

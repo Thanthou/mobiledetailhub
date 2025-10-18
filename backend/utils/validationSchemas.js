@@ -83,18 +83,6 @@ const tenantSchemas = {
     gbp_url: [
       validators.url
     ],
-    instagram_url: [
-      validators.url
-    ],
-    tiktok_url: [
-      validators.url
-    ],
-    facebook_url: [
-      validators.url
-    ],
-    youtube_url: [
-      validators.url
-    ],
     website_url: [
       validators.url
     ],
@@ -140,18 +128,6 @@ const tenantSchemas = {
       validators.length(undefined, 255)
     ],
     gbp_url: [
-      validators.url
-    ],
-    instagram_url: [
-      validators.url
-    ],
-    tiktok_url: [
-      validators.url
-    ],
-    facebook_url: [
-      validators.url
-    ],
-    youtube_url: [
       validators.url
     ],
     website_url: [
@@ -203,18 +179,6 @@ const adminSchemas = {
       validators.length(undefined, 255)
     ],
     gbp_url: [
-      validators.url
-    ],
-    instagram_url: [
-      validators.url
-    ],
-    tiktok_url: [
-      validators.url
-    ],
-    facebook_url: [
-      validators.url
-    ],
-    youtube_url: [
       validators.url
     ],
     website_url: [

@@ -16,6 +16,7 @@ import {
   tenantConfigKeys 
 } from '../api/tenantConfig.api';
 import type { Vertical } from '../types';
+import { useTenantSlug } from './useTenantSlug';
 
 /**
  * Options for tenant config loader
@@ -57,9 +58,12 @@ export function useTenantConfigLoader(options: UseTenantConfigLoaderOptions = {}
   const params = useParams<{ slug?: string; tenantSlug?: string; businessSlug?: string }>();
   const urlSlug = params.slug || params.tenantSlug || params.businessSlug;
   
+  // Use the proper tenant slug hook for domain-based resolution
+  const domainTenantSlug = useTenantSlug();
+  
   const { 
     tenantId, 
-    slug = urlSlug, 
+    slug = domainTenantSlug || urlSlug, // Prioritize domain-based slug
     enabled = true 
   } = options;
   

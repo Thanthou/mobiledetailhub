@@ -23,6 +23,12 @@ export interface Business {
   youtube_url: string | null;
   tiktok_url: string | null;
   instagram_url: string | null;
+  social_media: {
+    facebook: { url: string; enabled: boolean };
+    instagram: { url: string; enabled: boolean };
+    tiktok: { url: string; enabled: boolean };
+    youtube: { url: string; enabled: boolean };
+  };
   industry: string;
   created_at: string;
   updated_at: string;

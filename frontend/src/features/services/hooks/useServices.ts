@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import assetsData from '@/data/mobile-detailing/assets.json';
 import autoDetailingData from '@/data/mobile-detailing/services/auto-detailing.json';
@@ -9,6 +9,7 @@ import ppfData from '@/data/mobile-detailing/services/ppf.json';
 import rvDetailingData from '@/data/mobile-detailing/services/rv-detailing.json';
 import { Service } from '@/features/services/types/service.types';
 import { env } from '@/shared/env';
+import { useTenantSlug } from '@/shared/hooks/useTenantSlug';
 import type { LocationPage } from '@/shared/types/location';
 import { getServiceImageFromLocation } from '@/shared/utils/schemaUtils';
 
@@ -40,13 +41,13 @@ const getServicesFromSiteData = (locationData: LocationPage | null | undefined, 
 
     // Construct route based on environment
     // Development: /{tenantSlug}/services/{serviceSlug}
-    // Production: /services/{serviceSlug}
+    // Production: /service/{serviceSlug}
     const route = env.DEV && tenantSlug
       ? `/${tenantSlug}/services/${service.slug}`
-      : `/services/${service.slug}`;
+      : `/service/${service.slug}`;
     
 
-    return {
+    const serviceData = {
       id: (index + 1).toString(),
       title: service.title,
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- service.alt from JSON, type refinement planned
@@ -58,27 +59,30 @@ const getServicesFromSiteData = (locationData: LocationPage | null | undefined, 
       imageHeight: imageData.height,
       imagePriority: imageData.priority
     };
+    
+    
+    return serviceData;
   });
 };
 
 export const useServices = (locationData: LocationPage | null | undefined) => {
   const navigate = useNavigate();
-  const { slug } = useParams<{ slug?: string }>();
+  const tenantSlug = useTenantSlug(); // Use the proper tenant slug hook
 
   const handleServiceClick = (service: Service) => {
     void navigate(service.route);
   };
 
   const getServices = () => {
-    return getServicesFromSiteData(locationData, slug);
+    return getServicesFromSiteData(locationData, tenantSlug);
   };
 
   const getServiceById = (id: string) => {
-    return getServicesFromSiteData(locationData, slug).find(service => service.id === id);
+    return getServicesFromSiteData(locationData, tenantSlug).find(service => service.id === id);
   };
 
   const getServicesByCategory = (category: string) => {
-    return getServicesFromSiteData(locationData, slug).filter(service => service.category === category);
+    return getServicesFromSiteData(locationData, tenantSlug).filter(service => service.category === category);
   };
 
   const getAutoDetailingData = () => {

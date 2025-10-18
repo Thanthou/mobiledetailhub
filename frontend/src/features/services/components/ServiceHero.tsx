@@ -17,22 +17,15 @@ const ServiceHero: React.FC<ServiceHeroProps> = ({ serviceData, onRequestQuote }
           {/* Service Image */}
           <div className="aspect-[3/2] rounded-2xl bg-stone-800/80 ring-1 ring-white/10 overflow-hidden">
             {serviceData.hero.image?.src ? (
-              <picture>
-                <source
-                  type="image/webp"
-                  srcSet={`${serviceData.hero.image.src.replace(/\.(png|jpg|jpeg)$/i, '.webp')} 800w, ${serviceData.hero.image.src.replace(/\.(png|jpg|jpeg)$/i, '.webp')} 1200w`}
-                  sizes="(max-width: 1024px) 100vw, 60vw"
-                />
-                <img 
-                  src={serviceData.hero.image.src} 
-                  alt={serviceData.hero.image.alt}
-                  width={800}
-                  height={533}
-                  loading="lazy"
-                  decoding="async"
-                  className="w-full h-full object-cover"
-                />
-              </picture>
+              <img 
+                src={serviceData.hero.image.src} 
+                alt={serviceData.hero.image.alt}
+                width={800}
+                height={533}
+                loading="lazy"
+                decoding="async"
+                className="w-full h-full object-cover"
+              />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-white/50">
                 Image Placeholder

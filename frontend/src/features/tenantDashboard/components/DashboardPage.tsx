@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
 
 import type { DashboardTab, DetailerData } from '@/features/tenantDashboard/types';
 import { useBrowserTab } from '@/shared/hooks';
+import { useTenantSlug } from '@/shared/hooks/useTenantSlug';
 
 import { dashboardApi } from '../api/dashboard.api';
 import { DashboardHeader } from './DashboardHeader';
@@ -11,11 +11,13 @@ import { DashboardTabs } from './DashboardTabs';
 import { TabContent } from './TabContent';
 
 const DashboardPage: React.FC = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const slug = useTenantSlug();
   const [activeTab, setActiveTab] = useState<DashboardTab>('overview');
   const [detailerData, setDetailerData] = useState<DetailerData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+
 
   // Set browser tab title and favicon for tenant dashboard
   useBrowserTab({

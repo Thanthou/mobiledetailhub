@@ -17,9 +17,13 @@ export interface BusinessData {
   website: string; // Database column is 'website', not 'website_url'
   gbp_url: string;
   facebook_url: string;
+  facebook_enabled: boolean;
   instagram_url: string;
-  youtube_url: string;
+  instagram_enabled: boolean;
   tiktok_url: string;
+  tiktok_enabled: boolean;
+  youtube_url: string;
+  youtube_enabled: boolean;
   source: string;
   notes: string;
   service_areas: Array<{ city: string; state: string; zip?: string }>;

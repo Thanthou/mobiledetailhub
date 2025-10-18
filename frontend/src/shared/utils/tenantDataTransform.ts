@@ -19,11 +19,20 @@ export interface SocialMediaLinks {
 }
 
 /**
- * Transform business social media URLs into a clean object
- * Filters out empty strings and undefined values
+ * Social media platform data structure
+ */
+export interface SocialMediaPlatform {
+  url: string;
+  enabled: boolean;
+}
+
+/**
+ * Transform business social media data into a clean object
+ * Uses new social_media structure with enabled/url fields
+ * Only includes platforms that are enabled and have non-empty URLs
  * 
  * @param business - Business data from API
- * @returns Social media links object with only populated values
+ * @returns Social media links object with only enabled platforms that have URLs
  * 
  * @example
  * ```ts
@@ -34,24 +43,44 @@ export interface SocialMediaLinks {
 export function transformSocialMedia(business: Business): SocialMediaLinks {
   const socials: SocialMediaLinks = {};
   
-  // Only include non-empty social media links
-  // Note: Despite type definitions, these fields can be null at runtime
-  if (business.facebook_url?.trim()) {
-    socials.facebook = business.facebook_url;
+  // Use new social_media structure if available, otherwise fall back to old fields
+  if (business.social_media) {
+    // New structure: only show if enabled
+    if (business.social_media.facebook.enabled) {
+      socials.facebook = business.social_media.facebook.url || '';
+    }
+    
+    if (business.social_media.instagram.enabled) {
+      socials.instagram = business.social_media.instagram.url || '';
+    }
+    
+    if (business.social_media.youtube.enabled) {
+      socials.youtube = business.social_media.youtube.url || '';
+    }
+    
+    if (business.social_media.tiktok.enabled) {
+      socials.tiktok = business.social_media.tiktok.url || '';
+    }
+  } else {
+    // Fallback to old individual URL fields for backward compatibility
+    if (business.facebook_url?.trim()) {
+      socials.facebook = business.facebook_url;
+    }
+    
+    if (business.instagram_url?.trim()) {
+      socials.instagram = business.instagram_url;
+    }
+    
+    if (business.youtube_url?.trim()) {
+      socials.youtube = business.youtube_url;
+    }
+    
+    if (business.tiktok_url?.trim()) {
+      socials.tiktok = business.tiktok_url;
+    }
   }
   
-  if (business.instagram_url?.trim()) {
-    socials.instagram = business.instagram_url;
-  }
-  
-  if (business.youtube_url?.trim()) {
-    socials.youtube = business.youtube_url;
-  }
-  
-  if (business.tiktok_url?.trim()) {
-    socials.tiktok = business.tiktok_url;
-  }
-  
+  // Google Business Profile is still handled separately
   if (business.gbp_url?.trim()) {
     socials.googleBusiness = business.gbp_url;
   }
@@ -146,6 +175,18 @@ export function formatBusinessPhone(phone?: string): string {
  * @returns True if at least one social media link exists
  */
 export function hasSocialMedia(business: Business): boolean {
+  // Use new social_media structure if available
+  if (business.social_media) {
+    return !!(
+      (business.social_media.facebook.enabled && business.social_media.facebook.url?.trim()) ||
+      (business.social_media.instagram.enabled && business.social_media.instagram.url?.trim()) ||
+      (business.social_media.youtube.enabled && business.social_media.youtube.url?.trim()) ||
+      (business.social_media.tiktok.enabled && business.social_media.tiktok.url?.trim()) ||
+      business.gbp_url?.trim()
+    );
+  }
+  
+  // Fallback to old individual URL fields
   return !!(
     business.facebook_url?.trim() ||
     business.instagram_url?.trim() ||

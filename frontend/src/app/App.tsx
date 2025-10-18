@@ -31,7 +31,12 @@ export default function App() {
   const routes = (
     <Suspense fallback={<div className="p-8 text-white">Loading…</div>}>
       <Routes>
-        <Route path="/" element={<Navigate to="/admin-dashboard" replace />} />
+        {/* Only redirect to admin dashboard if on main domain, not tenant subdomains */}
+        <Route path="/" element={
+          window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? <Navigate to="/admin-dashboard" replace />
+            : <TenantPage />
+        } />
         
         {/* Login route */}
         <Route path="/login" element={<LoginPage />} />
@@ -64,6 +69,13 @@ export default function App() {
         {/* Preview routes - for sales demos */}
         <Route path="/preview-generator" element={<PreviewGeneratorPage />} />
         <Route path="/preview" element={<PreviewPage />} />
+        
+        {/* Tenant Dashboard route - handle both subdomain and path-based routing */}
+        <Route path="/dashboard" element={
+          <DataProvider>
+            <DashboardPage />
+          </DataProvider>
+        } />
         
         {/* Tenant routes - now no conflicts! */}
         <Route path="/:slug/dashboard" element={

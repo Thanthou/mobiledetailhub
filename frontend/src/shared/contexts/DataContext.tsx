@@ -86,6 +86,8 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const isLoading = isLoadingBusiness || isLoadingSiteConfig;
   
   // Step 5: Transform and assemble context value
+  const transformedSocialMedia = businessData ? transformSocialMedia(businessData) : {};
+  
   const contextValue: DataContextType = {
     // Tenant data with fallbacks
     businessName: businessData?.business_name || 'Loading...',
@@ -97,7 +99,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     serviceAreas: businessData?.service_areas || [],
     
     // Social media (filtered and transformed)
-    socialMedia: businessData ? transformSocialMedia(businessData) : {},
+    socialMedia: transformedSocialMedia,
     
     // Industry config
     siteConfig: siteConfig || null,

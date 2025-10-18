@@ -38,11 +38,7 @@ const ProfileTab: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <ProfileForm
-        businessData={businessData}
-        onUpdate={updateBusiness}
-        isUpdating={isUpdating}
-      />
+      <ProfileForm />
     </div>
   );
 };

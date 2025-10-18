@@ -111,22 +111,15 @@ const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
       >
         {/* Before Image (Background) */}
         <div className="absolute inset-0">
-          <picture>
-            <source
-              type="image/webp"
-              srcSet={`${beforeImage.replace(/\.(png|jpg|jpeg)$/i, '.webp')} 600w, ${beforeImage.replace(/\.(png|jpg|jpeg)$/i, '.webp')} 1200w`}
-              sizes="100vw"
-            />
-            <img 
-              src={beforeImage} 
-              alt={`${beforeLabel}: original state`}
-              width={600}
-              height={400}
-              loading="lazy"
-              decoding="async"
-              className="w-full h-full object-cover"
-            />
-          </picture>
+          <img 
+            src={beforeImage} 
+            alt={`${beforeLabel}: original state`}
+            width={600}
+            height={400}
+            loading="lazy"
+            decoding="async"
+            className="w-full h-full object-cover"
+          />
           <div className="absolute top-4 left-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium">
             {beforeLabel}
           </div>
@@ -137,22 +130,15 @@ const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
           className="absolute inset-0 overflow-hidden"
           style={{ clipPath: `inset(0 ${String(100 - sliderPosition)}% 0 0)` }}
         >
-          <picture>
-            <source
-              type="image/webp"
-              srcSet={`${afterImage.replace(/\.(png|jpg|jpeg)$/i, '.webp')} 600w, ${afterImage.replace(/\.(png|jpg|jpeg)$/i, '.webp')} 1200w`}
-              sizes="100vw"
-            />
-            <img 
-              src={afterImage} 
-              alt={`${afterLabel}: improved state`}
-              width={600}
-              height={400}
-              loading="lazy"
-              decoding="async"
-              className="w-full h-full object-cover"
-            />
-          </picture>
+          <img 
+            src={afterImage} 
+            alt={`${afterLabel}: improved state`}
+            width={600}
+            height={400}
+            loading="lazy"
+            decoding="async"
+            className="w-full h-full object-cover"
+          />
           <div className="absolute top-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium">
             {afterLabel}
           </div>
