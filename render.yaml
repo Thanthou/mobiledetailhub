@@ -11,15 +11,17 @@ buildCommand: |
   rm -rf node_modules package-lock.json
   npm cache clean --force
   npm install --omit=dev
-  # Verify Express installation is complete
-  echo "Checking Express router module:"
-  ls -la node_modules/express/lib/router/ || echo "Router directory missing!"
+  # Verify critical dependencies are installed
+  echo "Checking critical dependencies:"
+  ls -la node_modules/bcryptjs/ || echo "bcryptjs missing!"
+  ls -la node_modules/express/lib/router/ || echo "Express router missing!"
   # Run migrations
   npm run migrate
   # Install frontend dependencies and build (separate context)
   cd ../frontend
   rm -rf node_modules package-lock.json
-  npm install --omit=dev
+  npm cache clean --force
+  npm install --include=dev
   npm run build
   # Copy frontend build to backend public directory
   mkdir -p ../backend/public
@@ -27,8 +29,9 @@ buildCommand: |
   # Final verification
   echo "Backend public contents:"
   ls -la ../backend/public/
-  echo "Express router verification:"
-  ls -la ../backend/node_modules/express/lib/router/
+  echo "Backend dependencies verification:"
+  ls -la ../backend/node_modules/bcryptjs/ || echo "bcryptjs missing in final check!"
+  ls -la ../backend/node_modules/express/lib/router/ || echo "Express router missing in final check!"
 startCommand: |
   cd backend
   echo "Verifying Express installation before start:"
