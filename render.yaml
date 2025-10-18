@@ -27,9 +27,12 @@ services:
       echo "==> Replacing backend/public with fresh build (atomic copy)..."
       rm -rf ../backend/public
       mkdir -p ../backend/public/tenant
-      cp -r dist/* ../backend/public/tenant/
+      mkdir -p ../backend/public/admin
+      cp -r dist/tenant/* ../backend/public/tenant/
+      cp -r dist/admin/* ../backend/public/admin/
       echo "==> Final verification..."
       ls -la ../backend/public/tenant/
+      ls -la ../backend/public/admin/
 
     startCommand: |
       echo "==> Current working directory: $(pwd)"
