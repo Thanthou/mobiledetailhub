@@ -17,9 +17,9 @@ async function createProductionAdmin() {
     console.log('🔑 Creating production admin user...');
     
     // Get admin credentials from environment or use defaults
-    const adminEmail = process.env.ADMIN_EMAIL || 'admin@thatsmartsite.com';
-    const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
-    const adminName = process.env.ADMIN_NAME || 'Brandan Coleman';
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminPassword = process.env.ADMIN_PASSWORD;
+    const adminName = process.env.ADMIN_NAME;
     
     console.log(`📧 Email: ${adminEmail}`);
     console.log(`👤 Name: ${adminName}`);
