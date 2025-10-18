@@ -13,8 +13,11 @@ services:
       echo "==> Installing backend dependencies..."
       cd backend
       npm install
+      echo "==> Fixing debug module..."
+      rm -rf node_modules/debug
+      npm install debug --force
       echo "==> Installing critical runtime dependencies..."
-      npm install bcryptjs express pg cors dotenv jsonwebtoken debug
+      npm install bcryptjs express pg cors dotenv jsonwebtoken
 
       echo "==> Installing frontend dependencies..."
       cd ../frontend
