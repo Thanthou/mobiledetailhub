@@ -50,7 +50,7 @@ const EnvSchema = z.object({
   ADMIN_PASSWORD: z.string().optional(),
   
   // Stripe
-  STRIPE_SECRET_KEY: z.string().startsWith('sk_'),
+  STRIPE_SECRET_KEY: z.string().startsWith('sk_').optional(),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
   
   // Email Service (SendGrid)

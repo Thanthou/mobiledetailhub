@@ -209,10 +209,19 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 3001
 const HOST = '0.0.0.0'
 
-app.listen(PORT, HOST, () => {
-  console.log(`✅ Backend server started successfully`)
-  console.log(`🌐 Listening on ${HOST}:${PORT}`)
-  console.log(`🔗 Health check: http://${HOST}:${PORT}/api/health`)
-  console.log(`📊 Detailed health: http://${HOST}:${PORT}/api/health/detailed`)
-  console.log(`🏗️  Environment: ${process.env.NODE_ENV || 'development'}`)
-})
+console.log(`🚀 Starting server on ${HOST}:${PORT}`)
+console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`)
+console.log(`🔗 Database URL exists: ${process.env.DATABASE_URL ? 'YES' : 'NO'}`)
+
+try {
+  app.listen(PORT, HOST, () => {
+    console.log(`✅ Backend server started successfully`)
+    console.log(`🌐 Listening on ${HOST}:${PORT}`)
+    console.log(`🔗 Health check: http://${HOST}:${PORT}/api/health`)
+    console.log(`📊 Detailed health: http://${HOST}:${PORT}/api/health/detailed`)
+    console.log(`🏗️  Environment: ${process.env.NODE_ENV || 'development'}`)
+  })
+} catch (error) {
+  console.error('❌ Failed to start server:', error)
+  process.exit(1)
+}

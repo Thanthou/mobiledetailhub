@@ -35,16 +35,12 @@ services:
 
     startCommand: |
       cd backend
-      echo "==> Waiting for database to become ready..."
-      for i in {1..10}; do
-        node -e "const { Client } = require('pg'); const c = new Client({ connectionString: process.env.DATABASE_URL }); c.connect().then(()=>{console.log('✅ DB ready'); process.exit(0)}).catch(()=>{console.log('DB not ready, retry...'); process.exit(1)});" && break || sleep 5
-      done
-      echo "==> Running migrations at startup..."
-      npm run migrate
-      echo "==> Creating production admin user..."
-      node create-production-admin.js
-      echo "==> Starting app..."
-      npm start
+      echo "==> Starting backend server..."
+      echo "==> PORT: $PORT"
+      echo "==> NODE_ENV: $NODE_ENV"
+      echo "==> DATABASE_URL exists: $([ -n "$DATABASE_URL" ] && echo "YES" || echo "NO")"
+      echo "==> Starting server directly..."
+      node server.js
 
     healthCheckPath: /api/health
 
