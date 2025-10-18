@@ -12,14 +12,15 @@
 const CUSTOM_DOMAIN_MAPPINGS: Record<string, string> = {
   'jpsdetailing.com': 'jps',
   'example.com': 'example',
-  'thatsmartsite-backend.onrender.com': 'testing-mobile-detail',
+  'thatsmartsite.com': 'main-site', // Main site for admin dashboard
+  'thatsmartsite-backend.onrender.com': 'main-site', // Render URL for admin dashboard
   // Add more domain mappings as needed
 };
 
 /**
  * Reserved subdomains that should not be treated as tenant slugs
  */
-const RESERVED_SUBDOMAINS = ['www', 'thatsmartsite', 'api', 'admin', 'staging', 'dev'];
+const RESERVED_SUBDOMAINS = ['www', 'thatsmartsite', 'api', 'admin', 'staging', 'dev', 'main-site'];
 
 /**
  * Extract tenant slug from subdomain
@@ -77,7 +78,7 @@ function getTenantFromCustomDomain(hostname: string): string | null {
  */
 export function getTenantFromDomain(
   hostname: string = window.location.hostname,
-  defaultSlug: string = 'jps'
+  defaultSlug: string = 'main-site'
 ): string {
   // Try subdomain approach first
   const subdomainSlug = getTenantFromSubdomain(hostname);
