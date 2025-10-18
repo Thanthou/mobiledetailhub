@@ -1,6 +1,6 @@
 # SEO Report (Auto-Generated)
 
-Generated: 2025-10-18T07:39:46.860Z
+Generated: 2025-10-18T08:29:50.099Z
 
 This file summarizes detected SEO signals and TODOs. Edit conventions in `/docs/SEO.md` by replacing this file with a curated version if needed.
 

@@ -270,6 +270,7 @@ import { manualChunks } from './config/chunks';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: './', // Important for multi-entry builds
   plugins: [
     react(),
     // Bundle analyzer - only in build mode
@@ -22137,20 +22138,46 @@ app.get('/api/health', (req, res) => {
   })
 })
 
-// Serve static assets FIRST with proper cache headers
-app.use('/assets', express.static(path.join(__dirname, 'public', 'assets'), {
-  maxAge: '1y', // Cache static assets for 1 year
-  etag: true,
-  lastModified: true,
-  setHeaders: (res, path) => {
-    // Set immutable cache for hashed assets (JS/CSS)
-    if (path.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg)$/)) {
-      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
-    }
-  }
-}))
+// 1️⃣ Serve *all* built assets first (shared for both apps)
+// In production, assets are in backend/public/dist/assets
+// In development, they're in frontend/dist/assets
+const assetsPath = process.env.NODE_ENV === 'production' 
+  ? path.join(__dirname, 'public', 'dist', 'assets')
+  : path.join(__dirname, '../frontend/dist/assets');
 
-// Serve other static files (shared, images, etc.)
+app.use(
+  '/assets',
+  express.static(assetsPath, {
+    maxAge: '1y',
+    immutable: true,
+  })
+);
+
+// 2️⃣ Serve admin-specific files
+const adminPath = process.env.NODE_ENV === 'production'
+  ? path.join(__dirname, 'public', 'dist', 'admin')
+  : path.join(__dirname, '../frontend/dist/admin');
+
+app.use(
+  '/admin',
+  express.static(adminPath, {
+    maxAge: '1h',
+  })
+);
+
+// 3️⃣ Serve tenant-specific files
+const tenantPath = process.env.NODE_ENV === 'production'
+  ? path.join(__dirname, 'public', 'dist', 'tenant')
+  : path.join(__dirname, '../frontend/dist/tenant');
+
+app.use(
+  '/tenant',
+  express.static(tenantPath, {
+    maxAge: '1h',
+  })
+);
+
+// 4️⃣ Serve other static files (shared, images, etc.)
 app.use(express.static(path.join(__dirname, 'public'), {
   maxAge: '1y',
   etag: true,
@@ -22163,26 +22190,21 @@ app.use(express.static(path.join(__dirname, 'public'), {
   }
 }))
 
-// Dynamic routing middleware: serve correct app based on domain
-// This should be LAST to catch only non-static routes
+// 5️⃣ Fallback router (domain-based HTML only)
 app.get('*', (req, res) => {
   const host = req.hostname.toLowerCase();
-  
-  // Admin domains - serve admin app
-  const isAdminDomain = [
-    'localhost',
-    '127.0.0.1',
-    'thatsmartsite.com',
-    'www.thatsmartsite.com',
-    'thatsmartsite-backend.onrender.com'
-  ].includes(host);
+  const isAdminDomain =
+    host === 'thatsmartsite.com' ||
+    host === 'www.thatsmartsite.com' ||
+    host === 'localhost' ||
+    host === '127.0.0.1' ||
+    host === 'thatsmartsite-backend.onrender.com';
 
-  if (isAdminDomain) {
-    res.sendFile(path.join(__dirname, 'public', 'admin', 'index.html'));
-  } else {
-    // Tenant subdomains - serve tenant app
-    res.sendFile(path.join(__dirname, 'public', 'tenant', 'index.html'));
-  }
+  const htmlFile = isAdminDomain
+    ? path.join(__dirname, process.env.NODE_ENV === 'production' ? 'public/dist/admin/index.html' : '../frontend/dist/admin/index.html')
+    : path.join(__dirname, process.env.NODE_ENV === 'production' ? 'public/dist/tenant/index.html' : '../frontend/dist/tenant/index.html');
+
+  res.sendFile(htmlFile);
 })
 
 // Centralized error handler middleware
@@ -27337,7 +27359,7 @@ const requiredEnvVars = {
   PORT: 'Server port (optional, defaults to 3001)',
   
   // Admin Configuration
-  ADMIN_PASSWORD: 'Admin password (optional, defaults to admin123)',
+  ADMIN_PASSWORD: 'Admin password (required for production)',
   
   // Optional Configuration
   NODE_ENV: 'Node environment (optional, defaults to development)',
@@ -27347,8 +27369,7 @@ const requiredEnvVars = {
 
 const optionalEnvVars = {
   NODE_ENV: 'development',
-  PORT: '3001',
-  ADMIN_PASSWORD: 'admin123'
+  PORT: '3001'
 };
 
 // Weak secret patterns to detect and block
@@ -114437,30 +114458,37 @@ services:
       npm install --omit=dev
       echo "==> Installing critical runtime dependencies..."
       npm install bcryptjs express pg cors dotenv jsonwebtoken
-      echo "==> Verifying bcryptjs installation..."
-      ls -la node_modules/bcryptjs/ || echo "ERROR: bcryptjs missing!"
-      echo "==> Running database migrations..."
-      npm run migrate
-      
-      echo "==> Creating production admin user..."
-      node create-production-admin.js
 
       echo "==> Installing frontend dependencies..."
       cd ../frontend
       npm install --include=dev
       echo "==> Building frontend with dual entry points..."
       npm run build
-
       echo "==> Copying frontend builds to backend public directory..."
       mkdir -p ../backend/public/admin
       mkdir -p ../backend/public/tenant
       cp -r dist/admin/* ../backend/public/admin/
       cp -r dist/tenant/* ../backend/public/tenant/
+      echo "==> Copying shared assets..."
+      cp -r dist/assets ../backend/public/
       echo "==> Final verification..."
       ls -la ../backend/public/admin/ || echo "ERROR: Admin build not copied!"
       ls -la ../backend/public/tenant/ || echo "ERROR: Tenant build not copied!"
+      ls -la ../backend/public/assets/ || echo "ERROR: Assets not copied!"
 
-    startCommand: cd backend && npm start
+    startCommand: |
+      cd backend
+      echo "==> Waiting for database to become ready..."
+      for i in {1..10}; do
+        node -e "const { Client } = require('pg'); const c = new Client({ connectionString: process.env.DATABASE_URL }); c.connect().then(()=>{console.log('✅ DB ready'); process.exit(0)}).catch(()=>{console.log('DB not ready, retry...'); process.exit(1)});" && break || sleep 5
+      done
+      echo "==> Running migrations at startup..."
+      npm run migrate
+      echo "==> Creating production admin user..."
+      node create-production-admin.js
+      echo "==> Starting app..."
+      npm start
+
     healthCheckPath: /api/health
 
     envVars:
@@ -114489,7 +114517,7 @@ services:
       - key: ADMIN_EMAIL
         value: admin@thatsmartsite.com
       - key: ADMIN_PASSWORD
-        value: admin123
+        value: ThatsSmartSite2024!SecureAdmin
       - key: ADMIN_NAME
         value: Brandan Coleman
       - key: ALLOWED_ORIGINS
@@ -114500,6 +114528,7 @@ databases:
     plan: basic-256mb
     region: oregon
     ipAllowList: []  # internal access only
+
 
 *** END FILE ***
 
@@ -116852,7 +116881,7 @@ const CUSTOM_DOMAIN_MAPPINGS: Record<string, string> = {
 ## Summary
 ```json
 {
-  "generated": "2025-10-18T07:39:46.839Z",
+  "generated": "2025-10-18T08:29:50.078Z",
   "projectRoot": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh",
   "targetFolder": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh",
   "counts": {
@@ -117067,6 +117096,7 @@ mdh/
     TENANT_ONBOARDING_TEST_GUIDE.md
   eslint.config.js
   frontend/
+    backend/
     config/
       chunks.ts
       env.ts
