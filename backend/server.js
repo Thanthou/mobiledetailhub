@@ -134,9 +134,25 @@ app.use(express.static(path.join(__dirname, 'public'), {
   }
 }))
 
-// Catch-all handler: send back React's index.html file for any non-API routes
+// Dynamic routing middleware: serve correct app based on domain
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'))
+  const host = req.hostname.toLowerCase();
+  
+  // Admin domains - serve admin app
+  const isAdminDomain = [
+    'localhost',
+    '127.0.0.1',
+    'thatsmartsite.com',
+    'www.thatsmartsite.com',
+    'thatsmartsite-backend.onrender.com'
+  ].includes(host);
+
+  if (isAdminDomain) {
+    res.sendFile(path.join(__dirname, 'public', 'admin', 'index.html'));
+  } else {
+    // Tenant subdomains - serve tenant app
+    res.sendFile(path.join(__dirname, 'public', 'tenant', 'index.html'));
+  }
 })
 
 // Centralized error handler middleware

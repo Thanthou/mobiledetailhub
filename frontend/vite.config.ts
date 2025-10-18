@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { URL } from 'node:url';
 import { defineConfig } from 'vite';
 import { visualizer } from 'rollup-plugin-visualizer';
+import path from 'path';
 
 import { manualChunks } from './config/chunks';
 
@@ -65,6 +66,11 @@ export default defineConfig({
     // DEBUG: Always enable source maps for debugging
     sourcemap: true,
     rollupOptions: {
+      // Multiple entry points for admin and tenant apps
+      input: {
+        admin: path.resolve(__dirname, 'src/admin-app/index.html'),
+        tenant: path.resolve(__dirname, 'src/tenant-app/index.html'),
+      },
       // Exclude problematic files from build
       external: (id) => {
         return id.includes('.legacy') || id.includes('_archive');

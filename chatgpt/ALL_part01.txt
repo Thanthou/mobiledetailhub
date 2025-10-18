@@ -26278,6 +26278,12 @@ async function getTenantBySlug(slug) {
   
   const tenant = result.rows[0];
   
+  // Ensure boolean fields are properly mapped
+  tenant.facebook_enabled = Boolean(tenant.facebook_enabled);
+  tenant.instagram_enabled = Boolean(tenant.instagram_enabled);
+  tenant.tiktok_enabled = Boolean(tenant.tiktok_enabled);
+  tenant.youtube_enabled = Boolean(tenant.youtube_enabled);
+  
   // Parse service_areas JSON if it's a string
   if (typeof tenant.service_areas === 'string') {
     try {
@@ -40391,7 +40397,7 @@ export { validateLocationData, validateAllLocationFiles };
 *** END FILE ***
 
 *** FILE: frontend\src\app\App.tsx ***
-import { lazy, Suspense, useState } from 'react';
+import { lazy, Suspense, useState, useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { DashboardPage as AdminDashboard } from '@/features/adminDashboard';
@@ -40410,6 +40416,36 @@ import { Providers } from './providers';
 // Heavy modules are NOT imported here - they stay out of the initial bundle
 const Booking = lazy(() => import('../features/booking/BookingApp'));
 
+// Component to handle hostname-based routing safely
+const RootRouteHandler = () => {
+  const [shouldRedirectToAdmin, setShouldRedirectToAdmin] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    // Check hostname on client side only
+    const hostname = window.location.hostname;
+    const isAdminDomain = hostname === 'localhost' || 
+                         hostname === '127.0.0.1' ||
+                         hostname === 'thatsmartsite-backend.onrender.com' ||
+                         hostname === 'thatsmartsite.com' ||
+                         hostname === 'www.thatsmartsite.com';
+    
+    setShouldRedirectToAdmin(isAdminDomain);
+  }, []);
+
+  // Show loading while determining route
+  if (shouldRedirectToAdmin === null) {
+    return <div className="p-8 text-white">Loading…</div>;
+  }
+
+  // Redirect to admin dashboard for main domains
+  if (shouldRedirectToAdmin) {
+    return <Navigate to="/admin-dashboard" replace />;
+  }
+
+  // Show tenant page for subdomains
+  return <TenantPage />;
+};
+
 export default function App() {
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
 
@@ -40425,11 +40461,7 @@ export default function App() {
     <Suspense fallback={<div className="p-8 text-white">Loading…</div>}>
       <Routes>
         {/* Only redirect to admin dashboard if on main domain, not tenant subdomains */}
-        <Route path="/" element={
-          window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-            ? <Navigate to="/admin-dashboard" replace />
-            : <TenantPage />
-        } />
+        <Route path="/" element={<RootRouteHandler />} />
         
         {/* Login route */}
         <Route path="/login" element={<LoginPage />} />
@@ -77464,25 +77496,14 @@ import React, { useState, useEffect } from 'react';
 import { Building2, Link, User } from 'lucide-react';
 
 import { AutoSaveField } from './AutoSaveField';
+import { useProfileData } from '../hooks/useProfileData';
 
-interface ProfileFormProps {
-  businessData: any;
-  onUpdate: (data: any) => Promise<boolean>;
-  isUpdating: boolean;
-}
-
-const ProfileForm: React.FC<ProfileFormProps> = ({ businessData, onUpdate, isUpdating }) => {
-
+const ProfileForm: React.FC = () => {
+  const { businessData, updateBusiness, isUpdating } = useProfileData();
+  
   const handleSocialMediaToggle = async (platform: string, enabled: boolean) => {
     const fieldName = `${platform}_enabled` as keyof BusinessData;
-    console.log(`🔄 Toggling ${platform} to ${enabled}, field: ${fieldName}`);
-    
-    // Update the data immediately for instant UI feedback
-    if (businessData) {
-      const updatedData = { ...businessData, [fieldName]: enabled };
-      // Force a re-render by updating the parent component's data
-      onUpdate({ [fieldName]: enabled });
-    }
+    await updateBusiness({ [fieldName]: enabled });
   };
 
   return (
@@ -78017,19 +78038,8 @@ export const useProfileData = (): UseProfileDataReturn => {
       const result = await response.json() as { data?: BusinessData };
       const updatedData = result.data;
       
-      console.log('🔄 Update response:', result);
-      console.log('🔄 Updated data:', updatedData);
-      console.log('🔄 Facebook enabled:', updatedData?.facebook_enabled);
-      console.log('🔄 Instagram enabled:', updatedData?.instagram_enabled);
-      console.log('🔄 TikTok enabled:', updatedData?.tiktok_enabled);
-      console.log('🔄 YouTube enabled:', updatedData?.youtube_enabled);
-      
-      if (updatedData) {
-        setBusinessData(updatedData);
-        console.log('✅ Business data updated');
-      } else {
-        console.log('❌ No updated data received');
-      }
+      // Always update local state with the specific field that was changed
+      setBusinessData(prev => ({ ...prev, ...updateData }));
       
       return true;
     } catch (err) {
@@ -78099,11 +78109,7 @@ const ProfileTab: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <ProfileForm
-        businessData={businessData}
-        onUpdate={updateBusiness}
-        isUpdating={isUpdating}
-      />
+      <ProfileForm />
     </div>
   );
 };
@@ -101900,15 +101906,13 @@ export interface Business {
   website: string;
   gbp_url: string | null;
   facebook_url: string | null;
+  facebook_enabled: boolean;
   youtube_url: string | null;
+  youtube_enabled: boolean;
   tiktok_url: string | null;
+  tiktok_enabled: boolean;
   instagram_url: string | null;
-  social_media: {
-    facebook: { url: string; enabled: boolean };
-    instagram: { url: string; enabled: boolean };
-    tiktok: { url: string; enabled: boolean };
-    youtube: { url: string; enabled: boolean };
-  };
+  instagram_enabled: boolean;
   industry: string;
   created_at: string;
   updated_at: string;
@@ -112763,7 +112767,7 @@ export interface SocialMediaPlatform {
 
 /**
  * Transform business social media data into a clean object
- * Uses new social_media structure with enabled/url fields
+ * Uses individual enabled/url columns
  * Only includes platforms that are enabled and have non-empty URLs
  * 
  * @param business - Business data from API
@@ -112778,41 +112782,22 @@ export interface SocialMediaPlatform {
 export function transformSocialMedia(business: Business): SocialMediaLinks {
   const socials: SocialMediaLinks = {};
   
-  // Use new social_media structure if available, otherwise fall back to old fields
-  if (business.social_media) {
-    // New structure: only show if enabled
-    if (business.social_media.facebook.enabled) {
-      socials.facebook = business.social_media.facebook.url || '';
-    }
-    
-    if (business.social_media.instagram.enabled) {
-      socials.instagram = business.social_media.instagram.url || '';
-    }
-    
-    if (business.social_media.youtube.enabled) {
-      socials.youtube = business.social_media.youtube.url || '';
-    }
-    
-    if (business.social_media.tiktok.enabled) {
-      socials.tiktok = business.social_media.tiktok.url || '';
-    }
-  } else {
-    // Fallback to old individual URL fields for backward compatibility
-    if (business.facebook_url?.trim()) {
-      socials.facebook = business.facebook_url;
-    }
-    
-    if (business.instagram_url?.trim()) {
-      socials.instagram = business.instagram_url;
-    }
-    
-    if (business.youtube_url?.trim()) {
-      socials.youtube = business.youtube_url;
-    }
-    
-    if (business.tiktok_url?.trim()) {
-      socials.tiktok = business.tiktok_url;
-    }
+  // Use individual enabled/url columns
+  // Show if enabled (with or without URL)
+  if (business.facebook_enabled) {
+    socials.facebook = business.facebook_url?.trim() || '';
+  }
+  
+  if (business.instagram_enabled) {
+    socials.instagram = business.instagram_url?.trim() || '';
+  }
+  
+  if (business.youtube_enabled) {
+    socials.youtube = business.youtube_url?.trim() || '';
+  }
+  
+  if (business.tiktok_enabled) {
+    socials.tiktok = business.tiktok_url?.trim() || '';
   }
   
   // Google Business Profile is still handled separately
@@ -112910,23 +112895,11 @@ export function formatBusinessPhone(phone?: string): string {
  * @returns True if at least one social media link exists
  */
 export function hasSocialMedia(business: Business): boolean {
-  // Use new social_media structure if available
-  if (business.social_media) {
-    return !!(
-      (business.social_media.facebook.enabled && business.social_media.facebook.url?.trim()) ||
-      (business.social_media.instagram.enabled && business.social_media.instagram.url?.trim()) ||
-      (business.social_media.youtube.enabled && business.social_media.youtube.url?.trim()) ||
-      (business.social_media.tiktok.enabled && business.social_media.tiktok.url?.trim()) ||
-      business.gbp_url?.trim()
-    );
-  }
-  
-  // Fallback to old individual URL fields
   return !!(
-    business.facebook_url?.trim() ||
-    business.instagram_url?.trim() ||
-    business.youtube_url?.trim() ||
-    business.tiktok_url?.trim() ||
+    business.facebook_enabled ||
+    business.instagram_enabled ||
+    business.youtube_enabled ||
+    business.tiktok_enabled ||
     business.gbp_url?.trim()
   );
 }
@@ -116477,7 +116450,7 @@ const CUSTOM_DOMAIN_MAPPINGS: Record<string, string> = {
 ## Summary
 ```json
 {
-  "generated": "2025-10-18T06:17:20.744Z",
+  "generated": "2025-10-18T07:04:10.298Z",
   "projectRoot": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh",
   "targetFolder": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh",
   "counts": {

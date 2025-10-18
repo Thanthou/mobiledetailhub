@@ -26,14 +26,17 @@ services:
       echo "==> Installing frontend dependencies..."
       cd ../frontend
       npm install --include=dev
-      echo "==> Building frontend..."
+      echo "==> Building frontend with dual entry points..."
       npm run build
 
-      echo "==> Copying frontend build to backend public directory..."
-      mkdir -p ../backend/public
-      cp -r dist/* ../backend/public/
+      echo "==> Copying frontend builds to backend public directory..."
+      mkdir -p ../backend/public/admin
+      mkdir -p ../backend/public/tenant
+      cp -r dist/admin/* ../backend/public/admin/
+      cp -r dist/tenant/* ../backend/public/tenant/
       echo "==> Final verification..."
-      ls -la ../backend/public/ || echo "ERROR: Frontend build not copied!"
+      ls -la ../backend/public/admin/ || echo "ERROR: Admin build not copied!"
+      ls -la ../backend/public/tenant/ || echo "ERROR: Tenant build not copied!"
 
     startCommand: cd backend && npm start
     healthCheckPath: /api/health
