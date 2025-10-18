@@ -94,7 +94,7 @@ app.post('/api/debug/body', (req, res) => {
 
 // API Routes - MUST come before static file serving
 app.use('/api/payments', paymentRoutes)
-app.use('/api/health', healthRoutes)
+// Health routes moved to /api/health/detailed (see below)
 app.use('/api/auth', authRoutes)
 app.use('/api/tenants', tenantsRoutes)
 app.use('/api/admin', adminRoutes)
@@ -112,14 +112,18 @@ if (process.env.NODE_ENV !== 'production') {
   app.get('/', (_req, res) => res.send('Backend online 🚀'))
 }
 
-// Explicit health check endpoint for Render
+// Simple health check for Render (no database dependency)
 app.get('/api/health', (req, res) => {
   res.status(200).json({ 
-    ok: true, 
+    status: 'OK',
     timestamp: new Date().toISOString(),
-    service: 'thatsmartsite-backend'
+    service: 'thatsmartsite-backend',
+    uptime: process.uptime()
   })
 })
+
+// Comprehensive health check with database status at /api/health/detailed
+app.use('/api/health/detailed', healthRoutes)
 
 // 1️⃣ Serve *all* built assets first (shared for both apps)
 // In production, assets are in backend/public/dist/assets
@@ -203,6 +207,12 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3001
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`✅ Backend running on http://localhost:${PORT} (LAN enabled)`)
+const HOST = '0.0.0.0'
+
+app.listen(PORT, HOST, () => {
+  console.log(`✅ Backend server started successfully`)
+  console.log(`🌐 Listening on ${HOST}:${PORT}`)
+  console.log(`🔗 Health check: http://${HOST}:${PORT}/api/health`)
+  console.log(`📊 Detailed health: http://${HOST}:${PORT}/api/health/detailed`)
+  console.log(`🏗️  Environment: ${process.env.NODE_ENV || 'development'}`)
 })
