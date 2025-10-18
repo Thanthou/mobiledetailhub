@@ -1,26 +1,24 @@
-# Render.com Monolithic Full-Stack Service
-# This serves both frontend and backend from one service
-
 type: web
 name: thatsmartsite
 env: node
 plan: starter
 buildCommand: |
-  # Clean install backend dependencies (stay in backend context)
+  # Clean install backend dependencies
   cd backend
   rm -rf node_modules package-lock.json
   npm cache clean --force
   npm install --omit=dev
-  # Ensure critical runtime dependencies are installed
+  # Explicitly install critical runtime dependencies
   echo "Installing critical runtime dependencies:"
   npm install bcryptjs express pg cors dotenv jsonwebtoken
-  # Verify critical dependencies are installed
-  echo "Checking critical dependencies:"
-  ls -la node_modules/bcryptjs/ || echo "bcryptjs missing!"
-  ls -la node_modules/express/lib/router/ || echo "Express router missing!"
-  # Run migrations
+  # Verify critical dependencies
+  echo "Verifying bcryptjs installation:"
+  ls -la node_modules/bcryptjs/ || echo "ERROR: bcryptjs still missing!"
+  echo "Verifying Express installation:"
+  ls -la node_modules/express/lib/router/ || echo "ERROR: Express router missing!"
+  # Run database migrations
   npm run migrate
-  # Install frontend dependencies and build (separate context)
+  # Install frontend dependencies and build
   cd ../frontend
   rm -rf node_modules package-lock.json
   npm cache clean --force
@@ -30,16 +28,18 @@ buildCommand: |
   mkdir -p ../backend/public
   cp -r dist/* ../backend/public/
   # Final verification
-  echo "Backend public contents:"
+  echo "Final verification - Backend dependencies:"
+  ls -la ../backend/node_modules/bcryptjs/ || echo "ERROR: bcryptjs missing in final check!"
+  ls -la ../backend/node_modules/express/lib/router/ || echo "ERROR: Express router missing in final check!"
+  echo "Frontend build copied successfully:"
   ls -la ../backend/public/
-  echo "Backend dependencies verification:"
-  ls -la ../backend/node_modules/bcryptjs/ || echo "bcryptjs missing in final check!"
-  ls -la ../backend/node_modules/express/lib/router/ || echo "Express router missing in final check!"
 startCommand: |
   cd backend
-  echo "Verifying Express installation before start:"
-  ls -la node_modules/express/lib/router/ || echo "ERROR: Express router missing!"
-  node -e "console.log('Testing Express import...'); import('express').then(e => console.log('Express version:', e.default.version)).catch(err => console.error('Express import failed:', err))"
+  echo "Pre-start verification:"
+  ls -la node_modules/bcryptjs/ || echo "ERROR: bcryptjs missing at startup!"
+  ls -la node_modules/express/lib/router/ || echo "ERROR: Express router missing at startup!"
+  node -e "console.log('Testing bcryptjs import...'); import('bcryptjs').then(() => console.log('✅ bcryptjs OK')).catch(err => console.error('❌ bcryptjs import failed:', err))"
+  node -e "console.log('Testing Express import...'); import('express').then(e => console.log('✅ Express version:', e.default.version)).catch(err => console.error('❌ Express import failed:', err))"
   npm start
 envVars:
   - key: NODE_ENV
