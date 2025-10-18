@@ -3,14 +3,46 @@ if (!process.env.LOG_LEVEL) {
   process.env.LOG_LEVEL = 'error'
 }
 
-// Load environment variables from root .env file
+// Load environment variables from .env file (if it exists)
 import dotenv from 'dotenv'
 import path from 'path'
-dotenv.config({ path: path.resolve(process.cwd(), '../.env') })
+import { existsSync } from 'fs'
+
+// Try to load .env from multiple locations
+const envPaths = [
+  path.resolve(process.cwd(), '.env'),           // Current directory
+  path.resolve(process.cwd(), '../.env'),        // Parent directory (dev)
+  path.resolve(process.cwd(), '../../.env')      // Root directory (dev)
+]
+
+for (const envPath of envPaths) {
+  if (existsSync(envPath)) {
+    console.log(`📄 Loading .env from: ${envPath}`)
+    dotenv.config({ path: envPath })
+    break
+  }
+}
+
+// In production, environment variables should be set by the platform
+if (process.env.NODE_ENV === 'production') {
+  console.log('🏭 Production mode: Using platform environment variables')
+}
 
 import express from 'express'
 import cors from 'cors'
 import { fileURLToPath } from 'url'
+
+// Test environment validation early
+try {
+  console.log('🔍 Testing environment validation...')
+  const { env } = await import('./config/env.js')
+  console.log('✅ Environment validation passed')
+} catch (error) {
+  console.error('❌ Environment validation failed:', error.message)
+  console.error('This will cause the server to fail to start')
+  process.exit(1)
+}
+
 import { tenantResolver } from './middleware/tenantResolver.js'
 import paymentRoutes from './routes/payments.js'
 import healthRoutes from './routes/health.js'
@@ -212,6 +244,9 @@ const HOST = '0.0.0.0'
 console.log(`🚀 Starting server on ${HOST}:${PORT}`)
 console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`)
 console.log(`🔗 Database URL exists: ${process.env.DATABASE_URL ? 'YES' : 'NO'}`)
+console.log(`🔑 JWT_SECRET exists: ${process.env.JWT_SECRET ? 'YES' : 'NO'}`)
+console.log(`💳 STRIPE_SECRET_KEY exists: ${process.env.STRIPE_SECRET_KEY ? 'YES' : 'NO'}`)
+console.log(`📧 SENDGRID_API_KEY exists: ${process.env.SENDGRID_API_KEY ? 'YES' : 'NO'}`)
 
 try {
   app.listen(PORT, HOST, () => {
