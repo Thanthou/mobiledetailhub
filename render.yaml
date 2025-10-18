@@ -15,11 +15,7 @@ services:
       npm install --omit=dev
       echo "==> Installing critical runtime dependencies..."
       npm install bcryptjs express pg cors dotenv jsonwebtoken
-      echo "==> Verifying bcryptjs installation..."
-      ls -la node_modules/bcryptjs/ || echo "ERROR: bcryptjs missing!"
-      echo "==> Running database migrations..."
-      npm run migrate
-      
+
       echo "==> Creating production admin user..."
       node create-production-admin.js
 
@@ -28,17 +24,19 @@ services:
       npm install --include=dev
       echo "==> Building frontend with dual entry points..."
       npm run build
-
       echo "==> Copying frontend build to backend public directory..."
       mkdir -p ../backend/public
       cp -r dist ../backend/public/
       echo "==> Final verification..."
-      ls -la ../backend/public/dist/ || echo "ERROR: Frontend build not copied!"
-      ls -la ../backend/public/dist/admin/ || echo "ERROR: Admin build not copied!"
-      ls -la ../backend/public/dist/tenant/ || echo "ERROR: Tenant build not copied!"
-      ls -la ../backend/public/dist/assets/ || echo "ERROR: Assets not copied!"
+      ls -la ../backend/public/dist/
 
-    startCommand: cd backend && npm start
+    startCommand: |
+      cd backend
+      echo "==> Running migrations at startup..."
+      npm run migrate
+      echo "==> Starting app..."
+      npm start
+
     healthCheckPath: /api/health
 
     envVars:
