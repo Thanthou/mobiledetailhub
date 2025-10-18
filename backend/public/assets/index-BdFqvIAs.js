@@ -1,4 +1,4 @@
-import './index-Coue8Rrv.js';
+import './index-BSSqmK5z.js';
 
 const Cessna = [
 	"172 Skyhawk",
@@ -2952,4 +2952,4 @@ const getModelsForMake = (vehicleType, make) => {
 };
 
 export { getModelsForMake as a, getMakesForType as g };
-//# sourceMappingURL=index-B2fI_mHF.js.map
+//# sourceMappingURL=index-BdFqvIAs.js.map

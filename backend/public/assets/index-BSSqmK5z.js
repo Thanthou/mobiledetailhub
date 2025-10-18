@@ -1,4 +1,4 @@
-const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/index-Bkhn5Lfk.js","assets/content-defaults-Df6c8CcD.js","assets/seo-defaults-2tSsldvQ.js","assets/react-vendor-BgPOigzi.js","assets/vendor-CKIjew4F.js","assets/query-vendor-B2vaS9Wk.js","assets/index-SnK3MILq.js","assets/index-C1Due8dp.js","assets/index-BCB-vXej.js","assets/RequestQuoteModal-Cqty0J4C.js","assets/index-B2fI_mHF.js","assets/BookingApp-Ckt9zo-R.js"])))=>i.map(i=>d[i]);
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/index-M6HlCW2q.js","assets/content-defaults-Df6c8CcD.js","assets/seo-defaults-2tSsldvQ.js","assets/react-vendor-BgPOigzi.js","assets/vendor-CKIjew4F.js","assets/query-vendor-B2vaS9Wk.js","assets/index-CaOAHJIp.js","assets/index-vGwooJGq.js","assets/index-6q7zqXVH.js","assets/RequestQuoteModal-Bl1phYWr.js","assets/index-BdFqvIAs.js","assets/BookingApp-BcdzaPf0.js"])))=>i.map(i=>d[i]);
 import { j as jsxRuntimeExports, D as Database, S as Settings, B as BarChart3, a as Star, U as Users, R as React, L as Loader2, A as AlertCircle, C as CheckCircle, r as reactExports, u as useQuery, b as useParams, c as create, d as Link, e as useNavigate, N as Navigate, T as TrendingUp, f as Shield, X as XCircle, h as X, i as AlertTriangle, k as UserPlus, l as UserCog, m as UserCheck, n as UserX, P as Plus, E as ExternalLink, o as Trash2, M as MapPin, p as SiFacebook, q as SiInstagram, s as SiYoutube, t as Menu, v as CreditCard, w as Car, x as Search, y as reactDomExports, z as ChevronDown, F as SiTiktok, G as Phone, H as Mail, I as ChevronLeft, J as ChevronRight, K as useSearchParams, O as Sparkles, Q as Helmet, Z as Zap, V as Eye, W as Calendar, Y as Home, _ as Globe, $ as User, a0 as Building2, a1 as Link$1, a2 as Clock, a3 as DollarSign, a4 as FileText, a5 as Filter, a6 as Save, a7 as Pen, a8 as Truck, a9 as Bot, aa as Bike, ab as Mountain, ac as HelpCircle, ad as MessageSquare, ae as Upload, af as Send, ag as Image$1, ah as RefreshCw, ai as Check, aj as Wrench, ak as Copy, al as Heart, am as ArrowLeft, an as useStripe, ao as useElements, ap as CardElement, aq as Lock, ar as useLocation, as as Elements, at as QueryClientProvider, au as BrowserRouter, av as Routes, aw as Route, ax as createRoot, ay as HelmetProvider } from './react-vendor-BgPOigzi.js';
 import { o as object, b as string, d as boolean, _ as _enum, t as twMerge, e as clsx, n as number, f as array, u as union, r as record, g as unknown, Z as ZodError, P as PropTypes, h as any, j as url, k as email, l as loadStripe } from './vendor-CKIjew4F.js';
 import { b as QueryClient } from './query-vendor-B2vaS9Wk.js';
@@ -1080,19 +1080,19 @@ async function fetchIndustryConfig(industry) {
   try {
     switch (industry) {
       case "mobile-detailing": {
-        const { loadMobileDetailingConfig } = await __vitePreload(async () => { const { loadMobileDetailingConfig } = await import('./index-Bkhn5Lfk.js');return { loadMobileDetailingConfig }},true?__vite__mapDeps([0,1,2,3,4,5]):void 0);
+        const { loadMobileDetailingConfig } = await __vitePreload(async () => { const { loadMobileDetailingConfig } = await import('./index-M6HlCW2q.js');return { loadMobileDetailingConfig }},true?__vite__mapDeps([0,1,2,3,4,5]):void 0);
         return loadMobileDetailingConfig();
       }
       case "pet-grooming": {
-        const { loadPetGroomingConfig } = await __vitePreload(async () => { const { loadPetGroomingConfig } = await import('./index-SnK3MILq.js');return { loadPetGroomingConfig }},true?__vite__mapDeps([6,3,4,5]):void 0);
+        const { loadPetGroomingConfig } = await __vitePreload(async () => { const { loadPetGroomingConfig } = await import('./index-CaOAHJIp.js');return { loadPetGroomingConfig }},true?__vite__mapDeps([6,3,4,5]):void 0);
         return await loadPetGroomingConfig();
       }
       case "maid-service": {
-        const { loadMaidServiceConfig } = await __vitePreload(async () => { const { loadMaidServiceConfig } = await import('./index-C1Due8dp.js');return { loadMaidServiceConfig }},true?__vite__mapDeps([7,3,4,5]):void 0);
+        const { loadMaidServiceConfig } = await __vitePreload(async () => { const { loadMaidServiceConfig } = await import('./index-vGwooJGq.js');return { loadMaidServiceConfig }},true?__vite__mapDeps([7,3,4,5]):void 0);
         return await loadMaidServiceConfig();
       }
       case "lawncare": {
-        const { loadLawncareConfig } = await __vitePreload(async () => { const { loadLawncareConfig } = await import('./index-BCB-vXej.js');return { loadLawncareConfig }},true?__vite__mapDeps([8,3,4,5]):void 0);
+        const { loadLawncareConfig } = await __vitePreload(async () => { const { loadLawncareConfig } = await import('./index-6q7zqXVH.js');return { loadLawncareConfig }},true?__vite__mapDeps([8,3,4,5]):void 0);
         return await loadLawncareConfig();
       }
       default:
@@ -10153,7 +10153,7 @@ const HomePage = ({ onRequestQuote, locationData }) => {
   ] });
 };
 
-const RequestQuoteModal = React.lazy(() => __vitePreload(() => import('./RequestQuoteModal-Cqty0J4C.js'),true?__vite__mapDeps([9,3,4,5,10]):void 0));
+const RequestQuoteModal = React.lazy(() => __vitePreload(() => import('./RequestQuoteModal-Bl1phYWr.js'),true?__vite__mapDeps([9,3,4,5,10]):void 0));
 const LazyRequestQuoteModal = (props) => {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.Suspense, { fallback: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-50 flex items-center justify-center bg-black/50", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-stone-800 text-white p-6 rounded-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-pulse", children: "Loading quote form..." }) }) }), children: /* @__PURE__ */ jsxRuntimeExports.jsx(RequestQuoteModal, { ...props }) });
 };
@@ -10400,22 +10400,22 @@ async function getIndustryTemplate(industry) {
     let config;
     switch (industry) {
       case "mobile-detailing": {
-        const { loadMobileDetailingConfig } = await __vitePreload(async () => { const { loadMobileDetailingConfig } = await import('./index-Bkhn5Lfk.js');return { loadMobileDetailingConfig }},true?__vite__mapDeps([0,1,2,3,4,5]):void 0);
+        const { loadMobileDetailingConfig } = await __vitePreload(async () => { const { loadMobileDetailingConfig } = await import('./index-M6HlCW2q.js');return { loadMobileDetailingConfig }},true?__vite__mapDeps([0,1,2,3,4,5]):void 0);
         config = loadMobileDetailingConfig();
         break;
       }
       case "pet-grooming": {
-        const { loadPetGroomingConfig } = await __vitePreload(async () => { const { loadPetGroomingConfig } = await import('./index-SnK3MILq.js');return { loadPetGroomingConfig }},true?__vite__mapDeps([6,3,4,5]):void 0);
+        const { loadPetGroomingConfig } = await __vitePreload(async () => { const { loadPetGroomingConfig } = await import('./index-CaOAHJIp.js');return { loadPetGroomingConfig }},true?__vite__mapDeps([6,3,4,5]):void 0);
         config = await loadPetGroomingConfig();
         break;
       }
       case "maid-service": {
-        const { loadMaidServiceConfig } = await __vitePreload(async () => { const { loadMaidServiceConfig } = await import('./index-C1Due8dp.js');return { loadMaidServiceConfig }},true?__vite__mapDeps([7,3,4,5]):void 0);
+        const { loadMaidServiceConfig } = await __vitePreload(async () => { const { loadMaidServiceConfig } = await import('./index-vGwooJGq.js');return { loadMaidServiceConfig }},true?__vite__mapDeps([7,3,4,5]):void 0);
         config = await loadMaidServiceConfig();
         break;
       }
       case "lawncare": {
-        const { loadLawncareConfig } = await __vitePreload(async () => { const { loadLawncareConfig } = await import('./index-BCB-vXej.js');return { loadLawncareConfig }},true?__vite__mapDeps([8,3,4,5]):void 0);
+        const { loadLawncareConfig } = await __vitePreload(async () => { const { loadLawncareConfig } = await import('./index-6q7zqXVH.js');return { loadLawncareConfig }},true?__vite__mapDeps([8,3,4,5]):void 0);
         config = await loadLawncareConfig();
         break;
       }
@@ -20574,7 +20574,7 @@ const Providers = ({ children }) => {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorBoundary, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(QueryClientProvider, { client: queryClient, children: /* @__PURE__ */ jsxRuntimeExports.jsx(AuthProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(TenantConfigProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(BrowserRouter, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(WebsiteContentProvider$1, { children }) }) }) }) }) });
 };
 
-const Booking = reactExports.lazy(() => __vitePreload(() => import('./BookingApp-Ckt9zo-R.js'),true?__vite__mapDeps([11,3,4,5,10]):void 0));
+const Booking = reactExports.lazy(() => __vitePreload(() => import('./BookingApp-BcdzaPf0.js'),true?__vite__mapDeps([11,3,4,5,10]):void 0));
 function App() {
   const [isQuoteModalOpen, setIsQuoteModalOpen] = reactExports.useState(false);
   const handleOpenQuoteModal = () => {
@@ -20584,7 +20584,7 @@ function App() {
     setIsQuoteModalOpen(false);
   };
   const routes = /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.Suspense, { fallback: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-8 text-white", children: "Loading…" }), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Routes, { children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/", element: window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Navigate, { to: "/admin-dashboard", replace: true }) : /* @__PURE__ */ jsxRuntimeExports.jsx(TenantPage, {}) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/", element: window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.hostname === "thatsmartsite-backend.onrender.com" || window.location.hostname === "thatsmartsite.com" || window.location.hostname === "www.thatsmartsite.com" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Navigate, { to: "/admin-dashboard", replace: true }) : /* @__PURE__ */ jsxRuntimeExports.jsx(TenantPage, {}) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/login", element: /* @__PURE__ */ jsxRuntimeExports.jsx(LoginPage, {}) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/admin-dashboard", element: /* @__PURE__ */ jsxRuntimeExports.jsx(ProtectedRoute, { requiredRole: "admin", fallbackPath: "/login", children: /* @__PURE__ */ jsxRuntimeExports.jsx(DashboardPage$1, {}) }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/locations/:slug", element: /* @__PURE__ */ jsxRuntimeExports.jsx(HomePage, { onRequestQuote: handleOpenQuoteModal }) }),
@@ -20630,4 +20630,4 @@ createRoot(rootElement).render(
 );
 
 export { Button as B, __variableDynamicImportRuntimeHelper as _, __vitePreload as a, getImageOpacityClasses as b, useDataOptional as c, getVehicleYears as d, cn as e, formatPhoneNumberAsTyped as f, getTransitionStyles as g, apiService as h, useData as i, useTenantConfigLoader as j, assetsData as k, quoteRequestSchema as q, useImageRotation as u };
-//# sourceMappingURL=index-Coue8Rrv.js.map
+//# sourceMappingURL=index-BSSqmK5z.js.map

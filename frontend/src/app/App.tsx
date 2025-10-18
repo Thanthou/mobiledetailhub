@@ -33,7 +33,11 @@ export default function App() {
       <Routes>
         {/* Only redirect to admin dashboard if on main domain, not tenant subdomains */}
         <Route path="/" element={
-          window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+          window.location.hostname === 'localhost' || 
+          window.location.hostname === '127.0.0.1' ||
+          window.location.hostname === 'thatsmartsite-backend.onrender.com' ||
+          window.location.hostname === 'thatsmartsite.com' ||
+          window.location.hostname === 'www.thatsmartsite.com'
             ? <Navigate to="/admin-dashboard" replace />
             : <TenantPage />
         } />

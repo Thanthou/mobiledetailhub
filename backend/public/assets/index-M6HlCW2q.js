@@ -1,4 +1,4 @@
-import { k as assetsData } from './index-Coue8Rrv.js';
+import { k as assetsData } from './index-BSSqmK5z.js';
 import contentDefaults from './content-defaults-Df6c8CcD.js';
 import seoDefaults from './seo-defaults-2tSsldvQ.js';
 import './react-vendor-BgPOigzi.js';
@@ -87,4 +87,4 @@ function loadMobileDetailingConfig() {
 }
 
 export { loadMobileDetailingConfig };
-//# sourceMappingURL=index-Bkhn5Lfk.js.map
+//# sourceMappingURL=index-M6HlCW2q.js.map

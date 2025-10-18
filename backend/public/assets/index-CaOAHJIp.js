@@ -1,4 +1,4 @@
-import { a as __vitePreload } from './index-Coue8Rrv.js';
+import { a as __vitePreload } from './index-BSSqmK5z.js';
 import './react-vendor-BgPOigzi.js';
 import './vendor-CKIjew4F.js';
 import './query-vendor-B2vaS9Wk.js';
@@ -9,4 +9,4 @@ async function loadPetGroomingConfig() {
 }
 
 export { loadPetGroomingConfig };
-//# sourceMappingURL=index-SnK3MILq.js.map
+//# sourceMappingURL=index-CaOAHJIp.js.map
