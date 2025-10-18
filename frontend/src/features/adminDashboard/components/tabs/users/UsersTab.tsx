@@ -7,6 +7,7 @@ import type { UserSubTab } from '@/features/adminDashboard/types';
 import { apiService } from '@/shared/api/api';
 import { Button } from '@/shared/ui';
 import { tenantEventManager } from '@/shared/utils/tenantEventManager';
+import { generateTenantWebsiteUrl, generateTenantDashboardUrl, generateTenantOnboardingUrl } from '@/shared/utils/urlGenerator';
 
 interface User {
   id: number;
@@ -480,7 +481,7 @@ export const UsersTab: React.FC = () => {
                   {user.role === 'tenant' && user.slug && (
                     <div className="flex items-center gap-2">
                       <a
-                        href={`http://${user.slug}.lvh.me:${window.location.port}/`}
+                        href={generateTenantWebsiteUrl(user.slug)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-1 px-3 py-1.5 text-white text-xs rounded transition-colors bg-blue-600 hover:bg-blue-700"
@@ -490,7 +491,7 @@ export const UsersTab: React.FC = () => {
                         Website
                       </a>
                       <a
-                        href={`http://${user.slug}.lvh.me:${window.location.port}/dashboard`}
+                        href={generateTenantDashboardUrl(user.slug)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-1 px-3 py-1.5 text-white text-xs rounded transition-colors bg-green-600 hover:bg-green-700"
@@ -588,7 +589,7 @@ export const UsersTab: React.FC = () => {
             
             {/* Tenant Onboarding Button */}
             <a
-              href="/tenant-onboarding"
+              href={generateTenantOnboardingUrl()}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md transition-colors"
