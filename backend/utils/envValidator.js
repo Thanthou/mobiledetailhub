@@ -22,7 +22,7 @@ const requiredEnvVars = {
   PORT: 'Server port (optional, defaults to 3001)',
   
   // Admin Configuration
-  ADMIN_PASSWORD: 'Admin password (optional, defaults to admin123)',
+  ADMIN_PASSWORD: 'Admin password (required for production)',
   
   // Optional Configuration
   NODE_ENV: 'Node environment (optional, defaults to development)',
@@ -32,8 +32,7 @@ const requiredEnvVars = {
 
 const optionalEnvVars = {
   NODE_ENV: 'development',
-  PORT: '3001',
-  ADMIN_PASSWORD: 'admin123'
+  PORT: '3001'
 };
 
 // Weak secret patterns to detect and block
