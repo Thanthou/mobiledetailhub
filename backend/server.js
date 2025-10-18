@@ -11,6 +11,7 @@ dotenv.config({ path: path.resolve(process.cwd(), '../.env') })
 import express from 'express'
 import cors from 'cors'
 import { fileURLToPath } from 'url'
+import { tenantResolver } from './middleware/tenantResolver.js'
 import paymentRoutes from './routes/payments.js'
 import healthRoutes from './routes/health.js'
 import authRoutes from './routes/auth.js'
@@ -55,18 +56,21 @@ const corsOptions = {
       'http://127.0.0.1:5177'
     ];
     
-    // Production origins
+    // Production origins - include subdomains
     const prodOrigins = [
       'https://thatsmartsite.com',
       'https://www.thatsmartsite.com'
     ];
+    
+    // Allow subdomains of thatsmartsite.com
+    const isSubdomain = /^https:\/\/[a-zA-Z0-9-]+\.thatsmartsite\.com$/.test(origin);
     
     // Check if origin is allowed
     const isDevOrigin = devOrigins.some(devOrigin => origin.startsWith(devOrigin));
     const isProdOrigin = prodOrigins.includes(origin);
     const isNetworkOrigin = /^http:\/\/192\.168\.\d{1,3}\.\d{1,3}:(5175|5176|5177)$/.test(origin);
     
-    const ok = isDevOrigin || isProdOrigin || isNetworkOrigin;
+    const ok = isDevOrigin || isProdOrigin || isNetworkOrigin || isSubdomain;
     cb(null, ok);
   },
   credentials: true,
@@ -75,6 +79,9 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions))
+
+// Tenant resolver middleware - must come before routes
+app.use(tenantResolver)
 
 // ✅ Global parsers BEFORE routes
 app.use(express.json({ limit: '1mb' }))

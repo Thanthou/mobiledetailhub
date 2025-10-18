@@ -313,20 +313,28 @@ export default defineConfig({
     },
   },
   build: {
-    // Enable minification for production builds
-    minify: 'esbuild',
+    // DEBUG: Disable minification to get readable error messages
+    minify: false,
     // Optimize for better performance
     target: 'esnext',
-    // Enable source maps for debugging (disable in production)
-    sourcemap: process.env['NODE_ENV'] !== 'production',
+    // DEBUG: Always enable source maps for debugging
+    sourcemap: true,
     rollupOptions: {
       // Exclude problematic files from build
       external: (id) => {
         return id.includes('.legacy') || id.includes('_archive');
       },
       output: {
-        // Centralized chunk strategy from config/chunks.ts
-        manualChunks,
+        // DEBUG: Split vendor chunks to isolate circular imports
+        manualChunks: (id) => {
+          if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+            return 'react-vendor';
+          }
+          if (id.includes('@tanstack')) return 'query-vendor';
+          if (id.includes('lucide-react')) return 'icons-vendor';
+          if (id.includes('node_modules')) return 'vendor';
+          return undefined;
+        },
         // Optimize chunk file names for better caching
         chunkFileNames: 'assets/[name]-[hash].js',
         entryFileNames: 'assets/[name]-[hash].js',
@@ -642,8 +650,8 @@ import { env } from './env.js';
 const AUTH_CONFIG = {
   ISSUER: 'mdh-backend',
   AUDIENCE: 'mdh-users',
-  ACCESS_EXPIRES_IN: '15m',
-  REFRESH_EXPIRES_IN: '7d',
+  ACCESS_EXPIRES_IN: '24h',  // 24 hours - good for admin sessions
+  REFRESH_EXPIRES_IN: '30d', // 30 days - long-lived refresh tokens
   REFRESH_COOKIE_NAME: 'refresh_token',
   getRefreshCookieOptions() {
     return {
@@ -651,7 +659,7 @@ const AUTH_CONFIG = {
       secure: env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     };
   },
 };
@@ -1817,6 +1825,242 @@ export {
   getIndustries,
   updateTenantBySlug
 };
+
+
+*** END FILE ***
+
+*** FILE: backend\create-admin.js ***
+import bcrypt from 'bcryptjs';
+import { pool } from './database/pool.js';
+
+async function createAdminUser() {
+  try {
+    // Check if admin user already exists
+    const existingUser = await pool.query('SELECT id FROM auth.users WHERE email = $1', ['admin@thatsmartsite.com']);
+    
+    if (existingUser.rows.length > 0) {
+      console.log('✅ Admin user already exists');
+      return;
+    }
+
+    // Hash the password
+    const passwordHash = await bcrypt.hash('admin123', 10);
+    
+    // Create admin user
+    const result = await pool.query(`
+      INSERT INTO auth.users (
+        email, 
+        name, 
+        is_admin, 
+        password_hash, 
+        phone, 
+        email_verified,
+        account_status,
+        created_at,
+        updated_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())
+      RETURNING id, email, name, is_admin
+    `, [
+      'admin@thatsmartsite.com',
+      'Brandan Coleman',
+      true,
+      passwordHash,
+      null,
+      true,
+      'active'
+    ]);
+
+    console.log('✅ Admin user created successfully:', result.rows[0]);
+    
+  } catch (error) {
+    console.error('❌ Error creating admin user:', error.message);
+  } finally {
+    await pool.end();
+  }
+}
+
+createAdminUser();
+
+
+*** END FILE ***
+
+*** FILE: backend\create-main-tenant.js ***
+#!/usr/bin/env node
+
+/**
+ * Create main tenant for the production site
+ * This script creates the default tenant that the frontend expects
+ */
+
+import { pool } from './database/pool.js';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
+
+async function createMainTenant() {
+  try {
+    console.log('🏢 Creating main tenant...');
+    
+    // Check if tenant already exists
+    const existingTenant = await pool.query(
+      'SELECT id, slug, business_name FROM tenants.tenants WHERE slug = $1',
+      ['thatsmartsite-backend']
+    );
+    
+    if (existingTenant.rows.length > 0) {
+      console.log('✅ Main tenant already exists!');
+      console.log(`🏢 Business: ${existingTenant.rows[0].business_name}`);
+      console.log(`🔗 Slug: ${existingTenant.rows[0].slug}`);
+      return;
+    }
+    
+    // Create main tenant
+    const result = await pool.query(`
+      INSERT INTO tenants.tenants (
+        slug,
+        business_name,
+        business_type,
+        email,
+        phone,
+        address,
+        city,
+        state,
+        zip_code,
+        service_area,
+        website_url,
+        status,
+        created_at,
+        updated_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW(), NOW())
+      RETURNING id, slug, business_name, email, phone
+    `, [
+      'thatsmartsite-backend',           // slug
+      'That Smart Site',                 // business_name
+      'Website Generator',               // business_type
+      'admin@thatsmartsite.com',         // email
+      '(555) 123-4580',                  // phone
+      '123 Main St',                     // address
+      'Your City',                       // city
+      'Your State',                      // state
+      '12345',                           // zip_code
+      'Service Area',                    // service_area
+      'https://thatsmartsite.com',       // website_url
+      'active'                           // status
+    ]);
+    
+    if (result.rows.length > 0) {
+      console.log('✅ Main tenant created successfully!');
+      console.log(`🆔 ID: ${result.rows[0].id}`);
+      console.log(`🏢 Business: ${result.rows[0].business_name}`);
+      console.log(`📧 Email: ${result.rows[0].email}`);
+      console.log(`📞 Phone: ${result.rows[0].phone}`);
+      console.log(`🔗 Slug: ${result.rows[0].slug}`);
+    } else {
+      console.error('❌ Failed to create main tenant.');
+    }
+    
+  } catch (error) {
+    console.error('❌ Error creating main tenant:', error);
+    console.error('Stack trace:', error.stack);
+  } finally {
+    await pool.end();
+  }
+}
+
+// Run the script
+createMainTenant();
+
+
+*** END FILE ***
+
+*** FILE: backend\create-production-admin.js ***
+#!/usr/bin/env node
+
+/**
+ * Create admin user for production database
+ * This script connects to the production database and creates the admin user
+ */
+
+import bcrypt from 'bcryptjs';
+import { pool } from './database/pool.js';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
+
+async function createProductionAdmin() {
+  try {
+    console.log('🔑 Creating production admin user...');
+    
+    // Get admin credentials from environment or use defaults
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminPassword = process.env.ADMIN_PASSWORD;
+    const adminName = process.env.ADMIN_NAME;
+    
+    console.log(`📧 Email: ${adminEmail}`);
+    console.log(`👤 Name: ${adminName}`);
+    console.log(`🔑 Password: ${adminPassword}`);
+    
+    // Check if admin already exists
+    const existingAdmin = await pool.query(
+      'SELECT id, email FROM auth.users WHERE email = $1',
+      [adminEmail]
+    );
+    
+    if (existingAdmin.rows.length > 0) {
+      console.log('✅ Admin user already exists!');
+      console.log(`📧 Email: ${existingAdmin.rows[0].email}`);
+      console.log('💡 To reset password, run: node reset-admin-password.js');
+      return;
+    }
+    
+    // Hash the password
+    const passwordHash = await bcrypt.hash(adminPassword, 10);
+    
+    // Create admin user
+    const result = await pool.query(`
+      INSERT INTO auth.users (
+        email, 
+        email_verified, 
+        name, 
+        password_hash, 
+        is_admin, 
+        account_status,
+        created_at,
+        updated_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+      RETURNING id, email, name, is_admin
+    `, [
+      adminEmail,
+      true, // email_verified
+      adminName,
+      passwordHash,
+      true, // is_admin
+      'active' // account_status
+    ]);
+    
+    if (result.rows.length > 0) {
+      console.log('✅ Production admin user created successfully!');
+      console.log(`🆔 ID: ${result.rows[0].id}`);
+      console.log(`📧 Email: ${result.rows[0].email}`);
+      console.log(`👤 Name: ${result.rows[0].name}`);
+      console.log(`🔑 Password: ${adminPassword}`);
+      console.log(`🔐 Hash: ${passwordHash}`);
+    } else {
+      console.error('❌ Failed to create admin user.');
+    }
+    
+  } catch (error) {
+    console.error('❌ Error creating production admin:', error);
+    console.error('Stack trace:', error.stack);
+  } finally {
+    await pool.end();
+  }
+}
+
+// Run the script
+createProductionAdmin();
 
 
 *** END FILE ***
@@ -15007,7 +15251,7 @@ Applied migrations are tracked in `system.schema_migrations` table:
     "compression": "^1.8.1",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
-    "express": "^4.18.2",
+    "express": "4.18.2",
     "express-rate-limit": "^7.1.5",
     "file-type": "^21.0.0",
     "googleapis": "^164.0.0",
@@ -15187,6 +15431,93 @@ The health endpoints provide simple, fast metrics:
 - **Ready endpoint**: Database ping with 250ms timeout (200/503)
 - **Health endpoint**: Query timing and basic pool metrics
 - **Pool status**: Connection counts (total, idle, waiting)
+
+
+*** END FILE ***
+
+*** FILE: backend\reset-admin-password.js ***
+import bcrypt from 'bcryptjs';
+import { pool } from './database/pool.js';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
+
+async function resetAdminPassword() {
+  try {
+    // Get the new password from command line, .env, or use default
+    const newPassword = process.argv[2] || process.env.ADMIN_PASSWORD;
+    
+    console.log(`🔑 Resetting admin password to: ${newPassword}`);
+    console.log('💡 Usage: node reset-admin-password.js [new-password]');
+    console.log('💡 Example: node reset-admin-password.js mynewpassword123');
+    console.log('💡 Or set ADMIN_PASSWORD in .env file');
+    
+    // Hash the new password
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    
+    // Update the admin user's password
+    const result = await pool.query(`
+      UPDATE auth.users 
+      SET password_hash = $1, updated_at = NOW()
+      WHERE email = 'admin@thatsmartsite.com'
+      RETURNING id, email, name, is_admin
+    `, [passwordHash]);
+
+    if (result.rows.length > 0) {
+      console.log('✅ Admin password reset successfully!');
+      console.log('📧 Email: admin@thatsmartsite.com');
+      console.log(`🔑 Password: ${newPassword}`);
+      console.log('🔐 Hash:', passwordHash);
+    } else {
+      console.log('❌ Admin user not found');
+    }
+    
+  } catch (error) {
+    console.error('❌ Error resetting admin password:', error.message);
+  } finally {
+    await pool.end();
+  }
+}
+
+resetAdminPassword();
+
+
+*** END FILE ***
+
+*** FILE: backend\reset-admin.js ***
+import bcrypt from 'bcryptjs';
+import { pool } from './database/pool.js';
+
+async function resetAdminPassword() {
+  try {
+    // Hash the new password
+    const passwordHash = await bcrypt.hash('admin123', 10);
+    
+    // Update the admin user's password
+    const result = await pool.query(`
+      UPDATE auth.users 
+      SET password_hash = $1, updated_at = NOW()
+      WHERE email = 'admin@thatsmartsite.com'
+      RETURNING id, email, name, is_admin
+    `, [passwordHash]);
+
+    if (result.rows.length > 0) {
+      console.log('✅ Admin password reset successfully:', result.rows[0]);
+      console.log('📧 Email: admin@thatsmartsite.com');
+      console.log('🔑 Password: admin123');
+    } else {
+      console.log('❌ Admin user not found');
+    }
+    
+  } catch (error) {
+    console.error('❌ Error resetting admin password:', error.message);
+  } finally {
+    await pool.end();
+  }
+}
+
+resetAdminPassword();
 
 
 *** END FILE ***
@@ -25571,32 +25902,12 @@ app.use(cors(corsOptions))
 app.use(express.json({ limit: '1mb' }))
 app.use(express.urlencoded({ extended: true }))
 
-// Serve static files from frontend/dist in production
-if (process.env.NODE_ENV === 'production') {
-  const frontendPath = path.join(__dirname, '../frontend/dist');
-  app.use(express.static(frontendPath));
-  
-  // Serve frontend for all non-API routes
-  app.get('*', (req, res) => {
-    // Skip API routes
-    if (req.path.startsWith('/api/')) {
-      return res.status(404).json({ error: 'API endpoint not found' });
-    }
-    
-    // Serve index.html for all other routes (SPA routing)
-    res.sendFile(path.join(frontendPath, 'index.html'));
-  });
-} else {
-  // Development: simple health check
-  app.get('/', (_req, res) => res.send('Backend online 🚀'))
-}
-
 // Debug echo route (keep during dev)
 app.post('/api/debug/body', (req, res) => {
   res.json({ headers: req.headers, body: req.body })
 })
 
-// Routes
+// API Routes - MUST come before static file serving
 app.use('/api/payments', paymentRoutes)
 app.use('/api/health', healthRoutes)
 app.use('/api/auth', authRoutes)
@@ -25611,8 +25922,32 @@ app.use('/api/health-monitoring', healthMonitoringRoutes)
 app.use('/api/reviews', reviewsRoutes)
 console.log('Reviews routes loaded at /api/reviews')
 
-// Serve static frontend files
-app.use(express.static(path.join(__dirname, 'public')))
+// Development: simple health check
+if (process.env.NODE_ENV !== 'production') {
+  app.get('/', (_req, res) => res.send('Backend online 🚀'))
+}
+
+// Explicit health check endpoint for Render
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ 
+    ok: true, 
+    timestamp: new Date().toISOString(),
+    service: 'thatsmartsite-backend'
+  })
+})
+
+// Serve static frontend files with proper cache headers
+app.use(express.static(path.join(__dirname, 'public'), {
+  maxAge: '1y', // Cache static assets for 1 year
+  etag: true,
+  lastModified: true,
+  setHeaders: (res, path) => {
+    // Set immutable cache for hashed assets (JS/CSS)
+    if (path.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg)$/)) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
+    }
+  }
+}))
 
 // Catch-all handler: send back React's index.html file for any non-API routes
 app.get('*', (req, res) => {
@@ -25640,6 +25975,7 @@ app.listen(PORT, '0.0.0.0', () => {
 
 *** FILE: backend\services\authService.js ***
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import { pool } from '../database/pool.js';
 import { generateTokenPair } from '../utils/tokenManager.js';
 // import { blacklistToken } from '../utils/tokenManager.js'; // Unused import
@@ -25704,7 +26040,7 @@ async function registerUser(userData, userAgent, ipAddress) {
   const hashedPassword = await bcrypt.hash(password, saltRounds);
 
   // Check if user should be admin based on environment variable
-  const ADMIN_EMAILS = env.ADMIN_EMAILS?.split(',') || [];
+  const ADMIN_EMAILS = env.ADMIN_EMAILS || [];
   const isAdmin = ADMIN_EMAILS.includes(email);
 
   // Create user with admin status if applicable
@@ -25724,15 +26060,15 @@ async function registerUser(userData, userAgent, ipAddress) {
   
   // Store refresh token in database
   const deviceId = generateDeviceId(userAgent, ipAddress);
-  const tokenHash = require('crypto').createHash('sha256').update(tokens.refreshToken).digest('hex');
+  const tokenHash = crypto.createHash('sha256').update(tokens.refreshToken).digest('hex');
   
   await storeRefreshToken(
     result.rows[0].id,
     tokenHash,
     new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
-    deviceId,
+    ipAddress,
     userAgent,
-    ipAddress
+    deviceId
   );
 
   return {
@@ -25779,7 +26115,7 @@ async function loginUser(credentials, userAgent, ipAddress) {
   }
 
   // Check if user should be admin based on environment variable
-  const ADMIN_EMAILS = env.ADMIN_EMAILS?.split(',') || [];
+  const ADMIN_EMAILS = env.ADMIN_EMAILS || [];
   let isAdmin = user.is_admin || false;
   
   // Auto-promote to admin if email is in ADMIN_EMAILS list
@@ -25799,15 +26135,15 @@ async function loginUser(credentials, userAgent, ipAddress) {
   
   // Store refresh token
   const deviceId = generateDeviceId(userAgent, ipAddress);
-  const tokenHash = require('crypto').createHash('sha256').update(tokens.refreshToken).digest('hex');
+  const tokenHash = crypto.createHash('sha256').update(tokens.refreshToken).digest('hex');
   
   await storeRefreshToken(
     user.id,
     tokenHash,
     new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
-    deviceId,
+    ipAddress,
     userAgent,
-    ipAddress
+    deviceId
   );
 
   return {
@@ -30152,6 +30488,22 @@ export {
     </table>
 </body>
 </html>
+
+
+*** END FILE ***
+
+*** FILE: backend\test-password.js ***
+import bcrypt from 'bcryptjs';
+
+const hash = '$2a$10$EAY3D9OdVXpYgby.ATOmheJwqrlTZ423Yg2a.qLzN1Ku1/oj2/LzS';
+
+// Test common passwords
+const passwords = ['admin123', 'admin', 'password', '123456', 'thatsmartsite', 'brandan', 'coleman'];
+
+for (const password of passwords) {
+  const isValid = await bcrypt.compare(password, hash);
+  console.log(`Password "${password}": ${isValid ? '✅ MATCH' : '❌ No match'}`);
+}
 
 
 *** END FILE ***
@@ -41136,14 +41488,16 @@ export default [
     <meta name="theme-color" content="#0b0b0b" />
 
     <!-- Favicon (dynamically updated to match header logo) -->
-    <link rel="icon" type="image/svg+xml" href="" id="favicon" />
-    <link rel="apple-touch-icon" href="" id="apple-touch-icon" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/svg+xml" href="/shared/icons/favicon.svg" id="favicon" />
+    <link rel="apple-touch-icon" href="/shared/icons/logo.png" id="apple-touch-icon" />
+    <link rel="shortcut icon" href="/favicon.ico" />
     
     <!-- PWA Manifest (tenant-specific) -->
     <link rel="manifest" href="/manifest.webmanifest" />
 
     <!-- Meta tags populated by React on page load -->
-    <title id="meta-title">Loading...</title>
+    <title id="meta-title">That Smart Site</title>
     <meta name="description" content="" id="meta-desc" />
     <meta name="keywords" content="" id="meta-keywords" />
     <meta name="robots" content="index,follow" id="meta-robots" />
@@ -43880,7 +44234,7 @@ import { LazyRequestQuoteModal } from '@/features/quotes';
 import { DashboardPage } from '@/features/tenantDashboard';
 import { TenantApplicationPage } from '@/features/tenantOnboarding';
 import { env } from '@/shared/env';
-import { ProtectedRoute } from '@/shared/ui';
+import { LoginPage, ProtectedRoute } from '@/shared/ui';
 
 import HomePage from './pages/HomePage';
 import ServicePage from './pages/ServicePage';
@@ -43905,9 +44259,12 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Navigate to="/admin-dashboard" replace />} />
         
+        {/* Login route */}
+        <Route path="/login" element={<LoginPage />} />
+        
         {/* Admin Dashboard - must come before tenant routes */}
         <Route path="/admin-dashboard" element={
-          <ProtectedRoute requiredRole="admin" fallbackPath="/">
+          <ProtectedRoute requiredRole="admin" fallbackPath="/login">
             <AdminDashboard />
           </ProtectedRoute>
         } />
@@ -98956,6 +99313,32 @@ export default ValidationStatus;
 
 *** END FILE ***
 
+*** FILE: frontend\src\shared\config\api.ts ***
+// API configuration based on environment
+const getApiBaseUrl = () => {
+  // In production, use relative URLs (same domain)
+  if (import.meta.env.PROD) {
+    return '';
+  }
+  
+  // In development, use localhost
+  return 'http://localhost:3001';
+};
+
+export const API_BASE_URL = getApiBaseUrl();
+
+export const API_ENDPOINTS = {
+  AUTH: {
+    LOGIN: `${API_BASE_URL}/api/auth/login`,
+    ME: `${API_BASE_URL}/api/auth/me`,
+    LOGOUT: `${API_BASE_URL}/api/auth/logout`,
+  },
+  HEALTH: `${API_BASE_URL}/api/health`,
+} as const;
+
+
+*** END FILE ***
+
 *** FILE: frontend\src\shared\constants\externalUrls.ts ***
 /**
  * External URLs configuration
@@ -99080,227 +99463,145 @@ export const getAvailableFolderNames = (): string[] => {
 *** END FILE ***
 
 *** FILE: frontend\src\shared\contexts\AuthContext.tsx ***
-import React, { createContext, useCallback, useEffect, useState } from 'react';
-
-import { apiService } from '@/shared/api/api';
-import { apiClient } from '@/shared/api/apiClient';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { API_ENDPOINTS } from '../config/api';
 
 interface User {
-  id: string;
-  name: string;
+  id: number;
   email: string;
-  phone?: string | undefined;
-  role: 'user' | 'tenant' | 'admin';
-  tenant_id?: number | undefined;
+  name: string;
+  is_admin: boolean;
+  created_at: string;
+}
+
+interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+interface AuthResponse {
+  success: boolean;
+  user: User;
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: string;
+  refreshExpiresIn: string;
 }
 
 export interface AuthContextType {
   user: User | null;
-  isLoggedIn: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  register: (email: string, password: string, name: string, phone?: string) => Promise<{ success: boolean; error?: string }>;
-  logout: () => void;
   loading: boolean;
+  error: string | null;
+  login: (credentials: LoginCredentials) => Promise<boolean>;
+  logout: () => void;
+  isAuthenticated: boolean;
+  isAdmin: boolean;
 }
 
-export const AuthContext = createContext<AuthContextType | null>(null);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Helper function to map backend user data to frontend User interface
-const mapBackendUserToFrontend = (backendUser: unknown): User => {
-  const user = backendUser as {
-    id: string;
-    name: string;
-    email: string;
-    phone?: string;
-    role?: 'user' | 'tenant' | 'admin';
-    is_admin?: boolean;
-    tenant_id?: number;
-  };
-  // Handle both backend API response format and saved user format
-  let role: 'user' | 'tenant' | 'admin' = 'user';
-  
-  if (user.role !== undefined) {
-    // If role is already set (from saved user data)
-    role = user.role;
-  } else if (user.is_admin) {
-    // If is_admin flag is present (from API response)
-    role = 'admin';
-  } else if (user.tenant_id) {
-    // If tenant_id is present, user is a tenant
-    role = 'tenant';
-  }
-  
-  return {
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    phone: user.phone,
-    role: role,
-    tenant_id: user.tenant_id
-  };
-};
-
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const logout = useCallback(() => {
-    setUser(null);
-    localStorage.removeItem('token');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
+  // Check if user is logged in on mount
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      // Verify token with backend
+      fetch(API_ENDPOINTS.AUTH.ME, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setUser(data);
+        } else {
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+        }
+      })
+      .catch(() => {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+    } else {
+      setLoading(false);
+    }
   }, []);
 
-  const fetchUserData = useCallback(async () => {
+  const login = async (credentials: LoginCredentials): Promise<boolean> => {
     try {
-      const userData = await apiClient.get('/api/auth/me');
-      const mappedUser = mapBackendUserToFrontend(userData);
-      setUser(mappedUser);
-      // Update localStorage with properly mapped user data
-      localStorage.setItem('user', JSON.stringify(mappedUser));
-    } catch (error: unknown) {
-      console.error('AuthContext: Error fetching user data:', error);
-      // If it's an auth error, logout user
-      if (error instanceof Error && error.message.includes('Authentication failed')) {
-        logout();
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch(API_ENDPOINTS.AUTH.LOGIN, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credentials),
+      });
+
+      const data: AuthResponse = await response.json();
+
+      if (data.success) {
+        // Store tokens
+        localStorage.setItem('accessToken', data.accessToken);
+        localStorage.setItem('refreshToken', data.refreshToken);
+        
+        // Set user
+        setUser(data.user);
+        
+        return true;
+      } else {
+        setError(data.error || 'Login failed');
+        return false;
       }
+    } catch (err) {
+      setError('Network error. Please try again.');
+      return false;
     } finally {
       setLoading(false);
     }
-  }, [logout]);
-
-  // Check for existing token on mount
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    const refreshToken = localStorage.getItem('refreshToken');
-    const savedUser = localStorage.getItem('user');
-    
-    
-    if (token && refreshToken && savedUser) {
-      try {
-        const userData = JSON.parse(savedUser) as unknown;
-        // Map the saved user data to ensure proper role
-        const mappedUser = mapBackendUserToFrontend(userData);
-        setUser(mappedUser);
-        setLoading(false);
-        
-        // Verify token is still valid on mount
-        void fetchUserData();
-      } catch (error: unknown) {
-        console.error('Error parsing saved user data:', error);
-        // If parsing fails, fetch fresh data
-        void fetchUserData();
-      }
-    } else if (token && refreshToken) {
-      // Verify token and get user data
-      void fetchUserData();
-    } else {
-      // No valid tokens, clear any partial data
-      localStorage.removeItem('token');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('user');
-      setLoading(false);
-    }
-  }, [fetchUserData]);
-
-  // Periodic token validation (every 5 minutes)
-  useEffect(() => {
-    if (user === null) return;
-    
-    const interval = setInterval(() => {
-      void (async () => {
-        try {
-          // Use API client which handles token refresh automatically
-          await apiClient.get('/api/auth/me');
-        } catch (error: unknown) {
-          console.error('Error during periodic token check:', error);
-          // If it's an auth error, logout user
-          if (error instanceof Error && error.message.includes('Authentication failed')) {
-            logout();
-          }
-        }
-      })();
-    }, 5 * 60 * 1000); // Check every 5 minutes
-
-    return () => { clearInterval(interval); };
-  }, [user, logout]);
-
-  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
-    try {
-      const response = await apiService.login(email, password);
-
-      if (response.success) {
-        const mappedUser = mapBackendUserToFrontend(response.user);
-        setUser(mappedUser);
-        localStorage.setItem('token', response.accessToken);
-        localStorage.setItem('refreshToken', response.refreshToken);
-        localStorage.setItem('user', JSON.stringify(mappedUser));
-        return { success: true };
-      } else {
-        return { success: false, error: response.message || 'Login failed' };
-      }
-    } catch (error: unknown) {
-      console.error('AuthContext: Login error:', error);
-      const err = error as { code?: string; message?: string };
-      // Handle specific error codes
-      if (err.code === 'RATE_LIMITED') {
-        return { success: false, error: `Rate limited: ${err.message ?? 'Unknown error'}` };
-      }
-      if (err.code === 'INVALID_CREDENTIALS') {
-        return { success: false, error: 'Email or password is incorrect' };
-      }
-      if (err.code === 'FORBIDDEN') {
-        return { success: false, error: 'Access denied. Please contact support.' };
-      }
-      if (err.code === 'TIMEOUT') {
-        return { success: false, error: 'Login request timed out. Please check your connection and try again.' };
-      }
-      if (err.code === 'NETWORK_ERROR') {
-        return { success: false, error: 'Network error. Please check your connection and try again.' };
-      }
-      
-      return { success: false, error: err.message || 'Network error occurred' };
-    }
   };
 
-  const register = async (email: string, password: string, name: string, phone?: string): Promise<{ success: boolean; error?: string }> => {
-    try {
-      const response = await apiService.register(email, password, name, phone);
-
-      if (response.success) {
-        const mappedUser = mapBackendUserToFrontend(response.user);
-        setUser(mappedUser);
-        localStorage.setItem('token', response.accessToken);
-        localStorage.setItem('refreshToken', response.refreshToken);
-        localStorage.setItem('user', JSON.stringify(mappedUser));
-        return { success: true };
-      } else {
-        return { success: false, error: response.message || 'Registration failed' };
-      }
-    } catch (error: unknown) {
-      const err = error as { code?: string; message?: string };
-      // Handle specific error codes
-      if (err.code === 'RATE_LIMITED') {
-        return { success: false, error: `Rate limited: ${err.message ?? 'Unknown error'}` };
-      }
-      if (err.code === 'VALIDATION_ERROR') {
-        return { success: false, error: err.message || 'Validation failed' };
-      }
-      
-      return { success: false, error: err.message || 'Network error occurred' };
-    }
+  const logout = () => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    setUser(null);
   };
 
-  const isLoggedIn = !!user;
+  const value: AuthContextType = {
+    user,
+    loading,
+    error,
+    login,
+    logout,
+    isAuthenticated: !!user,
+    isAdmin: user?.is_admin || false,
+  };
 
   return (
-    <AuthContext.Provider value={{ user, isLoggedIn, login, register, logout, loading }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-
+export const useAuth = (): AuthContextType => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
 
 *** END FILE ***
 
@@ -99430,7 +99731,8 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
 *** FILE: frontend\src\shared\contexts\index.ts ***
 // Context providers and types
-export { AuthContext, type AuthContextType, AuthProvider } from './AuthContext';
+export { AuthContext, AuthProvider } from './AuthContext';
+export type { AuthContextType } from './AuthContext';
 export { DataContext, type DataContextType, DataProvider } from './DataContext';
 export { SiteProvider, useSiteState } from './SiteContext';
 export { TenantConfigContext, type TenantConfigContextType, TenantConfigProvider } from './TenantConfigContext';
@@ -100624,7 +100926,8 @@ export { useImageRotation, useImageRotationHover } from './useImageRotation';
 export { useIndustrySiteData } from './useIndustrySiteData';
 
 // Config loaders (centralized tenant + industry configuration)
-export { DataContext, DataProvider } from '../contexts/DataContext';
+// NOTE: DataContext and DataProvider moved to direct import to avoid circular dependency
+// import { DataContext, DataProvider } from '../contexts/DataContext';
 export { useData, useDataOptional } from './useData';
 export { prefetchIndustryConfig,useIndustryConfig } from './useIndustryConfig';
 
@@ -100930,19 +101233,8 @@ export const useAnalytics = () => {
 *** END FILE ***
 
 *** FILE: frontend\src\shared\hooks\useAuth.ts ***
-import { useContext } from 'react';
-
-import type { AuthContextType } from '@/shared/contexts/AuthContext';
-import { AuthContext } from '@/shared/contexts/AuthContext';
-
-export const useAuth = (): AuthContextType => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
-
+// Re-export the useAuth hook from the context
+export { useAuth } from '../contexts/AuthContext';
 
 *** END FILE ***
 
@@ -107633,6 +107925,7 @@ export { default as BookNow } from './buttons/BookNow';
 export { default as CTAButtons } from './buttons/CTAButtons';
 export { default as GetQuote } from './buttons/GetQuote';
 export { default as ErrorBoundary } from './layout/ErrorBoundary';
+export { default as LoginPage } from './layout/LoginPage';
 export { default as LocationEditModal } from './modals/LocationEditModal';
 export { default as QuoteModal } from './modals/QuoteModal';
 // export { default as LocationSearchBar } from './navigation/LocationSearchBar'; // Removed - unused
@@ -107873,6 +108166,102 @@ export default ErrorBoundary;
 
 *** END FILE ***
 
+*** FILE: frontend\src\shared\ui\layout\LoginPage.tsx ***
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
+
+const LoginPage: React.FC = () => {
+  const [email, setEmail] = useState('admin@thatsmartsite.com');
+  const [password, setPassword] = useState('');
+  const { login, loading, error } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const success = await login({ email, password });
+    
+    if (success) {
+      // Add a small delay to ensure state is updated
+      setTimeout(() => {
+        navigate('/admin-dashboard');
+      }, 100);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+      <div className="max-w-md w-full bg-gray-800 rounded-lg shadow-lg p-8">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-white mb-2">Admin Login</h1>
+          <p className="text-gray-400">Sign in to access the admin dashboard</p>
+        </div>
+        
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {error}
+          </div>
+        )}
+        
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+              Email Address
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="admin@thatsmartsite.com"
+              required
+            />
+          </div>
+          
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter your password"
+              required
+            />
+          </div>
+          
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Signing In...' : 'Sign In'}
+          </button>
+        </form>
+        
+        <div className="mt-6 text-center">
+          <p className="text-gray-400 text-sm">
+            Don't have an account?{' '}
+            <Link to="/tenant-onboarding" className="text-blue-400 hover:text-blue-300">
+              Apply for tenant access
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default LoginPage;
+
+
+*** END FILE ***
+
 *** FILE: frontend\src\shared\ui\layout\NotFoundPage.tsx ***
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -107930,31 +108319,27 @@ interface ProtectedRouteProps {
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
   children, 
   requiredRole = 'user',
-  fallbackPath = '/'
+  fallbackPath = '/login'
 }) => {
-  const authContext = useAuth() as { user: { id: string; name: string; email: string; role: 'admin' | 'affiliate' | 'user' } | null; loading: boolean };
+  const { user, loading, isAuthenticated, isAdmin } = useAuth();
   
-  // Safely extract user and loading with proper type checking
-  const user = authContext.user;
-  const loading = authContext.loading;
-  
-  // In development mode, allow access to dashboards without authentication
-  if (env.DEV) {
-    // Allow tenant access
-    if (Array.isArray(requiredRole) && requiredRole.includes('tenant')) {
-      return <>{children}</>;
-    }
-    if (requiredRole === 'tenant') {
-      return <>{children}</>;
-    }
-    // Allow admin access
-    if (Array.isArray(requiredRole) && requiredRole.includes('admin')) {
-      return <>{children}</>;
-    }
-    if (requiredRole === 'admin') {
-      return <>{children}</>;
-    }
-  }
+  // Allow admin access in development mode only (commented out for testing)
+  // if (env.DEV) {
+  //   // Allow tenant access
+  //   if (Array.isArray(requiredRole) && requiredRole.includes('tenant')) {
+  //     return <>{children}</>;
+  //   }
+  //   if (requiredRole === 'tenant') {
+  //     return <>{children}</>;
+  //   }
+  //   // Allow admin access
+  //   if (Array.isArray(requiredRole) && requiredRole.includes('admin')) {
+  //     return <>{children}</>;
+  //   }
+  //   if (requiredRole === 'admin') {
+  //     return <>{children}</>;
+  //   }
+  // }
   
   // Show loading while checking authentication
   if (loading) {
@@ -107968,31 +108353,24 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
   
   // Check if user is authenticated
-  if (!user) {
+  if (!isAuthenticated) {
     return <Navigate to={fallbackPath} replace />;
   }
   
   // Check if user has required role
   if (Array.isArray(requiredRole)) {
-    const userRole = user.role;
-    if (!requiredRole.includes(userRole)) {
+    if (requiredRole.includes('admin') && !isAdmin) {
+      return <Navigate to={fallbackPath} replace />;
+    }
+    if (requiredRole.includes('tenant') && isAdmin) {
       return <Navigate to={fallbackPath} replace />;
     }
   } else {
-    const userRole = user.role;
-    if (requiredRole === 'admin' && userRole !== 'admin') {
+    if (requiredRole === 'admin' && !isAdmin) {
       return <Navigate to={fallbackPath} replace />;
     }
     
-    if (requiredRole === 'tenant' && userRole !== 'tenant') {
-      return <Navigate to={fallbackPath} replace />;
-    }
-  }
-  
-  // Check if user has valid token for admin access
-  if (Array.isArray(requiredRole) ? requiredRole.includes('admin') : requiredRole === 'admin') {
-    const token = localStorage.getItem('token');
-    if (!token) {
+    if (requiredRole === 'tenant' && isAdmin) {
       return <Navigate to={fallbackPath} replace />;
     }
   }
@@ -112288,13 +112666,15 @@ export function getMergeStatistics(
 const CUSTOM_DOMAIN_MAPPINGS: Record<string, string> = {
   'jpsdetailing.com': 'jps',
   'example.com': 'example',
+  'thatsmartsite.com': 'main-site', // Main site for admin dashboard
+  'thatsmartsite-backend.onrender.com': 'main-site', // Render URL for admin dashboard
   // Add more domain mappings as needed
 };
 
 /**
  * Reserved subdomains that should not be treated as tenant slugs
  */
-const RESERVED_SUBDOMAINS = ['www', 'thatsmartsite', 'api', 'admin', 'staging', 'dev'];
+const RESERVED_SUBDOMAINS = ['www', 'thatsmartsite', 'api', 'admin', 'staging', 'dev', 'main-site'];
 
 /**
  * Extract tenant slug from subdomain
@@ -112352,7 +112732,7 @@ function getTenantFromCustomDomain(hostname: string): string | null {
  */
 export function getTenantFromDomain(
   hostname: string = window.location.hostname,
-  defaultSlug: string = 'jps'
+  defaultSlug: string = 'main-site'
 ): string {
   // Try subdomain approach first
   const subdomainSlug = getTenantFromSubdomain(hostname);
@@ -117200,45 +117580,115 @@ export default defineConfig({
 
 *** END FILE ***
 
+*** FILE: RENDER_ENV_VARS.md ***
+# Required Environment Variables for Render Deployment
+
+## Database (Auto-configured by Render)
+- `DATABASE_URL` - Automatically set by Render when linked to PostgreSQL service
+
+## Required for Production
+- `NODE_ENV=production` - Set in render.yaml
+- `PORT=10000` - Set in render.yaml
+- `JWT_SECRET` - Generate a secure random string
+- `JWT_REFRESH_SECRET` - Generate a different secure random string
+
+## External Services (Add in Render Dashboard)
+- `GOOGLE_PAGESPEED_API_KEY` - For performance monitoring
+- `SENDGRID_API_KEY` - For email notifications
+- `STRIPE_SECRET_KEY` - For payment processing
+- `ADMIN_EMAILS` - Comma-separated list of admin emails
+
+## Optional
+- `LOG_LEVEL=error` - For production logging
+- `ALLOWED_ORIGINS` - CORS origins (defaults to thatsmartsite.com)
+
+## How to Add in Render:
+1. Go to your service dashboard
+2. Click "Environment" tab
+3. Add each variable with its value
+4. Redeploy the service
+
+
+*** END FILE ***
+
 *** FILE: render.yaml ***
-# Render.com Monolithic Full-Stack Service
-# This serves both frontend and backend from one service
+services:
+  - name: thatsmartsite
+    type: web
+    runtime: node
+    plan: starter
+    region: oregon
+    repo: https://github.com/Thanthou/thatsmartsite
+    branch: main
+    rootDir: .
+    autoDeployTrigger: commit
 
-type: web
-name: thatsmartsite
-env: node
-plan: starter
-buildCommand: |
-  # Install backend dependencies
-  cd backend && npm install
-  npm run migrate
-  # Install frontend dependencies and build
-  cd ../frontend && npm install
-  npm run build
-  # Copy frontend build to backend public directory
-  mkdir -p ../backend/public
-  cp -r dist/* ../backend/public/
-startCommand: cd backend && npm start
-envVars:
-  - key: NODE_ENV
-    value: production
-  - key: PORT
-    value: 10000
-  - key: DATABASE_URL
-    fromDatabase:
-      name: thatsmartsite-db
-      property: connectionString
-  - key: JWT_SECRET
-    generateValue: true
-  - key: JWT_REFRESH_SECRET
-    generateValue: true
-  - key: ADMIN_EMAILS
-    value: admin@thatsmartsite.com
-  - key: ALLOWED_ORIGINS
-    value: https://thatsmartsite.com,https://www.thatsmartsite.com
-healthCheckPath: /api/health
-autoDeploy: true
+    buildCommand: |
+      echo "==> Installing backend dependencies..."
+      cd backend
+      npm install --omit=dev
+      echo "==> Installing critical runtime dependencies..."
+      npm install bcryptjs express pg cors dotenv jsonwebtoken
+      echo "==> Verifying bcryptjs installation..."
+      ls -la node_modules/bcryptjs/ || echo "ERROR: bcryptjs missing!"
+      echo "==> Running database migrations..."
+      npm run migrate
+      
+      echo "==> Creating production admin user..."
+      node create-production-admin.js
 
+      echo "==> Installing frontend dependencies..."
+      cd ../frontend
+      npm install --include=dev
+      echo "==> Building frontend..."
+      npm run build
+
+      echo "==> Copying frontend build to backend public directory..."
+      mkdir -p ../backend/public
+      cp -r dist/* ../backend/public/
+      echo "==> Final verification..."
+      ls -la ../backend/public/ || echo "ERROR: Frontend build not copied!"
+
+    startCommand: cd backend && npm start
+    healthCheckPath: /api/health
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: thatsmartsite-db
+          property: connectionString
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_PUBLISHABLE_KEY
+        sync: false
+      - key: SENDGRID_API_KEY
+        sync: false
+      - key: GOOGLE_PAGESPEED_API_KEY
+        sync: false
+      - key: ADMIN_EMAILS
+        value: admin@thatsmartsite.com
+      - key: ADMIN_EMAIL
+        value: admin@thatsmartsite.com
+      - key: ADMIN_PASSWORD
+        value: admin123
+      - key: ADMIN_NAME
+        value: Brandan Coleman
+      - key: ALLOWED_ORIGINS
+        value: https://thatsmartsite.com,https://www.thatsmartsite.com
+
+databases:
+  - name: thatsmartsite-db
+    plan: basic-256mb
+    region: oregon
+    ipAllowList: []  # internal access only
 
 *** END FILE ***
 
@@ -119343,21 +119793,21 @@ vite.on('close', (code) => {
 ## Summary
 ```json
 {
-  "generated": "2025-10-18T00:15:55.623Z",
+  "generated": "2025-10-18T03:43:18.174Z",
   "projectRoot": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh",
   "targetFolder": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh",
   "counts": {
-    "totalFilesInTarget": 987,
+    "totalFilesInTarget": 996,
     "byExtension": {
-      ".js": 130,
-      ".md": 61,
+      ".js": 136,
+      ".md": 62,
       ".sql": 59,
       ".json": 93,
-      ".ts": 363,
+      ".ts": 364,
       ".cjs": 1,
       ".html": 3,
       "(noext)": 1,
-      ".tsx": 273,
+      ".tsx": 274,
       ".css": 1,
       ".yaml": 1,
       ".bat": 1
@@ -119385,6 +119835,9 @@ mdh/
       passwordResetController.js
       passwordSetupController.js
       tenantController.js
+    create-admin.js
+    create-main-tenant.js
+    create-production-admin.js
     database/
       docs/
       MIGRATION_GUIDE.md
@@ -119429,6 +119882,8 @@ mdh/
     package-lock.json
     package.json
     README.md
+    reset-admin-password.js
+    reset-admin.js
     routes/
       __tests__/
       admin.js
@@ -119499,6 +119954,7 @@ mdh/
     templates/
       welcome.html
     test-email.html
+    test-password.js
     tests/
       test-affiliate-endpoint.js
       test-affiliate-security.js
@@ -119595,6 +120051,7 @@ mdh/
     vitest.config.ts
   package-lock.json
   package.json
+  RENDER_ENV_VARS.md
   render.yaml
   scripts/
     chatgpt/
@@ -119620,6 +120077,7 @@ mdh/
 ```
 mdh/
   Dockerfile
+  RENDER_ENV_VARS.md
   backend/
     README.md
     check-tables.js
@@ -119634,6 +120092,9 @@ mdh/
       passwordResetController.js
       passwordSetupController.js
       tenantController.js
+    create-admin.js
+    create-main-tenant.js
+    create-production-admin.js
     database/
       MIGRATION_GUIDE.md
       docs/
@@ -119751,6 +120212,8 @@ mdh/
     mocks/
       mockReviews.json
     package.json
+    reset-admin-password.js
+    reset-admin.js
     routes/
       __tests__/
         seo.test.js
@@ -119824,6 +120287,7 @@ mdh/
     templates/
       welcome.html
     test-email.html
+    test-password.js
     tests/
       test-affiliate-endpoint.js
       test-affiliate-security.js
@@ -120669,6 +121133,8 @@ mdh/
           index.ts
           seo/
             SeoHead.tsx
+        config/
+          api.ts
         constants/
           externalUrls.ts
           index.ts
@@ -120782,6 +121248,7 @@ mdh/
           layout/
             Card.tsx
             ErrorBoundary.tsx
+            LoginPage.tsx
             NotFoundPage.tsx
             ProtectedRoute.tsx
           modals/
