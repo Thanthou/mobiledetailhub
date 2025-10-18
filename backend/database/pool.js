@@ -97,3 +97,7 @@ export async function checkPoolHealth() {
     return false;
   }
 }
+
+// --- Compatibility export for legacy imports ---
+// This allows existing code to still use `import { pool } from './pool.js'`
+export const pool = await getPool();
