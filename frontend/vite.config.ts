@@ -52,20 +52,28 @@ export default defineConfig({
     },
   },
   build: {
-    // Enable minification for production builds
-    minify: 'esbuild',
+    // DEBUG: Disable minification to get readable error messages
+    minify: false,
     // Optimize for better performance
     target: 'esnext',
-    // Enable source maps for debugging (disable in production)
-    sourcemap: process.env['NODE_ENV'] !== 'production',
+    // DEBUG: Always enable source maps for debugging
+    sourcemap: true,
     rollupOptions: {
       // Exclude problematic files from build
       external: (id) => {
         return id.includes('.legacy') || id.includes('_archive');
       },
       output: {
-        // Centralized chunk strategy from config/chunks.ts
-        manualChunks,
+        // DEBUG: Split vendor chunks to isolate circular imports
+        manualChunks: (id) => {
+          if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+            return 'react-vendor';
+          }
+          if (id.includes('@tanstack')) return 'query-vendor';
+          if (id.includes('lucide-react')) return 'icons-vendor';
+          if (id.includes('node_modules')) return 'vendor';
+          return undefined;
+        },
         // Optimize chunk file names for better caching
         chunkFileNames: 'assets/[name]-[hash].js',
         entryFileNames: 'assets/[name]-[hash].js',
