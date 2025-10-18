@@ -1,4 +1,4 @@
-import { a as __vitePreload } from './index-BSSqmK5z.js';
+import { a as __vitePreload } from './index-KDICy8u4.js';
 import './react-vendor-BgPOigzi.js';
 import './vendor-CKIjew4F.js';
 import './query-vendor-B2vaS9Wk.js';
@@ -9,4 +9,4 @@ async function loadMaidServiceConfig() {
 }
 
 export { loadMaidServiceConfig };
-//# sourceMappingURL=index-vGwooJGq.js.map
+//# sourceMappingURL=index-to5g6MKS.js.map

@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from 'react';
+import { lazy, Suspense, useState, useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { DashboardPage as AdminDashboard } from '@/features/adminDashboard';
@@ -17,6 +17,36 @@ import { Providers } from './providers';
 // Heavy modules are NOT imported here - they stay out of the initial bundle
 const Booking = lazy(() => import('../features/booking/BookingApp'));
 
+// Component to handle hostname-based routing safely
+const RootRouteHandler = () => {
+  const [shouldRedirectToAdmin, setShouldRedirectToAdmin] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    // Check hostname on client side only
+    const hostname = window.location.hostname;
+    const isAdminDomain = hostname === 'localhost' || 
+                         hostname === '127.0.0.1' ||
+                         hostname === 'thatsmartsite-backend.onrender.com' ||
+                         hostname === 'thatsmartsite.com' ||
+                         hostname === 'www.thatsmartsite.com';
+    
+    setShouldRedirectToAdmin(isAdminDomain);
+  }, []);
+
+  // Show loading while determining route
+  if (shouldRedirectToAdmin === null) {
+    return <div className="p-8 text-white">Loading…</div>;
+  }
+
+  // Redirect to admin dashboard for main domains
+  if (shouldRedirectToAdmin) {
+    return <Navigate to="/admin-dashboard" replace />;
+  }
+
+  // Show tenant page for subdomains
+  return <TenantPage />;
+};
+
 export default function App() {
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
 
@@ -32,15 +62,7 @@ export default function App() {
     <Suspense fallback={<div className="p-8 text-white">Loading…</div>}>
       <Routes>
         {/* Only redirect to admin dashboard if on main domain, not tenant subdomains */}
-        <Route path="/" element={
-          window.location.hostname === 'localhost' || 
-          window.location.hostname === '127.0.0.1' ||
-          window.location.hostname === 'thatsmartsite-backend.onrender.com' ||
-          window.location.hostname === 'thatsmartsite.com' ||
-          window.location.hostname === 'www.thatsmartsite.com'
-            ? <Navigate to="/admin-dashboard" replace />
-            : <TenantPage />
-        } />
+        <Route path="/" element={<RootRouteHandler />} />
         
         {/* Login route */}
         <Route path="/login" element={<LoginPage />} />
