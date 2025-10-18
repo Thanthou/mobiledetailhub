@@ -516,6 +516,77 @@ ${checklist}
     console.log('⚠ PROJECT_OVERVIEW.md not found in /docs/ - skipping');
   }
 
+// ---------------------------------------------------------------------------
+//  Create a fully-instrumented backend/server.generated.js for Render testing
+// ---------------------------------------------------------------------------
+const backendDir = path.join(PROJECT_ROOT, "backend");
+const generatedServerPath = path.join(backendDir, "server.generated.js");
+
+const generatedServer = `/**
+ * Auto-generated Express server for Render diagnostics.
+ * Generated: ${new Date().toISOString()}
+ * 
+ * Purpose:
+ *   - Ensures Render detects an open port (process.env.PORT)
+ *   - Exposes /api/health for health checks
+ *   - Logs environment + DB connection attempts
+ *   - Helps identify where startup might hang
+ */
+
+import express from "express";
+import pkg from "pg";
+const { Client } = pkg;
+
+const app = express();
+const PORT = process.env.PORT || 10000;
+const HOST = "0.0.0.0";
+
+// ---------------------------------------------------------------------------
+// 1. Health check route
+// ---------------------------------------------------------------------------
+app.get("/api/health", async (req, res) => {
+  try {
+    res.status(200).json({ ok: true, time: new Date().toISOString() });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// 2. Optional DB sanity check on startup (non-fatal if fails)
+// ---------------------------------------------------------------------------
+(async () => {
+  if (process.env.DATABASE_URL) {
+    console.log("🔍 Checking database connectivity...");
+    try {
+      const client = new Client({ connectionString: process.env.DATABASE_URL });
+      await client.connect();
+      const { rows } = await client.query("SELECT NOW()");
+      console.log("✅ Database reachable:", rows[0].now);
+      await client.end();
+    } catch (err) {
+      console.error("⚠️  Database check failed:", err.message);
+    }
+  } else {
+    console.log("⚠️  DATABASE_URL not set — skipping DB check");
+  }
+})();
+
+// ---------------------------------------------------------------------------
+// 3. Start server
+// ---------------------------------------------------------------------------
+app.listen(PORT, HOST, () => {
+  console.log(\`✅ Server running on \${HOST}:\${PORT}\`);
+  console.log("Environment:", process.env.NODE_ENV);
+  console.log("Health endpoint:", "/api/health");
+});
+`;
+
+fs.mkdirSync(backendDir, { recursive: true });
+fs.writeFileSync(generatedServerPath, generatedServer, "utf8");
+console.log("✓ Generated backend/server.generated.js for Render diagnostics");
+
+
   console.log('\n✅ Done!');
   console.log('Output files:', finalFiles);
 })().catch(err => {
