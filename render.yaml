@@ -1,62 +1,60 @@
-type: web
-name: thatsmartsite
-env: node
-plan: starter
-buildCommand: |
-  # Clean install backend dependencies
-  cd backend
-  rm -rf node_modules package-lock.json
-  npm cache clean --force
-  npm install --omit=dev
-  # Explicitly install critical runtime dependencies
-  echo "Installing critical runtime dependencies:"
-  npm install bcryptjs express pg cors dotenv jsonwebtoken
-  # Verify critical dependencies
-  echo "Verifying bcryptjs installation:"
-  ls -la node_modules/bcryptjs/ || echo "ERROR: bcryptjs still missing!"
-  echo "Verifying Express installation:"
-  ls -la node_modules/express/lib/router/ || echo "ERROR: Express router missing!"
-  # Run database migrations
-  npm run migrate
-  # Install frontend dependencies and build
-  cd ../frontend
-  rm -rf node_modules package-lock.json
-  npm cache clean --force
-  npm install --include=dev
-  npm run build
-  # Copy frontend build to backend public directory
-  mkdir -p ../backend/public
-  cp -r dist/* ../backend/public/
-  # Final verification
-  echo "Final verification - Backend dependencies:"
-  ls -la ../backend/node_modules/bcryptjs/ || echo "ERROR: bcryptjs missing in final check!"
-  ls -la ../backend/node_modules/express/lib/router/ || echo "ERROR: Express router missing in final check!"
-  echo "Frontend build copied successfully:"
-  ls -la ../backend/public/
-startCommand: |
-  cd backend
-  echo "Pre-start verification:"
-  ls -la node_modules/bcryptjs/ || echo "ERROR: bcryptjs missing at startup!"
-  ls -la node_modules/express/lib/router/ || echo "ERROR: Express router missing at startup!"
-  node -e "console.log('Testing bcryptjs import...'); import('bcryptjs').then(() => console.log('✅ bcryptjs OK')).catch(err => console.error('❌ bcryptjs import failed:', err))"
-  node -e "console.log('Testing Express import...'); import('express').then(e => console.log('✅ Express version:', e.default.version)).catch(err => console.error('❌ Express import failed:', err))"
-  npm start
-envVars:
-  - key: NODE_ENV
-    value: production
-  - key: PORT
-    value: 10000
-  - key: DATABASE_URL
-    fromDatabase:
-      name: thatsmartsite-db
-      property: connectionString
-  - key: JWT_SECRET
-    generateValue: true
-  - key: JWT_REFRESH_SECRET
-    generateValue: true
-  - key: ADMIN_EMAILS
-    value: admin@thatsmartsite.com
-  - key: ALLOWED_ORIGINS
-    value: https://thatsmartsite.com,https://www.thatsmartsite.com
-healthCheckPath: /api/health
-autoDeploy: true
+services:
+  - name: thatsmartsite
+    type: web
+    runtime: node
+    plan: starter
+    region: oregon
+    repo: https://github.com/Thanthou/thatsmartsite
+    branch: main
+    rootDir: .
+    autoDeployTrigger: commit
+
+    buildCommand: |
+      echo "==> Installing backend dependencies..."
+      cd backend
+      npm install --omit=dev
+      echo "==> Installing critical runtime dependencies..."
+      npm install bcryptjs express pg cors dotenv jsonwebtoken
+      echo "==> Verifying bcryptjs installation..."
+      ls -la node_modules/bcryptjs/ || echo "ERROR: bcryptjs missing!"
+      echo "==> Running database migrations..."
+      npm run migrate
+
+      echo "==> Installing frontend dependencies..."
+      cd ../frontend
+      npm install --include=dev
+      echo "==> Building frontend..."
+      npm run build
+
+      echo "==> Copying frontend build to backend public directory..."
+      mkdir -p ../backend/public
+      cp -r dist/* ../backend/public/
+      echo "==> Final verification..."
+      ls -la ../backend/public/ || echo "ERROR: Frontend build not copied!"
+
+    startCommand: cd backend && npm start
+    healthCheckPath: /api/health
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: thatsmartsite-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: ADMIN_EMAILS
+        value: admin@thatsmartsite.com
+      - key: ALLOWED_ORIGINS
+        value: https://thatsmartsite.com,https://www.thatsmartsite.com
+
+databases:
+  - name: thatsmartsite-db
+    plan: basic-256mb
+    region: oregon
+    ipAllowList: []  # internal access only
