@@ -16,24 +16,33 @@ services:
       echo "==> Installing critical runtime dependencies..."
       npm install bcryptjs express pg cors dotenv jsonwebtoken
 
-      echo "==> Creating production admin user..."
-      node create-production-admin.js
-
       echo "==> Installing frontend dependencies..."
       cd ../frontend
       npm install --include=dev
       echo "==> Building frontend with dual entry points..."
       npm run build
-      echo "==> Copying frontend build to backend public directory..."
-      mkdir -p ../backend/public
-      cp -r dist ../backend/public/
+      echo "==> Copying frontend builds to backend public directory..."
+      mkdir -p ../backend/public/admin
+      mkdir -p ../backend/public/tenant
+      cp -r dist/admin/* ../backend/public/admin/
+      cp -r dist/tenant/* ../backend/public/tenant/
+      echo "==> Copying shared assets..."
+      cp -r dist/assets ../backend/public/
       echo "==> Final verification..."
-      ls -la ../backend/public/dist/
+      ls -la ../backend/public/admin/ || echo "ERROR: Admin build not copied!"
+      ls -la ../backend/public/tenant/ || echo "ERROR: Tenant build not copied!"
+      ls -la ../backend/public/assets/ || echo "ERROR: Assets not copied!"
 
     startCommand: |
       cd backend
+      echo "==> Waiting for database to become ready..."
+      for i in {1..10}; do
+        node -e "const { Client } = require('pg'); const c = new Client({ connectionString: process.env.DATABASE_URL }); c.connect().then(()=>{console.log('✅ DB ready'); process.exit(0)}).catch(()=>{console.log('DB not ready, retry...'); process.exit(1)});" && break || sleep 5
+      done
       echo "==> Running migrations at startup..."
       npm run migrate
+      echo "==> Creating production admin user..."
+      node create-production-admin.js
       echo "==> Starting app..."
       npm start
 
@@ -65,7 +74,7 @@ services:
       - key: ADMIN_EMAIL
         value: admin@thatsmartsite.com
       - key: ADMIN_PASSWORD
-        value: admin123
+        value: ThatsSmartSite2024!SecureAdmin
       - key: ADMIN_NAME
         value: Brandan Coleman
       - key: ALLOWED_ORIGINS
