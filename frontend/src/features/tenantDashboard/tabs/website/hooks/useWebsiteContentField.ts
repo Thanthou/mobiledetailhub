@@ -1,5 +1,5 @@
 import type { WebsiteContentData } from '@/shared/api/websiteContent.api';
-import { useAutoSave } from '@/shared/utils';
+import { useAutoSave } from '@/shared/hooks/useAutoSave';
 
 import { useWebsiteContent } from '../contexts/WebsiteContentContext';
 

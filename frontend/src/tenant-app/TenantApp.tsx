@@ -8,8 +8,8 @@ import { DashboardPage } from '@/features/tenantDashboard';
 import { TenantApplicationPage } from '@/features/tenantOnboarding';
 import { LoginPage, ProtectedRoute } from '@/shared/ui';
 
-import HomePage from '../app/pages/HomePage';
-import ServicePage from '../app/pages/ServicePage';
+import HomePage from '@main/pages/HomePage';
+import ServicePage from '@main/pages/ServicePage';
 
 // Heavy modules are NOT imported here - they stay out of the initial bundle
 const Booking = lazy(() => import('../features/booking/BookingApp'));

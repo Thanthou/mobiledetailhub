@@ -21,6 +21,7 @@
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md,css,scss}\"",
     "prepare": "husky install",
     "overview": "node scripts/project-overview.js",
+    "score": "node scripts/scorecard.js",
     "seo:provision": "node backend/scripts/provision-seo-config.js --all",
     "seo:test": "node scripts/test-seo-anchors.js",
     "deploy:check": "node scripts/deploy-render.js",
@@ -33,6 +34,7 @@
     "globals": "^15.14.0",
     "husky": "^9.1.7",
     "lint-staged": "^15.2.11",
+    "madge": "^8.0.0",
     "nodemon": "^3.1.0",
     "prettier": "^3.4.2"
   },

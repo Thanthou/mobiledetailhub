@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { formatPhoneNumber, getPhoneDigits, useAutoSave } from '@/shared/utils';
+import { formatPhoneNumber, getPhoneDigits } from '@/shared/utils';
+import { useAutoSave } from '@/shared/hooks/useAutoSave';
 
 import type { BusinessData } from '../types';
 import { useProfileData } from './useProfileData';

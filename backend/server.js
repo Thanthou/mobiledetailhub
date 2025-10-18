@@ -17,7 +17,7 @@ const envPaths = [
 
 for (const envPath of envPaths) {
   if (existsSync(envPath)) {
-    console.log(`📄 Loading .env from: ${envPath}`)
+    logger.info({ envPath }, 'Loading .env file')
     dotenv.config({ path: envPath })
     break
   }
@@ -25,12 +25,13 @@ for (const envPath of envPaths) {
 
 // In production, environment variables should be set by the platform
 if (process.env.NODE_ENV === 'production') {
-  console.log('🏭 Production mode: Using platform environment variables')
+  logger.info('Production mode: Using platform environment variables')
 }
 
 import express from 'express'
 import cors from 'cors'
 import { fileURLToPath } from 'url'
+import { logger, createModuleLogger } from './config/logger.js'
 
 // Environment validation will be done after server starts
 
@@ -128,7 +129,7 @@ app.use('/api/google/analytics', googleAnalyticsRoutes)
 app.use('/api/google', googleAuthRoutes)
 app.use('/api/health-monitoring', healthMonitoringRoutes)
 app.use('/api/reviews', reviewsRoutes)
-console.log('Reviews routes loaded at /api/reviews')
+logger.info('Reviews routes loaded at /api/reviews')
 
 // Development: simple health check
 if (process.env.NODE_ENV !== 'production') {
@@ -187,7 +188,19 @@ app.use(
   })
 );
 
-// 4️⃣ Serve other static files (shared, images, etc.)
+// 4️⃣ Serve main-site files (marketing/landing)
+const mainPath = process.env.NODE_ENV === 'production'
+  ? path.join(__dirname, 'public', 'main')
+  : path.join(__dirname, '../frontend/dist/main');
+
+app.use(
+  '/',
+  express.static(mainPath, {
+    maxAge: '1h',
+  })
+);
+
+// 5️⃣ Serve other static files (shared, images, etc.)
 app.use(express.static(path.join(__dirname, 'public'), {
   maxAge: '1y',
   etag: true,
@@ -200,26 +213,38 @@ app.use(express.static(path.join(__dirname, 'public'), {
   }
 }))
 
-// 5️⃣ Fallback router (domain-based HTML only)
+// 6️⃣ Fallback router (3-layer architecture)
 app.get('*', (req, res) => {
   const host = req.hostname.toLowerCase();
-  const isAdminDomain =
-    host === 'thatsmartsite.com' ||
-    host === 'www.thatsmartsite.com' ||
-    host === 'localhost' ||
-    host === '127.0.0.1' ||
-    host === 'thatsmartsite-backend.onrender.com';
-
-  const htmlFile = isAdminDomain
-    ? path.join(__dirname, process.env.NODE_ENV === 'production' ? 'public/admin/index.html' : '../frontend/dist/admin/index.html')
-    : path.join(__dirname, process.env.NODE_ENV === 'production' ? 'public/tenant/index.html' : '../frontend/dist/tenant/index.html');
-
+  const requestPath = req.path;
+  
+  // Admin routes
+  if (requestPath.startsWith('/admin')) {
+    const htmlFile = process.env.NODE_ENV === 'production' 
+      ? path.join(__dirname, 'public/admin/index.html')
+      : path.join(__dirname, '../frontend/dist/admin/index.html');
+    return res.sendFile(htmlFile);
+  }
+  
+  // Tenant routes
+  if (requestPath.startsWith('/tenant')) {
+    const htmlFile = process.env.NODE_ENV === 'production' 
+      ? path.join(__dirname, 'public/tenant/index.html')
+      : path.join(__dirname, '../frontend/dist/tenant/index.html');
+    return res.sendFile(htmlFile);
+  }
+  
+  // Main site (marketing/landing) - default for root and other paths
+  const htmlFile = process.env.NODE_ENV === 'production' 
+    ? path.join(__dirname, 'public/main/index.html')
+    : path.join(__dirname, '../frontend/dist/main/index.html');
+  
   res.sendFile(htmlFile);
 })
 
 // Centralized error handler middleware
 app.use((err, req, res, next) => {
-  console.error('Express error handler caught:', err);
+  logger.error({ error: err }, 'Express error handler caught error');
   if (!res.headersSent) {
     res.status(500).json({ 
       success: false, 
@@ -232,20 +257,24 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 3001
 const HOST = '0.0.0.0'
 
-console.log(`💡 Reached listen() call`)
-console.log(`🚀 Starting server on ${HOST}:${PORT}`)
-console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`)
-console.log(`🔗 Database URL exists: ${process.env.DATABASE_URL ? 'YES' : 'NO'}`)
-console.log(`📁 Current working directory: ${process.cwd()}`)
-console.log(`📄 Server file location: ${import.meta.url}`)
+logger.info({
+  host: HOST,
+  port: PORT,
+  environment: process.env.NODE_ENV || 'development',
+  databaseUrlExists: !!process.env.DATABASE_URL,
+  workingDirectory: process.cwd(),
+  serverFile: import.meta.url
+}, 'Starting server');
 
 // Start server FIRST, then do async initialization
 app.listen(PORT, HOST, () => {
-  console.log(`✅ Backend server started successfully`)
-  console.log(`🌐 Listening on ${HOST}:${PORT}`)
-  console.log(`🔗 Health check: http://${HOST}:${PORT}/api/health`)
-  console.log(`📊 Detailed health: http://${HOST}:${PORT}/api/health/detailed`)
-  console.log(`🏗️  Environment: ${process.env.NODE_ENV || 'development'}`)
+  logger.info({
+    host: HOST,
+    port: PORT,
+    environment: process.env.NODE_ENV || 'development',
+    healthCheck: `http://${HOST}:${PORT}/api/health`,
+    detailedHealth: `http://${HOST}:${PORT}/api/health/detailed`
+  }, 'Backend server started successfully');
   
   // Now do async initialization after server is listening
   initializeAsync()
@@ -254,24 +283,27 @@ app.listen(PORT, HOST, () => {
 // Async initialization after server starts
 async function initializeAsync() {
   try {
-    console.log('🔍 Testing async environment validation...')
+    logger.info('Testing async environment validation...')
     const { loadEnv } = await import('./config/env.js')
     const env = await loadEnv()
-    console.log('✅ Environment validation passed')
-    console.log(`📊 Environment: ${env.NODE_ENV}`)
-    console.log(`🔗 Database URL exists: ${env.DATABASE_URL ? 'YES' : 'NO'}`)
+    logger.info({
+      environment: env.NODE_ENV,
+      databaseUrlExists: !!env.DATABASE_URL
+    }, 'Environment validation passed')
     
     // Test database connection (non-blocking)
-    console.log('🔗 Testing database connection...')
+    logger.info('Testing database connection...')
     const { getPool } = await import('./database/pool.js')
     const pool = await getPool()
     const client = await pool.connect()
     await client.query('SELECT 1')
     client.release()
-    console.log('✅ Database connection verified')
+    logger.info('Database connection verified')
     
   } catch (error) {
-    console.error('⚠️ Async initialization failed:', error.message)
-    console.error('Server is still running, but some features may not work')
+    logger.error({
+      error: error.message,
+      stack: error.stack
+    }, 'Async initialization failed - server is still running, but some features may not work')
   }
 }

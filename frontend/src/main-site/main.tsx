@@ -1,11 +1,12 @@
 import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 
 import { config } from '@/shared/env';
 
-import App from './app/App';
+import MainSiteApp from './MainSiteApp';
 
-import './index.css';
+import '../index.css';
 
 // Register Service Worker for PWA functionality (only in production and when explicitly enabled)
 if ('serviceWorker' in navigator && config.serviceWorkerEnabled) {
@@ -23,6 +24,8 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
   <HelmetProvider>
-    <App />
+    <BrowserRouter>
+      <MainSiteApp />
+    </BrowserRouter>
   </HelmetProvider>
 );

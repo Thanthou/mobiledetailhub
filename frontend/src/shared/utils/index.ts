@@ -34,7 +34,7 @@ export {
 } from './phoneFormatter';
 
 // Auto-save utility
-export { useAutoSave } from './useAutoSave';
+// useAutoSave moved to hooks folder
 
 // Date formatting utilities
 export {

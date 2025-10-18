@@ -2,7 +2,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 
-import { Providers } from '../app/providers';
+import { TenantProviders } from './TenantProviders';
 import TenantApp from './TenantApp';
 
 const container = document.getElementById('root');
@@ -15,9 +15,9 @@ const root = createRoot(container);
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-      <Providers>
+      <TenantProviders>
         <TenantApp />
-      </Providers>
+      </TenantProviders>
     </BrowserRouter>
   </React.StrictMode>
 );

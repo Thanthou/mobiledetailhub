@@ -22,7 +22,11 @@ export default defineConfig({
   ].filter(Boolean) as any,
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '@shared': path.resolve(__dirname, 'src/shared'),
+      '@admin': path.resolve(__dirname, 'src/admin-app'),
+      '@tenant': path.resolve(__dirname, 'src/tenant-app'),
+      '@main': path.resolve(__dirname, 'src/main-site'),
     }
   },
   optimizeDeps: {
@@ -67,8 +71,9 @@ export default defineConfig({
     // DEBUG: Always enable source maps for debugging
     sourcemap: true,
     rollupOptions: {
-      // Multiple entry points for admin and tenant apps
+      // Multiple entry points for admin, tenant, and main-site apps
       input: {
+        main: path.resolve(__dirname, 'src/main-site/index.html'),
         admin: path.resolve(__dirname, 'src/admin-app/index.html'),
         tenant: path.resolve(__dirname, 'src/tenant-app/index.html'),
       },
@@ -89,7 +94,7 @@ export default defineConfig({
         },
         // Optimize chunk file names for better caching
         chunkFileNames: 'assets/[name]-[hash].js',
-        entryFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: '[name]/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
       },
     },

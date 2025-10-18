@@ -1,5 +1,8 @@
 import * as authService from '../services/authService.js'
 import { AUTH_CONFIG } from '../config/auth.js'
+import { createModuleLogger } from '../config/logger.js'
+
+const logger = createModuleLogger('authController')
 
 /**
  * Auth Controller
@@ -55,10 +58,12 @@ async function register(req, res) {
  * Login user
  */
 async function login(req, res) {
-  console.log('=== LOGIN DEBUG ===');
-  console.log('Request body:', req.body);
-  console.log('User agent:', req.get('User-Agent'));
-  console.log('IP address:', req.ip);
+  logger.info({
+    event: 'login_attempt',
+    email: req.body.email,
+    userAgent: req.get('User-Agent'),
+    ip: req.ip
+  }, 'Login attempt initiated');
   
   const credentials = req.body;
   const userAgent = req.get('User-Agent');
@@ -66,7 +71,11 @@ async function login(req, res) {
   
   try {
     const result = await authService.loginUser(credentials, userAgent, ipAddress);
-    console.log('Login successful for:', credentials.email);
+    logger.info({
+      event: 'login_success',
+      email: credentials.email,
+      userId: result.user.id
+    }, 'Login successful');
     
     // Set HttpOnly cookies for enhanced security
     res.cookie('access_token', result.tokens.accessToken, {
@@ -88,8 +97,12 @@ async function login(req, res) {
       refreshExpiresIn: result.tokens.refreshExpiresIn
     });
   } catch (error) {
-    console.error('Login error:', error.message);
-    console.error('Error stack:', error.stack);
+    logger.error({
+      event: 'login_error',
+      email: credentials.email,
+      error: error.message,
+      stack: error.stack
+    }, 'Login failed');
     throw error;
   }
 }

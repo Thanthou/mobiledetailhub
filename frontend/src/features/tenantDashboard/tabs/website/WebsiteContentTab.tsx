@@ -2,7 +2,7 @@ import React, { useEffect, useMemo,useState } from 'react';
 
 import { useData } from '@/shared/hooks';
 import { loadIndustryFAQs } from '@/shared/utils/faqLoader';
-import { useAutoSave } from '@/shared/utils/useAutoSave';
+import { useAutoSave } from '@/shared/hooks/useAutoSave';
 
 import { getWebsiteContent, saveWebsiteContent } from '../../api/websiteContentApi';
 import {
