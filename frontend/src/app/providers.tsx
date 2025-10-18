@@ -1,5 +1,4 @@
 import React from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { AuthProvider, TenantConfigProvider } from '@/shared/contexts';
@@ -29,11 +28,9 @@ export const Providers: React.FC<ProvidersProps> = ({ children }) => {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <TenantConfigProvider>
-            <Router>
-              <WebsiteContentProvider>
-                {children}
-              </WebsiteContentProvider>
-            </Router>
+            <WebsiteContentProvider>
+              {children}
+            </WebsiteContentProvider>
           </TenantConfigProvider>
         </AuthProvider>
       </QueryClientProvider>
