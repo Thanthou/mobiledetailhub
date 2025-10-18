@@ -12,9 +12,9 @@ services:
     buildCommand: |
       echo "==> Installing backend dependencies..."
       cd backend
-      npm install --omit=dev
+      npm install
       echo "==> Installing critical runtime dependencies..."
-      npm install bcryptjs express pg cors dotenv jsonwebtoken
+      npm install bcryptjs express pg cors dotenv jsonwebtoken debug
 
       echo "==> Installing frontend dependencies..."
       cd ../frontend
