@@ -12,6 +12,7 @@
 const CUSTOM_DOMAIN_MAPPINGS: Record<string, string> = {
   'jpsdetailing.com': 'jps',
   'example.com': 'example',
+  'thatsmartsite-backend.onrender.com': 'testing-mobile-detail',
   // Add more domain mappings as needed
 };
 
