@@ -26,10 +26,10 @@ services:
       npm run build
       echo "==> Replacing backend/public with fresh build (atomic copy)..."
       rm -rf ../backend/public
-      mkdir -p ../backend/public
-      cp -r dist/* ../backend/public/
+      mkdir -p ../backend/public/tenant
+      cp -r dist/* ../backend/public/tenant/
       echo "==> Final verification..."
-      ls -la ../backend/public/
+      ls -la ../backend/public/tenant/
 
     startCommand: |
       echo "==> Current working directory: $(pwd)"
