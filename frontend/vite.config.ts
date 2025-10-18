@@ -9,6 +9,7 @@ import { manualChunks } from './config/chunks';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: './', // Important for multi-entry builds
   plugins: [
     react(),
     // Bundle analyzer - only in build mode
