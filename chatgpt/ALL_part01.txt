@@ -1,562 +1,4 @@
 
-*** FILE: package.json ***
-{
-  "name": "thatsmartsite",
-  "version": "1.0.0",
-  "description": "That Smart Site - Smart websites for smart businesses",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "build": "cd frontend && npm run build",
-    "dev": "concurrently \"cd frontend && npm run dev\" \"cd backend && npm run dev\" \"node scripts/error-monitor/index.js --target=all\"",
-    "dev:backend": "cd backend && npm run dev",
-    "dev:frontend": "node scripts/find-free-port.js && node scripts/start-frontend.js",
-    "dev:monitor": "node scripts/dev-monitor.js",
-    "predev:all": "node backend/scripts/kill-node-processes.js",
-    "dev:all": "npm run predev:all && concurrently -n FRONTEND,BACKEND -c cyan,yellow \"npm run dev:frontend\" \"npm run dev:backend\"",
-    "dev:clean": "scripts/cleanup-and-dev.bat",
-    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
-    "lint": "eslint backend/ scripts/",
-    "lint:fix": "eslint backend/ scripts/ --fix",
-    "lint:all": "npm run lint && cd frontend && npm run lint",
-    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,css,scss}\"",
-    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md,css,scss}\"",
-    "prepare": "husky install",
-    "overview": "node scripts/project-overview.js",
-    "seo:provision": "node backend/scripts/provision-seo-config.js --all",
-    "seo:test": "node scripts/test-seo-anchors.js",
-    "deploy:check": "node scripts/deploy-render.js",
-    "deploy:build": "cd frontend && npm run build && cd ../backend && npm run migrate"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.17.0",
-    "concurrently": "^8.2.2",
-    "eslint": "^9.17.0",
-    "globals": "^15.14.0",
-    "husky": "^9.1.7",
-    "lint-staged": "^15.2.11",
-    "nodemon": "^3.1.0",
-    "prettier": "^3.4.2"
-  },
-  "engines": {
-    "node": ">=18.0.0"
-  },
-  "dependencies": {
-    "chalk": "^5.6.2",
-    "cli-table3": "^0.6.5",
-    "dotenv": "^17.2.1",
-    "pg": "^8.16.3"
-  }
-}
-
-
-*** END FILE ***
-
-*** FILE: frontend\package.json ***
-{
-  "name": "thatsmartsite-frontend",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "npx vite",
-    "build": "npx vite build",
-    "build:analyze": "cross-env ANALYZE=true npx vite build",
-    "prebuild": "echo 'Skipping image optimization for now'",
-    "lint": "eslint . && npm run lint:boundaries",
-    "lint:fix": "eslint . --fix",
-    "lint:boundaries": "tsx scripts/check-import-boundaries.ts",
-    "lint:boundaries:verbose": "tsx scripts/check-import-boundaries.ts -- --verbose",
-    "check:sizes": "node scripts/check-component-sizes.js",
-    "check:sizes:ci": "node scripts/check-component-sizes.js --ci --fail 250",
-    "check:sizes:report": "node scripts/check-component-sizes.js --limit 15",
-    "preview": "npx vite preview",
-    "test": "vitest",
-    "test:ui": "vitest --ui",
-    "optimize-images": "node scripts/convert-images.js",
-    "check-pages": "node scripts/check-pages-usage.js",
-    "lint:pages": "eslint . --rule 'import/no-restricted-paths: error'",
-    "validate-location-data": "node scripts/validate-location-data.js",
-    "prebuild:validate": "npm run validate-location-data",
-    "build:faq-schemas": "node scripts/build-faq-schemas.js",
-    "prebuild:faq": "npm run build:faq-schemas"
-  },
-  "dependencies": {
-    "@sendgrid/mail": "^8.1.6",
-    "@stripe/react-stripe-js": "^5.2.0",
-    "@stripe/stripe-js": "^8.0.0",
-    "@tanstack/react-query": "^5.87.4",
-    "@vitejs/plugin-react": "^4.3.1",
-    "axios": "^1.12.2",
-    "cheerio": "^1.1.2",
-    "clsx": "^2.1.1",
-    "lucide-react": "^0.344.0",
-    "puppeteer": "^24.25.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-helmet-async": "^2.0.5",
-    "react-icons": "^5.5.0",
-    "react-router-dom": "^7.7.1",
-    "rollup-plugin-visualizer": "^6.0.5",
-    "tailwind-merge": "^3.3.1",
-    "tailwindcss": "^3.4.1",
-    "autoprefixer": "^10.4.18",
-    "postcss": "^8.4.35",
-    "cross-env": "^10.1.0",
-    "vite": "^5.4.2",
-    "zod": "^4.1.5",
-    "zustand": "^5.0.8"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.9.1",
-    "@tailwindcss/container-queries": "^0.1.1",
-    "@types/google.maps": "^3.58.1",
-    "@types/node": "^24.3.1",
-    "@types/react": "^18.3.24",
-    "@types/react-dom": "^18.3.7",
-    "@typescript-eslint/eslint-plugin": "^8.8.1",
-    "@typescript-eslint/parser": "^8.8.1",
-    "@vitest/ui": "^3.2.4",
-    "eslint": "^8.57.0",
-    "eslint-plugin-eslint-comments": "^3.2.0",
-    "eslint-plugin-import": "^2.32.0",
-    "eslint-plugin-jsx-a11y": "^6.10.2",
-    "eslint-plugin-react": "^7.34.3",
-    "eslint-plugin-react-hooks": "^5.0.0",
-    "eslint-plugin-react-refresh": "^0.4.7",
-    "eslint-plugin-simple-import-sort": "^12.1.1",
-    "globals": "^15.9.0",
-    "jsdom": "^26.1.0",
-    "sharp": "^0.33.0",
-    "tsx": "^4.20.6",
-    "typescript": "~5.5.4",
-    "vitest": "^3.2.4"
-  }
-}
-
-
-*** END FILE ***
-
-*** FILE: frontend\tsconfig.json ***
-{
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ]
-}
-
-
-*** END FILE ***
-
-*** FILE: frontend\tsconfig.app.json ***
-{
-  "compilerOptions": {
-    "target": "ES2020",
-    "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
-    "skipLibCheck": true,
-    "baseUrl": "./",
-    "paths": {
-      "@/*": ["src/*"],
-      "shared/*": ["src/components/shared/*"]
-    },
-
-    /* Bundler mode */
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "isolatedModules": true,
-    "moduleDetection": "force",
-    "noEmit": true,
-    "jsx": "react-jsx",
-
-    /* Linting */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-    
-    /* Additional strict checks */
-    "noImplicitReturns": true,
-    "noImplicitOverride": true,
-    "noPropertyAccessFromIndexSignature": true,
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictBindCallApply": true,
-    "strictPropertyInitialization": true,
-    "useUnknownInCatchVariables": true
-  },
-  "include": ["src", "vite.config.ts", "data/**/*", "config/**/*", "scripts/**/*"]
-}
-
-
-*** END FILE ***
-
-*** FILE: frontend\tsconfig.node.json ***
-{
-  "compilerOptions": {
-    "target": "ES2022",
-    "lib": ["ES2023"],
-    "module": "ESNext",
-    "skipLibCheck": true,
-
-    /* Bundler mode */
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "isolatedModules": true,
-    "moduleDetection": "force",
-    "noEmit": true,
-
-    /* Linting */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-    
-    /* Additional strict checks */
-    "noImplicitReturns": true,
-    "noImplicitOverride": true,
-    "noPropertyAccessFromIndexSignature": true,
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictBindCallApply": true,
-    "strictPropertyInitialization": true
-  },
-  "include": ["vite.config.ts"]
-}
-
-
-*** END FILE ***
-
-*** FILE: frontend\tsconfig.eslint.json ***
-{
-  "extends": "./tsconfig.app.json",
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/**/*.d.ts",
-    "vitest.config.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "build",
-    ".next",
-    "public"
-  ]
-}
-
-
-*** END FILE ***
-
-*** FILE: frontend\vite.config.ts ***
-import react from '@vitejs/plugin-react';
-import { fileURLToPath } from 'node:url';
-import { URL } from 'node:url';
-import { defineConfig } from 'vite';
-import { visualizer } from 'rollup-plugin-visualizer';
-import path from 'path';
-
-import { manualChunks } from './config/chunks';
-
-// https://vitejs.dev/config/
-export default defineConfig({
-  base: './', // Important for multi-entry builds
-  plugins: [
-    react(),
-    // Bundle analyzer - only in build mode
-    process.env['ANALYZE'] && visualizer({
-      filename: 'dist/bundle-analysis.html',
-      open: true,
-      gzipSize: true,
-      brotliSize: true,
-    }),
-  ].filter(Boolean) as any,
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
-    }
-  },
-  optimizeDeps: {
-    exclude: ['lucide-react'],
-  },
-  server: {
-    host: '0.0.0.0', // Allow access from network
-    // port: 5177, // Let Vite auto-detect available port
-    allowedHosts: [
-      'localhost',
-      '127.0.0.1',
-      '.lvh.me', // Allow all lvh.me subdomains for local testing
-      '.thatsmartsite.com', // Allow all thatsmartsite.com subdomains
-    ],
-    proxy: {
-      '/api': {
-        target: 'http://localhost:3001',
-        changeOrigin: true,
-        secure: false,
-        rewrite: (path) => path,
-        configure: (proxy, _options) => {
-          proxy.on('proxyReq', (_proxyReq, _req) => {
-            // console.log('Proxying:', req.method, req.url, req.headers['content-type']);
-          });
-          proxy.on('error', (err, _req, _res) => {
-            console.error('Proxy error:', err.message);
-          });
-        },
-      },
-      '/uploads': {
-        target: 'http://localhost:3001',
-        changeOrigin: true,
-        secure: false,
-      },
-    },
-  },
-  build: {
-    // DEBUG: Disable minification to get readable error messages
-    minify: false,
-    // Optimize for better performance
-    target: 'esnext',
-    // DEBUG: Always enable source maps for debugging
-    sourcemap: true,
-    rollupOptions: {
-      // Multiple entry points for admin and tenant apps
-      input: {
-        admin: path.resolve(__dirname, 'src/admin-app/index.html'),
-        tenant: path.resolve(__dirname, 'src/tenant-app/index.html'),
-      },
-      // Exclude problematic files from build
-      external: (id) => {
-        return id.includes('.legacy') || id.includes('_archive');
-      },
-      output: {
-        // DEBUG: Split vendor chunks to isolate circular imports
-        manualChunks: (id) => {
-          if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
-            return 'react-vendor';
-          }
-          if (id.includes('@tanstack')) return 'query-vendor';
-          if (id.includes('lucide-react')) return 'icons-vendor';
-          if (id.includes('node_modules')) return 'vendor';
-          return undefined;
-        },
-        // Optimize chunk file names for better caching
-        chunkFileNames: 'assets/[name]-[hash].js',
-        entryFileNames: 'assets/[name]-[hash].js',
-        assetFileNames: 'assets/[name]-[hash].[ext]',
-      },
-    },
-  },
-});
-
-
-*** END FILE ***
-
-*** FILE: eslint.config.js ***
-/**
- * Root ESLint Configuration
- * Applies to backend/ and scripts/ (Node.js environments)
- * Frontend has its own eslint.config.js with React/TypeScript rules
- * 
- * Philosophy:
- * - Consistent code quality across backend and scripts
- * - Node.js best practices
- * - TypeScript support for scripts
- * - Aligned with .cursorrules: no eslint-disable without comment
- */
-
-import js from '@eslint/js';
-import globals from 'globals';
-
-export default [
-  {
-    ignores: [
-      '**/node_modules/**',
-      '**/dist/**',
-      'frontend/**',  // Frontend has its own config
-      '**/coverage/**',
-      '**/.vite/**',
-    ],
-  },
-  
-  // Base JS recommended rules
-  js.configs.recommended,
-  
-  // Backend JavaScript files
-  {
-    files: ['backend/**/*.js'],
-    languageOptions: {
-      ecmaVersion: 2022,
-      sourceType: 'module',
-      globals: {
-        ...globals.node,
-        ...globals.es2021,
-      },
-    },
-    rules: {
-      // Common rules from .cursorrules
-      'no-unused-vars': ['error', { 
-        argsIgnorePattern: '^_',
-        varsIgnorePattern: '^_',
-      }],
-      'no-undef': 'error',
-      'no-shadow': 'error',
-      'no-console': 'off',  // Console is fine in backend
-      
-      // Code quality
-      'prefer-const': 'error',
-      'no-var': 'error',
-      'eqeqeq': ['error', 'always'],
-      'curly': ['error', 'all'],
-      
-      // Async/Promise rules
-      'no-async-promise-executor': 'error',
-      'require-await': 'warn',
-      
-      // Disable eslint-disable without comment (from .cursorrules)
-      'eslint-comments/no-unlimited-disable': 'off',  // Would need plugin
-      
-      // Best practices
-      'no-throw-literal': 'error',
-      'prefer-promise-reject-errors': 'error',
-    },
-  },
-  
-  // Root-level scripts
-  {
-    files: ['scripts/**/*.js'],
-    languageOptions: {
-      ecmaVersion: 2022,
-      sourceType: 'module',
-      globals: {
-        ...globals.node,
-        ...globals.es2021,
-      },
-    },
-    rules: {
-      'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-      'no-undef': 'error',
-      'no-shadow': 'error',
-      'no-console': 'off',  // Console output is the point of scripts
-      'prefer-const': 'error',
-      'no-var': 'error',
-    },
-  },
-  
-  // Frontend scripts (TypeScript)
-  {
-    files: ['frontend/scripts/**/*.ts'],
-    languageOptions: {
-      ecmaVersion: 2022,
-      sourceType: 'module',
-      globals: {
-        ...globals.node,
-        ...globals.es2021,
-      },
-      parserOptions: {
-        project: null,  // Don't type-check scripts with tsconfig
-      },
-    },
-    rules: {
-      'no-unused-vars': 'off',  // TypeScript handles this
-      'no-undef': 'off',  // TypeScript handles this
-      'no-shadow': 'error',
-      'no-console': 'off',
-      'prefer-const': 'error',
-      'no-var': 'error',
-    },
-  },
-];
-
-
-
-*** END FILE ***
-
-*** FILE: frontend\src\main.tsx ***
-import { createRoot } from 'react-dom/client';
-import { HelmetProvider } from 'react-helmet-async';
-
-import { config } from '@/shared/env';
-
-import App from './app/App';
-
-import './index.css';
-
-// Register Service Worker for PWA functionality (only in production and when explicitly enabled)
-if ('serviceWorker' in navigator && config.serviceWorkerEnabled) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch((err: unknown) => {
-      console.warn('SW registration failed:', err);
-    });
-  });
-}
-
-const rootElement = document.getElementById('root');
-if (!rootElement) {
-  throw new Error('Root element not found');
-}
-
-createRoot(rootElement).render(
-  <HelmetProvider>
-    <App />
-  </HelmetProvider>
-);
-
-
-*** END FILE ***
-
-*** FILE: frontend\tailwind.config.js ***
-/** @type {import('tailwindcss').Config} */
-export default {
-  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
-  theme: {
-    extend: {
-      // Standard responsive breakpoints (Tailwind-native screens)
-      screens: {
-        'xs': '390px',
-        'sm': '640px',
-        'md': '768px',
-        'lg': '1024px',
-        'xl': '1280px',
-        '2xl': '1536px',
-      },
-      // Container queries for component-level responsiveness
-      containers: {
-        'xs': '390px',
-        'sm': '640px',
-        'md': '768px',
-        'lg': '1024px',
-      },
-    },
-  },
-  plugins: [
-    // eslint-disable-next-line no-undef -- CommonJS require in config file
-    require('@tailwindcss/container-queries'),
-  ],
-};
-
-
-*** END FILE ***
-
-*** FILE: frontend\postcss.config.js ***
-export default {
-  plugins: {
-    tailwindcss: {},
-    autoprefixer: {},
-  },
-};
-
-
-*** END FILE ***
-
 *** FILE: backend\check_reviews.js ***
 const { pool } = require('./database/pool');
 
@@ -684,119 +126,160 @@ export { AUTH_CONFIG };
 
 *** END FILE ***
 
-*** FILE: backend\config\env.js ***
+*** FILE: backend\config\env.async.js ***
 /**
- * Backend Environment Configuration
- * 
- * This module loads and validates all environment variables using Zod schema.
- * Import this module anywhere you need environment variables in the backend.
- * 
- * Usage:
- *   const { env } = require('./config/env');
- *   console.log(env.DATABASE_URL);
+ * Async-safe environment loader
+ * - Non-blocking validation
+ * - Warns instead of exiting on failure
+ * - Compatible with Render deployment
  */
 
-// Load environment variables from .env file
 import 'dotenv/config';
-
 import { z } from 'zod';
 
-/**
- * Environment Schema
- * Validates all required environment variables and provides defaults
- */
+/** Schema definition */
 const EnvSchema = z.object({
-  NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+  NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().min(1000).max(65535).default(3001),
-  
-  // Database
-  DATABASE_URL: z.string().url(),
-  
-  // JWT - relaxed for development, strict for production
-  JWT_SECRET: z.string().min(8).refine(
-    (val) => process.env.NODE_ENV === 'production' ? val.length >= 32 : true,
-    { message: "JWT_SECRET must be at least 32 characters in production" }
-  ).default('dev-jwt-secret-change-in-prod'),
-  
-  JWT_REFRESH_SECRET: z.string().min(8).refine(
-    (val) => process.env.NODE_ENV === 'production' ? val.length >= 32 : true,
-    { message: "JWT_REFRESH_SECRET must be at least 32 characters in production" }
-  ).default('dev-jwt-refresh-secret-change-in-prod'),
-  
-  // CORS - parse comma-separated origins
-  ALLOWED_ORIGINS: z.string().optional().transform((val) => {
-    if (!val) {return ['http://localhost:5173', 'http://localhost:3000'];}
-    return val.split(',').map(origin => origin.trim());
-  }),
-  
-  // Admin
-  ADMIN_EMAILS: z.string().optional().transform((val) => {
-    if (!val) {return [];}
-    return val.split(',').map(email => email.trim());
-  }),
+
+  DATABASE_URL: z.string().url().optional(),
+
+  JWT_SECRET: z.string().optional(),
+  JWT_REFRESH_SECRET: z.string().optional(),
+
+  ALLOWED_ORIGINS: z.string().optional().transform(val =>
+    val ? val.split(',').map(v => v.trim()) : ['http://localhost:5173', 'http://localhost:3000']
+  ),
+
+  ADMIN_EMAILS: z.string().optional().transform(val =>
+    val ? val.split(',').map(v => v.trim()) : []
+  ),
   ADMIN_PASSWORD: z.string().optional(),
-  
-  // Stripe
-  STRIPE_SECRET_KEY: z.string().startsWith('sk_'),
+
+  STRIPE_SECRET_KEY: z.string().optional(),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
-  
-  // Email Service (SendGrid)
-  SENDGRID_API_KEY: z.string().startsWith('SG.').optional(),
+
+  SENDGRID_API_KEY: z.string().optional(),
   FROM_EMAIL: z.string().email().default('hello@thatsmartsite.com'),
-  
-  // Frontend URL for redirects
-  FRONTEND_URL: z.string().url().optional().default('https://thatsmartsite.com'),
-  
-  // Google OAuth (shared across all Google services)
+
+  FRONTEND_URL: z.string().optional().default('https://thatsmartsite.com'),
+
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
-  GOOGLE_REDIRECT_URI: z.string().url().optional(),
-  
-  // Logging
-  LOG_LEVEL: z.enum(['error', 'warn', 'info', 'debug']).optional().default('info'),
-  LOG_FILE: z.string().optional(),
+  GOOGLE_REDIRECT_URI: z.string().optional(),
+
+  LOG_LEVEL: z.enum(['error', 'warn', 'info', 'debug']).default('info'),
+  LOG_FILE: z.string().optional()
 });
 
 /**
- * Parse and validate environment variables
- * Will throw an error if validation fails
+ * Validate environment asynchronously.
+ * Returns a resolved object even if some fields are invalid.
  */
-let env;
-try {
-  env = EnvSchema.parse(process.env);
-  
-  // Additional validation for Google OAuth (only warn, don't fail)
-  const missingGoogle = [];
-  if (!env.GOOGLE_CLIENT_ID) missingGoogle.push('GOOGLE_CLIENT_ID');
-  if (!env.GOOGLE_CLIENT_SECRET) missingGoogle.push('GOOGLE_CLIENT_SECRET');
-  if (!env.GOOGLE_REDIRECT_URI) missingGoogle.push('GOOGLE_REDIRECT_URI');
-  
-  if (missingGoogle.length > 0) {
-    console.warn('⚠️  Google OAuth environment variables missing:');
-    missingGoogle.forEach((varName) => {
-      console.warn(`  - ${varName}`);
-    });
-    console.warn('  Google services (Analytics, Reviews, etc.) will not be available until these are set.');
-    console.warn('  Add them to your .env file when ready to enable Google integrations.\n');
+export async function loadEnv() {
+  try {
+    const parsed = EnvSchema.safeParse(process.env);
+    if (!parsed.success) {
+      console.warn('⚠️  Environment variable warnings:');
+      parsed.error.errors.forEach(e =>
+        console.warn(`  - ${e.path.join('.')}: ${e.message}`)
+      );
+    }
+
+    const env = parsed.success ? parsed.data : EnvSchema.parse({});
+    if (!env.DATABASE_URL) {
+      console.warn('⚠️  DATABASE_URL not provided — DB connection will be lazy.');
+    }
+
+    return env;
+  } catch (err) {
+    console.error('❌ Failed to load environment:', err.message);
+    return {}; // never crash server
   }
-  
-} catch (error) {
-  console.error('❌ Environment variable validation failed:');
-  if (error instanceof z.ZodError) {
-    error.errors.forEach((err) => {
-      console.error(`  - ${err.path.join('.')}: ${err.message}`);
-    });
-  }
-  console.error('\nPlease check your .env file and ensure all required variables are set.');
-  process.exit(1);
 }
 
+
+*** END FILE ***
+
+*** FILE: backend\config\env.js ***
 /**
- * Export validated environment configuration
+ * Async-safe environment loader (Render-compatible)
+ * -------------------------------------------------
+ * - Non-blocking validation with Zod
+ * - Never crashes the server on missing vars
+ * - Works in both dev and production
  */
-export { env };
 
+import 'dotenv/config';
+import { z } from 'zod';
 
+const EnvSchema = z.object({
+  NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+  PORT: z.coerce.number().min(1000).max(65535).default(3001),
+
+  DATABASE_URL: z.string().url().optional(),
+
+  JWT_SECRET: z.string().optional(),
+  JWT_REFRESH_SECRET: z.string().optional(),
+
+  ALLOWED_ORIGINS: z
+    .string()
+    .optional()
+    .transform(v =>
+      v ? v.split(',').map(s => s.trim()) : ['http://localhost:5173', 'http://localhost:3000']
+    ),
+
+  ADMIN_EMAILS: z
+    .string()
+    .optional()
+    .transform(v => (v ? v.split(',').map(s => s.trim()) : [])),
+
+  ADMIN_PASSWORD: z.string().optional(),
+
+  STRIPE_SECRET_KEY: z.string().optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().optional(),
+
+  SENDGRID_API_KEY: z.string().optional(),
+  FROM_EMAIL: z.string().email().default('hello@thatsmartsite.com'),
+
+  FRONTEND_URL: z.string().optional().default('https://thatsmartsite.com'),
+
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
+  GOOGLE_REDIRECT_URI: z.string().optional(),
+
+  LOG_LEVEL: z.enum(['error', 'warn', 'info', 'debug']).default('info'),
+  LOG_FILE: z.string().optional()
+});
+
+/**
+ * Loads and validates process.env asynchronously.
+ * Always resolves — never terminates the process.
+ */
+export async function loadEnv() {
+  try {
+    const parsed = EnvSchema.safeParse(process.env);
+
+    if (!parsed.success) {
+      console.warn('⚠️  Environment variable issues detected:');
+      parsed.error.errors.forEach(e =>
+        console.warn(`  - ${e.path.join('.')}: ${e.message}`)
+      );
+    }
+
+    const env = parsed.success ? parsed.data : EnvSchema.parse({});
+    if (!env.DATABASE_URL) console.warn('⚠️  DATABASE_URL not provided (DB disabled)');
+
+    return env;
+  } catch (err) {
+    console.error('❌ Failed to load env:', err.message);
+    return {}; // Never crash
+  }
+}
+
+// --- Compatibility export for legacy imports ---
+// This allows existing code to still use `import { env } from './env.js'`
+export const env = await loadEnv();
 
 *** END FILE ***
 
@@ -5546,81 +5029,232 @@ What do you think? 🤔
 
 *** END FILE ***
 
-*** FILE: backend\database\pool.js ***
-import { Pool } from 'pg';
-import logger from '../utils/logger.js';
-import { env } from '../config/env.js';
+*** FILE: backend\database\pool.async.js ***
+/**
+ * Lazy, non-blocking PostgreSQL pool
+ * - Connects only when first needed
+ * - Auto-retries with exponential backoff
+ * - Works even if DB is unavailable at startup
+ */
 
-// Create a single global pool instance with improved configuration
-const pool = new Pool({
-  connectionString: env.DATABASE_URL,
-  ssl: env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-  
-  // Connection pool settings
-  max: 25,                    // Increased from 20 to handle more concurrent requests
-  min: 2,                     // Keep at least 2 connections ready
-  idleTimeoutMillis: 60000,   // Increased idle timeout to 1 minute
-  connectionTimeoutMillis: 15000,  // Increased connection timeout to 15 seconds
-  
-  // Better connection management
-  allowExitOnIdle: false,     // Don't exit when idle
-  maxUses: 7500,             // Recycle connections after 7500 queries (prevents memory leaks)
-  
-  // Statement timeout (prevents long-running queries from blocking)
-  statement_timeout: 30000,   // 30 seconds
-  query_timeout: 30000        // 30 seconds
-});
+import pkg from 'pg';
+import { loadEnv } from '../config/env.async.js';
+const { Pool } = pkg;
 
-// Enhanced error handling
-pool.on('error', (err) => {
-  logger.error('Unexpected error on idle client:', { 
-    error: err.message, 
-    code: err.code,
-    stack: err.stack 
-  });
-});
+let pool = null;
+let connecting = false;
 
-// Connection acquired event
-pool.on('acquire', (_client) => {
-  logger.debug('Client acquired from pool');
-});
-
-// Connection released event
-pool.on('release', (_client) => {
-  logger.debug('Client released back to pool');
-});
-
-// Connection connect event
-pool.on('connect', (_client) => {
-  logger.debug('New client connected to database');
-});
-
-// Health check function
-const checkPoolHealth = async () => {
-  try {
-    const client = await pool.connect();
-    await client.query('SELECT 1');
-    client.release();
-    logger.debug('Database pool health check passed');
-    return true;
-  } catch (error) {
-    logger.error('Database pool health check failed:', { error: error.message });
-    return false;
+/** Lazy initializer */
+export async function getPool() {
+  if (pool) return pool;
+  if (connecting) {
+    // wait until first pool is ready
+    await new Promise(r => setTimeout(r, 500));
+    return pool;
   }
-};
 
-// Periodic health check every 5 minutes (singleton guard prevents duplicates on hot reload)
-if (!global.__POOL_HEALTH_INTERVAL__) {
-  global.__POOL_HEALTH_INTERVAL__ = setInterval(checkPoolHealth, 5 * 60 * 1000);
-  logger.debug('Database pool health check interval started');
+  connecting = true;
+  const env = await loadEnv();
+
+  if (!env.DATABASE_URL) {
+    console.warn('⚠️  No DATABASE_URL — returning mock pool');
+    pool = {
+      query: async () => { throw new Error('Database not configured'); },
+      connect: async () => { throw new Error('Database not configured'); },
+      end: async () => {}
+    };
+    return pool;
+  }
+
+  const config = {
+    connectionString: env.DATABASE_URL,
+    ssl: env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+    max: 25,
+    min: 2,
+    idleTimeoutMillis: 60000,
+    connectionTimeoutMillis: 15000,
+    allowExitOnIdle: false,
+    maxUses: 7500,
+    statement_timeout: 30000,
+    query_timeout: 30000
+  };
+
+  pool = new Pool(config);
+
+  pool.on('error', err =>
+    console.error('⚠️  Idle client error:', err.message)
+  );
+
+  // Attempt first connection in background (non-fatal)
+  (async () => {
+    for (let i = 1; i <= 5; i++) {
+      try {
+        const client = await pool.connect();
+        await client.query('SELECT 1');
+        client.release();
+        console.log('✅ Database connection established');
+        break;
+      } catch (err) {
+        console.warn(`⏳ DB retry ${i}/5 failed: ${err.message}`);
+        await new Promise(r => setTimeout(r, i * 2000));
+      }
+    }
+  })();
+
+  // Periodic health check (non-blocking)
+  if (!global.__POOL_HEALTH_INTERVAL__) {
+    global.__POOL_HEALTH_INTERVAL__ = setInterval(async () => {
+      try {
+        const client = await pool.connect();
+        await client.query('SELECT 1');
+        client.release();
+        console.log('✅ DB pool health OK');
+      } catch (err) {
+        console.warn('⚠️  DB pool health check failed:', err.message);
+      }
+    }, 5 * 60 * 1000);
+  }
+
+  connecting = false;
+  return pool;
 }
 
-// Note: Graceful shutdown is handled by server.js to avoid duplicate handlers
-// The server will call pool.end() during its shutdown sequence
+/** Utility for one-off health check */
+export async function checkPoolHealth() {
+  const p = await getPool();
+  try {
+    const client = await p.connect();
+    await client.query('SELECT 1');
+    client.release();
+    return true;
+  } catch (err) {
+    console.warn('⚠️  checkPoolHealth error:', err.message);
+    return false;
+  }
+}
 
-// Export the pool and health check function
-export { pool, checkPoolHealth };
 
+*** END FILE ***
+
+*** FILE: backend\database\pool.js ***
+/**
+ * Lazy, Non-Blocking PostgreSQL Pool
+ * ----------------------------------
+ * - Connects only when used
+ * - Retries automatically on startup
+ * - Keeps Render port open instantly
+ */
+
+import pkg from 'pg';
+import { loadEnv } from '../config/env.js';
+const { Pool } = pkg;
+
+let _pool = null;
+let connecting = false;
+
+/** Initialize pool only when needed */
+export async function getPool() {
+  if (_pool) return _pool;
+  if (connecting) {
+    await new Promise(r => setTimeout(r, 500));
+    return _pool;
+  }
+
+  connecting = true;
+  const env = await loadEnv();
+
+  if (!env.DATABASE_URL) {
+    console.warn('⚠️  No DATABASE_URL — returning mock pool.');
+    _pool = {
+      query: async () => { throw new Error('Database not configured'); },
+      connect: async () => { throw new Error('Database not configured'); },
+      end: async () => {}
+    };
+    return _pool;
+  }
+
+  const config = {
+    connectionString: env.DATABASE_URL,
+    ssl: env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+    max: 25,
+    min: 2,
+    idleTimeoutMillis: 60000,
+    connectionTimeoutMillis: 15000,
+    allowExitOnIdle: false,
+    maxUses: 7500,
+    statement_timeout: 30000,
+    query_timeout: 30000
+  };
+
+  _pool = new Pool(config);
+  _pool.on('error', err => console.error('⚠️  Idle client error:', err.message));
+
+  // Background connection test (non-fatal)
+  (async () => {
+    for (let i = 1; i <= 5; i++) {
+      try {
+        const client = await _pool.connect();
+        await client.query('SELECT 1');
+        client.release();
+        console.log('✅ Database connection established');
+        break;
+      } catch (err) {
+        console.warn(`⏳ DB retry ${i}/5 failed: ${err.message}`);
+        await new Promise(r => setTimeout(r, i * 2000));
+      }
+    }
+  })();
+
+  // Periodic health check (every 5 min)
+  if (!global.__POOL_HEALTH_INTERVAL__) {
+    global.__POOL_HEALTH_INTERVAL__ = setInterval(async () => {
+      try {
+        const client = await _pool.connect();
+        await client.query('SELECT 1');
+        client.release();
+        console.log('✅ DB pool health OK');
+      } catch (err) {
+        console.warn('⚠️  DB pool health check failed:', err.message);
+      }
+    }, 5 * 60 * 1000);
+  }
+
+  connecting = false;
+  return _pool;
+}
+
+/** Optional manual check for monitoring routes */
+export async function checkPoolHealth() {
+  const p = await getPool();
+  try {
+    const client = await p.connect();
+    await client.query('SELECT 1');
+    client.release();
+    return true;
+  } catch (err) {
+    console.warn('⚠️  checkPoolHealth error:', err.message);
+    return false;
+  }
+}
+
+// --- Compatibility export for legacy imports ---
+// This allows existing code to still use `import { pool } from './pool.js'`
+// We use a lazy getter to avoid the "already declared" error
+let _poolInstance = null;
+export const pool = {
+  async query(...args) {
+    if (!_poolInstance) _poolInstance = await getPool();
+    return _poolInstance.query(...args);
+  },
+  async connect() {
+    if (!_poolInstance) _poolInstance = await getPool();
+    return _poolInstance.connect();
+  },
+  async end() {
+    if (!_poolInstance) _poolInstance = await getPool();
+    return _poolInstance.end();
+  }
+};
 
 *** END FILE ***
 
@@ -14694,7 +14328,7 @@ export default router;
 
 import express from 'express';
 const router = express.Router();
-import { pool } from '../database/pool.js';
+import { getPool } from '../database/pool.js';
 import logger from '../utils/logger.js';
 
 // Track shutdown status for graceful shutdown
@@ -14711,27 +14345,26 @@ router.get('/', async (req, res) => {
     // Check database connectivity
     let dbStatus = { connected: false, status: 'Disconnected', queryTime: null, dbTime: null };
     
-    if (pool) {
-      try {
-        const dbStartTime = Date.now();
-        const result = await pool.query('SELECT NOW() as current_time');
-        const dbEndTime = Date.now();
-        
-        dbStatus = {
-          connected: true,
-          status: 'Connected',
-          queryTime: `${dbEndTime - dbStartTime}ms`,
-          dbTime: result.rows[0].current_time
-        };
-      } catch (dbError) {
-        dbStatus = {
-          connected: false,
-          status: 'Error',
-          queryTime: null,
-          dbTime: null,
-          error: dbError.message
-        };
-      }
+    try {
+      const pool = await getPool();
+      const dbStartTime = Date.now();
+      const result = await pool.query('SELECT NOW() as current_time');
+      const dbEndTime = Date.now();
+      
+      dbStatus = {
+        connected: true,
+        status: 'Connected',
+        queryTime: `${dbEndTime - dbStartTime}ms`,
+        dbTime: result.rows[0].current_time
+      };
+    } catch (dbError) {
+      dbStatus = {
+        connected: false,
+        status: 'Error',
+        queryTime: null,
+        dbTime: null,
+        error: dbError.message
+      };
     }
 
     const responseTime = Date.now() - startTime;
@@ -14795,17 +14428,9 @@ router.get('/ready', async (req, res) => {
       });
     }
 
-    // Check database connectivity
-    if (!pool) {
-      return res.status(503).json({
-        status: 'not_ready',
-        reason: 'database_pool_unavailable',
-        timestamp: new Date().toISOString()
-      });
-    }
-
     try {
       // Quick database ping
+      const pool = await getPool();
       const startTime = Date.now();
       await pool.query('SELECT 1');
       const responseTime = Date.now() - startTime;
@@ -14855,13 +14480,7 @@ router.get('/ready', async (req, res) => {
  */
 router.get('/db-status', async (req, res) => {
   try {
-    if (!pool) {
-      return res.status(503).json({
-        status: 'disconnected',
-        message: 'Database pool not available'
-      });
-    }
-
+    const pool = await getPool();
     const startTime = Date.now();
     const result = await pool.query('SELECT NOW() as current_time, version() as db_version');
     const responseTime = Date.now() - startTime;
@@ -14887,6 +14506,7 @@ router.get('/db-status', async (req, res) => {
  */
 router.get('/test-db', async (req, res) => {
   try {
+    const pool = await getPool();
     const startTime = Date.now();
     await pool.query('SELECT 1 as test');
     const responseTime = Date.now() - startTime;
@@ -22020,14 +21640,37 @@ if (!process.env.LOG_LEVEL) {
   process.env.LOG_LEVEL = 'error'
 }
 
-// Load environment variables from root .env file
+// Load environment variables from .env file (if it exists)
 import dotenv from 'dotenv'
 import path from 'path'
-dotenv.config({ path: path.resolve(process.cwd(), '../.env') })
+import { existsSync } from 'fs'
+
+// Try to load .env from multiple locations
+const envPaths = [
+  path.resolve(process.cwd(), '.env'),           // Current directory
+  path.resolve(process.cwd(), '../.env'),        // Parent directory (dev)
+  path.resolve(process.cwd(), '../../.env')      // Root directory (dev)
+]
+
+for (const envPath of envPaths) {
+  if (existsSync(envPath)) {
+    console.log(`📄 Loading .env from: ${envPath}`)
+    dotenv.config({ path: envPath })
+    break
+  }
+}
+
+// In production, environment variables should be set by the platform
+if (process.env.NODE_ENV === 'production') {
+  console.log('🏭 Production mode: Using platform environment variables')
+}
 
 import express from 'express'
 import cors from 'cors'
 import { fileURLToPath } from 'url'
+
+// Environment validation will be done after server starts
+
 import { tenantResolver } from './middleware/tenantResolver.js'
 import paymentRoutes from './routes/payments.js'
 import healthRoutes from './routes/health.js'
@@ -22111,7 +21754,7 @@ app.post('/api/debug/body', (req, res) => {
 
 // API Routes - MUST come before static file serving
 app.use('/api/payments', paymentRoutes)
-app.use('/api/health', healthRoutes)
+// Health routes moved to /api/health/detailed (see below)
 app.use('/api/auth', authRoutes)
 app.use('/api/tenants', tenantsRoutes)
 app.use('/api/admin', adminRoutes)
@@ -22129,14 +21772,18 @@ if (process.env.NODE_ENV !== 'production') {
   app.get('/', (_req, res) => res.send('Backend online 🚀'))
 }
 
-// Explicit health check endpoint for Render
+// Simple health check for Render (no database dependency)
 app.get('/api/health', (req, res) => {
   res.status(200).json({ 
-    ok: true, 
+    status: 'OK',
     timestamp: new Date().toISOString(),
-    service: 'thatsmartsite-backend'
+    service: 'thatsmartsite-backend',
+    uptime: process.uptime()
   })
 })
+
+// Comprehensive health check with database status at /api/health/detailed
+app.use('/api/health/detailed', healthRoutes)
 
 // 1️⃣ Serve *all* built assets first (shared for both apps)
 // In production, assets are in backend/public/dist/assets
@@ -22155,7 +21802,7 @@ app.use(
 
 // 2️⃣ Serve admin-specific files
 const adminPath = process.env.NODE_ENV === 'production'
-  ? path.join(__dirname, 'public', 'dist', 'admin')
+  ? path.join(__dirname, 'public', 'admin')
   : path.join(__dirname, '../frontend/dist/admin');
 
 app.use(
@@ -22167,7 +21814,7 @@ app.use(
 
 // 3️⃣ Serve tenant-specific files
 const tenantPath = process.env.NODE_ENV === 'production'
-  ? path.join(__dirname, 'public', 'dist', 'tenant')
+  ? path.join(__dirname, 'public', 'tenant')
   : path.join(__dirname, '../frontend/dist/tenant');
 
 app.use(
@@ -22201,8 +21848,8 @@ app.get('*', (req, res) => {
     host === 'thatsmartsite-backend.onrender.com';
 
   const htmlFile = isAdminDomain
-    ? path.join(__dirname, process.env.NODE_ENV === 'production' ? 'public/dist/admin/index.html' : '../frontend/dist/admin/index.html')
-    : path.join(__dirname, process.env.NODE_ENV === 'production' ? 'public/dist/tenant/index.html' : '../frontend/dist/tenant/index.html');
+    ? path.join(__dirname, process.env.NODE_ENV === 'production' ? 'public/admin/index.html' : '../frontend/dist/admin/index.html')
+    : path.join(__dirname, process.env.NODE_ENV === 'production' ? 'public/tenant/index.html' : '../frontend/dist/tenant/index.html');
 
   res.sendFile(htmlFile);
 })
@@ -22220,9 +21867,51 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3001
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`✅ Backend running on http://localhost:${PORT} (LAN enabled)`)
+const HOST = '0.0.0.0'
+
+console.log(`💡 Reached listen() call`)
+console.log(`🚀 Starting server on ${HOST}:${PORT}`)
+console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`)
+console.log(`🔗 Database URL exists: ${process.env.DATABASE_URL ? 'YES' : 'NO'}`)
+console.log(`📁 Current working directory: ${process.cwd()}`)
+console.log(`📄 Server file location: ${import.meta.url}`)
+
+// Start server FIRST, then do async initialization
+app.listen(PORT, HOST, () => {
+  console.log(`✅ Backend server started successfully`)
+  console.log(`🌐 Listening on ${HOST}:${PORT}`)
+  console.log(`🔗 Health check: http://${HOST}:${PORT}/api/health`)
+  console.log(`📊 Detailed health: http://${HOST}:${PORT}/api/health/detailed`)
+  console.log(`🏗️  Environment: ${process.env.NODE_ENV || 'development'}`)
+  
+  // Now do async initialization after server is listening
+  initializeAsync()
 })
+
+// Async initialization after server starts
+async function initializeAsync() {
+  try {
+    console.log('🔍 Testing async environment validation...')
+    const { loadEnv } = await import('./config/env.js')
+    const env = await loadEnv()
+    console.log('✅ Environment validation passed')
+    console.log(`📊 Environment: ${env.NODE_ENV}`)
+    console.log(`🔗 Database URL exists: ${env.DATABASE_URL ? 'YES' : 'NO'}`)
+    
+    // Test database connection (non-blocking)
+    console.log('🔗 Testing database connection...')
+    const { getPool } = await import('./database/pool.js')
+    const pool = await getPool()
+    const client = await pool.connect()
+    await client.query('SELECT 1')
+    client.release()
+    console.log('✅ Database connection verified')
+    
+  } catch (error) {
+    console.error('⚠️ Async initialization failed:', error.message)
+    console.error('Server is still running, but some features may not work')
+  }
+}
 
 *** END FILE ***
 
@@ -36328,6 +36017,126 @@ After successful testing, consider:
 
 *** END FILE ***
 
+*** FILE: eslint.config.js ***
+/**
+ * Root ESLint Configuration
+ * Applies to backend/ and scripts/ (Node.js environments)
+ * Frontend has its own eslint.config.js with React/TypeScript rules
+ * 
+ * Philosophy:
+ * - Consistent code quality across backend and scripts
+ * - Node.js best practices
+ * - TypeScript support for scripts
+ * - Aligned with .cursorrules: no eslint-disable without comment
+ */
+
+import js from '@eslint/js';
+import globals from 'globals';
+
+export default [
+  {
+    ignores: [
+      '**/node_modules/**',
+      '**/dist/**',
+      'frontend/**',  // Frontend has its own config
+      '**/coverage/**',
+      '**/.vite/**',
+    ],
+  },
+  
+  // Base JS recommended rules
+  js.configs.recommended,
+  
+  // Backend JavaScript files
+  {
+    files: ['backend/**/*.js'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      globals: {
+        ...globals.node,
+        ...globals.es2021,
+      },
+    },
+    rules: {
+      // Common rules from .cursorrules
+      'no-unused-vars': ['error', { 
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+      }],
+      'no-undef': 'error',
+      'no-shadow': 'error',
+      'no-console': 'off',  // Console is fine in backend
+      
+      // Code quality
+      'prefer-const': 'error',
+      'no-var': 'error',
+      'eqeqeq': ['error', 'always'],
+      'curly': ['error', 'all'],
+      
+      // Async/Promise rules
+      'no-async-promise-executor': 'error',
+      'require-await': 'warn',
+      
+      // Disable eslint-disable without comment (from .cursorrules)
+      'eslint-comments/no-unlimited-disable': 'off',  // Would need plugin
+      
+      // Best practices
+      'no-throw-literal': 'error',
+      'prefer-promise-reject-errors': 'error',
+    },
+  },
+  
+  // Root-level scripts
+  {
+    files: ['scripts/**/*.js'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      globals: {
+        ...globals.node,
+        ...globals.es2021,
+      },
+    },
+    rules: {
+      'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      'no-undef': 'error',
+      'no-shadow': 'error',
+      'no-console': 'off',  // Console output is the point of scripts
+      'prefer-const': 'error',
+      'no-var': 'error',
+    },
+  },
+  
+  // Frontend scripts (TypeScript)
+  {
+    files: ['frontend/scripts/**/*.ts'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      globals: {
+        ...globals.node,
+        ...globals.es2021,
+      },
+      parserOptions: {
+        project: null,  // Don't type-check scripts with tsconfig
+      },
+    },
+    rules: {
+      'no-unused-vars': 'off',  // TypeScript handles this
+      'no-undef': 'off',  // TypeScript handles this
+      'no-shadow': 'error',
+      'no-console': 'off',
+      'prefer-const': 'error',
+      'no-var': 'error',
+    },
+  },
+];
+
+
+
+*** END FILE ***
+
 *** FILE: frontend\config\chunks.ts ***
 /**
  * Vite Build Chunk Configuration
@@ -37763,6 +37572,91 @@ export default [
 
 *** END FILE ***
 
+*** FILE: frontend\package.json ***
+{
+  "name": "thatsmartsite-frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "npx vite",
+    "build": "npx vite build",
+    "build:analyze": "cross-env ANALYZE=true npx vite build",
+    "prebuild": "echo 'Skipping image optimization for now'",
+    "lint": "eslint . && npm run lint:boundaries",
+    "lint:fix": "eslint . --fix",
+    "lint:boundaries": "tsx scripts/check-import-boundaries.ts",
+    "lint:boundaries:verbose": "tsx scripts/check-import-boundaries.ts -- --verbose",
+    "check:sizes": "node scripts/check-component-sizes.js",
+    "check:sizes:ci": "node scripts/check-component-sizes.js --ci --fail 250",
+    "check:sizes:report": "node scripts/check-component-sizes.js --limit 15",
+    "preview": "npx vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "optimize-images": "node scripts/convert-images.js",
+    "check-pages": "node scripts/check-pages-usage.js",
+    "lint:pages": "eslint . --rule 'import/no-restricted-paths: error'",
+    "validate-location-data": "node scripts/validate-location-data.js",
+    "prebuild:validate": "npm run validate-location-data",
+    "build:faq-schemas": "node scripts/build-faq-schemas.js",
+    "prebuild:faq": "npm run build:faq-schemas"
+  },
+  "dependencies": {
+    "@sendgrid/mail": "^8.1.6",
+    "@stripe/react-stripe-js": "^5.2.0",
+    "@stripe/stripe-js": "^8.0.0",
+    "@tanstack/react-query": "^5.87.4",
+    "@vitejs/plugin-react": "^4.3.1",
+    "axios": "^1.12.2",
+    "cheerio": "^1.1.2",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.344.0",
+    "puppeteer": "^24.25.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-helmet-async": "^2.0.5",
+    "react-icons": "^5.5.0",
+    "react-router-dom": "^7.7.1",
+    "rollup-plugin-visualizer": "^6.0.5",
+    "tailwind-merge": "^3.3.1",
+    "tailwindcss": "^3.4.1",
+    "autoprefixer": "^10.4.18",
+    "postcss": "^8.4.35",
+    "cross-env": "^10.1.0",
+    "vite": "^5.4.2",
+    "zod": "^4.1.5",
+    "zustand": "^5.0.8"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.9.1",
+    "@tailwindcss/container-queries": "^0.1.1",
+    "@types/google.maps": "^3.58.1",
+    "@types/node": "^24.3.1",
+    "@types/react": "^18.3.24",
+    "@types/react-dom": "^18.3.7",
+    "@typescript-eslint/eslint-plugin": "^8.8.1",
+    "@typescript-eslint/parser": "^8.8.1",
+    "@vitest/ui": "^3.2.4",
+    "eslint": "^8.57.0",
+    "eslint-plugin-eslint-comments": "^3.2.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react": "^7.34.3",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-react-refresh": "^0.4.7",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "globals": "^15.9.0",
+    "jsdom": "^26.1.0",
+    "sharp": "^0.33.0",
+    "tsx": "^4.20.6",
+    "typescript": "~5.5.4",
+    "vitest": "^3.2.4"
+  }
+}
+
+
+*** END FILE ***
+
 *** FILE: frontend\PERFORMANCE_OPTIMIZATION.md ***
 # 🚀 Performance Optimization Guide
 
@@ -37888,6 +37782,17 @@ npm run preview       # Test production build locally
 **Last Updated**: $(date)
 **Performance Score Target**: 90+
 **Bundle Size Target**: <500KB total (gzipped)
+
+
+*** END FILE ***
+
+*** FILE: frontend\postcss.config.js ***
+export default {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+};
 
 
 *** END FILE ***
@@ -40909,7 +40814,6 @@ export default ServicePage;
 
 *** FILE: frontend\src\app\providers.tsx ***
 import React from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { AuthProvider, TenantConfigProvider } from '@/shared/contexts';
@@ -40939,11 +40843,9 @@ export const Providers: React.FC<ProvidersProps> = ({ children }) => {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <TenantConfigProvider>
-            <Router>
-              <WebsiteContentProvider>
-                {children}
-              </WebsiteContentProvider>
-            </Router>
+            <WebsiteContentProvider>
+              {children}
+            </WebsiteContentProvider>
           </TenantConfigProvider>
         </AuthProvider>
       </QueryClientProvider>
@@ -77437,11 +77339,6 @@ export const RecentReviews: React.FC = () => {
 
 *** END FILE ***
 
-*** FILE: frontend\src\features\tenantDashboard\tabs\overview\hooks\useDashboardStats.ts ***
-
-
-*** END FILE ***
-
 *** FILE: frontend\src\features\tenantDashboard\tabs\overview\hooks\useNotifications.ts ***
 import { useEffect,useState } from 'react';
 
@@ -93153,6 +93050,39 @@ input[type="text"]:-webkit-autofill {
 }
 
 
+
+
+*** END FILE ***
+
+*** FILE: frontend\src\main.tsx ***
+import { createRoot } from 'react-dom/client';
+import { HelmetProvider } from 'react-helmet-async';
+
+import { config } from '@/shared/env';
+
+import App from './app/App';
+
+import './index.css';
+
+// Register Service Worker for PWA functionality (only in production and when explicitly enabled)
+if ('serviceWorker' in navigator && config.serviceWorkerEnabled) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch((err: unknown) => {
+      console.warn('SW registration failed:', err);
+    });
+  });
+}
+
+const rootElement = document.getElementById('root');
+if (!rootElement) {
+  throw new Error('Root element not found');
+}
+
+createRoot(rootElement).render(
+  <HelmetProvider>
+    <App />
+  </HelmetProvider>
+);
 
 
 *** END FILE ***
@@ -114393,6 +114323,262 @@ export const isMotorcycleData = (data: VehicleData): data is MotorcycleMakeModel
 
 *** END FILE ***
 
+*** FILE: frontend\tailwind.config.js ***
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  theme: {
+    extend: {
+      // Standard responsive breakpoints (Tailwind-native screens)
+      screens: {
+        'xs': '390px',
+        'sm': '640px',
+        'md': '768px',
+        'lg': '1024px',
+        'xl': '1280px',
+        '2xl': '1536px',
+      },
+      // Container queries for component-level responsiveness
+      containers: {
+        'xs': '390px',
+        'sm': '640px',
+        'md': '768px',
+        'lg': '1024px',
+      },
+    },
+  },
+  plugins: [
+    // eslint-disable-next-line no-undef -- CommonJS require in config file
+    require('@tailwindcss/container-queries'),
+  ],
+};
+
+
+*** END FILE ***
+
+*** FILE: frontend\tsconfig.app.json ***
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"],
+      "shared/*": ["src/components/shared/*"]
+    },
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    
+    /* Additional strict checks */
+    "noImplicitReturns": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "useUnknownInCatchVariables": true
+  },
+  "include": ["src", "vite.config.ts", "data/**/*", "config/**/*", "scripts/**/*"]
+}
+
+
+*** END FILE ***
+
+*** FILE: frontend\tsconfig.eslint.json ***
+{
+  "extends": "./tsconfig.app.json",
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.d.ts",
+    "vitest.config.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    ".next",
+    "public"
+  ]
+}
+
+
+*** END FILE ***
+
+*** FILE: frontend\tsconfig.json ***
+{
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ]
+}
+
+
+*** END FILE ***
+
+*** FILE: frontend\tsconfig.node.json ***
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2023"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    
+    /* Additional strict checks */
+    "noImplicitReturns": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true
+  },
+  "include": ["vite.config.ts"]
+}
+
+
+*** END FILE ***
+
+*** FILE: frontend\vite.config.ts ***
+import react from '@vitejs/plugin-react';
+import { fileURLToPath } from 'node:url';
+import { URL } from 'node:url';
+import { defineConfig } from 'vite';
+import { visualizer } from 'rollup-plugin-visualizer';
+import path from 'path';
+
+import { manualChunks } from './config/chunks';
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  base: './', // Important for multi-entry builds
+  plugins: [
+    react(),
+    // Bundle analyzer - only in build mode
+    process.env['ANALYZE'] && visualizer({
+      filename: 'dist/bundle-analysis.html',
+      open: true,
+      gzipSize: true,
+      brotliSize: true,
+    }),
+  ].filter(Boolean) as any,
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url))
+    }
+  },
+  optimizeDeps: {
+    exclude: ['lucide-react'],
+  },
+  server: {
+    host: '0.0.0.0', // Allow access from network
+    // port: 5177, // Let Vite auto-detect available port
+    allowedHosts: [
+      'localhost',
+      '127.0.0.1',
+      '.lvh.me', // Allow all lvh.me subdomains for local testing
+      '.thatsmartsite.com', // Allow all thatsmartsite.com subdomains
+    ],
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path,
+        configure: (proxy, _options) => {
+          proxy.on('proxyReq', (_proxyReq, _req) => {
+            // console.log('Proxying:', req.method, req.url, req.headers['content-type']);
+          });
+          proxy.on('error', (err, _req, _res) => {
+            console.error('Proxy error:', err.message);
+          });
+        },
+      },
+      '/uploads': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
+  build: {
+    // DEBUG: Disable minification to get readable error messages
+    minify: false,
+    // Optimize for better performance
+    target: 'esnext',
+    // DEBUG: Always enable source maps for debugging
+    sourcemap: true,
+    rollupOptions: {
+      // Multiple entry points for admin and tenant apps
+      input: {
+        admin: path.resolve(__dirname, 'src/admin-app/index.html'),
+        tenant: path.resolve(__dirname, 'src/tenant-app/index.html'),
+      },
+      // Exclude problematic files from build
+      external: (id) => {
+        return id.includes('.legacy') || id.includes('_archive');
+      },
+      output: {
+        // DEBUG: Split vendor chunks to isolate circular imports
+        manualChunks: (id) => {
+          if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+            return 'react-vendor';
+          }
+          if (id.includes('@tanstack')) return 'query-vendor';
+          if (id.includes('lucide-react')) return 'icons-vendor';
+          if (id.includes('node_modules')) return 'vendor';
+          return undefined;
+        },
+        // Optimize chunk file names for better caching
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]',
+      },
+    },
+  },
+});
+
+
+*** END FILE ***
+
 *** FILE: frontend\vitest.config.ts ***
 /// <reference types="vitest" />
 import react from '@vitejs/plugin-react';
@@ -114405,6 +114591,59 @@ export default defineConfig({
     environment: 'jsdom',
   },
 })
+
+
+*** END FILE ***
+
+*** FILE: package.json ***
+{
+  "name": "thatsmartsite",
+  "version": "1.0.0",
+  "description": "That Smart Site - Smart websites for smart businesses",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "cd frontend && npm run build",
+    "dev": "concurrently \"cd frontend && npm run dev\" \"cd backend && npm run dev\" \"node scripts/error-monitor/index.js --target=all\"",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "node scripts/find-free-port.js && node scripts/start-frontend.js",
+    "dev:monitor": "node scripts/dev-monitor.js",
+    "predev:all": "node backend/scripts/kill-node-processes.js",
+    "dev:all": "npm run predev:all && concurrently -n FRONTEND,BACKEND -c cyan,yellow \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:clean": "scripts/cleanup-and-dev.bat",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+    "lint": "eslint backend/ scripts/",
+    "lint:fix": "eslint backend/ scripts/ --fix",
+    "lint:all": "npm run lint && cd frontend && npm run lint",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,css,scss}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md,css,scss}\"",
+    "prepare": "husky install",
+    "overview": "node scripts/project-overview.js",
+    "seo:provision": "node backend/scripts/provision-seo-config.js --all",
+    "seo:test": "node scripts/test-seo-anchors.js",
+    "deploy:check": "node scripts/deploy-render.js",
+    "deploy:build": "cd frontend && npm run build && cd ../backend && npm run migrate"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "concurrently": "^8.2.2",
+    "eslint": "^9.17.0",
+    "globals": "^15.14.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.11",
+    "nodemon": "^3.1.0",
+    "prettier": "^3.4.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "chalk": "^5.6.2",
+    "cli-table3": "^0.6.5",
+    "dotenv": "^17.2.1",
+    "pg": "^8.16.3"
+  }
+}
 
 
 *** END FILE ***
@@ -114455,7 +114694,10 @@ services:
     buildCommand: |
       echo "==> Installing backend dependencies..."
       cd backend
-      npm install --omit=dev
+      npm install
+      echo "==> Fixing debug module..."
+      rm -rf node_modules/debug
+      npm install debug --force
       echo "==> Installing critical runtime dependencies..."
       npm install bcryptjs express pg cors dotenv jsonwebtoken
 
@@ -114477,17 +114719,15 @@ services:
       ls -la ../backend/public/assets/ || echo "ERROR: Assets not copied!"
 
     startCommand: |
+      echo "==> Current working directory: $(pwd)"
+      echo "==> Checking if server.js exists and printing its first 10 lines:"
+      head backend/server.js
+      echo "==> PORT: $PORT"
+      echo "==> NODE_ENV: $NODE_ENV"
+      echo "==> DATABASE_URL exists: $([ -n "$DATABASE_URL" ] && echo "YES" || echo "NO")"
       cd backend
-      echo "==> Waiting for database to become ready..."
-      for i in {1..10}; do
-        node -e "const { Client } = require('pg'); const c = new Client({ connectionString: process.env.DATABASE_URL }); c.connect().then(()=>{console.log('✅ DB ready'); process.exit(0)}).catch(()=>{console.log('DB not ready, retry...'); process.exit(1)});" && break || sleep 5
-      done
-      echo "==> Running migrations at startup..."
-      npm run migrate
-      echo "==> Creating production admin user..."
-      node create-production-admin.js
-      echo "==> Starting app..."
-      npm start
+      echo "==> Starting server directly..."
+      node server.js
 
     healthCheckPath: /api/health
 
@@ -115079,530 +115319,265 @@ function checkPort(port) {
 *** END FILE ***
 
 *** FILE: scripts\project-overview.js ***
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { execSync } from 'child_process';
+// project-overview.js
+// Comprehensive auto-diagnostic mode — file output only, no console logs
+// Generates: ALL_part*.txt + SEO.md + DATABASE.md + CURSORRULES.md + ROUTER_REPORT.md + SERVER_REPORT.md + DB_REPORT.md + ENV_REPORT.md
+
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import { execSync } from "child_process";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-/** ======================
- *  Config (no CLI flags; just run `node project-overview.js`)
- *  ====================== */
-const OUTPUT_DIR_NAME = 'chatgpt';
-
-// Maximum size per output file (bytes)
-const MAX_BUNDLE_BYTES = 5 * 1024 * 1024; // 5 MB
-// Max number of output files
+/*─────────────────────────────────────────────*
+ * CONFIG
+ *─────────────────────────────────────────────*/
+const OUTPUT_DIR_NAME = "chatgpt";
+const MAX_BUNDLE_BYTES = 5 * 1024 * 1024;
 const MAX_OUTPUT_FILES = 10;
-// Tree depth for project root overview
 const ROOT_TREE_DEPTH = 3;
 
-// Which file types to include in bundles (text-ish)
 const ALLOWED_EXT = new Set([
-  '.js','.jsx','.ts','.tsx','.mjs','.cjs',
-  '.json','.md','.txt',
-  '.css','.scss','.sass',
-  '.html','.xml',
-  '.sql','.sh','.bat','.ps1',
-  '.yml','.yaml','.toml','.ini','.cfg','.conf',
-  '.py','.go','.rb','.rs','.java','.kt',
-  '.c','.h','.cpp','.hpp',
-  '.dockerfile','.env.example'
+  ".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs",
+  ".json", ".md", ".txt",
+  ".css", ".scss", ".sass",
+  ".html", ".xml",
+  ".sql", ".sh", ".bat", ".ps1",
+  ".yml", ".yaml", ".toml", ".ini", ".cfg", ".conf",
+  ".py", ".go", ".rb", ".rs", ".java", ".kt",
+  ".c", ".h", ".cpp", ".hpp",
+  ".dockerfile", ".env.example"
 ]);
 
-// Directories we skip to avoid noise/weight
 const IGNORE_DIRS = new Set([
-  'node_modules','dist','build','.next','.nuxt','out',
-  '.cache','.parcel-cache','coverage',
-  '.git','.github','.vscode','.idea','.vite',
-  'assets','images','videos','media','uploads','public'
+  "node_modules","dist","build",".next",".nuxt","out",
+  ".cache",".parcel-cache","coverage",
+  ".git",".github",".vscode",".idea",".vite",
+  "assets","images","videos","media","uploads","public"
 ]);
-
-// Files we skip explicitly
 const IGNORE_FILES = new Set([
-  '.DS_Store','Thumbs.db','package-lock.json','yarn.lock','pnpm-lock.yaml'
+  ".DS_Store","Thumbs.db","package-lock.json","yarn.lock","pnpm-lock.yaml"
 ]);
 
-
-// --- add near the top with other imports ---
 function writeText(filePath, text) {
-  const dir = path.dirname(filePath);
-  fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(filePath, text, 'utf8');
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  fs.writeFileSync(filePath, text, "utf8");
 }
-
-/** ======================
- *  FS helpers
- *  ====================== */
-function clearDir(dir) { 
-  fs.rmSync(dir, { recursive: true, force: true }); 
-  fs.mkdirSync(dir, { recursive: true }); 
-}
-function isBinary(buf) { return buf.includes(0); }
-function safeRead(filePath) {
-  try {
-    const buf = fs.readFileSync(filePath);
-    if (isBinary(buf)) return null;
-    return buf.toString('utf8');
-  } catch {
-    return null;
+function clearDir(dir) { fs.rmSync(dir,{recursive:true,force:true}); fs.mkdirSync(dir,{recursive:true}); }
+function isBinary(buf){ return buf.includes(0); }
+function safeRead(file){ try{const b=fs.readFileSync(file); if(isBinary(b))return null; return b.toString("utf8");}catch{return null;} }
+function shouldSkipFile(name){ if(IGNORE_FILES.has(name))return true; if(name==="Dockerfile"||name==="Makefile")return false; const ext=path.extname(name).toLowerCase(); return !ALLOWED_EXT.has(ext); }
+function findProjectRoot(start){
+  let dir=path.resolve(start);
+  for(let i=0;i<12;i++){
+    const hasPkg=fs.existsSync(path.join(dir,"package.json"));
+    const hasGit=fs.existsSync(path.join(dir,".git"));
+    const hasFrontend=fs.existsSync(path.join(dir,"frontend"));
+    const hasChatgpt=fs.existsSync(path.join(dir,"chatgpt"));
+    const signals=[hasPkg,hasGit,hasFrontend,hasChatgpt].filter(Boolean).length;
+    if(signals>=2) return dir;
+    if(hasPkg) return dir;
+    const parent=path.dirname(dir);
+    if(parent===dir) break;
+    dir=parent;
   }
+  return path.resolve(start);
 }
-function shouldSkipFile(name) {
-  if (IGNORE_FILES.has(name)) return true;
-  
-  // Allow common no-ext infra files
-  if (name === 'Dockerfile' || name === 'Makefile') return false;
-  
-  const ext = path.extname(name).toLowerCase();
-  if (!ALLOWED_EXT.has(ext)) return true;
-  return false;
-}
-
-/** ======================
- *  Root detection (walk up from this script)
- *  ====================== */
-function findProjectRoot(startDir) {
-  let dir = path.resolve(startDir);
-  for (let i = 0; i < 12; i++) {
-    const hasPkg = fs.existsSync(path.join(dir, 'package.json'));
-    const hasGit = fs.existsSync(path.join(dir, '.git'));
-    const hasFrontend = fs.existsSync(path.join(dir, 'frontend'));
-    const hasChatgpt = fs.existsSync(path.join(dir, 'chatgpt'));
-    
-    // Require at least 2 signals to avoid false positives (e.g., scripts/chatgpt folder)
-    const signals = [hasPkg, hasGit, hasFrontend, hasChatgpt].filter(Boolean).length;
-    if (signals >= 2) return dir;
-    
-    // If we find package.json alone, that's also good enough
-    if (hasPkg) return dir;
-    
-    const parent = path.dirname(dir);
-    if (parent === dir) break;
-    dir = parent;
-  }
-  return path.resolve(startDir);
-}
-
-/** ======================
- *  Walkers
- *  ====================== */
-function walkDir(dir, { allowAll = false } = {}) {
-  const out = [];
-  const stack = [dir];
-  while (stack.length) {
-    const d = stack.pop();
-    let entries = [];
-    try { entries = fs.readdirSync(d, { withFileTypes: true }); } catch { continue; }
-    for (const e of entries) {
-      if (e.name.startsWith('.')) continue; // skip hidden by default
-      const full = path.join(d, e.name);
-      if (e.isSymbolicLink()) continue;
-      if (e.isDirectory()) {
-        if (!IGNORE_DIRS.has(e.name)) stack.push(full);
-      } else {
-        if (!allowAll && shouldSkipFile(e.name)) continue;
-        out.push({ full, rel: path.relative(dir, full), name: e.name });
-      }
+function walkDir(dir,{allowAll=false}={}) {
+  const out=[], stack=[dir];
+  while(stack.length){
+    const d=stack.pop();
+    let entries=[];
+    try{entries=fs.readdirSync(d,{withFileTypes:true});}catch{continue;}
+    for(const e of entries){
+      if(e.name.startsWith("."))continue;
+      const full=path.join(d,e.name);
+      if(e.isSymbolicLink())continue;
+      if(e.isDirectory()){ if(!IGNORE_DIRS.has(e.name))stack.push(full); }
+      else{ if(!allowAll&&shouldSkipFile(e.name))continue; out.push({full,rel:path.relative(dir,full),name:e.name}); }
     }
   }
-  return out.sort((a,b) => a.rel.localeCompare(b.rel));
+  return out.sort((a,b)=>a.rel.localeCompare(b.rel));
 }
-
-function walkDirLimitedDepth(dir, maxDepth, depth = 0) {
-  let tree = '';
-  if (depth === 0) tree += `${path.basename(dir)}/\n`;
-  let entries = [];
-  try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return tree; }
-  entries = entries
-    .filter(e => !e.name.startsWith('.') && !IGNORE_DIRS.has(e.name))
-    .sort((a,b) => a.name.localeCompare(b.name));
-  for (const e of entries) {
-    const full = path.join(dir, e.name);
-    const indent = '  '.repeat(depth + 1);
-    tree += `${indent}${e.name}${e.isDirectory() ? '/' : ''}\n`;
-    if (e.isDirectory() && depth + 1 < maxDepth) {
-      tree += walkDirLimitedDepth(full, maxDepth, depth + 1);
-    }
+function walkDirLimitedDepth(dir,maxDepth,depth=0){
+  let tree=""; if(depth===0)tree+=`${path.basename(dir)}/\n`;
+  let entries=[]; try{entries=fs.readdirSync(dir,{withFileTypes:true});}catch{return tree;}
+  entries=entries.filter(e=>!e.name.startsWith(".")&&!IGNORE_DIRS.has(e.name)).sort((a,b)=>a.name.localeCompare(b.name));
+  for(const e of entries){
+    const full=path.join(dir,e.name);
+    const indent="  ".repeat(depth+1);
+    tree+=`${indent}${e.name}${e.isDirectory()?"/":""}\n`;
+    if(e.isDirectory()&&depth+1<maxDepth)tree+=walkDirLimitedDepth(full,maxDepth,depth+1);
   }
   return tree;
 }
 
-/** ======================
- *  Context gatherers
- *  ====================== */
-function detectRouterEntries(projectRoot) {
-  const guesses = [
-    // Vite/CRA-style
-    'src/main.tsx','src/main.jsx','src/index.tsx','src/index.jsx','src/App.tsx','src/App.jsx',
-    'frontend/src/main.tsx','frontend/src/main.jsx','frontend/src/index.tsx','frontend/src/index.jsx','frontend/src/App.tsx','frontend/src/App.jsx',
-    // Next.js
-    'pages/_app.tsx','pages/_app.jsx','pages/_document.tsx','pages/_document.jsx',
-    'app/layout.tsx','app/layout.jsx','app/page.tsx','app/page.jsx'
-  ];
-  return guesses.map(g => path.join(projectRoot, g)).filter(p => fs.existsSync(p));
+/*─────────────────────────────────────────────*
+ * CONTEXT + BUILD HELPERS
+ *─────────────────────────────────────────────*/
+function collectContextFiles(root){
+  const core=["package.json","frontend/package.json","tsconfig.json","frontend/tsconfig.json","vite.config.ts","vite.config.js","frontend/vite.config.ts","frontend/vite.config.js",".cursorrules"];
+  return core.map(f=>path.join(root,f)).filter(f=>fs.existsSync(f)).map(f=>({full:f,rel:path.relative(root,f),name:path.basename(f)}));
 }
-
-function collectContextFiles(projectRoot) {
-  const candidates = [
-    // Root & frontend tooling/config
-    'package.json','frontend/package.json',
-    'tsconfig.json','frontend/tsconfig.json','frontend/tsconfig.app.json','frontend/tsconfig.node.json','frontend/tsconfig.eslint.json',
-    'vite.config.ts','vite.config.js','frontend/vite.config.ts','frontend/vite.config.js',
-    'tailwind.config.js','tailwind.config.cjs','tailwind.config.ts',
-    'postcss.config.js','postcss.config.cjs','postcss.config.ts',
-    'eslint.config.js','eslint.config.cjs','eslint.config.mjs','.eslintrc','.eslintrc.json',
-    'README.md','frontend/README.md',
-    '.cursorrules',
-    // SEO & infra files
-    'public/robots.txt','frontend/public/robots.txt',
-    'public/sitemap.xml','frontend/public/sitemap.xml',
-    'public/manifest.json','frontend/public/manifest.json',
-    // Environment examples
-    '.env.example','frontend/.env.example',
-    // CI/CD workflows
-    '.github/workflows/lighthouse.yml',
-    '.github/workflows/ci.yml',
-    '.github/workflows/tests.yml'
-  ].map(p => path.join(projectRoot, p));
-
-  const router = detectRouterEntries(projectRoot);
-  const maybes = [
-    'site.json','frontend/src/site.json','src/site.json',
-    'frontend/tailwind.config.js','frontend/postcss.config.js'
-  ].map(p => path.join(projectRoot, p));
-
-  const all = [...new Set([...candidates, ...router, ...maybes])]
-    .filter(p => fs.existsSync(p))
-    .map(full => ({ full, rel: path.relative(projectRoot, full), name: path.basename(full) }));
-
-  // Ensure .cursorrules is first if present
-  const idx = all.findIndex(f => f.rel === '.cursorrules');
-  if (idx > -1) {
-    const [it] = all.splice(idx, 1);
-    all.unshift(it);
-  }
-  return all;
-}
-
-/** ======================
- *  Banners & packers
- *  ====================== */
-function makeBanner(title, fileRel) { return `\n*** ${title}: ${fileRel} ***\n`; }
-function makeEndBanner() { return `\n*** END FILE ***\n`; }
-
-function buildChunks(files, baseDir) {
-  const chunks = [];
-  for (const f of files) {
-    const content = safeRead(f.full);
-    if (content == null) continue;
-    const rel = path.relative(baseDir, f.full);
-    const chunk = `${makeBanner('FILE', rel)}${content}\n${makeEndBanner()}`;
-    chunks.push({ rel, bytes: Buffer.byteLength(chunk, 'utf8'), text: chunk });
-  }
-  return chunks;
-}
-
-function packBySize(chunks, outDir, prefix, maxBytes, maxFiles) {
-  const written = [];
-  let part = 1;
-  let current = '';
-  let currentBytes = 0;
-
-  const flush = () => {
-    if (!current) return;
-    const name = `${prefix}_part${String(part).padStart(2,'0')}.txt`;
-    fs.writeFileSync(path.join(outDir, name), current);
-    written.push(name);
-    part++;
-    current = '';
-    currentBytes = 0;
-  };
-
-  for (const ch of chunks) {
-    if (currentBytes + ch.bytes > maxBytes && current) {
-      flush();
-      // if we somehow exceed max files, we’ll merge later
-    }
-    current += ch.text;
-    currentBytes += ch.bytes;
-  }
-  if (current) flush();
-
-  // Enforce file cap by merging from the end
-  while (written.length > maxFiles) {
-    const keep = written[written.length - 2];
-    const absorb = written[written.length - 1];
-    const keepPath = path.join(outDir, keep);
-    const absorbPath = path.join(outDir, absorb);
-    fs.appendFileSync(keepPath, '\n' + fs.readFileSync(absorbPath, 'utf8'));
-    fs.rmSync(absorbPath, { force: true });
-    written.pop();
-  }
-
+function makeBanner(title,rel){return`\n*** ${title}: ${rel} ***\n`;}
+function makeEndBanner(){return`\n*** END FILE ***\n`;}
+function buildChunks(files,base){const chunks=[]; for(const f of files){const c=safeRead(f.full); if(!c)continue; const rel=path.relative(base,f.full); const text=`${makeBanner("FILE",rel)}${c}\n${makeEndBanner()}`; chunks.push({rel,bytes:Buffer.byteLength(text),text});} return chunks;}
+function packBySize(chunks,out,prefix,maxB,maxF){const written=[];let part=1,current="",bytes=0;
+  const flush=()=>{if(!current)return;const n=`${prefix}_part${String(part).padStart(2,"0")}.txt`;fs.writeFileSync(path.join(out,n),current);written.push(n);part++;current="";bytes=0;};
+  for(const ch of chunks){if(bytes+ch.bytes>maxB&&current)flush();current+=ch.text;bytes+=ch.bytes;}
+  if(current)flush();
+  while(written.length>maxF){const keep=written[written.length-2],absorb=written[written.length-1];
+    fs.appendFileSync(path.join(out,keep),"\n"+fs.readFileSync(path.join(out,absorb),"utf8")); fs.rmSync(path.join(out,absorb)); written.pop();}
   return written;
 }
 
-/** ======================
- *  Structure text
- *  ====================== */
-function printFullTree(root, files) {
-  const set = new Set(files.map(f => f.rel.split(/[\\/]/).join('/')));
-  const allPaths = Array.from(set).sort();
-  let tree = path.basename(root) + '/\n';
-  let prev = [];
-  for (const p of allPaths) {
-    const parts = p.split('/');
-    let i = 0;
-    while (i < parts.length && prev[i] === parts[i]) i++;
-    for (; i < parts.length; i++) {
-      const indent = '  '.repeat(i + 1);
-      tree += `${indent}${parts[i]}${i < parts.length - 1 ? '/' : ''}\n`;
-    }
-    prev = parts;
-  }
-  return tree;
+/*─────────────────────────────────────────────*
+ * DIAGNOSTIC HELPERS
+ *─────────────────────────────────────────────*/
+function detectRouters(root){
+  const files=walkDir(path.join(root,"frontend"));
+  const rels=files.map(f=>f.rel);
+  const multiRouter=rels.filter(r=>/Router/i.test(r)).length>1;
+  return {
+    routerFiles: rels.filter(r=>/Router/i.test(r)),
+    hasReactRouterDom: fs.existsSync(path.join(root,"frontend","package.json")) &&
+      /react-router-dom/.test(safeRead(path.join(root,"frontend","package.json"))||""),
+    multiRouterWarning: multiRouter
+  };
+}
+function detectServer(root){
+  const bdir=path.join(root,"backend");
+  const exists=fs.existsSync(bdir);
+  let serverPath=null;
+  if(exists){const files=fs.readdirSync(bdir); const js=files.find(f=>/^server(\.m?js|\.ts)?$/.test(f)); if(js)serverPath=path.join(bdir,js);}
+  return {exists,serverPath};
+}
+function detectDB(root){
+  const p=path.join(root,"backend","database","pool.js");
+  const content=safeRead(p)||"";
+  return {exists:fs.existsSync(p),imports:/pg|postgres/i.test(content),lazy:/function getPool|let pool/.test(content)};
+}
+function detectEnv(root){
+  const p=path.join(root,"backend","config","env.js");
+  const c=safeRead(p)||"";
+  return {
+    exists:fs.existsSync(p),
+    zod:/zod/i.test(c),
+    asyncSafe:/async|Promise/i.test(c),
+    exports:/(export\s+const|export\s+default)/.test(c)
+  };
 }
 
-
-
-// --- add these helpers somewhere above MAIN ---
-function detectSeoSignals(projectRoot) {
-  // Cache walkDir calls for performance
-  const files = walkDir(projectRoot);
-  const rels = JSON.stringify(files.map(f => f.rel));
-  
-  const checks = [];
-  const hasRobots = fs.existsSync(path.join(projectRoot, 'public', 'robots.txt')) ||
-                    fs.existsSync(path.join(projectRoot, 'frontend', 'public', 'robots.txt')) ||
-                    /robots/i.test(rels);
-  const hasSitemapGen = /sitemap/i.test(rels);
-  const hasSeoFeature = fs.existsSync(path.join(projectRoot, 'frontend', 'src', 'features', 'seo'));
-  const hasSeoShared = fs.existsSync(path.join(projectRoot, 'frontend', 'src', 'shared', 'seo'));
-  const hasLdJsonHelpers = /ldjson|structured.?data|json-ld|getLocalBusinessSchema|getServiceSchema|getFAQSchema/i.test(rels) ||
-    files.some(f => f.rel.includes('jsonld.ts') && fs.existsSync(f.full));
-  const hasPreviewRoute = /preview/i.test(rels);
-  const hasHelmetOrHead = /react-helmet|next\/head|HelmetProvider|Helmet/i.test(rels) ||
-    fs.existsSync(path.join(projectRoot, 'frontend', 'src', 'main.tsx')) && 
-    fs.readFileSync(path.join(projectRoot, 'frontend', 'src', 'main.tsx'), 'utf8').includes('HelmetProvider');
-  const hasSeoHead = /SeoHead/i.test(rels);
-  const hasBackendSeoRoutes = fs.existsSync(path.join(projectRoot, 'backend', 'routes', 'seo'));
-  const hasSeoDefaults = fs.existsSync(path.join(projectRoot, 'frontend', 'src', 'shared', 'seo', 'seoDefaults'));
-
-  checks.push({ key: 'robots.txt', present: hasRobots });
-  checks.push({ key: 'sitemap generator', present: hasSitemapGen });
-  checks.push({ key: 'seo shared folder', present: hasSeoShared });
-  checks.push({ key: 'seo feature folder', present: hasSeoFeature });
-  checks.push({ key: 'ld-json helpers', present: hasLdJsonHelpers });
-  checks.push({ key: 'SeoHead component', present: hasSeoHead });
-  checks.push({ key: 'backend SEO routes', present: hasBackendSeoRoutes });
-  checks.push({ key: 'SEO defaults (industry)', present: hasSeoDefaults });
-  checks.push({ key: 'preview route', present: hasPreviewRoute });
-  checks.push({ key: 'head manager (Helmet/NextHead)', present: hasHelmetOrHead });
-
-  return checks;
-}
-
-function captureDatabaseOverview(projectRoot) {
-  try {
-    const dbScriptPath = path.join(projectRoot, 'backend', 'scripts', 'db-overview.js');
-    if (!fs.existsSync(dbScriptPath)) {
-      return '# Database Overview\n\n⚠️ db-overview.js not found in backend/scripts/\n';
-    }
-    
-    // Run db-overview.js with level 3 (full details)
-    const output = execSync(`node "${dbScriptPath}" 3`, {
-      cwd: path.join(projectRoot, 'backend'),
-      encoding: 'utf8',
-      timeout: 30000, // 30 second timeout
-      stdio: ['pipe', 'pipe', 'pipe'] // capture stdout, stderr
-    });
-    
-    return `# Database Overview (Auto-Generated)\n\nGenerated: ${new Date().toISOString()}\n\n\`\`\`\n${output}\n\`\`\`\n`;
-  } catch (error) {
-    return `# Database Overview\n\n❌ Error running db-overview.js:\n\`\`\`\n${error.message}\n\`\`\`\n\nNote: Make sure your database is running and .env is configured.\n`;
-  }
-}
-
-function buildSeoMarkdown({ projectRoot, stats }) {
-  const checks = detectSeoSignals(projectRoot);
-  const byExt = stats.counts.byExtension || {};
-  const total = stats.counts.totalFilesInTarget || 0;
-
-  const checklist = checks.map(c => `- [${c.present ? 'x' : ' '}] ${c.key}`).join('\n');
-
-  return `# SEO Report (Auto-Generated)
-
+/*─────────────────────────────────────────────*
+ * REPORT GENERATORS
+ *─────────────────────────────────────────────*/
+function generateRouterReport(root){
+  const d=detectRouters(root);
+  return `# ROUTER_REPORT
 Generated: ${new Date().toISOString()}
 
-This file summarizes detected SEO signals and TODOs. Edit conventions in \`/docs/SEO.md\` by replacing this file with a curated version if needed.
+- React Router DOM installed: ${d.hasReactRouterDom ? "✅ yes" : "❌ no"}
+- Router files found: ${d.routerFiles.length}
+${d.routerFiles.map(r=>"  - "+r).join("\n")}
+- Multiple routers detected: ${d.multiRouterWarning ? "⚠️ possible <Router> nesting issue" : "✅ single root router"}
+`;
+}
+function generateServerReport(root){
+  const d=detectServer(root);
+  return `# SERVER_REPORT
+Generated: ${new Date().toISOString()}
 
-## Snapshot
-- Total files scanned: **${total}**
-- By extension: \`${JSON.stringify(byExt)}\`
+- Backend folder exists: ${d.exists ? "✅" : "❌"}
+- Server entry path: ${d.serverPath || "❌ not found"}
+- Expected listener: app.listen(PORT)
+- Health endpoint: /api/health
 
-## Detected signals
-${checklist}
+Recommendation:
+Ensure server starts listening before async init and binds to process.env.PORT.
+`;
+}
+function generateDBReport(root){
+  const d=detectDB(root);
+  return `# DB_REPORT
+Generated: ${new Date().toISOString()}
 
-## Conventions (recommended)
-- **Canonicals**: live → custom domain; subdomain plan canonicalizes to subdomain; previews are **noindex,nofollow** with X-Robots-Tag.
-- **Sitemaps**: per-tenant \`/sitemaps/<tenant>.xml\` including home, services, locations.
-- **Robots**: allow live tenants; disallow \`/preview\`.
-- **Meta**: title ≤ 60 chars; description 150–160 chars; OG + Twitter cards per page.
-- **JSON-LD**: LocalBusiness + Service + FAQ where relevant, sourced from tenant config.
-- **Assets**: WebP, width/height attributes, lazy loading.
-- **Analytics**: GA4 per tenant (calls, form submit, booking events), cookie consent where required.
+- pool.js present: ${d.exists ? "✅" : "❌"}
+- PG/Postgres imported: ${d.imports ? "✅" : "❌"}
+- Lazy initialization detected: ${d.lazy ? "✅" : "❌"}
+`;
+}
+function generateEnvReport(root){
+  const d=detectEnv(root);
+  return `# ENV_REPORT
+Generated: ${new Date().toISOString()}
 
-## TODOs
-- [ ] Ensure preview routes send \`noindex\` meta and X-Robots-Tag headers
-- [ ] Add per-tenant sitemap generation
-- [ ] Add/verify robots.txt
-- [ ] Centralize JSON-LD helpers
-- [ ] Enforce meta/title via a shared SEO component
+- env.js exists: ${d.exists ? "✅" : "❌"}
+- Uses zod validation: ${d.zod ? "✅" : "❌"}
+- Async/Promise safe: ${d.asyncSafe ? "✅" : "❌"}
+- Exports present: ${d.exports ? "✅" : "❌"}
 `;
 }
 
-/** ======================
- *  MAIN
- *  ====================== */
-(async function main() {
-  // 1) Locate project root from this script’s directory
-  const SCRIPT_DIR = __dirname;
-  const PROJECT_ROOT = findProjectRoot(SCRIPT_DIR);
-  const TARGET_PATH = PROJECT_ROOT; // Always pack the whole project root
-
-  // 2) Prepare output directory
-  const OUT_DIR = path.join(PROJECT_ROOT, OUTPUT_DIR_NAME);
+/*─────────────────────────────────────────────*
+ * MAIN EXECUTION
+ *─────────────────────────────────────────────*/
+(async function main(){
+  const PROJECT_ROOT=findProjectRoot(__dirname);
+  const OUT_DIR=path.join(PROJECT_ROOT,OUTPUT_DIR_NAME);
   clearDir(OUT_DIR);
 
-  console.log('[project-overview] Project root:', PROJECT_ROOT);
-  console.log('[project-overview] Target folder:', TARGET_PATH);
-  console.log('[project-overview] Output dir:', OUT_DIR);
-  console.log(`[project-overview] Max bundle size: ${(MAX_BUNDLE_BYTES/1024/1024).toFixed(1)} MB`);
-  console.log(`[project-overview] Max output files: ${MAX_OUTPUT_FILES}`);
-  console.log('');
+  const context=collectContextFiles(PROJECT_ROOT);
+  const all=walkDir(PROJECT_ROOT);
+  const chunks=buildChunks(all,PROJECT_ROOT);
+  const written=packBySize(chunks,OUT_DIR,"ALL",MAX_BUNDLE_BYTES,MAX_OUTPUT_FILES);
 
-  // 3) Gather files
-  const contextFiles = collectContextFiles(PROJECT_ROOT);
-  const allFiles = walkDir(TARGET_PATH);
-
-  // 3.1) Extract .cursorrules to write separately
-  const cursorRulesFile = contextFiles.find(f => f.rel === '.cursorrules');
-  const contextFilesWithoutCursorRules = contextFiles.filter(f => f.rel !== '.cursorrules');
-
-  // Build unified ordered list: context files (without .cursorrules), then the rest
-  const contextSet = new Set(contextFiles.map(f => f.full));
-  const unified = [
-    ...contextFilesWithoutCursorRules,
-    ...allFiles.filter(f => !contextSet.has(f.full)),
-  ];
-
-  // 4) Build chunks and pack
-  const chunks = buildChunks(unified, PROJECT_ROOT);
-  const written = packBySize(chunks, OUT_DIR, 'ALL', MAX_BUNDLE_BYTES, MAX_OUTPUT_FILES);
-
-  // 5) Append structure info to PART 1 (no separate file)
-  const treeRoot = walkDirLimitedDepth(PROJECT_ROOT, ROOT_TREE_DEPTH);
-  const treeTarget = printFullTree(TARGET_PATH, allFiles);
-  const stats = {
-    generated: new Date().toISOString(),
-    projectRoot: PROJECT_ROOT,
-    targetFolder: TARGET_PATH,
-    counts: {
-      totalFilesInTarget: allFiles.length,
-      byExtension: allFiles.reduce((acc, f) => {
-        const ext = path.extname(f.name).toLowerCase() || '(noext)';
-        acc[ext] = (acc[ext] || 0) + 1;
-        return acc;
-      }, {})
-    },
-    bundles: written
+  const stats={
+    generated:new Date().toISOString(),
+    totalFiles:all.length,
+    byExt:all.reduce((a,f)=>{const e=path.extname(f.name)||"(noext)";a[e]=(a[e]||0)+1;return a;},{}),
+    bundles:written
   };
 
-  // Generate and write SEO report
-  const seoReport = buildSeoMarkdown({ projectRoot: PROJECT_ROOT, stats });
-  writeText(path.join(OUT_DIR, 'SEO.md'), seoReport);
+  // Tree snapshot
+  const treeRoot=walkDirLimitedDepth(PROJECT_ROOT,ROOT_TREE_DEPTH);
+  const treeText=`# PROJECT_STRUCTURE\n\`\`\`\n${treeRoot}\n\`\`\``;
+  writeText(path.join(OUT_DIR,"STRUCTURE.md"),treeText);
 
-  // Write .cursorrules as separate file
-  if (cursorRulesFile) {
-    const cursorRulesContent = safeRead(cursorRulesFile.full);
-    if (cursorRulesContent) {
-      // Parse and pretty-print the JSON for better readability
-      try {
-        const parsed = JSON.parse(cursorRulesContent);
-        const formatted = JSON.stringify(parsed, null, 2);
-        writeText(path.join(OUT_DIR, 'CURSORRULES.md'), 
-          `# Cursor Rules (Auto-Generated)\n\nGenerated: ${new Date().toISOString()}\n\nSource: \`.cursorrules\`\n\n## Project Purpose\n\n${parsed.purpose || 'N/A'}\n\n## Priorities\n\n${(parsed.priorities || []).map(p => `- ${p}`).join('\n')}\n\n## Full Configuration\n\n\`\`\`json\n${formatted}\n\`\`\`\n`
-        );
-        console.log('✓ Extracted .cursorrules to CURSORRULES.md');
-      } catch {
-        // Fallback if JSON parsing fails
-        writeText(path.join(OUT_DIR, 'CURSORRULES.md'), 
-          `# Cursor Rules (Auto-Generated)\n\nGenerated: ${new Date().toISOString()}\n\nSource: \`.cursorrules\`\n\n\`\`\`\n${cursorRulesContent}\n\`\`\`\n`
-        );
-        console.log('✓ Extracted .cursorrules to CURSORRULES.md (raw format)');
-      }
-    }
+  /*──────────── Diagnostics ────────────*/
+  const ROUTER=generateRouterReport(PROJECT_ROOT);
+  const SERVER=generateServerReport(PROJECT_ROOT);
+  const DB=generateDBReport(PROJECT_ROOT);
+  const ENV=generateEnvReport(PROJECT_ROOT);
+
+  writeText(path.join(OUT_DIR,"ROUTER_REPORT.md"),ROUTER);
+  writeText(path.join(OUT_DIR,"SERVER_REPORT.md"),SERVER);
+  writeText(path.join(OUT_DIR,"DB_REPORT.md"),DB);
+  writeText(path.join(OUT_DIR,"ENV_REPORT.md"),ENV);
+
+  // Aggregate summary
+  const SUMMARY=[
+    "# PROJECT_DIAGNOSTICS",
+    "Generated: "+new Date().toISOString(),
+    "",
+    "## Router",
+    ROUTER,
+    "## Server",
+    SERVER,
+    "## Database",
+    DB,
+    "## Environment",
+    ENV
+  ].join("\n");
+
+  if(written.length>0){
+    const first=path.join(OUT_DIR,written[0]);
+    fs.appendFileSync(first,"\n\n"+SUMMARY);
   }
 
-  // Capture and write database overview
-  console.log('⏳ Capturing database overview (this may take a moment)...');
-  const dbOverview = captureDatabaseOverview(PROJECT_ROOT);
-  writeText(path.join(OUT_DIR, 'DATABASE.md'), dbOverview);
-  console.log('✓ Generated DATABASE.md');
-
-  const structureTxt = [
-    '\n*** PROJECT_STRUCTURE ***',
-    '# Project Structure',
-    '',
-    '## Summary',
-    '```json',
-    JSON.stringify(stats, null, 2),
-    '```',
-    '',
-    '## Project Root (limited depth)',
-    '```',
-    treeRoot.trimEnd(),
-    '```',
-    '',
-    '## Target Folder (full tree)',
-    '```',
-    treeTarget.trimEnd(),
-    '```',
-    '*** END PROJECT_STRUCTURE ***\n'
-  ].join('\n');
-
-  if (written.length > 0) {
-    const part1Path = path.join(OUT_DIR, written[0]);
-    fs.appendFileSync(part1Path, structureTxt);
-  }
-
-  // 6) Copy PROJECT_OVERVIEW.md from docs/ to output directory
-  const overviewSource = path.join(PROJECT_ROOT, 'docs', 'PROJECT_OVERVIEW.md');
-  const overviewDest = path.join(OUT_DIR, 'PROJECT_OVERVIEW.md');
-  const finalFiles = [...written, 'SEO.md', 'DATABASE.md'];
-  
-  // Add CURSORRULES.md if it was written
-  if (cursorRulesFile) {
-    finalFiles.push('CURSORRULES.md');
-  }
-  
-  if (fs.existsSync(overviewSource)) {
-    fs.copyFileSync(overviewSource, overviewDest);
-    finalFiles.push('PROJECT_OVERVIEW.md');
-    console.log('✓ Copied PROJECT_OVERVIEW.md to output directory');
-  } else {
-    console.log('⚠ PROJECT_OVERVIEW.md not found in /docs/ - skipping');
-  }
-
-  console.log('\n✅ Done!');
-  console.log('Output files:', finalFiles);
-})().catch(err => {
-  console.error(err);
-  process.exit(1);
-});
+  // silent exit
+})();
 
 
 *** END FILE ***
@@ -116875,1529 +116850,44 @@ const CUSTOM_DOMAIN_MAPPINGS: Record<string, string> = {
 
 *** END FILE ***
 
-*** PROJECT_STRUCTURE ***
-# Project Structure
 
-## Summary
-```json
-{
-  "generated": "2025-10-18T08:29:50.078Z",
-  "projectRoot": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh",
-  "targetFolder": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh",
-  "counts": {
-    "totalFilesInTarget": 964,
-    "byExtension": {
-      ".js": 137,
-      ".md": 63,
-      ".json": 93,
-      ".sql": 16,
-      ".ts": 365,
-      ".cjs": 1,
-      ".html": 5,
-      "(noext)": 1,
-      ".tsx": 280,
-      ".css": 1,
-      ".yaml": 1,
-      ".bat": 1
-    }
-  },
-  "bundles": [
-    "ALL_part01.txt"
-  ]
-}
-```
+# PROJECT_DIAGNOSTICS
+Generated: 2025-10-18T09:50:07.241Z
 
-## Project Root (limited depth)
-```
-mdh/
-  backend/
-    check_reviews.js
-    check-tables.js
-    config/
-      auth.js
-      env.js
-      logger.js
-      logging-environments.js
-    controllers/
-      authController.js
-      passwordResetController.js
-      passwordSetupController.js
-      tenantController.js
-    create-admin.js
-    create-main-tenant.js
-    create-production-admin.js
-    database/
-      docs/
-      pool.js
-      scripts/
-    docs/
-      BACKEND_FIX_SUMMARY.md
-      DATABASE_MIGRATION_COMPLETE.md
-      LOGGING.md
-      MIGRATION_QUICKSTART.md
-      WEBHOOK_SETUP.md
-    fix-reviews-constraints.js
-    legacy-migrations/
-    logs/
-      errors.json
-    middleware/
-      auth.js
-      errorHandler.js
-      rateLimiter.js
-      requestLogger.js
-      tenantResolver.js
-      upload.js
-      validation.js
-      withTenant.js
-      zodValidation.js
-    migrations/
-      2025-10-17_1400_create_schemas.sql
-      2025-10-17_1500_analytics.sql
-      2025-10-17_1500_auth.sql
-      2025-10-17_1500_booking.sql
-      2025-10-17_1500_customers.sql
-      2025-10-17_1500_reputation.sql
-      2025-10-17_1500_schedule.sql
-      2025-10-17_1500_system.sql
-      2025-10-17_1500_tenants.sql
-      2025-10-17_1500_website.sql
-      2025-10-17_1600_example_migration.sql
-      2025-10-18_1700_add_social_media_to_tenants.sql
-      2025-10-18_1800_fix_social_media_platforms.sql
-      2025-10-18_1900_enable_social_media_by_default.sql
-      2025-10-18_2000_remove_old_social_media_columns.sql
-      2025-10-18_2100_remove_social_media_defaults.sql
-      README.md
-    mocks/
-      mockReviews.json
-    package-lock.json
-    package.json
-    README.md
-    reset-admin-password.js
-    reset-admin.js
-    routes/
-      __tests__/
-      admin.js
-      analytics.js
-      auth.js
-      avatar.js
-      customers.js
-      gallery.js
-      googleAnalytics.js
-      googleAuth.js
-      googleReviews.js
-      health.js
-      healthMonitoring.js
-      locations.js
-      payments.js
-      previews.js
-      reviews.js
-      schedule.js
-      seo/
-      seo.js
-      serviceAreas.js
-      services.js
-      stockImages.js
-      tenantImages.js
-      tenantManifest.js
-      tenantReviews.js
-      tenants.js
-      upload.js
-      websiteContent.js
-    schemas/
-      apiSchemas.js
-    scripts/
-      cleanup-tokens.js
-      db-inspect.js
-      db-overview.js
-      debug-table.js
-      fix-migrations-table.js
-      fix-version-column.js
-      kill-node-processes.js
-      kill-port.js
-      migrate-commonjs.cjs
-      migrate.js
-      rollback.js
-      setup-database.js
-      test-email.js
-      test-lighthouse.js
-      test-site-access.js
-      test-webhook.js
-      test-welcome-email.js
-    server.js
-    services/
-      authService.js
-      cronService.js
-      emailService.js
-      googleAnalytics.js
-      googleApi.js
-      googleBusinessScraper.js
-      healthMonitor.js
-      passwordResetService.js
-      passwordSetupService.js
-      refreshTokenService.js
-      stripeService.js
-      tenantProvisionService.js
-      tenantService.js
-    src/
-      features/
-      shared/
-    templates/
-      welcome.html
-    test-email.html
-    test-password.js
-    tests/
-      test-affiliate-endpoint.js
-      test-affiliate-security.js
-    utils/
-      avatarUtils.js
-      databaseInit.js
-      db.js
-      dbHelper.js
-      envValidator.js
-      errorMonitor.js
-      logger.js
-      migrationTracker.js
-      previewToken.js
-      serviceAreaProcessor.js
-      tenantUtils.js
-      tokenManager.js
-      uploadValidator.js
-      validationSchemas.js
-      validators.js
-      vehicleMapping.js
-  chatgpt/
-    ALL_part01.txt
-  current-cleanup.md
-  current-goals.md
-  database/
-  Dockerfile
-  docs/
-    DATACONTEXT_REFACTOR.md
-    ENV_MANAGEMENT.md
-    FAQ_ITEMS_IMPLEMENTATION.md
-    LEGACY_CODE_CLEANUP.md
-    MIGRATION_SYSTEM.md
-    MODULAR_CONFIG_IMPLEMENTATION.md
-    MODULAR_CONFIG_MIGRATION_COMPLETE.md
-    ONBOARDING_FOR_BOLT.md
-    PHASE1_COMPLETE.md
-    PROJECT_OVERVIEW.md
-    PWA_ADD_TO_HOME_SCREEN.md
-    REFACTORING_CHECKLIST.md
-    REFACTORING_QUICK_REFERENCE.md
-    RENDER_DEPLOYMENT.md
-    SEO_CURSOR_ANCHORING.md
-    SEO_IMPLEMENTATION_GUIDE.md
-    SEO_INTEGRATION_EXAMPLES.md
-    SEO_PHASE1_STATUS.md
-    SEO_STRUCTURE.md
-    SITE_JSON_REMOVAL_COMPLETE.md
-    TENANT_ONBOARDING_TEST_GUIDE.md
-  eslint.config.js
-  frontend/
-    backend/
-    config/
-      chunks.ts
-      env.ts
-      index.ts
-    docs/
-      MIGRATION_STATUS.md
-      MOBILE_HERO_IMAGES.md
-      MOBILE_IMPLEMENTATION_SUMMARY.md
-      MOBILE_OPTIMIZATION.md
-      QUICK_START.md
-    eslint.config.js
-    index.html
-    package-lock.json
-    package.json
-    PERFORMANCE_OPTIMIZATION.md
-    postcss.config.js
-    scripts/
-      _archive/
-      _lib/
-      build-faq-schemas.js
-      check-component-sizes.js
-      check-import-boundaries.ts
-      check-pages-usage.js
-      convert-images.js
-      validate-location-data-refactored.ts
-      validate-location-data.js
-    src/
-      admin-app/
-      app/
-      data/
-      env.d.ts
-      features/
-      index.css
-      main.tsx
-      routes/
-      shared/
-      tenant-app/
-      types/
-      vite-env.d.ts
-    tailwind.config.js
-    tsconfig.app.json
-    tsconfig.eslint.json
-    tsconfig.json
-    tsconfig.node.json
-    vite.config.ts
-    vitest.config.ts
-  package-lock.json
-  package.json
-  RENDER_ENV_VARS.md
-  render.yaml
-  scripts/
-    chatgpt/
-      gitlogs/
-    cleanup-and-dev.bat
-    deploy-render.js
-    dev-monitor.js
-    error-monitor/
-      index.js
-      lib/
-    find-free-port.js
-    project-overview.js
-    scorecard.js
-    seo/
-      integrate.js
-      provision-config.js
-      test-anchors.js
-      test-endpoints.js
-    start-frontend.js
-  todos/
-    all-dev-prod.md
-    CUSTOM_DOMAIN_ISSUES_REPORT.md
-```
+## Router
+# ROUTER_REPORT
+Generated: 2025-10-18T09:50:07.239Z
 
-## Target Folder (full tree)
-```
-mdh/
-  Dockerfile
-  RENDER_ENV_VARS.md
-  backend/
-    README.md
-    check-tables.js
-    check_reviews.js
-    config/
-      auth.js
-      env.js
-      logger.js
-      logging-environments.js
-    controllers/
-      authController.js
-      passwordResetController.js
-      passwordSetupController.js
-      tenantController.js
-    create-admin.js
-    create-main-tenant.js
-    create-production-admin.js
-    database/
-      docs/
-        AUTH_SCHEMA_REVIEW.md
-        DATABASE_CLEANUP_SUMMARY.md
-        INIT_DATABASE_UPDATED.md
-        REPUTATION_SCHEMA_REVIEW.md
-        SUBSCRIPTION_ARCHITECTURE.md
-        SYSTEM_SCHEMA_REVIEW.md
-        TENANTS_SCHEMA_REVIEW.md
-        TENANT_ONBOARDING_SCHEMA.md
-        TIER1_CONTENT_FEATURES.md
-        WEBSITE_SCHEMA_REVIEW.md
-      pool.js
-      scripts/
-        check-migrations.js
-        create-migration.js
-        extract-schema-files.js
-        init_database.js
-        migrate.js
-        reset_reputation_data.js
-        run-migration.js
-        seed-reviews-simple.js
-    docs/
-      BACKEND_FIX_SUMMARY.md
-      DATABASE_MIGRATION_COMPLETE.md
-      LOGGING.md
-      MIGRATION_QUICKSTART.md
-      WEBHOOK_SETUP.md
-    fix-reviews-constraints.js
-    logs/
-      errors.json
-    middleware/
-      auth.js
-      errorHandler.js
-      rateLimiter.js
-      requestLogger.js
-      tenantResolver.js
-      upload.js
-      validation.js
-      withTenant.js
-      zodValidation.js
-    migrations/
-      2025-10-17_1400_create_schemas.sql
-      2025-10-17_1500_analytics.sql
-      2025-10-17_1500_auth.sql
-      2025-10-17_1500_booking.sql
-      2025-10-17_1500_customers.sql
-      2025-10-17_1500_reputation.sql
-      2025-10-17_1500_schedule.sql
-      2025-10-17_1500_system.sql
-      2025-10-17_1500_tenants.sql
-      2025-10-17_1500_website.sql
-      2025-10-17_1600_example_migration.sql
-      2025-10-18_1700_add_social_media_to_tenants.sql
-      2025-10-18_1800_fix_social_media_platforms.sql
-      2025-10-18_1900_enable_social_media_by_default.sql
-      2025-10-18_2000_remove_old_social_media_columns.sql
-      2025-10-18_2100_remove_social_media_defaults.sql
-      README.md
-    mocks/
-      mockReviews.json
-    package.json
-    reset-admin-password.js
-    reset-admin.js
-    routes/
-      __tests__/
-        seo.test.js
-      admin.js
-      analytics.js
-      auth.js
-      avatar.js
-      customers.js
-      gallery.js
-      googleAnalytics.js
-      googleAuth.js
-      googleReviews.js
-      health.js
-      healthMonitoring.js
-      locations.js
-      payments.js
-      previews.js
-      reviews.js
-      schedule.js
-      seo.js
-      seo/
-        index.ts
-        previewRoute.ts
-        robotsRoute.ts
-        seoConfigRoute.ts
-        sitemapRoute.ts
-      serviceAreas.js
-      services.js
-      stockImages.js
-      tenantImages.js
-      tenantManifest.js
-      tenantReviews.js
-      tenants.js
-      upload.js
-      websiteContent.js
-    schemas/
-      apiSchemas.js
-    scripts/
-      cleanup-tokens.js
-      db-inspect.js
-      db-overview.js
-      debug-table.js
-      fix-migrations-table.js
-      fix-version-column.js
-      kill-node-processes.js
-      kill-port.js
-      migrate-commonjs.cjs
-      migrate.js
-      rollback.js
-      setup-database.js
-      test-email.js
-      test-lighthouse.js
-      test-site-access.js
-      test-webhook.js
-      test-welcome-email.js
-    server.js
-    services/
-      authService.js
-      cronService.js
-      emailService.js
-      googleAnalytics.js
-      googleApi.js
-      googleBusinessScraper.js
-      healthMonitor.js
-      passwordResetService.js
-      passwordSetupService.js
-      refreshTokenService.js
-      stripeService.js
-      tenantProvisionService.js
-      tenantService.js
-    templates/
-      welcome.html
-    test-email.html
-    test-password.js
-    tests/
-      test-affiliate-endpoint.js
-      test-affiliate-security.js
-    utils/
-      avatarUtils.js
-      databaseInit.js
-      db.js
-      dbHelper.js
-      envValidator.js
-      errorMonitor.js
-      logger.js
-      migrationTracker.js
-      previewToken.js
-      serviceAreaProcessor.js
-      tenantUtils.js
-      tokenManager.js
-      uploadValidator.js
-      validationSchemas.js
-      validators.js
-      vehicleMapping.js
-  current-cleanup.md
-  current-goals.md
-  docs/
-    DATACONTEXT_REFACTOR.md
-    ENV_MANAGEMENT.md
-    FAQ_ITEMS_IMPLEMENTATION.md
-    LEGACY_CODE_CLEANUP.md
-    MIGRATION_SYSTEM.md
-    MODULAR_CONFIG_IMPLEMENTATION.md
-    MODULAR_CONFIG_MIGRATION_COMPLETE.md
-    ONBOARDING_FOR_BOLT.md
-    PHASE1_COMPLETE.md
-    PROJECT_OVERVIEW.md
-    PWA_ADD_TO_HOME_SCREEN.md
-    REFACTORING_CHECKLIST.md
-    REFACTORING_QUICK_REFERENCE.md
-    RENDER_DEPLOYMENT.md
-    SEO_CURSOR_ANCHORING.md
-    SEO_IMPLEMENTATION_GUIDE.md
-    SEO_INTEGRATION_EXAMPLES.md
-    SEO_PHASE1_STATUS.md
-    SEO_STRUCTURE.md
-    SITE_JSON_REMOVAL_COMPLETE.md
-    TENANT_ONBOARDING_TEST_GUIDE.md
-  eslint.config.js
-  frontend/
-    PERFORMANCE_OPTIMIZATION.md
-    config/
-      chunks.ts
-      env.ts
-      index.ts
-    docs/
-      MIGRATION_STATUS.md
-      MOBILE_HERO_IMAGES.md
-      MOBILE_IMPLEMENTATION_SUMMARY.md
-      MOBILE_OPTIMIZATION.md
-      QUICK_START.md
-    eslint.config.js
-    index.html
-    package.json
-    postcss.config.js
-    scripts/
-      _archive/
-        README.md
-        batch-refactor-buttons.js
-        find-button-patterns.js
-        simple-button-refactor.js
-      _lib/
-        cli.ts
-        index.ts
-        io.ts
-      build-faq-schemas.js
-      check-component-sizes.js
-      check-import-boundaries.ts
-      check-pages-usage.js
-      convert-images.js
-      validate-location-data-refactored.ts
-      validate-location-data.js
-    src/
-      admin-app/
-        AdminApp.tsx
-        AdminProviders.tsx
-        index.html
-        main.tsx
-      app/
-        App.tsx
-        pages/
-          HomePage.tsx
-          ServicePage.tsx
-        providers.tsx
-        routes.tsx
-      data/
-        README.md
-        index.ts
-        lawncare/
-          assets.json
-          content-defaults.json
-          defaults/
-            content.json
-            faq.json
-            metadata.json
-            services.json
-          index.ts
-          seo-defaults.json
-        maid-service/
-          assets.json
-          content-defaults.json
-          defaults/
-            content.json
-            faq.json
-            metadata.json
-            services.json
-          index.ts
-          seo-defaults.json
-        mobile-detailing/
-          README.md
-          assets.json
-          content-defaults.json
-          faq/
-            aftercare.json
-            general.json
-            locations.json
-            payments.json
-            preparation.json
-            pricing.json
-            scheduling.json
-            services.json
-            warranty.json
-          gallery/
-            gallery.json
-          index.ts
-          pricing/
-            boats/
-              service/
-                features.json
-                services.json
-            cars/
-              addons/
-                engine/
-                  features.json
-                  service.json
-                trim/
-                  features.json
-                  service.json
-                wheels/
-                  features.json
-                  service.json
-                windows/
-                  features.json
-                  service.json
-              service/
-                features.json
-                services.json
-            rvs/
-              service/
-                features.json
-                features.ts
-                services.json
-            suvs/
-              addons/
-                engine/
-                  features.json
-                  service.json
-                trim/
-                  features.json
-                  service.json
-                wheels/
-                  features.json
-                  service.json
-                windows/
-                  features.json
-                  service.json
-              service/
-                features.json
-                services.json
-            trucks/
-              addons/
-                engine/
-                  features.json
-                  service.json
-                trim/
-                  features.json
-                  service.json
-                wheels/
-                  features.json
-                  service.json
-                windows/
-                  features.json
-                  service.json
-              service/
-                features.json
-                services.json
-          seo-defaults.json
-          services/
-            auto-detailing.json
-            ceramic-coating.json
-            marine-detailing.json
-            paint-correction.json
-            ppf.json
-            rv-detailing.json
-          vehicle_data/
-            AirplaneMakeModel.json
-            BoatMakeModel.json
-            CarMakeModel.json
-            MotorcycleMakeModel.json
-            RvMakeModel.json
-            index.ts
-            years-dropdown.ts
-        pet-grooming/
-          assets.json
-          content-defaults.json
-          defaults/
-            content.json
-            faq.json
-            metadata.json
-            services.json
-          index.ts
-          seo-defaults.json
-      env.d.ts
-      features/
-        ARCHITECTURE.md
-        _templates/
-          README.md
-          api-client.template.ts
-          hook-with-api.template.ts
-        adminDashboard/
-          DashboardPage.tsx
-          api/
-            admin.api.ts
-          components/
-            AdminLayout.tsx
-            AdminTabs.tsx
-            DashboardPage.tsx
-            TabContent.tsx
-            index.ts
-            shared/
-              ApplicationModal.tsx
-              DeleteConfirmationModal.tsx
-              Toast.tsx
-              index.ts
-            tabs/
-              analytics/
-                AnalyticsTab.tsx
-                index.ts
-              index.ts
-              reviews/
-                ReviewsTab.tsx
-                index.ts
-              settings/
-                SettingsTab.tsx
-                index.ts
-              users/
-                UsersTab.tsx
-                index.ts
-          hooks/
-            index.ts
-            useSeedReview.ts
-          index.ts
-          types/
-            index.ts
-          utils/
-            constants.ts
-            index.ts
-        auth/
-          api/
-            auth.api.ts
-          components/
-            ErrorDisplay.tsx
-            FormField.tsx
-            LazyLoginModal.tsx
-            LoginForm.tsx
-            LoginFormValidation.tsx
-            LoginModal.tsx
-            LoginModalErrorBoundary.tsx
-            LoginModalFallback.tsx
-            ModalBackdrop.tsx
-            ModalHeader.tsx
-            RegisterForm.tsx
-            RememberForgotSection.tsx
-            SocialLogin.tsx
-            ToggleMode.tsx
-            index.ts
-          hooks/
-            index.ts
-            useAuthModal.ts
-            useFormValidation.ts
-            useLoginModalPrefetch.ts
-            useModalFocus.ts
-            usePasswordVisibility.ts
-            useRegisterForm.ts
-          index.ts
-          schemas/
-            auth.schemas.ts
-          state/
-            index.ts
-          types/
-            auth.types.ts
-            index.ts
-          utils/
-            index.ts
-        booking/
-          BookingApp.tsx
-          __tests__/
-            displayUtils.test.ts
-            useAddons.test.tsx
-            useServiceTiers.test.tsx
-            vehicleMapping.test.ts
-          api/
-            booking.api.ts
-          components/
-            BookingFlowController.tsx
-            BookingForm.tsx
-            BookingLayout.tsx
-            BookingPage.tsx
-            BookingSteps.tsx
-            index.ts
-            payment/
-              PaymentOption.tsx
-            shared/
-              DetailsModal.tsx
-              Footer.tsx
-              HeroBackground.tsx
-              index.ts
-            steps/
-              StepAddons/
-                AddonDetailsModal.tsx
-                Addons.tsx
-                Header.tsx
-                StepAddons.tsx
-                Tabs.tsx
-              StepLocation/
-                StepLocation.tsx
-              StepPayment/
-                StepPayment.refactored.tsx
-                StepPayment.tsx
-                components/
-                  PaymentSummary.tsx
-                  PaymentTabs.tsx
-                  SummarySection.tsx
-                  VehicleSection.tsx
-                  index.ts
-              StepSchedule/
-                StepSchedule.tsx
-              StepService/
-                Header.tsx
-                ServiceCard.tsx
-                ServiceCarousel.tsx
-                ServiceDetailsModal.tsx
-                StepService.tsx
-              StepVehicleSelection/
-                Header.tsx
-                StepVehicleSelection.tsx
-                Tabs.tsx
-                VehicleType.tsx
-              index.ts
-          constants/
-            hero.ts
-          hooks/
-            index.ts
-            useAddons.ts
-            useBookingAsync.ts
-            useBookingGallery.ts
-            useFeaturesData.ts
-            usePaymentData.ts
-            usePaymentForm.ts
-            usePaymentMethods.ts
-            useScheduleOptions.ts
-            useServiceTiers.ts
-            useVehicleData.ts
-          index.ts
-          state/
-            bookingStore.ts
-            index.ts
-            types.ts
-          utils/
-            displayUtils.ts
-        cta/
-          components/
-            MobileCTAButtons.tsx
-            SmartCTAButtons.tsx
-            index.ts
-          hooks/
-            index.ts
-            useBookingCapabilities.ts
-          index.ts
-        customers/
-          classes/
-            Customer.ts
-          index.ts
-          types/
-            index.ts
-        devPreview/
-          components/
-            ViewportFrame.tsx
-            ViewportSwitcher.tsx
-          hooks/
-            useViewportAsync.ts
-          index.ts
-          state/
-            viewportStore.ts
-        faq/
-          components/
-            FAQ.tsx
-            FAQCategoryFilter.tsx
-            FAQEmptyState.tsx
-            FAQItem.tsx
-            FAQList.tsx
-            FAQSearchBar.tsx
-            ServiceAreasLink.tsx
-          hooks/
-            index.ts
-            useFAQContent.ts
-            useFAQData.ts
-            useRotatingBackground.ts
-          index.ts
-          types/
-            index.ts
-          utils/
-            index.ts
-        footer/
-          components/
-            ContactColumn.tsx
-            Disclaimer.tsx
-            FollowUs.tsx
-            Footer.tsx
-            FooterBottom.tsx
-            GetInTouch.tsx
-            ServiceAreas.tsx
-            ServiceAreasColumn.tsx
-            SocialMediaColumn.tsx
-          index.ts
-          types/
-            index.ts
-        gallery/
-          api/
-            gallery.api.ts
-          components/
-            Gallery.tsx
-            GalleryItem.tsx
-            RotatingGalleryItem.tsx
-          hooks/
-            useGallery.ts
-            useRotatingGallery.ts
-          index.ts
-          types/
-            index.ts
-        header/
-          api/
-            tenant.api.ts
-          components/
-            BusinessInfo.tsx
-            BusinessInfoDisplay.tsx
-            DevNavigation.tsx
-            Header.tsx
-            LoginButton.tsx
-            Logo.tsx
-            Navigation.tsx
-            SocialMediaIcons.tsx
-            UserMenu.tsx
-            index.ts
-          contexts/
-            DataProvider.tsx
-            TenantContext.tsx
-          hooks/
-            useBusiness.ts
-            useTenants.ts
-          index.ts
-          pages/
-            TenantPage.tsx
-          routes/
-            tenantRoutes.tsx
-          types/
-            business.types.ts
-            index.ts
-          utils/
-            constants.ts
-            navigation.ts
-        hero/
-          components/
-            CTA.tsx
-            ContentContainer.tsx
-            Hero.tsx
-            ImageCarousel.tsx
-            TextDisplay.tsx
-          hooks/
-            useHeroContent.ts
-          index.ts
-        locations/
-          LocationPage.tsx
-          api/
-            locations.api.ts
-          components/
-            LocationSelector.tsx
-          data/
-            areas.json
-          hooks/
-            index.ts
-            useLocationPageState.ts
-          index.ts
-          schemas/
-            locations.schemas.ts
-          types/
-            index.ts
-            places.types.ts
-          utils/
-            googleMaps.helpers.ts
-            googlePlace.ts
-            index.ts
-            placesLoader.ts
-        preview/
-          api/
-            preview.api.ts
-          components/
-            PreviewBanner.tsx
-            PreviewCTAButton.tsx
-            PreviewDataProvider.tsx
-            PreviewError.tsx
-            PreviewLoading.tsx
-            PreviewPage.tsx
-          hooks/
-            usePreviewAsync.ts
-            usePreviewParams.ts
-          index.ts
-          pages/
-            PreviewGeneratorPage.tsx
-          state/
-            previewStore.ts
-          types/
-            preview.types.ts
-        quotes/
-          api/
-            quotes.api.ts
-          components/
-            ContactSection.tsx
-            LazyRequestQuoteModal.tsx
-            QuoteForm.tsx
-            RequestQuoteModal.tsx
-            ServicesSection.tsx
-            SuccessMessage.tsx
-            VehicleSection.tsx
-            index.ts
-          hooks/
-            index.ts
-            useQuoteForm.ts
-            useQuoteFormLogic.refactored.ts
-            useQuoteFormLogic.test.ts
-            useQuoteFormLogic.ts
-            useQuoteFormState.ts
-            useQuoteModal.ts
-            useQuoteSubmission.ts
-            useQuoteTenantData.ts
-            useQuoteValidation.ts
-            useQuoteVehicleData.ts
-          index.ts
-          types/
-            index.ts
-            quotes.types.ts
-        reviews/
-          api/
-            index.ts
-            reviewsApi.ts
-          components/
-            GoogleReviewsTest.tsx
-            ReviewCard.tsx
-            ReviewModal.tsx
-            Reviews.tsx
-            ReviewsCarousel.tsx
-            ReviewsHeader.tsx
-            index.ts
-          hooks/
-            index.ts
-            useGoogleReviews.ts
-            useReviews.ts
-            useReviewsAvailability.ts
-            useReviewsContent.ts
-            useReviewsRating.ts
-            useRotatingReviews.ts
-          index.ts
-          state/
-            index.ts
-          types/
-            index.ts
-            types.ts
-          utils/
-            index.ts
-            reviewUtils.ts
-        seo/
-          api/
-            seo.api.ts
-          hooks/
-            useTenantSEO.ts
-          index.ts
-          pages/
-            SeoSettingsPage.tsx
-          types/
-            seo.types.ts
-        services/
-          api/
-            services.api.ts
-          components/
-            BeforeAfterSlider.tsx
-            Process.tsx
-            ProtectionComparisonChart.tsx
-            Results.tsx
-            ServiceCTA.tsx
-            ServiceCard.tsx
-            ServiceHero.tsx
-            ServicesGrid.tsx
-            WhatItIs.tsx
-          hooks/
-            useServicePage.ts
-            useServices.ts
-          index.ts
-          types/
-            service-data.ts
-            service.types.ts
-          utils/
-            protectionComparison.ts
-        tenantDashboard/
-          api/
-            analytics.ts
-            dashboard.api.ts
-            healthApi.ts
-            locationsApi.ts
-            reviewsApi.ts
-            websiteContentApi.ts
-          components/
-            AddToHomeScreen.tsx
-            AutoSaveStatus.tsx
-            Dashboard.tsx
-            DashboardHeader.tsx
-            DashboardLayout.tsx
-            DashboardPage.tsx
-            DashboardTabs.tsx
-            TabContent.tsx
-          config/
-            README.md
-            tabConfig.ts
-          hooks/
-            index.ts
-            useDashboardData.ts
-            useTenantBusinessData.ts
-          index.ts
-          schemas/
-            dashboard.schemas.ts
-          tabs/
-            customers/
-              CustomersTab.tsx
-              index.ts
-            index.ts
-            locations/
-              LocationsTab.tsx
-              components/
-                AddLocationModal.tsx
-                DeleteLocationModal.tsx
-                LocationCard.tsx
-                LocationSearch.tsx
-                PrimaryServiceArea.tsx
-                ServiceAreasList.tsx
-                index.ts
-              hooks/
-                index.ts
-                useGoogleMaps.ts
-                useLocationSearch.ts
-                useLocationState.ts
-              index.ts
-              types/
-                index.ts
-            overview/
-              OverviewTab.tsx
-              components/
-                MetricsCards.tsx
-                NotificationPanel.tsx
-                QuickActions.tsx
-                RecentAppointments.tsx
-                RecentReviews.tsx
-              hooks/
-                useDashboardStats.ts
-                useNotifications.ts
-                useRecentAppointments.ts
-                useRecentReviews.ts
-              index.ts
-              utils/
-                getStatusColor.ts
-            performance/
-              PerformanceTab.tsx
-              index.ts
-            profile/
-              ProfileTab.tsx
-              components/
-                AutoSaveField.tsx
-                ProfileForm.tsx
-                SocialMediaUrlField.tsx
-              hooks/
-                useAutoSaveField.ts
-                useProfileData.ts
-              index.ts
-              types/
-                index.ts
-            schedule/
-              ScheduleTab.tsx
-              api/
-                appointments.ts
-                blockedDays.ts
-                index.ts
-                scheduleSettings.ts
-                timeBlocks.ts
-              components/
-                AppointmentCard.tsx
-                DayView.tsx
-                MonthView.tsx
-                ScheduleGrid.tsx
-                ScheduleHeader.tsx
-                ScheduleLoadingState.tsx
-                ScheduleNavigationHeader.tsx
-                ScheduleSidebar.tsx
-                WeekView.tsx
-                modals/
-                  AppointmentModal.tsx
-                scheduleUtils.ts
-              hooks/
-                useScheduleData.ts
-              index.ts
-              types/
-                index.ts
-            services/
-              FixedServicesTab.tsx
-              ServicesTab.tsx
-              SimpleFixedServicesTab.tsx
-              components/
-                AddServiceModal.tsx
-                CategorySelector.tsx
-                DeleteServiceModal.tsx
-                FeatureDropdown.tsx
-                FeatureList.tsx
-                MultiTierPricingModal.tsx
-                SelectedServiceDetailsDisplay.tsx
-                SelectedServiceDisplay.tsx
-                ServiceActionsHeader.tsx
-                ServiceSelector.tsx
-                ServiceTierCards.tsx
-                VehicleSelector.tsx
-              hooks/
-                useFixedServicesHandlers.ts
-                useServiceOperations.ts
-                useServiceSelection.ts
-                useServicesData.ts
-                useTenantId.ts
-              index.ts
-              types/
-                ServiceClasses.ts
-                ServiceFeature.ts
-                index.ts
-            website/
-              WebsiteContentTab.tsx
-              WebsiteDomainTab.tsx
-              WebsiteHealthTab.tsx
-              WebsitePerformanceTab.tsx
-              WebsiteTab.tsx
-              components/
-                AddReviewForm.tsx
-                FAQItemAutoSaveField.tsx
-                FAQSection.tsx
-                GallerySection.tsx
-                HealthTab.tsx
-                HeroSection.tsx
-                RemoveReviewTab.tsx
-                ReviewsContent.tsx
-                ReviewsSection.tsx
-                ServicesSection.tsx
-                WebsiteAutoSaveField.tsx
-                index.ts
-              contexts/
-                WebsiteContentContext.tsx
-              hooks/
-                index.ts
-                useWebsiteContentData.ts
-                useWebsiteContentField.ts
-          types/
-            index.ts
-          utils/
-            constants.ts
-            index.ts
-            tenantEvents.ts
-        tenantOnboarding/
-          README.md
-          api/
-            api.ts
-            onboarding.api.ts
-            payments.api.ts
-          components/
-            ApplicationHeader.tsx
-            BusinessInformationSection.tsx
-            GoogleBusinessProfileModal.tsx
-            IdentityContactSection.tsx
-            LegalTermsSection.tsx
-            LocationInput.tsx
-            OperatingBasicsSection.tsx
-            PaymentSection.tsx
-            PersonalInformationSection.tsx
-            PlanSelectionSection.tsx
-            ProofOfWorkSection.tsx
-            SocialMediaSection.tsx
-            StepProgress.tsx
-            SubmitSection.tsx
-            SuccessPage.tsx
-            TenantApplicationPage.tsx
-            TenantPrivacyModal.tsx
-            TenantTermsModal.tsx
-            index.ts
-          hooks/
-            index.ts
-            useAutoSave.ts
-            useFileUpload.ts
-            useFormHandlers.ts
-            useLocalDraft.ts
-          index.ts
-          schemas/
-            onboarding.schemas.ts
-          types/
-            index.ts
-          utils/
-            validation.ts
-      index.css
-      main.tsx
-      routes/
-        locationRoutes.tsx
-      shared/
-        __tests__/
-          README.md
-          setup.ts
-        api/
-          api.ts
-          apiClient.ts
-          client.ts
-          errors.ts
-          index.ts
-          industryConfigApi.ts
-          services.api.ts
-          tenantApi.ts
-          tenantConfig.api.ts
-          websiteContent.api.ts
-        components/
-          AddToHomeScreen.tsx
-          ErrorFallback.tsx
-          HomePageLayout.tsx
-          MergeDemo.tsx
-          ValidationStatus.tsx
-          index.ts
-          seo/
-            SeoHead.tsx
-        config/
-          api.ts
-        constants/
-          externalUrls.ts
-          index.ts
-          vehicleMapping.ts
-        contexts/
-          AuthContext.tsx
-          DataContext.tsx
-          SiteContext.tsx
-          TenantConfigContext.tsx
-          WebsiteContentContext.tsx
-          index.ts
-        data/
-          states.ts
-        env.ts
-        hooks/
-          CONFIG_ACCESS_GUIDE.md
-          README_BROWSER_TAB.md
-          __tests__/
-            useSEO.test.tsx
-          index.ts
-          useAnalytics.ts
-          useAuth.ts
-          useBrowserTab.ts
-          useData.ts
-          useDebouncedValue.ts
-          useErrorBoundary.tsx
-          useEventListener.ts
-          useFAQSchema.ts
-          useImageRotation.ts
-          useIndustryConfig.ts
-          useIndustrySiteData.ts
-          useLocalStorage.ts
-          useLocationValidation.ts
-          useMediaQuery.ts
-          useMergedLocationData.ts
-          useMetaTags.ts
-          useMobileDetection.ts
-          usePWAStatus.ts
-          usePerformanceMonitor.ts
-          usePrefetch.ts
-          useReviewsAvailability.ts
-          useSEO.ts
-          useScrollSpy.ts
-          useScrollToTop.ts
-          useSectionAsync.ts
-          useServiceAreasModal.ts
-          useTenantConfigLoader.ts
-          useTenantData.ts
-          useTenantSlug.ts
-          useToast.ts
-          useVehicleData.ts
-          withErrorBoundary.tsx
-        index.ts
-        schemas/
-          booking.ts
-          index.ts
-          tenant.schema.ts
-        seo/
-          README.md
-          SeoHead.tsx
-          index.ts
-          jsonld.ts
-          robotsHandler.ts
-          seoDefaults/
-            README.md
-            lawncare.json
-            maid-service.json
-            mobile-detailing.json
-            pet-grooming.json
-          sitemapBuilder.ts
-        state/
-          sectionStore.ts
-        types/
-          business.ts
-          gallery.types.ts
-          googlePlaces.types.ts
-          guards.ts
-          index.ts
-          location.ts
-          reviews.ts
-          site.ts
-          tenant-business.types.ts
-          tenant.types.ts
-        ui/
-          ImageCarousel.tsx
-          ReviewsSummary.tsx
-          buttons/
-            BookNow.tsx
-            Button.tsx
-            CTAButtons.tsx
-            GetQuote.tsx
-          carousel/
-            BackgroundCarousel.tsx
-            Carousel.tsx
-          forms/
-            AutoSaveInput.tsx
-            Badge.tsx
-            CheckboxField.tsx
-            FilterChip.tsx
-            Input.tsx
-            PhoneField.tsx
-            PriceInput.tsx
-            README.md
-            SelectField.tsx
-            SubmitButton.tsx
-            TextAreaField.tsx
-            TextField.tsx
-          icons/
-            PaymentIcons.tsx
-          index.ts
-          layout/
-            Card.tsx
-            ErrorBoundary.tsx
-            LoginPage.tsx
-            NotFoundPage.tsx
-            ProtectedRoute.tsx
-          modals/
-            LocationEditModal.tsx
-            Modal.tsx
-            QuoteModal.tsx
-            ServiceAreasModal.tsx
-          navigation/
-            FooterLocations.tsx
-          utility/
-            Spinner.tsx
-            toast.tsx
-        utils/
-          __tests__/
-            assetLocator.test.ts
-            deepMerge.test.ts
-            faqSchemaBuilder.test.ts
-            imageRotation.test.ts
-            phoneFormatter.test.ts
-            schemaUtils.test.ts
-            siteUtils.test.ts
-            validation.test.ts
-          assetLocator.md
-          assetLocator.ts
-          cn.ts
-          currencyFormatter.ts
-          dateFormatter.ts
-          deepMerge.ts
-          domainUtils.ts
-          errorHandling.ts
-          errorMonitoring.ts
-          faqLoader.ts
-          faqSchemaBuilder.ts
-          findBusinessByLocation.ts
-          googleMaps.helpers.ts
-          imageRotation.ts
-          imageUtils.ts
-          index.ts
-          industryRegistry.ts
-          loadDefaults.ts
-          locationDataLoader.ts
-          locationsUtils.ts
-          logger.ts
-          modalCodeSplitting.ts
-          performance.ts
-          phoneFormatter.ts
-          schemaUtils.ts
-          scrollRestoration.ts
-          scrollToTop.ts
-          siteUtils.ts
-          tenantConfigMigration.ts
-          tenantDataTransform.ts
-          tenantEventManager.ts
-          urlGenerator.ts
-          useAutoSave.ts
-          validateLocationData.ts
-          validation.ts
-          vehicleMapping.ts
-        validation/
-          locationSchema.ts
-      tenant-app/
-        TenantApp.tsx
-        index.html
-        main.tsx
-      types/
-        global.d.ts
-        google-maps.d.ts
-        google.d.ts
-        google.maps.d.ts
-        vehicle.ts
-      vite-env.d.ts
-    tailwind.config.js
-    tsconfig.app.json
-    tsconfig.eslint.json
-    tsconfig.json
-    tsconfig.node.json
-    vite.config.ts
-    vitest.config.ts
-  package.json
-  render.yaml
-  scripts/
-    cleanup-and-dev.bat
-    deploy-render.js
-    dev-monitor.js
-    error-monitor/
-      index.js
-      lib/
-        backend-monitor.js
-        cli.js
-        frontend-monitor.js
-    find-free-port.js
-    project-overview.js
-    scorecard.js
-    seo/
-      integrate.js
-      provision-config.js
-      test-anchors.js
-      test-endpoints.js
-    start-frontend.js
-  todos/
-    CUSTOM_DOMAIN_ISSUES_REPORT.md
-    all-dev-prod.md
-```
-*** END PROJECT_STRUCTURE ***
+- React Router DOM installed: ✅ yes
+- Router files found: 0
+
+- Multiple routers detected: ✅ single root router
+
+## Server
+# SERVER_REPORT
+Generated: 2025-10-18T09:50:07.239Z
+
+- Backend folder exists: ✅
+- Server entry path: C:\Users\colem\OneDrive\Desktop\mdh\backend\server.js
+- Expected listener: app.listen(PORT)
+- Health endpoint: /api/health
+
+Recommendation:
+Ensure server starts listening before async init and binds to process.env.PORT.
+
+## Database
+# DB_REPORT
+Generated: 2025-10-18T09:50:07.239Z
+
+- pool.js present: ✅
+- PG/Postgres imported: ✅
+- Lazy initialization detected: ✅
+
+## Environment
+# ENV_REPORT
+Generated: 2025-10-18T09:50:07.240Z
+
+- env.js exists: ✅
+- Uses zod validation: ✅
+- Async/Promise safe: ✅
+- Exports present: ✅

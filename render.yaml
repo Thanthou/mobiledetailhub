@@ -24,17 +24,12 @@ services:
       npm install --include=dev
       echo "==> Building frontend with dual entry points..."
       npm run build
-      echo "==> Copying frontend builds to backend public directory..."
-      mkdir -p ../backend/public/admin
-      mkdir -p ../backend/public/tenant
-      cp -r dist/admin/* ../backend/public/admin/
-      cp -r dist/tenant/* ../backend/public/tenant/
-      echo "==> Copying shared assets..."
-      cp -r dist/assets ../backend/public/
+      echo "==> Replacing backend/public with fresh build (atomic copy)..."
+      rm -rf ../backend/public
+      mkdir -p ../backend/public
+      cp -r dist/* ../backend/public/
       echo "==> Final verification..."
-      ls -la ../backend/public/admin/ || echo "ERROR: Admin build not copied!"
-      ls -la ../backend/public/tenant/ || echo "ERROR: Tenant build not copied!"
-      ls -la ../backend/public/assets/ || echo "ERROR: Assets not copied!"
+      ls -la ../backend/public/
 
     startCommand: |
       echo "==> Current working directory: $(pwd)"
