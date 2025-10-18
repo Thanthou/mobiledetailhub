@@ -100,4 +100,19 @@ export async function checkPoolHealth() {
 
 // --- Compatibility export for legacy imports ---
 // This allows existing code to still use `import { pool } from './pool.js'`
-export const pool = await getPool();
+// We use a lazy getter to avoid the "already declared" error
+let _poolInstance = null;
+export const pool = {
+  async query(...args) {
+    if (!_poolInstance) _poolInstance = await getPool();
+    return _poolInstance.query(...args);
+  },
+  async connect() {
+    if (!_poolInstance) _poolInstance = await getPool();
+    return _poolInstance.connect();
+  },
+  async end() {
+    if (!_poolInstance) _poolInstance = await getPool();
+    return _poolInstance.end();
+  }
+};
