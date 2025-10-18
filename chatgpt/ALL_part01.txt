@@ -99,6 +99,11 @@
     "react-router-dom": "^7.7.1",
     "rollup-plugin-visualizer": "^6.0.5",
     "tailwind-merge": "^3.3.1",
+    "tailwindcss": "^3.4.1",
+    "autoprefixer": "^10.4.18",
+    "postcss": "^8.4.35",
+    "cross-env": "^10.1.0",
+    "vite": "^5.4.2",
     "zod": "^4.1.5",
     "zustand": "^5.0.8"
   },
@@ -112,8 +117,6 @@
     "@typescript-eslint/eslint-plugin": "^8.8.1",
     "@typescript-eslint/parser": "^8.8.1",
     "@vitest/ui": "^3.2.4",
-    "autoprefixer": "^10.4.18",
-    "cross-env": "^10.1.0",
     "eslint": "^8.57.0",
     "eslint-plugin-eslint-comments": "^3.2.0",
     "eslint-plugin-import": "^2.32.0",
@@ -124,12 +127,9 @@
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "globals": "^15.9.0",
     "jsdom": "^26.1.0",
-    "postcss": "^8.4.35",
     "sharp": "^0.33.0",
-    "tailwindcss": "^3.4.1",
     "tsx": "^4.20.6",
     "typescript": "~5.5.4",
-    "vite": "^5.4.2",
     "vitest": "^3.2.4"
   }
 }
@@ -25494,9 +25494,13 @@ if (!process.env.LOG_LEVEL) {
   process.env.LOG_LEVEL = 'error'
 }
 
+// Load environment variables from root .env file
+import dotenv from 'dotenv'
+import path from 'path'
+dotenv.config({ path: path.resolve(process.cwd(), '../.env') })
+
 import express from 'express'
 import cors from 'cors'
-import path from 'path'
 import { fileURLToPath } from 'url'
 import paymentRoutes from './routes/payments.js'
 import healthRoutes from './routes/health.js'
@@ -25606,6 +25610,14 @@ app.use('/api/google', googleAuthRoutes)
 app.use('/api/health-monitoring', healthMonitoringRoutes)
 app.use('/api/reviews', reviewsRoutes)
 console.log('Reviews routes loaded at /api/reviews')
+
+// Serve static frontend files
+app.use(express.static(path.join(__dirname, 'public')))
+
+// Catch-all handler: send back React's index.html file for any non-API routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'))
+})
 
 // Centralized error handler middleware
 app.use((err, req, res, next) => {
@@ -40937,6 +40949,10 @@ export default [
       'simple-import-sort/exports': 'error',
       'import/no-cycle': 'error',
       'import/no-self-import': 'error',
+      
+      // Case-sensitivity note: Component files MUST use PascalCase (FAQ.tsx, Footer.tsx)
+      // Windows/macOS are case-insensitive, but Linux (Render) is case-sensitive.
+      // Imports must match the exact filename case to prevent build failures on Render.
       
       // Import boundary rules for feature-first architecture
       'import/no-restricted-paths': [
@@ -65043,7 +65059,7 @@ export const useViewportStore = create<State>((set) => ({
 
 *** END FILE ***
 
-*** FILE: frontend\src\features\faq\components\faq.tsx ***
+*** FILE: frontend\src\features\faq\components\FAQ.tsx ***
 import React, { useState } from 'react';
 
 import { useFAQContent,useRotatingBackground } from '@/features/faq/hooks';
@@ -65725,7 +65741,7 @@ export function useRotatingBackground() {
 // Feature barrel - exports components only
 // This file re-exports from components/ to maintain the feature capsule pattern
 
-export { default as FAQ } from './components/faq';
+export { default as FAQ } from './components/FAQ';
 export { default as FAQCategoryFilter } from './components/FAQCategoryFilter';
 export { default as FAQEmptyState } from './components/FAQEmptyState';
 export { default as FAQItem } from './components/FAQItem';
@@ -66017,7 +66033,7 @@ export default FollowUs;
 
 *** END FILE ***
 
-*** FILE: frontend\src\features\footer\components\footer.tsx ***
+*** FILE: frontend\src\features\footer\components\Footer.tsx ***
 import React from 'react';
 
 import { useData } from '@/shared/hooks/useData';
@@ -66422,7 +66438,7 @@ export default SocialMediaColumn;
 export { default as ContactColumn } from './components/ContactColumn';
 export { default as Disclaimer } from './components/Disclaimer';
 export { default as FollowUs } from './components/FollowUs';
-export { default as Footer } from './components/footer';
+export { default as Footer } from './components/Footer';
 export { default as FooterBottom } from './components/FooterBottom';
 export { default as GetInTouch } from './components/GetInTouch';
 export { default as ServiceAreas } from './components/ServiceAreas';
@@ -117185,65 +117201,43 @@ export default defineConfig({
 *** END FILE ***
 
 *** FILE: render.yaml ***
-# Render.com Full-Stack Deployment Configuration
-# This deploys both frontend and backend on Render
+# Render.com Monolithic Full-Stack Service
+# This serves both frontend and backend from one service
 
-services:
-  # Backend API Service
-  - type: web
-    name: thatsmartsite-backend
-    env: node
-    plan: starter
-    buildCommand: |
-      cd backend && npm install
-      npm run migrate
-    startCommand: cd backend && npm start
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 10000
-      - key: DATABASE_URL
-        fromDatabase:
-          name: thatsmartsite-db
-          property: connectionString
-      - key: JWT_SECRET
-        generateValue: true
-      - key: JWT_REFRESH_SECRET
-        generateValue: true
-      - key: ADMIN_EMAILS
-        value: admin@thatsmartsite.com
-      - key: ALLOWED_ORIGINS
-        value: https://thatsmartsite.com,https://www.thatsmartsite.com
-    healthCheckPath: /api/health
-    autoDeploy: true
-
-  # Frontend Static Site
-  - type: web
-    name: thatsmartsite-frontend
-    env: static
-    buildCommand: |
-      cd frontend && npm install
-      npm run build
-    staticPublishPath: ./frontend/dist
-    envVars:
-      - key: VITE_API_BASE_URL
-        value: https://thatsmartsite-backend.onrender.com
-      - key: VITE_APP_ENV
-        value: production
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
-    autoDeploy: true
-
-  # PostgreSQL Database
-  - type: pserv
-    name: thatsmartsite-db
-    plan: starter
-    databaseName: thatsmartsite
-    user: thatsmartsite_user
-    autoDeploy: true
+type: web
+name: thatsmartsite
+env: node
+plan: starter
+buildCommand: |
+  # Install backend dependencies
+  cd backend && npm install
+  npm run migrate
+  # Install frontend dependencies and build
+  cd ../frontend && npm install
+  npm run build
+  # Copy frontend build to backend public directory
+  mkdir -p ../backend/public
+  cp -r dist/* ../backend/public/
+startCommand: cd backend && npm start
+envVars:
+  - key: NODE_ENV
+    value: production
+  - key: PORT
+    value: 10000
+  - key: DATABASE_URL
+    fromDatabase:
+      name: thatsmartsite-db
+      property: connectionString
+  - key: JWT_SECRET
+    generateValue: true
+  - key: JWT_REFRESH_SECRET
+    generateValue: true
+  - key: ADMIN_EMAILS
+    value: admin@thatsmartsite.com
+  - key: ALLOWED_ORIGINS
+    value: https://thatsmartsite.com,https://www.thatsmartsite.com
+healthCheckPath: /api/health
+autoDeploy: true
 
 
 *** END FILE ***
@@ -119349,7 +119343,7 @@ vite.on('close', (code) => {
 ## Summary
 ```json
 {
-  "generated": "2025-10-17T23:09:04.914Z",
+  "generated": "2025-10-18T00:15:55.623Z",
   "projectRoot": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh",
   "targetFolder": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh",
   "counts": {
@@ -119525,12 +119519,11 @@ mdh/
       validationSchemas.js
       validators.js
       vehicleMapping.js
-  backend@1.0.0
-  cd
   chatgpt/
     ALL_part01.txt
   current-cleanup.md
   current-goals.md
+  database/
   Dockerfile
   docs/
     DATACONTEXT_REFACTOR.md
@@ -120228,13 +120221,13 @@ mdh/
             viewportStore.ts
         faq/
           components/
+            FAQ.tsx
             FAQCategoryFilter.tsx
             FAQEmptyState.tsx
             FAQItem.tsx
             FAQList.tsx
             FAQSearchBar.tsx
             ServiceAreasLink.tsx
-            faq.tsx
           hooks/
             index.ts
             useFAQContent.ts
@@ -120250,12 +120243,12 @@ mdh/
             ContactColumn.tsx
             Disclaimer.tsx
             FollowUs.tsx
+            Footer.tsx
             FooterBottom.tsx
             GetInTouch.tsx
             ServiceAreas.tsx
             ServiceAreasColumn.tsx
             SocialMediaColumn.tsx
-            footer.tsx
           index.ts
           types/
             index.ts

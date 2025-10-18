@@ -5,11 +5,11 @@ if (!process.env.LOG_LEVEL) {
 
 // Load environment variables from root .env file
 import dotenv from 'dotenv'
+import path from 'path'
 dotenv.config({ path: path.resolve(process.cwd(), '../.env') })
 
 import express from 'express'
 import cors from 'cors'
-import path from 'path'
 import { fileURLToPath } from 'url'
 import paymentRoutes from './routes/payments.js'
 import healthRoutes from './routes/health.js'
@@ -119,6 +119,33 @@ app.use('/api/google', googleAuthRoutes)
 app.use('/api/health-monitoring', healthMonitoringRoutes)
 app.use('/api/reviews', reviewsRoutes)
 console.log('Reviews routes loaded at /api/reviews')
+
+// Explicit health check endpoint for Render
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ 
+    ok: true, 
+    timestamp: new Date().toISOString(),
+    service: 'thatsmartsite-backend'
+  })
+})
+
+// Serve static frontend files with proper cache headers
+app.use(express.static(path.join(__dirname, 'public'), {
+  maxAge: '1y', // Cache static assets for 1 year
+  etag: true,
+  lastModified: true,
+  setHeaders: (res, path) => {
+    // Set immutable cache for hashed assets (JS/CSS)
+    if (path.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg)$/)) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
+    }
+  }
+}))
+
+// Catch-all handler: send back React's index.html file for any non-API routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'))
+})
 
 // Centralized error handler middleware
 app.use((err, req, res, next) => {

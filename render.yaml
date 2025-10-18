@@ -1,59 +1,44 @@
-# Render.com Full-Stack Deployment Configuration
-# This deploys both frontend and backend on Render
+# Render.com Monolithic Full-Stack Service
+# This serves both frontend and backend from one service
 
-services:
-  # Backend API Service
-  - type: web
-    name: thatsmartsite-backend
-    env: node
-    plan: starter
-    buildCommand: |
-      cd backend && npm install
-      npm run migrate
-    startCommand: cd backend && npm start
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 10000
-      - key: DATABASE_URL
-        fromDatabase:
-          name: thatsmartsite-db
-          property: connectionString
-      - key: JWT_SECRET
-        generateValue: true
-      - key: JWT_REFRESH_SECRET
-        generateValue: true
-      - key: ADMIN_EMAILS
-        value: admin@thatsmartsite.com
-      - key: ALLOWED_ORIGINS
-        value: https://thatsmartsite.com,https://www.thatsmartsite.com
-    healthCheckPath: /api/health
-    autoDeploy: true
-
-  # Frontend Static Site
-  - type: web
-    name: thatsmartsite-frontend
-    env: static
-    buildCommand: |
-      cd frontend && npm install
-      npm run build
-    staticPublishPath: ./frontend/dist
-    envVars:
-      - key: VITE_API_BASE_URL
-        value: https://thatsmartsite-backend.onrender.com
-      - key: VITE_APP_ENV
-        value: production
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
-    autoDeploy: true
-
-  # PostgreSQL Database
-  - type: pserv
-    name: thatsmartsite-db
-    plan: starter
-    databaseName: thatsmartsite
-    user: thatsmartsite_user
-    autoDeploy: true
+type: web
+name: thatsmartsite
+env: node
+plan: starter
+buildCommand: |
+  # Install backend dependencies
+  cd backend && npm install
+  npm run migrate
+  # Install frontend dependencies and build
+  cd ../frontend && npm install
+  npm run build
+  # Debug: List frontend build contents
+  echo "Frontend build contents:"
+  ls -la dist/
+  # Copy frontend build to backend public directory
+  rm -rf ../backend/public
+  mkdir -p ../backend/public
+  cp -r dist/* ../backend/public/
+  # Debug: Verify copy worked
+  echo "Backend public contents:"
+  ls -la ../backend/public/
+startCommand: cd backend && npm start
+envVars:
+  - key: NODE_ENV
+    value: production
+  - key: PORT
+    value: 10000
+  - key: DATABASE_URL
+    fromDatabase:
+      name: thatsmartsite-db
+      property: connectionString
+  - key: JWT_SECRET
+    generateValue: true
+  - key: JWT_REFRESH_SECRET
+    generateValue: true
+  - key: ADMIN_EMAILS
+    value: admin@thatsmartsite.com
+  - key: ALLOWED_ORIGINS
+    value: https://thatsmartsite.com,https://www.thatsmartsite.com
+healthCheckPath: /api/health
+autoDeploy: true
