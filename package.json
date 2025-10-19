@@ -42,7 +42,6 @@
     "audit:all": "node scripts/project/run-all.js",
     "audit:backend": "node scripts/audits/backend/audit-schema-switching.js",
     "audit:frontend": "node scripts/audits/frontend/audit-routing.js",
-    "audit:seo": "node scripts/audits/seo/test-anchors.js",
     "test:all": "npm run test:backend && npm run test:frontend",
     "test:backend": "node scripts/testing/backend/test-subdomain.js",
     "test:frontend": "node scripts/testing/frontend/validate-build.js",

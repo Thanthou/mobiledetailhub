@@ -59,7 +59,7 @@
 - CSS files: 1
 - Lighthouse/PageSpeed config: ⚠️ not detected
 - JS bundle total size: 1.73 MB
-- Average JS bundle size: 25.6 KB
+- Average JS bundle size: 25.7 KB
 - Minified bundles: ⚠️ none detected
 - Lazy-loaded components: ✅ present
 - Service Worker / PWA support: ✅ detected

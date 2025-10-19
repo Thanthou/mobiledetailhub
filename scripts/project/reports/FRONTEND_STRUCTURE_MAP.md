@@ -3,7 +3,7 @@ Features: 23
 Hooks: 104
 UI Components: 0
 Pages: 0
-TS Files: 340, TSX Files: 276
+TS Files: 341, TSX Files: 277
 
 Entry Points:
   - frontend\src\admin-app\AdminApp.tsx
@@ -15,9 +15,9 @@ Entry Points:
   - frontend\src\tenant-app\TenantApp.tsx
 ReactDOM.createRoot found: ❌
 
-Custom Hooks (useXxx): 2187
+Custom Hooks (useXxx): 2191
 useState Calls: 160
-useEffect Calls: 110
+useEffect Calls: 112
 
 ## TYPE DISCIPLINE
 Missing types.ts: adminDashboard, auth, backend, booking, cta, customers, devPreview, faq, footer, frontend, gallery, header, hero, industries, locations, preview, quotes, reviews, seo, services, tenantDashboard, tenantOnboarding, _templates
