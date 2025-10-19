@@ -3,7 +3,7 @@
  * Provides centralized error handling for the application
  */
 
-import logger from '../utils/logger.js';
+import { logger } from '../config/logger.js';
 import { ValidationError } from '../utils/validators.js';
 import { errorMonitor } from '../utils/errorMonitor.js';
 import { sendError, sendValidationError, sendNotFound } from '../utils/responseFormatter.js';

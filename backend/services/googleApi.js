@@ -6,8 +6,7 @@
  */
 
 import { env } from '../config/env.js';
-import logger from '../utils/logger.js';
-
+import { logger } from 'config/logger.js';
 /**
  * Fetch Google Business Profile reviews for a tenant
  * @param {string} tenantSlug - The tenant's business slug

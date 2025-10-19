@@ -1,5 +1,5 @@
 import express from 'express';
-import logger from '../utils/logger';
+import { logger } from '../config/logger.js';
 import { UPLOAD_CONFIG } from '../utils/uploadValidator';
 import { asyncHandler } from '../middleware/errorHandler';
 import { singleFileUpload, multipleFilesUpload, memoryUpload } from '../middleware/upload';

@@ -2,13 +2,26 @@ import express from 'express';
 const router = express.Router();
 import { getPool } from '../database/pool.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
-import logger from '../utils/logger.js';
+import { authenticateToken, requireAdmin } from '../middleware/auth.js';
+import { logger } from '../config/logger.js';
+import { validateBody, validateParams, validateQuery } from '../middleware/zodValidation.js';
+import { analyticsSchemas } from '../schemas/apiSchemas.js';
+
+// Initialize pool
+let pool;
+(async () => { 
+  try {
+    pool = await getPool(); 
+  } catch (error) {
+    logger.warn('Failed to initialize analytics pool:', error.message);
+  }
+})();
 
 /**
  * POST /api/analytics/track
  * Track custom analytics events
  */
-router.post('/track', asyncHandler(async (req, res) => {
+router.post('/track', validateBody(analyticsSchemas.track), asyncHandler(async (req, res) => {
   const { event, parameters, userProperties, customDimensions, timestamp } = req.body;
   
   // Validate required fields
@@ -95,9 +108,26 @@ router.post('/track', asyncHandler(async (req, res) => {
  * GET /api/analytics/events/:tenantId
  * Get analytics events for a tenant (admin only)
  */
-router.get('/events/:tenantId', asyncHandler(async (req, res) => {
+router.get('/events/:tenantId', 
+  validateParams(analyticsSchemas.getEvents.pick({ tenantId: true })),
+  validateQuery(analyticsSchemas.getEvents.omit({ tenantId: true })),
+  authenticateToken, 
+  requireAdmin, 
+  asyncHandler(async (req, res) => {
   const { tenantId } = req.params;
   const { limit = 100, offset = 0, eventType } = req.query;
+
+  // Log admin access to analytics data
+  logger.info('Admin analytics access', {
+    userId: req.user.userId,
+    email: req.user.email,
+    tenantId,
+    eventType,
+    limit,
+    offset,
+    ip: req.ip,
+    userAgent: req.get('User-Agent')
+  });
 
   if (!pool) {
     const error = new Error('Analytics data is not available');
@@ -143,9 +173,24 @@ router.get('/events/:tenantId', asyncHandler(async (req, res) => {
  * GET /api/analytics/summary/:tenantId
  * Get analytics summary for a tenant (admin only)
  */
-router.get('/summary/:tenantId', asyncHandler(async (req, res) => {
+router.get('/summary/:tenantId', 
+  validateParams(analyticsSchemas.getSummary.pick({ tenantId: true })),
+  validateQuery(analyticsSchemas.getSummary.omit({ tenantId: true })),
+  authenticateToken, 
+  requireAdmin, 
+  asyncHandler(async (req, res) => {
   const { tenantId } = req.params;
   const { days = 30 } = req.query;
+
+  // Log admin access to analytics summary
+  logger.info('Admin analytics summary access', {
+    userId: req.user.userId,
+    email: req.user.email,
+    tenantId,
+    days,
+    ip: req.ip,
+    userAgent: req.get('User-Agent')
+  });
 
   if (!pool) {
     const error = new Error('Analytics summary is not available');

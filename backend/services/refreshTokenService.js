@@ -5,8 +5,7 @@
 
 import { getPool } from '../database/pool.js';
 import crypto from 'crypto';
-import logger from '../utils/logger.js';
-
+import { logger } from 'config/logger.js';
 /**
  * Generate a unique device ID based on user agent and IP
  * @param {string} userAgent - User agent string

@@ -52,6 +52,7 @@ import subdomainTestRoutes from './routes/subdomainTest.js'
 import locationsRoutes from './routes/locations.js'
 import websiteContentRoutes from './routes/websiteContent.js'
 import googleReviewsRoutes from './routes/googleReviews.js'
+import configRoutes from './routes/config.js'
 import googleAuthRoutes from './routes/googleAuth.js'
 import googleAnalyticsRoutes from './routes/googleAnalytics.js'
 import healthMonitoringRoutes from './routes/healthMonitoring.js'
@@ -120,7 +121,10 @@ const corsOptions = {
 
 app.use(cors(corsOptions))
 
-// Subdomain middleware - handles slug.thatsmartsite.com routing
+// 1️⃣ Admin subdomain middleware - handles admin.thatsmartsite.com (must come first)
+app.use(createAdminSubdomainMiddleware())
+
+// 2️⃣ Subdomain middleware - handles slug.thatsmartsite.com routing
 app.use(createSubdomainMiddleware({
   defaultTenant: null,
   redirectInvalid: false, // Disable redirect for development testing
@@ -128,13 +132,10 @@ app.use(createSubdomainMiddleware({
   cacheTTL: 5 * 60 * 1000 // 5 minutes
 }))
 
-// Admin subdomain middleware - handles admin.thatsmartsite.com
-app.use(createAdminSubdomainMiddleware())
-
-// Legacy tenant resolver (for backward compatibility)
+// 3️⃣ Legacy tenant resolver (for backward compatibility and fallback)
 app.use(tenantResolver)
 
-// Add tenant context to responses
+// 4️⃣ Add tenant context to responses
 app.use(addTenantContext)
 
 // ✅ Global parsers BEFORE routes
@@ -155,6 +156,7 @@ app.use('/api/admin', adminRoutes)
 app.use('/api/locations', locationsRoutes)
 app.use('/api/website-content', websiteContentRoutes)
 app.use('/api/google-reviews', googleReviewsRoutes)
+app.use('/api/config', configRoutes)
 app.use('/api/google/analytics', googleAnalyticsRoutes)
 app.use('/api/google', googleAuthRoutes)
 app.use('/api/health-monitoring', healthMonitoringRoutes)

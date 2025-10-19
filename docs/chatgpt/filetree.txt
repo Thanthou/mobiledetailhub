@@ -1663,6 +1663,7 @@
          📄 fix-routes.js
       📁 metrics/
          📄 scorecard.js
+      📄 validate-env.js
    📁 fix/
       📄 cleanup-console.js
    📁 frontend/

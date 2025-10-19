@@ -1,8 +1,8 @@
 import express from 'express';
 import { getPool } from '../database/pool.js';
 import { authenticateToken, requireAdmin } from '../middleware/auth.js';
-import { validateBody, validateParams, sanitize } from '../middleware/validation.js';
-import { adminSchemas, sanitizationSchemas } from '../utils/validationSchemas.js';
+import { validateBody, validateParams, validateQuery } from '../middleware/zodValidation.js';
+import { adminSchemas } from '../schemas/apiSchemas.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import { createModuleLogger } from '../config/logger.js';
 import { criticalAdminLimiter } from '../middleware/rateLimiter.js';
@@ -18,14 +18,91 @@ const logger = createModuleLogger('adminRoutes');
 
 /**
  * DELETE /api/admin/tenants/:id
- * Delete tenant and all associated data
+ * Delete tenant and all associated data using service layer
  * @param {string} id - Tenant ID
  * @returns {Object} Success response with deleted tenant info
  */
 router.delete('/tenants/:id', criticalAdminLimiter, authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
-  logger.info('[ADMIN] DELETE /tenants/:id called with id:', { id: req.params.id });
+  const { id } = req.params;
+  const { force = false } = req.query;
   
+  logger.info('[ADMIN] DELETE /tenants/:id called', { 
+    id, 
+    force: force === 'true',
+    actor: req.user.email 
+  });
+  
+  try {
+    // Import the tenant deletion service
+    const { deleteTenant } = await import('../services/tenantDeletionService.js');
+    
+    // Use the service layer for tenant deletion
+    const result = await deleteTenant(parseInt(id), req.user, { 
+      force: force === 'true' 
+    });
+    
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        error: result.error,
+        issues: result.issues,
+        tenant: result.tenant
+      });
+    }
+    
+    res.json(result);
+    
+  } catch (error) {
+    logger.error('Admin tenant deletion failed:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to delete tenant',
+      message: error.message
+    });
+  }
+}));
 
+/**
+ * DELETE /api/admin/tenants/:id/soft
+ * Soft delete tenant (mark as deleted but keep data)
+ * @param {string} id - Tenant ID
+ * @returns {Object} Success response with soft deleted tenant info
+ */
+router.delete('/tenants/:id/soft', criticalAdminLimiter, authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  
+  logger.info('[ADMIN] SOFT DELETE /tenants/:id called', { 
+    id,
+    actor: req.user.email 
+  });
+  
+  try {
+    // Import the tenant deletion service
+    const { softDeleteTenant } = await import('../services/tenantDeletionService.js');
+    
+    // Use the service layer for soft deletion
+    const result = await softDeleteTenant(parseInt(id), req.user);
+    
+    res.json(result);
+    
+  } catch (error) {
+    logger.error('Admin soft tenant deletion failed:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to soft delete tenant',
+      message: error.message
+    });
+  }
+}));
+
+// Legacy route - keeping for backward compatibility but marked as deprecated
+/**
+ * @deprecated Use the new service-based deletion above
+ * This route is kept for backward compatibility but should not be used
+ */
+router.delete('/tenants/:id/legacy', criticalAdminLimiter, authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
+  logger.info('[ADMIN] LEGACY DELETE /tenants/:id called', { id: req.params.id });
+  
   const pool = await getPool();
   const { id } = req.params;
   
@@ -390,43 +467,16 @@ router.get('/pending-applications', authenticateToken, requireAdmin, asyncHandle
  * @param {string} [admin_notes] - Optional admin notes
  * @returns {Object} Success response with tenant info and temp password
  */
-router.post('/approve-application/:id', authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
+router.post('/approve-application/:id', 
+  validateParams(adminSchemas.approveApplication.pick({ id: true })),
+  validateBody(adminSchemas.approveApplication.omit({ id: true })),
+  authenticateToken, 
+  requireAdmin, 
+  asyncHandler(async (req, res) => {
 
   const pool = await getPool();
   const { id } = req.params;
   const { approved_slug, admin_notes } = req.body;
-  
-  // Validate admin notes length
-  if (admin_notes && admin_notes.length > 1000) {
-    const error = new Error('Admin notes must be less than 1000 characters long');
-    error.statusCode = 400;
-    throw error;
-  }
-  
-  // Validate slug format and length
-  if (!approved_slug || approved_slug.length < 3 || approved_slug.length > 50) {
-    const error = new Error('Slug must be between 3 and 50 characters long');
-    error.statusCode = 400;
-    throw error;
-  }
-  
-  if (!/^[a-z0-9-]+$/.test(approved_slug)) {
-    const error = new Error('Slug must contain only lowercase letters, numbers, and hyphens');
-    error.statusCode = 400;
-    throw error;
-  }
-  
-  if (approved_slug.startsWith('-') || approved_slug.endsWith('-')) {
-    const error = new Error('Slug cannot start or end with a hyphen');
-    error.statusCode = 400;
-    throw error;
-  }
-  
-  if (approved_slug.includes('--')) {
-    const error = new Error('Slug cannot contain consecutive hyphens');
-    error.statusCode = 400;
-    throw error;
-  }
   
 
   
@@ -593,31 +643,16 @@ router.post('/approve-application/:id', authenticateToken, requireAdmin, asyncHa
 }));
 
 // Reject tenant application endpoint
-router.post('/reject-application/:id', authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
+router.post('/reject-application/:id', 
+  validateParams(adminSchemas.rejectApplication.pick({ id: true })),
+  validateBody(adminSchemas.rejectApplication.omit({ id: true })),
+  authenticateToken, 
+  requireAdmin, 
+  asyncHandler(async (req, res) => {
 
   const pool = await getPool();
   const { id } = req.params;
   const { rejection_reason, admin_notes } = req.body;
-  
-  // Validate admin notes length
-  if (admin_notes && admin_notes.length > 1000) {
-    const error = new Error('Admin notes must be less than 1000 characters long');
-    error.statusCode = 400;
-    throw error;
-  }
-  
-  // Validate rejection reason
-  if (!rejection_reason || rejection_reason.trim().length < 10) {
-    const error = new Error('Rejection reason must be at least 10 characters long');
-    error.statusCode = 400;
-    throw error;
-  }
-  
-  if (rejection_reason.trim().length > 500) {
-    const error = new Error('Rejection reason must be less than 500 characters long');
-    error.statusCode = 400;
-    throw error;
-  }
   
   // Check if application is still pending before updating
   const statusCheckQuery = 'SELECT application_status FROM tenants.business WHERE id = $1';

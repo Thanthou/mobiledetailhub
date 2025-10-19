@@ -50,8 +50,12 @@ function isBuildFresh() {
     return newest;
   }
 
+  // Check both src/ and public/ directories for changes
   const srcNewest = getNewestSrcTime(frontendDir);
-  return srcNewest < distMtime;
+  const publicNewest = getNewestSrcTime(publicDir);
+  const newestSourceTime = Math.max(srcNewest, publicNewest);
+  
+  return newestSourceTime < distMtime;
 }
 
 function ensureFreshBuild() {

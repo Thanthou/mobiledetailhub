@@ -7,7 +7,7 @@ import express from 'express';
 const router = express.Router();
 import { getPool } from '../database/pool.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
-import logger from '../utils/logger.js';
+import { logger } from 'config/logger.js';
 import healthMonitor from '../services/healthMonitor.js';
 import { sendSuccess, sendError } from '../utils/responseFormatter.js';
 

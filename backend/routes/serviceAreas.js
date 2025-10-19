@@ -1,5 +1,5 @@
 import express from 'express';
-import logger from '../utils/logger';
+import { logger } from '../config/logger.js';
 import { asyncHandler } from '../middleware/errorHandler';
 import { getPlatformServiceAreas, getTenantsForCity } from '../utils/serviceAreaProcessor';
 import { getPool } from '../database/pool.js';

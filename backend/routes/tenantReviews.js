@@ -1,7 +1,7 @@
 import express from 'express';
 import fs from 'fs';
 import googleBusinessScraper from '../services/googleBusinessScraper';
-import logger from '../utils/logger';
+import { logger } from '../config/logger.js';
 import multer from 'multer';
 import path from 'path';
 import { authenticateToken } from '../middleware/auth';

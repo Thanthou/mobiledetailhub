@@ -13,8 +13,7 @@ import { authenticateToken, requireAdmin } from '../middleware/auth.js';
 import { generateAvatarFilename, ensureUploadsDir } from '../utils/avatarUtils.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import { validateFileMagic } from '../utils/uploadValidator.js';
-import logger from '../utils/logger.js';
-
+import { logger } from 'config/logger.js';
 // Configure multer for avatar uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {

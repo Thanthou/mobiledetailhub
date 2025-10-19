@@ -16,4 +16,20 @@ pushIfExists("frontend/src/tenant-app/TenantApp.tsx");
 
 pushIfExists("backend/middleware/errorHandler.js");
 
+pushIfExists("backend/middleware/withTenant.js");
+pushIfExists("backend/middleware/tenantResolver.js");
+pushIfExists("backend/routes/analytics.js");
+pushIfExists("backend/routes/admin.js");
+pushIfExists("backend/routes/auth.js");
+pushIfExists("backend/database/pool.js");
+
+pushIfExists("frontend/src/shared/env.ts");
+pushIfExists("frontend/vite.config.ts");
+pushIfExists("frontend/vite.config.main.ts");
+pushIfExists("frontend/vite.config.tenant.ts");
+pushIfExists("frontend/vite.config.admin.ts");
+
+pushIfExists(".github/workflows/pr-checks.yml");
+pushIfExists("render.yaml");
+
 ```

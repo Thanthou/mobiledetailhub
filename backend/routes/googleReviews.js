@@ -8,7 +8,7 @@
 import express from 'express';
 import { getGoogleReviews } from '../services/googleApi.js';
 import { isDummyTenant } from '../utils/tenantUtils.js';
-import logger from '../utils/logger.js';
+import { logger } from '../config/logger.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import { sendSuccess, sendError, sendValidationError } from '../utils/responseFormatter.js';
 

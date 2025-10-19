@@ -16,7 +16,12 @@ export function tenantResolver(req, res, next) {
   const subdomain = parts.length > 2 ? parts[0] : null;
 
   // Reserved subdomains that should not be treated as tenant slugs
-  const RESERVED_SUBDOMAINS = ['www', 'api', 'admin', 'main-site', 'staging', 'dev'];
+  const RESERVED_SUBDOMAINS = [
+    'www', 'api', 'admin', 'main-site', 'staging', 'dev', 
+    'cdn', 'assets', 'static', 'img', 'images', 'media',
+    'mail', 'email', 'ftp', 'blog', 'support', 'help',
+    'docs', 'status', 'monitoring', 'metrics', 'logs'
+  ];
   
   // Determine tenant slug
   if (subdomain && !RESERVED_SUBDOMAINS.includes(subdomain)) {

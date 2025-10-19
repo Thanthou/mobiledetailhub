@@ -1,6 +1,6 @@
 import cookie from 'cookie';
 import { verifyAccessToken, isTokenBlacklisted } from '../utils/tokenManager.js';
-import logger from '../utils/logger.js';
+import { logger } from '../config/logger.js';
 
 // Authentication Middleware
 const authenticateToken = async (req, res, next) => {

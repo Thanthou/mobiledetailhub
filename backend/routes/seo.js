@@ -1,5 +1,5 @@
 import express from 'express';
-import logger from '../utils/logger';
+import { logger } from '../config/logger.js';
 import { asyncHandler } from '../middleware/errorHandler';
 import { getPool } from '../database/pool.js';
 import { robotsRoute, sitemapRoute, seoConfigRoute, previewRoute } from './seo';

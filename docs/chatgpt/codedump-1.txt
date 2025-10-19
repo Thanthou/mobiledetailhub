@@ -46,6 +46,7 @@
     "test:domains": "node scripts/test-custom-domains.js",
     "test:integration": "node scripts/testing/integration/verify-onboarding.js",
     "validate": "node scripts/testing/frontend/validate-build.js",
+    "validate:env": "node scripts/devtools/validate-env.js",
 
     "lint": "eslint backend/ scripts/",
     "lint:fix": "eslint backend/ scripts/ --fix",
@@ -1181,6 +1182,16 @@ const router = express.Router();
 import { getPool } from '../database/pool.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import logger from '../utils/logger.js';
+
+// Initialize pool
+let pool;
+(async () => { 
+  try {
+    pool = await getPool(); 
+  } catch (error) {
+    logger.warn('Failed to initialize analytics pool:', error.message);
+  }
+})();
 
 /**
  * POST /api/analytics/track
@@ -9443,8 +9454,12 @@ function isBuildFresh() {
     return newest;
   }
 
+  // Check both src/ and public/ directories for changes
   const srcNewest = getNewestSrcTime(frontendDir);
-  return srcNewest < distMtime;
+  const publicNewest = getNewestSrcTime(publicDir);
+  const newestSourceTime = Math.max(srcNewest, publicNewest);
+  
+  return newestSourceTime < distMtime;
 }
 
 function ensureFreshBuild() {
@@ -9773,7 +9788,12 @@ export function tenantResolver(req, res, next) {
   const subdomain = parts.length > 2 ? parts[0] : null;
 
   // Reserved subdomains that should not be treated as tenant slugs
-  const RESERVED_SUBDOMAINS = ['www', 'api', 'admin', 'main-site', 'staging', 'dev'];
+  const RESERVED_SUBDOMAINS = [
+    'www', 'api', 'admin', 'main-site', 'staging', 'dev', 
+    'cdn', 'assets', 'static', 'img', 'images', 'media',
+    'mail', 'email', 'ftp', 'blog', 'support', 'help',
+    'docs', 'status', 'monitoring', 'metrics', 'logs'
+  ];
   
   // Determine tenant slug
   if (subdomain && !RESERVED_SUBDOMAINS.includes(subdomain)) {

@@ -1,7 +1,7 @@
 import express from 'express';
 import { getPool } from '../database/pool.js';
 import { authenticateToken } from '../middleware/auth.js';
-import logger from '../utils/logger.js';
+import { logger } from '../config/logger.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import { sendSuccess, sendError, sendValidationError } from '../utils/responseFormatter.js';
 

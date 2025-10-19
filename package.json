@@ -42,6 +42,7 @@
     "test:domains": "node scripts/test-custom-domains.js",
     "test:integration": "node scripts/testing/integration/verify-onboarding.js",
     "validate": "node scripts/testing/frontend/validate-build.js",
+    "validate:env": "node scripts/devtools/validate-env.js",
 
     "lint": "eslint backend/ scripts/",
     "lint:fix": "eslint backend/ scripts/ --fix",

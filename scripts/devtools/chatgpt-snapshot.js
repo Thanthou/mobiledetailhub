@@ -103,45 +103,60 @@ console.log("✅ Wrote filetree");
 // 📚 Collect key files dynamically
 //──────────────────────────────────────────────
 function collectInterestingFiles() {
-    const interesting = [];
-    const pushIfExists = rel => {
+  const interesting = [];
+  const pushIfExists = rel => {
+    const full = path.join(root, rel);
+    if (fs.existsSync(full)) interesting.push(full);
+  };
+
+  // Base priority set (always included)
+  pushIfExists("package.json");
+  pushIfExists("frontend/src/main.tsx");
+  pushIfExists("frontend/src/App.tsx");
+  pushIfExists("frontend/src/index.tsx");
+  pushIfExists("frontend/src/shared/");
+  pushIfExists("backend/app.js");
+  pushIfExists("backend/routes/");
+  pushIfExists("backend/controllers/");
+  pushIfExists("scripts/audits/audit-seo.js");
+  pushIfExists("tsconfig.json");
+  pushIfExists("vite.config.ts");
+
+  //──────────────────────────────────────────────
+  // 🧠 Import dynamically requested files
+  //──────────────────────────────────────────────
+  const reqFile = path.join(docsDir, "requested-files.txt");
+  if (fs.existsSync(reqFile)) {
+    const content = fs.readFileSync(reqFile, "utf8");
+    const matches = [...content.matchAll(/pushIfExists\(["'`](.+?)["'`]\)/g)];
+    const filetreePath = path.join(docsDir, "filetree.txt");
+    const filetreeContent = fs.existsSync(filetreePath)
+      ? fs.readFileSync(filetreePath, "utf8")
+      : "";
+
+    const seen = new Set();
+
+    for (const [, rel] of matches) {
       const full = path.join(root, rel);
-      if (fs.existsSync(full)) interesting.push(full);
-    };
-  
-    // Base priority set (always included)
-    pushIfExists("package.json");
-    pushIfExists("frontend/src/main.tsx");
-    pushIfExists("frontend/src/App.tsx");
-    pushIfExists("frontend/src/index.tsx");
-    pushIfExists("frontend/src/shared/");
-    pushIfExists("backend/app.js");
-    pushIfExists("backend/routes/");
-    pushIfExists("backend/controllers/");
-    pushIfExists("scripts/audits/audit-seo.js");
-    pushIfExists("tsconfig.json");
-    pushIfExists("vite.config.ts");
-  
-    //──────────────────────────────────────────────
-    // 🧠 Import dynamically requested files
-    //──────────────────────────────────────────────
-    const reqFile = path.join(docsDir, "requested-files.txt");
-    if (fs.existsSync(reqFile)) {
-      const content = fs.readFileSync(reqFile, "utf8");
-      const matches = [...content.matchAll(/pushIfExists\(["'`](.+?)["'`]\)/g)];
-      for (const [, rel] of matches) {
-        const full = path.join(root, rel);
-        if (fs.existsSync(full)) {
-          interesting.push(full);
-          console.log(`🧩 Included from requested-files.txt → ${rel}`);
-        } else {
-          console.warn(`⚠️  Requested file not found: ${rel}`);
-        }
+      const filename = path.basename(rel);
+
+      if (seen.has(full)) continue;
+      seen.add(full);
+
+      if (fs.existsSync(full)) {
+        interesting.push(full);
+        console.log(`🧩 Included from requested-files.txt → ${rel}`);
+      } else if (filetreeContent.toLowerCase().includes(filename.toLowerCase())) {
+        console.warn(`⚠️  File appears in filetree but path mismatch (check casing or folder): ${rel}`);
+      } else {
+        console.warn(`⚠️  Requested file not found (not in filetree): ${rel}`);
       }
     }
-  
-    return interesting.filter(f => fs.existsSync(f));
   }
+
+  return interesting.filter(f => fs.existsSync(f));
+}
+
 
 //──────────────────────────────────────────────
 // 📦 Smart file packer — maximize 500 MB capacity per dump
@@ -213,26 +228,28 @@ const prompt = `
 
 You are ChatGPT, analyzing the contents of this folder (**docs/chatgpt**).
 
-## 🎯 Your Mission
-Review the following files to understand the current state of the project:
-- **cursorrules** → explains architecture, business goals, and code conventions  
-- **filetree.txt** → provides full directory structure  
-- **codedump-*.txt** → contains selected source code excerpts  
-
-Based on this context, produce **two separate outputs** in two chat messages:
+## 📦 Context to Read
+- **cursorrules** → architecture, business goals, conventions
+- **filetree.txt** → full directory structure (source of truth for what exists)
+- **codedump-*.txt** → selected source excerpts
+- **requested-files.txt** → ALREADY-REQUESTED paths (must be excluded from new requests)
 
 ---
 
+## 🔀 Required Response Format (Two Separate Chat Messages)
+
 ### 🧩 OUTPUT 1 — Top 5 Focus Analysis (Markdown)
-Create a detailed **Markdown-formatted** report listing the **five most impactful priorities** for development.
+Send this as the **first message only**. Produce a **Markdown-formatted** report with the **five most impactful priorities** for development. For each item include:
+1) **Title** (concise)  
+2) **Type** — 🐞 *Bug/Code Smell*, ⚙️ *Refactor/Optimization*, 🚀 *Feature/Enhancement*  
+3) **Problem** — what’s missing or suboptimal (1–2 short paragraphs)  
+4) **Solution** — a Cursor-ready plan:
+   - Mention affected files/directories (**must exist in \`filetree.txt\`**)
+   - Clear step-by-step tasks
+   - Minimal code/pseudocode where helpful
+   - Enough specificity for Cursor to begin implementation
 
-For each:
-1. **Title** — concise and descriptive  
-2. **Type** — 🐞 Bug / ⚙️ Refactor / 🚀 Feature  
-3. **Problem** — what’s missing or suboptimal  
-4. **Solution** — Cursor-friendly, actionable implementation plan (with enough context for Cursor to begin work)
-
-At the very end, close with:
+At the very end of Output 1, append this block exactly:
 
 \`\`\`md
 💡 **Cursor Prompt:**  
@@ -240,25 +257,40 @@ Here are 5 high-impact improvements we should work on.
 Let’s tackle them **one at a time**, starting with #1.
 \`\`\`
 
+> You may propose **brand-new files** (that do not yet exist) **inside Output 1 only** as ideas. Do **not** include non-existent paths in Output 2.
+
 ---
 
-### 🧩 OUTPUT 2 — Requested Files for Next Snapshot
-After sending the Markdown report, send a **second message** with only this JavaScript code block:
+### 🧩 OUTPUT 2 — Requested Files for Next Snapshot (JavaScript Only)
+Send this as a **second, separate message** after Output 1. Output **only** a JavaScript code block with paths that:
+- ✅ **already exist in \`filetree.txt\`**, and
+- ✅ are **NOT already listed** in \`requested-files.txt\` (compute the set difference), and
+- ✅ you believe will materially improve the next snapshot.
 
+Format **exactly** like this:
 \`\`\`js
 // priority
-pushIfExists("...");
-pushIfExists("...");
+pushIfExists("path/that/exists.ext");
+pushIfExists("another/existing/path/");
 \`\`\`
 
-These paths should represent files or directories you want to see next time to deepen your understanding of the codebase.
+**Strict rules for Output 2:**
+- Do **not** repeat anything that already appears in \`requested-files.txt\`.
+- Do **not** include speculative/new files here (keep those as ideas in Output 1).
+- If there are **no new** existing paths to recommend, output:
+\`\`\`js
+// priority
+// no new files for next snapshot
+\`\`\`
 
 ---
 
 ## ✅ Output Only
-Do **not** create new files.  
-Output both responses (1️⃣ Markdown report, 2️⃣ JS block) directly to the console.
+- Do **not** create files.  
+- Send **two messages**: (1) Markdown analysis, (2) JS block for **new** requested files that already exist.
 `;
+
+
 
 dumpFiles();
 fs.writeFileSync(path.join(docsDir, "prompt.txt"), prompt.trim());
