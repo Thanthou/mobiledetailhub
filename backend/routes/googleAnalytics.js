@@ -4,6 +4,7 @@ import { logger } from '../config/logger.js';
 import { getPool } from '../database/pool.js';
 import { env } from '../config/env.js';
 import * as analyticsService from '../services/googleAnalytics.js';
+import { sendSuccess, sendError, sendValidationError } from '../utils/responseFormatter.js';
 
 const router = express.Router();
 
@@ -14,7 +15,7 @@ const router = express.Router();
 
 // Test route to verify the router is working
 router.get('/test', (req, res) => {
-  res.json({ message: 'Google Analytics routes are working!', timestamp: new Date().toISOString() });
+  sendSuccess(res, 'Google Analytics routes are working!', { timestamp: new Date().toISOString() });
 });
 
 /**
@@ -29,11 +30,7 @@ router.get('/auth', asyncHandler(async (req, res) => {
     logger.info('Tenant ID:', tenantId);
     
     if (!tenantId) {
-      return res.status(400).json({
-        success: false,
-        error: 'Tenant ID is required',
-        message: 'Please provide a tenant_id parameter'
-      });
+      return sendValidationError(res, 'Tenant ID is required', 'Missing tenant_id');
     }
 
     // Verify tenant exists and is approved
@@ -44,7 +41,7 @@ router.get('/auth', asyncHandler(async (req, res) => {
 
     if (tenantResult.rows.length === 0) {
       return res.status(404).json({
-        success: false,
+        status: 'error',
         error: 'Tenant not found',
         message: 'Tenant not found or not approved'
       });
@@ -79,7 +76,7 @@ router.get('/auth', asyncHandler(async (req, res) => {
   } catch (error) {
     logger.error('Error initiating Google Analytics OAuth:', error);
     res.status(500).json({
-      success: false,
+      status: 'error',
       error: 'Failed to initiate OAuth flow',
       message: error.message
     });
@@ -98,7 +95,7 @@ router.get('/callback', asyncHandler(async (req, res) => {
     if (error) {
       logger.error('Google Analytics OAuth error:', { error, state });
       return res.status(400).json({
-        success: false,
+        status: 'error',
         error: 'OAuth authorization failed',
         message: `Google OAuth error: ${error}`
       });
@@ -107,7 +104,7 @@ router.get('/callback', asyncHandler(async (req, res) => {
     // Validate required parameters
     if (!code || !state) {
       return res.status(400).json({
-        success: false,
+        status: 'error',
         error: 'Missing required parameters',
         message: 'Authorization code and state are required'
       });
@@ -122,11 +119,7 @@ router.get('/callback', asyncHandler(async (req, res) => {
     );
 
     if (tenantResult.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        error: 'Tenant not found',
-        message: 'Tenant not found or not approved'
-      });
+      return sendError(res, 'Tenant not found or not approved', 'Tenant not found', 404);
     }
 
     const tenant = tenantResult.rows[0];
@@ -245,7 +238,7 @@ router.get('/callback', asyncHandler(async (req, res) => {
   } catch (error) {
     logger.error('Error in Google Analytics OAuth callback:', error);
     res.status(500).json({
-      success: false,
+      status: 'error',
       error: 'Failed to complete OAuth flow',
       message: error.message
     });
@@ -262,7 +255,7 @@ router.get('/status', asyncHandler(async (req, res) => {
     
     if (!tenantId) {
       return res.status(400).json({
-        success: false,
+        status: 'error',
         error: 'Tenant ID is required'
       });
     }
@@ -275,8 +268,7 @@ router.get('/status', asyncHandler(async (req, res) => {
     const isConnected = result.rows.length > 0;
     const tokenData = result.rows[0] || null;
 
-    res.json({
-      success: true,
+    sendSuccess(res, 'Analytics connection status retrieved successfully', {
       connected: isConnected,
       data: tokenData ? {
         propertyId: tokenData.property_id,
@@ -288,7 +280,7 @@ router.get('/status', asyncHandler(async (req, res) => {
   } catch (error) {
     logger.error('Error checking Google Analytics status:', error);
     res.status(500).json({
-      success: false,
+      status: 'error',
       error: 'Failed to check connection status',
       message: error.message
     });
@@ -306,22 +298,19 @@ router.get('/summary', asyncHandler(async (req, res) => {
     
     if (!tenantId) {
       return res.status(400).json({
-        success: false,
+        status: 'error',
         error: 'Tenant ID is required'
       });
     }
 
     const summary = await analyticsService.getAnalyticsSummary(tenantId, days);
 
-    res.json({
-      success: true,
-      data: summary
-    });
+    sendSuccess(res, 'Analytics summary retrieved successfully', summary);
 
   } catch (error) {
     logger.error('Error fetching analytics summary:', error);
     res.status(500).json({
-      success: false,
+      status: 'error',
       error: 'Failed to fetch analytics data',
       message: error.message
     });
@@ -338,22 +327,19 @@ router.get('/realtime', asyncHandler(async (req, res) => {
     
     if (!tenantId) {
       return res.status(400).json({
-        success: false,
+        status: 'error',
         error: 'Tenant ID is required'
       });
     }
 
     const realtimeData = await analyticsService.getRealtimeData(tenantId);
 
-    res.json({
-      success: true,
-      data: realtimeData
-    });
+    sendSuccess(res, 'Realtime analytics data retrieved successfully', realtimeData);
 
   } catch (error) {
     logger.error('Error fetching realtime data:', error);
     res.status(500).json({
-      success: false,
+      status: 'error',
       error: 'Failed to fetch realtime data',
       message: error.message
     });

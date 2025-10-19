@@ -1,5 +1,5 @@
 # Route Performance Audit Report
-Generated: 2025-10-18T23:34:43.953Z
+Generated: 2025-10-19T07:23:25.332Z
 
 ## 📊 Performance Score: 100/100
 
@@ -8,10 +8,10 @@ Generated: 2025-10-18T23:34:43.953Z
 ## 🛣️ Route Analysis
 
 ### Route Summary
-- **Total Routes**: 32
-- **Lazy Routes**: 31
-- **Eager Routes**: 1
-- **Routes with Suspense**: 31
+- **Total Routes**: 25
+- **Lazy Routes**: 18
+- **Eager Routes**: 7
+- **Routes with Suspense**: 18
 
 ### Route Details
 
@@ -64,102 +64,53 @@ Generated: 2025-10-18T23:34:43.953Z
 - **Lazy Components**: 1
 
 
-#### /:slug
-- **File**: `features\header\routes\tenantRoutes.tsx`
+#### /
+- **File**: `main-site\MainSiteApp.tsx`
 - **Lazy Loading**: ❌ No
 - **Suspense Boundary**: ❌ No
 - **Lazy Components**: 0
 
 
-#### /
-- **File**: `main-site\MainSiteApp.tsx`
-- **Lazy Loading**: ✅ Yes
-- **Suspense Boundary**: ✅ Yes
-- **Lazy Components**: 1
-
-
 #### /login
 - **File**: `main-site\MainSiteApp.tsx`
-- **Lazy Loading**: ✅ Yes
-- **Suspense Boundary**: ✅ Yes
-- **Lazy Components**: 1
+- **Lazy Loading**: ❌ No
+- **Suspense Boundary**: ❌ No
+- **Lazy Components**: 0
 
 
-#### /admin-dashboard
+#### /onboard
 - **File**: `main-site\MainSiteApp.tsx`
-- **Lazy Loading**: ✅ Yes
-- **Suspense Boundary**: ✅ Yes
-- **Lazy Components**: 1
+- **Lazy Loading**: ❌ No
+- **Suspense Boundary**: ❌ No
+- **Lazy Components**: 0
 
 
-#### /tenant-dashboard
+#### /pricing
 - **File**: `main-site\MainSiteApp.tsx`
-- **Lazy Loading**: ✅ Yes
-- **Suspense Boundary**: ✅ Yes
-- **Lazy Components**: 1
+- **Lazy Loading**: ❌ No
+- **Suspense Boundary**: ❌ No
+- **Lazy Components**: 0
 
 
-#### /tenant-onboarding
+#### /admin
 - **File**: `main-site\MainSiteApp.tsx`
-- **Lazy Loading**: ✅ Yes
-- **Suspense Boundary**: ✅ Yes
-- **Lazy Components**: 1
-
-
-#### /booking
-- **File**: `main-site\MainSiteApp.tsx`
-- **Lazy Loading**: ✅ Yes
-- **Suspense Boundary**: ✅ Yes
-- **Lazy Components**: 1
-
-
-#### /preview-generator
-- **File**: `main-site\MainSiteApp.tsx`
-- **Lazy Loading**: ✅ Yes
-- **Suspense Boundary**: ✅ Yes
-- **Lazy Components**: 1
-
-
-#### /preview/:tenantSlug
-- **File**: `main-site\MainSiteApp.tsx`
-- **Lazy Loading**: ✅ Yes
-- **Suspense Boundary**: ✅ Yes
-- **Lazy Components**: 1
-
-
-#### /:businessSlug/services/:serviceType
-- **File**: `main-site\MainSiteApp.tsx`
-- **Lazy Loading**: ✅ Yes
-- **Suspense Boundary**: ✅ Yes
-- **Lazy Components**: 1
-
-
-#### /:businessSlug/dashboard
-- **File**: `main-site\MainSiteApp.tsx`
-- **Lazy Loading**: ✅ Yes
-- **Suspense Boundary**: ✅ Yes
-- **Lazy Components**: 1
-
-
-#### /:businessSlug/booking
-- **File**: `main-site\MainSiteApp.tsx`
-- **Lazy Loading**: ✅ Yes
-- **Suspense Boundary**: ✅ Yes
-- **Lazy Components**: 1
-
-
-#### /:businessSlug
-- **File**: `main-site\MainSiteApp.tsx`
-- **Lazy Loading**: ✅ Yes
-- **Suspense Boundary**: ✅ Yes
-- **Lazy Components**: 1
+- **Lazy Loading**: ❌ No
+- **Suspense Boundary**: ❌ No
+- **Lazy Components**: 0
 
 
 #### *
 - **File**: `main-site\MainSiteApp.tsx`
-- **Lazy Loading**: ✅ Yes
-- **Suspense Boundary**: ✅ Yes
-- **Lazy Components**: 1
+- **Lazy Loading**: ❌ No
+- **Suspense Boundary**: ❌ No
+- **Lazy Components**: 0
+
+
+#### /:slug
+- **File**: `tenant-app\components\header\routes\tenantRoutes.tsx`
+- **Lazy Loading**: ❌ No
+- **Suspense Boundary**: ❌ No
+- **Lazy Components**: 0
 
 
 #### /
@@ -249,23 +200,23 @@ Generated: 2025-10-18T23:34:43.953Z
 
 ### Largest Bundles
 
-- **ServicePage-CAp2YqW6.js**: 465KB  
+- **ServicePage-BF6qtNd1.js**: 465KB  
 
 - **react-vendor-CtnLqe6R.js**: 313KB (Vendor) 
 
-- **TenantConfigContext-BVI3frGY.js**: 284KB  
+- **TenantConfigContext-DszNEUPB.js**: 287KB  
 
 - **vendor-cHQ1GJgB.js**: 235KB (Vendor) 
 
-- **BookingApp-1E5WHuJe.js**: 112KB  
+- **BookingApp-CQPu2rJ4.js**: 112KB  
 
-- **PreviewGeneratorPage-CXS1Vxmb.js**: 84KB  
+- **PreviewGeneratorPage-QwSiRu2a.js**: 85KB  
 
 - **query-vendor-B2vaS9Wk.js**: 67KB (Vendor) 
 
-- **RequestQuoteModal-CRjfsiAQ.js**: 48KB  
+- **RequestQuoteModal-D9BkW-iD.js**: 48KB  
 
-- **index-CaF7kCEp.js**: 38KB  
+- **index-DJPxtqmq.js**: 38KB  
 
 - **api-BcBw9jk9.js**: 8KB  
 
@@ -276,6 +227,13 @@ Generated: 2025-10-18T23:34:43.953Z
 ✅ No performance issues detected!
 
 ## 💡 Recommendations
+
+
+### 🔴 Implement Lazy Loading
+**Category**: Code Splitting
+**Description**: You have 7 routes that could benefit from lazy loading
+**Affected Routes**: /, /login, /onboard, /pricing, /admin, *, /:slug
+**Implementation**: Wrap components with React.lazy() and Suspense
 
 
 ### 🟡 Implement Performance Budgets

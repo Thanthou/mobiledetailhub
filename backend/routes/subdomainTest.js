@@ -5,8 +5,9 @@
 
 import express from 'express';
 import { createModuleLogger } from '../config/logger.js';
-
 import { asyncHandler } from '../middleware/errorHandler.js';
+import { sendSuccess, sendError } from '../utils/responseFormatter.js';
+
 const logger = createModuleLogger('subdomainTest');
 const router = express.Router();
 
@@ -38,11 +39,7 @@ router.get('/info', (req, res) => {
     info
   }, 'Subdomain info requested');
 
-  res.json({
-    success: true,
-    data: info,
-    message: 'Subdomain information retrieved successfully'
-  });
+  sendSuccess(res, 'Subdomain information retrieved successfully', info);
 });
 
 /**
@@ -51,7 +48,7 @@ router.get('/info', (req, res) => {
  */
 router.get('/test', (req, res) => {
   let response = {
-    success: true,
+    status: 'success',
     message: '',
     data: {
       hostname: req.hostname,
@@ -89,7 +86,7 @@ router.get('/test', (req, res) => {
     response: response.data
   }, 'Subdomain test requested');
 
-  res.json(response);
+  sendSuccess(res, response.message, response.data);
 });
 
 /**
@@ -107,7 +104,7 @@ router.get('/tenant-content/:slug', async (req, res) => {
     
     if (!tenant) {
       return res.status(404).json({
-        success: false,
+        status: 'error',
         message: 'Tenant not found',
         slug
       });
@@ -115,22 +112,18 @@ router.get('/tenant-content/:slug', async (req, res) => {
     
     const content = await getTenantWebsiteContent(slug);
     
-    res.json({
-      success: true,
-      data: {
-        tenant: {
-          id: tenant.id,
-          slug: tenant.slug,
-          businessName: tenant.business_name,
-          industry: tenant.industry,
-          isActive: tenant.is_active,
-          subscriptionStatus: tenant.subscription_status,
-          planName: tenant.plan_name
-        },
-        content: content || {},
-        contentTypes: content ? Object.keys(content) : []
+    sendSuccess(res, 'Tenant content retrieved successfully', {
+      tenant: {
+        id: tenant.id,
+        slug: tenant.slug,
+        businessName: tenant.business_name,
+        industry: tenant.industry,
+        isActive: tenant.is_active,
+        subscriptionStatus: tenant.subscription_status,
+        planName: tenant.plan_name
       },
-      message: 'Tenant content retrieved successfully'
+      content: content || {},
+      contentTypes: content ? Object.keys(content) : []
     });
     
   } catch (error) {
@@ -142,7 +135,7 @@ router.get('/tenant-content/:slug', async (req, res) => {
     }, 'Error retrieving tenant content');
     
     res.status(500).json({
-      success: false,
+      status: 'error',
       message: 'Internal server error',
       error: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong'
     });

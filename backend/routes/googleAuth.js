@@ -9,6 +9,7 @@ import { getPool } from '../database/pool.js';
 import { env } from '../config/env.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import { createModuleLogger } from '../config/logger.js';
+import { sendSuccess, sendError, sendValidationError } from '../utils/responseFormatter.js';
 
 const router = express.Router();
 const logger = createModuleLogger('googleAuth');
@@ -51,7 +52,7 @@ router.get('/auth', asyncHandler(async (req, res) => {
   } catch (error) {
     logger.error('Error generating OAuth URL', { error: error.message });
     res.status(500).json({
-      success: false,
+      status: 'error',
       message: 'Failed to initiate Google OAuth flow',
       error: error.message
     });
@@ -70,7 +71,7 @@ router.get('/oauth/callback', asyncHandler(async (req, res) => {
     if (error) {
       logger.error('Google OAuth error', { error, state });
       return res.status(400).json({
-        success: false,
+        status: 'error',
         message: 'Google OAuth authorization failed',
         error: error
       });
@@ -80,7 +81,7 @@ router.get('/oauth/callback', asyncHandler(async (req, res) => {
     if (!code) {
       logger.error('Missing authorization code', { query: req.query });
       return res.status(400).json({
-        success: false,
+        status: 'error',
         message: 'Authorization code is required'
       });
     }
@@ -107,15 +108,11 @@ router.get('/oauth/callback', asyncHandler(async (req, res) => {
     await storeOAuthTokens(tenantId, tokens);
 
     // Return success response
-    res.json({
-      success: true,
-      message: '✅ Google Business Profile connected successfully!',
-      data: {
-        tenantId,
-        hasAccessToken: !!tokens.access_token,
-        hasRefreshToken: !!tokens.refresh_token,
-        expiresAt: tokens.expiry_date ? new Date(tokens.expiry_date) : null
-      }
+    sendSuccess(res, '✅ Google Business Profile connected successfully!', {
+      tenantId,
+      hasAccessToken: !!tokens.access_token,
+      hasRefreshToken: !!tokens.refresh_token,
+      expiresAt: tokens.expiry_date ? new Date(tokens.expiry_date) : null
     });
 
   } catch (error) {
@@ -125,7 +122,7 @@ router.get('/oauth/callback', asyncHandler(async (req, res) => {
     });
 
     res.status(500).json({
-      success: false,
+      status: 'error',
       message: 'Failed to exchange authorization code for tokens',
       error: error.message
     });
@@ -205,7 +202,7 @@ router.get('/tokens/:tenantId', asyncHandler(async (req, res) => {
   try {
     if (!pool) {
       return res.status(500).json({
-        success: false,
+        status: 'error',
         message: 'Database not available'
       });
     }
@@ -217,22 +214,19 @@ router.get('/tokens/:tenantId', asyncHandler(async (req, res) => {
 
     if (result.rows.length === 0) {
       return res.status(404).json({
-        success: false,
+        status: 'error',
         message: 'No OAuth tokens found for this tenant'
       });
     }
 
     const tokens = result.rows[0];
-    res.json({
-      success: true,
-      data: {
-        hasAccessToken: !!tokens.access_token,
-        hasRefreshToken: !!tokens.refresh_token,
-        tokenType: tokens.token_type,
-        expiresAt: tokens.expiry_date,
-        scope: tokens.scope,
-        lastUpdated: tokens.updated_at
-      }
+    sendSuccess(res, 'OAuth tokens retrieved successfully', {
+      hasAccessToken: !!tokens.access_token,
+      hasRefreshToken: !!tokens.refresh_token,
+      tokenType: tokens.token_type,
+      expiresAt: tokens.expiry_date,
+      scope: tokens.scope,
+      lastUpdated: tokens.updated_at
     });
 
   } catch (error) {
@@ -242,7 +236,7 @@ router.get('/tokens/:tenantId', asyncHandler(async (req, res) => {
     });
 
     res.status(500).json({
-      success: false,
+      status: 'error',
       message: 'Failed to retrieve OAuth tokens',
       error: error.message
     });

@@ -1,41 +1,40 @@
 /**
- * Lazy, non-blocking PostgreSQL pool
- * - Connects only when first needed
- * - Auto-retries with exponential backoff
- * - Works even if DB is unavailable at startup
+ * Lazy, Non-Blocking PostgreSQL Pool
+ * ----------------------------------
+ * - Connects only when used
+ * - Retries automatically on startup
+ * - Keeps Render port open instantly
  */
 
 import pkg from 'pg';
-import { createModuleLogger } from '../backend/config/logger.js';
-const logger = createModuleLogger('pool.async');
-
-
-import { loadEnv } from '../backend/config/env.async.js';
+import { createModuleLogger } from '../../backend/config/logger.js';
+const logger = createModuleLogger('pool');
 const { Pool } = pkg;
 
-let pool = null;
+let _pool = null;
 let connecting = false;
 
-/** Lazy initializer */
+/** Initialize pool only when needed */
 export async function getPool() {
-  if (pool) return pool;
+  if (_pool) return _pool;
   if (connecting) {
-    // wait until first pool is ready
     await new Promise(r => setTimeout(r, 500));
-    return pool;
+    return _pool;
   }
 
   connecting = true;
+  const { loadEnv } = await import('../../backend/config/env.js');
   const env = await loadEnv();
 
-  if (!env.DATABASE_URL) {
-    logger.warn('⚠️  No DATABASE_URL — returning mock pool');
-    pool = {
+  // Check for DATABASE_URL or individual database variables
+  if (!env.DATABASE_URL && !env.DB_HOST) {
+    logger.warn('⚠️  No DATABASE_URL or DB_HOST — returning mock pool.');
+    _pool = {
       query: async () => { throw new Error('Database not configured'); },
       connect: async () => { throw new Error('Database not configured'); },
       end: async () => {}
     };
-    return pool;
+    return _pool;
   }
 
   const config = {
@@ -51,17 +50,14 @@ export async function getPool() {
     query_timeout: 30000
   };
 
-  pool = new Pool(config);
+  _pool = new Pool(config);
+  _pool.on('error', err => logger.error('⚠️  Idle client error:', err.message));
 
-  pool.on('error', err =>
-    logger.error('⚠️  Idle client error:', err.message)
-  );
-
-  // Attempt first connection in background (non-fatal)
-  (async () => {
+  // Background connection test (non-fatal, truly async)
+  setImmediate(async () => {
     for (let i = 1; i <= 5; i++) {
       try {
-        const client = await pool.connect();
+        const client = await _pool.connect();
         await client.query('SELECT 1');
         client.release();
         logger.info('✅ Database connection established');
@@ -71,13 +67,13 @@ export async function getPool() {
         await new Promise(r => setTimeout(r, i * 2000));
       }
     }
-  })();
+  });
 
-  // Periodic health check (non-blocking)
+  // Periodic health check (every 5 min)
   if (!global.__POOL_HEALTH_INTERVAL__) {
     global.__POOL_HEALTH_INTERVAL__ = setInterval(async () => {
       try {
-        const client = await pool.connect();
+        const client = await _pool.connect();
         await client.query('SELECT 1');
         client.release();
         logger.info('✅ DB pool health OK');
@@ -88,10 +84,10 @@ export async function getPool() {
   }
 
   connecting = false;
-  return pool;
+  return _pool;
 }
 
-/** Utility for one-off health check */
+/** Optional manual check for monitoring routes */
 export async function checkPoolHealth() {
   const p = await getPool();
   try {
@@ -104,3 +100,22 @@ export async function checkPoolHealth() {
     return false;
   }
 }
+
+// --- Compatibility export for legacy imports ---
+// This allows existing code to still use `import { pool } from './pool.js'`
+// We use a lazy getter to avoid the "already declared" error
+let _poolInstance = null;
+export const pool = {
+  async query(...args) {
+    if (!_poolInstance) _poolInstance = await getPool();
+    return _poolInstance.query(...args);
+  },
+  async connect() {
+    if (!_poolInstance) _poolInstance = await getPool();
+    return _poolInstance.connect();
+  },
+  async end() {
+    if (!_poolInstance) _poolInstance = await getPool();
+    return _poolInstance.end();
+  }
+};

@@ -8,6 +8,7 @@ import { asyncHandler } from '../middleware/errorHandler.js';
 const router = express.Router();
 import { getPool } from '../database/pool.js';
 import logger from '../utils/logger.js';
+import { sendSuccess, sendError } from '../utils/responseFormatter.js';
 
 // Track shutdown status for graceful shutdown
 let isShuttingDown = false;
@@ -47,8 +48,7 @@ router.get('/', async (req, res) => {
 
     const responseTime = Date.now() - startTime;
 
-    res.json({
-      status: 'OK',
+    sendSuccess(res, 'System health check successful', {
       timestamp: new Date().toISOString(),
       database: dbStatus,
       uptime: process.uptime(),
@@ -66,11 +66,7 @@ router.get('/', async (req, res) => {
 
   } catch (error) {
     logger.error('Health check error:', error);
-    res.status(500).json({
-      status: 'ERROR',
-      timestamp: new Date().toISOString(),
-      error: error.message
-    });
+    sendError(res, 'Health check failed', error.message, 500);
   }
 });
 
@@ -79,8 +75,7 @@ router.get('/', async (req, res) => {
  * Liveness check - always returns 200 if process is responsive
  */
 router.get('/live', (req, res) => {
-  res.json({
-    status: 'alive',
+  sendSuccess(res, 'System is alive', {
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     pid: process.pid,
@@ -122,8 +117,7 @@ router.get('/ready', async (req, res) => {
         });
       }
 
-      res.json({
-        status: 'ready',
+      sendSuccess(res, 'System is ready', {
         timestamp: new Date().toISOString(),
         database: {
           connected: true,
@@ -133,22 +127,12 @@ router.get('/ready', async (req, res) => {
       });
 
     } catch (dbError) {
-      return res.status(503).json({
-        status: 'not_ready',
-        reason: 'database_error',
-        error: dbError.message,
-        timestamp: new Date().toISOString()
-      });
+      return sendError(res, 'Database connection failed', dbError.message, 503);
     }
 
   } catch (error) {
     logger.error('Readiness check error:', error);
-    res.status(503).json({
-      status: 'not_ready',
-      reason: 'internal_error',
-      error: error.message,
-      timestamp: new Date().toISOString()
-    });
+    sendError(res, 'Internal error during readiness check', error.message, 503);
   }
 });
 
@@ -163,18 +147,14 @@ router.get('/db-status', async (req, res) => {
     const result = await pool.query('SELECT NOW() as current_time, version() as db_version');
     const responseTime = Date.now() - startTime;
 
-    res.json({
-      status: 'connected',
+    sendSuccess(res, 'Database connection successful', {
       responseTime: `${responseTime}ms`,
       currentTime: result.rows[0].current_time,
       dbVersion: result.rows[0].db_version
     });
 
   } catch (error) {
-    res.status(503).json({
-      status: 'error',
-      message: error.message
-    });
+    sendError(res, 'Database connection failed', error.message, 503);
   }
 });
 
@@ -189,18 +169,12 @@ router.get('/test-db', async (req, res) => {
     await pool.query('SELECT 1 as test');
     const responseTime = Date.now() - startTime;
 
-    res.json({
-      success: true,
-      message: 'Database connection successful',
+    sendSuccess(res, 'Database connection successful', {
       responseTime: `${responseTime}ms`
     });
 
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Database connection failed',
-      error: error.message
-    });
+    sendError(res, 'Database connection failed', error.message, 500);
   }
 });
 

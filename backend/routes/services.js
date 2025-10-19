@@ -5,13 +5,14 @@
  */
 
 import express from 'express';
-const router = express.Router();
-const logger = createModuleLogger('routeName');
-
-import {  pool  } from '../database/pool';import { createModuleLogger } from '../config/logger.js';
+import { pool } from '../database/pool';
+import { createModuleLogger } from '../config/logger.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
-;
-import {  getDatabaseId  } from '../utils/vehicleMapping';;
+import { getDatabaseId } from '../utils/vehicleMapping';
+import { sendSuccess, sendError, sendValidationError } from '../utils/responseFormatter.js';
+
+const router = express.Router();
+const logger = createModuleLogger('services');
 
 
 // POST /api/services - Create a new service
@@ -23,7 +24,7 @@ router.post('/', async (req, res) => {
     // Validate required fields
     if (!tenant_id || !name || !vehicle_id || !service_category_id) {
       return res.status(400).json({
-        success: false,
+        status: 'error',
         error: 'Missing required fields',
         message: 'tenant_id, vehicle_id, service_category_id, and name are required'
       });
@@ -108,7 +109,7 @@ router.post('/', async (req, res) => {
       }
       
       res.status(201).json({
-        success: true,
+        status: 'success',
         data: newService,
         message: 'Service created successfully with custom tiers'
       });
@@ -134,7 +135,7 @@ router.post('/', async (req, res) => {
       }
       
       res.status(201).json({
-        success: true,
+        status: 'success',
         data: newService,
         message: 'Service created successfully with default tiers'
       });
@@ -143,7 +144,7 @@ router.post('/', async (req, res) => {
   } catch (error) {
     logger.error('Error creating service:', error);
     res.status(500).json({
-      success: false,
+      status: 'error',
       error: 'Failed to create service',
       message: error.message
     });
@@ -158,7 +159,7 @@ router.put('/:serviceId', async (req, res) => {
     
     if (!serviceId) {
       return res.status(400).json({
-        success: false,
+        status: 'error',
         error: 'Missing service ID',
         message: 'Service ID is required'
       });
@@ -167,7 +168,7 @@ router.put('/:serviceId', async (req, res) => {
     // Validate required fields
     if (!tenant_id || !name || !vehicle_id || !service_category_id) {
       return res.status(400).json({
-        success: false,
+        status: 'error',
         error: 'Missing required fields',
         message: 'tenant_id, vehicle_id, service_category_id, and name are required'
       });
@@ -237,7 +238,7 @@ router.put('/:serviceId', async (req, res) => {
       if (serviceResult.rowCount === 0) {
         await client.query('ROLLBACK');
         return res.status(404).json({
-          success: false,
+          status: 'error',
           error: 'Service not found',
           message: 'No service found with the provided ID or you do not have permission to update it'
         });
@@ -294,9 +295,7 @@ router.put('/:serviceId', async (req, res) => {
       // Commit the transaction
       await client.query('COMMIT');
       
-      res.json({ success: true, data: serviceResult.rows[0],
-        message: 'Service updated successfully'
-       });
+      sendSuccess(res, 'Service updated successfully', serviceResult.rows[0]);
       
     } catch (error) {
       // Rollback the transaction on error
@@ -309,7 +308,7 @@ router.put('/:serviceId', async (req, res) => {
   } catch (error) {
     logger.error('Error updating service:', error);
     res.status(500).json({
-      success: false,
+      status: 'error',
       error: 'Failed to update service',
       message: error.message
     });
@@ -323,7 +322,7 @@ router.delete('/:serviceId', async (req, res) => {
     
     if (!serviceId) {
       return res.status(400).json({
-        success: false,
+        status: 'error',
         error: 'Missing service ID',
         message: 'Service ID is required'
       });
@@ -346,7 +345,7 @@ router.delete('/:serviceId', async (req, res) => {
       if (serviceResult.rowCount === 0) {
         await client.query('ROLLBACK');
         return res.status(404).json({
-          success: false,
+          status: 'error',
           error: 'Service not found',
           message: 'No service found with the provided ID'
         });
@@ -355,9 +354,7 @@ router.delete('/:serviceId', async (req, res) => {
       // Commit the transaction
       await client.query('COMMIT');
       
-      res.json({
-        success: true,
-        message: 'Service and all associated tiers deleted successfully',
+      sendSuccess(res, 'Service and all associated tiers deleted successfully', {
         deletedServiceId: serviceId,
         deletedTiersCount: tiersResult.rowCount
       });
@@ -373,7 +370,7 @@ router.delete('/:serviceId', async (req, res) => {
   } catch (error) {
     logger.error('Error deleting service:', error);
     res.status(500).json({
-      success: false,
+      status: 'error',
       error: 'Failed to delete service',
       message: error.message
     });
@@ -428,8 +425,7 @@ router.get('/tenant/:tenantId/vehicle/:vehicleId/category/:categoryId', async (r
     const result = await pool.query(query, queryParams);
     
     if (result.rows.length === 0) {
-      return res.json({ success: true, data: []
-       });
+      return sendSuccess(res, 'No services found', []);
     }
     
     // For each service, get its tiers
@@ -473,13 +469,12 @@ router.get('/tenant/:tenantId/vehicle/:vehicleId/category/:categoryId', async (r
       servicesWithTiers.push(serviceData);
     }
     
-    res.json({ success: true, data: servicesWithTiers
-     });
+    sendSuccess(res, 'Services with tiers retrieved successfully', servicesWithTiers);
     
   } catch (error) {
     logger.error('Error fetching service with tiers:', error);
     res.status(500).json({
-      success: false,
+      status: 'error',
       error: 'Failed to fetch service with tiers',
       message: error.message
     });

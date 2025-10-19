@@ -9,6 +9,7 @@ import { getPool } from '../database/pool.js'
 import bcrypt from 'bcryptjs'
 import { sendWelcomeEmail } from '../services/emailService.js'
 import { createModuleLogger } from '../config/logger.js'
+import { sendSuccess, sendError, sendValidationError } from '../utils/responseFormatter.js'
 
 const router = express.Router()
 const logger = createModuleLogger('payments');
@@ -39,11 +40,10 @@ const result = await StripeService.createPaymentIntent({
     });
     
     if (result.success) {
-      res.json({ 
-        success: true, 
+      sendSuccess(res, 'Payment intent created successfully', {
         clientSecret: result.clientSecret,
         paymentIntentId: result.paymentIntentId,
-        received: { amount, customerEmail, businessName, planType, metadata } 
+        received: { amount, customerEmail, businessName, planType, metadata }
       });
     } else {
       throw new Error(result.error || 'Failed to create payment intent');
@@ -179,16 +179,13 @@ router.post('/confirm', async (req, res, next) => {
         // Don't fail the entire transaction if email fails
       }
       
-      res.json({
-        success: true,
-        data: {
-          slug: tenant.slug,
-          websiteUrl: `http://${tenant.slug}.thatsmartsite.com`,
-          dashboardUrl: `/${tenant.slug}/dashboard`,
-          tenantId: tenant.id,
-          userId: user.id,
-          paymentIntentId
-        }
+      sendSuccess(res, 'Payment confirmed and tenant created successfully', {
+        slug: tenant.slug,
+        websiteUrl: `http://${tenant.slug}.thatsmartsite.com`,
+        dashboardUrl: `/${tenant.slug}/dashboard`,
+        tenantId: tenant.id,
+        userId: user.id,
+        paymentIntentId
       });
       
     } catch (transactionError) {

@@ -9,8 +9,9 @@ import express from 'express';
 import { getGoogleReviews } from '../services/googleApi.js';
 import { isDummyTenant } from '../utils/tenantUtils.js';
 import logger from '../utils/logger.js';
-
 import { asyncHandler } from '../middleware/errorHandler.js';
+import { sendSuccess, sendError, sendValidationError } from '../utils/responseFormatter.js';
+
 const router = express.Router();
 
 /**
@@ -25,7 +26,7 @@ router.get('/:tenantSlug', async (req, res) => {
     // Validate tenant slug
     if (!tenantSlug || tenantSlug.trim() === '') {
       return res.status(400).json({
-        success: false,
+        status: 'error',
         error: 'Tenant slug is required',
         message: 'Please provide a valid tenant slug'
       });
@@ -48,34 +49,28 @@ router.get('/:tenantSlug', async (req, res) => {
         assert: { type: 'json' }
       });
       
-      return res.json({
-        success: true,
-        data: mockReviews,
+      return sendSuccess(res, 'Mock reviews returned for dummy tenant', {
+        reviews: mockReviews,
         source: 'mock',
-        tenantSlug,
-        message: 'Mock reviews returned for dummy tenant'
+        tenantSlug
       });
     }
 
     // For real tenants with no reviews, return empty array
     if (!reviews || reviews.length === 0) {
       logger.info('No reviews found for tenant', { tenantSlug });
-      return res.json({
-        success: true,
-        data: [],
+      return sendSuccess(res, 'No reviews found', {
+        reviews: [],
         source: 'google',
-        tenantSlug,
-        message: 'No reviews found'
+        tenantSlug
       });
     }
 
     // Return real Google reviews
-    res.json({
-      success: true,
-      data: reviews,
+    sendSuccess(res, 'Google reviews fetched successfully', {
+      reviews: reviews,
       source: 'google',
-      tenantSlug,
-      message: 'Google reviews fetched successfully'
+      tenantSlug
     });
 
   } catch (error) {
@@ -93,27 +88,23 @@ router.get('/:tenantSlug', async (req, res) => {
           assert: { type: 'json' }
         });
         
-        res.json({
-          success: true,
-          data: mockReviews,
+        sendSuccess(res, 'Mock reviews returned (error fetching Google reviews)', {
+          reviews: mockReviews,
           source: 'mock',
-          tenantSlug: req.params.tenantSlug,
-          message: 'Mock reviews returned (error fetching Google reviews)'
+          tenantSlug: req.params.tenantSlug
         });
       } else {
         // For real tenants, return empty array on error
-        res.json({
-          success: true,
-          data: [],
+        sendSuccess(res, 'No reviews available (error fetching Google reviews)', {
+          reviews: [],
           source: 'google',
-          tenantSlug: req.params.tenantSlug,
-          message: 'No reviews available (error fetching Google reviews)'
+          tenantSlug: req.params.tenantSlug
         });
       }
     } catch (mockError) {
       logger.error('Failed to load mock reviews', { error: mockError.message });
       res.status(500).json({
-        success: false,
+        status: 'error',
         error: 'Failed to fetch reviews',
         message: 'Unable to fetch reviews from Google'
       });
@@ -129,8 +120,7 @@ router.get('/:tenantSlug/health', async (req, res) => {
   try {
     const { tenantSlug } = req.params;
     
-    res.json({
-      success: true,
+    sendSuccess(res, 'Google Reviews service is healthy', {
       service: 'google-reviews',
       tenantSlug,
       status: 'healthy',
@@ -142,7 +132,7 @@ router.get('/:tenantSlug/health', async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({
-      success: false,
+      status: 'error',
       service: 'google-reviews',
       error: error.message,
       status: 'unhealthy'

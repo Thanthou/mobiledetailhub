@@ -9,6 +9,7 @@ import { getPool } from '../database/pool.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import logger from '../utils/logger.js';
 import healthMonitor from '../services/healthMonitor.js';
+import { sendSuccess, sendError } from '../utils/responseFormatter.js';
 
 /**
  * GET /api/health/:tenantSlug
@@ -67,13 +68,9 @@ router.get('/:tenantSlug', asyncHandler(async (req, res) => {
     `, [tenantSlug]);
 
     if (result.rows.length === 0) {
-      return res.json({
-        success: true,
-        data: {
-          tenantSlug,
-          hasData: false,
-          message: 'No health monitoring data available. Run a health scan to get started.'
-        }
+      return sendSuccess(res, 'No health monitoring data available. Run a health scan to get started.', {
+        tenantSlug,
+        hasData: false
       });
     }
 
@@ -122,14 +119,11 @@ router.get('/:tenantSlug', asyncHandler(async (req, res) => {
       }
     });
 
-    res.json({
-      success: true,
-      data: healthData
-    });
+    sendSuccess(res, 'Health status retrieved successfully', healthData);
 
   } catch (error) {
     logger.error('Error fetching health status:', error);
-    res.status(500).json({ error: 'Failed to fetch health status' });
+    sendError(res, 'Failed to fetch health status', error.message, 500);
   }
 }));
 
@@ -293,21 +287,17 @@ router.post('/:tenantSlug/scan', asyncHandler(async (req, res) => {
 
     logger.info(`Health scan completed for tenant: ${tenantSlug}`);
 
-    res.json({
-      success: true,
-      message: 'Health scan completed successfully',
-      data: {
-        tenantSlug,
-        url: websiteUrl,
-        overallScore: healthData.overallScore,
-        summary: healthData.summary,
-        timestamp: healthData.timestamp
-      }
+    sendSuccess(res, 'Health scan completed successfully', {
+      tenantSlug,
+      url: websiteUrl,
+      overallScore: healthData.overallScore,
+      summary: healthData.summary,
+      timestamp: healthData.timestamp
     });
 
   } catch (error) {
     logger.error('Error during health scan:', error);
-    res.status(500).json({ error: 'Health scan failed' });
+    sendError(res, 'Health scan failed', error.message, 500);
   }
 }));
 
@@ -345,19 +335,16 @@ router.get('/:tenantSlug/history', asyncHandler(async (req, res) => {
       LIMIT $2
     `, [tenantSlug, parseInt(limit)]);
 
-    res.json({ 
-      success: true,
-      data: {
-        tenantSlug,
-        history: result.rows,
-        period: `${days} days`,
-        totalRecords: result.rows.length
-      }
+    sendSuccess(res, 'Health monitoring history retrieved', {
+      tenantSlug,
+      history: result.rows,
+      period: `${days} days`,
+      totalRecords: result.rows.length
     });
 
   } catch (error) {
     logger.error('Error fetching health history:', error);
-    res.status(500).json({ error: 'Failed to fetch health history' });
+    sendError(res, 'Failed to fetch health history', error.message, 500);
   }
 }));
 
@@ -458,29 +445,21 @@ router.get('/test-api', asyncHandler(async (req, res) => {
     logger.info('Testing PageSpeed API connectivity...');
     
     if (!healthMonitor.pageSpeedApiKey) {
-      return res.json({
-        success: false,
-        error: 'PageSpeed API key not configured'
-      });
+      return sendError(res, 'PageSpeed API key not configured', null, 500);
     }
 
     // Test with a simple URL
     const testUrl = 'https://google.com';
     const result = await healthMonitor.fetchPageSpeedInsights(testUrl, 'mobile');
     
-    res.json({
-      success: true,
+    sendSuccess(res, result.success ? 'PageSpeed API is working correctly' : 'PageSpeed API call failed', {
       apiKeyConfigured: true,
-      testResult: result,
-      message: result.success ? 'PageSpeed API is working correctly' : 'PageSpeed API call failed'
+      testResult: result
     });
 
   } catch (error) {
     logger.error('PageSpeed API test error:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
+    sendError(res, 'PageSpeed API test failed', error.message, 500);
   }
 }));
 
@@ -495,7 +474,7 @@ router.get('/test-lighthouse', asyncHandler(async (req, res) => {
     const result = await healthMonitor.runLighthouseLocal(testUrl, 'mobile');
     
     res.json({
-      success: true,
+      status: 'success',
       testResult: result,
       message: result.success ? 'Lighthouse CLI is working correctly' : 'Lighthouse CLI call failed'
     });
@@ -503,7 +482,7 @@ router.get('/test-lighthouse', asyncHandler(async (req, res) => {
   } catch (error) {
     logger.error('Lighthouse test error:', error);
     res.status(500).json({
-      success: false,
+      status: 'error',
       error: error.message
     });
   }

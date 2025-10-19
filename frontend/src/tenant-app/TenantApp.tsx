@@ -12,7 +12,8 @@ import HomePage from '@main/pages/HomePage';
 import ServicePage from '@main/pages/ServicePage';
 
 // Heavy modules are NOT imported here - they stay out of the initial bundle
-const Booking = lazy(() => import('../features/booking/BookingApp'));
+const Booking = lazy(() => import('./components/booking/BookingApp'));
+
 
 export default function TenantApp() {
   useRouterDebug('TenantApp');

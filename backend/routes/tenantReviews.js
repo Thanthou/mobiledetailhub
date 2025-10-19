@@ -6,8 +6,10 @@ import multer from 'multer';
 import path from 'path';
 import { authenticateToken } from '../middleware/auth';
 import { generateAvatarFilename, ensureUploadsDir } from '../utils/avatarUtils';
-import { pool } from '../database/pool';import { asyncHandler } from '../middleware/errorHandler.js';
+import { pool } from '../database/pool';
+import { asyncHandler } from '../middleware/errorHandler.js';
 import { validateFileMagic } from '../utils/uploadValidator';
+import { sendSuccess, sendError, sendValidationError } from '../utils/responseFormatter.js';
 
 
 const router = express.Router();
@@ -53,7 +55,7 @@ router.post('/upload-avatar', upload.single('avatar'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({
-        success: false,
+        status: 'error',
         message: 'No file uploaded'
       });
     }
@@ -64,7 +66,7 @@ router.post('/upload-avatar', upload.single('avatar'), async (req, res) => {
       // Delete the uploaded file if validation fails
       fs.unlinkSync(req.file.path);
       return res.status(400).json({
-        success: false,
+        status: 'error',
         message: 'customerName and reviewId are required'
       });
     }
@@ -76,7 +78,7 @@ router.post('/upload-avatar', upload.single('avatar'), async (req, res) => {
       // Delete the uploaded file if validation fails
       fs.unlinkSync(req.file.path);
       return res.status(magicValidation.statusCode).json({
-        success: false,
+        status: 'error',
         message: magicValidation.errors[0]?.message || 'File validation failed'
       });
     }
@@ -109,9 +111,7 @@ router.post('/upload-avatar', upload.single('avatar'), async (req, res) => {
         filename: properFilename
       });
 
-      res.json({
-        success: true,
-        message: 'Avatar uploaded successfully',
+      sendSuccess(res, 'Avatar uploaded successfully', {
         avatarUrl: avatarUrl,
         filename: properFilename
       });
@@ -119,7 +119,7 @@ router.post('/upload-avatar', upload.single('avatar'), async (req, res) => {
       // If rename fails, delete the original file and return error
       fs.unlinkSync(req.file.path);
       res.status(500).json({
-        success: false,
+        status: 'error',
         message: 'Error renaming uploaded file',
         error: renameError.message
       });
@@ -128,7 +128,7 @@ router.post('/upload-avatar', upload.single('avatar'), async (req, res) => {
   } catch (error) {
     logger.error('Error uploading avatar:', error);
     res.status(500).json({
-      success: false,
+      status: 'error',
       message: 'Failed to upload avatar',
       error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
@@ -159,7 +159,7 @@ router.post('/', async (req, res) => {
     // Validate required fields
     if (!tenant_slug || !customer_name || !rating || !comment) {
       return res.status(400).json({
-        success: false,
+        status: 'error',
         message: 'Missing required fields: tenant_slug, customer_name, rating, comment'
       });
     }
@@ -167,7 +167,7 @@ router.post('/', async (req, res) => {
     // Validate rating
     if (rating < 1 || rating > 5) {
       return res.status(400).json({
-        success: false,
+        status: 'error',
         message: 'Rating must be between 1 and 5'
       });
     }
@@ -176,7 +176,7 @@ router.post('/', async (req, res) => {
     const validVehicleTypes = ['car', 'truck', 'suv', 'boat', 'rv', 'motorcycle'];
     if (vehicle_type && !validVehicleTypes.includes(vehicle_type)) {
       return res.status(400).json({
-        success: false,
+        status: 'error',
         message: `Invalid vehicle type. Must be one of: ${validVehicleTypes.join(', ')}`
       });
     }
@@ -185,7 +185,7 @@ router.post('/', async (req, res) => {
     const validSources = ['website', 'google', 'yelp', 'facebook'];
     if (source && !validSources.includes(source)) {
       return res.status(400).json({
-        success: false,
+        status: 'error',
         message: `Invalid source. Must be one of: ${validSources.join(', ')}`
       });
     }
@@ -197,7 +197,7 @@ router.post('/', async (req, res) => {
     // );
     // if (tenantCheck.rows.length === 0) {
     //   return res.status(400).json({
-    //     success: false,
+    //     status: 'error',
     //     message: 'Tenant not found'
     //   });
     // }
@@ -228,7 +228,7 @@ router.post('/', async (req, res) => {
     const result = await pool.query(query, values);
 
     res.status(201).json({
-      success: true,
+      status: 'success',
       data: result.rows[0],
       message: 'Review published successfully'
     });
@@ -236,7 +236,7 @@ router.post('/', async (req, res) => {
   } catch (error) {
     logger.error('Error creating tenant review:', error);
     res.status(500).json({
-      success: false,
+      status: 'error',
       message: 'Failed to create review',
       error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
@@ -258,32 +258,29 @@ router.get('/check-gbp-url/:tenantSlug', async (req, res) => {
     
     if (result.rows.length === 0) {
       return res.status(404).json({
-        success: false,
+        status: 'error',
         message: 'Tenant not found'
       });
     }
     
     const business = result.rows[0];
     
-    res.json({
-      success: true,
-      data: {
-        tenantSlug,
-        businessName: business.business_name,
-        gbpUrl: business.gbp_url,
-        urlType: business.gbp_url ? 
-          (business.gbp_url.includes('business.google.com') ? 'Direct Business Profile' :
-           business.gbp_url.includes('maps.google.com') ? 'Google Maps' :
-           business.gbp_url.includes('google.com/search') ? 'Google Search Results' :
-           business.gbp_url.includes('share.google') ? 'Google Share Link' :
-           'Unknown Format') : 'No URL Set'
-      }
+    sendSuccess(res, 'Business information retrieved successfully', {
+      tenantSlug,
+      businessName: business.business_name,
+      gbpUrl: business.gbp_url,
+      urlType: business.gbp_url ? 
+        (business.gbp_url.includes('business.google.com') ? 'Direct Business Profile' :
+         business.gbp_url.includes('maps.google.com') ? 'Google Maps' :
+         business.gbp_url.includes('google.com/search') ? 'Google Search Results' :
+         business.gbp_url.includes('share.google') ? 'Google Share Link' :
+         'Unknown Format') : 'No URL Set'
     });
     
   } catch (error) {
     logger.error('Error checking GBP URL:', error);
     res.status(500).json({
-      success: false,
+      status: 'error',
       message: 'Failed to check GBP URL',
       error: error.message
     });
@@ -300,7 +297,7 @@ router.get('/test-scraping', async (req, res) => {
     
     if (!url) {
       return res.status(400).json({
-        success: false,
+        status: 'error',
         message: 'URL parameter is required'
       });
     }
@@ -310,14 +307,12 @@ router.get('/test-scraping', async (req, res) => {
     // Test basic page access
     const testResult = await googleBusinessScraper.scrapeBusinessProfile(url);
 
-    res.json({ success: true, data: testResult,
-      message: 'Test scraping completed'
-     });
+    sendSuccess(res, 'Test scraping completed', testResult);
 
   } catch (error) {
     logger.error('Test scraping error:', error);
     res.status(500).json({
-      success: false,
+      status: 'error',
       message: 'Test scraping failed',
       error: error.message
     });
@@ -354,9 +349,8 @@ router.get('/:tenant_slug', async (req, res) => {
 
     const total = parseInt(countResult.rows[0].total);
 
-    res.json({
-      success: true,
-      data: result.rows,
+    sendSuccess(res, 'Reviews retrieved successfully', {
+      reviews: result.rows,
       pagination: {
         total,
         limit: parseInt(limit),
@@ -368,7 +362,7 @@ router.get('/:tenant_slug', async (req, res) => {
   } catch (error) {
     logger.error('Error fetching tenant reviews:', error);
     res.status(500).json({
-      success: false,
+      status: 'error',
       message: 'Failed to fetch reviews',
       error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
@@ -393,20 +387,17 @@ router.delete('/:id', async (req, res) => {
 
     if (result.rows.length === 0) {
       return res.status(404).json({
-        success: false,
+        status: 'error',
         message: 'Review not found'
       });
     }
 
-    res.json({
-      success: true,
-      message: 'Review deleted successfully'
-    });
+    sendSuccess(res, 'Review deleted successfully');
 
   } catch (error) {
     logger.error('Error deleting review:', error);
     res.status(500).json({
-      success: false,
+      status: 'error',
       message: 'Failed to delete review',
       error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
@@ -423,7 +414,7 @@ router.post('/scrape-google-business', async (req, res) => {
 
     if (!gbpUrl) {
       return res.status(400).json({
-        success: false,
+        status: 'error',
         message: 'Google Business Profile URL is required'
       });
     }
@@ -433,7 +424,7 @@ router.post('/scrape-google-business', async (req, res) => {
       new URL(gbpUrl);
     } catch {
       return res.status(400).json({
-        success: false,
+        status: 'error',
         message: 'Invalid URL format'
       });
     }
@@ -448,7 +439,7 @@ router.post('/scrape-google-business', async (req, res) => {
     if (!scrapeResult.success) {
       logger.error('Scraping failed:', scrapeResult.error);
       return res.status(500).json({
-        success: false,
+        status: 'error',
         message: 'Failed to scrape Google Business Profile',
         error: scrapeResult.error,
         debug: process.env.NODE_ENV === 'development' ? scrapeResult : undefined
@@ -492,21 +483,17 @@ router.post('/scrape-google-business', async (req, res) => {
       }
     }
 
-    res.json({
-      success: true,
-      data: {
-        averageRating,
-        totalReviews,
-        businessName,
-        gbpUrl
-      },
-      message: 'Successfully scraped Google Business Profile'
+    sendSuccess(res, 'Successfully scraped Google Business Profile', {
+      averageRating,
+      totalReviews,
+      businessName,
+      gbpUrl
     });
 
   } catch (error) {
     logger.error('Error in scrape-google-business endpoint:', error);
     res.status(500).json({
-      success: false,
+      status: 'error',
       message: 'Failed to scrape Google Business Profile',
       error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });

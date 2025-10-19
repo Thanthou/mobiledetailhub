@@ -2,8 +2,9 @@ import express from 'express';
 import { getPool } from '../database/pool.js';
 import { authenticateToken } from '../middleware/auth.js';
 import logger from '../utils/logger.js';
-
 import { asyncHandler } from '../middleware/errorHandler.js';
+import { sendSuccess, sendError, sendValidationError } from '../utils/responseFormatter.js';
+
 const router = express.Router();
 
 /**
@@ -69,9 +70,8 @@ router.get('/', async (req, res) => {
     const countResult = await pool.query(countQuery, countParams);
     const total = parseInt(countResult.rows[0].total);
 
-    res.json({
-      success: true,
-      data: result.rows,
+    sendSuccess(res, 'Reviews retrieved successfully', {
+      reviews: result.rows,
       pagination: {
         total,
         limit: parseInt(limit),
@@ -82,11 +82,7 @@ router.get('/', async (req, res) => {
 
   } catch (error) {
     logger.error('Error fetching reviews:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch reviews',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
-    });
+    sendError(res, 'Failed to fetch reviews', error.message, 500);
   }
 });
 
@@ -124,24 +120,14 @@ router.get('/:id', async (req, res) => {
     const result = await pool.query(query, [id]);
 
     if (result.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: 'Review not found'
-      });
+      return sendError(res, 'Review not found', null, 404);
     }
 
-    res.json({
-      success: true,
-      data: result.rows[0]
-    });
+    sendSuccess(res, 'Review retrieved successfully', result.rows[0]);
 
   } catch (error) {
     logger.error('Error fetching review:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch review',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
-    });
+    sendError(res, 'Failed to fetch review', error.message, 500);
   }
 });
 
@@ -175,7 +161,7 @@ router.post('/', async (req, res) => {
 
       if (tenantCheck.rows.length === 0) {
         return res.status(400).json({
-          success: false,
+          status: 'error',
           message: 'Tenant not found'
         });
       }
@@ -206,7 +192,7 @@ router.post('/', async (req, res) => {
     const result = await pool.query(query, values);
 
     res.status(201).json({
-      success: true,
+      status: 'success',
       data: result.rows[0],
       message: 'Review submitted successfully'
     });
@@ -214,7 +200,7 @@ router.post('/', async (req, res) => {
   } catch (error) {
     logger.error('Error creating review:', error);
     res.status(500).json({
-      success: false,
+      status: 'error',
       message: 'Failed to create review',
       error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
@@ -238,7 +224,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
 
     if (existingReview.rows.length === 0) {
       return res.status(404).json({
-        success: false,
+        status: 'error',
         message: 'Review not found'
       });
     }
@@ -257,7 +243,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
 
     if (updateFields.length === 0) {
       return res.status(400).json({
-        success: false,
+        status: 'error',
         message: 'No valid fields to update'
       });
     }
@@ -272,16 +258,12 @@ router.put('/:id', authenticateToken, async (req, res) => {
 
     const result = await pool.query(query, values);
 
-    res.json({
-      success: true,
-      data: result.rows[0],
-      message: 'Review updated successfully'
-    });
+    sendSuccess(res, 'Review updated successfully', result.rows[0]);
 
   } catch (error) {
     logger.error('Error updating review:', error);
     res.status(500).json({
-      success: false,
+      status: 'error',
       message: 'Failed to update review',
       error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
@@ -303,20 +285,17 @@ router.delete('/:id', authenticateToken, async (req, res) => {
 
     if (result.rows.length === 0) {
       return res.status(404).json({
-        success: false,
+        status: 'error',
         message: 'Review not found'
       });
     }
 
-    res.json({
-      success: true,
-      message: 'Review deleted successfully'
-    });
+    sendSuccess(res, 'Review deleted successfully');
 
   } catch (error) {
     logger.error('Error deleting review:', error);
     res.status(500).json({
-      success: false,
+      status: 'error',
       message: 'Failed to delete review',
       error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
