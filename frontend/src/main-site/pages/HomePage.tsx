@@ -10,6 +10,7 @@ import { ServicesGrid } from '@/features/services';
 import { useIsDesktop, useScrollSpy, useSEO, useTenantSlug } from '@/shared/hooks';
 import type { SectionId } from '@/shared/state/sectionStore';
 import { injectAllSchemas } from '@/shared/utils/schemaUtils';
+import { defaultSchemas } from '@/shared/seo/defaultSchemas';
 
 interface HomePageProps {
   onRequestQuote?: () => void;
@@ -44,10 +45,13 @@ const HomePage: React.FC<HomePageProps> = ({ onRequestQuote, locationData }) => 
 
   // Generate and inject Schema.org JSON-LD for tenant site
   useEffect(() => {
-    if (!locationData) {
-      // Schema generation for FAQs is now handled by the FAQ component itself
-      // using industry-specific data loaded dynamically
+    if (locationData) {
+      // Use tenant-specific schemas when location data is available
+      // This will be handled by the existing schema generation logic
       injectAllSchemas([]);
+    } else {
+      // Use default platform schemas when no tenant data is available
+      injectAllSchemas(defaultSchemas);
     }
   }, [locationData]);
 
@@ -55,6 +59,7 @@ const HomePage: React.FC<HomePageProps> = ({ onRequestQuote, locationData }) => 
     <>
       <Header />
       <div className="h-screen snap-y snap-mandatory overflow-y-scroll snap-container scrollbar-hide pt-[72px] md:pt-[88px]">
+        <h1 className="sr-only">Professional Services</h1>
         <Hero 
           {...(onRequestQuote && { onRequestQuote })}
         />

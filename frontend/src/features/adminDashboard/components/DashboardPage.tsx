@@ -20,6 +20,7 @@ const DashboardPage: React.FC = () => {
 
   return (
     <AdminLayout>
+      <h1 className="sr-only">Admin Dashboard</h1>
       <AdminTabs 
         activeTab={activeTab}
         onTabChange={handleTabChange}
