@@ -3,7 +3,7 @@
  * Handles database operations for refresh tokens
  */
 
-import { pool } from '../database/pool.js';
+import { getPool } from '../database/pool.js';
 import crypto from 'crypto';
 import logger from '../utils/logger.js';
 
@@ -48,6 +48,7 @@ const storeRefreshToken = async (userId, tokenHash, expiresAt, ipAddress, userAg
     const familyId = tokenFamily || generateTokenFamily();
 
     // Check if user already has a token for this device
+    const pool = await getPool();
     const existingToken = await pool.query(
       'SELECT id FROM auth.refresh_tokens WHERE user_id = $1 AND device_id = $2',
       [userId, deviceId]
@@ -68,6 +69,7 @@ const storeRefreshToken = async (userId, tokenHash, expiresAt, ipAddress, userAg
       return result.rows[0];
     } else {
       // Insert new token
+      const pool = await getPool();
       const result = await pool.query(
         `INSERT INTO auth.refresh_tokens 
          (user_id, token_hash, token_family, expires_at, ip_address, user_agent, device_id)
@@ -92,11 +94,7 @@ const storeRefreshToken = async (userId, tokenHash, expiresAt, ipAddress, userAg
  */
 const validateRefreshToken = async (tokenHash) => {
   try {
-
-    if (!pool) {
-      throw new Error('Database connection not available');
-    }
-
+    const pool = await getPool();
     const result = await pool.query(
       `SELECT rt.*, u.email, u.is_admin
        FROM auth.refresh_tokens rt
@@ -125,11 +123,7 @@ const validateRefreshToken = async (tokenHash) => {
  */
 const revokeRefreshToken = async (tokenHash) => {
   try {
-
-    if (!pool) {
-      throw new Error('Database connection not available');
-    }
-
+    const pool = await getPool();
     const result = await pool.query(
       `UPDATE auth.refresh_tokens 
        SET revoked_at = NOW()
@@ -157,11 +151,7 @@ const revokeRefreshToken = async (tokenHash) => {
  */
 const revokeAllUserTokens = async (userId) => {
   try {
-
-    if (!pool) {
-      throw new Error('Database connection not available');
-    }
-
+    const pool = await getPool();
     const result = await pool.query(
       `UPDATE auth.refresh_tokens 
        SET revoked_at = NOW()
@@ -190,11 +180,7 @@ const revokeAllUserTokens = async (userId) => {
  */
 const revokeDeviceToken = async (userId, deviceId) => {
   try {
-
-    if (!pool) {
-      throw new Error('Database connection not available');
-    }
-
+    const pool = await getPool();
     const result = await pool.query(
       `UPDATE auth.refresh_tokens 
        SET revoked_at = NOW()

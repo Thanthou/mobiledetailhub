@@ -1,7 +1,7 @@
 import express from 'express';
 import logger from '../utils/logger';
 import { asyncHandler } from '../middleware/errorHandler';
-import { pool } from '../database/pool';
+import { getPool } from '../database/pool.js';
 import { robotsRoute, sitemapRoute, seoConfigRoute, previewRoute } from './seo';
 
 /**

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Star, Users } from 'lucide-react';
 
-import { useReviewsRating } from '@/features/reviews/hooks';
+import { useReviewsRating } from '@/tenant-app/components/reviews/hooks';
 import { useReviewsAvailability } from '@/shared/hooks';
 import { useDataOptional } from '@/shared/hooks/useData';
 import type { ReviewsSummaryProps } from '@/shared/types/reviews';

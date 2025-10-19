@@ -5,7 +5,7 @@
 
 import { useMemo } from 'react';
 
-import type { FAQItem } from '@/features/faq/types';
+import type { FAQItem } from '@/tenant-app/components/faq/types';
 import { generateFAQSchema } from '@/shared/utils/schemaUtils';
 
 interface UseFAQSchemaResult {

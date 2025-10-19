@@ -28,7 +28,10 @@ const backendPort = getBackendPort();
 export default defineConfig({
   base: './', // Important for multi-entry builds
   plugins: [
-    react(),
+    react({
+      // Disable React Fast Refresh to prevent HMR issues
+      fastRefresh: false,
+    }),
     // Bundle analyzer - only in build mode
     process.env['ANALYZE'] && visualizer({
       filename: 'dist/bundle-analysis.html',
@@ -55,9 +58,14 @@ export default defineConfig({
     allowedHosts: [
       'localhost',
       '127.0.0.1',
+      '.localhost', // Allow all localhost subdomains
       '.lvh.me', // Allow all lvh.me subdomains for local testing
       '.thatsmartsite.com', // Allow all thatsmartsite.com subdomains
     ],
+    hmr: {
+      port: -1, // Disable HMR completely
+      host: null,
+    },
     proxy: {
       '/api': {
         target: `http://localhost:${backendPort}`,
@@ -92,9 +100,9 @@ export default defineConfig({
     // DEBUG: Always enable source maps for debugging
     sourcemap: true,
     rollupOptions: {
-      // Multiple entry points for admin, tenant, and main-site apps
+      // Multiple entry points for main-site, admin, and tenant apps
       input: {
-        main: path.resolve(__dirname, 'index.html'), // Main site = Admin app
+        main: path.resolve(__dirname, 'index.html'), // Main site = Marketing site
         'main-site': path.resolve(__dirname, 'src/main-site/index.html'),
         admin: path.resolve(__dirname, 'src/admin-app/index.html'),
         tenant: path.resolve(__dirname, 'src/tenant-app/index.html'),

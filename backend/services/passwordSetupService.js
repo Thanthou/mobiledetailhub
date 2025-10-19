@@ -5,7 +5,7 @@
 
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
-import { pool } from '../database/pool.js';
+import { getPool } from '../database/pool.js';
 import { env } from '../config/env.js';
 import { createModuleLogger } from '../config/logger.js';
 

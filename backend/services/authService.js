@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
-import { pool } from '../database/pool.js';
+import { getPool } from '../database/pool.js';
 import { generateTokenPair } from '../utils/tokenManager.js';
 // import { blacklistToken } from '../utils/tokenManager.js'; // Unused import
 import { 
@@ -29,12 +29,7 @@ async function checkEmailExists(email) {
     throw error;
   }
 
-  if (!pool) {
-    const error = new Error('Database connection not available');
-    error.statusCode = 500;
-    throw error;
-  }
-
+  const pool = await getPool();
   const result = await pool.query('SELECT id FROM auth.users WHERE email = $1', [email]);
   return result.rows.length > 0;
 }
@@ -45,11 +40,7 @@ async function checkEmailExists(email) {
 async function registerUser(userData, userAgent, ipAddress) {
   const { email, password, name, phone } = userData;
 
-  if (!pool) {
-    const error = new Error('Database connection not available');
-    error.statusCode = 500;
-    throw error;
-  }
+  const pool = await getPool();
   
   // Check if user already exists
   const existingUser = await pool.query('SELECT id FROM auth.users WHERE email = $1', [email]);
@@ -108,11 +99,7 @@ async function registerUser(userData, userAgent, ipAddress) {
 async function loginUser(credentials, userAgent, ipAddress) {
   const { email, password } = credentials;
 
-  if (!pool) {
-    const error = new Error('Database connection not available');
-    error.statusCode = 500;
-    throw error;
-  }
+  const pool = await getPool();
 
   // Find user by email
   const result = await pool.query(
@@ -203,6 +190,7 @@ async function refreshAccessToken(refreshToken, userAgent, ipAddress) {
   }
 
   // Get user data
+  const pool = await getPool();
   const result = await pool.query(
     'SELECT id, email, name, phone, is_admin FROM auth.users WHERE id = $1',
     [tokenData.userId]
@@ -318,6 +306,7 @@ async function getUserProfile(userId) {
     throw error;
   }
 
+  const pool = await getPool();
   const result = await pool.query(
     'SELECT id, email, name, phone, is_admin, created_at FROM auth.users WHERE id = $1',
     [userId]
@@ -395,6 +384,7 @@ async function changePassword(userId, currentPassword, newPassword) {
   }
 
   // Get current password hash
+  const pool = await getPool();
   const result = await pool.query(
     'SELECT password_hash FROM auth.users WHERE id = $1',
     [userId]

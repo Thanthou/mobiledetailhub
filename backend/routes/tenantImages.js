@@ -2,7 +2,7 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import { asyncHandler } from '../middleware/errorHandler.js';
-import { pool } from '../database/pool';import { createModuleLogger } from '../config/logger.js';
+import { getPool } from '../database/pool.js';import { createModuleLogger } from '../config/logger.js';
 
 /**
  * @fileoverview API routes for tenantImages

@@ -1,9 +1,19 @@
 // scripts/devtools/cli/find-free-port.js
 import net from "net";
 import fs from "fs";
+import path from "path";
+import { fileURLToPath } from 'url';
+import { updateRegistry } from '../../automation/port-registry.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const basePort = 5175;
 const maxTries = 10;
+
+// Parse CLI arguments
+const args = process.argv.slice(2);
+const appName = args.find((a) => a.startsWith("--app"))?.split("=")[1] || "frontend";
 
 /**
  * Check if a port is available
@@ -45,13 +55,20 @@ export async function findFreePort(startPort = basePort, maxAttempts = maxTries)
 }
 
 /**
- * Find free port and save to file (CLI script behavior)
+ * Find free port and save to file + registry (CLI script behavior)
  */
 async function findAndSavePort() {
   try {
     const port = await findFreePort();
-    fs.writeFileSync(".frontend-port.json", JSON.stringify({ port }));
-    console.log(`🟢 Using port ${port}`);
+    
+    // Save to app-specific port file
+    const portFile = `.${appName}-port.json`;
+    fs.writeFileSync(portFile, JSON.stringify({ port }));
+    
+    // Update registry
+    updateRegistry(appName, port);
+    
+    console.log(`🟢 ${appName} using port ${port}`);
     return port;
   } catch (error) {
     console.error(`❌ ${error.message}`);

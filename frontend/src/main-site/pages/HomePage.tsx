@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
 
-import { FAQ } from '@/features/faq';
-import { Gallery } from '@/features/gallery';
-import { Header } from '@/features/header';
-import { Hero } from '@/features/hero';
-import { Reviews } from '@/features/reviews';
-import { useReviewsAvailability } from '@/features/reviews/hooks/useReviewsAvailability';
-import { ServicesGrid } from '@/features/services';
+import { FAQ } from '@/tenant-app/components/faq';
+import { Gallery } from '@/tenant-app/components/gallery';
+import { Header } from '@/tenant-app/components/header';
+import { Hero } from '@/tenant-app/components/hero';
+import { Reviews } from '@/tenant-app/components/reviews';
+import { useReviewsAvailability } from '@/tenant-app/components/reviews/hooks/useReviewsAvailability';
+import { ServicesGrid } from '@/tenant-app/components/services';
 import { useIsDesktop, useScrollSpy, useSEO, useTenantSlug } from '@/shared/hooks';
 import type { SectionId } from '@/shared/state/sectionStore';
 import { injectAllSchemas } from '@/shared/utils/schemaUtils';

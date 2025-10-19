@@ -3,7 +3,7 @@ import { createModuleLogger } from '../config/logger.js';
 const logger = createModuleLogger('tenantProvisionService');
 
 
-import { pool } from '../database/pool.js';
+import { getPool } from '../database/pool.js';
 import StripeService from './stripeService.js';
 import { sendWelcomeEmail as sendWelcomeEmailService } from './emailService.js';
 import { createPasswordSetupToken } from './passwordSetupService.js';

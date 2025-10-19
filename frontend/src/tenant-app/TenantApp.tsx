@@ -2,10 +2,10 @@ import { lazy, Suspense, useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { useRouterDebug } from '@/shared/useRouterDebug';
 
-import { DataProvider, TenantPage } from '@/features/header';
-import { LazyRequestQuoteModal } from '@/features/quotes';
-import { DashboardPage } from '@/features/tenantDashboard';
-import { TenantApplicationPage } from '@/features/tenantOnboarding';
+import { DataProvider, TenantPage } from '@/tenant-app/components/header';
+import { LazyRequestQuoteModal } from '@/tenant-app/components/quotes';
+import { DashboardPage } from '@/tenant-app/components/tenantDashboard';
+import TenantApplicationPage from '@/admin-app/components/tenantOnboarding/components/TenantApplicationPage';
 import { LoginPage, ProtectedRoute } from '@/shared/ui';
 
 import HomePage from '@main/pages/HomePage';

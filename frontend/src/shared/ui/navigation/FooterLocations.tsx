@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { useData } from '@/features/header';
+import { useData } from '@/tenant-app/components/header';
 
 import ServiceAreasModal from '../modals/ServiceAreasModal';
 

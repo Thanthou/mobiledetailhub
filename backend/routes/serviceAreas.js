@@ -2,7 +2,7 @@ import express from 'express';
 import logger from '../utils/logger';
 import { asyncHandler } from '../middleware/errorHandler';
 import { getPlatformServiceAreas, getTenantsForCity } from '../utils/serviceAreaProcessor';
-import { pool } from '../database/pool';
+import { getPool } from '../database/pool.js';
 import { serviceAreaSchemas } from '../utils/validationSchemas';
 import { validateParams } from '../middleware/validation';
 

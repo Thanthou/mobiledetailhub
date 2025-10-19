@@ -37,13 +37,13 @@ export const useModalPrefetch = () => {
 
   const prefetchQuoteModal = useCallback(() => {
     prefetch(() => {
-      void import('@/features/quotes/components/RequestQuoteModal');
+      void import('@/tenant-app/components/quotes/components/RequestQuoteModal');
     }, 'quoteModal');
   }, [prefetch]);
 
   const prefetchLoginModal = useCallback(() => {
     prefetch(() => {
-      void import('@/features/auth/components/LoginModal');
+      void import('@/shared/auth/components/LoginModal');
     }, 'loginModal');
   }, [prefetch]);
 

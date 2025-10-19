@@ -7,7 +7,7 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import logger from './logger.js';
 import { env } from '../config/env.js';
-import { pool } from '../database/pool.js';
+import { getPool } from '../database/pool.js';
 import { AUTH_CONFIG } from '../config/auth.js';
 
 /**
@@ -248,6 +248,7 @@ const blacklistToken = async (token, options = {}) => {
     const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
     
     // Insert into database blacklist
+    const pool = await getPool();
     const result = await pool.query(`
       INSERT INTO auth.token_blacklist 
       (token_jti, token_hash, user_id, expires_at, reason, ip_address, user_agent)
@@ -334,6 +335,7 @@ const isTokenBlacklisted = async (token) => {
     }
 
     // Check database blacklist
+    const pool = await getPool();
     const result = await pool.query(`
       SELECT 1 FROM auth.token_blacklist 
       WHERE token_jti = $1 AND expires_at > CURRENT_TIMESTAMP

@@ -1,8 +1,8 @@
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
-import { DashboardPage as AdminDashboard } from '@/features/adminDashboard';
-import { PreviewGeneratorPage, PreviewPage } from '@/features/preview';
+import { DashboardPage as AdminDashboard } from './components/adminDashboard';
+import { PreviewGeneratorPage, PreviewPage } from '@/admin-app/components/preview';
 import { LoginPage, ProtectedRoute } from '@/shared/ui';
 
 // Heavy modules are NOT imported here - they stay out of the initial bundle

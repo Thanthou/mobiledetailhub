@@ -1,4 +1,4 @@
-import { pool } from '../database/pool.js';
+import { getPool } from '../database/pool.js';
 import { logger } from '../config/logger.js';
 
 /**

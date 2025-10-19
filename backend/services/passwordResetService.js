@@ -5,7 +5,7 @@
 
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
-import { pool } from '../database/pool.js';
+import { getPool } from '../database/pool.js';
 import { env } from '../config/env.js';
 import * as emailService from './emailService.js';
 import { createModuleLogger } from '../config/logger.js';
@@ -40,9 +40,7 @@ const hashResetToken = (token) => {
  * @returns {Promise<boolean>} Success status
  */
 const requestPasswordReset = async (email, ipAddress, userAgent) => {
-  if (!pool) {
-    throw new Error('Database connection not available');
-  }
+  const pool = await getPool();
 
   try {
     // Check if user exists
@@ -121,9 +119,7 @@ const requestPasswordReset = async (email, ipAddress, userAgent) => {
  * @returns {Promise<boolean>} Success status
  */
 const resetPassword = async (token, newPassword, ipAddress) => {
-  if (!pool) {
-    throw new Error('Database connection not available');
-  }
+  const pool = await getPool();
 
   try {
     const hashedToken = hashResetToken(token);
@@ -199,9 +195,7 @@ const resetPassword = async (token, newPassword, ipAddress) => {
  * @returns {Promise<Object|null>} Token info if valid
  */
 const validateResetToken = async (token) => {
-  if (!pool) {
-    throw new Error('Database connection not available');
-  }
+  const pool = await getPool();
 
   try {
     const hashedToken = hashResetToken(token);
@@ -237,10 +231,7 @@ const validateResetToken = async (token) => {
  * @returns {Promise<number>} Number of tokens cleaned up
  */
 const cleanupExpiredTokens = async () => {
-  if (!pool) {
-    logger.warn('Database connection not available for token cleanup');
-    return 0;
-  }
+  const pool = await getPool();
 
   try {
     const result = await pool.query(
@@ -264,9 +255,7 @@ const cleanupExpiredTokens = async () => {
  * @returns {Promise<Object>} Token statistics
  */
 const getResetTokenStats = async () => {
-  if (!pool) {
-    return { active: 0, expired: 0, used: 0 };
-  }
+  const pool = await getPool();
 
   try {
     const result = await pool.query(`
