@@ -1,8 +1,8 @@
 # SEO Audit Report
-Generated: 2025-10-19T09:36:26.489Z
+Generated: 2025-10-19T18:24:25.219Z
 
-## Score: 90/100
-- Lighthouse: N/A/100
+## Score: 80/100
+- Lighthouse: 0/100
 - Schema: 70/100
 - Meta: Complete
 

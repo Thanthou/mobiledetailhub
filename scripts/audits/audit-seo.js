@@ -61,7 +61,8 @@ function ensureFreshBuild() {
   if (!fresh) {
     console.log("⚙️  Building frontend (auto-detected change)...");
     try {
-      execSync("npm run build", { stdio: "inherit" });
+      execSync("npm run build", { cwd: path.join(root, "frontend"), stdio: "inherit" });
+
       console.log("✅ Build completed successfully.");
     } catch (err) {
       console.error("❌ Build failed:", err.message);
@@ -181,32 +182,40 @@ function testSEOEndpoints() {
 }
 
 /*──────────────────────────────────────────────────────────────
- 📈 Lighthouse SEO (auto preview)
+ 🔌 Port helpers
 ──────────────────────────────────────────────────────────────*/
-function isPortOpen(port) {
+function isPortOpen(port, host = "127.0.0.1") {
   return new Promise(resolve => {
     const s = new net.Socket();
     s.setTimeout(800);
-    s.on("error", () => resolve(false));
-    s.on("timeout", () => resolve(false));
-    s.connect(port, "localhost", () => {
-      s.end();
-      resolve(true);
-    });
+    s.once("connect", () => { s.destroy(); resolve(true); });
+    s.once("timeout", () => { s.destroy(); resolve(false); });
+    s.once("error", () => { resolve(false); });
+    s.connect(port, host);
   });
 }
 
-async function waitForPort(port, tries = 15) {
-  for (let i = 0; i < tries; i++) {
+async function waitForPort(port, retries = 20, delayMs = 500) {
+  for (let i = 0; i < retries; i++) {
     if (await isPortOpen(port)) return true;
-    await new Promise(r => setTimeout(r, 1000));
+    await new Promise(r => setTimeout(r, delayMs));
   }
   return false;
 }
 
+
+/*──────────────────────────────────────────────────────────────
+ 📈 Lighthouse SEO (auto preview, Windows-safe)
+──────────────────────────────────────────────────────────────*/
+import util from "util";
+import { exec } from "child_process";
+const execAsync = util.promisify(exec);
+
 async function runLighthouseSEO() {
   const port = 4173;
   const url = `http://localhost:${port}`;
+  const previewDir = path.join(root, "frontend");
+  const reportPath = path.join(root, "docs/audits/lighthouse-seo.json");
   let processRef = null;
   let score = null;
 
@@ -215,29 +224,54 @@ async function runLighthouseSEO() {
     let running = await isPortOpen(port);
 
     if (!running) {
+      if (!fs.existsSync(path.join(previewDir, "dist"))) {
+        console.error("❌ No build found in frontend/dist. Run `npm run build` first.");
+        process.exit(1);
+      }
+
       console.log("⚙️  Starting temporary Vite preview server...");
-      processRef = spawn("npx", ["vite", "preview", "--port", port], {
-        cwd: root,
-        shell: true,
-        stdio: "inherit",
+      processRef = exec(`npx vite preview --port ${port}`, {
+        cwd: previewDir,
+        env: process.env,
       });
+
       const started = await waitForPort(port);
       if (!started) throw new Error("Preview server failed to start.");
       console.log("✅ Preview server started on port", port);
     }
 
+    //────────────────────────────────────────────
+    // 🧠 Try Lighthouse (with fallback)
+    //────────────────────────────────────────────
     console.log("⚡ Running Lighthouse SEO scan...");
-    const output = execSync(
-      `lighthouse ${url} --only-categories=seo --output=json --quiet --chrome-flags="--headless"`,
-      { stdio: "pipe", timeout: 90000 }
-    );
-    const json = JSON.parse(output.toString());
-    score = Math.round((json.categories?.seo?.score || 0) * 100);
-    console.log(`✅ Lighthouse score: ${score}/100`);
+    const lhCmd = `npx lighthouse ${url} --only-categories=seo --output=json --output-path=${reportPath} --quiet --disable-storage-reset --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage --user-data-dir=.tmp_lh/chrome"`;
+
+    try {
+      await execAsync(lhCmd, { cwd: root, env: process.env, timeout: 90000 });
+      console.log("✅ Lighthouse finished normally.");
+    } catch (err) {
+      // Handle EPERM or cleanup issues gracefully
+      if (/EPERM|Permission denied/i.test(err.message)) {
+        console.warn("⚠️  Lighthouse cleanup failed (EPERM). Attempting to use existing JSON report...");
+      } else {
+        console.warn("⚠️  Lighthouse run failed:", err.message);
+      }
+    }
+
+    //────────────────────────────────────────────
+    // ✅ Parse report (if it exists)
+    //────────────────────────────────────────────
+    if (fs.existsSync(reportPath)) {
+      const json = JSON.parse(fs.readFileSync(reportPath, "utf8"));
+      score = Math.round((json.categories?.seo?.score || 0) * 100);
+      console.log(`✅ Lighthouse score: ${score}/100`);
+    } else {
+      console.warn("⚠️  Lighthouse JSON not found — skipping score.");
+    }
   } catch (err) {
     console.log("⚠️  Lighthouse skipped:", err.message);
   } finally {
-    if (processRef) {
+    if (processRef && processRef.kill) {
       console.log("💤 Shutting down preview server...");
       try {
         processRef.kill();
@@ -249,6 +283,10 @@ async function runLighthouseSEO() {
 
   return score;
 }
+
+
+
+
 
 /*──────────────────────────────────────────────────────────────
  🧾 Reporting

@@ -1,0 +1,49 @@
+# 🧭 ChatGPT Project Analysis Prompt
+
+You are ChatGPT, analyzing the contents of this folder (**docs/chatgpt**).
+
+## 🎯 Your Mission
+Review the following files to understand the current state of the project:
+- **cursorrules** → explains architecture, business goals, and code conventions  
+- **filetree.txt** → provides full directory structure  
+- **codedump-*.txt** → contains selected source code excerpts  
+
+Based on this context, produce **two separate outputs** in two chat messages:
+
+---
+
+### 🧩 OUTPUT 1 — Top 5 Focus Analysis (Markdown)
+Create a detailed **Markdown-formatted** report listing the **five most impactful priorities** for development.
+
+For each:
+1. **Title** — concise and descriptive  
+2. **Type** — 🐞 Bug / ⚙️ Refactor / 🚀 Feature  
+3. **Problem** — what’s missing or suboptimal  
+4. **Solution** — Cursor-friendly, actionable implementation plan (with enough context for Cursor to begin work)
+
+At the very end, close with:
+
+```md
+💡 **Cursor Prompt:**  
+Here are 5 high-impact improvements we should work on.  
+Let’s tackle them **one at a time**, starting with #1.
+```
+
+---
+
+### 🧩 OUTPUT 2 — Requested Files for Next Snapshot
+After sending the Markdown report, send a **second message** with only this JavaScript code block:
+
+```js
+// priority
+pushIfExists("...");
+pushIfExists("...");
+```
+
+These paths should represent files or directories you want to see next time to deepen your understanding of the codebase.
+
+---
+
+## ✅ Output Only
+Do **not** create new files.  
+Output both responses (1️⃣ Markdown report, 2️⃣ JS block) directly to the console.

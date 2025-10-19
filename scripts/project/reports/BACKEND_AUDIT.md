@@ -7,7 +7,7 @@
 - Hostname parsing: ✅ detected
 - Schema switching: ⚠️ not detected
 - Middleware applied in routes: ✅ (3/33)
-- Wildcard/BASE_DOMAIN variable: ⚠️ not found
+- Wildcard/BASE_DOMAIN variable: ✅ found
 
 # PHASE 2.5 – TENANT CONTEXT VALIDATION
 - ⚠️ No exported middleware found
@@ -70,7 +70,7 @@
 - Deployment configs: ✅ found
 - CI/CD pipelines: ✅ detected
 - Production env variables: ⚠️ not set
-- Monitoring integrations: ✅ 7 refs
+- Monitoring integrations: ✅ 6 refs
 - Health-check route: ✅ present
 - Release version tagging: ⚠️ not implemented
 - Error-reporting middleware: ✅ active

@@ -1,12 +1,10 @@
-import { lazy, Suspense } from 'react';
+import { Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { DashboardPage as AdminDashboard } from './components/adminDashboard';
 import { PreviewGeneratorPage, PreviewPage } from '@/admin-app/components/preview';
 import { LoginPage, ProtectedRoute } from '@/shared/ui';
-
-// Heavy modules are NOT imported here - they stay out of the initial bundle
-const Booking = lazy(() => import('../features/booking/BookingApp'));
+import { SEOManager } from '@/shared/bootstrap';
 
 export default function AdminApp() {
   const routes = (
@@ -29,9 +27,6 @@ export default function AdminApp() {
         <Route path="/preview-generator" element={<PreviewGeneratorPage />} />
         <Route path="/preview/:tenantSlug" element={<PreviewPage />} />
         
-        {/* Booking route for admin testing */}
-        <Route path="/booking" element={<Booking />} />
-        
         {/* Catch all - redirect to admin dashboard */}
         <Route path="*" element={<Navigate to="/admin-dashboard" replace />} />
       </Routes>
@@ -40,6 +35,7 @@ export default function AdminApp() {
 
   return (
     <div className="min-h-screen bg-gray-900">
+      <SEOManager />
       {routes}
     </div>
   );

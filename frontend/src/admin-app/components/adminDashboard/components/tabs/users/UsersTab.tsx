@@ -2,7 +2,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ExternalLink, Loader2, Plus, Settings, Trash2, UserCheck, UserCog, UserPlus, Users, UserX } from 'lucide-react';
 
-import { ApplicationModal, DeleteConfirmationModal, Toast } from '../shared';
+import { ApplicationModal, DeleteConfirmationModal } from '../../shared';
+import { Toast } from '@/shared/ui';
 import type { UserSubTab } from '../../../types';
 import { apiService } from '@/shared/api/api';
 import { Button } from '@/shared/ui';

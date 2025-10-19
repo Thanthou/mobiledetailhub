@@ -52,6 +52,20 @@ export { prefetchIndustryConfig,useIndustryConfig } from './useIndustryConfig';
 export { useTenantData } from './useTenantData';
 export { useTenantSlug } from './useTenantSlug';
 
+// Tenant dashboard hooks
+export {
+  useTenantDashboard,
+  useTenantOverview,
+  useTenantReviews,
+  useTenantPerformance,
+  useTenantActivity,
+  useDashboardHealth,
+  useDashboardSummary,
+  useRefreshDashboard,
+  useDashboardLoadingStates,
+  useDashboardErrors
+} from './useTenantDashboard';
+
 // Vehicle data hook
 export { useVehicleData } from './useVehicleData';
 

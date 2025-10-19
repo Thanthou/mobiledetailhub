@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { spawn } from 'child_process';
 import net from 'net';
-import { updateRegistry } from './automation/port-registry.js';
+import { updateRegistry } from '../../automation/port-registry.js';
 
 // Find free port function
 function findFreePort(startPort = 5177, maxTries = 10) {

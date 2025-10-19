@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * auditoverview.js — Meta Audit: Project Overview
+ * audit-overview.js — Meta Audit: Project Overview
  * --------------------------------------------------------------
  * ✅ Evaluates:
  *  - Project structure & key directories
@@ -107,7 +107,7 @@ function gatherAuditScores() {
     schema: extractScoreFromReport("SCHEMA_AUDIT.md"),
     routes: extractScoreFromReport("ROUTES_AUDIT.md"),
     performance: extractScoreFromReport("PERFORMANCE_AUDIT.md"),
-    seo: extractScoreFromReport("SEO_AUDIT_REPORT.md")
+    seo: extractScoreFromReport("SEO_AUDIT.md")
   };
 }
 

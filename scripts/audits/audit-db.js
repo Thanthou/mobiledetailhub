@@ -4,7 +4,7 @@
  * Comprehensive database health check combining inspect, overview, and table checks
  */
 
-import { getPool } from '../backend/database/pool.js';
+import { getPool } from '../../backend/database/pool.js';
 import chalk from 'chalk';
 
 const results = {

@@ -1,6 +1,11 @@
 import { getPool } from '../database/pool.js';
 import { asyncHandler } from './errorHandler.js';
 import { createModuleLogger } from '../config/logger.js';
+import { 
+  transformBusinessToTenantInfo, 
+  validateTenantContext, 
+  attachTenantContext 
+} from '../utils/tenantContextContract.js';
 
 const logger = createModuleLogger('withTenant');
 
@@ -189,11 +194,22 @@ const withTenantBySlug = asyncHandler(async (req, res, next) => {
     throw error;
   }
 
-  const tenant = await getTenantBySlug(slug);
-  req.tenant = tenant;
+  const businessRow = await getTenantBySlug(slug);
+  
+  // Use shared contract to attach tenant context
+  attachTenantContext(req, businessRow, req.user);
+  
+  // Validate tenant context
+  const validation = validateTenantContext(req.tenant);
+  if (!validation.isValid) {
+    return res.status(validation.error.statusCode).json({
+      success: false,
+      error: validation.error
+    });
+  }
   
   // Switch to tenant schema for subsequent operations
-  await switchToTenantSchema(tenant);
+  await switchToTenantSchema(businessRow);
   
   next();
 });
@@ -210,11 +226,22 @@ const withTenantByUser = asyncHandler(async (req, res, next) => {
   }
 
   const isAdmin = req.user.isAdmin || false;
-  const tenant = await getTenantByUserId(req.user.userId, isAdmin);
-  req.tenant = tenant;
+  const businessRow = await getTenantByUserId(req.user.userId, isAdmin);
+  
+  // Use shared contract to attach tenant context
+  attachTenantContext(req, businessRow, req.user);
+  
+  // Validate tenant context
+  const validation = validateTenantContext(req.tenant);
+  if (!validation.isValid) {
+    return res.status(validation.error.statusCode).json({
+      success: false,
+      error: validation.error
+    });
+  }
   
   // Switch to tenant schema for subsequent operations
-  await switchToTenantSchema(tenant);
+  await switchToTenantSchema(businessRow);
   
   next();
 });
@@ -224,41 +251,50 @@ const withTenantByUser = asyncHandler(async (req, res, next) => {
  * Useful for routes that might be called with either approach
  */
 const withTenant = asyncHandler(async (req, res, next) => {
+  let businessRow = null;
+  
   // Try slug first if available
   if (req.params.slug) {
     try {
-      const tenant = await getTenantBySlug(req.params.slug);
-      req.tenant = tenant;
-      await switchToTenantSchema(tenant);
-      return next();
+      businessRow = await getTenantBySlug(req.params.slug);
     } catch (error) {
       // If slug lookup fails and we have a user, try user lookup
       if (req.user && req.user.userId) {
         const isAdmin = req.user.isAdmin || false;
-        const tenant = await getTenantByUserId(req.user.userId, isAdmin);
-        req.tenant = tenant;
-        await switchToTenantSchema(tenant);
-        return next();
+        businessRow = await getTenantByUserId(req.user.userId, isAdmin);
+      } else {
+        // Otherwise, re-throw the slug error
+        throw error;
       }
-      // Otherwise, re-throw the slug error
-      throw error;
     }
-  }
-
-  // Try user_id if no slug
-  if (req.user && req.user.userId) {
+  } else if (req.user && req.user.userId) {
+    // Try user_id if no slug
     const isAdmin = req.user.isAdmin || false;
-    const tenant = await getTenantByUserId(req.user.userId, isAdmin);
-    req.tenant = tenant;
-    await switchToTenantSchema(tenant);
-    return next();
+    businessRow = await getTenantByUserId(req.user.userId, isAdmin);
+  } else {
+    // No slug or user available
+    const error = new Error('Tenant slug or authentication required');
+    error.statusCode = 400;
+    error.code = 'MISSING_TENANT_CONTEXT';
+    throw error;
   }
 
-  // No slug or user available
-  const error = new Error('Tenant slug or authentication required');
-  error.statusCode = 400;
-  error.code = 'MISSING_TENANT_CONTEXT';
-  throw error;
+  // Use shared contract to attach tenant context
+  attachTenantContext(req, businessRow, req.user);
+  
+  // Validate tenant context
+  const validation = validateTenantContext(req.tenant);
+  if (!validation.isValid) {
+    return res.status(validation.error.statusCode).json({
+      success: false,
+      error: validation.error
+    });
+  }
+  
+  // Switch to tenant schema for subsequent operations
+  await switchToTenantSchema(businessRow);
+  
+  next();
 });
 
 /**

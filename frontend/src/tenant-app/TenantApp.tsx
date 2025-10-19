@@ -7,6 +7,7 @@ import { LazyRequestQuoteModal } from '@/tenant-app/components/quotes';
 import { DashboardPage } from '@/tenant-app/components/tenantDashboard';
 import TenantApplicationPage from '@/admin-app/components/tenantOnboarding/components/TenantApplicationPage';
 import { LoginPage, ProtectedRoute } from '@/shared/ui';
+import { SEOManager } from '@/shared/bootstrap';
 
 import HomePage from '@main/pages/HomePage';
 import ServicePage from '@main/pages/ServicePage';
@@ -76,6 +77,7 @@ export default function TenantApp() {
 
   return (
     <div className="min-h-screen bg-gray-900">
+      <SEOManager />
       {routes}
       
       {/* Quote Modal */}

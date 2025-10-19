@@ -6,31 +6,20 @@
   "type": "module",
   "scripts": {
     "build": "cd frontend && npm run build",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+
     "dev": "concurrently \"cd frontend && npm run dev\" \"cd backend && npm run dev\" \"node scripts/error-monitor/index.js --target=all\"",
-    "dev:backend": "node scripts/devtools/cli/find-free-backend-port.js && cd backend && npm run dev",
     "dev:frontend": "node scripts/devtools/cli/find-free-port.js && node scripts/devtools/cli/start-frontend.js",
-    "dev:main": "node scripts/start-main-app.js",
-    "dev:admin": "node scripts/start-admin-app.js",
-    "dev:tenant": "node scripts/start-tenant-app.js",
+    "dev:backend": "node scripts/devtools/cli/find-free-backend-port.js && cd backend && npm run dev",
+    "dev:main": "node scripts/devtools/cli/start-main-app.js",
+    "dev:admin": "node scripts/devtools/cli/start-admin-app.js",
+    "dev:tenant": "node scripts/devtools/cli/start-tenant-app.js",
     "dev:hub": "node scripts/devtools/dev-hub.js",
     "dev:monitor": "node scripts/devtools/cli/dev-monitor.js",
     "predev:all": "node scripts/automation/cleanup/kill-node-processes.js && node scripts/automation/port-registry.js clear",
     "dev:all": "npm run predev:all && concurrently -n HUB,MAIN,ADMIN,TENANT,BACKEND -c gray,cyan,magenta,yellow,green \"npm run dev:hub\" \"npm run dev:main\" \"npm run dev:admin\" \"npm run dev:tenant\" \"npm run dev:backend\"",
     "dev:apps": "npm run predev:all && concurrently -n HUB,MAIN,ADMIN,TENANT -c gray,cyan,magenta,yellow \"npm run dev:hub\" \"npm run dev:main\" \"npm run dev:admin\" \"npm run dev:tenant\"",
     "dev:clean": "scripts/automation/cleanup/cleanup-and-dev.bat",
-    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
-    "setup:hosts": "node scripts/setup-hosts.js",
-    "lint": "eslint backend/ scripts/",
-    "lint:fix": "eslint backend/ scripts/ --fix",
-    "lint:all": "npm run lint && cd frontend && npm run lint",
-    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,css,scss}\"",
-    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md,css,scss}\"",
-    "prepare": "husky install",
-    "overview": "node scripts/project/project-overview.js",
-    "score": "node scripts/devtools/metrics/scorecard.js",
-    "validate": "node scripts/testing/frontend/validate-build.js",
-    "test:subdomain": "node scripts/testing/backend/test-subdomain.js",
-    "test:domains": "node scripts/test-custom-domains.js",
 
     "audit:all": "node scripts/project/run-all.js",
     "audit:env": "node scripts/audits/audit-env.js",
@@ -40,26 +29,45 @@
     "audit:performance": "node scripts/audits/audit-performance.js",
     "audit:seo": "node scripts/audits/audit-seo.js",
     "audit:overview": "node scripts/audits/audit-overview.js",
-
+    "audit:db": "node scripts/audits/audit-db.js",
 
     "fix:routes": "node scripts/devtools/fixers/fix-express-routes.js",
     "fix:remaining": "node scripts/devtools/fixers/fix-remaining-routes.js",
     "fix:final": "node scripts/devtools/fixers/fix-final-routes.js",
-    "seo:provision": "node scripts/setup/seo-provision.js --all",
-    "deploy:check": "node scripts/automation/build/deploy-render.js",
-    "deploy:build": "cd frontend && npm run build && cd ../backend && npm run migrate",
-    
+
     "test:all": "npm run test:backend && npm run test:frontend",
     "test:backend": "node scripts/testing/backend/test-subdomain.js",
     "test:frontend": "node scripts/testing/frontend/validate-build.js",
+    "test:subdomain": "node scripts/testing/backend/test-subdomain.js",
+    "test:domains": "node scripts/test-custom-domains.js",
+    "test:integration": "node scripts/testing/integration/verify-onboarding.js",
+    "validate": "node scripts/testing/frontend/validate-build.js",
+
+    "lint": "eslint backend/ scripts/",
+    "lint:fix": "eslint backend/ scripts/ --fix",
+    "lint:all": "npm run lint && cd frontend && npm run lint",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,css,scss}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md,css,scss}\"",
+
+    "deploy:check": "node scripts/automation/build/deploy-render.js",
+    "deploy:build": "cd frontend && npm run build && cd ../backend && npm run migrate",
+    "deploy:production": "node scripts/automation/deploy/deploy-production.js",
+
+    "seo:provision": "node scripts/setup/seo-provision.js --all",
+
+    "setup:hosts": "node scripts/setup-hosts.js",
+    "prepare": "husky install",
+
+    "overview": "node scripts/project/project-overview.js",
+    "score": "node scripts/devtools/metrics/scorecard.js",
+    "chatgpt": "node scripts/devtools/chatgpt-snapshot.js",
+    
     "devtools:metrics": "node scripts/devtools/metrics/scorecard.js",
     "devtools:fix": "node scripts/devtools/fixers/fix-express-routes.js",
     "cli": "node scripts/devtools/cli/index.js",
-    "deploy:production": "node scripts/automation/deploy/deploy-production.js",
-    "test:integration": "node scripts/testing/integration/verify-onboarding.js",
-    "db:audit": "node scripts/backend/db-audit.js",
     "folder-dump": "node scripts/project/folder-dump.js"
   },
+
   "devDependencies": {
     "@eslint/js": "^9.17.0",
     "concurrently": "^8.2.2",

@@ -57,6 +57,7 @@ import googleAnalyticsRoutes from './routes/googleAnalytics.js'
 import healthMonitoringRoutes from './routes/healthMonitoring.js'
 import reviewsRoutes from './routes/reviews.js'
 import domainRoutes from './routes/domains.js'
+import tenantDashboardRoutes from './routes/tenantDashboard.js'
 
 // Suppress debug/info noise in development
 if (process.env.LOG_LEVEL !== 'debug') {
@@ -160,9 +161,11 @@ app.use('/api/health-monitoring', healthMonitoringRoutes)
 app.use('/api/reviews', reviewsRoutes)
 app.use('/api/subdomain', subdomainTestRoutes)
 app.use('/api/domains', domainRoutes)
+app.use('/api/dashboard', tenantDashboardRoutes)
 logger.info('Reviews routes loaded at /api/reviews')
 logger.info('Subdomain test routes loaded at /api/subdomain')
 logger.info('Domain routes loaded at /api/domains')
+logger.info('Tenant dashboard routes loaded at /api/dashboard')
 
 // Development: simple health check
 if (process.env.NODE_ENV !== 'production') {

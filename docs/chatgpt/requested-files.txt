@@ -1,0 +1,19 @@
+# Requested Files from ChatGPT
+
+Each time you upload this folder to ChatGPT, it may recommend additional files to include in future snapshots.
+Paste them here under the comment section below.
+
+```js
+// priority
+pushIfExists("backend/middleware/tenantResolver.js");
+pushIfExists("backend/middleware/withTenant.js");
+pushIfExists("backend/controllers/tenantController.js");
+
+
+pushIfExists("frontend/src/admin-app/AdminApp.tsx");
+pushIfExists("frontend/src/main-site/MainSiteApp.tsx");
+pushIfExists("frontend/src/tenant-app/TenantApp.tsx");
+
+pushIfExists("backend/middleware/errorHandler.js");
+
+```
