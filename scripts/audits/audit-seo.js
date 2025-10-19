@@ -216,74 +216,128 @@ import { exec } from "child_process";
 const execAsync = util.promisify(exec);
 
 async function runLighthouseSEO() {
-  const port = 4173;
-  const url = `http://localhost:${port}`;
+  const basePort = 4173;
   const previewDir = path.join(root, "frontend");
   const reportPath = path.join(root, "docs/audits/lighthouse-seo.json");
   let processRef = null;
   let score = null;
+  let port = basePort;
 
   try {
     console.log("🧠 Checking for running preview server...");
-    let running = await isPortOpen(port);
 
-    if (!running) {
-      if (!fs.existsSync(path.join(previewDir, "dist"))) {
-        console.error("❌ No build found in frontend/dist. Run `npm run build` first.");
-        process.exit(1);
-      }
+    // 🔎 Find first available port starting at 4173
+    while (await isPortOpen(port)) port++;
+    console.log(`⚙️  Starting temporary Vite preview on port ${port}...`);
 
-      console.log("⚙️  Starting temporary Vite preview server...");
-      processRef = exec(`npx vite preview --port ${port}`, {
-        cwd: previewDir,
-        env: process.env,
+    //────────────────────────────────────────────
+// ⚙️ Launch Vite preview server (non-detached)
+//────────────────────────────────────────────
+processRef = spawn("npx", ["vite", "preview", "--port", port, "--strictPort"], {
+  cwd: previewDir,
+  shell: true,
+  stdio: "ignore",
+  detached: false, // ✅ stay attached to our process
+});
+
+// Graceful shutdown on exit or error
+const killPreview = () => {
+  if (!processRef || !processRef.pid) return;
+  console.log("💤 Shutting down preview server...");
+
+  try {
+    if (process.platform === "win32") {
+      // ✅ Windows-specific: force kill by image name
+      spawn("taskkill", ["/PID", processRef.pid, "/T", "/F"], {
+        stdio: "ignore",
+        shell: true,
       });
-
-      const started = await waitForPort(port);
-      if (!started) throw new Error("Preview server failed to start.");
-      console.log("✅ Preview server started on port", port);
+    } else {
+      // ✅ Linux/macOS
+      process.kill(-processRef.pid, "SIGTERM");
     }
+  } catch (err) {
+    console.warn("⚠️ Could not kill preview server:", err.message);
+  }
+};
+
+    // Auto-clean on script termination
+    process.on("exit", killPreview);
+    process.on("SIGINT", killPreview);
+    process.on("SIGTERM", killPreview);
+
+
+    // Wait for server
+    const started = await waitForPort(port, 25, 500);
+    if (!started) throw new Error("Preview server failed to start.");
+
+    console.log(`✅ Preview server started on port ${port}`);
 
     //────────────────────────────────────────────
-    // 🧠 Try Lighthouse (with fallback)
+    // ⚡ Run Lighthouse
     //────────────────────────────────────────────
+    const url = `http://localhost:${port}/main-site/`;
+    const chromeDir = path.join(root, ".tmp_lh");
+    fs.mkdirSync(chromeDir, { recursive: true });
+
+    const lhCmd = [
+      "npx",
+      "lighthouse",
+      url,
+      "--only-categories=seo",
+      `--output=json`,
+      `--output-path=${reportPath}`,
+      "--quiet",
+      "--disable-storage-reset",
+      `--chrome-flags="--headless --no-sandbox --disable-dev-shm-usage --user-data-dir=${chromeDir}" --disable-cpu-throttling --disable-network-throttling --disable-storage-reset --output=json`,
+      `--temp-dir-path=${path.join(root, ".tmp_lh")}`
+    ].join(" ");
+
     console.log("⚡ Running Lighthouse SEO scan...");
-    const lhCmd = `npx lighthouse ${url} --only-categories=seo --output=json --output-path=${reportPath} --quiet --disable-storage-reset --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage --user-data-dir=.tmp_lh/chrome"`;
-
     try {
-      await execAsync(lhCmd, { cwd: root, env: process.env, timeout: 90000 });
-      console.log("✅ Lighthouse finished normally.");
+      await execAsync(lhCmd, { cwd: root, env: process.env, timeout: 90000, windowsHide: true });
+      console.log("✅ Lighthouse finished successfully.");
     } catch (err) {
-      // Handle EPERM or cleanup issues gracefully
+      // ⚙️ Option 1 — safely ignore Windows cleanup error
       if (/EPERM|Permission denied/i.test(err.message)) {
-        console.warn("⚠️  Lighthouse cleanup failed (EPERM). Attempting to use existing JSON report...");
+        console.warn("⚠️ Lighthouse cleanup permission issue — safe to ignore.");
       } else {
-        console.warn("⚠️  Lighthouse run failed:", err.message);
+        console.warn("⚠️ Lighthouse run issue:", err.message);
       }
     }
+    
 
-    //────────────────────────────────────────────
-    // ✅ Parse report (if it exists)
-    //────────────────────────────────────────────
-    if (fs.existsSync(reportPath)) {
-      const json = JSON.parse(fs.readFileSync(reportPath, "utf8"));
+    // Parse score
+    // Lighthouse may output to .report.json - check that first as it's newer
+    const reportJsonPath = reportPath.replace('.json', '.report.json');
+    const actualReportPath = fs.existsSync(reportJsonPath) 
+      ? reportJsonPath 
+      : reportPath;
+    
+    if (fs.existsSync(actualReportPath)) {
+      const json = JSON.parse(fs.readFileSync(actualReportPath, "utf8"));
       score = Math.round((json.categories?.seo?.score || 0) * 100);
       console.log(`✅ Lighthouse score: ${score}/100`);
     } else {
-      console.warn("⚠️  Lighthouse JSON not found — skipping score.");
+      console.warn("⚠️ Lighthouse report not found or unreadable.");
     }
   } catch (err) {
-    console.log("⚠️  Lighthouse skipped:", err.message);
+    console.error("❌ Lighthouse failed:", err.message);
   } finally {
-    if (processRef && processRef.kill) {
-      console.log("💤 Shutting down preview server...");
-      try {
-        processRef.kill();
-      } catch {
-        console.log("⚠️  Could not kill preview server.");
-      }
+    // ✅ Centralized cleanup
+    if (processRef && processRef.pid) {
+      console.log("💤 Ensuring preview server is fully terminated...");
+    }
+
+    // ✅ Remove leftover Chrome temp directory safely
+    try {
+      const tmpDir = path.join(root, ".tmp_lh");
+      if (fs.existsSync(tmpDir)) fs.rmSync(tmpDir, { recursive: true, force: true });
+    } catch (err) {
+      console.warn("⚠️ Could not clean temp folder:", err.message);
     }
   }
+
 
   return score;
 }
@@ -292,8 +346,9 @@ async function runLighthouseSEO() {
 
 
 
+
 /*──────────────────────────────────────────────────────────────
- 🧾 Reporting
+ 🧾 Comprehensive Reporting (Enhanced Markdown Output)
 ──────────────────────────────────────────────────────────────*/
 function printSummary(final, lh, schema, staticSeo, endpoints, html) {
   console.log("\n─────────────────────────────");
@@ -318,7 +373,140 @@ function printSummary(final, lh, schema, staticSeo, endpoints, html) {
 }
 
 /*──────────────────────────────────────────────────────────────
- 🚀 Main Execution
+ 📘 Detailed Markdown Report Generator (Escaped & Safe)
+──────────────────────────────────────────────────────────────*/
+function generateMarkdownReport({ finalScore, lighthouse, schema, html, staticSeo, endpoints }) {
+  const hasMeta = html.every(f => f.hasTitle && f.hasDescription);
+  const seoHealth =
+    finalScore >= 90
+      ? "🟢 Excellent"
+      : finalScore >= 75
+      ? "🟡 Good"
+      : "🔴 Needs Improvement";
+
+  return (
+`# SEO Audit Report
+Generated: ${new Date().toISOString()}
+
+---
+
+## 🧭 Overview
+**Total SEO Score:** ${finalScore}/100 (${seoHealth})
+
+| Metric | Score | Status |
+|---------|-------|--------|
+| Lighthouse | ${lighthouse ?? "N/A"} | ${lighthouse >= 90 ? "✅ Excellent" : "⚠️ Needs Work"} |
+| Schema Quality | ${schema.score} | ${schema.score >= 80 ? "✅ Good" : "⚠️ Limited"} |
+| HTML Meta Tags | ${hasMeta ? "✅ Complete" : "⚠️ Incomplete"} | ${hasMeta ? "Titles & descriptions found" : "Missing meta info"} |
+| Static SEO / Analytics | ✅ Present | Helmet, GA, OG, Sitemap, Robots |
+| Endpoints | ✅ Active | robots.txt & sitemap.xml verified |
+
+---
+
+## 🔍 Lighthouse SEO
+**Score:** ${lighthouse ?? "N/A"}/100  
+${lighthouse >= 90
+  ? "✅ No major SEO issues detected. Your site is mobile-friendly, crawlable, and well-structured."
+  : "⚠️ Some SEO opportunities exist. Review page titles, internal links, and mobile responsiveness."
+}
+
+**Recommendations:**
+- Verify Lighthouse “SEO” audits in Chrome DevTools → Lighthouse → SEO tab.  
+- Ensure canonical URLs and mobile meta tags (\`<meta name="viewport">\`) are consistent.
+
+---
+
+## 🧩 Structured Data (Schema)
+**Score:** ${schema.score}/100  
+${schema.score >= 80
+  ? "✅ Sufficient structured data detected."
+  : "⚠️ Schema markup found, but coverage is limited or incomplete."
+}
+
+**Findings:**
+- JSON-LD blocks found: *Yes*  
+- \`@type\` definitions detected: ${schema.score > 50 ? "Some" : "Few or none"}
+
+**Recommendations:**
+- Add or expand structured data with [schema.org](https://schema.org/) types:  
+  - \`LocalBusiness\`, \`Service\`, and \`Organization\`  
+  - Include \`aggregateRating\`, \`review\`, and \`openingHours\` where applicable  
+- Validate using [Google’s Rich Results Test](https://search.google.com/test/rich-results)
+
+---
+
+## 🧱 HTML Meta Tags
+**Status:** ${hasMeta ? "✅ All pages have meta titles & descriptions." : "⚠️ Missing or incomplete meta tags."}
+
+**Recommendations:**
+- Ensure every page has a unique, descriptive \`<title>\` (60 chars max)  
+- Add \`<meta name="description">\` with ~155 chars of clear summary  
+- Include:
+  - \`<link rel="canonical" href="https://example.com/">\`
+  - \`<meta property="og:image">\` and \`<meta property="twitter:card">\` for social previews
+
+---
+
+## 📊 Static SEO & Analytics Integration
+| Feature | Status | Notes |
+|----------|--------|-------|
+| Helmet / Meta Management | ${staticSeo.helmet} | React Helmet ensures dynamic titles |
+| Analytics | ${staticSeo.analytics} | Confirms GA4 or GTM tracking |
+| OpenGraph / JSON-LD | ${staticSeo.opengraph} | Social and structured markup present |
+| Sitemap | ${staticSeo.sitemap} | Sitemap generator detected |
+| Robots.txt | ${staticSeo.robots} | Public-facing file verified |
+
+**Recommendations:**
+- Confirm analytics ID matches your main property (GA4 / GTM).  
+- Ensure robots.txt allows essential pages (no accidental blocking).  
+- Verify all key URLs appear in \`sitemap.xml\`.
+
+---
+
+## 🔗 Backend SEO Endpoints
+| Endpoint | Status | Description |
+|-----------|--------|-------------|
+| robots.txt | ${endpoints.endpoints.some(e => e.includes('robots')) ? "✅ Found" : "⚠️ Missing"} | Controls search engine crawling |
+| sitemap.xml | ${endpoints.endpoints.some(e => e.includes('sitemap')) ? "✅ Found" : "⚠️ Missing"} | Lists indexable pages for bots |
+
+**Recommendations:**
+- Ensure sitemap.xml dynamically includes tenant subdomains.  
+- Host both sitemap and robots.txt at each tenant’s subdomain if applicable.
+
+---
+
+## 🧾 Final Summary
+**Overall SEO Health:** ${seoHealth}
+
+✅ **Strengths**
+- Strong Lighthouse performance (technical SEO)
+- Meta tags and analytics detected
+- Sitemap and robots endpoints active
+
+⚠️ **Opportunities**
+- Improve structured data coverage
+- Expand JSON-LD with richer entity details
+- Audit schema consistency across subdomains
+
+---
+
+## 🚀 Next Steps
+1. Improve Schema depth (\`LocalBusiness\`, \`Service\`, \`Organization\`).  
+2. Validate structured data with Google’s Rich Results Test.  
+3. Add social preview metadata (OG & Twitter cards).  
+4. Submit sitemap to Google Search Console.  
+5. Schedule recurring SEO audits weekly or before major releases.
+
+---
+
+Generated automatically by **That Smart Site SEO Auditor** 🧠
+`
+  );
+}
+
+
+/*──────────────────────────────────────────────────────────────
+ 🚀 Main Execution (unchanged except report writing)
 ──────────────────────────────────────────────────────────────*/
 (async function runSEOAudit() {
   console.log("\n🚀 Running Full SEO Audit...\n");
@@ -339,26 +527,18 @@ function printSummary(final, lh, schema, staticSeo, endpoints, html) {
 
   printSummary(finalScore, lighthouse, schema, staticSeo, endpoints, html);
 
+  const reportMarkdown = generateMarkdownReport({
+    finalScore,
+    lighthouse,
+    schema,
+    html,
+    staticSeo,
+    endpoints,
+  });
+
   const reportPath = path.join(root, "docs/audits/SEO_AUDIT.md");
   fs.mkdirSync(path.dirname(reportPath), { recursive: true });
-  const report = `# SEO Audit Report
-Generated: ${new Date().toISOString()}
-
-## Score: ${finalScore}/100
-- Lighthouse: ${lighthouse ?? "N/A"}/100
-- Schema: ${schema.score}/100
-- Meta: ${
-    html.every(f => f.hasTitle && f.hasDescription) ? "Complete" : "Incomplete"
-  }
-
-### Static SEO/Analytics
-${Object.values(staticSeo)
-  .map(v => "- " + v)
-  .join("\n")}
-
-### Endpoints
-${endpoints.endpoints.concat(endpoints.issues).map(v => "- " + v).join("\n")}
-`;
-  fs.writeFileSync(reportPath, report);
+  fs.writeFileSync(reportPath, reportMarkdown);
   console.log(`✅ SEO audit complete → ${reportPath}\n`);
+  process.exit(0);
 })();

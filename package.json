@@ -31,6 +31,8 @@
     "audit:overview": "node scripts/audits/audit-overview.js",
     "audit:db": "node scripts/audits/audit-db.js",
 
+    "serve:audit": "npm run preview --prefix frontend",
+
     "fix:routes": "node scripts/devtools/fixers/fix-express-routes.js",
     "fix:remaining": "node scripts/devtools/fixers/fix-remaining-routes.js",
     "fix:final": "node scripts/devtools/fixers/fix-final-routes.js",

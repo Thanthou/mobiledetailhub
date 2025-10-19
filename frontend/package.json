@@ -15,7 +15,7 @@
     "check:sizes": "node scripts/check-component-sizes.js",
     "check:sizes:ci": "node scripts/check-component-sizes.js --ci --fail 250",
     "check:sizes:report": "node scripts/check-component-sizes.js --limit 15",
-    "preview": "npx vite preview",
+    "preview": "vite preview --port 4173 --strictPort",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "optimize-images": "node scripts/convert-images.js",
