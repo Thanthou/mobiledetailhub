@@ -9,9 +9,6 @@
 import pkg from 'pg';
 import { createModuleLogger } from '../config/logger.js';
 const logger = createModuleLogger('pool');
-
-
-import { loadEnv } from '../config/env.js';
 const { Pool } = pkg;
 
 let _pool = null;
@@ -26,10 +23,12 @@ export async function getPool() {
   }
 
   connecting = true;
+  const { loadEnv } = await import('../config/env.js');
   const env = await loadEnv();
 
-  if (!env.DATABASE_URL) {
-    logger.warn('⚠️  No DATABASE_URL — returning mock pool.');
+  // Check for DATABASE_URL or individual database variables
+  if (!env.DATABASE_URL && !env.DB_HOST) {
+    logger.warn('⚠️  No DATABASE_URL or DB_HOST — returning mock pool.');
     _pool = {
       query: async () => { throw new Error('Database not configured'); },
       connect: async () => { throw new Error('Database not configured'); },

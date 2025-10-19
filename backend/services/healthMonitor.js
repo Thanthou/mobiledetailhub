@@ -12,13 +12,34 @@ import { loadEnv } from '../config/env.js';
 
 class HealthMonitor {
   constructor() {
-    this.pageSpeedApiKey = process.env.GOOGLE_PAGESPEED_API_KEY;
-    this.cruxApiKey = process.env.GOOGLE_CRUX_API_KEY;
+    // Initialize properties but don't log yet - wait for proper initialization
+    this.pageSpeedApiKey = null;
+    this.cruxApiKey = null;
+    this.baseDomain = null;
+    this._initialized = false;
+  }
+
+  /**
+   * Initialize the HealthMonitor with environment variables
+   * Call this after environment variables are loaded
+   */
+  initialize() {
+    if (this._initialized) return;
+    
+    this.pageSpeedApiKey = process.env.GOOGLE_PAGESPEED_API_KEY || process.env.PAGESPEED_API_KEY;
+    this.cruxApiKey = process.env.GOOGLE_CRUX_API_KEY || process.env.CRUX_API_KEY;
     this.baseDomain = process.env.BASE_DOMAIN || 'thatsmartsite.com';
     
-    logger.info(`HealthMonitor initialized - PageSpeed API Key: ${this.pageSpeedApiKey ? 'SET' : 'NOT SET'}`);
-    logger.info(`HealthMonitor initialized - CrUX API Key: ${this.cruxApiKey ? 'SET' : 'NOT SET'}`);
+    // Only log API key status if they're actually set (not dummy values)
+    if (this.pageSpeedApiKey && this.pageSpeedApiKey !== 'dummy') {
+      logger.info(`HealthMonitor initialized - PageSpeed API Key: SET`);
+    }
+    if (this.cruxApiKey && this.cruxApiKey !== 'dummy') {
+      logger.info(`HealthMonitor initialized - CrUX API Key: SET`);
+    }
     logger.info(`HealthMonitor initialized - Base Domain: ${this.baseDomain}`);
+    
+    this._initialized = true;
   }
 
   /**
@@ -28,6 +49,8 @@ class HealthMonitor {
    * @returns {Promise<Object>} PageSpeed Insights data
    */
   async fetchPageSpeedInsights(url, strategy = 'mobile') {
+    this.initialize(); // Ensure initialized before use
+    
     try {
       if (!this.pageSpeedApiKey) {
         logger.warn('Google PageSpeed API key not configured');
@@ -245,6 +268,8 @@ class HealthMonitor {
    * @returns {Promise<Object>} CrUX data
    */
   async fetchCrUXData(url) {
+    this.initialize(); // Ensure initialized before use
+    
     try {
       if (!this.cruxApiKey) {
         logger.warn('Google CrUX API key not configured');
@@ -514,6 +539,8 @@ class HealthMonitor {
    * @returns {string} The localhost equivalent
    */
   convertToLocalhost(url) {
+    this.initialize(); // Ensure initialized before use
+    
     if (url.includes(this.baseDomain)) {
       return 'http://localhost:4173';
     }

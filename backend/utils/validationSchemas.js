@@ -3,7 +3,7 @@
  * Predefined validation schemas for different API endpoints
  */
 
-const { validators } = require('./validators');
+import { validators } from './validators.js';
 
 /**
  * Auth route validation schemas
@@ -496,7 +496,7 @@ const sanitizationSchemas = {
   }
 };
 
-module.exports = {
+export {
   authSchemas,
   tenantSchemas,
   adminSchemas,
@@ -505,7 +505,8 @@ module.exports = {
   locationSchemas,
   reviewSchemas,
   commonSchemas,
-  sanitizationSchemas,
-  // Legacy export for backward compatibility
-  affiliateSchemas: tenantSchemas
+  sanitizationSchemas
 };
+
+// Legacy export for backward compatibility
+export { tenantSchemas as affiliateSchemas };

@@ -3,8 +3,10 @@
  * Provides middleware functions for validating request data
  */
 
-const { ValidationError, sanitizers } = require('../utils/validators');
-const logger = require('../utils/logger');
+import { ValidationError, sanitizers } from '../utils/validators.js';
+import { createModuleLogger } from '../config/logger.js';
+
+const logger = createModuleLogger('validation');
 
 /**
  * Generic validation middleware
@@ -322,11 +324,13 @@ function parseSize(size) {
 /**
  * Review-specific validation middleware
  */
-const validateReviewSubmission = validateBody(require('../utils/validationSchemas').reviewSchemas.submission);
-const validateReviewUpdate = validateBody(require('../utils/validationSchemas').reviewSchemas.update);
-const validateReviewVote = validateBody(require('../utils/validationSchemas').reviewSchemas.vote);
+import { reviewSchemas } from '../utils/validationSchemas.js';
 
-module.exports = {
+const validateReviewSubmission = validateBody(reviewSchemas.submission);
+const validateReviewUpdate = validateBody(reviewSchemas.update);
+const validateReviewVote = validateBody(reviewSchemas.vote);
+
+export {
   validate,
   validateBody,
   validateParams,

@@ -1,0 +1,558 @@
+{
+  "path": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts",
+  "files": [
+    {
+      "name": "README.md",
+      "path": "scripts/README.md"
+    }
+  ],
+  "subdirs": [
+    {
+      "path": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts\\audits",
+      "files": [],
+      "subdirs": [
+        {
+          "path": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts\\audits\\backend",
+          "files": [
+            {
+              "name": "audit-express-routes.js",
+              "path": "scripts/audits/backend/audit-express-routes.js"
+            },
+            {
+              "name": "audit-schema-switching.js",
+              "path": "scripts/audits/backend/audit-schema-switching.js"
+            },
+            {
+              "name": "db-inspect.js",
+              "path": "scripts/audits/backend/db-inspect.js"
+            },
+            {
+              "name": "db-overview.js",
+              "path": "scripts/audits/backend/db-overview.js"
+            }
+          ],
+          "subdirs": []
+        },
+        {
+          "path": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts\\audits\\frontend",
+          "files": [
+            {
+              "name": "audit-route-performance.js",
+              "path": "scripts/audits/frontend/audit-route-performance.js"
+            },
+            {
+              "name": "audit-routing.js",
+              "path": "scripts/audits/frontend/audit-routing.js"
+            },
+            {
+              "name": "check-component-sizes.js",
+              "path": "scripts/audits/frontend/check-component-sizes.js"
+            },
+            {
+              "name": "check-pages-usage.js",
+              "path": "scripts/audits/frontend/check-pages-usage.js"
+            },
+            {
+              "name": "debug-routing.js",
+              "path": "scripts/audits/frontend/debug-routing.js"
+            },
+            {
+              "name": "routing-validation-audit.js",
+              "path": "scripts/audits/frontend/routing-validation-audit.js"
+            }
+          ],
+          "subdirs": [
+            {
+              "path": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts\\audits\\frontend\\reports",
+              "files": [
+                {
+                  "name": "ROUTE_PERFORMANCE_AUDIT.md",
+                  "path": "scripts/audits/frontend/reports/ROUTE_PERFORMANCE_AUDIT.md"
+                }
+              ],
+              "subdirs": []
+            }
+          ]
+        },
+        {
+          "path": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts\\audits\\reports",
+          "files": [],
+          "subdirs": []
+        },
+        {
+          "path": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts\\audits\\seo",
+          "files": [
+            {
+              "name": "audit-seo-comprehensive.js",
+              "path": "scripts/audits/seo/audit-seo-comprehensive.js"
+            },
+            {
+              "name": "enhanced-schema-detection.js",
+              "path": "scripts/audits/seo/enhanced-schema-detection.js"
+            },
+            {
+              "name": "integrate.js",
+              "path": "scripts/audits/seo/integrate.js"
+            },
+            {
+              "name": "provision-config.js",
+              "path": "scripts/audits/seo/provision-config.js"
+            },
+            {
+              "name": "test-anchors.js",
+              "path": "scripts/audits/seo/test-anchors.js"
+            },
+            {
+              "name": "test-endpoints.js",
+              "path": "scripts/audits/seo/test-endpoints.js"
+            },
+            {
+              "name": "verify-schemas.js",
+              "path": "scripts/audits/seo/verify-schemas.js"
+            }
+          ],
+          "subdirs": [
+            {
+              "path": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts\\audits\\seo\\reports",
+              "files": [
+                {
+                  "name": "LOCAL_SEO_AUDIT.md",
+                  "path": "scripts/audits/seo/reports/LOCAL_SEO_AUDIT.md"
+                },
+                {
+                  "name": "PRODUCTION_SEO_AUDIT.md",
+                  "path": "scripts/audits/seo/reports/PRODUCTION_SEO_AUDIT.md"
+                },
+                {
+                  "name": "SCHEMA_VERIFICATION_REPORT.md",
+                  "path": "scripts/audits/seo/reports/SCHEMA_VERIFICATION_REPORT.md"
+                }
+              ],
+              "subdirs": []
+            }
+          ]
+        },
+        {
+          "path": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts\\audits\\system",
+          "files": [
+            {
+              "name": "debug-subdomain.js",
+              "path": "scripts/audits/system/debug-subdomain.js"
+            }
+          ],
+          "subdirs": []
+        }
+      ]
+    },
+    {
+      "path": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts\\automation",
+      "files": [],
+      "subdirs": [
+        {
+          "path": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts\\automation\\cleanup",
+          "files": [
+            {
+              "name": "cleanup-and-dev.bat",
+              "path": "scripts/automation/cleanup/cleanup-and-dev.bat"
+            },
+            {
+              "name": "cleanup-tokens.js",
+              "path": "scripts/automation/cleanup/cleanup-tokens.js"
+            },
+            {
+              "name": "kill-node-processes.js",
+              "path": "scripts/automation/cleanup/kill-node-processes.js"
+            },
+            {
+              "name": "kill-port.js",
+              "path": "scripts/automation/cleanup/kill-port.js"
+            }
+          ],
+          "subdirs": []
+        },
+        {
+          "path": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts\\automation\\monitor",
+          "files": [],
+          "subdirs": [
+            {
+              "path": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts\\automation\\monitor\\error-monitor",
+              "files": [
+                {
+                  "name": "index.js",
+                  "path": "scripts/automation/monitor/error-monitor/index.js"
+                }
+              ],
+              "subdirs": [
+                {
+                  "path": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts\\automation\\monitor\\error-monitor\\lib",
+                  "files": [
+                    {
+                      "name": "backend-monitor.js",
+                      "path": "scripts/automation/monitor/error-monitor/lib/backend-monitor.js"
+                    },
+                    {
+                      "name": "cli.js",
+                      "path": "scripts/automation/monitor/error-monitor/lib/cli.js"
+                    },
+                    {
+                      "name": "frontend-monitor.js",
+                      "path": "scripts/automation/monitor/error-monitor/lib/frontend-monitor.js"
+                    }
+                  ],
+                  "subdirs": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts\\backend",
+      "files": [
+        {
+          "name": "check-tables.js",
+          "path": "scripts/backend/check-tables.js"
+        },
+        {
+          "name": "check_reviews.js",
+          "path": "scripts/backend/check_reviews.js"
+        },
+        {
+          "name": "debug-table.js",
+          "path": "scripts/backend/debug-table.js"
+        },
+        {
+          "name": "fix-migrations-table.js",
+          "path": "scripts/backend/fix-migrations-table.js"
+        },
+        {
+          "name": "fix-reviews-constraints.js",
+          "path": "scripts/backend/fix-reviews-constraints.js"
+        },
+        {
+          "name": "fix-version-column.js",
+          "path": "scripts/backend/fix-version-column.js"
+        },
+        {
+          "name": "migrate-commonjs.cjs",
+          "path": "scripts/backend/migrate-commonjs.cjs"
+        },
+        {
+          "name": "test-email.html",
+          "path": "scripts/backend/test-email.html"
+        }
+      ],
+      "subdirs": []
+    },
+    {
+      "path": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts\\devtools",
+      "files": [],
+      "subdirs": [
+        {
+          "path": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts\\devtools\\cli",
+          "files": [
+            {
+              "name": "convert-images.js",
+              "path": "scripts/devtools/cli/convert-images.js"
+            },
+            {
+              "name": "create-admin.js",
+              "path": "scripts/devtools/cli/create-admin.js"
+            },
+            {
+              "name": "create-main-tenant.js",
+              "path": "scripts/devtools/cli/create-main-tenant.js"
+            },
+            {
+              "name": "create-production-admin.js",
+              "path": "scripts/devtools/cli/create-production-admin.js"
+            },
+            {
+              "name": "dev-monitor.js",
+              "path": "scripts/devtools/cli/dev-monitor.js"
+            },
+            {
+              "name": "find-free-port.js",
+              "path": "scripts/devtools/cli/find-free-port.js"
+            },
+            {
+              "name": "reset-admin-password.js",
+              "path": "scripts/devtools/cli/reset-admin-password.js"
+            },
+            {
+              "name": "reset-admin.js",
+              "path": "scripts/devtools/cli/reset-admin.js"
+            },
+            {
+              "name": "start-frontend.js",
+              "path": "scripts/devtools/cli/start-frontend.js"
+            }
+          ],
+          "subdirs": []
+        },
+        {
+          "path": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts\\devtools\\fixers",
+          "files": [
+            {
+              "name": "fix-express-routes.js",
+              "path": "scripts/devtools/fixers/fix-express-routes.js"
+            },
+            {
+              "name": "fix-final-routes.js",
+              "path": "scripts/devtools/fixers/fix-final-routes.js"
+            },
+            {
+              "name": "fix-remaining-routes.js",
+              "path": "scripts/devtools/fixers/fix-remaining-routes.js"
+            }
+          ],
+          "subdirs": []
+        },
+        {
+          "path": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts\\devtools\\metrics",
+          "files": [
+            {
+              "name": "scorecard.js",
+              "path": "scripts/devtools/metrics/scorecard.js"
+            }
+          ],
+          "subdirs": []
+        }
+      ]
+    },
+    {
+      "path": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts\\fix",
+      "files": [
+        {
+          "name": "cleanup-console.js",
+          "path": "scripts/fix/cleanup-console.js"
+        }
+      ],
+      "subdirs": []
+    },
+    {
+      "path": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts\\frontend",
+      "files": [
+        {
+          "name": "check-import-boundaries.ts",
+          "path": "scripts/frontend/check-import-boundaries.ts"
+        },
+        {
+          "name": "validate-location-data-refactored.ts",
+          "path": "scripts/frontend/validate-location-data-refactored.ts"
+        }
+      ],
+      "subdirs": [
+        {
+          "path": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts\\frontend\\_archive",
+          "files": [
+            {
+              "name": "batch-refactor-buttons.js",
+              "path": "scripts/frontend/_archive/batch-refactor-buttons.js"
+            },
+            {
+              "name": "find-button-patterns.js",
+              "path": "scripts/frontend/_archive/find-button-patterns.js"
+            },
+            {
+              "name": "README.md",
+              "path": "scripts/frontend/_archive/README.md"
+            },
+            {
+              "name": "simple-button-refactor.js",
+              "path": "scripts/frontend/_archive/simple-button-refactor.js"
+            }
+          ],
+          "subdirs": []
+        },
+        {
+          "path": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts\\frontend\\_lib",
+          "files": [
+            {
+              "name": "cli.ts",
+              "path": "scripts/frontend/_lib/cli.ts"
+            },
+            {
+              "name": "index.ts",
+              "path": "scripts/frontend/_lib/index.ts"
+            },
+            {
+              "name": "io.ts",
+              "path": "scripts/frontend/_lib/io.ts"
+            }
+          ],
+          "subdirs": []
+        }
+      ]
+    },
+    {
+      "path": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts\\lighthouse",
+      "files": [
+        {
+          "name": "budget.json",
+          "path": "scripts/lighthouse/budget.json"
+        },
+        {
+          "name": "lighthouse.config.js",
+          "path": "scripts/lighthouse/lighthouse.config.js"
+        }
+      ],
+      "subdirs": []
+    },
+    {
+      "path": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts\\project",
+      "files": [
+        {
+          "name": "config.js",
+          "path": "scripts/project/config.js"
+        },
+        {
+          "name": "folder-dump.js",
+          "path": "scripts/project/folder-dump.js"
+        },
+        {
+          "name": "phase-map.js",
+          "path": "scripts/project/phase-map.js"
+        },
+        {
+          "name": "project-overview.js",
+          "path": "scripts/project/project-overview.js"
+        },
+        {
+          "name": "run-all.js",
+          "path": "scripts/project/run-all.js"
+        }
+      ],
+      "subdirs": [
+        {
+          "path": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts\\project\\folder-dump",
+          "files": [],
+          "subdirs": []
+        },
+        {
+          "path": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts\\project\\reports",
+          "files": [
+            {
+              "name": "ARCHITECTURE_SCORECARD.md",
+              "path": "scripts/project/reports/ARCHITECTURE_SCORECARD.md"
+            },
+            {
+              "name": "BACKEND_AUDIT.md",
+              "path": "scripts/project/reports/BACKEND_AUDIT.md"
+            },
+            {
+              "name": "COMPLEXITY_SUMMARY.md",
+              "path": "scripts/project/reports/COMPLEXITY_SUMMARY.md"
+            },
+            {
+              "name": "DB_SCHEMA_MAP.md",
+              "path": "scripts/project/reports/DB_SCHEMA_MAP.md"
+            },
+            {
+              "name": "FRONTEND_AUDIT.md",
+              "path": "scripts/project/reports/FRONTEND_AUDIT.md"
+            },
+            {
+              "name": "FRONTEND_STRUCTURE_MAP.md",
+              "path": "scripts/project/reports/FRONTEND_STRUCTURE_MAP.md"
+            },
+            {
+              "name": "LOGGING_ERROR_AUDIT.md",
+              "path": "scripts/project/reports/LOGGING_ERROR_AUDIT.md"
+            },
+            {
+              "name": "META_REPORT.md",
+              "path": "scripts/project/reports/META_REPORT.md"
+            },
+            {
+              "name": "ROUTING_REPORT.md",
+              "path": "scripts/project/reports/ROUTING_REPORT.md"
+            },
+            {
+              "name": "SYSTEM_REPORT.md",
+              "path": "scripts/project/reports/SYSTEM_REPORT.md"
+            }
+          ],
+          "subdirs": []
+        }
+      ]
+    },
+    {
+      "path": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts\\system",
+      "files": [],
+      "subdirs": []
+    },
+    {
+      "path": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts\\testing",
+      "files": [],
+      "subdirs": [
+        {
+          "path": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts\\testing\\backend",
+          "files": [
+            {
+              "name": "create-test-tenant.js",
+              "path": "scripts/testing/backend/create-test-tenant.js"
+            },
+            {
+              "name": "test-email.js",
+              "path": "scripts/testing/backend/test-email.js"
+            },
+            {
+              "name": "test-lighthouse.js",
+              "path": "scripts/testing/backend/test-lighthouse.js"
+            },
+            {
+              "name": "test-password.js",
+              "path": "scripts/testing/backend/test-password.js"
+            },
+            {
+              "name": "test-site-access.js",
+              "path": "scripts/testing/backend/test-site-access.js"
+            },
+            {
+              "name": "test-subdomain-live.js",
+              "path": "scripts/testing/backend/test-subdomain-live.js"
+            },
+            {
+              "name": "test-subdomain-simple.js",
+              "path": "scripts/testing/backend/test-subdomain-simple.js"
+            },
+            {
+              "name": "test-subdomain.js",
+              "path": "scripts/testing/backend/test-subdomain.js"
+            },
+            {
+              "name": "test-webhook.js",
+              "path": "scripts/testing/backend/test-webhook.js"
+            },
+            {
+              "name": "test-welcome-email.js",
+              "path": "scripts/testing/backend/test-welcome-email.js"
+            }
+          ],
+          "subdirs": []
+        },
+        {
+          "path": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts\\testing\\frontend",
+          "files": [
+            {
+              "name": "validate-build.js",
+              "path": "scripts/testing/frontend/validate-build.js"
+            },
+            {
+              "name": "validate-location-data.js",
+              "path": "scripts/testing/frontend/validate-location-data.js"
+            }
+          ],
+          "subdirs": []
+        },
+        {
+          "path": "C:\\Users\\colem\\OneDrive\\Desktop\\mdh\\scripts\\testing\\performance",
+          "files": [],
+          "subdirs": []
+        }
+      ]
+    }
+  ]
+}

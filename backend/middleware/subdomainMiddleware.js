@@ -4,9 +4,9 @@
  */
 
 import { getTenantBySlug } from '../services/tenantService.js';
+import { getTenantByDomain } from '../services/domainService.js';
 import { getPool } from '../database/pool.js';
 import { createModuleLogger } from '../config/logger.js';
-import { loadEnv } from '../config/env.js';
 
 const logger = createModuleLogger('subdomainMiddleware');
 
@@ -33,6 +33,7 @@ export async function extractSubdomain(hostname) {
   }
   
   // Load environment to get BASE_DOMAIN
+  const { loadEnv } = await import('../config/env.js');
   const env = await loadEnv();
   const baseDomain = env.BASE_DOMAIN || 'thatsmartsite.com';
   const baseParts = baseDomain.split('.');
@@ -83,16 +84,37 @@ export function createSubdomainMiddleware(options = {}) {
   return async (req, res, next) => {
     try {
       const hostname = req.hostname;
-      const subdomain = await extractSubdomain(hostname);
       
       logger.info({
         event: 'subdomain_request',
         hostname,
-        subdomain,
         path: req.path,
         userAgent: req.get('User-Agent'),
         ip: req.ip
       }, 'Processing subdomain request');
+
+      // 1️⃣ Check for custom domain first
+      const tenantByDomain = await getTenantByDomain(hostname);
+      if (tenantByDomain) {
+        req.tenant = tenantByDomain;
+        req.tenantSlug = tenantByDomain.slug;
+        req.isTenantSite = true;
+        req.isMainSite = false;
+        req.isAdminSite = false;
+        req.isCustomDomain = true;
+        
+        logger.info({
+          event: 'custom_domain_detected',
+          hostname,
+          tenantId: tenantByDomain.id,
+          tenantSlug: tenantByDomain.slug
+        }, 'Custom domain detected, routing to tenant');
+        
+        return next();
+      }
+
+      // 2️⃣ Fall back to subdomain extraction
+      const subdomain = await extractSubdomain(hostname);
 
       // No subdomain - main site
       if (!subdomain) {

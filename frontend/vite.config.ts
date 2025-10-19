@@ -4,8 +4,25 @@ import { URL } from 'node:url';
 import { defineConfig } from 'vite';
 import { visualizer } from 'rollup-plugin-visualizer';
 import path from 'path';
+import fs from 'fs';
 
 import { manualChunks } from './config/chunks';
+
+// Get dynamic backend port
+function getBackendPort() {
+  try {
+    const portFile = path.join(__dirname, '../.backend-port.json');
+    if (fs.existsSync(portFile)) {
+      const portData = JSON.parse(fs.readFileSync(portFile, 'utf8'));
+      return portData.port || 3001;
+    }
+  } catch (error) {
+    // Fallback to default
+  }
+  return 3001;
+}
+
+const backendPort = getBackendPort();
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -43,7 +60,7 @@ export default defineConfig({
     ],
     proxy: {
       '/api': {
-        target: 'http://localhost:3001',
+        target: `http://localhost:${backendPort}`,
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path,
@@ -57,11 +74,15 @@ export default defineConfig({
         },
       },
       '/uploads': {
-        target: 'http://localhost:3001',
+        target: `http://localhost:${backendPort}`,
         changeOrigin: true,
         secure: false,
       },
     },
+  },
+  define: {
+    // Inject backend URL for frontend use
+    'import.meta.env.VITE_BACKEND_URL': JSON.stringify(`http://localhost:${backendPort}`),
   },
   build: {
     // DEBUG: Disable minification to get readable error messages
@@ -73,7 +94,8 @@ export default defineConfig({
     rollupOptions: {
       // Multiple entry points for admin, tenant, and main-site apps
       input: {
-        main: path.resolve(__dirname, 'src/main-site/index.html'),
+        main: path.resolve(__dirname, 'index.html'), // Main site = Admin app
+        'main-site': path.resolve(__dirname, 'src/main-site/index.html'),
         admin: path.resolve(__dirname, 'src/admin-app/index.html'),
         tenant: path.resolve(__dirname, 'src/tenant-app/index.html'),
       },

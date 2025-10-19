@@ -105,7 +105,7 @@ const ReviewsTab: React.FC = () => {
           Connect your Google Business Profile to automatically fetch and display reviews on your website.
         </p>
         <a 
-          href="http://localhost:3001/api/google/auth"
+          href={`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'}/api/google/auth`}
           className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
         >
           <Star className="w-4 h-4" />

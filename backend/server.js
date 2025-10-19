@@ -1,14 +1,18 @@
-// Set default log level BEFORE any imports that might use logging
+// Load environment variables FIRST to avoid early warnings
+import dotenv from 'dotenv'
+import path from 'path'
+
+// Load .env from root directory (one level up from backend/)
+dotenv.config({ path: path.resolve(process.cwd(), '../.env') })
+
+// Set default log level AFTER .env is loaded
 if (!process.env.LOG_LEVEL) {
   process.env.LOG_LEVEL = 'error'
 }
+import { existsSync, readFileSync } from 'fs'
+import { logger, createModuleLogger } from './config/logger.js'
 
-// Load environment variables from .env file (if it exists)
-import dotenv from 'dotenv'
-import path from 'path'
-import { existsSync } from 'fs'
-
-// Try to load .env from multiple locations
+// Check if .env was loaded and log the path
 const envPaths = [
   path.resolve(process.cwd(), '.env'),           // Current directory
   path.resolve(process.cwd(), '../.env'),        // Parent directory (dev)
@@ -18,7 +22,6 @@ const envPaths = [
 for (const envPath of envPaths) {
   if (existsSync(envPath)) {
     logger.info({ envPath }, 'Loading .env file')
-    dotenv.config({ path: envPath })
     break
   }
 }
@@ -31,7 +34,6 @@ if (process.env.NODE_ENV === 'production') {
 import express from 'express'
 import cors from 'cors'
 import { fileURLToPath } from 'url'
-import { logger, createModuleLogger } from './config/logger.js'
 
 // Environment validation will be done after server starts
 
@@ -54,6 +56,7 @@ import googleAuthRoutes from './routes/googleAuth.js'
 import googleAnalyticsRoutes from './routes/googleAnalytics.js'
 import healthMonitoringRoutes from './routes/healthMonitoring.js'
 import reviewsRoutes from './routes/reviews.js'
+import domainRoutes from './routes/domains.js'
 
 // Suppress debug/info noise in development
 if (process.env.LOG_LEVEL !== 'debug') {
@@ -76,14 +79,20 @@ const corsOptions = {
       return cb(null, true); // curl, servers, etc.
     }
     
-    // Development origins
+    // Development origins - support dynamic ports
     const devOrigins = [
       'http://localhost:5175',
       'http://localhost:5176', 
       'http://localhost:5177',
+      'http://localhost:5178',
+      'http://localhost:5179',
+      'http://localhost:5180',
       'http://127.0.0.1:5175',
       'http://127.0.0.1:5176',
-      'http://127.0.0.1:5177'
+      'http://127.0.0.1:5177',
+      'http://127.0.0.1:5178',
+      'http://127.0.0.1:5179',
+      'http://127.0.0.1:5180'
     ];
     
     // Production origins - include subdomains
@@ -150,8 +159,10 @@ app.use('/api/google', googleAuthRoutes)
 app.use('/api/health-monitoring', healthMonitoringRoutes)
 app.use('/api/reviews', reviewsRoutes)
 app.use('/api/subdomain', subdomainTestRoutes)
+app.use('/api/domains', domainRoutes)
 logger.info('Reviews routes loaded at /api/reviews')
 logger.info('Subdomain test routes loaded at /api/subdomain')
+logger.info('Domain routes loaded at /api/domains')
 
 // Development: simple health check
 if (process.env.NODE_ENV !== 'production') {
@@ -276,7 +287,18 @@ app.use((err, req, res, next) => {
   }
 });
 
-const PORT = process.env.PORT || 3001
+// Try to load dynamic port from port finder, fallback to env or default
+let PORT = process.env.PORT || 3001;
+try {
+  const portFile = path.join(__dirname, '../.backend-port.json');
+  if (fs.existsSync(portFile)) {
+    const portData = JSON.parse(fs.readFileSync(portFile, 'utf8'));
+    PORT = portData.port;
+  }
+} catch (error) {
+  // Fallback to default if port file doesn't exist or is invalid
+}
+
 const HOST = '0.0.0.0'
 
 logger.info({
@@ -294,8 +316,8 @@ app.listen(PORT, HOST, () => {
     host: HOST,
     port: PORT,
     environment: process.env.NODE_ENV || 'development',
-    healthCheck: `http://${HOST}:${PORT}/api/health`,
-    detailedHealth: `http://${HOST}:${PORT}/api/health/detailed`
+    healthCheck: `http://localhost:${PORT}/api/health`,
+    detailedHealth: `http://localhost:${PORT}/api/health/detailed`
   }, 'Backend server started successfully');
   
   // Now do async initialization after server is listening
@@ -312,6 +334,18 @@ async function initializeAsync() {
       environment: env.NODE_ENV,
       databaseUrlExists: !!env.DATABASE_URL
     }, 'Environment validation passed')
+    
+    // Update OAuth redirect URI with dynamic port
+    try {
+      const { updateOAuthRedirect } = await import('../scripts/devtools/cli/update-oauth-redirect.js')
+      updateOAuthRedirect()
+    } catch (error) {
+      logger.warn('Could not update OAuth redirect URI:', error.message)
+    }
+    
+    // Initialize HealthMonitor after environment is loaded
+    const { default: healthMonitor } = await import('./services/healthMonitor.js')
+    healthMonitor.initialize()
     
     // Test database connection (non-blocking)
     logger.info('Testing database connection...')

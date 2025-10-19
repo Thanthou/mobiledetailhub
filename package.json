@@ -7,11 +7,11 @@
   "scripts": {
     "build": "cd frontend && npm run build",
     "dev": "concurrently \"cd frontend && npm run dev\" \"cd backend && npm run dev\" \"node scripts/error-monitor/index.js --target=all\"",
-    "dev:backend": "cd backend && npm run dev",
+    "dev:backend": "node scripts/devtools/cli/find-free-backend-port.js && cd backend && npm run dev",
     "dev:frontend": "node scripts/devtools/cli/find-free-port.js && node scripts/devtools/cli/start-frontend.js",
     "dev:monitor": "node scripts/devtools/cli/dev-monitor.js",
     "predev:all": "node scripts/automation/cleanup/kill-node-processes.js",
-    "dev:all": "npm run predev:all && concurrently -n FRONTEND,BACKEND -c cyan,yellow \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:all": "npm run predev:all && node scripts/devtools/cli/verify-ports-free.js && concurrently -n FRONTEND,BACKEND -c cyan,yellow \"npm run dev:frontend\" \"npm run dev:backend\"",
     "dev:clean": "scripts/automation/cleanup/cleanup-and-dev.bat",
     "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
     "lint": "eslint backend/ scripts/",
@@ -24,6 +24,7 @@
     "score": "node scripts/devtools/metrics/scorecard.js",
     "validate": "node scripts/testing/frontend/validate-build.js",
     "test:subdomain": "node scripts/testing/backend/test-subdomain.js",
+    "test:domains": "node scripts/test-custom-domains.js",
     "audit:schema": "node scripts/audits/backend/audit-schema-switching.js",
     "audit:routing": "node scripts/audits/frontend/audit-routing.js",
     "audit:performance": "node scripts/audits/frontend/audit-route-performance.js",
@@ -46,7 +47,13 @@
     "test:backend": "node scripts/testing/backend/test-subdomain.js",
     "test:frontend": "node scripts/testing/frontend/validate-build.js",
     "devtools:metrics": "node scripts/devtools/metrics/scorecard.js",
-    "devtools:fix": "node scripts/devtools/fixers/fix-express-routes.js"
+    "devtools:fix": "node scripts/devtools/fixers/fix-express-routes.js",
+    "cli": "node scripts/devtools/cli/index.js",
+    "deploy:production": "node scripts/automation/deploy/deploy-production.js",
+    "test:integration": "node scripts/testing/integration/verify-onboarding.js",
+    "audit:env": "node scripts/audits/system/env-check.js",
+    "db:audit": "node scripts/backend/db-audit.js",
+    "folder-dump": "node scripts/project/folder-dump.js"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

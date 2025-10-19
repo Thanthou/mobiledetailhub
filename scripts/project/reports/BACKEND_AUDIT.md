@@ -6,7 +6,7 @@
 - ✅ getTenantBySlug() found in tenantService.js
 - Hostname parsing: ✅ detected
 - Schema switching: ⚠️ not detected
-- Middleware applied in routes: ✅ (3/32)
+- Middleware applied in routes: ✅ (3/33)
 - Wildcard/BASE_DOMAIN variable: ⚠️ not found
 
 # PHASE 2.5 – TENANT CONTEXT VALIDATION

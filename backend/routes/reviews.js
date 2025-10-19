@@ -14,6 +14,7 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   logger.info('Reviews GET route hit with query:', req.query);
   try {
+    const pool = await getPool();
     const {
       tenant_slug,
       limit = 10,
@@ -95,6 +96,7 @@ router.get('/', async (req, res) => {
  */
 router.get('/:id', async (req, res) => {
   try {
+    const pool = await getPool();
     const { id } = req.params;
 
     const query = `
@@ -149,6 +151,7 @@ router.get('/:id', async (req, res) => {
  */
 router.post('/', async (req, res) => {
   try {
+    const pool = await getPool();
     const {
       tenant_slug,
       customer_name,

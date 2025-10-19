@@ -1,10 +1,15 @@
-// scripts/find-free-port.js
+// scripts/devtools/cli/find-free-port.js
 import net from "net";
 import fs from "fs";
 
 const basePort = 5175;
 const maxTries = 10;
 
+/**
+ * Check if a port is available
+ * @param {number} port - Port number to check
+ * @returns {Promise<boolean>} - True if port is free
+ */
 function checkPort(port) {
   return new Promise((resolve) => {
     const server = net.createServer()
@@ -22,18 +27,39 @@ function checkPort(port) {
   });
 }
 
-(async () => {
-  let port = basePort;
-  for (let i = 0; i < maxTries; i++) {
+/**
+ * Find the first available port starting from basePort
+ * @param {number} startPort - Starting port number (default: 5175)
+ * @param {number} maxAttempts - Maximum attempts (default: 10)
+ * @returns {Promise<number>} - Available port number
+ */
+export async function findFreePort(startPort = basePort, maxAttempts = maxTries) {
+  for (let i = 0; i < maxAttempts; i++) {
+    const port = startPort + i;
     const free = await checkPort(port);
     if (free) {
-      fs.writeFileSync(".frontend-port.json", JSON.stringify({ port }));
-      console.log(`🟢 Using port ${port}`);
-      process.exit(0);
+      return port;
     }
-    port++;
   }
+  throw new Error(`No free port found between ${startPort} and ${startPort + maxAttempts}`);
+}
 
-  console.error(`❌ No free port found between ${basePort} and ${basePort + maxTries}`);
-  process.exit(1);
-})();
+/**
+ * Find free port and save to file (CLI script behavior)
+ */
+async function findAndSavePort() {
+  try {
+    const port = await findFreePort();
+    fs.writeFileSync(".frontend-port.json", JSON.stringify({ port }));
+    console.log(`🟢 Using port ${port}`);
+    return port;
+  } catch (error) {
+    console.error(`❌ ${error.message}`);
+    process.exit(1);
+  }
+}
+
+// Run as CLI script if called directly
+if (import.meta.url === `file://${process.argv[1]}`) {
+  findAndSavePort();
+}

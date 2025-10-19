@@ -5,8 +5,8 @@ const getApiBaseUrl = () => {
     return '';
   }
   
-  // In development, use localhost
-  return 'http://localhost:3001';
+  // In development, use dynamic backend port from Vite env
+  return import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
 };
 
 export const API_BASE_URL = getApiBaseUrl();

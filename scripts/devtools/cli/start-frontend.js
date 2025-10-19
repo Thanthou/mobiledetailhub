@@ -18,6 +18,7 @@ console.log(`🚀 Starting frontend on port ${port}...`);
 process.chdir('frontend');
 
 // Use npx to ensure we get the locally installed vite
+// Let Vite handle port conflicts gracefully (it will auto-increment if needed)
 const vite = spawn('npx', ['vite', '--port', port.toString(), '--host'], {
   stdio: 'inherit',
   shell: true // This helps with Windows compatibility

@@ -8,8 +8,10 @@ import express from 'express'
 import { getPool } from '../database/pool.js'
 import bcrypt from 'bcryptjs'
 import { sendWelcomeEmail } from '../services/emailService.js'
+import { createModuleLogger } from '../config/logger.js'
+
 const router = express.Router()
-const logger = createModuleLogger('routeName');
+const logger = createModuleLogger('payments');
 
 
 import { asyncHandler } from '../middleware/errorHandler.js';
@@ -26,8 +28,6 @@ router.post('/create-intent', async (req, res, next) => {
 
     // Use real Stripe test mode
     const { default: StripeService } = await import('../services/stripeService.js');
-    
-    import { createModuleLogger } from '../config/logger.js';
 const result = await StripeService.createPaymentIntent({
       amount,
       customerEmail,

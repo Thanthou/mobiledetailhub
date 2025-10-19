@@ -6,6 +6,7 @@ import { TenantProviders } from './TenantProviders';
 import TenantApp from './TenantApp';
 import { injectAllSchemas } from '@/shared/utils/schemaUtils';
 import { defaultOrganizationSchema, defaultWebsiteSchema } from '@/shared/seo/defaultSchemas';
+import '../index.css';
 
 // Component to inject schemas
 const SchemaInjector: React.FC = () => {

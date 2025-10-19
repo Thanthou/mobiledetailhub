@@ -7,39 +7,29 @@ const isWindows = process.platform === "win32";
 const command = isWindows
   ? `
     for /f "tokens=5" %a in ('netstat -ano ^| findstr :3001') do taskkill /PID %a /F >nul 2>&1
+    for /f "tokens=5" %a in ('netstat -ano ^| findstr :3002') do taskkill /PID %a /F >nul 2>&1
+    for /f "tokens=5" %a in ('netstat -ano ^| findstr :3003') do taskkill /PID %a /F >nul 2>&1
+    for /f "tokens=5" %a in ('netstat -ano ^| findstr :3004') do taskkill /PID %a /F >nul 2>&1
+    for /f "tokens=5" %a in ('netstat -ano ^| findstr :3005') do taskkill /PID %a /F >nul 2>&1
     for /f "tokens=5" %a in ('netstat -ano ^| findstr :5175') do taskkill /PID %a /F >nul 2>&1
+    for /f "tokens=5" %a in ('netstat -ano ^| findstr :5176') do taskkill /PID %a /F >nul 2>&1
+    for /f "tokens=5" %a in ('netstat -ano ^| findstr :5177') do taskkill /PID %a /F >nul 2>&1
+    for /f "tokens=5" %a in ('netstat -ano ^| findstr :5178') do taskkill /PID %a /F >nul 2>&1
+    for /f "tokens=5" %a in ('netstat -ano ^| findstr :5179') do taskkill /PID %a /F >nul 2>&1
     taskkill /F /IM node.exe /T >nul 2>&1
   `
-  : `lsof -ti:3001,5175 | xargs kill -9 2>/dev/null || true && pkill -f node || true`;
+  : `lsof -ti:3001,3002,3003,3004,3005,5175,5176,5177,5178,5179 | xargs kill -9 2>/dev/null || true && pkill -f node || true`;
 
 exec(command, (error) => {
   if (error) {
     console.log("⚠️ Some processes may not have terminated cleanly:", error.message);
   } else {
-    console.log("✅ All Node.js processes killed (ports 3001, 5175 freed)");
+    console.log("✅ All Node.js processes killed (ports 3001-3005, 5175-5179 freed)");
   }
 
-  // 🕐 Verify ports are actually free (Windows delay safety)
+  // 🕐 Simple delay to allow ports to be released
   setTimeout(() => {
-    try {
-      const output = execSync("netstat -ano | findstr :3001").toString();
-      if (output.includes("LISTEN")) {
-        console.log("⚠️ Port 3001 still in use, retrying...");
-        execSync(
-          'for /f "tokens=5" %a in (\'netstat -ano ^| findstr :3001\') do taskkill /PID %a /F >nul 2>&1'
-        );
-        // Wait a bit more after the retry
-        setTimeout(() => {
-          console.log("🟢 Ports confirmed released");
-          process.exit(0);
-        }, 1000);
-      } else {
-        console.log("🟢 Ports confirmed released");
-        process.exit(0);
-      }
-    } catch {
-      console.log("🟢 Ports confirmed released");
-      process.exit(0);
-    }
-  }, 1500);
+    console.log("🟢 Ports should be released");
+    process.exit(0);
+  }, 1000);
 });

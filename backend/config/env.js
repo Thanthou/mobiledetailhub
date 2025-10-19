@@ -7,8 +7,6 @@
  */
 
 import 'dotenv/config';
-import { createModuleLogger } from '../config/logger.js';
-const logger = createModuleLogger('env');
 
 
 import { z } from 'zod';
@@ -63,18 +61,18 @@ export async function loadEnv() {
     const parsed = EnvSchema.safeParse(process.env);
 
     if (!parsed.success) {
-      logger.warn('⚠️  Environment variable issues detected:');
+      console.warn('⚠️  Environment variable issues detected:');
       parsed.error.errors.forEach(e =>
-        logger.warn(`  - ${e.path.join('.')}: ${e.message}`)
+        console.warn(`  - ${e.path.join('.')}: ${e.message}`)
       );
     }
 
     const env = parsed.success ? parsed.data : EnvSchema.parse({});
-    if (!env.DATABASE_URL) logger.warn('⚠️  DATABASE_URL not provided (DB disabled)');
+    if (!env.DATABASE_URL) console.warn('⚠️  DATABASE_URL not provided (DB disabled)');
 
     return env;
   } catch (err) {
-    logger.error('❌ Failed to load env:', err.message);
+    console.error('❌ Failed to load env:', err.message);
     return {}; // Never crash
   }
 }
