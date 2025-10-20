@@ -11,8 +11,8 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-// Load environment variables
-require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+// Load environment variables from root .env
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 
 // Build connection string with better error handling
 let connectionString;
@@ -31,7 +31,7 @@ const pool = new Pool({
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
 });
 
-const MIGRATIONS_DIR = path.resolve(__dirname, '../migrations');
+const MIGRATIONS_DIR = path.resolve(__dirname, '../../backend/migrations');
 
 // ANSI color codes for pretty output
 const colors = {

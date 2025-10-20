@@ -7,7 +7,7 @@ import express from 'express';
 const router = express.Router();
 import { getPool } from '../database/pool.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
-import { logger } from 'config/logger.js';
+import { logger } from '../config/logger.js';
 import healthMonitor from '../services/healthMonitor.js';
 import { sendSuccess, sendError } from '../utils/responseFormatter.js';
 
@@ -485,6 +485,162 @@ router.get('/test-lighthouse', asyncHandler(async (req, res) => {
       status: 'error',
       error: error.message
     });
+  }
+}));
+
+/**
+ * GET /api/health-monitoring/seo/:tenantSlug
+ * Get latest SEO audit results for a tenant
+ */
+router.get('/seo/:tenantSlug', asyncHandler(async (req, res) => {
+  const { tenantSlug } = req.params;
+  const pool = await getPool();
+
+  try {
+    logger.info(`Fetching SEO audit results for tenant: ${tenantSlug}`);
+
+    const result = await pool.query(`
+      SELECT 
+        id,
+        tenant_slug,
+        url,
+        seo_score,
+        lighthouse_main_score,
+        lighthouse_tenant_score,
+        lighthouse_admin_score,
+        lighthouse_avg_score,
+        schema_validation_score,
+        schema_total_count,
+        schema_valid_count,
+        schema_error_count,
+        schema_warning_count,
+        schema_types_covered,
+        meta_tags_complete,
+        analytics_detected,
+        sitemap_found,
+        robots_txt_found,
+        audit_source,
+        status,
+        checked_at,
+        created_at
+      FROM system.health_monitoring
+      WHERE tenant_slug = $1 AND check_type = 'seo'
+      ORDER BY checked_at DESC
+      LIMIT 1
+    `, [tenantSlug]);
+
+    if (result.rows.length === 0) {
+      return sendSuccess(res, 'No SEO audit data available yet', {
+        tenantSlug,
+        hasData: false,
+        message: 'Run SEO audit to generate data: npm run audit:seo'
+      });
+    }
+
+    const seoData = result.rows[0];
+
+    sendSuccess(res, 'SEO audit data retrieved', {
+      tenantSlug,
+      hasData: true,
+      audit: {
+        lighthouse: {
+          mainSite: seoData.lighthouse_main_score,
+          tenantApp: seoData.lighthouse_tenant_score,
+          adminApp: seoData.lighthouse_admin_score,
+          average: seoData.lighthouse_avg_score,
+        },
+        schema: {
+          score: seoData.schema_validation_score,
+          totalCount: seoData.schema_total_count,
+          validCount: seoData.schema_valid_count,
+          errorCount: seoData.schema_error_count,
+          warningCount: seoData.schema_warning_count,
+          typesCovered: seoData.schema_types_covered || [],
+        },
+        meta: {
+          tagsComplete: seoData.meta_tags_complete,
+          analyticsDetected: seoData.analytics_detected,
+          sitemapFound: seoData.sitemap_found,
+          robotsTxtFound: seoData.robots_txt_found,
+        },
+        overall: {
+          score: seoData.seo_score,
+          status: seoData.status,
+          source: seoData.audit_source,
+          checkedAt: seoData.checked_at,
+        },
+      },
+    });
+
+  } catch (error) {
+    logger.error('Error fetching SEO audit data:', error);
+    sendError(res, 'Failed to fetch SEO audit data', error.message, 500);
+  }
+}));
+
+/**
+ * GET /api/health-monitoring/seo/:tenantSlug/history
+ * Get SEO audit history with trends
+ */
+router.get('/seo/:tenantSlug/history', asyncHandler(async (req, res) => {
+  const { tenantSlug } = req.params;
+  const { limit = 30, days = 30 } = req.query;
+  const pool = await getPool();
+
+  try {
+    logger.info(`Fetching SEO audit history for tenant: ${tenantSlug}`);
+
+    const result = await pool.query(`
+      SELECT 
+        id,
+        seo_score,
+        lighthouse_avg_score,
+        schema_validation_score,
+        status,
+        checked_at
+      FROM system.health_monitoring
+      WHERE tenant_slug = $1 
+        AND check_type = 'seo'
+        AND checked_at >= NOW() - INTERVAL '${parseInt(days)} days'
+      ORDER BY checked_at DESC
+      LIMIT $2
+    `, [tenantSlug, parseInt(limit)]);
+
+    if (result.rows.length === 0) {
+      return sendSuccess(res, 'No SEO audit history available', {
+        tenantSlug,
+        hasData: false,
+        history: [],
+      });
+    }
+
+    // Calculate trends
+    const history = result.rows.reverse(); // Chronological order
+    const latest = history[history.length - 1];
+    const oldest = history[0];
+
+    const trend = {
+      seoScore: latest.seo_score - oldest.seo_score,
+      lighthouseScore: (latest.lighthouse_avg_score || 0) - (oldest.lighthouse_avg_score || 0),
+      schemaScore: (latest.schema_validation_score || 0) - (oldest.schema_validation_score || 0),
+    };
+
+    sendSuccess(res, 'SEO audit history retrieved', {
+      tenantSlug,
+      hasData: true,
+      count: history.length,
+      history: history,
+      trend: trend,
+      summary: {
+        latest: latest,
+        oldest: oldest,
+        averageScore: Math.round(history.reduce((sum, h) => sum + (h.seo_score || 0), 0) / history.length),
+      },
+    });
+
+  } catch (error) {
+    logger.error('Error fetching SEO audit history:', error);
+    sendError(res, 'Failed to fetch SEO audit history', error.message, 500);
   }
 }));
 

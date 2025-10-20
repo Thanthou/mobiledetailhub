@@ -43,7 +43,9 @@
 📄 .prettierignore
 📄 .prettierrc.json
 📁 .tmp_lh/
-
+   📄 main-site-fetched.html
+   📄 tenant-app-fetched.html
+📄 audit-debug.log
 📁 backend/
    📄 .gitignore
    📁 config/
@@ -75,7 +77,7 @@
       📄 withTenant.js
       📄 zodValidation.js
    📁 migrations/
-      📄 001_create_error_logs_table.sql
+      📄 2025-10-17_0001_create_error_logs_table.sql
       📄 2025-10-17_1400_create_schemas.sql
       📄 2025-10-17_1500_analytics.sql
       📄 2025-10-17_1501_tenants.sql
@@ -87,6 +89,8 @@
       📄 2025-10-17_1507_system.sql
       📄 2025-10-17_1508_website.sql
       📄 2025-10-17_1600_example_migration.sql
+      📄 2025-10-19_add_cascade_delete_constraints.sql
+      📄 2025-10-20_0001_add_seo_audit_tracking.sql
       📄 README.md
    📁 mocks/
       📄 mockReviews.json
@@ -105,6 +109,7 @@
       📄 analytics.js
       📄 auth.js
       📄 avatar.js
+      📄 config.js
       📄 customers.js
       📄 domains.js
       📄 errorTracking.js
@@ -139,6 +144,7 @@
       📄 websiteContent.js
       📁 __tests__/
          📄 .eslintrc.js
+         📄 analytics.access.test.js
          📄 seo.test.js
    📁 schemas/
       📄 apiSchemas.js
@@ -157,6 +163,7 @@
       📄 refreshTokenService.js
       📄 stripeService.js
       📄 tenantAnalyticsService.js
+      📄 tenantDeletionService.js
       📄 tenantProvisionService.js
       📄 tenantService.js
       📄 TENANT_DASHBOARD_BRIDGE.md
@@ -201,7 +208,13 @@
 📁 docs/
    📁 audits/
       📄 ENV_AUDIT.md
-      📄 lighthouse-seo.json
+      📁 lighthouse/
+         📄 admin-app-seo.report.json
+         📄 main-site-seo.json
+         📄 main-site-seo.report.json
+         📄 tenant-app-seo.json
+         📄 tenant-app-seo.report.json
+      📄 lighthouse-seo.report.json
       📄 LOCAL_SEO_AUDIT.md
       📄 PERFORMANCE_AUDIT.md
       📄 PRODUCTION_SEO_AUDIT.md
@@ -237,6 +250,8 @@
    📄 ENV_TEMPLATE.md
    📄 ENV_UPDATE_GUIDE.md
    📄 FAQ_ITEMS_IMPLEMENTATION.md
+   📄 HEALTH_MONITOR_SEO_INTEGRATION.md
+   📄 HIGH_IMPACT_PRIORITIES_COMPLETE.md
    📄 INIT_DATABASE_UPDATED.md
    📄 LEGACY_CODE_CLEANUP.md
    📄 LOGGING.md
@@ -248,10 +263,14 @@
    📄 MOBILE_OPTIMIZATION.md
    📄 MODULAR_CONFIG_IMPLEMENTATION.md
    📄 MODULAR_CONFIG_MIGRATION_COMPLETE.md
+   📄 MULTI_APP_SEO_AUDIT.md
    📄 ONBOARDING_FOR_BOLT.md
    📁 overview/
 
+   📄 PERFORMANCE_OPTIMIZATION.md
    📄 PHASE1_COMPLETE.md
+   📄 PRIORITIES_STATUS_REPORT.md
+   📄 PROCESS_CLEANUP_SERVICE.md
    📄 PRODUCTION_DEPLOYMENT_GUIDE.md
    📁 project/
 
@@ -263,6 +282,8 @@
    📄 RENDER_DEPLOYMENT.md
    📄 RENDER_ENV_VARS.md
    📄 REPUTATION_SCHEMA_REVIEW.md
+   📄 RUNTIME_CONFIGURATION.md
+   📄 SCHEMA_COVERAGE_AUDITOR.md
    📄 SEO_CURSOR_ANCHORING.md
    📄 SEO_IMPLEMENTATION_GUIDE.md
    📄 SEO_INTEGRATION_EXAMPLES.md
@@ -278,6 +299,7 @@
    📁 testing/
 
    📄 TIER1_CONTENT_FEATURES.md
+   📄 VITE_CONFIG_UNIFICATION.md
    📄 WEBHOOK_SETUP.md
    📄 WEBSITE_SCHEMA_REVIEW.md
 📄 eslint.config.js
@@ -288,15 +310,25 @@
    📄 .islintignore
    📁 .vscode/
       📄 settings.json
+   📁 admin-app/
+      📄 index.html
+   📁 apps/
+      📁 admin-app/
+         📄 index.html
+      📁 main-site/
+         📄 index.html
+      📁 tenant-app/
+         📄 index.html
    📁 config/
       📄 chunks.ts
       📄 env.ts
       📄 index.ts
    📄 eslint.config.js
    📄 index.html
+   📁 main-site/
+      📄 index.html
    📄 package-lock.json
    📄 package.json
-   📄 PERFORMANCE_OPTIMIZATION.md
    📁 plugins/
       📄 vite-schema-injection.js
    📄 postcss.config.js
@@ -526,6 +558,7 @@
                      📁 analytics/
                         📄 AnalyticsTab.tsx
                         📄 index.ts
+                        📄 SEOHealthCard.tsx
                      📁 database/
 
                      📄 index.ts
@@ -618,7 +651,6 @@
                   📄 index.ts
                📁 utils/
                   📄 validation.ts
-         📄 index.html
          📄 main.tsx
       📁 data/
          📄 index.ts
@@ -840,6 +872,7 @@
             📄 SEOManager.tsx
          📁 components/
             📄 AddToHomeScreen.tsx
+            📄 ConfigProvider.tsx
             📄 ErrorFallback.tsx
             📄 HomePageLayout.tsx
             📄 index.ts
@@ -856,6 +889,7 @@
             📄 vehicleMapping.ts
          📁 contexts/
             📄 AuthContext.tsx
+            📄 ConfigContext.tsx
             📄 DataContext.tsx
             📄 index.ts
             📄 SiteContext.tsx
@@ -1040,6 +1074,7 @@
             📄 schemaUtils.ts
             📄 scrollRestoration.ts
             📄 scrollToTop.ts
+            📄 serviceWorker.ts
             📄 siteUtils.ts
             📄 tenantConfigMigration.ts
             📄 tenantDataTransform.ts
@@ -1567,7 +1602,6 @@
                   📄 tenantEvents.ts
                   📁 __tests__/
 
-         📄 index.html
          📄 main.tsx
          📄 TenantApp.tsx
          📄 TenantProviders.tsx
@@ -1579,13 +1613,15 @@
          📄 vehicle.ts
       📄 vite-env.d.ts
    📄 tailwind.config.js
+   📁 tenant-app/
+      📄 index.html
    📄 tsconfig.app.json
    📄 tsconfig.eslint.json
    📄 tsconfig.json
    📄 tsconfig.node.json
    📄 vite.config.admin.ts
-   📄 vite.config.base.ts
    📄 vite.config.main.ts
+   📄 vite.config.shared.ts
    📄 vite.config.tenant.ts
    📄 vite.config.ts
    📄 vitest.config.ts
@@ -1602,6 +1638,7 @@
       📄 audit-routing.js
       📄 audit-schema.js
       📄 audit-seo.js
+      📄 schema-validator.js
    📁 automation/
       📁 cleanup/
          📄 cleanup-and-dev.bat
@@ -1609,8 +1646,10 @@
          📄 kill-node-processes.js
          📄 kill-port.js
          📄 reset_reputation_data.js
+      📄 cleanup-ports.js
       📁 deploy/
          📄 deploy-production.js
+      📄 ingest-seo.js
       📁 monitor/
          📁 error-monitor/
             📄 index.js
@@ -1663,6 +1702,8 @@
          📄 fix-routes.js
       📁 metrics/
          📄 scorecard.js
+      📄 standardize-logger.js
+      📄 standardize-validation.js
       📄 validate-env.js
    📁 fix/
       📄 cleanup-console.js
@@ -1731,6 +1772,9 @@
       📄 debug-routing.js
       📄 debug-subdomain.js
       📄 seo-integration-test.js
+   📁 utils/
+      📄 cleanup.js
+      📄 pagespeed-api.js
 📁 todos/
    📄 current-goals.md
    📄 pricing.md

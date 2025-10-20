@@ -1,5 +1,5 @@
 import rateLimit from 'express-rate-limit';
-import { logger } from 'config/logger.js';
+import { logger } from '../config/logger.js';
 // ⚠️  DEVELOPMENT MODE: Rate limiting is DISABLED
 // All limits set to 10,000 requests per window to prevent development issues
 // Change max values back to production limits when deploying

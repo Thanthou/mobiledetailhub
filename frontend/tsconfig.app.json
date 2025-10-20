@@ -8,7 +8,10 @@
     "baseUrl": "./",
     "paths": {
       "@/*": ["src/*"],
-      "shared/*": ["src/components/shared/*"]
+      "@shared/*": ["src/shared/*"],
+      "@admin/*": ["src/admin-app/*"],
+      "@tenant/*": ["src/tenant-app/*"],
+      "@main/*": ["src/main-site/*"]
     },
 
     /* Bundler mode */

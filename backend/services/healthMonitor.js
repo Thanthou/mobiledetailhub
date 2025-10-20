@@ -7,7 +7,7 @@ import axios from 'axios';
 import lighthouse from 'lighthouse';
 import puppeteer from 'puppeteer';
 import * as chromeLauncher from 'chrome-launcher';
-import { logger } from 'config/logger.js';
+import { logger } from '../config/logger.js';
 import { loadEnv } from '../config/env.js';
 
 class HealthMonitor {

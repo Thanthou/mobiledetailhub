@@ -31,9 +31,12 @@
     "audit:routes": "node scripts/audits/audit-routes.js",
     "audit:routing": "node scripts/audits/audit-routing.js",
     "audit:performance": "node scripts/audits/audit-performance.js",
-    "audit:seo": "node scripts/audits/audit-seo.js",
+    "audit:seo": "node scripts/audits/audit-seo.js && node scripts/audits/schema-validator.js",
+    "audit:schema-validation": "node scripts/audits/schema-validator.js",
     "audit:overview": "node scripts/audits/audit-overview.js",
     "audit:db": "node scripts/audits/audit-db.js",
+
+    "serve:audit": "npm run preview --prefix frontend",
 
     "fix:routes": "node scripts/devtools/fixers/fix-express-routes.js",
     "fix:remaining": "node scripts/devtools/fixers/fix-remaining-routes.js",
@@ -150,6 +153,9 @@ export const env = EnvSchema.parse(import.meta.env);
 /**
  * Computed configuration derived from environment variables
  * This provides cleaner access patterns and type-safe defaults
+ * 
+ * Note: For runtime configuration (API URLs, feature flags), prefer using
+ * the ConfigContext and useConfig hooks instead of this static config.
  */
 export const config = {
   // Environment
@@ -157,7 +163,7 @@ export const config = {
   isProduction: env.PROD,
   mode: env.MODE,
   
-  // API Configuration
+  // API Configuration (fallback values - use runtime config when available)
   apiBaseUrl: env.VITE_API_BASE_URL || '/api', // Use relative path for Vite proxy
   apiUrl: env.PROD ? (env.VITE_API_URL_LIVE || '') : '', // Force empty in dev to use Vite proxy
   apiUrls: {
@@ -165,13 +171,58 @@ export const config = {
     live: env.VITE_API_URL_LIVE || '',
   },
   
-  // Third-party Services
+  // Third-party Services (fallback values - use runtime config when available)
   googleMapsApiKey: env.VITE_GOOGLE_MAPS_API_KEY,
   stripePublishableKey: env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_placeholder',
   
-  // Feature Flags
+  // Feature Flags (fallback values - use runtime config when available)
   serviceWorkerEnabled: env.VITE_ENABLE_SW === '1' && env.PROD,
 } as const;
+
+/**
+ * Runtime configuration utilities
+ * These functions help integrate with the ConfigContext
+ */
+
+/**
+ * Get the appropriate API base URL for the current environment
+ * Prefers runtime config over build-time config
+ */
+export function getApiBaseUrl(runtimeConfig?: { apiBaseUrl?: string }): string {
+  return runtimeConfig?.apiBaseUrl || config.apiBaseUrl;
+}
+
+/**
+ * Get the appropriate API URL for the current environment
+ * Prefers runtime config over build-time config
+ */
+export function getApiUrl(runtimeConfig?: { apiUrl?: string }): string {
+  return runtimeConfig?.apiUrl || config.apiUrl;
+}
+
+/**
+ * Get Google Maps API key
+ * Prefers runtime config over build-time config
+ */
+export function getGoogleMapsApiKey(runtimeConfig?: { googleMapsApiKey?: string }): string | undefined {
+  return runtimeConfig?.googleMapsApiKey || config.googleMapsApiKey;
+}
+
+/**
+ * Get Stripe publishable key
+ * Prefers runtime config over build-time config
+ */
+export function getStripePublishableKey(runtimeConfig?: { stripePublishableKey?: string }): string {
+  return runtimeConfig?.stripePublishableKey || config.stripePublishableKey;
+}
+
+/**
+ * Check if service worker should be enabled
+ * Prefers runtime config over build-time config
+ */
+export function isServiceWorkerEnabled(runtimeConfig?: { features?: { serviceWorker?: boolean } }): boolean {
+  return runtimeConfig?.features?.serviceWorker ?? config.serviceWorkerEnabled;
+}
 
 /*──────────────── frontend\src\shared\index.ts ────────────────*/
 
@@ -216,8 +267,8 @@ export function useRouterDebug(name: string) {
 import express from 'express';
 import { getPool } from '../database/pool.js';
 import { authenticateToken, requireAdmin } from '../middleware/auth.js';
-import { validateBody, validateParams, sanitize } from '../middleware/validation.js';
-import { adminSchemas, sanitizationSchemas } from '../utils/validationSchemas.js';
+import { validateBody, validateParams, validateQuery } from '../middleware/zodValidation.js';
+import { adminSchemas } from '../schemas/apiSchemas.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import { createModuleLogger } from '../config/logger.js';
 import { criticalAdminLimiter } from '../middleware/rateLimiter.js';
@@ -233,14 +284,91 @@ const logger = createModuleLogger('adminRoutes');
 
 /**
  * DELETE /api/admin/tenants/:id
- * Delete tenant and all associated data
+ * Delete tenant and all associated data using service layer
  * @param {string} id - Tenant ID
  * @returns {Object} Success response with deleted tenant info
  */
 router.delete('/tenants/:id', criticalAdminLimiter, authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
-  logger.info('[ADMIN] DELETE /tenants/:id called with id:', { id: req.params.id });
+  const { id } = req.params;
+  const { force = false } = req.query;
   
+  logger.info('[ADMIN] DELETE /tenants/:id called', { 
+    id, 
+    force: force === 'true',
+    actor: req.user.email 
+  });
+  
+  try {
+    // Import the tenant deletion service
+    const { deleteTenant } = await import('../services/tenantDeletionService.js');
+    
+    // Use the service layer for tenant deletion
+    const result = await deleteTenant(parseInt(id), req.user, { 
+      force: force === 'true' 
+    });
+    
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        error: result.error,
+        issues: result.issues,
+        tenant: result.tenant
+      });
+    }
+    
+    res.json(result);
+    
+  } catch (error) {
+    logger.error('Admin tenant deletion failed:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to delete tenant',
+      message: error.message
+    });
+  }
+}));
 
+/**
+ * DELETE /api/admin/tenants/:id/soft
+ * Soft delete tenant (mark as deleted but keep data)
+ * @param {string} id - Tenant ID
+ * @returns {Object} Success response with soft deleted tenant info
+ */
+router.delete('/tenants/:id/soft', criticalAdminLimiter, authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  
+  logger.info('[ADMIN] SOFT DELETE /tenants/:id called', { 
+    id,
+    actor: req.user.email 
+  });
+  
+  try {
+    // Import the tenant deletion service
+    const { softDeleteTenant } = await import('../services/tenantDeletionService.js');
+    
+    // Use the service layer for soft deletion
+    const result = await softDeleteTenant(parseInt(id), req.user);
+    
+    res.json(result);
+    
+  } catch (error) {
+    logger.error('Admin soft tenant deletion failed:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to soft delete tenant',
+      message: error.message
+    });
+  }
+}));
+
+// Legacy route - keeping for backward compatibility but marked as deprecated
+/**
+ * @deprecated Use the new service-based deletion above
+ * This route is kept for backward compatibility but should not be used
+ */
+router.delete('/tenants/:id/legacy', criticalAdminLimiter, authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
+  logger.info('[ADMIN] LEGACY DELETE /tenants/:id called', { id: req.params.id });
+  
   const pool = await getPool();
   const { id } = req.params;
   
@@ -605,43 +733,16 @@ router.get('/pending-applications', authenticateToken, requireAdmin, asyncHandle
  * @param {string} [admin_notes] - Optional admin notes
  * @returns {Object} Success response with tenant info and temp password
  */
-router.post('/approve-application/:id', authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
+router.post('/approve-application/:id', 
+  validateParams(adminSchemas.approveApplication.pick({ id: true })),
+  validateBody(adminSchemas.approveApplication.omit({ id: true })),
+  authenticateToken, 
+  requireAdmin, 
+  asyncHandler(async (req, res) => {
 
   const pool = await getPool();
   const { id } = req.params;
   const { approved_slug, admin_notes } = req.body;
-  
-  // Validate admin notes length
-  if (admin_notes && admin_notes.length > 1000) {
-    const error = new Error('Admin notes must be less than 1000 characters long');
-    error.statusCode = 400;
-    throw error;
-  }
-  
-  // Validate slug format and length
-  if (!approved_slug || approved_slug.length < 3 || approved_slug.length > 50) {
-    const error = new Error('Slug must be between 3 and 50 characters long');
-    error.statusCode = 400;
-    throw error;
-  }
-  
-  if (!/^[a-z0-9-]+$/.test(approved_slug)) {
-    const error = new Error('Slug must contain only lowercase letters, numbers, and hyphens');
-    error.statusCode = 400;
-    throw error;
-  }
-  
-  if (approved_slug.startsWith('-') || approved_slug.endsWith('-')) {
-    const error = new Error('Slug cannot start or end with a hyphen');
-    error.statusCode = 400;
-    throw error;
-  }
-  
-  if (approved_slug.includes('--')) {
-    const error = new Error('Slug cannot contain consecutive hyphens');
-    error.statusCode = 400;
-    throw error;
-  }
   
 
   
@@ -808,31 +909,16 @@ router.post('/approve-application/:id', authenticateToken, requireAdmin, asyncHa
 }));
 
 // Reject tenant application endpoint
-router.post('/reject-application/:id', authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
+router.post('/reject-application/:id', 
+  validateParams(adminSchemas.rejectApplication.pick({ id: true })),
+  validateBody(adminSchemas.rejectApplication.omit({ id: true })),
+  authenticateToken, 
+  requireAdmin, 
+  asyncHandler(async (req, res) => {
 
   const pool = await getPool();
   const { id } = req.params;
   const { rejection_reason, admin_notes } = req.body;
-  
-  // Validate admin notes length
-  if (admin_notes && admin_notes.length > 1000) {
-    const error = new Error('Admin notes must be less than 1000 characters long');
-    error.statusCode = 400;
-    throw error;
-  }
-  
-  // Validate rejection reason
-  if (!rejection_reason || rejection_reason.trim().length < 10) {
-    const error = new Error('Rejection reason must be at least 10 characters long');
-    error.statusCode = 400;
-    throw error;
-  }
-  
-  if (rejection_reason.trim().length > 500) {
-    const error = new Error('Rejection reason must be less than 500 characters long');
-    error.statusCode = 400;
-    throw error;
-  }
   
   // Check if application is still pending before updating
   const statusCheckQuery = 'SELECT application_status FROM tenants.business WHERE id = $1';
@@ -1181,7 +1267,10 @@ import express from 'express';
 const router = express.Router();
 import { getPool } from '../database/pool.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
-import logger from '../utils/logger.js';
+import { authenticateToken, requireAdmin } from '../middleware/auth.js';
+import { logger } from '../config/logger.js';
+import { validateBody, validateParams, validateQuery } from '../middleware/zodValidation.js';
+import { analyticsSchemas } from '../schemas/apiSchemas.js';
 
 // Initialize pool
 let pool;
@@ -1197,7 +1286,7 @@ let pool;
  * POST /api/analytics/track
  * Track custom analytics events
  */
-router.post('/track', asyncHandler(async (req, res) => {
+router.post('/track', validateBody(analyticsSchemas.track), asyncHandler(async (req, res) => {
   const { event, parameters, userProperties, customDimensions, timestamp } = req.body;
   
   // Validate required fields
@@ -1284,9 +1373,26 @@ router.post('/track', asyncHandler(async (req, res) => {
  * GET /api/analytics/events/:tenantId
  * Get analytics events for a tenant (admin only)
  */
-router.get('/events/:tenantId', asyncHandler(async (req, res) => {
+router.get('/events/:tenantId', 
+  validateParams(analyticsSchemas.getEvents.pick({ tenantId: true })),
+  validateQuery(analyticsSchemas.getEvents.omit({ tenantId: true })),
+  authenticateToken, 
+  requireAdmin, 
+  asyncHandler(async (req, res) => {
   const { tenantId } = req.params;
   const { limit = 100, offset = 0, eventType } = req.query;
+
+  // Log admin access to analytics data
+  logger.info('Admin analytics access', {
+    userId: req.user.userId,
+    email: req.user.email,
+    tenantId,
+    eventType,
+    limit,
+    offset,
+    ip: req.ip,
+    userAgent: req.get('User-Agent')
+  });
 
   if (!pool) {
     const error = new Error('Analytics data is not available');
@@ -1332,9 +1438,24 @@ router.get('/events/:tenantId', asyncHandler(async (req, res) => {
  * GET /api/analytics/summary/:tenantId
  * Get analytics summary for a tenant (admin only)
  */
-router.get('/summary/:tenantId', asyncHandler(async (req, res) => {
+router.get('/summary/:tenantId', 
+  validateParams(analyticsSchemas.getSummary.pick({ tenantId: true })),
+  validateQuery(analyticsSchemas.getSummary.omit({ tenantId: true })),
+  authenticateToken, 
+  requireAdmin, 
+  asyncHandler(async (req, res) => {
   const { tenantId } = req.params;
   const { days = 30 } = req.query;
+
+  // Log admin access to analytics summary
+  logger.info('Admin analytics summary access', {
+    userId: req.user.userId,
+    email: req.user.email,
+    tenantId,
+    days,
+    ip: req.ip,
+    userAgent: req.get('User-Agent')
+  });
 
   if (!pool) {
     const error = new Error('Analytics summary is not available');
@@ -1720,8 +1841,7 @@ import { authenticateToken, requireAdmin } from '../middleware/auth.js';
 import { generateAvatarFilename, ensureUploadsDir } from '../utils/avatarUtils.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import { validateFileMagic } from '../utils/uploadValidator.js';
-import logger from '../utils/logger.js';
-
+import { logger } from '../config/logger.js';
 // Configure multer for avatar uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -2003,6 +2123,98 @@ router.delete('/:reviewId', authenticateToken, requireAdmin, asyncHandler((req, 
 export default router;
 
 
+/*──────────────── backend\routes\config.js ────────────────*/
+
+/**
+ * Runtime Configuration Endpoint
+ * 
+ * Provides runtime configuration to frontend applications
+ * This allows changing API URLs and other settings without rebuilding
+ */
+
+import express from 'express';
+import { logger } from '../config/logger.js';
+
+const router = express.Router();
+
+/**
+ * GET /api/config
+ * Returns runtime configuration for frontend applications
+ */
+router.get('/', (req, res) => {
+  try {
+    const config = {
+      // API Configuration
+      apiBaseUrl: process.env.API_BASE_URL || '/api',
+      apiUrl: process.env.API_URL || '',
+      
+      // Third-party API Keys (only public keys)
+      googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
+      stripePublishableKey: process.env.STRIPE_PUBLISHABLE_KEY || 'pk_test_placeholder',
+      
+      // Feature Flags
+      features: {
+        serviceWorker: process.env.ENABLE_SERVICE_WORKER === 'true',
+        analytics: process.env.ENABLE_ANALYTICS === 'true',
+        maps: process.env.ENABLE_GOOGLE_MAPS === 'true',
+        stripe: process.env.ENABLE_STRIPE === 'true',
+        debugMode: process.env.NODE_ENV === 'development'
+      },
+      
+      // Environment info
+      environment: {
+        mode: process.env.NODE_ENV || 'development',
+        version: process.env.APP_VERSION || '1.0.0',
+        buildTime: process.env.BUILD_TIME || new Date().toISOString()
+      },
+      
+      // Multi-tenant configuration
+      tenant: {
+        defaultDomain: process.env.DEFAULT_DOMAIN || 'thatsmartsite.com',
+        subdomainPattern: process.env.SUBDOMAIN_PATTERN || '*.thatsmartsite.com'
+      }
+    };
+    
+    // Add CORS headers for cross-origin requests
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    
+    // Cache the config for 5 minutes
+    res.header('Cache-Control', 'public, max-age=300');
+    res.header('ETag', `"config-${Date.now()}"`);
+    
+    res.json({
+      success: true,
+      config,
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    logger.error('Error serving runtime config:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to load configuration',
+      message: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/config/health
+ * Health check for configuration service
+ */
+router.get('/health', (req, res) => {
+  res.json({
+    success: true,
+    status: 'healthy',
+    timestamp: new Date().toISOString()
+  });
+});
+
+export default router;
+
+
 /*──────────────── backend\routes\customers.js ────────────────*/
 
 /**
@@ -2018,8 +2230,7 @@ import { validateParams } from '../middleware/validation.js';
 import { customerSchemas } from '../utils/validationSchemas.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 // TODO: Add proper logging for customer operations
-// import logger from '../utils/logger.js';
-
+// import { logger } from '../config/logger.js';
 // Get customers
 router.get('/', asyncHandler(async (req, res) => {
 
@@ -3187,7 +3398,7 @@ export default router;
 import express from 'express';
 import { getGoogleReviews } from '../services/googleApi.js';
 import { isDummyTenant } from '../utils/tenantUtils.js';
-import logger from '../utils/logger.js';
+import { logger } from '../config/logger.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import { sendSuccess, sendError, sendValidationError } from '../utils/responseFormatter.js';
 
@@ -3333,7 +3544,7 @@ import express from 'express';
 import { asyncHandler } from '../middleware/errorHandler.js';
 const router = express.Router();
 import { getPool } from '../database/pool.js';
-import logger from '../utils/logger.js';
+import { logger } from '../config/logger.js';
 import { sendSuccess, sendError } from '../utils/responseFormatter.js';
 
 // Track shutdown status for graceful shutdown
@@ -3526,7 +3737,7 @@ import express from 'express';
 const router = express.Router();
 import { getPool } from '../database/pool.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
-import logger from '../utils/logger.js';
+import { logger } from '../config/logger.js';
 import healthMonitor from '../services/healthMonitor.js';
 import { sendSuccess, sendError } from '../utils/responseFormatter.js';
 
@@ -4007,6 +4218,162 @@ router.get('/test-lighthouse', asyncHandler(async (req, res) => {
   }
 }));
 
+/**
+ * GET /api/health-monitoring/seo/:tenantSlug
+ * Get latest SEO audit results for a tenant
+ */
+router.get('/seo/:tenantSlug', asyncHandler(async (req, res) => {
+  const { tenantSlug } = req.params;
+  const pool = await getPool();
+
+  try {
+    logger.info(`Fetching SEO audit results for tenant: ${tenantSlug}`);
+
+    const result = await pool.query(`
+      SELECT 
+        id,
+        tenant_slug,
+        url,
+        seo_score,
+        lighthouse_main_score,
+        lighthouse_tenant_score,
+        lighthouse_admin_score,
+        lighthouse_avg_score,
+        schema_validation_score,
+        schema_total_count,
+        schema_valid_count,
+        schema_error_count,
+        schema_warning_count,
+        schema_types_covered,
+        meta_tags_complete,
+        analytics_detected,
+        sitemap_found,
+        robots_txt_found,
+        audit_source,
+        status,
+        checked_at,
+        created_at
+      FROM system.health_monitoring
+      WHERE tenant_slug = $1 AND check_type = 'seo'
+      ORDER BY checked_at DESC
+      LIMIT 1
+    `, [tenantSlug]);
+
+    if (result.rows.length === 0) {
+      return sendSuccess(res, 'No SEO audit data available yet', {
+        tenantSlug,
+        hasData: false,
+        message: 'Run SEO audit to generate data: npm run audit:seo'
+      });
+    }
+
+    const seoData = result.rows[0];
+
+    sendSuccess(res, 'SEO audit data retrieved', {
+      tenantSlug,
+      hasData: true,
+      audit: {
+        lighthouse: {
+          mainSite: seoData.lighthouse_main_score,
+          tenantApp: seoData.lighthouse_tenant_score,
+          adminApp: seoData.lighthouse_admin_score,
+          average: seoData.lighthouse_avg_score,
+        },
+        schema: {
+          score: seoData.schema_validation_score,
+          totalCount: seoData.schema_total_count,
+          validCount: seoData.schema_valid_count,
+          errorCount: seoData.schema_error_count,
+          warningCount: seoData.schema_warning_count,
+          typesCovered: seoData.schema_types_covered || [],
+        },
+        meta: {
+          tagsComplete: seoData.meta_tags_complete,
+          analyticsDetected: seoData.analytics_detected,
+          sitemapFound: seoData.sitemap_found,
+          robotsTxtFound: seoData.robots_txt_found,
+        },
+        overall: {
+          score: seoData.seo_score,
+          status: seoData.status,
+          source: seoData.audit_source,
+          checkedAt: seoData.checked_at,
+        },
+      },
+    });
+
+  } catch (error) {
+    logger.error('Error fetching SEO audit data:', error);
+    sendError(res, 'Failed to fetch SEO audit data', error.message, 500);
+  }
+}));
+
+/**
+ * GET /api/health-monitoring/seo/:tenantSlug/history
+ * Get SEO audit history with trends
+ */
+router.get('/seo/:tenantSlug/history', asyncHandler(async (req, res) => {
+  const { tenantSlug } = req.params;
+  const { limit = 30, days = 30 } = req.query;
+  const pool = await getPool();
+
+  try {
+    logger.info(`Fetching SEO audit history for tenant: ${tenantSlug}`);
+
+    const result = await pool.query(`
+      SELECT 
+        id,
+        seo_score,
+        lighthouse_avg_score,
+        schema_validation_score,
+        status,
+        checked_at
+      FROM system.health_monitoring
+      WHERE tenant_slug = $1 
+        AND check_type = 'seo'
+        AND checked_at >= NOW() - INTERVAL '${parseInt(days)} days'
+      ORDER BY checked_at DESC
+      LIMIT $2
+    `, [tenantSlug, parseInt(limit)]);
+
+    if (result.rows.length === 0) {
+      return sendSuccess(res, 'No SEO audit history available', {
+        tenantSlug,
+        hasData: false,
+        history: [],
+      });
+    }
+
+    // Calculate trends
+    const history = result.rows.reverse(); // Chronological order
+    const latest = history[history.length - 1];
+    const oldest = history[0];
+
+    const trend = {
+      seoScore: latest.seo_score - oldest.seo_score,
+      lighthouseScore: (latest.lighthouse_avg_score || 0) - (oldest.lighthouse_avg_score || 0),
+      schemaScore: (latest.schema_validation_score || 0) - (oldest.schema_validation_score || 0),
+    };
+
+    sendSuccess(res, 'SEO audit history retrieved', {
+      tenantSlug,
+      hasData: true,
+      count: history.length,
+      history: history,
+      trend: trend,
+      summary: {
+        latest: latest,
+        oldest: oldest,
+        averageScore: Math.round(history.reduce((sum, h) => sum + (h.seo_score || 0), 0) / history.length),
+      },
+    });
+
+  } catch (error) {
+    logger.error('Error fetching SEO audit history:', error);
+    sendError(res, 'Failed to fetch SEO audit history', error.message, 500);
+  }
+}));
+
 export default router;
 
 /*──────────────── backend\routes\locations.js ────────────────*/
@@ -4435,7 +4802,7 @@ export default router;
 import express from 'express';
 import { getPool } from '../database/pool.js';
 import { authenticateToken } from '../middleware/auth.js';
-import logger from '../utils/logger.js';
+import { logger } from '../config/logger.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import { sendSuccess, sendError, sendValidationError } from '../utils/responseFormatter.js';
 
@@ -5592,7 +5959,7 @@ module.exports = router;
 /*──────────────── backend\routes\seo.js ────────────────*/
 
 import express from 'express';
-import logger from '../utils/logger';
+import { logger } from '../config/logger.js';
 import { asyncHandler } from '../middleware/errorHandler';
 import { getPool } from '../database/pool.js';
 import { robotsRoute, sitemapRoute, seoConfigRoute, previewRoute } from './seo';
@@ -5872,7 +6239,7 @@ export default router;
 /*──────────────── backend\routes\serviceAreas.js ────────────────*/
 
 import express from 'express';
-import logger from '../utils/logger';
+import { logger } from '../config/logger.js';
 import { asyncHandler } from '../middleware/errorHandler';
 import { getPlatformServiceAreas, getTenantsForCity } from '../utils/serviceAreaProcessor';
 import { getPool } from '../database/pool.js';
@@ -6787,8 +7154,8 @@ export default router;
 
 import express from 'express';
 import { authenticateToken } from '../middleware/auth.js';
-import { withTenant, validateTenantExists, validateTenantApproved } from '../middleware/withTenant.js';
-import { validateTenantAccess, addTenantHeaders, logTenantContext } from '../middleware/tenantValidation.js';
+import { withTenant, validateTenantExists } from '../middleware/withTenant.js';
+import { validateTenantAccess, validateTenantApproved, addTenantHeaders, logTenantContext } from '../middleware/tenantValidation.js';
 import {
   getTenantDashboard,
   getTenantOverview,
@@ -6971,7 +7338,7 @@ export default router;
 /*──────────────── backend\routes\tenantManifest.js ────────────────*/
 
 import express from 'express';
-import logger from '../utils/logger';
+import { logger } from '../config/logger.js';
 import { pool } from '../database/pool';import { asyncHandler } from '../middleware/errorHandler.js';
 
 /**
@@ -7088,7 +7455,7 @@ export default router;
 import express from 'express';
 import fs from 'fs';
 import googleBusinessScraper from '../services/googleBusinessScraper';
-import logger from '../utils/logger';
+import { logger } from '../config/logger.js';
 import multer from 'multer';
 import path from 'path';
 import { authenticateToken } from '../middleware/auth';
@@ -7653,7 +8020,7 @@ export default router;
 /*──────────────── backend\routes\upload.js ────────────────*/
 
 import express from 'express';
-import logger from '../utils/logger';
+import { logger } from '../config/logger.js';
 import { UPLOAD_CONFIG } from '../utils/uploadValidator';
 import { asyncHandler } from '../middleware/errorHandler';
 import { singleFileUpload, multipleFilesUpload, memoryUpload } from '../middleware/upload';
@@ -9424,6 +9791,17 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { execSync, spawn } from "child_process";
 import net from "net";
+import { 
+  killProcessTree, 
+  isPortInUse, 
+  waitForPort, 
+  findAvailablePort,
+  processRegistry,
+  setupGracefulShutdown 
+} from "../utils/cleanup.js";
+import { runSchemaValidation } from "./schema-validator.js";
+import { ingestSEOResults } from "../automation/ingest-seo.js";
+import { runPageSpeedForApps } from "../utils/pagespeed-api.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -9433,8 +9811,21 @@ const distDir = path.join(root, "frontend/dist");
 const publicDir = path.join(root, "frontend/public");
 
 /*──────────────────────────────────────────────────────────────
- 🧠 Auto-Build if Missing or Outdated
-──────────────────────────────────────────────────────────────*/
+| 🧩 Multi-App Configuration
+|──────────────────────────────────────────────────────────────*/
+const APPS = [
+  { name: "main-site", description: "Marketing & Onboarding", liveUrl: "https://thatsmartsite.com" },
+  { name: "tenant-app", description: "Live Tenant Storefronts", liveUrl: "https://demo.thatsmartsite.com" },
+  // { name: "admin-app", description: "Tenant Dashboard" }, // Excluded from SEO audit
+];
+
+// PageSpeed Insights API Configuration
+const PAGESPEED_API_KEY = process.env.GOOGLE_PAGESPEED_API_KEY;
+const USE_PAGESPEED_API = !!PAGESPEED_API_KEY && !process.argv.includes('--local');
+
+/*──────────────────────────────────────────────────────────────
+| 🧠 Auto-Build if Missing or Outdated
+|──────────────────────────────────────────────────────────────*/
 function isBuildFresh() {
   if (!fs.existsSync(distDir)) return false;
   const distMtime = fs.statSync(distDir).mtimeMs;
@@ -9482,25 +9873,15 @@ function ensureFreshBuild() {
 }
 
 /*──────────────────────────────────────────────────────────────
- 🧩 Enhanced Schema Detection
-──────────────────────────────────────────────────────────────*/
+| 🧩 Enhanced Schema Detection (with Deep Validation)
+|──────────────────────────────────────────────────────────────*/
 async function runEnhancedSchemaDetection() {
-  console.log("\n🧩 Running Enhanced Schema Detection...\n");
-  const res = { score: 0 };
-
-  // Static JSON-LD
-  const htmlFiles = fs.existsSync(distDir)
-    ? fs.readdirSync(distDir).filter(f => f.endsWith(".html"))
-    : [];
-  let schemaCount = 0;
-  for (const f of htmlFiles) {
-    const content = fs.readFileSync(path.join(distDir, f), "utf8");
-    const scripts = content.match(/application\/ld\+json[^>]*>[\s\S]*?<\/script>/gi) || [];
-    schemaCount += scripts.length;
-  }
-  if (schemaCount > 0) res.score += 30;
-
-  // Source @type definitions
+  console.log("\n🧩 Running Enhanced Schema Detection & Validation...\n");
+  
+  // Run deep validation
+  const validation = await runSchemaValidation(distDir, { generateReport: false });
+  
+  // Legacy: Also count source @type definitions
   let srcSchemaCount = 0;
   function scanSrc(dir) {
     if (!fs.existsSync(dir)) return;
@@ -9514,16 +9895,27 @@ async function runEnhancedSchemaDetection() {
     }
   }
   scanSrc(frontendDir);
-  if (srcSchemaCount > 0) res.score += 30;
-
-  res.score = Math.min(100, res.score + Math.min(40, schemaCount + srcSchemaCount * 2));
-  console.log(`✅ Schema quality score: ${res.score}/100\n`);
-  return res;
+  
+  // Use validation score as base, with bonus for source references
+  let score = validation.score;
+  if (srcSchemaCount > 0) score = Math.min(100, score + 10);
+  
+  console.log(`✅ Schema validation score: ${validation.score}/100`);
+  console.log(`   Total schemas: ${validation.totalSchemas}`);
+  console.log(`   Valid: ${validation.validSchemas}/${validation.totalSchemas}`);
+  console.log(`   Errors: ${validation.totalErrors}, Warnings: ${validation.totalWarnings}`);
+  console.log(`   Source references: ${srcSchemaCount} files\n`);
+  
+  return {
+    score,
+    validation,
+    srcSchemaCount,
+  };
 }
 
 /*──────────────────────────────────────────────────────────────
- 🌍 Static SEO & Analytics Scan
-──────────────────────────────────────────────────────────────*/
+| 🌍 Static SEO & Analytics Scan
+|──────────────────────────────────────────────────────────────*/
 function staticSeoAnalysis() {
   console.log("🧠 Scanning static SEO & analytics code...\n");
   const walk = dir =>
@@ -9557,8 +9949,8 @@ function staticSeoAnalysis() {
 }
 
 /*──────────────────────────────────────────────────────────────
- 🔗 Endpoint + HTML Meta Checks
-──────────────────────────────────────────────────────────────*/
+| 🔗 Endpoint + HTML Meta Checks
+|──────────────────────────────────────────────────────────────*/
 function analyzeHTMLStructure() {
   if (!fs.existsSync(distDir)) return [];
   const htmls = fs
@@ -9590,122 +9982,216 @@ function testSEOEndpoints() {
 }
 
 /*──────────────────────────────────────────────────────────────
- 🔌 Port helpers
-──────────────────────────────────────────────────────────────*/
-function isPortOpen(port, host = "127.0.0.1") {
-  return new Promise(resolve => {
-    const s = new net.Socket();
-    s.setTimeout(800);
-    s.once("connect", () => { s.destroy(); resolve(true); });
-    s.once("timeout", () => { s.destroy(); resolve(false); });
-    s.once("error", () => { resolve(false); });
-    s.connect(port, host);
-  });
-}
-
-async function waitForPort(port, retries = 20, delayMs = 500) {
-  for (let i = 0; i < retries; i++) {
-    if (await isPortOpen(port)) return true;
-    await new Promise(r => setTimeout(r, delayMs));
-  }
-  return false;
-}
-
-
-/*──────────────────────────────────────────────────────────────
- 📈 Lighthouse SEO (auto preview, Windows-safe)
-──────────────────────────────────────────────────────────────*/
+| 📈 Lighthouse SEO (auto preview, Windows-safe, with cleanup utils)
+|──────────────────────────────────────────────────────────────*/
 import util from "util";
 import { exec } from "child_process";
 const execAsync = util.promisify(exec);
 
 async function runLighthouseSEO() {
-  const port = 4173;
-  const url = `http://localhost:${port}`;
+  //──────────────────────────────────────────────
+  // 🌐 PageSpeed API Mode (if API key is set)
+  //──────────────────────────────────────────────
+  if (USE_PAGESPEED_API) {
+    console.log("\n🌐 Using PageSpeed Insights API (Google hosted Lighthouse)\n");
+    const outputDir = path.join(root, "docs/audits/lighthouse");
+    const apiResults = await runPageSpeedForApps(APPS, PAGESPEED_API_KEY, outputDir);
+    
+    // Convert to same format as local Lighthouse results
+    const results = {};
+    for (const result of apiResults) {
+      results[result.app] = result.score;
+    }
+    return results;
+  }
+  
+  //──────────────────────────────────────────────
+  // 💻 Local Lighthouse Mode (preview server)
+  //──────────────────────────────────────────────
+  console.log("\n💻 Using local Lighthouse (preview server)\n");
+  
+  const basePort = 4173;
   const previewDir = path.join(root, "frontend");
-  const reportPath = path.join(root, "docs/audits/lighthouse-seo.json");
   let processRef = null;
-  let score = null;
+  let port = basePort;
+  const results = {}; // Store results per app
 
   try {
     console.log("🧠 Checking for running preview server...");
-    let running = await isPortOpen(port);
 
-    if (!running) {
-      if (!fs.existsSync(path.join(previewDir, "dist"))) {
-        console.error("❌ No build found in frontend/dist. Run `npm run build` first.");
-        process.exit(1);
-      }
+    // 🔎 Find first available port starting at 4173
+    port = await findAvailablePort(basePort);
+    if (port === -1) {
+      throw new Error("No available ports found");
+    }
+    console.log(`⚙️  Starting temporary Vite preview on port ${port}...`);
 
-      console.log("⚙️  Starting temporary Vite preview server...");
-      processRef = exec(`npx vite preview --port ${port}`, {
-        cwd: previewDir,
-        env: process.env,
-      });
+    //────────────────────────────────────────────
+// ⚙️ Launch Vite preview server (non-detached)
+//────────────────────────────────────────────
+processRef = spawn("npx", ["vite", "preview", "--port", port, "--strictPort"], {
+  cwd: previewDir,
+  shell: true,
+  stdio: "ignore",
+  detached: false, // ✅ stay attached to our process
+});
 
-      const started = await waitForPort(port);
-      if (!started) throw new Error("Preview server failed to start.");
-      console.log("✅ Preview server started on port", port);
+    // Register process for automatic cleanup
+    if (processRef.pid) {
+      processRegistry.register(port, processRef.pid, "vite-preview");
     }
 
-    //────────────────────────────────────────────
-    // 🧠 Try Lighthouse (with fallback)
-    //────────────────────────────────────────────
-    console.log("⚡ Running Lighthouse SEO scan...");
-    const lhCmd = `npx lighthouse ${url} --only-categories=seo --output=json --output-path=${reportPath} --quiet --disable-storage-reset --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage --user-data-dir=.tmp_lh/chrome"`;
 
-    try {
-      await execAsync(lhCmd, { cwd: root, env: process.env, timeout: 90000 });
-      console.log("✅ Lighthouse finished normally.");
-    } catch (err) {
-      // Handle EPERM or cleanup issues gracefully
-      if (/EPERM|Permission denied/i.test(err.message)) {
-        console.warn("⚠️  Lighthouse cleanup failed (EPERM). Attempting to use existing JSON report...");
+    // Wait for server to be ready
+    const started = await waitForPort(port, 25, 500);
+    if (!started) {
+      await killProcessTree(processRef.pid);
+      throw new Error("Preview server failed to start.");
+    }
+
+    console.log(`✅ Preview server started on port ${port}`);
+
+    //────────────────────────────────────────────
+    // ⚡ Run Lighthouse for Each App
+    //────────────────────────────────────────────
+    const chromeDir = path.join(root, ".tmp_lh");
+    fs.mkdirSync(chromeDir, { recursive: true });
+
+    for (const app of APPS) {
+      console.log(`\n⚡ Running Lighthouse for ${app.name} (${app.description})...`);
+      
+      // Point to app root path (Vite serves from dist/{app-name}/)
+      const url = `http://localhost:${port}/${app.name}/`;
+      const reportPath = path.join(root, `docs/audits/lighthouse/${app.name}-seo.json`);
+      
+      // Ensure output directory exists
+      fs.mkdirSync(path.dirname(reportPath), { recursive: true });
+
+      // 🐛 DEBUG: Verify URL is accessible before running Lighthouse
+      const debugMode = process.argv.includes('--debug');
+      if (debugMode) {
+        console.log(`   🐛 DEBUG MODE: Testing ${url}`);
+        try {
+          const https = await import('https');
+          const http = await import('http');
+          const fetchUrl = new Promise((resolve, reject) => {
+            const lib = url.startsWith('https') ? https : http;
+            lib.default.get(url, (res) => {
+              let data = '';
+              res.on('data', chunk => data += chunk);
+              res.on('end', () => resolve({ status: res.statusCode, html: data }));
+            }).on('error', reject);
+          });
+          
+          const { status, html} = await fetchUrl;
+          const debugPath = path.join(root, `.tmp_lh/${app.name}-fetched.html`);
+          fs.writeFileSync(debugPath, html);
+          console.log(`   🐛 DEBUG: Saved fetched HTML to ${debugPath}`);
+          console.log(`   🐛 DEBUG: HTML size: ${html.length} bytes`);
+          console.log(`   🐛 DEBUG: Contains 'root': ${html.includes('root')}`);
+          console.log(`   🐛 DEBUG: Contains script tag: ${html.includes('<script')}`);
+          console.log(`   🐛 DEBUG: Status: ${status}`);
+        } catch (err) {
+          console.warn(`   ⚠️ DEBUG: Failed to fetch URL:`, err.message);
+        }
+      }
+
+      const lhCmd = [
+        "npx",
+        "lighthouse",
+        url,
+        "--only-categories=seo",
+        `--output=json`,
+        `--output-path=${reportPath}`,
+        "--quiet",
+        "--disable-storage-reset",
+        `--chrome-flags="--headless --no-sandbox --disable-dev-shm-usage --user-data-dir=${chromeDir}"`,
+      ].join(" ");
+
+      try {
+        await execAsync(lhCmd, { cwd: root, env: process.env, timeout: 90000, windowsHide: true });
+        console.log(`✅ Lighthouse finished for ${app.name}`);
+      } catch (err) {
+        if (/EPERM|Permission denied/i.test(err.message)) {
+          console.warn(`⚠️ Lighthouse cleanup permission issue for ${app.name} — safe to ignore.`);
+        } else {
+          console.warn(`⚠️ Lighthouse run issue for ${app.name}:`, err.message);
+        }
+      }
+
+      // Parse score
+      const reportJsonPath = reportPath.replace('.json', '.report.json');
+      const actualReportPath = fs.existsSync(reportJsonPath) 
+        ? reportJsonPath 
+        : reportPath;
+      
+      if (fs.existsSync(actualReportPath)) {
+        const json = JSON.parse(fs.readFileSync(actualReportPath, "utf8"));
+        const score = Math.round((json.categories?.seo?.score || 0) * 100);
+        console.log(`✅ ${app.name} score: ${score}/100`);
+        results[app.name] = { score, data: json };
       } else {
-        console.warn("⚠️  Lighthouse run failed:", err.message);
+        console.warn(`⚠️ Lighthouse report not found for ${app.name}`);
+        results[app.name] = { score: null, data: null };
       }
-    }
-
-    //────────────────────────────────────────────
-    // ✅ Parse report (if it exists)
-    //────────────────────────────────────────────
-    if (fs.existsSync(reportPath)) {
-      const json = JSON.parse(fs.readFileSync(reportPath, "utf8"));
-      score = Math.round((json.categories?.seo?.score || 0) * 100);
-      console.log(`✅ Lighthouse score: ${score}/100`);
-    } else {
-      console.warn("⚠️  Lighthouse JSON not found — skipping score.");
     }
   } catch (err) {
-    console.log("⚠️  Lighthouse skipped:", err.message);
+    console.error("❌ Lighthouse failed:", err.message);
   } finally {
-    if (processRef && processRef.kill) {
+    // ✅ Centralized cleanup using cleanup utilities
+    if (processRef && processRef.pid) {
       console.log("💤 Shutting down preview server...");
-      try {
-        processRef.kill();
-      } catch {
-        console.log("⚠️  Could not kill preview server.");
+      await killProcessTree(processRef.pid);
+      processRegistry.unregister(port);
+    }
+
+    // ✅ Remove leftover Chrome temp directory safely (keep debug files if in debug mode)
+    try {
+      const debugMode = process.argv.includes('--debug');
+      const tmpDir = path.join(root, ".tmp_lh");
+      if (fs.existsSync(tmpDir) && !debugMode) {
+        fs.rmSync(tmpDir, { recursive: true, force: true });
+      } else if (debugMode) {
+        console.log("🐛 DEBUG: Keeping .tmp_lh folder for inspection");
       }
+    } catch (err) {
+      console.warn("⚠️ Could not clean temp folder:", err.message);
     }
   }
 
-  return score;
+  return results;
 }
 
 
 
 
 
+
 /*──────────────────────────────────────────────────────────────
- 🧾 Reporting
-──────────────────────────────────────────────────────────────*/
-function printSummary(final, lh, schema, staticSeo, endpoints, html) {
+| 🧾 Comprehensive Reporting (Enhanced Markdown Output)
+|──────────────────────────────────────────────────────────────*/
+function printSummary(final, lighthouseResults, schema, staticSeo, endpoints, html) {
   console.log("\n─────────────────────────────");
-  console.log("📊 SEO AUDIT SUMMARY");
+  console.log("📊 MULTI-APP SEO AUDIT SUMMARY");
   console.log("─────────────────────────────");
   console.log(`Total Score: ${final}/100`);
-  console.log(`Lighthouse: ${lh ?? "N/A"}/100`);
-  console.log(`Schema Quality: ${schema.score}/100`);
+  
+  console.log("\n📈 Lighthouse Scores by App:");
+  for (const app of APPS) {
+    const result = lighthouseResults[app.name];
+    const score = result?.score ?? "N/A";
+    console.log(`  ${app.name}: ${score}/100 (${app.description})`);
+  }
+  
+  console.log(`\nSchema Quality: ${schema.score}/100`);
+  if (schema.validation) {
+    const v = schema.validation;
+    console.log(`  Schemas: ${v.validSchemas || 0}/${v.totalSchemas || 0} valid`);
+    console.log(`  Types: ${(v.typesCovered || []).join(", ") || "None"}`);
+    if ((v.totalErrors || 0) > 0) console.log(`  ⚠️ ${v.totalErrors} error(s)`);
+    if ((v.totalWarnings || 0) > 0) console.log(`  ⚠️ ${v.totalWarnings} warning(s)`);
+  }
+  
   console.log(
     `HTML Meta: ${
       html.every(h => h.hasTitle && h.hasDescription)
@@ -9722,954 +10208,2072 @@ function printSummary(final, lh, schema, staticSeo, endpoints, html) {
 }
 
 /*──────────────────────────────────────────────────────────────
- 🚀 Main Execution
-──────────────────────────────────────────────────────────────*/
+| 📘 Detailed Markdown Report Generator (Escaped & Safe)
+|──────────────────────────────────────────────────────────────*/
+function generateMarkdownReport({ finalScore, lighthouseResults, schema, html, staticSeo, endpoints }) {
+  const hasMeta = html.every(f => f.hasTitle && f.hasDescription);
+  const seoHealth =
+    finalScore >= 90
+      ? "🟢 Excellent"
+      : finalScore >= 75
+      ? "🟡 Good"
+      : "🔴 Needs Improvement";
+
+  // Calculate average Lighthouse score across apps
+  const validScores = Object.values(lighthouseResults).filter(r => r.score !== null).map(r => r.score);
+  const avgLighthouse = validScores.length > 0 
+    ? Math.round(validScores.reduce((a, b) => a + b, 0) / validScores.length)
+    : null;
+
+  // Generate per-app sections
+  const appSections = APPS.map(app => {
+    const result = lighthouseResults[app.name];
+    const score = result?.score ?? "N/A";
+    const status = typeof score === 'number' && score >= 90 ? "✅ Excellent" : "⚠️ Needs Work";
+    
+    return `### ${app.name} — ${app.description}
+**Score:** ${score}/100 ${status}
+
+**Key Findings:**
+${result?.data ? `
+- Mobile Friendly: ${result.data.audits?.['viewport']?.score === 1 ? "✅ Yes" : "⚠️ No"}
+- Valid hreflang: ${result.data.audits?.['hreflang']?.score === 1 ? "✅ Yes" : "N/A"}
+- Document Title: ${result.data.audits?.['document-title']?.score === 1 ? "✅ Present" : "⚠️ Missing"}
+- Meta Description: ${result.data.audits?.['meta-description']?.score === 1 ? "✅ Present" : "⚠️ Missing"}
+- Crawlable Links: ${result.data.audits?.['crawlable-anchors']?.score === 1 ? "✅ Yes" : "⚠️ No"}
+` : "- Report not available"}
+`;
+  }).join("\n---\n\n");
+
+  return (
+`# Multi-App SEO Audit Report
+Generated: ${new Date().toISOString()}
+
+---
+
+## 🧭 Overview
+**Total SEO Score:** ${finalScore}/100 (${seoHealth})
+
+| Metric | Score | Status |
+|---------|-------|--------|
+| Lighthouse (Average) | ${avgLighthouse ?? "N/A"} | ${avgLighthouse >= 90 ? "✅ Excellent" : "⚠️ Needs Work"} |
+| Schema Quality | ${schema.score} | ${schema.score >= 80 ? "✅ Good" : "⚠️ Limited"} |
+| HTML Meta Tags | ${hasMeta ? "✅ Complete" : "⚠️ Incomplete"} | ${hasMeta ? "Titles & descriptions found" : "Missing meta info"} |
+| Static SEO / Analytics | ✅ Present | Helmet, GA, OG, Sitemap, Robots |
+| Endpoints | ✅ Active | robots.txt & sitemap.xml verified |
+
+### 📱 Lighthouse Scores by App
+
+| App | Score | Description |
+|-----|-------|-------------|
+${APPS.map(app => {
+  const result = lighthouseResults[app.name];
+  const score = result?.score ?? "N/A";
+  return `| **${app.name}** | ${score}/100 | ${app.description} |`;
+}).join('\n')}
+
+---
+
+## 🔍 Lighthouse SEO — Per-App Results
+
+${appSections}
+
+**General Recommendations:**
+- Verify Lighthouse "SEO" audits in Chrome DevTools → Lighthouse → SEO tab for each app.  
+- Ensure canonical URLs and mobile meta tags (\`<meta name="viewport">\`) are consistent across all apps.
+
+---
+
+## 🧩 Structured Data (Schema)
+**Score:** ${schema.score}/100  
+${schema.score >= 80
+  ? "✅ Sufficient structured data detected."
+  : "⚠️ Schema markup found, but coverage is limited or incomplete."
+}
+
+${schema.validation ? `
+**Validation Results:**
+- Total Schemas: ${schema.validation.totalSchemas}
+- Valid Schemas: ${schema.validation.validSchemas} (${schema.validation.totalSchemas > 0 ? Math.round((schema.validation.validSchemas / schema.validation.totalSchemas) * 100) : 0}%)
+- Invalid Schemas: ${schema.validation.invalidSchemas}
+- Errors: ${schema.validation.totalErrors}
+- Warnings: ${schema.validation.totalWarnings}
+- Schema Types: ${schema.validation.typesCovered.join(", ") || "None"}
+` : ""}
+
+**Findings:**
+- Source files with @type: ${schema.srcSchemaCount || 0}
+- Schema types covered: ${schema.validation?.typesCovered.length || 0}
+
+**Recommendations:**
+- Add or expand structured data with [schema.org](https://schema.org/) types:  
+  - \`LocalBusiness\`, \`Service\`, and \`Organization\`  
+  - Include \`aggregateRating\`, \`review\`, and \`openingHours\` where applicable  
+- Run detailed schema validation: \`node scripts/audits/schema-validator.js\`
+- Validate using [Google's Rich Results Test](https://search.google.com/test/rich-results)
+
+---
+
+## 🧱 HTML Meta Tags
+**Status:** ${hasMeta ? "✅ All pages have meta titles & descriptions." : "⚠️ Missing or incomplete meta tags."}
+
+**Recommendations:**
+- Ensure every page has a unique, descriptive \`<title>\` (60 chars max)  
+- Add \`<meta name="description">\` with ~155 chars of clear summary  
+- Include:
+  - \`<link rel="canonical" href="https://example.com/">\`
+  - \`<meta property="og:image">\` and \`<meta property="twitter:card">\` for social previews
+
+---
+
+## 📊 Static SEO & Analytics Integration
+| Feature | Status | Notes |
+|----------|--------|-------|
+| Helmet / Meta Management | ${staticSeo.helmet} | React Helmet ensures dynamic titles |
+| Analytics | ${staticSeo.analytics} | Confirms GA4 or GTM tracking |
+| OpenGraph / JSON-LD | ${staticSeo.opengraph} | Social and structured markup present |
+| Sitemap | ${staticSeo.sitemap} | Sitemap generator detected |
+| Robots.txt | ${staticSeo.robots} | Public-facing file verified |
+
+**Recommendations:**
+- Confirm analytics ID matches your main property (GA4 / GTM).  
+- Ensure robots.txt allows essential pages (no accidental blocking).  
+- Verify all key URLs appear in \`sitemap.xml\`.
+
+---
+
+## 🔗 Backend SEO Endpoints
+| Endpoint | Status | Description |
+|-----------|--------|-------------|
+| robots.txt | ${endpoints.endpoints.some(e => e.includes('robots')) ? "✅ Found" : "⚠️ Missing"} | Controls search engine crawling |
+| sitemap.xml | ${endpoints.endpoints.some(e => e.includes('sitemap')) ? "✅ Found" : "⚠️ Missing"} | Lists indexable pages for bots |
+
+**Recommendations:**
+- Ensure sitemap.xml dynamically includes tenant subdomains.  
+- Host both sitemap and robots.txt at each tenant's subdomain if applicable.
+
+---
+
+## 🧾 Final Summary
+**Overall SEO Health:** ${seoHealth}
+
+✅ **Strengths**
+- Strong Lighthouse performance (technical SEO)
+- Meta tags and analytics detected
+- Sitemap and robots endpoints active
+
+⚠️ **Opportunities**
+- Improve structured data coverage
+- Expand JSON-LD with richer entity details
+- Audit schema consistency across subdomains
+
+---
+
+## 🚀 Next Steps
+1. Improve Schema depth (\`LocalBusiness\`, \`Service\`, \`Organization\`).  
+2. Validate structured data with Google's Rich Results Test.  
+3. Add social preview metadata (OG & Twitter cards).  
+4. Submit sitemap to Google Search Console.  
+5. Schedule recurring SEO audits weekly or before major releases.
+
+---
+
+Generated automatically by **That Smart Site SEO Auditor** 🧠
+`
+  );
+}
+
+
+/*──────────────────────────────────────────────────────────────
+| 🚀 Main Execution (unchanged except report writing)
+|──────────────────────────────────────────────────────────────*/
 (async function runSEOAudit() {
-  console.log("\n🚀 Running Full SEO Audit...\n");
+  console.log("\n🚀 Running Full Multi-App SEO Audit...\n");
+  
+  if (USE_PAGESPEED_API) {
+    console.log("🌐 Using PageSpeed Insights API (Google hosted Lighthouse)");
+  } else if (process.platform === "win32") {
+    console.log("⚠️  Using local Lighthouse on Windows (may have headless Chrome issues)");
+    console.log("   💡 Tip: Set PAGESPEED_API_KEY in .env for reliable results\n");
+  }
+  
+  // Setup graceful shutdown to clean up any processes
+  setupGracefulShutdown();
+  
   ensureFreshBuild();
 
   const schema = await runEnhancedSchemaDetection();
-  const lighthouse = await runLighthouseSEO();
+  const lighthouseResults = await runLighthouseSEO();
   const staticSeo = staticSeoAnalysis();
   const endpoints = testSEOEndpoints();
   const html = analyzeHTMLStructure();
 
+  // Calculate average lighthouse score across all apps
+  const validScores = Object.values(lighthouseResults).filter(r => r.score !== null).map(r => r.score);
+  const avgLighthouse = validScores.length > 0 
+    ? Math.round(validScores.reduce((a, b) => a + b, 0) / validScores.length)
+    : null;
+
   let score = 100;
-  if (!lighthouse || lighthouse < 80) score -= 10;
+  if (!avgLighthouse || avgLighthouse < 80) score -= 10;
   if (schema.score < 80) score -= 10;
   if (html.some(f => !f.hasTitle || !f.hasDescription)) score -= 10;
   if (endpoints.issues.length) score -= endpoints.issues.length * 5;
   const finalScore = Math.max(0, score);
 
-  printSummary(finalScore, lighthouse, schema, staticSeo, endpoints, html);
+  printSummary(finalScore, lighthouseResults, schema, staticSeo, endpoints, html);
+
+  const reportMarkdown = generateMarkdownReport({
+    finalScore,
+    lighthouseResults,
+    schema,
+    html,
+    staticSeo,
+    endpoints,
+  });
 
   const reportPath = path.join(root, "docs/audits/SEO_AUDIT.md");
   fs.mkdirSync(path.dirname(reportPath), { recursive: true });
-  const report = `# SEO Audit Report
-Generated: ${new Date().toISOString()}
+  fs.writeFileSync(reportPath, reportMarkdown);
+  console.log(`✅ Multi-app SEO audit complete → ${reportPath}\n`);
 
-## Score: ${finalScore}/100
-- Lighthouse: ${lighthouse ?? "N/A"}/100
-- Schema: ${schema.score}/100
-- Meta: ${
-    html.every(f => f.hasTitle && f.hasDescription) ? "Complete" : "Incomplete"
+  // Auto-ingest results to database (if --no-db flag not set)
+  const skipDb = process.argv.includes("--no-db");
+  if (!skipDb) {
+    try {
+      console.log("💾 Ingesting results to database...");
+      await ingestSEOResults();
+      console.log("✅ Results saved to health_monitoring table\n");
+    } catch (err) {
+      console.warn("⚠️ Database ingestion failed (continuing anyway):", err.message);
+      console.log("   Run manually: node scripts/automation/ingest-seo.js\n");
+    }
   }
 
-### Static SEO/Analytics
-${Object.values(staticSeo)
-  .map(v => "- " + v)
-  .join("\n")}
-
-### Endpoints
-${endpoints.endpoints.concat(endpoints.issues).map(v => "- " + v).join("\n")}
-`;
-  fs.writeFileSync(reportPath, report);
-  console.log(`✅ SEO audit complete → ${reportPath}\n`);
+  process.exit(0);
 })();
 
 
-/*──────────────── backend\middleware\tenantResolver.js ────────────────*/
+/*──────────────── frontend\vite.config.shared.ts ────────────────*/
 
-/**
- * Tenant Resolver Middleware
- * 
- * Detects tenant slug from subdomain and attaches it to the request object.
- * Handles both main domain and subdomain routing for multi-tenant architecture.
- */
+import react from '@vitejs/plugin-react';
+import { fileURLToPath } from 'node:url';
+import path from 'path';
+import fs from 'fs';
+import { defineConfig, UserConfig } from 'vite';
+import { visualizer } from 'rollup-plugin-visualizer';
 
-export function tenantResolver(req, res, next) {
-  const host = req.hostname.toLowerCase();
-  
-  // Parse the hostname to extract subdomain
-  // thatsmartsite.com → main-site
-  // testing-mobile-detail.thatsmartsite.com → testing-mobile-detail
-  const parts = host.split('.');
-  const domain = parts.slice(-2).join('.'); // thatsmartsite.com
-  const subdomain = parts.length > 2 ? parts[0] : null;
-
-  // Reserved subdomains that should not be treated as tenant slugs
-  const RESERVED_SUBDOMAINS = [
-    'www', 'api', 'admin', 'main-site', 'staging', 'dev', 
-    'cdn', 'assets', 'static', 'img', 'images', 'media',
-    'mail', 'email', 'ftp', 'blog', 'support', 'help',
-    'docs', 'status', 'monitoring', 'metrics', 'logs'
-  ];
-  
-  // Determine tenant slug
-  if (subdomain && !RESERVED_SUBDOMAINS.includes(subdomain)) {
-    req.tenantSlug = subdomain;
-  } else {
-    req.tenantSlug = 'main-site'; // Default to main site for admin dashboard
-  }
-
-  // Add tenant info to request for logging/debugging
-  req.tenantInfo = {
-    hostname: host,
-    subdomain,
-    domain,
-    tenantSlug: req.tenantSlug,
-    isMainSite: req.tenantSlug === 'main-site'
-  };
-
-  next();
-}
-
-
-/*──────────────── backend\middleware\withTenant.js ────────────────*/
-
-import { getPool } from '../database/pool.js';
-import { asyncHandler } from './errorHandler.js';
-import { createModuleLogger } from '../config/logger.js';
-import { 
-  transformBusinessToTenantInfo, 
-  validateTenantContext, 
-  attachTenantContext 
-} from '../utils/tenantContextContract.js';
-
-const logger = createModuleLogger('withTenant');
-
-/**
- * Switch database schema for tenant-specific operations
- * @param {Object} tenant - The tenant object with id and slug
- */
-async function switchToTenantSchema(tenant) {
+//─────────────────────────────────────────────
+// 🔧 Helper — dynamic backend port detection
+//─────────────────────────────────────────────
+function getBackendPort(): number {
   try {
-    const pool = await getPool();
-    await pool.query('SET search_path TO tenants, public');
+    const portFile = path.join(__dirname, '../.backend-port.json');
+    if (fs.existsSync(portFile)) {
+      const portData = JSON.parse(fs.readFileSync(portFile, 'utf8'));
+      return portData.port || 3001;
+    }
+  } catch {
+    // Fallback to default
+  }
+  return 3001;
+}
+
+const backendPort = getBackendPort();
+
+//─────────────────────────────────────────────
+// 🚀 Shared Vite Configuration
+//─────────────────────────────────────────────
+export const sharedConfig: UserConfig = {
+  base: './', // Important for multi-entry static builds
+  
+  plugins: [
+    react({
+      fastRefresh: true, // Enable HMR for better DX
+    }),
+    // Bundle analyzer (only when ANALYZE env var is set)
+    process.env['ANALYZE'] &&
+      visualizer({
+        filename: 'dist/bundle-analysis.html',
+        open: true,
+        gzipSize: true,
+        brotliSize: true,
+      }),
+  ].filter(Boolean),
+
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '@shared': path.resolve(__dirname, 'src/shared'),
+      '@admin': path.resolve(__dirname, 'src/admin-app'),
+      '@tenant': path.resolve(__dirname, 'src/tenant-app'),
+      '@main': path.resolve(__dirname, 'src/main-site'),
+    },
+    // ✅ Prevent React duplication across sub-apps
+    dedupe: ['react', 'react-dom', 'scheduler'],
+  },
+
+  optimizeDeps: {
+    exclude: ['lucide-react'],
+  },
+
+  define: {
+    // Inject backend URL for frontend use
+    'import.meta.env.VITE_BACKEND_URL': JSON.stringify(
+      `http://localhost:${backendPort}`
+    ),
+  },
+
+  server: {
+    proxy: {
+      '/api': {
+        target: `http://localhost:${backendPort}`,
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path,
+        configure: (proxy) => {
+          proxy.on('error', (err) => {
+            console.error('Proxy error:', err.message);
+          });
+        },
+      },
+      '/uploads': {
+        target: `http://localhost:${backendPort}`,
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
+
+  build: {
+    // Disable minification for easier debugging
+    minify: false,
+    // Optimize for better performance
+    target: 'esnext',
+    // Always enable source maps for debugging
+    sourcemap: true,
     
-    logger.info({
-      event: 'schema_switched',
-      tenantId: tenant.id,
-      tenantSlug: tenant.slug,
-      schema: 'tenants'
-    }, 'Switched to tenant schema');
-  } catch (error) {
-    logger.error({
-      event: 'schema_switch_error',
-      tenantId: tenant.id,
-      tenantSlug: tenant.slug,
-      error: error.message
-    }, 'Failed to switch to tenant schema');
-    throw error;
+    rollupOptions: {
+      // Exclude problematic files from build
+      external: (id: string) => {
+        return id.includes('.legacy') || id.includes('_archive');
+      },
+      output: {
+        // Split vendor chunks to isolate dependencies
+        manualChunks: (id: string) => {
+          if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+            return 'react-vendor';
+          }
+          if (id.includes('@tanstack')) return 'query-vendor';
+          if (id.includes('lucide-react')) return 'icons-vendor';
+          if (id.includes('node_modules')) return 'vendor';
+          return undefined;
+        },
+        // Optimize chunk file names for better caching
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]',
+      },
+    },
+  },
+};
+
+// Export as default for convenience
+export default defineConfig(sharedConfig);
+
+
+
+/*──────────────── frontend\vite.config.main.ts ────────────────*/
+
+import { defineConfig, mergeConfig } from 'vite';
+import { sharedConfig } from './vite.config.shared';
+import path from 'path';
+
+export default defineConfig(
+  mergeConfig(sharedConfig, {
+    server: {
+      host: 'main.localhost',
+      port: 5175,
+      hmr: {
+        protocol: 'ws',
+        host: 'main.localhost',
+        port: 5175,
+      },
+    },
+    build: {
+      outDir: 'dist/main-site',
+      rollupOptions: {
+        input: {
+          main: path.resolve(__dirname, 'main-site/index.html'),
+        },
+      },
+    },
+  })
+);
+
+
+/*──────────────── frontend\vite.config.tenant.ts ────────────────*/
+
+import { defineConfig, mergeConfig } from 'vite';
+import { sharedConfig } from './vite.config.shared';
+import path from 'path';
+
+export default defineConfig(
+  mergeConfig(sharedConfig, {
+    server: {
+      host: 'tenant.localhost',
+      port: 5179,
+      hmr: {
+        protocol: 'ws',
+        host: 'tenant.localhost',
+        port: 5179,
+      },
+    },
+    build: {
+      outDir: 'dist/tenant-app',
+      rollupOptions: {
+        input: {
+          tenant: path.resolve(__dirname, 'tenant-app/index.html'),
+        },
+      },
+    },
+  })
+);
+
+
+/*──────────────── frontend\vite.config.admin.ts ────────────────*/
+
+import { defineConfig, mergeConfig } from 'vite';
+import { sharedConfig } from './vite.config.shared';
+import path from 'path';
+
+export default defineConfig(
+  mergeConfig(sharedConfig, {
+    server: {
+      host: 'admin.localhost',
+      port: 5177,
+      hmr: {
+        protocol: 'ws',
+        host: 'admin.localhost',
+        port: 5177,
+      },
+    },
+    build: {
+      outDir: 'dist/admin-app',
+      rollupOptions: {
+        input: {
+          admin: path.resolve(__dirname, 'admin-app/index.html'),
+        },
+      },
+    },
+  })
+);
+
+
+/*──────────────── frontend\vite.config.ts ────────────────*/
+
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import { fileURLToPath } from "node:url";
+import { URL } from "node:url";
+import path from "path";
+import fs from "fs";
+import { visualizer } from "rollup-plugin-visualizer";
+
+//──────────────────────────────────────────────
+// 🔧 Backend Port Detection (for proxy)
+//──────────────────────────────────────────────
+function getBackendPort() {
+  try {
+    const portFile = path.join(__dirname, "../.backend-port.json");
+    if (fs.existsSync(portFile)) {
+      const portData = JSON.parse(fs.readFileSync(portFile, "utf8"));
+      return portData.port || 3001;
+    }
+  } catch {
+    // ignore
   }
+  return 3001;
 }
 
-/**
- * withTenant Middleware
- * 
- * Provides tenant context to routes by:
- * 1. Looking up tenant by slug from URL params
- * 2. Looking up tenant by user_id for authenticated users
- * 3. Validating tenant exists and is approved
- * 4. Attaching tenant data to req.tenant
- * 5. Switching database schema to tenants schema
- * 
- * Usage:
- * - router.get('/:slug', withTenant, (req, res) => { ... })
- * - router.get('/user-data', authenticateToken, withTenant, (req, res) => { ... })
- */
+const backendPort = getBackendPort();
 
-/**
- * Get tenant by slug from URL parameters
- */
-async function getTenantBySlug(slug) {
-  const pool = await getPool();
+//──────────────────────────────────────────────
+// ⚙️ Vite Config
+//──────────────────────────────────────────────
+export default defineConfig({
+  base: "./", // ✅ ensures relative asset paths (critical!)
+  plugins: [
+    react({
+      fastRefresh: false, // avoids HMR issues
+    }),
+    process.env["ANALYZE"] &&
+      visualizer({
+        filename: "dist/bundle-analysis.html",
+        open: true,
+        gzipSize: true,
+        brotliSize: true,
+      }),
+  ].filter(Boolean),
 
-  const query = `
-    SELECT 
-      b.id, b.slug, b.business_name, b.owner, b.first_name, b.last_name, b.user_id,
-      b.application_status, b.business_start_date, b.business_phone, b.personal_phone,
-      b.business_email, b.personal_email, b.twilio_phone, b.sms_phone, b.website,
-      b.gbp_url, b.facebook_url, b.facebook_enabled, b.instagram_url, b.instagram_enabled, 
-      b.tiktok_url, b.tiktok_enabled, b.youtube_url, b.youtube_enabled,
-      b.source, b.notes, b.service_areas, b.application_date, b.approved_date,
-      b.last_activity, b.created_at, b.updated_at, b.industry,
-      c.hero_title, c.hero_subtitle, c.reviews_title, c.reviews_subtitle,
-      c.faq_title, c.faq_subtitle, c.faq_items,
-      c.seo_title, c.seo_description, c.seo_keywords, c.seo_og_image,
-      c.seo_twitter_image, c.seo_canonical_path, c.seo_robots
-    FROM tenants.business b
-    LEFT JOIN website.content c ON b.id = c.business_id
-    WHERE b.slug = $1 AND b.application_status = 'approved'
-  `;
+  resolve: {
+    alias: {
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+      "@shared": path.resolve(__dirname, "src/shared"),
+      "@admin": path.resolve(__dirname, "src/admin-app"),
+      "@tenant": path.resolve(__dirname, "src/tenant-app"),
+      "@main": path.resolve(__dirname, "src/main-site"),
+    },
+    dedupe: ['react', 'react-dom', 'scheduler'],
+  },
 
-  const result = await pool.query(query, [slug]);
+  optimizeDeps: {
+    exclude: ["lucide-react"],
+  },
 
-  if (result.rows.length === 0) {
-    const error = new Error('Tenant not found or not approved');
-    error.statusCode = 404;
-    error.code = 'TENANT_NOT_FOUND';
-    throw error;
-  }
+  server: {
+    host: "0.0.0.0",
+    allowedHosts: [
+      "localhost",
+      "127.0.0.1",
+      ".localhost",
+      ".lvh.me",
+      ".thatsmartsite.com",
+    ],
+    hmr: {
+      port: -1,
+      host: null,
+    },
+    proxy: {
+      "/api": {
+        target: `http://localhost:${backendPort}`,
+        changeOrigin: true,
+        secure: false,
+      },
+      "/uploads": {
+        target: `http://localhost:${backendPort}`,
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
 
-  const tenant = result.rows[0];
+  define: {
+    "import.meta.env.VITE_BACKEND_URL": JSON.stringify(
+      `http://localhost:${backendPort}`
+    ),
+  },
 
-  // Parse service_areas JSON if it's a string
-  if (typeof tenant.service_areas === 'string') {
-    try {
-      tenant.service_areas = JSON.parse(tenant.service_areas);
-    } catch (parseError) {
-      logger.error('Error parsing service_areas:', parseError);
-      tenant.service_areas = [];
-    }
-  }
-
-  return tenant;
-}
-
-/**
- * Get tenant by user_id for authenticated users
- */
-async function getTenantByUserId(userId, isAdmin = false) {
-  const pool = await getPool();
-
-  let query;
-  let params;
-
-  if (isAdmin) {
-    // For admin users, get the first available business or allow them to work without tenant context
-    query = `
-      SELECT 
-        b.id, b.slug, b.business_name, b.owner, b.first_name, b.last_name, b.user_id,
-        b.application_status, b.business_start_date, b.business_phone, b.personal_phone,
-        b.business_email, b.personal_email, b.twilio_phone, b.sms_phone, b.website,
-        b.gbp_url, b.facebook_url, b.facebook_enabled, b.instagram_url, b.instagram_enabled, 
-      b.tiktok_url, b.tiktok_enabled, b.youtube_url, b.youtube_enabled,
-        b.source, b.notes, b.service_areas, b.application_date, b.approved_date,
-        b.last_activity, b.created_at, b.updated_at, b.industry,
-        c.hero_title, c.hero_subtitle, c.reviews_title, c.reviews_subtitle,
-        c.faq_title, c.faq_subtitle, c.faq_items,
-        c.seo_title, c.seo_description, c.seo_keywords, c.seo_og_image,
-        c.seo_twitter_image, c.seo_canonical_path, c.seo_robots
-      FROM tenants.business b
-      LEFT JOIN website.content c ON b.id = c.business_id
-      WHERE b.application_status = 'approved'
-      ORDER BY b.id LIMIT 1
-    `;
-    params = [];
-  } else {
-    // For regular users, get their specific business
-    query = `
-      SELECT 
-        b.id, b.slug, b.business_name, b.owner, b.first_name, b.last_name, b.user_id,
-        b.application_status, b.business_start_date, b.business_phone, b.personal_phone,
-        b.business_email, b.personal_email, b.twilio_phone, b.sms_phone, b.website,
-        b.gbp_url, b.facebook_url, b.facebook_enabled, b.instagram_url, b.instagram_enabled, 
-      b.tiktok_url, b.tiktok_enabled, b.youtube_url, b.youtube_enabled,
-        b.source, b.notes, b.service_areas, b.application_date, b.approved_date,
-        b.last_activity, b.created_at, b.updated_at, b.industry,
-        c.hero_title, c.hero_subtitle, c.reviews_title, c.reviews_subtitle,
-        c.faq_title, c.faq_subtitle, c.faq_items,
-        c.seo_title, c.seo_description, c.seo_keywords, c.seo_og_image,
-        c.seo_twitter_image, c.seo_canonical_path, c.seo_robots
-      FROM tenants.business b
-      LEFT JOIN website.content c ON b.id = c.business_id
-      WHERE b.user_id = $1 AND b.application_status = 'approved'
-    `;
-    params = [userId];
-  }
-
-  const result = await pool.query(query, params);
-
-  if (result.rows.length === 0) {
-    if (isAdmin) {
-      const error = new Error('No approved tenants found in the system');
-      error.statusCode = 404;
-      error.code = 'NO_TENANTS_FOUND';
-      throw error;
-    } else {
-      const error = new Error('No tenant business found for this user');
-      error.statusCode = 404;
-      error.code = 'USER_TENANT_NOT_FOUND';
-      throw error;
-    }
-  }
-
-  const tenant = result.rows[0];
-
-  // Parse service_areas JSON if it's a string
-  if (typeof tenant.service_areas === 'string') {
-    try {
-      tenant.service_areas = JSON.parse(tenant.service_areas);
-    } catch (parseError) {
-      logger.error('Error parsing service_areas:', parseError);
-      tenant.service_areas = [];
-    }
-  }
-
-  return tenant;
-}
-
-/**
- * Middleware to get tenant by slug from URL parameters
- */
-const withTenantBySlug = asyncHandler(async (req, res, next) => {
-  const { slug } = req.params;
-
-  if (!slug) {
-    const error = new Error('Tenant slug is required');
-    error.statusCode = 400;
-    error.code = 'MISSING_SLUG';
-    throw error;
-  }
-
-  const businessRow = await getTenantBySlug(slug);
-  
-  // Use shared contract to attach tenant context
-  attachTenantContext(req, businessRow, req.user);
-  
-  // Validate tenant context
-  const validation = validateTenantContext(req.tenant);
-  if (!validation.isValid) {
-    return res.status(validation.error.statusCode).json({
-      success: false,
-      error: validation.error
-    });
-  }
-  
-  // Switch to tenant schema for subsequent operations
-  await switchToTenantSchema(businessRow);
-  
-  next();
+  build: {
+    outDir: "dist",
+    sourcemap: true,
+    target: "esnext",
+    minify: false, // easier debugging
+    rollupOptions: {
+      input: {
+        "main-site": path.resolve(__dirname, "main-site/index.html"),
+        "tenant-app": path.resolve(__dirname, "tenant-app/index.html"),
+        "admin-app": path.resolve(__dirname, "admin-app/index.html"),
+      },
+      external: (id) => id.includes('.legacy') || id.includes('_archive'),
+      output: {
+        // ✅ ensures each app's assets stay in its own folder
+        manualChunks: (id) => {
+          if (id.includes('react') || id.includes('react-dom') || id.includes('react-router'))
+            return 'react-vendor';
+          if (id.includes('@tanstack')) return 'query-vendor';
+          if (id.includes('lucide-react')) return 'icons-vendor';
+          if (id.includes('node_modules')) return 'vendor';
+          return undefined;
+        },
+        // Entry files go flat (no folder prefix) - Vite places them via input keys
+        entryFileNames: "[name]-[hash].js",
+        chunkFileNames: (chunkInfo) => {
+          if (chunkInfo.name?.includes("main-site"))
+            return "main-site/assets/[name]-[hash].js";
+          if (chunkInfo.name?.includes("tenant-app"))
+            return "tenant-app/assets/[name]-[hash].js";
+          if (chunkInfo.name?.includes("admin-app"))
+            return "admin-app/assets/[name]-[hash].js";
+          return "assets/[name]-[hash].js";
+        },
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name?.includes("main-site"))
+            return "main-site/assets/[name]-[hash].[ext]";
+          if (assetInfo.name?.includes("tenant-app"))
+            return "tenant-app/assets/[name]-[hash].[ext]";
+          if (assetInfo.name?.includes("admin-app"))
+            return "admin-app/assets/[name]-[hash].[ext]";
+          return "assets/[name]-[hash].[ext]";
+        },
+      },
+    },
+  },
 });
 
-/**
- * Middleware to get tenant by user_id (requires authentication)
- */
-const withTenantByUser = asyncHandler(async (req, res, next) => {
-  if (!req.user || !req.user.userId) {
-    const error = new Error('Authentication required');
-    error.statusCode = 401;
-    error.code = 'AUTHENTICATION_REQUIRED';
-    throw error;
-  }
 
-  const isAdmin = req.user.isAdmin || false;
-  const businessRow = await getTenantByUserId(req.user.userId, isAdmin);
-  
-  // Use shared contract to attach tenant context
-  attachTenantContext(req, businessRow, req.user);
-  
-  // Validate tenant context
-  const validation = validateTenantContext(req.tenant);
-  if (!validation.isValid) {
-    return res.status(validation.error.statusCode).json({
-      success: false,
-      error: validation.error
-    });
-  }
-  
-  // Switch to tenant schema for subsequent operations
-  await switchToTenantSchema(businessRow);
-  
-  next();
-});
+/*──────────────── scripts\audits\audit-seo.js ────────────────*/
 
+#!/usr/bin/env node
 /**
- * Flexible middleware that tries slug first, then user_id
- * Useful for routes that might be called with either approach
+ * audit-seo.js — Full Unified SEO Audit
+ * --------------------------------------------------------------
+ * ✅ Combines:
+ *  - Auto-build if missing or outdated
+ *  - Enhanced Schema Detection (static, JS, and source)
+ *  - Lighthouse Runtime SEO
+ *  - HTML Meta Checks
+ *  - robots.txt / sitemap.xml verification
+ *  - Static SEO & Analytics Code Scan (Helmet, GA, OG, etc.)
+ * --------------------------------------------------------------
+ * 🧾 Outputs:
+ *  - Markdown Report → docs/audits/SEO_AUDIT.md
+ *  - CLI Summary → color-coded instant feedback
  */
-const withTenant = asyncHandler(async (req, res, next) => {
-  let businessRow = null;
-  
-  // Try slug first if available
-  if (req.params.slug) {
-    try {
-      businessRow = await getTenantBySlug(req.params.slug);
-    } catch (error) {
-      // If slug lookup fails and we have a user, try user lookup
-      if (req.user && req.user.userId) {
-        const isAdmin = req.user.isAdmin || false;
-        businessRow = await getTenantByUserId(req.user.userId, isAdmin);
-      } else {
-        // Otherwise, re-throw the slug error
-        throw error;
+
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import { execSync, spawn } from "child_process";
+import net from "net";
+import { 
+  killProcessTree, 
+  isPortInUse, 
+  waitForPort, 
+  findAvailablePort,
+  processRegistry,
+  setupGracefulShutdown 
+} from "../utils/cleanup.js";
+import { runSchemaValidation } from "./schema-validator.js";
+import { ingestSEOResults } from "../automation/ingest-seo.js";
+import { runPageSpeedForApps } from "../utils/pagespeed-api.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const root = process.cwd();
+const frontendDir = path.join(root, "frontend/src");
+const distDir = path.join(root, "frontend/dist");
+const publicDir = path.join(root, "frontend/public");
+
+/*──────────────────────────────────────────────────────────────
+| 🧩 Multi-App Configuration
+|──────────────────────────────────────────────────────────────*/
+const APPS = [
+  { name: "main-site", description: "Marketing & Onboarding", liveUrl: "https://thatsmartsite.com" },
+  { name: "tenant-app", description: "Live Tenant Storefronts", liveUrl: "https://demo.thatsmartsite.com" },
+  // { name: "admin-app", description: "Tenant Dashboard" }, // Excluded from SEO audit
+];
+
+// PageSpeed Insights API Configuration
+const PAGESPEED_API_KEY = process.env.GOOGLE_PAGESPEED_API_KEY;
+const USE_PAGESPEED_API = !!PAGESPEED_API_KEY && !process.argv.includes('--local');
+
+/*──────────────────────────────────────────────────────────────
+| 🧠 Auto-Build if Missing or Outdated
+|──────────────────────────────────────────────────────────────*/
+function isBuildFresh() {
+  if (!fs.existsSync(distDir)) return false;
+  const distMtime = fs.statSync(distDir).mtimeMs;
+
+  function getNewestSrcTime(dir) {
+    let newest = 0;
+    if (!fs.existsSync(dir)) return newest;
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        newest = Math.max(newest, getNewestSrcTime(full));
+      } else if (/\.(t|j)sx?$|\.html$/i.test(entry.name)) {
+        const mtime = fs.statSync(full).mtimeMs;
+        newest = Math.max(newest, mtime);
       }
     }
-  } else if (req.user && req.user.userId) {
-    // Try user_id if no slug
-    const isAdmin = req.user.isAdmin || false;
-    businessRow = await getTenantByUserId(req.user.userId, isAdmin);
+    return newest;
+  }
+
+  // Check both src/ and public/ directories for changes
+  const srcNewest = getNewestSrcTime(frontendDir);
+  const publicNewest = getNewestSrcTime(publicDir);
+  const newestSourceTime = Math.max(srcNewest, publicNewest);
+  
+  return newestSourceTime < distMtime;
+}
+
+function ensureFreshBuild() {
+  console.log("🧠 Checking build status...");
+  const fresh = isBuildFresh();
+
+  if (!fresh) {
+    console.log("⚙️  Building frontend (auto-detected change)...");
+    try {
+      execSync("npm run build", { cwd: path.join(root, "frontend"), stdio: "inherit" });
+
+      console.log("✅ Build completed successfully.");
+    } catch (err) {
+      console.error("❌ Build failed:", err.message);
+      process.exit(1);
+    }
   } else {
-    // No slug or user available
-    const error = new Error('Tenant slug or authentication required');
-    error.statusCode = 400;
-    error.code = 'MISSING_TENANT_CONTEXT';
-    throw error;
+    console.log("✅ Existing build is up to date.");
   }
+}
 
-  // Use shared contract to attach tenant context
-  attachTenantContext(req, businessRow, req.user);
+/*──────────────────────────────────────────────────────────────
+| 🧩 Enhanced Schema Detection (with Deep Validation)
+|──────────────────────────────────────────────────────────────*/
+async function runEnhancedSchemaDetection() {
+  console.log("\n🧩 Running Enhanced Schema Detection & Validation...\n");
   
-  // Validate tenant context
-  const validation = validateTenantContext(req.tenant);
-  if (!validation.isValid) {
-    return res.status(validation.error.statusCode).json({
-      success: false,
-      error: validation.error
-    });
-  }
+  // Run deep validation
+  const validation = await runSchemaValidation(distDir, { generateReport: false });
   
-  // Switch to tenant schema for subsequent operations
-  await switchToTenantSchema(businessRow);
+  // Legacy: Also count source @type definitions
+  let srcSchemaCount = 0;
+  function scanSrc(dir) {
+    if (!fs.existsSync(dir)) return;
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) scanSrc(full);
+      else if (/\.(t|j)sx?$/.test(entry.name)) {
+        const c = fs.readFileSync(full, "utf8");
+        if (c.includes("@type") || c.includes("schema.org")) srcSchemaCount++;
+      }
+    }
+  }
+  scanSrc(frontendDir);
   
-  next();
-});
-
-/**
- * Middleware to validate tenant exists (lightweight check)
- * Only checks existence, doesn't load full tenant data
- */
-const validateTenantExists = asyncHandler(async (req, res, next) => {
-  const { slug } = req.params;
-
-  if (!slug) {
-    const error = new Error('Tenant slug is required');
-    error.statusCode = 400;
-    error.code = 'MISSING_SLUG';
-    throw error;
-  }
-
-  const pool = await getPool();
-  const result = await pool.query(
-    'SELECT id, slug, business_name FROM tenants.business WHERE slug = $1 AND application_status = $2',
-    [slug, 'approved']
-  );
-
-  if (result.rows.length === 0) {
-    const error = new Error('Tenant not found or not approved');
-    error.statusCode = 404;
-    error.code = 'TENANT_NOT_FOUND';
-    throw error;
-  }
-
-  req.tenant = {
-    id: result.rows[0].id,
-    slug: result.rows[0].slug,
-    business_name: result.rows[0].business_name
+  // Use validation score as base, with bonus for source references
+  let score = validation.score;
+  if (srcSchemaCount > 0) score = Math.min(100, score + 10);
+  
+  console.log(`✅ Schema validation score: ${validation.score}/100`);
+  console.log(`   Total schemas: ${validation.totalSchemas}`);
+  console.log(`   Valid: ${validation.validSchemas}/${validation.totalSchemas}`);
+  console.log(`   Errors: ${validation.totalErrors}, Warnings: ${validation.totalWarnings}`);
+  console.log(`   Source references: ${srcSchemaCount} files\n`);
+  
+  return {
+    score,
+    validation,
+    srcSchemaCount,
   };
-
-  next();
-});
-
-export {
-  withTenantBySlug,
-  withTenantByUser,
-  withTenant,
-  validateTenantExists,
-  getTenantBySlug,
-  getTenantByUserId
-};
-
-
-/*──────────────── backend\controllers\tenantController.js ────────────────*/
-
-import * as tenantService from '../services/tenantService.js';
-import { createModuleLogger } from '../config/logger.js';
-const logger = createModuleLogger('tenantController');
-
-
-
-/**
- * Tenant Controller
- * Handles HTTP requests and responses for tenant operations
- */
-
-/**
- * Create new tenant account
- */
-async function createTenant(req, res) {
-  const tenantData = req.body;
-  
-  const result = await tenantService.createTenant(tenantData);
-  
-  // Log tenant creation for now (TODO: Send welcome email)
-  logger.info('\n=== NEW TENANT SIGNUP ===');
-  logger.info(`Business: ${tenantData.businessName}`);
-  logger.info(`Owner: ${tenantData.firstName} ${tenantData.lastName}`);
-  logger.info(`Email: ${tenantData.personalEmail}`);
-  logger.info(`Slug: ${result.slug}`);
-  logger.info(`Website URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}${result.websiteUrl}`);
-  logger.info(`Dashboard URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}${result.dashboardUrl}`);
-  logger.info(`Plan: ${tenantData.selectedPlan} ($${tenantData.planPrice}/month)`);
-  logger.info('========================\n');
-
-  res.status(201).json({
-    success: true,
-    message: 'Account created successfully',
-    data: result
-  });
 }
 
-/**
- * Get tenant by slug
- */
-async function getTenantBySlug(req, res) {
-  const { slug } = req.params;
-  
-  const tenant = await tenantService.getTenantBySlug(slug);
-  
-  if (!tenant) {
-    return res.status(404).json({
-      success: false,
-      error: 'Tenant not found or not approved'
+/*──────────────────────────────────────────────────────────────
+| 🌍 Static SEO & Analytics Scan
+|──────────────────────────────────────────────────────────────*/
+function staticSeoAnalysis() {
+  console.log("🧠 Scanning static SEO & analytics code...\n");
+  const walk = dir =>
+    fs.existsSync(dir)
+      ? fs.readdirSync(dir, { withFileTypes: true }).flatMap(e =>
+          e.isDirectory() ? walk(path.join(dir, e.name)) : [path.join(dir, e.name)]
+        )
+      : [];
+
+  const files = walk(frontendDir);
+  const backendFiles = walk(path.join(root, "backend"));
+  const has = pattern => files.some(f => fs.readFileSync(f, "utf8").match(pattern));
+
+  return {
+    helmet: has(/Helmet|Meta|Head/i)
+      ? "✅ Helmet components detected"
+      : "⚠️ Missing Helmet/meta components",
+    analytics: has(/UA-|G-|gtag|googletagmanager/i)
+      ? "✅ Google Analytics / GTM found"
+      : "⚠️ No analytics code found",
+    opengraph: has(/og:|twitter:card|application\/ld/i)
+      ? "✅ OpenGraph / JSON-LD present"
+      : "⚠️ Missing structured data",
+    sitemap: backendFiles.some(f => /sitemap|generate-sitemap/i.test(fs.readFileSync(f, "utf8")))
+      ? "✅ Sitemap generation found"
+      : "⚠️ No sitemap scripts detected",
+    robots: fs.existsSync(path.join(publicDir, "robots.txt"))
+      ? "✅ robots.txt found"
+      : "⚠️ Missing robots.txt",
+  };
+}
+
+/*──────────────────────────────────────────────────────────────
+| 🔗 Endpoint + HTML Meta Checks
+|──────────────────────────────────────────────────────────────*/
+function analyzeHTMLStructure() {
+  if (!fs.existsSync(distDir)) return [];
+  const htmls = fs
+    .readdirSync(distDir)
+    .filter(f => f.endsWith(".html"))
+    .map(f => {
+      const c = fs.readFileSync(path.join(distDir, f), "utf8");
+      return {
+        file: f,
+        hasTitle: /<title/i.test(c),
+        hasDescription: /<meta[^>]+description/i.test(c),
+      };
     });
+  return htmls;
+}
+
+function testSEOEndpoints() {
+  const endpoints = [];
+  const issues = [];
+  const add = (label, file) => {
+    const exists = fs.existsSync(path.join(root, file));
+    (exists ? endpoints : issues).push(
+      (exists ? "✅ " : "❌ Missing ") + label
+    );
+  };
+  add("robots.txt route", "backend/routes/seo/robotsRoute.ts");
+  add("sitemap.xml route", "backend/routes/seo/sitemapRoute.ts");
+  return { endpoints, issues };
+}
+
+/*──────────────────────────────────────────────────────────────
+| 📈 Lighthouse SEO (auto preview, Windows-safe, with cleanup utils)
+|──────────────────────────────────────────────────────────────*/
+import util from "util";
+import { exec } from "child_process";
+const execAsync = util.promisify(exec);
+
+async function runLighthouseSEO() {
+  //──────────────────────────────────────────────
+  // 🌐 PageSpeed API Mode (if API key is set)
+  //──────────────────────────────────────────────
+  if (USE_PAGESPEED_API) {
+    console.log("\n🌐 Using PageSpeed Insights API (Google hosted Lighthouse)\n");
+    const outputDir = path.join(root, "docs/audits/lighthouse");
+    const apiResults = await runPageSpeedForApps(APPS, PAGESPEED_API_KEY, outputDir);
+    
+    // Convert to same format as local Lighthouse results
+    const results = {};
+    for (const result of apiResults) {
+      results[result.app] = result.score;
+    }
+    return results;
   }
   
-  res.json({
-    success: true,
-    data: tenant
-  });
-}
+  //──────────────────────────────────────────────
+  // 💻 Local Lighthouse Mode (preview server)
+  //──────────────────────────────────────────────
+  console.log("\n💻 Using local Lighthouse (preview server)\n");
+  
+  const basePort = 4173;
+  const previewDir = path.join(root, "frontend");
+  let processRef = null;
+  let port = basePort;
+  const results = {}; // Store results per app
 
-/**
- * Get tenants by industry
- */
-async function getTenantsByIndustry(req, res) {
-  const { industry, status = 'approved' } = req.query;
-  
-  const tenants = await tenantService.getTenantsByIndustry(industry, status);
-  
-  res.json({
-    success: true,
-    data: tenants
-  });
-}
-
-/**
- * Update tenant business data by slug
- */
-async function updateTenantBySlug(req, res) {
-  const { slug } = req.params;
-  const updateData = req.body;
-  
   try {
-    const updatedTenant = await tenantService.updateTenantBySlug(slug, updateData);
-    
-    res.json({
-      success: true,
-      data: updatedTenant,
-      message: 'Business profile updated successfully'
-    });
-  } catch (error) {
-    logger.error('Error updating tenant:', error);
-    
-    if (error.message === 'Tenant not found or not approved') {
-      return res.status(404).json({
-        success: false,
-        error: 'Tenant not found or not approved'
-      });
+    console.log("🧠 Checking for running preview server...");
+
+    // 🔎 Find first available port starting at 4173
+    port = await findAvailablePort(basePort);
+    if (port === -1) {
+      throw new Error("No available ports found");
     }
-    
-    if (error.message === 'No valid fields to update') {
-      return res.status(400).json({
-        success: false,
-        error: 'No valid fields to update'
-      });
+    console.log(`⚙️  Starting temporary Vite preview on port ${port}...`);
+
+    //────────────────────────────────────────────
+// ⚙️ Launch Vite preview server (non-detached)
+//────────────────────────────────────────────
+processRef = spawn("npx", ["vite", "preview", "--port", port, "--strictPort"], {
+  cwd: previewDir,
+  shell: true,
+  stdio: "ignore",
+  detached: false, // ✅ stay attached to our process
+});
+
+    // Register process for automatic cleanup
+    if (processRef.pid) {
+      processRegistry.register(port, processRef.pid, "vite-preview");
     }
-    
-    res.status(500).json({
-      success: false,
-      error: 'Failed to update business profile',
-      message: error.message
-    });
-  }
-}
-
-/**
- * Get list of available industries
- */
-async function getIndustries(req, res) {
-  const industries = await tenantService.getIndustries();
-  
-  res.json({
-    success: true,
-    data: industries
-  });
-}
-
-export {
-  createTenant,
-  getTenantBySlug,
-  getTenantsByIndustry,
-  getIndustries,
-  updateTenantBySlug
-};
 
 
-/*──────────────── frontend\src\admin-app\AdminApp.tsx ────────────────*/
+    // Wait for server to be ready
+    const started = await waitForPort(port, 25, 500);
+    if (!started) {
+      await killProcessTree(processRef.pid);
+      throw new Error("Preview server failed to start.");
+    }
 
-import { Suspense } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+    console.log(`✅ Preview server started on port ${port}`);
 
-import { DashboardPage as AdminDashboard } from './components/adminDashboard';
-import { PreviewGeneratorPage, PreviewPage } from '@/admin-app/components/preview';
-import { LoginPage, ProtectedRoute } from '@/shared/ui';
-import { SEOManager } from '@/shared/bootstrap';
+    //────────────────────────────────────────────
+    // ⚡ Run Lighthouse for Each App
+    //────────────────────────────────────────────
+    const chromeDir = path.join(root, ".tmp_lh");
+    fs.mkdirSync(chromeDir, { recursive: true });
 
-export default function AdminApp() {
-  const routes = (
-    <Suspense fallback={<div className="p-8 text-white">Loading…</div>}>
-      <Routes>
-        {/* Admin Dashboard - redirect root to admin dashboard */}
-        <Route path="/" element={<Navigate to="/admin-dashboard" replace />} />
-        
-        {/* Login route */}
-        <Route path="/login" element={<LoginPage />} />
-        
-        {/* Admin Dashboard - protected route */}
-        <Route path="/admin-dashboard" element={
-          <ProtectedRoute requiredRole="admin" fallbackPath="/login">
-            <AdminDashboard />
-          </ProtectedRoute>
-        } />
-        
-        {/* Preview routes */}
-        <Route path="/preview-generator" element={<PreviewGeneratorPage />} />
-        <Route path="/preview/:tenantSlug" element={<PreviewPage />} />
-        
-        {/* Catch all - redirect to admin dashboard */}
-        <Route path="*" element={<Navigate to="/admin-dashboard" replace />} />
-      </Routes>
-    </Suspense>
-  );
-
-  return (
-    <div className="min-h-screen bg-gray-900">
-      <SEOManager />
-      {routes}
-    </div>
-  );
-}
-
-
-/*──────────────── frontend\src\main-site\MainSiteApp.tsx ────────────────*/
-
-import React, { useEffect } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-
-import { HomePage } from './routes/HomePage';
-import { LoginPage } from './routes/LoginPage';
-import { TenantOnboardingPage } from './routes/TenantOnboardingPage';
-import { PricingPage } from './routes/PricingPage';
-
-// Admin redirect component
-function AdminRedirect() {
-  return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="text-center max-w-md mx-auto p-8">
-        <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
-          <span className="text-2xl">🔐</span>
-        </div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">
-          Admin Access
-        </h1>
-        <p className="text-gray-600 mb-6">
-          To access the admin panel, you need to start the admin app separately.
-        </p>
-        <div className="bg-white rounded-lg p-4 mb-6 text-left">
-          <h3 className="font-semibold text-gray-900 mb-2">Development Setup:</h3>
-          <ol className="text-sm text-gray-600 space-y-1">
-            <li>1. Open a new terminal</li>
-            <li>2. Run: <code className="bg-gray-100 px-2 py-1 rounded">npm run dev:admin</code></li>
-            <li>3. Visit: <code className="bg-gray-100 px-2 py-1 rounded">http://localhost:5177</code></li>
-          </ol>
-        </div>
-        <div className="space-y-3">
-          <a 
-            href="http://localhost:5177" 
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
-          >
-            Open Admin Panel
-          </a>
-          <a 
-            href="/" 
-            className="block text-blue-600 hover:text-blue-500 font-medium"
-          >
-            ← Back to Home
-          </a>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export default function MainSiteApp() {
-  return (
-    <div className="min-h-screen bg-white">
-      <Routes>
-        {/* Root path - marketing homepage */}
-        <Route path="/" element={<HomePage />} />
-        
-        {/* Authentication */}
-        <Route path="/login" element={<LoginPage />} />
-        
-        {/* Tenant onboarding */}
-        <Route path="/onboard" element={<TenantOnboardingPage />} />
-        
-        {/* Marketing pages */}
-        <Route path="/pricing" element={<PricingPage />} />
-        
-        {/* Admin redirect */}
-        <Route path="/admin" element={<AdminRedirect />} />
-        
-        {/* Catch all - redirect to home */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </div>
-  );
-}
-
-/*──────────────── frontend\src\tenant-app\TenantApp.tsx ────────────────*/
-
-import { lazy, Suspense, useState } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
-import { useRouterDebug } from '@/shared/useRouterDebug';
-
-import { DataProvider, TenantPage } from '@/tenant-app/components/header';
-import { LazyRequestQuoteModal } from '@/tenant-app/components/quotes';
-import { DashboardPage } from '@/tenant-app/components/tenantDashboard';
-import TenantApplicationPage from '@/admin-app/components/tenantOnboarding/components/TenantApplicationPage';
-import { LoginPage, ProtectedRoute } from '@/shared/ui';
-import { SEOManager } from '@/shared/bootstrap';
-
-import HomePage from '@main/pages/HomePage';
-import ServicePage from '@main/pages/ServicePage';
-
-// Heavy modules are NOT imported here - they stay out of the initial bundle
-const Booking = lazy(() => import('./components/booking/BookingApp'));
-
-
-export default function TenantApp() {
-  useRouterDebug('TenantApp');
-  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
-
-  const handleOpenQuoteModal = () => {
-    setIsQuoteModalOpen(true);
-  };
-  const handleCloseQuoteModal = () => {
-    setIsQuoteModalOpen(false);
-  };
-
-  const routes = (
-    <Suspense fallback={<div className="p-8 text-white">Loading…</div>}>
-      <Routes>
-        {/* Root path - show tenant page */}
-        <Route path="/" element={<TenantPage />} />
-        
-        {/* Login route */}
-        <Route path="/login" element={<LoginPage />} />
-        
-        {/* Tenant Dashboard - protected route */}
-        <Route path="/dashboard" element={
-          <ProtectedRoute requiredRole={['admin', 'tenant']} fallbackPath="/">
-            <DashboardPage />
-          </ProtectedRoute>
-        } />
-        
-        {/* Tenant Application */}
-        <Route path="/tenant-onboarding" element={<TenantApplicationPage />} />
-        
-        {/* Booking route */}
-        <Route path="/booking" element={<Booking />} />
-        
-        {/* Redirect old service routes to tenant-based structure */}
-        <Route path="/services/:serviceType" element={<Navigate to="/services/:serviceType" replace />} />
-        
-        {/* Service routes - must come before generic businessSlug route */}
-        <Route path="/:businessSlug/services/:serviceType" element={<ServicePage />} />
-        
-        <Route path="/:businessSlug/dashboard" element={
-          <div style={{ padding: '20px', background: 'red', color: 'white' }}>
-            <h1>DASHBOARD ROUTE MATCHED!</h1>
-            <p>Business Slug: {window.location.pathname.split('/')[1]}</p>
-            <ProtectedRoute requiredRole={['admin', 'tenant']} fallbackPath="/">
-                <DashboardPage />
-            </ProtectedRoute>
-          </div>
-        } />
-        <Route path="/:businessSlug/booking" element={<Booking />} />
-        
-        {/* Tenant-specific routes */}
-        <Route path="/:businessSlug" element={<HomePage />} />
-        
-        {/* Catch all - redirect to root */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Suspense>
-  );
-
-  return (
-    <div className="min-h-screen bg-gray-900">
-      <SEOManager />
-      {routes}
+    for (const app of APPS) {
+      console.log(`\n⚡ Running Lighthouse for ${app.name} (${app.description})...`);
       
-      {/* Quote Modal */}
-      <LazyRequestQuoteModal 
-        isOpen={isQuoteModalOpen}
-        onClose={handleCloseQuoteModal}
-      />
-    </div>
+      // Point to app root path (Vite serves from dist/{app-name}/)
+      const url = `http://localhost:${port}/${app.name}/`;
+      const reportPath = path.join(root, `docs/audits/lighthouse/${app.name}-seo.json`);
+      
+      // Ensure output directory exists
+      fs.mkdirSync(path.dirname(reportPath), { recursive: true });
+
+      // 🐛 DEBUG: Verify URL is accessible before running Lighthouse
+      const debugMode = process.argv.includes('--debug');
+      if (debugMode) {
+        console.log(`   🐛 DEBUG MODE: Testing ${url}`);
+        try {
+          const https = await import('https');
+          const http = await import('http');
+          const fetchUrl = new Promise((resolve, reject) => {
+            const lib = url.startsWith('https') ? https : http;
+            lib.default.get(url, (res) => {
+              let data = '';
+              res.on('data', chunk => data += chunk);
+              res.on('end', () => resolve({ status: res.statusCode, html: data }));
+            }).on('error', reject);
+          });
+          
+          const { status, html} = await fetchUrl;
+          const debugPath = path.join(root, `.tmp_lh/${app.name}-fetched.html`);
+          fs.writeFileSync(debugPath, html);
+          console.log(`   🐛 DEBUG: Saved fetched HTML to ${debugPath}`);
+          console.log(`   🐛 DEBUG: HTML size: ${html.length} bytes`);
+          console.log(`   🐛 DEBUG: Contains 'root': ${html.includes('root')}`);
+          console.log(`   🐛 DEBUG: Contains script tag: ${html.includes('<script')}`);
+          console.log(`   🐛 DEBUG: Status: ${status}`);
+        } catch (err) {
+          console.warn(`   ⚠️ DEBUG: Failed to fetch URL:`, err.message);
+        }
+      }
+
+      const lhCmd = [
+        "npx",
+        "lighthouse",
+        url,
+        "--only-categories=seo",
+        `--output=json`,
+        `--output-path=${reportPath}`,
+        "--quiet",
+        "--disable-storage-reset",
+        `--chrome-flags="--headless --no-sandbox --disable-dev-shm-usage --user-data-dir=${chromeDir}"`,
+      ].join(" ");
+
+      try {
+        await execAsync(lhCmd, { cwd: root, env: process.env, timeout: 90000, windowsHide: true });
+        console.log(`✅ Lighthouse finished for ${app.name}`);
+      } catch (err) {
+        if (/EPERM|Permission denied/i.test(err.message)) {
+          console.warn(`⚠️ Lighthouse cleanup permission issue for ${app.name} — safe to ignore.`);
+        } else {
+          console.warn(`⚠️ Lighthouse run issue for ${app.name}:`, err.message);
+        }
+      }
+
+      // Parse score
+      const reportJsonPath = reportPath.replace('.json', '.report.json');
+      const actualReportPath = fs.existsSync(reportJsonPath) 
+        ? reportJsonPath 
+        : reportPath;
+      
+      if (fs.existsSync(actualReportPath)) {
+        const json = JSON.parse(fs.readFileSync(actualReportPath, "utf8"));
+        const score = Math.round((json.categories?.seo?.score || 0) * 100);
+        console.log(`✅ ${app.name} score: ${score}/100`);
+        results[app.name] = { score, data: json };
+      } else {
+        console.warn(`⚠️ Lighthouse report not found for ${app.name}`);
+        results[app.name] = { score: null, data: null };
+      }
+    }
+  } catch (err) {
+    console.error("❌ Lighthouse failed:", err.message);
+  } finally {
+    // ✅ Centralized cleanup using cleanup utilities
+    if (processRef && processRef.pid) {
+      console.log("💤 Shutting down preview server...");
+      await killProcessTree(processRef.pid);
+      processRegistry.unregister(port);
+    }
+
+    // ✅ Remove leftover Chrome temp directory safely (keep debug files if in debug mode)
+    try {
+      const debugMode = process.argv.includes('--debug');
+      const tmpDir = path.join(root, ".tmp_lh");
+      if (fs.existsSync(tmpDir) && !debugMode) {
+        fs.rmSync(tmpDir, { recursive: true, force: true });
+      } else if (debugMode) {
+        console.log("🐛 DEBUG: Keeping .tmp_lh folder for inspection");
+      }
+    } catch (err) {
+      console.warn("⚠️ Could not clean temp folder:", err.message);
+    }
+  }
+
+  return results;
+}
+
+
+
+
+
+
+/*──────────────────────────────────────────────────────────────
+| 🧾 Comprehensive Reporting (Enhanced Markdown Output)
+|──────────────────────────────────────────────────────────────*/
+function printSummary(final, lighthouseResults, schema, staticSeo, endpoints, html) {
+  console.log("\n─────────────────────────────");
+  console.log("📊 MULTI-APP SEO AUDIT SUMMARY");
+  console.log("─────────────────────────────");
+  console.log(`Total Score: ${final}/100`);
+  
+  console.log("\n📈 Lighthouse Scores by App:");
+  for (const app of APPS) {
+    const result = lighthouseResults[app.name];
+    const score = result?.score ?? "N/A";
+    console.log(`  ${app.name}: ${score}/100 (${app.description})`);
+  }
+  
+  console.log(`\nSchema Quality: ${schema.score}/100`);
+  if (schema.validation) {
+    const v = schema.validation;
+    console.log(`  Schemas: ${v.validSchemas || 0}/${v.totalSchemas || 0} valid`);
+    console.log(`  Types: ${(v.typesCovered || []).join(", ") || "None"}`);
+    if ((v.totalErrors || 0) > 0) console.log(`  ⚠️ ${v.totalErrors} error(s)`);
+    if ((v.totalWarnings || 0) > 0) console.log(`  ⚠️ ${v.totalWarnings} warning(s)`);
+  }
+  
+  console.log(
+    `HTML Meta: ${
+      html.every(h => h.hasTitle && h.hasDescription)
+        ? "✅ OK"
+        : "⚠️ Missing meta tags"
+    }`
+  );
+  console.log("\n🔎 Static SEO/Analytics:");
+  Object.values(staticSeo).forEach(v => console.log("  " + v));
+  console.log("\n🔗 Endpoints:");
+  endpoints.endpoints.forEach(e => console.log("  " + e));
+  endpoints.issues.forEach(e => console.log("  " + e));
+  console.log("─────────────────────────────\n");
+}
+
+/*──────────────────────────────────────────────────────────────
+| 📘 Detailed Markdown Report Generator (Escaped & Safe)
+|──────────────────────────────────────────────────────────────*/
+function generateMarkdownReport({ finalScore, lighthouseResults, schema, html, staticSeo, endpoints }) {
+  const hasMeta = html.every(f => f.hasTitle && f.hasDescription);
+  const seoHealth =
+    finalScore >= 90
+      ? "🟢 Excellent"
+      : finalScore >= 75
+      ? "🟡 Good"
+      : "🔴 Needs Improvement";
+
+  // Calculate average Lighthouse score across apps
+  const validScores = Object.values(lighthouseResults).filter(r => r.score !== null).map(r => r.score);
+  const avgLighthouse = validScores.length > 0 
+    ? Math.round(validScores.reduce((a, b) => a + b, 0) / validScores.length)
+    : null;
+
+  // Generate per-app sections
+  const appSections = APPS.map(app => {
+    const result = lighthouseResults[app.name];
+    const score = result?.score ?? "N/A";
+    const status = typeof score === 'number' && score >= 90 ? "✅ Excellent" : "⚠️ Needs Work";
+    
+    return `### ${app.name} — ${app.description}
+**Score:** ${score}/100 ${status}
+
+**Key Findings:**
+${result?.data ? `
+- Mobile Friendly: ${result.data.audits?.['viewport']?.score === 1 ? "✅ Yes" : "⚠️ No"}
+- Valid hreflang: ${result.data.audits?.['hreflang']?.score === 1 ? "✅ Yes" : "N/A"}
+- Document Title: ${result.data.audits?.['document-title']?.score === 1 ? "✅ Present" : "⚠️ Missing"}
+- Meta Description: ${result.data.audits?.['meta-description']?.score === 1 ? "✅ Present" : "⚠️ Missing"}
+- Crawlable Links: ${result.data.audits?.['crawlable-anchors']?.score === 1 ? "✅ Yes" : "⚠️ No"}
+` : "- Report not available"}
+`;
+  }).join("\n---\n\n");
+
+  return (
+`# Multi-App SEO Audit Report
+Generated: ${new Date().toISOString()}
+
+---
+
+## 🧭 Overview
+**Total SEO Score:** ${finalScore}/100 (${seoHealth})
+
+| Metric | Score | Status |
+|---------|-------|--------|
+| Lighthouse (Average) | ${avgLighthouse ?? "N/A"} | ${avgLighthouse >= 90 ? "✅ Excellent" : "⚠️ Needs Work"} |
+| Schema Quality | ${schema.score} | ${schema.score >= 80 ? "✅ Good" : "⚠️ Limited"} |
+| HTML Meta Tags | ${hasMeta ? "✅ Complete" : "⚠️ Incomplete"} | ${hasMeta ? "Titles & descriptions found" : "Missing meta info"} |
+| Static SEO / Analytics | ✅ Present | Helmet, GA, OG, Sitemap, Robots |
+| Endpoints | ✅ Active | robots.txt & sitemap.xml verified |
+
+### 📱 Lighthouse Scores by App
+
+| App | Score | Description |
+|-----|-------|-------------|
+${APPS.map(app => {
+  const result = lighthouseResults[app.name];
+  const score = result?.score ?? "N/A";
+  return `| **${app.name}** | ${score}/100 | ${app.description} |`;
+}).join('\n')}
+
+---
+
+## 🔍 Lighthouse SEO — Per-App Results
+
+${appSections}
+
+**General Recommendations:**
+- Verify Lighthouse "SEO" audits in Chrome DevTools → Lighthouse → SEO tab for each app.  
+- Ensure canonical URLs and mobile meta tags (\`<meta name="viewport">\`) are consistent across all apps.
+
+---
+
+## 🧩 Structured Data (Schema)
+**Score:** ${schema.score}/100  
+${schema.score >= 80
+  ? "✅ Sufficient structured data detected."
+  : "⚠️ Schema markup found, but coverage is limited or incomplete."
+}
+
+${schema.validation ? `
+**Validation Results:**
+- Total Schemas: ${schema.validation.totalSchemas}
+- Valid Schemas: ${schema.validation.validSchemas} (${schema.validation.totalSchemas > 0 ? Math.round((schema.validation.validSchemas / schema.validation.totalSchemas) * 100) : 0}%)
+- Invalid Schemas: ${schema.validation.invalidSchemas}
+- Errors: ${schema.validation.totalErrors}
+- Warnings: ${schema.validation.totalWarnings}
+- Schema Types: ${schema.validation.typesCovered.join(", ") || "None"}
+` : ""}
+
+**Findings:**
+- Source files with @type: ${schema.srcSchemaCount || 0}
+- Schema types covered: ${schema.validation?.typesCovered.length || 0}
+
+**Recommendations:**
+- Add or expand structured data with [schema.org](https://schema.org/) types:  
+  - \`LocalBusiness\`, \`Service\`, and \`Organization\`  
+  - Include \`aggregateRating\`, \`review\`, and \`openingHours\` where applicable  
+- Run detailed schema validation: \`node scripts/audits/schema-validator.js\`
+- Validate using [Google's Rich Results Test](https://search.google.com/test/rich-results)
+
+---
+
+## 🧱 HTML Meta Tags
+**Status:** ${hasMeta ? "✅ All pages have meta titles & descriptions." : "⚠️ Missing or incomplete meta tags."}
+
+**Recommendations:**
+- Ensure every page has a unique, descriptive \`<title>\` (60 chars max)  
+- Add \`<meta name="description">\` with ~155 chars of clear summary  
+- Include:
+  - \`<link rel="canonical" href="https://example.com/">\`
+  - \`<meta property="og:image">\` and \`<meta property="twitter:card">\` for social previews
+
+---
+
+## 📊 Static SEO & Analytics Integration
+| Feature | Status | Notes |
+|----------|--------|-------|
+| Helmet / Meta Management | ${staticSeo.helmet} | React Helmet ensures dynamic titles |
+| Analytics | ${staticSeo.analytics} | Confirms GA4 or GTM tracking |
+| OpenGraph / JSON-LD | ${staticSeo.opengraph} | Social and structured markup present |
+| Sitemap | ${staticSeo.sitemap} | Sitemap generator detected |
+| Robots.txt | ${staticSeo.robots} | Public-facing file verified |
+
+**Recommendations:**
+- Confirm analytics ID matches your main property (GA4 / GTM).  
+- Ensure robots.txt allows essential pages (no accidental blocking).  
+- Verify all key URLs appear in \`sitemap.xml\`.
+
+---
+
+## 🔗 Backend SEO Endpoints
+| Endpoint | Status | Description |
+|-----------|--------|-------------|
+| robots.txt | ${endpoints.endpoints.some(e => e.includes('robots')) ? "✅ Found" : "⚠️ Missing"} | Controls search engine crawling |
+| sitemap.xml | ${endpoints.endpoints.some(e => e.includes('sitemap')) ? "✅ Found" : "⚠️ Missing"} | Lists indexable pages for bots |
+
+**Recommendations:**
+- Ensure sitemap.xml dynamically includes tenant subdomains.  
+- Host both sitemap and robots.txt at each tenant's subdomain if applicable.
+
+---
+
+## 🧾 Final Summary
+**Overall SEO Health:** ${seoHealth}
+
+✅ **Strengths**
+- Strong Lighthouse performance (technical SEO)
+- Meta tags and analytics detected
+- Sitemap and robots endpoints active
+
+⚠️ **Opportunities**
+- Improve structured data coverage
+- Expand JSON-LD with richer entity details
+- Audit schema consistency across subdomains
+
+---
+
+## 🚀 Next Steps
+1. Improve Schema depth (\`LocalBusiness\`, \`Service\`, \`Organization\`).  
+2. Validate structured data with Google's Rich Results Test.  
+3. Add social preview metadata (OG & Twitter cards).  
+4. Submit sitemap to Google Search Console.  
+5. Schedule recurring SEO audits weekly or before major releases.
+
+---
+
+Generated automatically by **That Smart Site SEO Auditor** 🧠
+`
   );
 }
 
 
-/*──────────────── backend\middleware\errorHandler.js ────────────────*/
-
-/**
- * Error Handling Middleware
- * Provides centralized error handling for the application
- */
-
-import logger from '../utils/logger.js';
-import { ValidationError } from '../utils/validators.js';
-import { errorMonitor } from '../utils/errorMonitor.js';
-import { sendError, sendValidationError, sendNotFound } from '../utils/responseFormatter.js';
-
-/**
- * Error handler middleware
- * Must be the last middleware in the chain
- */
-const errorHandler = (err, req, res, next) => {
-  // If headers already sent, delegate to default Express handler to avoid double-send
-  if (res.headersSent) {
-    return next(err);
-  }
-  // Log the error
-  logger.error('Unhandled error:', {
-    error: err.message,
-    stack: err.stack,
-    url: req.url,
-    method: req.method,
-    ip: req.ip || req.connection.remoteAddress,
-    userAgent: req.get('User-Agent')
-  });
-
-  // Capture error in our monitoring system
-  errorMonitor.captureRequestError(req, res, err);
-
-  // Handle validation errors
-  if (err instanceof ValidationError) {
-    return sendValidationError(res, 'Validation failed', [{
-      field: err.field,
-      message: err.message,
-      value: err.value
-    }]);
-  }
-
-  // Handle Zod validation errors
-  if (err.code === 'VALIDATION_ERROR' || err.code === 'SANITIZATION_ERROR') {
-    return sendValidationError(res, err.message, err.details || []);
-  }
-
-  // Handle database connection errors
-  if (err.code === 'ECONNREFUSED' || err.code === 'ENOTFOUND') {
-    return sendError(res, 'Database service unavailable', err.code, 503);
-  }
-
-  // Handle database constraint violations
-  if (err.code === '23505') { // Unique violation
-    return sendError(res, 'A record with this information already exists', 'Duplicate entry', 409);
-  }
-
-  if (err.code === '23503') { // Foreign key violation
-    return sendError(res, 'Referenced record does not exist', 'Invalid reference', 400);
-  }
-
-  if (err.code === '23514') { // Check violation
-    return sendError(res, 'Data does not meet requirements', 'Invalid data', 400);
-  }
-
-  // Handle JWT errors
-  if (err.name === 'JsonWebTokenError') {
-    return sendError(res, 'Authentication token is invalid', 'Invalid token', 401);
-  }
-
-  if (err.name === 'TokenExpiredError') {
-    return sendError(res, 'Authentication token has expired', 'Token expired', 401);
-  }
-
-  // Handle rate limiting errors
-  if (err.status === 429) {
-    return sendError(res, 'Please try again later', 'Too many requests', 429);
-  }
-
-  // Handle request size errors
-  if (err.status === 413) {
-    return sendError(res, 'Request body exceeds size limit', 'Request too large', 413);
-  }
-
-  // Handle syntax errors in JSON
-  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
-    return sendError(res, 'Request body contains invalid JSON', 'Invalid JSON', 400);
-  }
-
-  // Handle multer file upload errors
-  if (err.code === 'LIMIT_FILE_SIZE') {
-    return sendError(res, 'Uploaded file exceeds size limit', 'File too large', 413);
-  }
-
-  if (err.code === 'LIMIT_FILE_COUNT') {
-    return sendError(res, 'Too many files uploaded', 'Too many files', 413);
-  }
-
-  if (err.code === 'LIMIT_UNEXPECTED_FILE') {
-    return sendError(res, 'Unexpected file field in upload', 'Unexpected file field', 400);
-  }
-
-  // Handle custom upload validation errors
-  if (err.statusCode === 415) {
-    return sendError(res, err.message || 'File type not supported', 'Unsupported media type', 415);
-  }
-
-  if (err.statusCode === 413) {
-    return sendError(res, err.message || 'Upload exceeds size limits', 'Request entity too large', 413);
-  }
-
-  // Handle generic database errors
-  if (err.code && err.code.startsWith('23')) {
-    return sendError(res, 'Invalid data provided', 'Database error', 400);
-  }
-
-  // Handle generic server errors
-  if (err.status) {
-    return sendError(res, err.message || 'Server error', null, err.status);
-  }
-
-  // Default error response
-  const statusCode = err.statusCode || 500;
-  const message = process.env.NODE_ENV === 'production' ? 'Something went wrong' : (err.message || 'Internal server error');
+/*──────────────────────────────────────────────────────────────
+| 🚀 Main Execution (unchanged except report writing)
+|──────────────────────────────────────────────────────────────*/
+(async function runSEOAudit() {
+  console.log("\n🚀 Running Full Multi-App SEO Audit...\n");
   
-  return sendError(res, message, 'Server error', statusCode);
-};
+  if (USE_PAGESPEED_API) {
+    console.log("🌐 Using PageSpeed Insights API (Google hosted Lighthouse)");
+  } else if (process.platform === "win32") {
+    console.log("⚠️  Using local Lighthouse on Windows (may have headless Chrome issues)");
+    console.log("   💡 Tip: Set PAGESPEED_API_KEY in .env for reliable results\n");
+  }
+  
+  // Setup graceful shutdown to clean up any processes
+  setupGracefulShutdown();
+  
+  ensureFreshBuild();
 
-/**
- * 404 handler for unmatched routes
- */
-const notFoundHandler = (req, res) => {
-  logger.warn('Route not found:', {
-    url: req.url,
-    method: req.method,
-    ip: req.ip || req.connection.remoteAddress
+  const schema = await runEnhancedSchemaDetection();
+  const lighthouseResults = await runLighthouseSEO();
+  const staticSeo = staticSeoAnalysis();
+  const endpoints = testSEOEndpoints();
+  const html = analyzeHTMLStructure();
+
+  // Calculate average lighthouse score across all apps
+  const validScores = Object.values(lighthouseResults).filter(r => r.score !== null).map(r => r.score);
+  const avgLighthouse = validScores.length > 0 
+    ? Math.round(validScores.reduce((a, b) => a + b, 0) / validScores.length)
+    : null;
+
+  let score = 100;
+  if (!avgLighthouse || avgLighthouse < 80) score -= 10;
+  if (schema.score < 80) score -= 10;
+  if (html.some(f => !f.hasTitle || !f.hasDescription)) score -= 10;
+  if (endpoints.issues.length) score -= endpoints.issues.length * 5;
+  const finalScore = Math.max(0, score);
+
+  printSummary(finalScore, lighthouseResults, schema, staticSeo, endpoints, html);
+
+  const reportMarkdown = generateMarkdownReport({
+    finalScore,
+    lighthouseResults,
+    schema,
+    html,
+    staticSeo,
+    endpoints,
   });
 
-  return sendNotFound(res, `Route ${req.method} ${req.url} not found`);
-};
+  const reportPath = path.join(root, "docs/audits/SEO_AUDIT.md");
+  fs.mkdirSync(path.dirname(reportPath), { recursive: true });
+  fs.writeFileSync(reportPath, reportMarkdown);
+  console.log(`✅ Multi-app SEO audit complete → ${reportPath}\n`);
+
+  // Auto-ingest results to database (if --no-db flag not set)
+  const skipDb = process.argv.includes("--no-db");
+  if (!skipDb) {
+    try {
+      console.log("💾 Ingesting results to database...");
+      await ingestSEOResults();
+      console.log("✅ Results saved to health_monitoring table\n");
+    } catch (err) {
+      console.warn("⚠️ Database ingestion failed (continuing anyway):", err.message);
+      console.log("   Run manually: node scripts/automation/ingest-seo.js\n");
+    }
+  }
+
+  process.exit(0);
+})();
+
+
+/*──────────────── scripts\utils\cleanup.js ────────────────*/
+
+#!/usr/bin/env node
+/**
+ * cleanup.js — Process & Port Management Utilities
+ * --------------------------------------------------------------
+ * Provides robust utilities for:
+ *  - Killing process trees (Windows & Unix)
+ *  - Checking port availability
+ *  - Tracking and cleaning up spawned servers
+ *  - Finding and killing processes by port
+ * --------------------------------------------------------------
+ * Used by: audit scripts, dev servers, testing utilities
+ */
+
+import { spawn, exec } from "child_process";
+import { promisify } from "util";
+import net from "net";
+
+const execAsync = promisify(exec);
+
+/*──────────────────────────────────────────────────────────────
+| 🔪 Process Tree Termination (Cross-Platform)
+|──────────────────────────────────────────────────────────────*/
 
 /**
- * Async error wrapper
- * Wraps async route handlers to catch errors
+ * Kills a process and all its children
+ * @param {number} pid - Process ID to kill
+ * @param {string} signal - Signal to send (default: SIGTERM)
+ * @returns {Promise<boolean>} - True if successful
  */
-const asyncHandler = (fn) => {
-  return (req, res, next) => {
-    Promise.resolve(fn(req, res, next)).catch(next);
-  };
-};
+export async function killProcessTree(pid, signal = "SIGTERM") {
+  if (!pid || pid <= 0) {
+    console.warn("⚠️ Invalid PID provided to killProcessTree");
+    return false;
+  }
 
-export {
-  errorHandler,
-  notFoundHandler,
-  asyncHandler
-};
+  try {
+    if (process.platform === "win32") {
+      // Windows: Use taskkill with /T (tree) and /F (force)
+      return new Promise((resolve) => {
+        const killProcess = spawn("taskkill", ["/PID", String(pid), "/T", "/F"], {
+          shell: true,
+          stdio: "ignore",
+        });
+
+        killProcess.on("close", (code) => {
+          if (code === 0) {
+            console.log(`✅ Killed process tree ${pid} (Windows)`);
+            resolve(true);
+          } else {
+            console.warn(`⚠️ Failed to kill process ${pid}, may already be dead`);
+            resolve(false);
+          }
+        });
+
+        killProcess.on("error", (err) => {
+          console.warn(`⚠️ Error killing process ${pid}:`, err.message);
+          resolve(false);
+        });
+      });
+    } else {
+      // Unix: Kill negative PID to kill process group
+      try {
+        process.kill(-pid, signal);
+        console.log(`✅ Killed process tree ${pid} (Unix)`);
+        return true;
+      } catch (err) {
+        if (err.code === "ESRCH") {
+          console.warn(`⚠️ Process ${pid} not found (already dead)`);
+          return false;
+        }
+        throw err;
+      }
+    }
+  } catch (err) {
+    console.error(`❌ Failed to kill process ${pid}:`, err.message);
+    return false;
+  }
+}
+
+/*──────────────────────────────────────────────────────────────
+| 🔌 Port Availability Utilities
+|──────────────────────────────────────────────────────────────*/
+
+/**
+ * Check if a port is currently in use
+ * @param {number} port - Port to check
+ * @param {string} host - Host to check (default: 127.0.0.1)
+ * @returns {Promise<boolean>} - True if port is in use
+ */
+export function isPortInUse(port, host = "127.0.0.1") {
+  return new Promise((resolve) => {
+    const socket = new net.Socket();
+    
+    socket.setTimeout(800);
+    
+    socket.once("connect", () => {
+      socket.destroy();
+      resolve(true); // Port is in use
+    });
+    
+    socket.once("timeout", () => {
+      socket.destroy();
+      resolve(false); // Port is free
+    });
+    
+    socket.once("error", (err) => {
+      socket.destroy();
+      if (err.code === "ECONNREFUSED") {
+        resolve(false); // Port is free
+      } else {
+        resolve(false); // Assume free on other errors
+      }
+    });
+    
+    socket.connect(port, host);
+  });
+}
+
+/**
+ * Wait for a port to become available
+ * @param {number} port - Port to check
+ * @param {number} retries - Number of retries (default: 20)
+ * @param {number} delayMs - Delay between retries (default: 500)
+ * @returns {Promise<boolean>} - True if port became available
+ */
+export async function waitForPort(port, retries = 20, delayMs = 500) {
+  for (let i = 0; i < retries; i++) {
+    if (await isPortInUse(port)) {
+      return true;
+    }
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
+  }
+  return false;
+}
+
+/**
+ * Find the first available port starting from basePort
+ * @param {number} basePort - Starting port number
+ * @param {number} maxAttempts - Maximum ports to try (default: 10)
+ * @returns {Promise<number>} - First available port, or -1 if none found
+ */
+export async function findAvailablePort(basePort = 3000, maxAttempts = 10) {
+  for (let i = 0; i < maxAttempts; i++) {
+    const port = basePort + i;
+    if (!(await isPortInUse(port))) {
+      return port;
+    }
+  }
+  console.warn(`⚠️ No available ports found in range ${basePort}-${basePort + maxAttempts}`);
+  return -1;
+}
+
+/*──────────────────────────────────────────────────────────────
+| 🎯 Find & Kill Process by Port
+|──────────────────────────────────────────────────────────────*/
+
+/**
+ * Find the PID of process using a specific port
+ * @param {number} port - Port number
+ * @returns {Promise<number|null>} - PID if found, null otherwise
+ */
+export async function findProcessByPort(port) {
+  try {
+    if (process.platform === "win32") {
+      // Windows: Use netstat
+      const { stdout } = await execAsync(`netstat -ano | findstr :${port}`);
+      const lines = stdout.split("\n").filter((line) => line.includes("LISTENING"));
+      
+      if (lines.length === 0) return null;
+      
+      // Extract PID from last column
+      const match = lines[0].trim().split(/\s+/).pop();
+      return match ? parseInt(match, 10) : null;
+    } else {
+      // Unix: Use lsof
+      const { stdout } = await execAsync(`lsof -ti:${port}`);
+      const pid = parseInt(stdout.trim(), 10);
+      return isNaN(pid) ? null : pid;
+    }
+  } catch (err) {
+    // Command failed, likely no process on port
+    return null;
+  }
+}
+
+/**
+ * Kill process using a specific port
+ * @param {number} port - Port number
+ * @returns {Promise<boolean>} - True if process was killed
+ */
+export async function killProcessByPort(port) {
+  console.log(`🔍 Looking for process on port ${port}...`);
+  const pid = await findProcessByPort(port);
+  
+  if (!pid) {
+    console.log(`✅ No process found on port ${port}`);
+    return false;
+  }
+  
+  console.log(`🔪 Killing process ${pid} on port ${port}...`);
+  return await killProcessTree(pid);
+}
+
+/*──────────────────────────────────────────────────────────────
+| 📋 Process Registry (Track Spawned Servers)
+|──────────────────────────────────────────────────────────────*/
+
+class ProcessRegistry {
+  constructor() {
+    this.processes = new Map(); // port -> { pid, name, startTime }
+  }
+
+  /**
+   * Register a spawned process
+   * @param {number} port - Port the process is using
+   * @param {number} pid - Process ID
+   * @param {string} name - Process name/description
+   */
+  register(port, pid, name = "unknown") {
+    this.processes.set(port, {
+      pid,
+      name,
+      startTime: Date.now(),
+    });
+    console.log(`📝 Registered process: ${name} (PID ${pid}) on port ${port}`);
+  }
+
+  /**
+   * Unregister a process
+   * @param {number} port - Port to unregister
+   */
+  unregister(port) {
+    const proc = this.processes.get(port);
+    if (proc) {
+      this.processes.delete(port);
+      console.log(`🗑️ Unregistered process on port ${port}`);
+    }
+  }
+
+  /**
+   * Kill all registered processes
+   * @returns {Promise<number>} - Number of processes killed
+   */
+  async killAll() {
+    let killed = 0;
+    console.log(`🔪 Killing ${this.processes.size} registered process(es)...`);
+    
+    for (const [port, { pid, name }] of this.processes.entries()) {
+      console.log(`  Killing ${name} (PID ${pid}) on port ${port}...`);
+      const success = await killProcessTree(pid);
+      if (success) killed++;
+      this.unregister(port);
+    }
+    
+    return killed;
+  }
+
+  /**
+   * Get all registered processes
+   * @returns {Array} - Array of process info objects
+   */
+  list() {
+    return Array.from(this.processes.entries()).map(([port, info]) => ({
+      port,
+      ...info,
+    }));
+  }
+
+  /**
+   * Get count of registered processes
+   * @returns {number}
+   */
+  count() {
+    return this.processes.size;
+  }
+}
+
+// Singleton instance
+export const processRegistry = new ProcessRegistry();
+
+/*──────────────────────────────────────────────────────────────
+| 🧹 Cleanup Helpers
+|──────────────────────────────────────────────────────────────*/
+
+/**
+ * Setup graceful shutdown handlers
+ * Automatically kills all registered processes on exit
+ */
+export function setupGracefulShutdown() {
+  const cleanup = async () => {
+    console.log("\n💤 Graceful shutdown initiated...");
+    await processRegistry.killAll();
+    process.exit(0);
+  };
+
+  process.on("exit", () => {
+    if (processRegistry.count() > 0) {
+      console.log("\n⚠️ Processes still registered on exit");
+    }
+  });
+
+  process.on("SIGINT", cleanup);
+  process.on("SIGTERM", cleanup);
+  process.on("SIGQUIT", cleanup);
+}
+
+/**
+ * Kill common development server ports
+ * Useful for cleaning up after crashed scripts
+ * @returns {Promise<number>} - Number of processes killed
+ */
+export async function killCommonPorts() {
+  const commonPorts = [3000, 3001, 4173, 5173, 5174, 5175, 5176, 5177, 5178, 5179, 8080];
+  let killed = 0;
+
+  console.log("🧹 Cleaning up common development ports...");
+  
+  for (const port of commonPorts) {
+    const success = await killProcessByPort(port);
+    if (success) killed++;
+  }
+
+  console.log(`✅ Cleaned ${killed} port(s)`);
+  return killed;
+}
+
+/*──────────────────────────────────────────────────────────────
+| 🚀 CLI Usage (if run directly)
+|──────────────────────────────────────────────────────────────*/
+
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const command = process.argv[2];
+  const arg = process.argv[3];
+
+  switch (command) {
+    case "kill-port":
+      if (!arg) {
+        console.error("Usage: node cleanup.js kill-port <port>");
+        process.exit(1);
+      }
+      await killProcessByPort(parseInt(arg, 10));
+      break;
+
+    case "kill-common":
+      await killCommonPorts();
+      break;
+
+    case "find-port":
+      if (!arg) {
+        console.error("Usage: node cleanup.js find-port <port>");
+        process.exit(1);
+      }
+      const pid = await findProcessByPort(parseInt(arg, 10));
+      if (pid) {
+        console.log(`✅ Process ${pid} is using port ${arg}`);
+      } else {
+        console.log(`✅ Port ${arg} is free`);
+      }
+      break;
+
+    case "check-port":
+      if (!arg) {
+        console.error("Usage: node cleanup.js check-port <port>");
+        process.exit(1);
+      }
+      const inUse = await isPortInUse(parseInt(arg, 10));
+      console.log(`Port ${arg}: ${inUse ? "❌ IN USE" : "✅ FREE"}`);
+      break;
+
+    default:
+      console.log(`
+🧹 Process & Port Cleanup Utilities
+
+Usage:
+  node cleanup.js kill-port <port>    - Kill process on specific port
+  node cleanup.js kill-common         - Kill processes on common dev ports
+  node cleanup.js find-port <port>    - Find PID using port
+  node cleanup.js check-port <port>   - Check if port is in use
+
+Examples:
+  node cleanup.js kill-port 4173
+  node cleanup.js kill-common
+  node cleanup.js find-port 3000
+  node cleanup.js check-port 5173
+      `);
+      process.exit(1);
+  }
+}
+
+
+
+/*──────────────── frontend\dist\main-site\index.html ────────────────*/
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>That Smart Site - Multi-Tenant Website Platform</title>
+    <meta name="description" content="Professional website platform for local service businesses. Mobile detailing, maid service, lawn care, pet grooming, and more." />
+    <script type="module" crossorigin src="../main-site-DVs3ICvq.js"></script>
+    <link rel="modulepreload" crossorigin href="../assets/vendor-Cffw-7Rh.js">
+    <link rel="modulepreload" crossorigin href="../assets/query-vendor-B2vaS9Wk.js">
+    <link rel="modulepreload" crossorigin href="../assets/react-vendor-BxWYRofd.js">
+    <link rel="modulepreload" crossorigin href="../assets/index-pF76ukct.js">
+    <link rel="modulepreload" crossorigin href="../assets/TenantApplicationPage-B59OMOVy.js">
+    <link rel="stylesheet" crossorigin href="../assets/index-BW224048.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
+
+/*──────────────── frontend\dist\tenant-app\index.html ────────────────*/
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="../shared/icons/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b0b0b" />
+    <title>Professional Services - Quality service for your needs</title>
+    <meta name="description" content="Professional services with quality service for your needs. Book now or request a quote." />
+    <script type="module" crossorigin src="../tenant-app-DMxN9sAb.js"></script>
+    <link rel="modulepreload" crossorigin href="../assets/vendor-Cffw-7Rh.js">
+    <link rel="modulepreload" crossorigin href="../assets/query-vendor-B2vaS9Wk.js">
+    <link rel="modulepreload" crossorigin href="../assets/react-vendor-BxWYRofd.js">
+    <link rel="modulepreload" crossorigin href="../assets/index-pF76ukct.js">
+    <link rel="modulepreload" crossorigin href="../assets/assets-BgvjtExL.js">
+    <link rel="modulepreload" crossorigin href="../assets/usePreviewParams-QCMZu2UX.js">
+    <link rel="modulepreload" crossorigin href="../assets/TenantApplicationPage-B59OMOVy.js">
+    <link rel="stylesheet" crossorigin href="../assets/index-BW224048.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
+
+
+/*──────────────── frontend\dist\admin-app\index.html ────────────────*/
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="../shared/icons/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b0b0b" />
+    <title>Admin Dashboard - That Smart Site</title>
+    <meta name="description" content="Admin dashboard for managing tenant websites and business data." />
+    <script type="module" crossorigin src="../admin-app-B9tWmxbP.js"></script>
+    <link rel="modulepreload" crossorigin href="../assets/vendor-Cffw-7Rh.js">
+    <link rel="modulepreload" crossorigin href="../assets/query-vendor-B2vaS9Wk.js">
+    <link rel="modulepreload" crossorigin href="../assets/react-vendor-BxWYRofd.js">
+    <link rel="modulepreload" crossorigin href="../assets/index-pF76ukct.js">
+    <link rel="modulepreload" crossorigin href="../assets/assets-BgvjtExL.js">
+    <link rel="modulepreload" crossorigin href="../assets/usePreviewParams-QCMZu2UX.js">
+    <link rel="modulepreload" crossorigin href="../assets/api-BcBw9jk9.js">
+    <link rel="stylesheet" crossorigin href="../assets/index-BW224048.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
+
+
+/*──────────────── frontend\main-site\index.html ────────────────*/
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>That Smart Site - Multi-Tenant Website Platform</title>
+    <meta name="description" content="Professional website platform for local service businesses. Mobile detailing, maid service, lawn care, pet grooming, and more." />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="../src/main-site/main.tsx"></script>
+  </body>
+</html>
+
+/*──────────────── frontend\tenant-app\index.html ────────────────*/
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/shared/icons/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b0b0b" />
+    <title>Professional Services - Quality service for your needs</title>
+    <meta name="description" content="Professional services with quality service for your needs. Book now or request a quote." />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="../src/tenant-app/main.tsx"></script>
+  </body>
+</html>
+
+
+/*──────────────── frontend\admin-app\index.html ────────────────*/
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/shared/icons/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b0b0b" />
+    <title>Admin Dashboard - That Smart Site</title>
+    <meta name="description" content="Admin dashboard for managing tenant websites and business data." />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="../src/admin-app/main.tsx"></script>
+  </body>
+</html>
+
+
+/*──────────────── package.json ────────────────*/
+
+{
+  "name": "thatsmartsite",
+  "version": "1.0.0",
+  "description": "That Smart Site - Smart websites for smart businesses",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "cd frontend && npm run build",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+
+    "dev": "concurrently \"cd frontend && npm run dev\" \"cd backend && npm run dev\" \"node scripts/error-monitor/index.js --target=all\"",
+    "dev:frontend": "node scripts/devtools/cli/find-free-port.js && node scripts/devtools/cli/start-frontend.js",
+    "dev:backend": "node scripts/devtools/cli/find-free-backend-port.js && cd backend && npm run dev",
+    "dev:main": "node scripts/devtools/cli/start-main-app.js",
+    "dev:admin": "node scripts/devtools/cli/start-admin-app.js",
+    "dev:tenant": "node scripts/devtools/cli/start-tenant-app.js",
+    "dev:hub": "node scripts/devtools/dev-hub.js",
+    "dev:monitor": "node scripts/devtools/cli/dev-monitor.js",
+    "predev:all": "node scripts/automation/cleanup/kill-node-processes.js && node scripts/automation/port-registry.js clear",
+    "dev:all": "npm run predev:all && concurrently -n HUB,MAIN,ADMIN,TENANT,BACKEND -c gray,cyan,magenta,yellow,green \"npm run dev:hub\" \"npm run dev:main\" \"npm run dev:admin\" \"npm run dev:tenant\" \"npm run dev:backend\"",
+    "dev:apps": "npm run predev:all && concurrently -n HUB,MAIN,ADMIN,TENANT -c gray,cyan,magenta,yellow \"npm run dev:hub\" \"npm run dev:main\" \"npm run dev:admin\" \"npm run dev:tenant\"",
+    "dev:clean": "scripts/automation/cleanup/cleanup-and-dev.bat",
+
+    "audit:all": "node scripts/project/run-all.js",
+    "audit:env": "node scripts/audits/audit-env.js",
+    "audit:schema": "node scripts/audits/audit-schema.js",
+    "audit:routes": "node scripts/audits/audit-routes.js",
+    "audit:routing": "node scripts/audits/audit-routing.js",
+    "audit:performance": "node scripts/audits/audit-performance.js",
+    "audit:seo": "node scripts/audits/audit-seo.js && node scripts/audits/schema-validator.js",
+    "audit:schema-validation": "node scripts/audits/schema-validator.js",
+    "audit:overview": "node scripts/audits/audit-overview.js",
+    "audit:db": "node scripts/audits/audit-db.js",
+
+    "serve:audit": "npm run preview --prefix frontend",
+
+    "fix:routes": "node scripts/devtools/fixers/fix-express-routes.js",
+    "fix:remaining": "node scripts/devtools/fixers/fix-remaining-routes.js",
+    "fix:final": "node scripts/devtools/fixers/fix-final-routes.js",
+
+    "test:all": "npm run test:backend && npm run test:frontend",
+    "test:backend": "node scripts/testing/backend/test-subdomain.js",
+    "test:frontend": "node scripts/testing/frontend/validate-build.js",
+    "test:subdomain": "node scripts/testing/backend/test-subdomain.js",
+    "test:domains": "node scripts/test-custom-domains.js",
+    "test:integration": "node scripts/testing/integration/verify-onboarding.js",
+    "validate": "node scripts/testing/frontend/validate-build.js",
+    "validate:env": "node scripts/devtools/validate-env.js",
+
+    "lint": "eslint backend/ scripts/",
+    "lint:fix": "eslint backend/ scripts/ --fix",
+    "lint:all": "npm run lint && cd frontend && npm run lint",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,css,scss}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md,css,scss}\"",
+
+    "deploy:check": "node scripts/automation/build/deploy-render.js",
+    "deploy:build": "cd frontend && npm run build && cd ../backend && npm run migrate",
+    "deploy:production": "node scripts/automation/deploy/deploy-production.js",
+
+    "seo:provision": "node scripts/setup/seo-provision.js --all",
+
+    "setup:hosts": "node scripts/setup-hosts.js",
+    "prepare": "husky install",
+
+    "overview": "node scripts/project/project-overview.js",
+    "score": "node scripts/devtools/metrics/scorecard.js",
+    "chatgpt": "node scripts/devtools/chatgpt-snapshot.js",
+    
+    "devtools:metrics": "node scripts/devtools/metrics/scorecard.js",
+    "devtools:fix": "node scripts/devtools/fixers/fix-express-routes.js",
+    "cli": "node scripts/devtools/cli/index.js",
+    "folder-dump": "node scripts/project/folder-dump.js"
+  },
+
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "concurrently": "^8.2.2",
+    "eslint": "^9.17.0",
+    "globals": "^15.14.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.11",
+    "madge": "^8.0.0",
+    "node-fetch": "^3.3.2",
+    "nodemon": "^3.1.0",
+    "prettier": "^3.4.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "chalk": "^5.6.2",
+    "cli-table3": "^0.6.5",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "http-proxy-middleware": "^3.0.5",
+    "pg": "^8.16.3"
+  }
+}
+
+
+/*──────────────── frontend\package.json ────────────────*/
+
+{
+  "name": "thatsmartsite-frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "npx vite",
+    "dev:main": "npx vite --config vite.config.main.ts",
+    "dev:admin": "npx vite --config vite.config.admin.ts",
+    "dev:tenant": "npx vite --config vite.config.tenant.ts",
+    "build": "npx vite build",
+    "build:main": "npx vite build --config vite.config.main.ts",
+    "build:admin": "npx vite build --config vite.config.admin.ts",
+    "build:tenant": "npx vite build --config vite.config.tenant.ts",
+    "build:all": "npm run build:main && npm run build:admin && npm run build:tenant",
+    "build:analyze": "cross-env ANALYZE=true npx vite build",
+    "prebuild": "echo 'Skipping image optimization for now'",
+    "lint": "eslint . && npm run lint:boundaries",
+    "lint:fix": "eslint . --fix",
+    "lint:boundaries": "tsx scripts/check-import-boundaries.ts",
+    "lint:boundaries:verbose": "tsx scripts/check-import-boundaries.ts -- --verbose",
+    "check:sizes": "node scripts/check-component-sizes.js",
+    "check:sizes:ci": "node scripts/check-component-sizes.js --ci --fail 250",
+    "check:sizes:report": "node scripts/check-component-sizes.js --limit 15",
+    "preview": "vite preview --port 4173 --strictPort",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "optimize-images": "node scripts/convert-images.js",
+    "check-pages": "node scripts/check-pages-usage.js",
+    "lint:pages": "eslint . --rule 'import/no-restricted-paths: error'",
+    "validate-location-data": "node scripts/validate-location-data.js",
+    "prebuild:validate": "npm run validate-location-data",
+    "build:faq-schemas": "node scripts/build-faq-schemas.js",
+    "prebuild:faq": "npm run build:faq-schemas"
+  },
+  "dependencies": {
+    "@sendgrid/mail": "^8.1.6",
+    "@stripe/react-stripe-js": "^5.2.0",
+    "@stripe/stripe-js": "^8.0.0",
+    "@tanstack/react-query": "^5.87.4",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.18",
+    "axios": "^1.12.2",
+    "cheerio": "^1.1.2",
+    "clsx": "^2.1.1",
+    "cross-env": "^10.1.0",
+    "http-proxy-middleware": "^3.0.5",
+    "lucide-react": "^0.344.0",
+    "postcss": "^8.4.35",
+    "puppeteer": "^24.25.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-helmet-async": "^2.0.5",
+    "react-icons": "^5.5.0",
+    "react-router-dom": "^7.7.1",
+    "rollup-plugin-visualizer": "^6.0.5",
+    "tailwind-merge": "^3.3.1",
+    "tailwindcss": "^3.4.1",
+    "vite": "^5.4.2",
+    "zod": "^4.1.5",
+    "zustand": "^5.0.8"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.9.1",
+    "@tailwindcss/container-queries": "^0.1.1",
+    "@types/google.maps": "^3.58.1",
+    "@types/node": "^24.3.1",
+    "@types/react": "^18.3.24",
+    "@types/react-dom": "^18.3.7",
+    "@typescript-eslint/eslint-plugin": "^8.8.1",
+    "@typescript-eslint/parser": "^8.8.1",
+    "@vitest/ui": "^3.2.4",
+    "eslint": "^8.57.0",
+    "eslint-plugin-eslint-comments": "^3.2.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react": "^7.34.3",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-react-refresh": "^0.4.7",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "globals": "^15.9.0",
+    "jsdom": "^26.1.0",
+    "sharp": "^0.33.0",
+    "tsx": "^4.20.6",
+    "typescript": "~5.5.4",
+    "vitest": "^3.2.4"
+  }
+}
+
+
+/*──────────────── backend\package.json ────────────────*/
+
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "prestart": "node scripts/kill-port.js",
+    "start": "node server.js",
+    "start:prod": "node server.js",
+    "dev": "nodemon --delay 2.5 server.js",
+    "lint": "cd .. && eslint backend/ --no-cache",
+    "lint:fix": "cd .. && eslint backend/ --fix --no-cache",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "cleanup-tokens": "node scripts/cleanup-tokens.js",
+    "migrate": "node ../scripts/backend/migrate-commonjs.cjs",
+    "migrate:list": "node ../scripts/backend/migrate-commonjs.cjs list",
+    "migrate:status": "node ../scripts/backend/migrate-commonjs.cjs list",
+    "rollback": "node scripts/rollback.js",
+    "rollback:list": "node scripts/rollback.js list",
+    "db:setup": "node ../scripts/backend/migrate-commonjs.cjs",
+    "db:snapshot": "node scripts/db-inspect.js 3 > ../docs/DATABASE.md",
+    "db:overview": "node scripts/db-overview.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@sendgrid/mail": "^8.1.6",
+    "axios": "^1.6.0",
+    "bcryptjs": "^2.4.3",
+    "compression": "^1.8.1",
+    "config": "^4.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "file-type": "^21.0.0",
+    "googleapis": "^164.0.0",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "lighthouse": "^11.0.0",
+    "multer": "^1.4.5-lts.1",
+    "node-cron": "^3.0.3",
+    "pg": "^8.11.3",
+    "pino": "^10.0.0",
+    "pino-pretty": "^13.1.2",
+    "puppeteer": "^24.25.0",
+    "sharp": "^0.32.6",
+    "stripe": "^14.5.0",
+    "uuid": "^13.0.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

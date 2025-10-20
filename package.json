@@ -27,7 +27,8 @@
     "audit:routes": "node scripts/audits/audit-routes.js",
     "audit:routing": "node scripts/audits/audit-routing.js",
     "audit:performance": "node scripts/audits/audit-performance.js",
-    "audit:seo": "node scripts/audits/audit-seo.js",
+    "audit:seo": "node scripts/audits/audit-seo.js && node scripts/audits/schema-validator.js",
+    "audit:schema-validation": "node scripts/audits/schema-validator.js",
     "audit:overview": "node scripts/audits/audit-overview.js",
     "audit:db": "node scripts/audits/audit-db.js",
 

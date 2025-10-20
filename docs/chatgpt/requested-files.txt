@@ -4,32 +4,38 @@ Each time you upload this folder to ChatGPT, it may recommend additional files t
 Paste them here under the comment section below.
 
 ```js
-// priority
-pushIfExists("backend/middleware/tenantResolver.js");
-pushIfExists("backend/middleware/withTenant.js");
-pushIfExists("backend/controllers/tenantController.js");
 
-
-pushIfExists("frontend/src/admin-app/AdminApp.tsx");
-pushIfExists("frontend/src/main-site/MainSiteApp.tsx");
-pushIfExists("frontend/src/tenant-app/TenantApp.tsx");
-
-pushIfExists("backend/middleware/errorHandler.js");
-
-pushIfExists("backend/middleware/withTenant.js");
-pushIfExists("backend/middleware/tenantResolver.js");
-pushIfExists("backend/routes/analytics.js");
-pushIfExists("backend/routes/admin.js");
-pushIfExists("backend/routes/auth.js");
-pushIfExists("backend/database/pool.js");
-
-pushIfExists("frontend/src/shared/env.ts");
-pushIfExists("frontend/vite.config.ts");
+pushIfExists("frontend/vite.config.shared.ts");
 pushIfExists("frontend/vite.config.main.ts");
 pushIfExists("frontend/vite.config.tenant.ts");
 pushIfExists("frontend/vite.config.admin.ts");
+pushIfExists("frontend/vite.config.ts");
 
-pushIfExists(".github/workflows/pr-checks.yml");
-pushIfExists("render.yaml");
+// Audit Scripts
+pushIfExists("scripts/audits/audit-seo.js");
+pushIfExists("scripts/utils/cleanup.js");
+
+// Built HTML Files (to see what's being served)
+pushIfExists("frontend/dist/main-site/index.html");
+pushIfExists("frontend/dist/tenant-app/index.html");
+pushIfExists("frontend/dist/admin-app/index.html");
+
+// Main Entry Points (source)
+pushIfExists("frontend/main-site/index.html");
+pushIfExists("frontend/tenant-app/index.html");
+pushIfExists("frontend/admin-app/index.html");
+
+
+// Package configs
+pushIfExists("package.json");
+pushIfExists("frontend/package.json");
+pushIfExists("backend/package.json");
+
+pushIfExists("scripts/utils/processManager.js")
+pushIfExists("scripts/config/env.js")
+pushIfExists("scripts/utils/logger.js")
+pushIfExists("frontend/vite.config.js")
+pushIfExists("package.json")
+
 
 ```

@@ -2,10 +2,28 @@ import React from 'react';
 import { BarChart3, TrendingUp } from 'lucide-react';
 
 import { Button } from '@/shared/ui';
+import { SEOHealthCard } from './SEOHealthCard';
 
 export const AnalyticsTab: React.FC = () => {
   return (
     <div className="space-y-6">
+      {/* SEO Health Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <SEOHealthCard />
+        
+        {/* Performance Metrics Placeholder */}
+        <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+          <div className="flex items-center gap-2 mb-4">
+            <TrendingUp className="w-5 h-5 text-green-400" />
+            <h3 className="text-lg font-semibold text-white">Performance Metrics</h3>
+          </div>
+          <div className="text-center text-gray-400 py-8">
+            <p>Core Web Vitals tracking coming soon...</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Analytics Dashboard */}
       <div className="bg-gray-800 rounded-lg shadow-sm border border-gray-700">
         <div className="px-6 py-4 border-b border-gray-700">
           <div className="flex items-center justify-between">

@@ -6,8 +6,8 @@
 
 import express from 'express';
 import { authenticateToken } from '../middleware/auth.js';
-import { withTenant, validateTenantExists, validateTenantApproved } from '../middleware/withTenant.js';
-import { validateTenantAccess, addTenantHeaders, logTenantContext } from '../middleware/tenantValidation.js';
+import { withTenant, validateTenantExists } from '../middleware/withTenant.js';
+import { validateTenantAccess, validateTenantApproved, addTenantHeaders, logTenantContext } from '../middleware/tenantValidation.js';
 import {
   getTenantDashboard,
   getTenantOverview,

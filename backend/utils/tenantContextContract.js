@@ -192,7 +192,7 @@ function generateTenantErrorResponse(error, meta = {}) {
   };
 }
 
-module.exports = {
+export {
   transformBusinessToTenantInfo,
   validateTenantContext,
   createTenantContext,

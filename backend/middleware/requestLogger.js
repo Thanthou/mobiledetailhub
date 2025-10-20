@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { createRequestLogger as createPinoRequestLogger, logApiRequest } from '../config/logger.js';
-import { logger } from 'config/logger.js';
+import { logger } from '../config/logger.js';
 // PII patterns for redaction
 const PII_PATTERNS = {
   email: /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g,

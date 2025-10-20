@@ -1,44 +1,75 @@
-# SEO Audit Report
-Generated: 2025-10-19T23:03:12.397Z
+# Multi-App SEO Audit Report
+Generated: 2025-10-20T01:04:21.783Z
 
 ---
 
 ## 🧭 Overview
-**Total SEO Score:** 90/100 (🟢 Excellent)
+**Total SEO Score:** 80/100 (🟡 Good)
 
 | Metric | Score | Status |
 |---------|-------|--------|
-| Lighthouse | 100 | ✅ Excellent |
-| Schema Quality | 70 | ⚠️ Limited |
+| Lighthouse (Average) | NaN | ⚠️ Needs Work |
+| Schema Quality | 10 | ⚠️ Limited |
 | HTML Meta Tags | ✅ Complete | Titles & descriptions found |
 | Static SEO / Analytics | ✅ Present | Helmet, GA, OG, Sitemap, Robots |
 | Endpoints | ✅ Active | robots.txt & sitemap.xml verified |
 
+### 📱 Lighthouse Scores by App
+
+| App | Score | Description |
+|-----|-------|-------------|
+| **main-site** | N/A/100 | Marketing & Onboarding |
+| **tenant-app** | N/A/100 | Live Tenant Storefronts |
+
 ---
 
-## 🔍 Lighthouse SEO
-**Score:** 100/100  
-✅ No major SEO issues detected. Your site is mobile-friendly, crawlable, and well-structured.
+## 🔍 Lighthouse SEO — Per-App Results
 
-**Recommendations:**
-- Verify Lighthouse “SEO” audits in Chrome DevTools → Lighthouse → SEO tab.  
-- Ensure canonical URLs and mobile meta tags (`<meta name="viewport">`) are consistent.
+### main-site — Marketing & Onboarding
+**Score:** N/A/100 ⚠️ Needs Work
+
+**Key Findings:**
+- Report not available
+
+---
+
+### tenant-app — Live Tenant Storefronts
+**Score:** N/A/100 ⚠️ Needs Work
+
+**Key Findings:**
+- Report not available
+
+
+**General Recommendations:**
+- Verify Lighthouse "SEO" audits in Chrome DevTools → Lighthouse → SEO tab for each app.  
+- Ensure canonical URLs and mobile meta tags (`<meta name="viewport">`) are consistent across all apps.
 
 ---
 
 ## 🧩 Structured Data (Schema)
-**Score:** 70/100  
+**Score:** 10/100  
 ⚠️ Schema markup found, but coverage is limited or incomplete.
 
+
+**Validation Results:**
+- Total Schemas: 0
+- Valid Schemas: 0 (0%)
+- Invalid Schemas: 0
+- Errors: 0
+- Warnings: 0
+- Schema Types: None
+
+
 **Findings:**
-- JSON-LD blocks found: *Yes*  
-- `@type` definitions detected: Some
+- Source files with @type: 35
+- Schema types covered: 0
 
 **Recommendations:**
 - Add or expand structured data with [schema.org](https://schema.org/) types:  
   - `LocalBusiness`, `Service`, and `Organization`  
   - Include `aggregateRating`, `review`, and `openingHours` where applicable  
-- Validate using [Google’s Rich Results Test](https://search.google.com/test/rich-results)
+- Run detailed schema validation: `node scripts/audits/schema-validator.js`
+- Validate using [Google's Rich Results Test](https://search.google.com/test/rich-results)
 
 ---
 
@@ -78,12 +109,12 @@ Generated: 2025-10-19T23:03:12.397Z
 
 **Recommendations:**
 - Ensure sitemap.xml dynamically includes tenant subdomains.  
-- Host both sitemap and robots.txt at each tenant’s subdomain if applicable.
+- Host both sitemap and robots.txt at each tenant's subdomain if applicable.
 
 ---
 
 ## 🧾 Final Summary
-**Overall SEO Health:** 🟢 Excellent
+**Overall SEO Health:** 🟡 Good
 
 ✅ **Strengths**
 - Strong Lighthouse performance (technical SEO)
@@ -99,7 +130,7 @@ Generated: 2025-10-19T23:03:12.397Z
 
 ## 🚀 Next Steps
 1. Improve Schema depth (`LocalBusiness`, `Service`, `Organization`).  
-2. Validate structured data with Google’s Rich Results Test.  
+2. Validate structured data with Google's Rich Results Test.  
 3. Add social preview metadata (OG & Twitter cards).  
 4. Submit sitemap to Google Search Console.  
 5. Schedule recurring SEO audits weekly or before major releases.

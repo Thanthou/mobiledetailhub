@@ -11,7 +11,7 @@ import { validateParams } from '../middleware/validation.js';
 import { customerSchemas } from '../utils/validationSchemas.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 // TODO: Add proper logging for customer operations
-// import { logger } from 'config/logger.js';
+// import { logger } from '../config/logger.js';
 // Get customers
 router.get('/', asyncHandler(async (req, res) => {
 

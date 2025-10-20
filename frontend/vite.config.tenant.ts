@@ -1,28 +1,25 @@
-import { defineConfig } from 'vite';
-import base from './vite.config.base';
-import react from '@vitejs/plugin-react';
+import { defineConfig, mergeConfig } from 'vite';
+import { sharedConfig } from './vite.config.shared';
 import path from 'path';
 
-export default defineConfig({
-  ...base,
-  plugins: [react()],
-  server: {
-    host: 'tenant.localhost',
-    port: 5179,
-    hmr: {
-      protocol: 'ws',
+export default defineConfig(
+  mergeConfig(sharedConfig, {
+    server: {
       host: 'tenant.localhost',
       port: 5179,
-    },
-    proxy: base.proxy, // reuse shared proxy config
-  },
-  build: {
-    ...base.build,
-    rollupOptions: {
-      ...base.build?.rollupOptions,
-      input: {
-        tenant: path.resolve(__dirname, 'src/tenant-app/index.html'),
+      hmr: {
+        protocol: 'ws',
+        host: 'tenant.localhost',
+        port: 5179,
       },
     },
-  },
-});
+    build: {
+      outDir: 'dist/tenant-app',
+      rollupOptions: {
+        input: {
+          tenant: path.resolve(__dirname, 'tenant-app/index.html'),
+        },
+      },
+    },
+  })
+);

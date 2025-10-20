@@ -7,7 +7,7 @@ import express from 'express';
 import { asyncHandler } from '../middleware/errorHandler.js';
 const router = express.Router();
 import { getPool } from '../database/pool.js';
-import { logger } from 'config/logger.js';
+import { logger } from '../config/logger.js';
 import { sendSuccess, sendError } from '../utils/responseFormatter.js';
 
 // Track shutdown status for graceful shutdown
