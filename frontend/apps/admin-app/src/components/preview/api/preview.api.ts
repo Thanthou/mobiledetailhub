@@ -61,10 +61,13 @@ export async function createPreview(
  * @param token - JWT token to verify
  * @returns Promise with decoded payload
  */
-export async function verifyPreview(token: string): Promise<PreviewPayload> {
+export async function verifyPreview(token: string, tenantId?: string): Promise<PreviewPayload> {
   try {
+    const url = new URL(`${config.apiUrl || ''}/api/preview/verify`, window.location.origin);
+    url.searchParams.set('t', token);
+    if (tenantId) url.searchParams.set('tenant_id', tenantId);
     const response = await fetch(
-      `${config.apiUrl || ''}/api/preview/verify?t=${encodeURIComponent(token)}`,
+      url.toString(),
       {
         method: 'GET',
         headers: {

@@ -4,9 +4,8 @@
  * Separated from Zustand store to maintain clean separation of concerns
  */
 
-import { useCallback, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-
+import { usePreviewAsyncCore } from '@shared/hooks/usePreviewAsyncCore';
 import { createPreview, verifyPreview } from '../api/preview.api';
 import { usePreviewStore } from '../state/previewStore';
 import type { PreviewPayload } from '../types/preview.types';
@@ -18,126 +17,17 @@ export interface PreviewGenerationResult {
 }
 
 export const usePreviewAsync = () => {
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generationError, setGenerationError] = useState<string | null>(null);
-
-  // Get store actions
   const { setLoading, setError, setPayload } = usePreviewStore();
 
-  /**
-   * Generate preview for given payload
-   */
-  const generatePreview = useCallback(async (payload: PreviewPayload): Promise<PreviewGenerationResult> => {
-    setIsGenerating(true);
-    setGenerationError(null);
-    setLoading(true);
-    setError(null);
+  const core = usePreviewAsyncCore(
+    {
+      createPreview: async (payload) => createPreview(payload as PreviewPayload),
+      verifyPreview: async (token) => verifyPreview(token) as unknown as PreviewPayload,
+    },
+    { setLoading, setError, setPayload }
+  );
 
-    try {
-      // Validate payload - properties are always defined in type
-      // if (!payload.businessName || !payload.phone || !payload.industry) {
-      //   throw new Error('Missing required preview data');
-      // }
-
-      // Generate preview using API
-      const result = await createPreview(payload);
-      
-      if (result.success && result.url) {
-        // Update store with generated preview
-        setPayload({
-          ...payload,
-          previewUrl: result.url,
-          generatedAt: new Date().toISOString(),
-        });
-
-        return {
-          success: true,
-          previewUrl: result.url
-        };
-      } else {
-        throw new Error('Failed to generate preview');
-      }
-
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to generate preview';
-      setGenerationError(errorMessage);
-      setError(errorMessage);
-      
-      return {
-        success: false,
-        error: errorMessage
-      };
-    } finally {
-      setIsGenerating(false);
-      setLoading(false);
-    }
-  }, [setLoading, setError, setPayload]);
-
-  /**
-   * Verify preview token
-   */
-  const verifyPreviewToken = useCallback(async (token: string): Promise<PreviewPayload | null> => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const payload = await verifyPreview(token);
-      
-      setPayload(payload);
-      return payload;
-
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to verify preview token';
-      setError(errorMessage);
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  }, [setLoading, setError, setPayload]);
-
-  /**
-   * Save preview configuration
-   */
-  const savePreviewConfig = useCallback(async (payload: PreviewPayload): Promise<boolean> => {
-    try {
-      setLoading(true);
-      
-      // TODO: Replace with actual API call
-      // For now, simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Update store
-      setPayload(payload);
-      return true;
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to save preview configuration';
-      setError(errorMessage);
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  }, [setLoading, setError, setPayload]);
-
-  /**
-   * Clear preview data
-   */
-  const clearPreview = useCallback(() => {
-    setError(null);
-    setGenerationError(null);
-    setIsGenerating(false);
-  }, [setError]);
-
-  return {
-    // State
-    isGenerating,
-    generationError,
-    
-    // Actions
-    generatePreview,
-    verifyPreviewToken,
-    savePreviewConfig,
-    clearPreview,
-  };
+  return core;
 };
 
 /**

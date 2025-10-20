@@ -1,3 +1,4 @@
+import { config } from '@shared/env';
 /**
  * Tenant API Layer
  * Handles all tenant-related API calls
@@ -24,7 +25,7 @@ export const tenantApi = {
    */
   getTenants: async (): Promise<TenantConfig[]> => {
     try {
-      const response = await fetch('/api/tenants');
+      const response = await fetch(`${config.apiUrl}/api/tenants`);
       
       if (!response.ok) {
         throw new Error(`Failed to fetch tenants: ${response.status} ${response.statusText}`);
@@ -48,7 +49,7 @@ export const tenantApi = {
    */
   getTenantBySlug: async (slug: string): Promise<Business> => {
     try {
-      const response = await fetch(`/api/tenants/${slug}`);
+      const response = await fetch(`${config.apiUrl}/api/tenants/${slug}`);
       
       if (!response.ok) {
         if (response.status === 404) {
@@ -75,7 +76,7 @@ export const tenantApi = {
    */
   getTenantsByIndustry: async (industry: string): Promise<TenantConfig[]> => {
     try {
-      const response = await fetch(`/api/tenants?industry=${encodeURIComponent(industry)}`);
+      const response = await fetch(`${config.apiUrl}/api/tenants?industry=${encodeURIComponent(industry)}`);
       
       if (!response.ok) {
         throw new Error(`Failed to fetch tenants by industry: ${response.status} ${response.statusText}`);
@@ -99,7 +100,7 @@ export const tenantApi = {
    */
   getIndustries: async (): Promise<{ industry: string; count: number }[]> => {
     try {
-      const response = await fetch('/api/tenants/industries/list');
+      const response = await fetch(`${config.apiUrl}/api/tenants/industries/list`);
       
       if (!response.ok) {
         throw new Error(`Failed to fetch industries: ${response.status} ${response.statusText}`);

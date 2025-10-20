@@ -4,19 +4,54 @@
 
 Create a `.env` file in the backend directory with the following variables:
 
+### Required Variables
 ```bash
 # Database Configuration
 DATABASE_URL=postgresql://username:password@localhost:5432/database_name
 
-# JWT Secret (for authentication)
-JWT_SECRET=your-secret-key-here
-
-# Admin Emails (comma-separated)
-ADMIN_EMAILS=admin@example.com,admin2@example.com
-
-# Server Port (optional, defaults to 3001)
-PORT=3001
+# JWT Secrets (for authentication)
+JWT_SECRET=your-access-token-secret-here
+JWT_REFRESH_SECRET=your-refresh-token-secret-here
 ```
+
+### Optional Variables
+```bash
+# Server Configuration
+NODE_ENV=development
+PORT=3001
+BASE_DOMAIN=thatsmartsite.com
+
+# Admin Configuration
+ADMIN_EMAILS=admin@example.com,admin2@example.com
+ADMIN_PASSWORD=admin-password
+
+# Frontend URLs
+FRONTEND_URL=https://thatsmartsite.com
+ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
+
+# Payment Processing (Stripe)
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+
+# Email Service (SendGrid)
+SENDGRID_API_KEY=SG...
+FROM_EMAIL=hello@thatsmartsite.com
+
+# Google Services
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+GOOGLE_REDIRECT_URI=http://localhost:3001/api/auth/google/callback
+
+# Logging
+LOG_LEVEL=info
+LOG_FILE=/var/log/thatsmartsite.log
+```
+
+### Environment Notes
+- **JWT tokens** use `thatsmartsite-backend` as issuer and `thatsmartsite-users` as audience
+- **Cookies** are secure in production (`secure: NODE_ENV === 'production'`)
+- **Database** connection is optional for development (warns but doesn't crash)
+- **Validation** uses Zod schemas with safe parsing (never crashes on missing vars)
 
 ## Database Setup
 

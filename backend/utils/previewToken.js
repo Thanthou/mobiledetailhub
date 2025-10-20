@@ -13,7 +13,7 @@ const logger = require('./logger');
 // Preview token configuration
 const PREVIEW_AUD = 'mdh-previews';
 const PREVIEW_ISS = 'mdh-backend';
-const PREVIEW_EXP = '7d';
+const PREVIEW_EXP = '1h';
 const PREVIEW_VERSION = 1;
 
 /**
@@ -30,6 +30,8 @@ function signPreview(payload) {
   try {
     const tokenPayload = {
       v: PREVIEW_VERSION,
+      // Optional tenant binding for isolation; when provided, restricts token usage to that tenant
+      tenantId: payload.tenantId || null,
       businessName: payload.businessName,
       phone: payload.phone,
       city: payload.city,
@@ -62,7 +64,7 @@ function signPreview(payload) {
  * @returns {Object} Decoded token payload
  * @throws {Error} If token is invalid or expired
  */
-function verifyPreview(token) {
+function verifyPreview(token, expectedTenantId = null) {
   try {
     const decoded = jwt.verify(token, env.JWT_SECRET, {
       algorithms: ['HS256'],
@@ -75,6 +77,11 @@ function verifyPreview(token) {
       throw new Error('Invalid token version');
     }
 
+    // Enforce tenant isolation if expected is provided and token is bound
+    if (expectedTenantId && decoded.tenantId && decoded.tenantId !== expectedTenantId) {
+      throw new Error('Invalid preview context');
+    }
+
     logger.info('Preview token verified', {
       industry: decoded.industry,
     });
@@ -85,6 +92,7 @@ function verifyPreview(token) {
       city: decoded.city,
       state: decoded.state,
       industry: decoded.industry,
+      tenantId: decoded.tenantId || null,
     };
   } catch (error) {
     if (error.name === 'TokenExpiredError') {

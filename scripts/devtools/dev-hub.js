@@ -11,32 +11,43 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const registryPath = path.join(__dirname, '../../.port-registry.json');
 
+// Load registry once at startup
+let registry = null;
+try {
+  registry = JSON.parse(fs.readFileSync(registryPath, 'utf-8'));
+} catch (err) {
+  console.error('⚠️  Could not load .port-registry.json:', err.message);
+}
+
 // Serve the port registry as JSON
 app.get('/.port-registry.json', (req, res) => {
-  if (!fs.existsSync(registryPath)) {
+  if (!registry) {
     return res.status(503).json({ error: 'Registry not ready' });
   }
-  const registry = JSON.parse(fs.readFileSync(registryPath, 'utf-8'));
   res.json(registry);
 });
 
+/**
+ * Get target URL based on hostname
+ * @param {string} host - The request hostname (e.g., 'admin.localhost')
+ * @returns {string|null} - Target URL (e.g., 'http://localhost:5176') or null
+ */
 function getTarget(host) {
-  if (!fs.existsSync(registryPath)) return null;
-  const registry = JSON.parse(fs.readFileSync(registryPath, 'utf-8'));
+  if (!registry) return null;
 
   // Handle different hostname patterns
-  if (host.includes('admin') || host.includes('admin.localhost')) {
-    return `http://localhost:${registry.admin}`;
+  if (host.includes('admin')) {
+    return `http://localhost:${registry.admin.port}`;
   }
-  if (host.includes('tenant') || host.includes('tenant.localhost')) {
-    return `http://localhost:${registry.tenant}`;
+  if (host.includes('tenant')) {
+    return `http://localhost:${registry.tenant.port}`;
   }
-  if (host.includes('main') || host.includes('main.localhost')) {
-    return `http://localhost:${registry.main}`;
+  if (host.includes('main') || host === 'localhost') {
+    return `http://localhost:${registry.main.port}`;
   }
   
   // Default to main site
-  return `http://localhost:${registry.main}`;
+  return `http://localhost:${registry.main.port}`;
 }
 
 // Create proxy middleware that handles all requests
@@ -126,21 +137,38 @@ app.use((req, res) => {
 
 const PORT = 8080;
 const server = app.listen(PORT, () => {
-  console.log(`🧭 Dev Hub running on port ${PORT}`);
-  console.log(`📱 Main Site: http://localhost:${PORT}`);
-  console.log(`🔐 Admin App: http://admin.localhost:${PORT}`);
-  console.log(`🏢 Tenant App: http://tenant.localhost:${PORT}`);
-  console.log(`📊 Registry: http://localhost:${PORT}/.port-registry.json`);
+  console.log('\n🧭 Dev Hub running on port 8080\n');
+  
+  if (registry) {
+    console.log('📍 Proxy Ready:');
+    console.log(`   localhost         → localhost:${registry.main.port} (main site)`);
+    console.log(`   admin.localhost   → localhost:${registry.admin.port}`);
+    console.log(`   tenant.localhost  → localhost:${registry.tenant.port}`);
+    console.log(`   backend           → localhost:${registry.backend.port}`);
+    console.log('');
+  } else {
+    console.log('⚠️  Registry not loaded - proxying may fail\n');
+  }
   
   // Show clickable links after a delay to ensure all services are up
   setTimeout(() => {
-    console.log('\n🚀 ===== DEVELOPMENT ENVIRONMENT READY =====');
+    console.log('🚀 ===== DEVELOPMENT ENVIRONMENT READY =====');
     console.log('📱 Main Website:     http://localhost:8080/');
     console.log('🔐 Admin Interface:  http://admin.localhost:8080/');
     console.log('🏢 Tenant Dashboard: http://tenant.localhost:8080/');
     console.log('📊 Port Registry:    http://localhost:8080/.port-registry.json');
     console.log('🔧 Backend API:      http://localhost:3001/api/health');
     console.log('===============================================\n');
+    
+    if (registry) {
+      // Verify Vite configs match registry
+      const warnings = [];
+      // Add warning logic if we detect mismatches in the future
+      if (warnings.length > 0) {
+        console.log('⚠️  Configuration Warnings:');
+        warnings.forEach(w => console.log(`   ${w}`));
+      }
+    }
   }, 3000); // 3 second delay
 });
 

@@ -28,6 +28,7 @@ const PreviewPayloadSchema = z.object({
   industry: z.enum(['mobile-detailing', 'maid-service', 'lawncare', 'pet-grooming'], {
     errorMap: () => ({ message: 'Invalid industry type' }),
   }),
+  tenantId: z.string().uuid().optional(),
 });
 
 /**
@@ -89,7 +90,7 @@ router.post('/', (req, res) => {
  */
 router.get('/verify', (req, res) => {
   try {
-    const { t: token } = req.query;
+    const { t: token, tenant_id: expectedTenantId } = req.query;
 
     if (!token || typeof token !== 'string') {
       return res.status(400).json({
@@ -99,7 +100,7 @@ router.get('/verify', (req, res) => {
     }
 
     // Verify and decode the token
-    const payload = verifyPreview(token);
+    const payload = verifyPreview(token, expectedTenantId || null);
 
     res.json({
       success: true,

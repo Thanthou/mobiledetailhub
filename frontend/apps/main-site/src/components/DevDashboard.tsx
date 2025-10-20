@@ -21,8 +21,8 @@ export function DevDashboard() {
     // Use proxied backend URL to avoid cross-origin issues in dev
     { name: 'Backend API', url: '/api/health', status: 'checking' },
     // Align with Vite dev server ports from vite.config.admin.ts and vite.config.tenant.ts
-    { name: 'Admin App', url: 'http://localhost:5177', status: 'checking' },
-    { name: 'Tenant App', url: 'http://localhost:5179', status: 'checking' },
+    { name: 'Admin App', url: 'http://localhost:5176', status: 'checking' },
+    { name: 'Tenant App', url: 'http://localhost:5177', status: 'checking' },
   ]);
 
   useEffect(() => {
@@ -55,14 +55,14 @@ export function DevDashboard() {
     {
       title: 'Admin Dashboard',
       description: 'Manage tenants, users, and platform',
-      href: 'http://localhost:5177',
+      href: 'http://localhost:5176',
       icon: '🔐',
       color: 'bg-blue-500',
     },
     {
       title: 'Tenant Preview',
       description: 'Preview tenant site templates',
-      href: 'http://localhost:5179',
+      href: 'http://localhost:5177',
       icon: '🏢',
       color: 'bg-purple-500',
     },

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ChevronDown, MapPin } from 'lucide-react';
 
 import { locationsApi } from '../api/locations.api';
-import type { LocationData, SearchResult } from '../schemas/locations.schemas';
+import type { LocationData, SearchResult } from '@shared/schemas/locations.schemas';
 
 interface LocationSelectorProps {
   locations: LocationData[];

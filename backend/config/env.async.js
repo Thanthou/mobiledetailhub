@@ -1,14 +1,11 @@
 /**
- * Async-safe environment loader
- * - Non-blocking validation
- * - Warns instead of exiting on failure
- * - Compatible with Render deployment
+ * Unified Environment Configuration
+ * - Non-blocking validation with Zod
+ * - Never crashes the server on missing vars
+ * - Works in both dev and production
  */
 
 import 'dotenv/config';
-import { createModuleLogger } from '../config/logger.js';
-const logger = createModuleLogger('env.async');
-
 
 import { z } from 'zod';
 
@@ -18,6 +15,8 @@ const EnvSchema = z.object({
   PORT: z.coerce.number().min(1000).max(65535).default(3001),
 
   DATABASE_URL: z.string().url().optional(),
+  
+  BASE_DOMAIN: z.string().default('thatsmartsite.com'),
 
   JWT_SECRET: z.string().optional(),
   JWT_REFRESH_SECRET: z.string().optional(),
@@ -55,20 +54,24 @@ export async function loadEnv() {
   try {
     const parsed = EnvSchema.safeParse(process.env);
     if (!parsed.success) {
-      logger.warn('⚠️  Environment variable warnings:');
+      console.warn('⚠️  Environment variable warnings:');
       parsed.error.errors.forEach(e =>
-        logger.warn(`  - ${e.path.join('.')}: ${e.message}`)
+        console.warn(`  - ${e.path.join('.')}: ${e.message}`)
       );
     }
 
     const env = parsed.success ? parsed.data : EnvSchema.parse({});
     if (!env.DATABASE_URL) {
-      logger.warn('⚠️  DATABASE_URL not provided — DB connection will be lazy.');
+      console.warn('⚠️  DATABASE_URL not provided — DB connection will be lazy.');
     }
 
     return env;
   } catch (err) {
-    logger.error('❌ Failed to load environment:', err.message);
+    console.error('❌ Failed to load environment:', err.message);
     return {}; // never crash server
   }
 }
+
+// --- Synchronous export for backward compatibility ---
+// This allows existing code to still use `import { env } from './env.js'`
+export const env = await loadEnv();

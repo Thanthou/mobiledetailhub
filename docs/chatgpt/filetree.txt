@@ -404,6 +404,8 @@
          📁 src/
             📁 components/
                📄 DevDashboard.tsx
+               📄 ErrorTestButton.tsx
+               📄 RuntimeConfigTest.tsx
             📁 features/
 
             📄 main.tsx
@@ -1237,6 +1239,7 @@
             📄 HomePageLayout.tsx
             📄 index.ts
             📄 MergeDemo.tsx
+            📄 PreviewBanner.tsx
             📁 seo/
                📄 JsonLdSchema.tsx
                📄 SeoHead.tsx
@@ -1258,6 +1261,8 @@
             📄 WebsiteContentContext.tsx
          📁 data/
             📄 states.ts
+         📁 env/
+            📄 index.ts
          📄 env.ts
          📁 frontend/
             📁 public/
@@ -1281,6 +1286,7 @@
             📄 useErrorBoundary.tsx
             📄 useEventListener.ts
             📄 useFAQSchema.ts
+            📄 useFileUpload.ts
             📄 useImageRotation.ts
             📄 useIndustryConfig.ts
             📄 useIndustrySiteData.ts
@@ -1292,6 +1298,7 @@
             📄 useMobileDetection.ts
             📄 usePerformanceMonitor.ts
             📄 usePrefetch.ts
+            📄 usePreviewAsyncCore.ts
             📄 usePWAStatus.ts
             📄 useReviewsAvailability.ts
             📄 useScrollSpy.ts
@@ -1316,6 +1323,9 @@
          📁 schemas/
             📄 booking.ts
             📄 index.ts
+            📄 locations.schemas.ts
+            📄 onboarding.schemas.ts
+            📄 primitives.schemas.ts
             📄 tenant.schema.ts
          📁 seo/
             📄 defaultSchemas.ts

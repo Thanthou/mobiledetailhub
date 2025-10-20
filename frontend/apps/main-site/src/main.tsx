@@ -21,16 +21,18 @@ if ('serviceWorker' in navigator && config.serviceWorkerEnabled) {
   });
 }
 
-// Enable error monitoring and connect to backend
-errorMonitor.enable();
+// Temporarily disable auto error reporting to avoid potential feedback loops during triage
+// errorMonitor.enable();
 
-// Set up error reporting to backend
+// Set up error reporting to backend (disabled for now during triage)
+/*
 errorMonitor.addListener(async (error) => {
   try {
     await apiCall('/api/errors/track', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-Error-Reporting': 'true'
       },
       body: JSON.stringify({
         errors: [{
@@ -56,6 +58,7 @@ errorMonitor.addListener(async (error) => {
     console.warn('Failed to report error to backend:', reportError);
   }
 });
+*/
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {

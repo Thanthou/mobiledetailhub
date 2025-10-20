@@ -5,8 +5,8 @@
 import { env } from './env.js';
 
 const AUTH_CONFIG = {
-  ISSUER: 'mdh-backend',
-  AUDIENCE: 'mdh-users',
+  ISSUER: 'thatsmartsite-backend',
+  AUDIENCE: 'thatsmartsite-users',
   ACCESS_EXPIRES_IN: '24h',  // 24 hours - good for admin sessions
   REFRESH_EXPIRES_IN: '30d', // 30 days - long-lived refresh tokens
   REFRESH_COOKIE_NAME: 'refresh_token',

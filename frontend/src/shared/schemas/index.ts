@@ -1,3 +1,7 @@
+export * as onboarding from './onboarding.schemas';
+export * as locations from './locations.schemas';
+export * from './primitives.schemas';
+
 /**
  * Centralized Zod Schemas
  * Export all validation schemas for use across the application

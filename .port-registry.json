@@ -1,6 +1,18 @@
 {
-  "main": 5175,
-  "admin": 5177,
-  "tenant": 5179,
-  "backend": 3001
+  "main": {
+    "port": 5175,
+    "host": "localhost"
+  },
+  "admin": {
+    "port": 5176,
+    "host": "admin.localhost"
+  },
+  "tenant": {
+    "port": 5177,
+    "host": "tenant.localhost"
+  },
+  "backend": {
+    "port": 3001,
+    "host": "localhost"
+  }
 }

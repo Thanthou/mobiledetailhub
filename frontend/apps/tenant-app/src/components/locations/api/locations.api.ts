@@ -1,6 +1,6 @@
 // Locations API calls
 
-import type { LocationData, SearchResult } from '../schemas/locations.schemas';
+import type { LocationData, SearchResult } from '@shared/schemas/locations.schemas';
 
 export const locationsApi = {
   // Search for locations by city, state, or zip code

@@ -154,6 +154,10 @@ class ErrorMonitor {
         url = (requestInput as Request).url;
       }
       const method = args[1]?.method || 'GET';
+      const headers = (args[1]?.headers || {}) as Record<string, string>;
+      const isErrorReporting =
+        url.includes('/api/errors/track') ||
+        Object.entries(headers).some(([k, v]) => k.toLowerCase() === 'x-error-reporting' && String(v).toLowerCase() === 'true');
 
       try {
         const response = await originalFetch(...args);
@@ -161,6 +165,9 @@ class ErrorMonitor {
 
         // Log failed requests (but ignore localhost connection refused errors)
         if (!response.ok && !(url.includes('localhost:5173') && response.status === 0)) {
+          if (isErrorReporting) {
+            return response;
+          }
           this.captureError({
             type: 'network',
             message: `HTTP ${response.status}: ${response.statusText}`,
@@ -185,7 +192,7 @@ class ErrorMonitor {
           errorMessage.includes('ERR_CONNECTION_REFUSED');
         
         // Don't log connection refused errors to localhost:5173 (Vite dev server pings)
-        if (!isLocalConnectionError) {
+        if (!isLocalConnectionError && !isErrorReporting) {
           this.captureError({
             type: 'network',
             message: `Network error: ${errorMessage}`,

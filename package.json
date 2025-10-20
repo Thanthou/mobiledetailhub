@@ -60,7 +60,7 @@
 
     "seo:provision": "node scripts/setup/seo-provision.js --all",
 
-    "setup:hosts": "node scripts/setup-hosts.js",
+    "setup:hosts": "node scripts/devtools/cli/setup-hosts.js",
     "prepare": "husky install",
 
     "overview": "node scripts/project/project-overview.js",

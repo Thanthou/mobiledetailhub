@@ -2,7 +2,7 @@
 import type { 
   AffiliateApplication, 
   DraftApplication
-} from '../schemas/onboarding.schemas';
+} from '@shared/schemas/onboarding.schemas';
 
 // API Response types
 interface ApiErrorResponse {

@@ -42,10 +42,11 @@ export function usePreviewParams(): UsePreviewParamsResult {
       try {
         // Check if token mode is used
         const token = searchParams.get('t');
+        const expectedTenantId = searchParams.get('tenant_id') || undefined;
 
         if (token) {
           // Token mode: verify with backend
-          const verifiedPayload = await verifyPreview(token);
+          const verifiedPayload = await verifyPreview(token, expectedTenantId || undefined);
           setPayload(verifiedPayload);
           return;
         }
