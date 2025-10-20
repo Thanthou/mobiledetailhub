@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
-import { useTenantConfigLoader } from '@shared/hooks';
-import { useDataOptional } from '@shared/hooks/useData';
+import { useDataOptional } from './useData';
+import { useTenantConfigLoader } from './useTenantConfigLoader';
 import type { Vertical } from '@shared/types';
 import { getTenantAssetUrl } from '@shared/utils';
 

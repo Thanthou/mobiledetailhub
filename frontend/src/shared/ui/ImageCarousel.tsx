@@ -7,7 +7,7 @@
 
 import React, { useMemo } from 'react';
 
-import { useImageRotation, useImageRotationHover } from '@shared/hooks';
+import { useImageRotation, useImageRotationHover } from '@shared/hooks/useImageRotation';
 import { cn } from '@shared/utils/cn';
 import {
   getAccessibilityAttributes,

@@ -7,8 +7,7 @@
   "scripts": {
     "build": "cd frontend && npm run build",
     "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
-
-    "dev": "concurrently \"cd frontend && npm run dev\" \"cd backend && npm run dev\" \"node scripts/error-monitor/index.js --target=all\"",
+    "dev": "concurrently \"cd frontend && npm run dev\" \"cd backend && npm run dev\"",
     "dev:frontend": "node scripts/devtools/cli/find-free-port.js && node scripts/devtools/cli/start-frontend.js",
     "dev:backend": "cd backend && nodemon server.js",
     "dev:main": "cd frontend && npm run dev:main",
@@ -20,7 +19,6 @@
     "dev:apps": "concurrently -n MAIN,ADMIN,TENANT -c cyan,magenta,yellow \"npm run dev:main\" \"npm run dev:admin\" \"npm run dev:tenant\"",
     "dev:kill": "node scripts/automation/cleanup/kill-node-processes.js",
     "dev:clean": "scripts/automation/cleanup/cleanup-and-dev.bat",
-
     "audit:all": "node scripts/project/run-all.js",
     "audit:env": "node scripts/audits/audit-env.js",
     "audit:schema": "node scripts/audits/audit-schema.js",
@@ -31,13 +29,11 @@
     "audit:schema-validation": "node scripts/audits/schema-validator.js",
     "audit:overview": "node scripts/audits/audit-overview.js",
     "audit:db": "node scripts/audits/audit-db.js",
-
+    "audit:depends": "node scripts/audits/audit-dependencies.js",
     "serve:audit": "npm run preview --prefix frontend",
-
     "fix:routes": "node scripts/devtools/fixers/fix-express-routes.js",
     "fix:remaining": "node scripts/devtools/fixers/fix-remaining-routes.js",
     "fix:final": "node scripts/devtools/fixers/fix-final-routes.js",
-
     "test:all": "npm run test:backend && npm run test:frontend",
     "test:backend": "node scripts/testing/backend/test-subdomain.js",
     "test:frontend": "node scripts/testing/frontend/validate-build.js",
@@ -47,36 +43,37 @@
     "validate": "node scripts/testing/frontend/validate-build.js",
     "validate:env": "node scripts/devtools/validate-env.js",
     "verify:static": "node scripts/verify-static.js",
-
     "lint": "eslint backend/ scripts/",
     "lint:fix": "eslint backend/ scripts/ --fix",
     "lint:all": "npm run lint && cd frontend && npm run lint",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,css,scss}\"",
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md,css,scss}\"",
-
     "deploy:check": "node scripts/automation/build/deploy-render.js",
     "deploy:build": "cd frontend && npm run build && cd ../backend && npm run migrate",
     "deploy:production": "node scripts/automation/deploy/deploy-production.js",
-
     "seo:provision": "node scripts/setup/seo-provision.js --all",
-
     "setup:hosts": "node scripts/devtools/cli/setup-hosts.js",
     "prepare": "husky install",
-
     "overview": "node scripts/project/project-overview.js",
     "score": "node scripts/devtools/metrics/scorecard.js",
     "chatgpt": "node scripts/devtools/chatgpt-snapshot.js",
-    
     "devtools:metrics": "node scripts/devtools/metrics/scorecard.js",
     "devtools:fix": "node scripts/devtools/fixers/fix-express-routes.js",
     "cli": "node scripts/devtools/cli/index.js",
     "code-scan": "node scripts/project/code-scan.js"
   },
-
   "devDependencies": {
     "@eslint/js": "^9.17.0",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
+    "@typescript-eslint/parser": "^8.46.2",
     "concurrently": "^8.2.2",
+    "depcheck": "^1.4.7",
     "eslint": "^9.17.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.0",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "espree": "^10.4.0",
     "globals": "^15.14.0",
     "husky": "^9.1.7",
     "lint-staged": "^15.2.11",
@@ -89,11 +86,15 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
+    "axios": "^1.12.2",
+    "bcryptjs": "^3.0.2",
     "chalk": "^5.6.2",
     "cli-table3": "^0.6.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
+    "glob": "^11.0.3",
     "http-proxy-middleware": "^3.0.5",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "sharp": "^0.34.4"
   }
 }

@@ -1,6 +1,7 @@
-import { lazy, Suspense, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { useRouterDebug } from '@shared/useRouterDebug';
+import { registerModalImporter } from '@shared/utils';
 
 import { DataProvider, TenantPage } from '@/tenant-app/components/header';
 import { LazyRequestQuoteModal } from '@/tenant-app/components/quotes';
@@ -9,8 +10,9 @@ import TenantApplicationPage from '@/admin-app/components/tenantOnboarding/compo
 import { LoginPage, ProtectedRoute } from '@shared/ui';
 import { SEOManager } from '@shared/bootstrap';
 
-import HomePage from '@/main-site/pages/HomePage';
-import ServicePage from '@/main-site/pages/ServicePage';
+import HomePage from '@shared/pages/HomePage';
+import ServicePage from '@shared/pages/ServicePage';
+import PreviewPage from './components/PreviewPage';
 
 // Heavy modules are NOT imported here - they stay out of the initial bundle
 const Booking = lazy(() => import('./components/booking/BookingApp'));
@@ -19,6 +21,16 @@ const Booking = lazy(() => import('./components/booking/BookingApp'));
 export default function TenantApp() {
   useRouterDebug('TenantApp');
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
+
+  // Register modal importers for prefetching
+  useEffect(() => {
+    registerModalImporter('quote', () => 
+      import('@/tenant-app/components/quotes/components/RequestQuoteModal') as Promise<{ default: React.ComponentType<unknown> }>
+    );
+    registerModalImporter('login', () => 
+      import('@shared/auth/components/LoginModal') as Promise<{ default: React.ComponentType<unknown> }>
+    );
+  }, []);
 
   const handleOpenQuoteModal = () => {
     setIsQuoteModalOpen(true);
@@ -32,6 +44,14 @@ export default function TenantApp() {
       <Routes>
         {/* Root path - show tenant page (wrapped in DataProvider from AppShell) */}
         <Route path="/" element={<TenantPage />} />
+        
+        {/* Preview routes - MUST come before other routes to avoid conflicts */}
+        <Route path="/mobile-detailing-preview" element={<PreviewPage />} />
+        <Route path="/maid-service-preview" element={<PreviewPage />} />
+        <Route path="/lawncare-preview" element={<PreviewPage />} />
+        <Route path="/pet-grooming-preview" element={<PreviewPage />} />
+        <Route path="/barber-preview" element={<PreviewPage />} />
+        <Route path="/preview" element={<PreviewPage />} />
         
         {/* Login route */}
         <Route path="/login" element={<LoginPage />} />

@@ -22,8 +22,13 @@ backend/tests/
 # Git logs (auto-generated)
 chatgpt/gitlogs/
 
-# Dynamic port files
+# Dynamic port files (legacy - now using .port-registry.json)
 .frontend-port.json
+.backend-port.json
+
+# Log files in root (should go in docs/logs instead)
+*.log
+audit-debug.log
 
 # Code scan output
 docs/code-scan/

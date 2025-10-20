@@ -80,15 +80,16 @@ class EnvManager {
     console.log(`Backend Port: ${port ? port[1] : 'Not set (auto-detected)'}`);
     console.log(`OAuth Redirect: ${oauthRedirect ? oauthRedirect[1] : 'Not set'}`);
 
-    // Check for port files
+    // Check for port registry
     try {
-      const frontendPort = JSON.parse(fs.readFileSync('.frontend-port.json', 'utf8'));
-      const backendPort = JSON.parse(fs.readFileSync('.backend-port.json', 'utf8'));
-      console.log(`\n🎯 Current Dynamic Ports:`);
-      console.log(`Frontend: ${frontendPort.port}`);
-      console.log(`Backend: ${backendPort.port}`);
+      const registry = JSON.parse(fs.readFileSync('.port-registry.json', 'utf8'));
+      console.log(`\n🎯 Current Ports from Registry:`);
+      console.log(`Main: ${registry.main?.port || 'Not set'}`);
+      console.log(`Admin: ${registry.admin?.port || 'Not set'}`);
+      console.log(`Tenant: ${registry.tenant?.port || 'Not set'}`);
+      console.log(`Backend: ${registry.backend?.port || 'Not set'}`);
     } catch (error) {
-      console.log('\n⚠️ No dynamic port files found (run npm run dev:all first)');
+      console.log('\n⚠️ No .port-registry.json found');
     }
   }
 

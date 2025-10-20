@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { useData } from '@/tenant-app/components/header';
+import { useDataOptional } from '@shared/hooks/useData';
 
 import ServiceAreasModal from '../modals/ServiceAreasModal';
 
@@ -20,11 +20,11 @@ interface FooterLocationsProps {
 const FooterLocations: React.FC<FooterLocationsProps> = ({ serviceAreas }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   
-  // Get tenant data - component should always be used in a valid context
-  const tenantData = useData();
+  // Get tenant data - may be null if not in tenant context
+  const tenantData = useDataOptional();
   
   // Use tenant service areas if available, otherwise show default message
-  const shouldUseTenantData = tenantData.isTenant && serviceAreas && serviceAreas.length > 0;
+  const shouldUseTenantData = tenantData?.isTenant && serviceAreas && serviceAreas.length > 0;
   
   // Always show first 4 cities
   const displayAreas = shouldUseTenantData ? serviceAreas.slice(0, 4) : [];
@@ -66,7 +66,7 @@ const FooterLocations: React.FC<FooterLocationsProps> = ({ serviceAreas }) => {
       </div>
 
       {/* Service Areas Modal */}
-      {shouldUseTenantData && (
+      {shouldUseTenantData && tenantData && (
         <ServiceAreasModal
           isOpen={isModalOpen}
           onClose={() => { setIsModalOpen(false); }}

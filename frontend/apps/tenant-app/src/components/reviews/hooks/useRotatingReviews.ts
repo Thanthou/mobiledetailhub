@@ -1,6 +1,6 @@
 import { useEffect,useState } from 'react';
 
-import { useImageRotation } from '@shared/hooks';
+import { useImageRotation } from '@shared/hooks/useImageRotation';
 
 import type { Review } from '../types';
 

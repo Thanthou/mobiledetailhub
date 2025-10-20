@@ -1,17 +1,16 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 
-import { useAuthModal, useModalFocus } from '../hooks';
+import { useAuthModal } from '../hooks/useAuthModal';
+import { useModalFocus } from '../hooks/useModalFocus';
 import { LoginModalProps } from '../types';
-import {
-  ErrorDisplay,
-  LoginForm,
-  ModalBackdrop,
-  ModalHeader,
-  RegisterForm,
-  SocialLogin,
-  ToggleMode
-} from './index';
+import ErrorDisplay from './ErrorDisplay';
+import LoginForm from './LoginForm';
+import ModalBackdrop from './ModalBackdrop';
+import ModalHeader from './ModalHeader';
+import RegisterForm from './RegisterForm';
+import SocialLogin from './SocialLogin';
+import ToggleMode from './ToggleMode';
 
 const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
   const {

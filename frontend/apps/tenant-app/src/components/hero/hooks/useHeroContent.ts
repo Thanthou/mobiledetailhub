@@ -1,5 +1,6 @@
 import { useWebsiteContent } from '@shared/contexts/WebsiteContentContext';
 import { useIndustrySiteData } from '@shared/hooks/useIndustrySiteData';
+import { usePreviewData } from '@/tenant-app/contexts/PreviewDataContext';
 import type { LocationPage } from '@shared/types/location';
 
 interface UseHeroContentReturn {
@@ -14,6 +15,9 @@ interface UseHeroContentProps {
 }
 
 export const useHeroContent = (props?: UseHeroContentProps): UseHeroContentReturn => {
+  // Check for preview mode FIRST
+  const { isPreviewMode, previewConfig } = usePreviewData();
+  
   // Get industry-specific site data
   const { siteData } = useIndustrySiteData();
   
@@ -23,10 +27,19 @@ export const useHeroContent = (props?: UseHeroContentProps): UseHeroContentRetur
   // Use passed locationData as fallback
   const locationData = props?.locationData;
   
-  // All sites are now tenant-based, so use database content or industry-specific site data
-  // Priority: Database content > Industry-specific site data > Fallback
-  const title = String(websiteContent?.hero_title || siteData?.hero.h1 || 'Professional Services');
-  const subtitle = String(websiteContent?.hero_subtitle || siteData?.hero.sub || 'Quality service for your needs');
+  // Priority: Preview data > Database content > Industry-specific site data > Fallback
+  let title: string;
+  let subtitle: string;
+  
+  if (isPreviewMode && previewConfig) {
+    // In preview mode, use the preview config data
+    title = previewConfig.hero.h1;
+    subtitle = previewConfig.hero.sub || '';
+  } else {
+    // Normal mode - use database or industry config
+    title = String(websiteContent?.hero_title || siteData?.hero.h1 || 'Professional Services');
+    subtitle = String(websiteContent?.hero_subtitle || siteData?.hero.sub || 'Quality service for your needs');
+  }
 
   return {
     title,

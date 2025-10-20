@@ -219,6 +219,7 @@
          📄 RUNTIME_CONFIGURATION.md
          📄 SUBDOMAIN_ROUTING.md
          📄 SUBSCRIPTION_ARCHITECTURE.md
+      📄 SUBDOMAIN_ROUTING.md
       📄 TENANT_DELETION_SERVICE.md
       📄 TENANT_RESOLUTION_STANDARDIZATION.md
    📁 chatgpt/
@@ -239,6 +240,7 @@
    📁 devtools/
       📁 cli/
 
+      📄 DEV_HUB_SETUP.md
       📁 fixers/
 
       📁 metrics/
@@ -1019,6 +1021,7 @@
       📄 sw.js
       📄 test.html
    📁 scripts/
+      📄 check-assets.js
       📄 post-build.js
    📁 src/
       📁 data/

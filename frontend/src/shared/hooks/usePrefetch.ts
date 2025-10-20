@@ -30,48 +30,16 @@ export const usePrefetch = () => {
 };
 
 /**
- * Hook specifically for prefetching modals with enhanced caching
+ * Hook for modal prefetching
+ * @deprecated Use useModalPrefetch from '@shared/utils/modalCodeSplitting' instead
+ * This provides better architecture with a registry pattern
  */
 export const useModalPrefetch = () => {
-  const { prefetch } = usePrefetch();
-
-  const prefetchQuoteModal = useCallback(() => {
-    prefetch(() => {
-      void import('@/tenant-app/components/quotes/components/RequestQuoteModal');
-    }, 'quoteModal');
-  }, [prefetch]);
-
-  const prefetchLoginModal = useCallback(() => {
-    prefetch(() => {
-      void import('@shared/auth/components/LoginModal');
-    }, 'loginModal');
-  }, [prefetch]);
-
-  // Enhanced prefetch with intersection observer for viewport-based loading
-  const prefetchOnViewport = useCallback((target: HTMLElement, modalType: 'quote' | 'login') => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            if (modalType === 'quote') {
-              prefetchQuoteModal();
-            } else {
-              prefetchLoginModal();
-            }
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.1, rootMargin: '50px' }
-    );
-
-    observer.observe(target);
-    return () => { observer.disconnect(); };
-  }, [prefetchQuoteModal, prefetchLoginModal]);
-
+  console.warn('useModalPrefetch from usePrefetch.ts is deprecated. Use the one from @shared/utils/modalCodeSplitting instead');
+  
   return {
-    prefetchQuoteModal,
-    prefetchLoginModal,
-    prefetchOnViewport
+    prefetchQuoteModal: () => { /* deprecated */ },
+    prefetchLoginModal: () => { /* deprecated */ },
+    prefetchOnViewport: () => { /* deprecated */ }
   };
 };

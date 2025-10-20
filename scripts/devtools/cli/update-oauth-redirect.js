@@ -20,16 +20,16 @@ function updateOAuthRedirect() {
     // Read current .env content
     let envContent = fs.readFileSync(envPath, 'utf8');
     
-    // Get current backend port
+    // Get current backend port from .port-registry.json
     let backendPort = 3001;
     try {
-      const portFilePath = fs.existsSync('.backend-port.json') 
-        ? '.backend-port.json' 
-        : path.join(process.cwd(), '../.backend-port.json');
-      const portData = JSON.parse(fs.readFileSync(portFilePath, 'utf8'));
-      backendPort = portData.port;
+      const registryPath = fs.existsSync('.port-registry.json') 
+        ? '.port-registry.json' 
+        : path.join(process.cwd(), '../.port-registry.json');
+      const registry = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+      backendPort = registry.backend?.port || 3001;
     } catch (error) {
-      console.log('⚠️ No .backend-port.json found, using default port 3001');
+      console.log('⚠️ No .port-registry.json found, using default port 3001');
     }
 
     // Update GOOGLE_REDIRECT_URI

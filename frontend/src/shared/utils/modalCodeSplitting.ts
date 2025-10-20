@@ -43,9 +43,12 @@ type ModalModule = {
   [key: string]: unknown;
 };
 
+type ModalImporter = () => Promise<ModalModule>;
+
 class ModalPrefetchManager {
   private prefetchedModules = new Map<ModalType, Promise<ModalModule>>();
   private prefetchStrategies = new Map<ModalType, PrefetchStrategy>();
+  private modalImporters = new Map<ModalType, ModalImporter>();
   private intersectionObserver?: IntersectionObserver;
   private prefetchTimers = new Map<ModalType, ReturnType<typeof setTimeout>>();
 
@@ -56,6 +59,11 @@ class ModalPrefetchManager {
 
     this.setupIntersectionObserver();
     this.setupDelayedPrefetching();
+  }
+
+  // Register a modal importer function (called by apps at initialization)
+  registerModal(modalType: ModalType, importer: ModalImporter) {
+    this.modalImporters.set(modalType, importer);
   }
 
   private setupIntersectionObserver() {
@@ -99,20 +107,13 @@ class ModalPrefetchManager {
       return; // Already prefetched or in progress
     }
 
-    let importPromise: Promise<ModalModule>;
-
-    switch (modalType) {
-      case 'quote':
-        importPromise = import('@/tenant-app/components/quotes/components/RequestQuoteModal') as Promise<ModalModule>;
-        break;
-      case 'login':
-        importPromise = import('@shared/auth/components/LoginModal') as Promise<ModalModule>;
-        break;
-      default:
-        // Unknown modal type
-        return;
+    const importer = this.modalImporters.get(modalType);
+    if (!importer) {
+      console.warn(`⚠️ No importer registered for modal type: ${modalType}`);
+      return;
     }
 
+    const importPromise = importer();
     this.prefetchedModules.set(modalType, importPromise);
 
     try {
@@ -185,6 +186,12 @@ export const getModalPrefetchManager = (): ModalPrefetchManager => {
   return globalPrefetchManager;
 };
 
+// Register modal importers (should be called during app initialization)
+export const registerModalImporter = (modalType: ModalType, importer: ModalImporter): void => {
+  const manager = getModalPrefetchManager();
+  manager.registerModal(modalType, importer);
+};
+
 // Convenience hooks and utilities
 export const useModalPrefetch = () => {
   const manager = getModalPrefetchManager();
@@ -214,6 +221,7 @@ export const useModalTriggerRef = (modalType: ModalType) => {
 };
 
 // Preload critical modals on app initialization
+// Note: Modals must be registered first using registerModalImporter()
 export const preloadCriticalModals = async (): Promise<void> => {
   const manager = getModalPrefetchManager();
   
@@ -226,4 +234,4 @@ export const preloadCriticalModals = async (): Promise<void> => {
   }, 3000);
 };
 
-export type { ModalPrefetchConfig, ModalType, PrefetchStrategy };
+export type { ModalImporter, ModalPrefetchConfig, ModalType, PrefetchStrategy };

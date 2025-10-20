@@ -45,12 +45,23 @@ export async function findFreeBackendPort(startPort = basePort, maxAttempts = ma
 }
 
 /**
- * Find free backend port and save to file (CLI script behavior)
+ * Find free backend port and save to .port-registry.json
  */
 async function findAndSaveBackendPort() {
   try {
     const port = await findFreeBackendPort();
-    fs.writeFileSync(".backend-port.json", JSON.stringify({ port }));
+    
+    // Update .port-registry.json instead of separate file
+    const registryPath = ".port-registry.json";
+    let registry = { backend: { port: 3001, host: "localhost" } };
+    
+    if (fs.existsSync(registryPath)) {
+      registry = JSON.parse(fs.readFileSync(registryPath, "utf8"));
+    }
+    
+    registry.backend = { ...registry.backend, port };
+    fs.writeFileSync(registryPath, JSON.stringify(registry, null, 2));
+    
     console.log(`🟢 Using port ${port}`);
     return port;
   } catch (error) {

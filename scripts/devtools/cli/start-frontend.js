@@ -3,13 +3,13 @@ import fs from 'fs';
 import { spawn } from 'child_process';
 import path from 'path';
 
-// Read the port from .frontend-port.json
+// Read the port from .port-registry.json
 let port = 5175;
 try {
-  const data = JSON.parse(fs.readFileSync('.frontend-port.json', 'utf8'));
-  port = data.port;
+  const registry = JSON.parse(fs.readFileSync('.port-registry.json', 'utf8'));
+  port = registry.main?.port || 5175;
 } catch (error) {
-  console.warn('⚠️ No .frontend-port.json found, using default port 5175');
+  console.warn('⚠️ No .port-registry.json found, using default port 5175');
 }
 
 console.log(`🚀 Starting frontend on port ${port}...`);

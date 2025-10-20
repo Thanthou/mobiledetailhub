@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useImageRotation } from '@shared/hooks';
+import { useImageRotation } from '@shared/hooks/useImageRotation';
 import { getImageOpacityClasses, getTransitionStyles,getVisibleImageIndices } from '@shared/utils';
 
 interface BackgroundCarouselProps {

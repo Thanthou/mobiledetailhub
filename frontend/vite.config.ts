@@ -11,10 +11,10 @@ import { visualizer } from "rollup-plugin-visualizer";
 //──────────────────────────────────────────────
 function getBackendPort() {
   try {
-    const portFile = path.join(__dirname, "../.backend-port.json");
-    if (fs.existsSync(portFile)) {
-      const portData = JSON.parse(fs.readFileSync(portFile, "utf8"));
-      return portData.port || 3001;
+    const registryFile = path.join(__dirname, "../.port-registry.json");
+    if (fs.existsSync(registryFile)) {
+      const registry = JSON.parse(fs.readFileSync(registryFile, "utf8"));
+      return registry.backend?.port || 3001;
     }
   } catch {
     // ignore

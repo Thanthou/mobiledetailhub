@@ -86,12 +86,6 @@ export function ConfigProvider({ children, fallbackConfig }: ConfigProviderProps
       if (data.success && data.config) {
         const loadedConfig = data.config;
         setConfig(loadedConfig);
-        
-        console.log('[ConfigProvider] Runtime config loaded:', {
-          apiBaseUrl: loadedConfig.apiBaseUrl,
-          environment: loadedConfig.environment?.mode,
-          features: Object.keys(loadedConfig.features || {})
-        });
       } else {
         throw new Error('Invalid config response format');
       }

@@ -6,14 +6,15 @@
  * for sales demos.
  */
 
-const jwt = require('jsonwebtoken');
-const { env } = require('../config/env');
-const logger = require('./logger');
+import jwt from 'jsonwebtoken';
+import { createModuleLogger } from '../config/logger.js';
+
+const logger = createModuleLogger('previewToken');
 
 // Preview token configuration
 const PREVIEW_AUD = 'mdh-previews';
 const PREVIEW_ISS = 'mdh-backend';
-const PREVIEW_EXP = '1h';
+const PREVIEW_EXP = '7d'; // 7 days for sales demos
 const PREVIEW_VERSION = 1;
 
 /**
@@ -26,7 +27,7 @@ const PREVIEW_VERSION = 1;
  * @param {string} payload.industry - Industry type
  * @returns {string} Signed JWT token
  */
-function signPreview(payload) {
+export function signPreview(payload) {
   try {
     const tokenPayload = {
       v: PREVIEW_VERSION,
@@ -39,7 +40,10 @@ function signPreview(payload) {
       industry: payload.industry,
     };
 
-    const token = jwt.sign(tokenPayload, env.JWT_SECRET, {
+    // Use JWT_SECRET from environment
+    const secret = process.env.JWT_SECRET || 'dev-secret-change-in-production';
+    
+    const token = jwt.sign(tokenPayload, secret, {
       expiresIn: PREVIEW_EXP,
       algorithm: 'HS256',
       issuer: PREVIEW_ISS,
@@ -64,9 +68,11 @@ function signPreview(payload) {
  * @returns {Object} Decoded token payload
  * @throws {Error} If token is invalid or expired
  */
-function verifyPreview(token, expectedTenantId = null) {
+export function verifyPreview(token, expectedTenantId = null) {
   try {
-    const decoded = jwt.verify(token, env.JWT_SECRET, {
+    const secret = process.env.JWT_SECRET || 'dev-secret-change-in-production';
+    
+    const decoded = jwt.verify(token, secret, {
       algorithms: ['HS256'],
       issuer: PREVIEW_ISS,
       audience: PREVIEW_AUD,
@@ -107,9 +113,4 @@ function verifyPreview(token, expectedTenantId = null) {
     throw new Error('Failed to verify preview link');
   }
 }
-
-module.exports = {
-  signPreview,
-  verifyPreview,
-};
 

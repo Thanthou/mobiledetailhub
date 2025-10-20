@@ -20,15 +20,13 @@ import {
   personalInfoSchema,
   planSelectionSchema,
 } from '../utils/validation';
-import {
-  ApplicationHeader,
-  BusinessInformationSection,
-  PersonalInformationSection,
-  PlanSelectionSection,
-  StepProgress,
-  SuccessPage,
-} from './index';
+import ApplicationHeader from './ApplicationHeader';
+import BusinessInformationSection from './BusinessInformationSection';
 import PaymentSection from './PaymentSection';
+import PersonalInformationSection from './PersonalInformationSection';
+import { PlanSelectionSection } from './PlanSelectionSection';
+import { StepProgress } from './StepProgress';
+import SuccessPage from './SuccessPage';
 
 // Initialize Stripe
 const stripePromise = loadStripe(config.stripePublishableKey);

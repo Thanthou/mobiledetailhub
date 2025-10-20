@@ -70,7 +70,7 @@ router.get('/', async (req, res) => {
     const countResult = await pool.query(countQuery, countParams);
     const total = parseInt(countResult.rows[0].total);
 
-    sendSuccess(res, 'Reviews retrieved successfully', {
+    return sendSuccess(res, 'Reviews retrieved successfully', {
       reviews: result.rows,
       pagination: {
         total,
@@ -82,7 +82,7 @@ router.get('/', async (req, res) => {
 
   } catch (error) {
     logger.error('Error fetching reviews:', error);
-    sendError(res, 'Failed to fetch reviews', error.message, 500);
+    return sendError(res, 'Failed to fetch reviews', error.message, 500);
   }
 });
 

@@ -3,33 +3,33 @@ import fs from 'fs';
 import path from 'path';
 
 /**
- * Get the current frontend port from .frontend-port.json
+ * Get the current frontend port from .port-registry.json
  */
 export function getFrontendPort() {
   try {
-    const portFile = path.join(process.cwd(), '.frontend-port.json');
+    const portFile = path.join(process.cwd(), '.port-registry.json');
     if (fs.existsSync(portFile)) {
-      const portData = JSON.parse(fs.readFileSync(portFile, 'utf8'));
-      return portData.port || 5175;
+      const registry = JSON.parse(fs.readFileSync(portFile, 'utf8'));
+      return registry.main?.port || 5175;
     }
   } catch (error) {
-    console.warn('Could not read frontend port, using default 5175');
+    console.warn('Could not read frontend port from registry, using default 5175');
   }
   return 5175;
 }
 
 /**
- * Get the current backend port from .backend-port.json
+ * Get the current backend port from .port-registry.json
  */
 export function getBackendPort() {
   try {
-    const portFile = path.join(process.cwd(), '.backend-port.json');
+    const portFile = path.join(process.cwd(), '.port-registry.json');
     if (fs.existsSync(portFile)) {
-      const portData = JSON.parse(fs.readFileSync(portFile, 'utf8'));
-      return portData.port || 3001;
+      const registry = JSON.parse(fs.readFileSync(portFile, 'utf8'));
+      return registry.backend?.port || 3001;
     }
   } catch (error) {
-    console.warn('Could not read backend port, using default 3001');
+    console.warn('Could not read backend port from registry, using default 3001');
   }
   return 3001;
 }

@@ -102,7 +102,7 @@ export function DevDashboard() {
       slug: 'mobile-detailing', 
       icon: '🚗', 
       color: 'bg-blue-100 text-blue-600',
-      previewUrl: 'http://localhost:5179/?industry=mobile-detailing',
+      previewUrl: 'http://tenant.localhost:5177/mobile-detailing-preview',
       description: 'Car, boat, RV detailing with ceramic coating, paint correction, PPF'
     },
     { 
@@ -110,7 +110,7 @@ export function DevDashboard() {
       slug: 'maid-service', 
       icon: '🏠', 
       color: 'bg-pink-100 text-pink-600',
-      previewUrl: 'http://localhost:5179/?industry=maid-service',
+      previewUrl: 'http://tenant.localhost:5177/maid-service-preview',
       description: 'Residential and commercial cleaning services'
     },
     { 
@@ -118,7 +118,7 @@ export function DevDashboard() {
       slug: 'lawncare', 
       icon: '🌱', 
       color: 'bg-green-100 text-green-600',
-      previewUrl: 'http://localhost:5179/?industry=lawncare',
+      previewUrl: 'http://tenant.localhost:5177/lawncare-preview',
       description: 'Lawn mowing, landscaping, and yard maintenance'
     },
     { 
@@ -126,7 +126,7 @@ export function DevDashboard() {
       slug: 'pet-grooming', 
       icon: '🐶', 
       color: 'bg-purple-100 text-purple-600',
-      previewUrl: 'http://localhost:5179/?industry=pet-grooming',
+      previewUrl: 'http://tenant.localhost:5177/pet-grooming-preview',
       description: 'Professional grooming for dogs and cats'
     },
     { 
@@ -134,7 +134,7 @@ export function DevDashboard() {
       slug: 'barber', 
       icon: '✂️', 
       color: 'bg-red-100 text-red-600',
-      previewUrl: 'http://localhost:5179/?industry=barber',
+      previewUrl: 'http://tenant.localhost:5177/barber-preview',
       description: 'Haircuts, shaves, and beard grooming'
     },
   ];

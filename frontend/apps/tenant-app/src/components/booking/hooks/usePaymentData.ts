@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 
-import { useAddons, useServiceTiers } from '@/tenant-app/components/booking/hooks';
+import { useAddons } from './useAddons';
+import { useServiceTiers } from './useServiceTiers';
 import { useBookingAddons, useBookingData, useBookingService } from '@/tenant-app/components/booking/state';
 
 /**

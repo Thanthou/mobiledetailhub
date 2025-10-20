@@ -130,6 +130,12 @@ class ErrorMonitor {
     };
 
     console.warn = (...args: unknown[]) => {
+      // Suppress Stripe's HTTP warning in development
+      const firstArg = args[0];
+      if (typeof firstArg === 'string' && firstArg.includes('Stripe.js integration over HTTP')) {
+        return;
+      }
+      
       const stack = new Error().stack;
       this.captureError({
         type: 'console',

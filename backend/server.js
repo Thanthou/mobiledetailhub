@@ -7,7 +7,7 @@ dotenv.config({ path: path.resolve(process.cwd(), '../.env') })
 
 // Set default log level AFTER .env is loaded
 if (!process.env.LOG_LEVEL) {
-  process.env.LOG_LEVEL = 'error'
+  process.env.LOG_LEVEL = process.env.NODE_ENV === 'development' ? 'info' : 'error'
 }
 import { existsSync, readFileSync } from 'fs'
 import { logger, createModuleLogger } from './config/logger.js'
@@ -37,6 +37,7 @@ import { fileURLToPath } from 'url'
 
 // Environment validation will be done after server starts
 
+import { requestLogger } from './middleware/requestLogger.js';
 import { tenantResolver } from './middleware/tenantResolver.js'
 import { 
   createSubdomainMiddleware, 
@@ -59,6 +60,7 @@ import healthMonitoringRoutes from './routes/healthMonitoring.js'
 import reviewsRoutes from './routes/reviews.js'
 import domainRoutes from './routes/domains.js'
 import tenantDashboardRoutes from './routes/tenantDashboard.js'
+import previewRoutes from './routes/previews.js'
 import createAnalyticsRouter from './routes/analytics.new.js'
 import { startAutoFlush } from './utils/analyticsQueue.js'
 import { getPool } from './database/pool.js'
@@ -145,6 +147,9 @@ const corsOptions = {
 
 app.use(cors(corsOptions))
 
+// Request logging middleware (must come before tenant resolution for proper correlation)
+app.use(requestLogger);
+
 // 1️⃣ Admin subdomain middleware - handles admin.thatsmartsite.com (must come first)
 app.use(createAdminSubdomainMiddleware())
 
@@ -189,11 +194,13 @@ app.use('/api/reviews', reviewsRoutes)
 app.use('/api/subdomain', subdomainTestRoutes)
 app.use('/api/domains', domainRoutes)
 app.use('/api/dashboard', tenantDashboardRoutes)
+app.use('/api/previews', previewRoutes)
 logger.info('Analytics routes loaded at /api/analytics (hardened)')
 logger.info('Reviews routes loaded at /api/reviews')
 logger.info('Subdomain test routes loaded at /api/subdomain')
 logger.info('Domain routes loaded at /api/domains')
 logger.info('Tenant dashboard routes loaded at /api/dashboard')
+logger.info('Preview routes loaded at /api/previews')
 
 // Development: simple health check
 if (process.env.NODE_ENV !== 'production') {

@@ -55,17 +55,13 @@ export async function findFreePort(startPort = basePort, maxAttempts = maxTries)
 }
 
 /**
- * Find free port and save to file + registry (CLI script behavior)
+ * Find free port and save to registry (CLI script behavior)
  */
 async function findAndSavePort() {
   try {
     const port = await findFreePort();
     
-    // Save to app-specific port file
-    const portFile = `.${appName}-port.json`;
-    fs.writeFileSync(portFile, JSON.stringify({ port }));
-    
-    // Update registry
+    // Update centralized registry
     updateRegistry(appName, port);
     
     console.log(`🟢 ${appName} using port ${port}`);
