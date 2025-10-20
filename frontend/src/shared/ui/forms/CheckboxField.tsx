@@ -6,7 +6,7 @@
 
 import React from 'react';
 
-import { cn } from '@/shared/utils';
+import { cn } from '@shared/utils';
 
 export interface CheckboxFieldProps {
   label: React.ReactNode;

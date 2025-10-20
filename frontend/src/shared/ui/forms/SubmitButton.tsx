@@ -7,7 +7,7 @@
 import React from 'react';
 import { Loader2 } from 'lucide-react';
 
-import { cn } from '@/shared/utils';
+import { cn } from '@shared/utils';
 
 export interface SubmitButtonProps {
   children: React.ReactNode;

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { useAuth } from '@/shared/hooks';
+import { useAuth } from '@shared/hooks';
 
 import { validateLoginRequest, validateRegisterRequest } from '../schemas/auth.schemas';
 import { RateLimitInfo } from '../types';

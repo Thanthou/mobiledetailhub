@@ -12,7 +12,7 @@
 
 import { type QueryClient, useQuery } from '@tanstack/react-query';
 
-import { fetchIndustryConfig } from '@/shared/api/industryConfigApi';
+import { fetchIndustryConfig } from '@shared/api/industryConfigApi';
 
 /**
  * Hook to access industry-specific site configuration
@@ -64,7 +64,7 @@ export function useIndustryConfig(
  * @example
  * ```tsx
  * import { useQueryClient } from '@tanstack/react-query';
- * import { prefetchIndustryConfig } from '@/shared/hooks';
+ * import { prefetchIndustryConfig } from '@shared/hooks';
  * 
  * function IndustryLink({ industry }: { industry: string }) {
  *   const queryClient = useQueryClient();

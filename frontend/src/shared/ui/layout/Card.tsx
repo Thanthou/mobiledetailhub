@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types -- Using TypeScript interfaces instead of PropTypes */
 import React from 'react';
 
-import { cn } from '@/shared/utils/cn';
+import { cn } from '@shared/utils/cn';
 /* eslint-enable react/prop-types -- Re-enable after imports section */
 
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {

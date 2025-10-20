@@ -24,3 +24,6 @@ chatgpt/gitlogs/
 
 # Dynamic port files
 .frontend-port.json
+
+# Code scan output
+docs/code-scan/

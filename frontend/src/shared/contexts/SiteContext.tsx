@@ -1,6 +1,6 @@
 import React, { createContext, useContext } from 'react';
 
-import { SiteActions,SiteContextType } from '@/shared/types/site';
+import { SiteActions,SiteContextType } from '@shared/types/site';
 
 // Simplified context for tenant-based sites
 // All sites are now tenant-based, so we don't need complex location detection

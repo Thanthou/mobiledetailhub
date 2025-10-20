@@ -43,7 +43,7 @@ export const useModalPrefetch = () => {
 
   const prefetchLoginModal = useCallback(() => {
     prefetch(() => {
-      void import('@/shared/auth/components/LoginModal');
+      void import('@shared/auth/components/LoginModal');
     }, 'loginModal');
   }, [prefetch]);
 

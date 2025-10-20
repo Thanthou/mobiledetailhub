@@ -6,7 +6,7 @@
 
 import React from 'react';
 
-import { cn, formatPhoneNumber } from '@/shared/utils';
+import { cn, formatPhoneNumber } from '@shared/utils';
 
 export interface PhoneFieldProps {
   label: string;

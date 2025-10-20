@@ -21,23 +21,33 @@ export function ConfigProvider({ children }: ConfigProviderProps) {
   const fallbackConfig = {
     apiBaseUrl: config.apiBaseUrl,
     apiUrl: config.apiUrl,
+    backendUrl: config.apiUrls.local,
     googleMapsApiKey: config.googleMapsApiKey,
     stripePublishableKey: config.stripePublishableKey,
     features: {
       serviceWorker: config.serviceWorkerEnabled,
-      analytics: false, // Default to false, enable via runtime config
+      analytics: true, // Enabled by default
       maps: !!config.googleMapsApiKey,
       stripe: !!config.stripePublishableKey,
       debugMode: config.isDevelopment,
+      booking: true, // Enabled by default
+      reviews: true, // Enabled by default
     },
     environment: {
       mode: config.mode,
-      version: '1.0.0', // This could come from build-time env
+      version: '1.0.0',
       buildTime: new Date().toISOString(),
+      commitHash: 'unknown',
     },
     tenant: {
       defaultDomain: 'thatsmartsite.com',
       subdomainPattern: '*.thatsmartsite.com',
+      allowCustomDomains: true,
+    },
+    client: {
+      maxUploadSize: 5242880, // 5MB
+      sessionTimeout: 86400000, // 24h
+      enableOfflineMode: false,
     },
   };
 

@@ -20,15 +20,21 @@ const logger = createModuleLogger('adminRoutes');
  * DELETE /api/admin/tenants/:id
  * Delete tenant and all associated data using service layer
  * @param {string} id - Tenant ID
- * @returns {Object} Success response with deleted tenant info
+ * @param {boolean} [force=false] - Query param: Force deletion despite validation issues
+ * @param {boolean} [dryRun=false] - Query param: Only analyze what would be deleted
+ * @returns {Object} Success response with deleted tenant info (or dry-run analysis)
  */
 router.delete('/tenants/:id', criticalAdminLimiter, authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const { force = false } = req.query;
+  const { force = false, dryRun = false } = req.query;
+  
+  const isDryRun = dryRun === 'true' || dryRun === true;
+  const isForce = force === 'true' || force === true;
   
   logger.info('[ADMIN] DELETE /tenants/:id called', { 
     id, 
-    force: force === 'true',
+    force: isForce,
+    dryRun: isDryRun,
     actor: req.user.email 
   });
   
@@ -36,9 +42,10 @@ router.delete('/tenants/:id', criticalAdminLimiter, authenticateToken, requireAd
     // Import the tenant deletion service
     const { deleteTenant } = await import('../services/tenantDeletionService.js');
     
-    // Use the service layer for tenant deletion
+    // Use the service layer for tenant deletion (or dry-run)
     const result = await deleteTenant(parseInt(id), req.user, { 
-      force: force === 'true' 
+      force: isForce,
+      dryRun: isDryRun
     });
     
     if (!result.success) {
@@ -47,6 +54,14 @@ router.delete('/tenants/:id', criticalAdminLimiter, authenticateToken, requireAd
         error: result.error,
         issues: result.issues,
         tenant: result.tenant
+      });
+    }
+    
+    // For dry-run, return 200 OK with analysis
+    if (isDryRun) {
+      return res.json({
+        ...result,
+        message: 'Dry-run analysis completed. No data was deleted.'
       });
     }
     
@@ -95,196 +110,46 @@ router.delete('/tenants/:id/soft', criticalAdminLimiter, authenticateToken, requ
   }
 }));
 
-// Legacy route - keeping for backward compatibility but marked as deprecated
 /**
- * @deprecated Use the new service-based deletion above
- * This route is kept for backward compatibility but should not be used
+ * DELETE /api/admin/tenants/:id/legacy
+ * @deprecated This route has been removed. Use DELETE /api/admin/tenants/:id instead.
+ * @returns {410} Gone - This endpoint is no longer available
  */
-router.delete('/tenants/:id/legacy', criticalAdminLimiter, authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
-  logger.info('[ADMIN] LEGACY DELETE /tenants/:id called', { id: req.params.id });
+router.delete('/tenants/:id/legacy', authenticateToken, requireAdmin, (req, res) => {
+  logger.warn('[ADMIN] Attempted to use deprecated legacy deletion route', {
+    id: req.params.id,
+    actor: req.user.email,
+    ip: req.ip
+  });
   
-  const pool = await getPool();
-  const { id } = req.params;
-  
-  // Start a transaction to ensure data consistency
-  const client = await pool.connect();
-  
-  try {
-    await client.query('BEGIN');
-    
-    // First, try to find the tenant by ID
-    const findTenantQuery = 'SELECT business_email as email, business_name, slug FROM tenants.business WHERE id = $1';
-    const tenantResult = await client.query(findTenantQuery, [id]);
-    
-    // If not found in tenants table, try to find by user ID
-    if (tenantResult.rowCount === 0) {
-      logger.debug(`Tenant ID ${id} not found in tenants table, checking users table...`);
-      const findUserQuery = 'SELECT email, name FROM auth.users WHERE id = $1';
-      const userResult = await client.query(findUserQuery, [id]);
-      
-      if (userResult.rowCount === 0) {
-        await client.query('ROLLBACK');
-        const error = new Error('Tenant not found in either tenants or users table');
-        error.statusCode = 404;
-        throw error;
+  res.status(410).json({
+    success: false,
+    error: 'This endpoint has been permanently removed',
+    message: 'The legacy deletion route is no longer supported. Please use DELETE /api/admin/tenants/:id instead.',
+    documentation: {
+      newEndpoint: '/api/admin/tenants/:id',
+      supportedParams: {
+        force: 'boolean - Force deletion despite validation issues',
+        dryRun: 'boolean - Analyze what would be deleted without actually deleting'
+      },
+      examples: {
+        normalDeletion: 'DELETE /api/admin/tenants/123',
+        forceDeletion: 'DELETE /api/admin/tenants/123?force=true',
+        dryRun: 'DELETE /api/admin/tenants/123?dryRun=true'
       }
-      
-      // User exists but no tenant record - just delete the user
-      const user = userResult.rows[0];
-      const deleteUserQuery = 'DELETE FROM auth.users WHERE id = $1';
-      await client.query(deleteUserQuery, [id]);
-      
-      // Audit log the user deletion
-      logger.audit('DELETE_USER', 'users', { id: parseInt(id), name: user.name, email: user.email }, null, {
-        userId: req.user.userId,
-        email: req.user.email
-      });
-      
-      logger.info(`Deleted user record ${id} (${user.name})`);
-      
-      await client.query('COMMIT');
-      
-      res.json({
-        success: true,
-        message: `User "${user.name}" has been deleted successfully`,
-        deletedUser: {
-          id: parseInt(id),
-          name: user.name,
-          email: user.email
-        }
-      });
-      return;
+    },
+    migration: {
+      reason: 'The legacy route contained inline cascade logic that could diverge from database constraints. The new service-based approach uses database CASCADE DELETE constraints and is safer, more maintainable, and better audited.',
+      benefits: [
+        'Database-enforced cascades prevent orphaned records',
+        'Centralized business logic in tenantDeletionService',
+        'Better validation and dry-run capabilities',
+        'Improved audit logging',
+        'Transaction safety with verification'
+      ]
     }
-    
-    // Tenant found - proceed with full deletion
-    const tenant = tenantResult.rows[0];
-    
-    // Log the tenant data before deletion for audit
-    const tenantBeforeState = {
-      id: parseInt(id),
-      business_name: tenant.business_name,
-      slug: tenant.slug,
-      email: tenant.email
-    };
-    
-    logger.info(`Starting comprehensive deletion for tenant: ${tenant.business_name} (ID: ${id})`);
-    
-    // Delete in order to respect foreign key constraints
-    // 1. Delete reviews for this tenant
-    await client.query('DELETE FROM reputation.reviews WHERE tenant_slug = $1', [tenant.slug]);
-    logger.info(`Deleted reviews for tenant: ${tenant.slug}`);
-    
-    // 2. Delete tenant images
-    await client.query('DELETE FROM tenants.tenant_images WHERE tenant_slug = $1', [tenant.slug]);
-    logger.info(`Deleted tenant images for: ${tenant.slug}`);
-    
-    // 3. Delete website content
-    await client.query('DELETE FROM website.content WHERE business_id = $1', [id]);
-    logger.info(`Deleted website content for business ID: ${id}`);
-    
-    // 4. Delete health monitoring records
-    await client.query('DELETE FROM system.health_monitoring WHERE business_id = $1 OR tenant_slug = $2', [id, tenant.slug]);
-    logger.info(`Deleted health monitoring records for: ${tenant.slug}`);
-    
-    // 5. Delete subscriptions
-    await client.query('DELETE FROM tenants.subscriptions WHERE business_id = $1', [id]);
-    logger.info(`Deleted subscriptions for business ID: ${id}`);
-    
-    // 6. Delete service tiers (which reference services)
-    const serviceTiersResult = await client.query(
-      'DELETE FROM tenants.service_tiers WHERE service_id IN (SELECT id FROM tenants.services WHERE business_id = $1)',
-      [id]
-    );
-    logger.info(`Deleted ${serviceTiersResult.rowCount} service tiers for business ID: ${id}`);
-    
-    // 7. Delete services
-    await client.query('DELETE FROM tenants.services WHERE business_id = $1', [id]);
-    logger.info(`Deleted services for business ID: ${id}`);
-    
-    // 8. Delete booking-related records
-    await client.query('DELETE FROM booking.bookings WHERE affiliate_id = $1', [id]);
-    logger.info(`Deleted bookings for affiliate ID: ${id}`);
-    
-    await client.query('DELETE FROM booking.quotes WHERE affiliate_id = $1', [id]);
-    logger.info(`Deleted quotes for affiliate ID: ${id}`);
-    
-    await client.query('DELETE FROM booking.availability WHERE affiliate_id = $1', [id]);
-    logger.info(`Deleted availability records for affiliate ID: ${id}`);
-    
-    // 9. Delete schedule-related records
-    await client.query('DELETE FROM schedule.time_blocks WHERE affiliate_id = $1', [id]);
-    logger.info(`Deleted time blocks for affiliate ID: ${id}`);
-    
-    await client.query('DELETE FROM schedule.blocked_days WHERE affiliate_id = $1', [id]);
-    logger.info(`Deleted blocked days for affiliate ID: ${id}`);
-    
-    await client.query('DELETE FROM schedule.appointments WHERE affiliate_id = $1', [id]);
-    logger.info(`Deleted appointments for affiliate ID: ${id}`);
-    
-    await client.query('DELETE FROM schedule.schedule_settings WHERE affiliate_id = $1', [id]);
-    logger.info(`Deleted schedule settings for affiliate ID: ${id}`);
-    
-    // 10. Delete customer-related records (if any customers are linked to this tenant's bookings)
-    // Note: We don't delete customers themselves as they may have interacted with other tenants
-    // But we do delete communications and vehicles linked to this tenant's customers
-    const customerIds = await client.query(
-      'SELECT DISTINCT customer_id FROM booking.bookings WHERE affiliate_id = $1 AND customer_id IS NOT NULL',
-      [id]
-    );
-    if (customerIds.rowCount > 0) {
-      const ids = customerIds.rows.map(r => r.customer_id);
-      // Only delete communications/vehicles if customers are exclusive to this tenant
-      logger.info(`Found ${ids.length} customers associated with tenant`);
-    }
-    
-    // 11. Get user_id before deleting tenant record
-    const userIdResult = await client.query('SELECT user_id FROM tenants.business WHERE id = $1', [id]);
-    const userId = userIdResult.rowCount > 0 ? userIdResult.rows[0].user_id : null;
-    
-    // 12. Delete the tenant record itself
-    const deleteTenantQuery = 'DELETE FROM tenants.business WHERE id = $1';
-    await client.query(deleteTenantQuery, [id]);
-    logger.info(`Deleted tenant record ${id}`);
-    
-    // 13. Finally, delete the corresponding user record (if exists)
-    if (userId) {
-      await client.query('DELETE FROM auth.users WHERE id = $1', [userId]);
-      logger.info(`Deleted user record for user ID: ${userId}`);
-    } else if (tenant.email) {
-      // Fallback: try deleting by email
-      const userDeleteResult = await client.query('DELETE FROM auth.users WHERE email = $1', [tenant.email]);
-      logger.info(`Deleted ${userDeleteResult.rowCount} user record(s) for email: ${tenant.email}`);
-    }
-    
-    // Audit log the tenant deletion
-    logger.audit('DELETE_TENANT', 'tenants', tenantBeforeState, null, {
-      userId: req.user.userId,
-      email: req.user.email
-    });
-    
-    // Commit the transaction
-    await client.query('COMMIT');
-    
-    logger.info(`Successfully deleted tenant: ${tenant.business_name} (${tenant.slug})`);
-    
-    res.json({
-      success: true,
-      message: `Tenant "${tenant.business_name}" has been deleted successfully`,
-      deletedTenant: {
-        id: parseInt(id),
-        business_name: tenant.business_name,
-        slug: tenant.slug,
-        email: tenant.email
-      }
-    });
-    
-  } catch (transactionError) {
-    await client.query('ROLLBACK');
-    throw transactionError;
-  } finally {
-    client.release();
-  }
-}));
+  });
+});
 
 /**
  * GET /api/admin/users

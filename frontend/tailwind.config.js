@@ -1,6 +1,10 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  content: [
+    './apps/**/index.html',
+    './apps/**/src/**/*.{js,ts,jsx,tsx}',
+    './src/shared/**/*.{js,ts,jsx,tsx}',
+  ],
   theme: {
     extend: {
       // Standard responsive breakpoints (Tailwind-native screens)

@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { useDataOptional } from '@/shared/hooks/useData';
-import { cn } from '@/shared/utils/cn';
+import { useDataOptional } from '@shared/hooks/useData';
+import { cn } from '@shared/utils/cn';
 
 import BookNow from './BookNow';
 import GetQuote from './GetQuote';

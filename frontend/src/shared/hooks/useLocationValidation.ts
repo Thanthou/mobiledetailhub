@@ -5,8 +5,8 @@
 
 import { useMemo } from 'react';
 
-import type { LocationPage } from '@/shared/types/location';
-import { validateLocationWithDetails } from '@/shared/utils/validateLocationData';
+import type { LocationPage } from '@shared/types/location';
+import { validateLocationWithDetails } from '@shared/utils/validateLocationData';
 
 interface UseLocationValidationResult {
   isValid: boolean;

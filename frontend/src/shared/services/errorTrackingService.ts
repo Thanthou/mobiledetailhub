@@ -5,9 +5,9 @@
  * Integrates with the backend unified error service for comprehensive error monitoring.
  */
 
-import { apiClient } from '@/shared/api/apiClient';
-import { useTenantContext } from '@/shared/contexts/TenantContext';
-import { useAuth } from '@/shared/contexts/AuthContext';
+import { apiClient } from '@shared/api/apiClient';
+import { useTenantContext } from '@shared/contexts/TenantContext';
+import { useAuth } from '@shared/contexts/AuthContext';
 
 /**
  * Error severity levels (matching backend)

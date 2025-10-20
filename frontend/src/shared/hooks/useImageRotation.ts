@@ -8,7 +8,7 @@ import {
   type ImageRotationState, 
   preloadImages,
   validateImageRotationConfig
-} from '@/shared/utils/imageRotation';
+} from '@shared/utils/imageRotation';
 
 export interface UseImageRotationReturn extends ImageRotationState, ImageRotationActions {
   /** Whether the carousel has multiple images */

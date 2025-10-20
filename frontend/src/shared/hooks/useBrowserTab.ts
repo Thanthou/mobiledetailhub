@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 
-import { useTenantConfigLoader } from '@/shared/hooks';
-import { useDataOptional } from '@/shared/hooks/useData';
-import type { Vertical } from '@/shared/types';
-import { getTenantAssetUrl } from '@/shared/utils';
+import { useTenantConfigLoader } from '@shared/hooks';
+import { useDataOptional } from '@shared/hooks/useData';
+import type { Vertical } from '@shared/types';
+import { getTenantAssetUrl } from '@shared/utils';
 
 export interface UseBrowserTabOptions {
   /** Custom page title (overrides default business name) */

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
 
-import { Button } from '@/shared/ui';
+import { Button } from '@shared/ui';
 
 import { usePasswordVisibility } from '../hooks/usePasswordVisibility';
 import FormField from './FormField';

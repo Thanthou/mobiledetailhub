@@ -1,4 +1,4 @@
-import { config } from '@/shared/env';
+import { config } from '@shared/env';
 
 import type { 
   AuthErrorResponse,

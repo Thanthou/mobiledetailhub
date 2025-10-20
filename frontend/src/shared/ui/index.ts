@@ -48,4 +48,4 @@ export { default as ImageCarousel } from './ImageCarousel';
 // Reviews Summary
 export { default as ValidationStatus } from '../components/ValidationStatus';
 export { default as ReviewsSummary } from './ReviewsSummary';
-export type { ReviewsSummaryProps } from '@/shared/types/reviews';
+export type { ReviewsSummaryProps } from '@shared/types/reviews';

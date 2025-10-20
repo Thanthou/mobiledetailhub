@@ -5,14 +5,14 @@
 
 import { useMemo } from 'react';
 
-import { env } from '@/shared/env';
-import type { LocationPage, MainSiteConfig } from '@/shared/types/location';
+import { env } from '@shared/env';
+import type { LocationPage, MainSiteConfig } from '@shared/types/location';
 import { 
   createMergedLocationData, 
   type DeepMergeOptions, 
   getMergeStatistics,
   type MergeStatistics,
-  validateMergedData} from '@/shared/utils/deepMerge';
+  validateMergedData} from '@shared/utils/deepMerge';
 
 interface UseMergedLocationDataResult {
   /** Merged location data */

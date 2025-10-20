@@ -2,7 +2,7 @@
  * Performance monitoring utilities for lazy loading and prefetching
  */
 
-import { env } from '@/shared/env';
+import { env } from '@shared/env';
 
 interface PerformanceMetrics {
   componentLoadTime: number;

@@ -2,7 +2,7 @@
  * Tests for deep merge functionality
  */
 
-import type { LocationPage, MainSiteConfig } from '@/shared/types/location';
+import type { LocationPage, MainSiteConfig } from '@shared/types/location';
 
 import { 
   createMergedLocationData,

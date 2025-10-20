@@ -5,7 +5,7 @@
  * All industries now use modular config approach via index.ts loaders
  */
 
-import type { MainSiteConfig } from '@/shared/types/location';
+import type { MainSiteConfig } from '@shared/types/location';
 
 /**
  * Fetch site configuration for a given industry

@@ -4,7 +4,7 @@
 
 import { describe, expect, it } from 'vitest';
 
-import type { MainSiteConfig } from '@/shared/types/location';
+import type { MainSiteConfig } from '@shared/types/location';
 
 import { formatSEO,getAbsoluteUrl } from '../siteUtils';
 

@@ -4,6 +4,8 @@
  * Moved to shared layer to allow cross-feature usage
  */
 
+import { apiCall } from './runtimeApiClient';
+
 export interface Service {
   id: string;
   name: string;
@@ -79,19 +81,13 @@ export const servicesApi = {
    */
   createService: async (serviceData: CreateServiceRequest): Promise<Service> => {
     try {
-      const response = await fetch('/api/services', {
+      const result = await apiCall<ServicesApiResponse>('/api/services', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(serviceData),
       });
-      
-      if (!response.ok) {
-        throw new Error(`Failed to create service: ${response.status} ${response.statusText}`);
-      }
-      
-      const result = await response.json() as ServicesApiResponse;
       
       if (!result.success) {
         throw new Error(result.error || 'Failed to create service');

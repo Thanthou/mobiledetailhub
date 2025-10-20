@@ -1,0 +1,69 @@
+{
+  "categories": [
+    {
+      "id": "general",
+      "title": "General Questions",
+      "items": [
+        {
+          "question": "Do I need an appointment?",
+          "answer": "While we accept walk-ins when available, we highly recommend booking an appointment to guarantee your preferred time slot."
+        },
+        {
+          "question": "What forms of payment do you accept?",
+          "answer": "We accept cash, all major credit cards, debit cards, and mobile payment options like Apple Pay and Google Pay."
+        },
+        {
+          "question": "How often should I get a haircut?",
+          "answer": "Most men get haircuts every 3-4 weeks to maintain their style. Fades and shorter styles may need maintenance every 2-3 weeks."
+        }
+      ]
+    },
+    {
+      "id": "services",
+      "title": "Service Questions",
+      "items": [
+        {
+          "question": "What's included in a haircut?",
+          "answer": "Every haircut includes consultation, precision cutting, hot towel treatment, scalp massage, styling, and product application. We also offer complimentary touch-ups within 2 weeks."
+        },
+        {
+          "question": "Do you offer beard grooming?",
+          "answer": "Yes! We offer beard trims, shaping, hot towel treatments, and beard oil applications. Our barbers are experts in creating and maintaining all beard styles."
+        },
+        {
+          "question": "Can you do kids' haircuts?",
+          "answer": "Absolutely! We specialize in patient, fun haircuts for children of all ages. We make it a positive experience with rewards and a friendly atmosphere."
+        }
+      ]
+    },
+    {
+      "id": "preparation",
+      "title": "Preparation",
+      "items": [
+        {
+          "question": "How should I prepare for my appointment?",
+          "answer": "No special preparation needed! Just arrive with clean, dry hair if possible. Bring photos of styles you like for reference."
+        },
+        {
+          "question": "Should I wash my hair before coming?",
+          "answer": "Not necessary - we include a shampoo or hot towel treatment with most services. Come as you are!"
+        }
+      ]
+    },
+    {
+      "id": "policies",
+      "title": "Policies",
+      "items": [
+        {
+          "question": "What's your cancellation policy?",
+          "answer": "We require 24-hour notice for cancellations or rescheduling. Late cancellations may be subject to a fee to respect our barbers' time."
+        },
+        {
+          "question": "Do you offer any memberships or packages?",
+          "answer": "Yes! We offer monthly membership plans that include regular haircuts plus discounts on additional services. Ask your barber for details."
+        }
+      ]
+    }
+  ]
+}
+

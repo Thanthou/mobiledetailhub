@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-import { cn } from '@/shared/utils/cn';
+import { cn } from '@shared/utils/cn';
 
 import { Button } from '../buttons/Button';
 

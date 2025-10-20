@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-import { useSEO } from '@/shared/hooks/useSEO';
+import { useSEO } from '@shared/hooks/useSEO';
 
 export interface SeoHeadProps {
   /** Custom page title (overrides business name) */

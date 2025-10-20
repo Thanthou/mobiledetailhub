@@ -1,0 +1,104 @@
+{
+  "$schema": "../../schemas/defaults-services.schema.json",
+  "description": "Default service descriptions for barber shop tenants",
+  
+  "services": [
+    {
+      "slug": "classic-haircut",
+      "title": "Classic Haircut",
+      "shortDescription": "Traditional men's haircut with precision and style",
+      "description": "Our classic haircut includes consultation, precision cutting with scissors and clippers, detailed styling, and finishing touches. Whether you prefer a timeless look or contemporary style, our barbers deliver exceptional results.",
+      "benefits": [
+        "Professional consultation",
+        "Precision scissor and clipper work",
+        "Hot towel treatment",
+        "Scalp massage",
+        "Styling and product application",
+        "Complimentary touch-ups within 2 weeks"
+      ],
+      "duration": "30-45 minutes",
+      "category": "haircut"
+    },
+    {
+      "slug": "hot-towel-shave",
+      "title": "Hot Towel Shave",
+      "shortDescription": "Traditional straight razor shave experience",
+      "description": "Experience the luxury of a traditional hot towel shave. Our barbers use premium products and time-honored techniques to deliver the closest, smoothest shave possible.",
+      "benefits": [
+        "Pre-shave hot towel treatment",
+        "Premium shaving cream",
+        "Straight razor shave",
+        "Post-shave cold towel",
+        "Soothing aftershave balm",
+        "Facial massage"
+      ],
+      "duration": "30-40 minutes",
+      "category": "shave"
+    },
+    {
+      "slug": "beard-trim-shaping",
+      "title": "Beard Trim & Shaping",
+      "shortDescription": "Professional beard grooming and styling",
+      "description": "Keep your beard looking sharp with our professional trim and shaping service. We sculpt and maintain your beard to complement your face shape and personal style.",
+      "benefits": [
+        "Beard consultation",
+        "Precision trimming and shaping",
+        "Neck and cheek line cleanup",
+        "Hot towel treatment",
+        "Beard oil application",
+        "Styling tips and product recommendations"
+      ],
+      "duration": "20-30 minutes",
+      "category": "beard"
+    },
+    {
+      "slug": "fade-haircut",
+      "title": "Fade Haircut",
+      "shortDescription": "Modern fade styles with precision blending",
+      "description": "Get the perfect fade with our expert barbers. From low to high fades, skin fades to temp fades, we create crisp, clean fades with seamless blending.",
+      "benefits": [
+        "Custom fade consultation",
+        "Multiple clipper guard blending",
+        "Precision line work",
+        "Hot towel and shampoo",
+        "Styling with premium products",
+        "Free touch-up within 10 days"
+      ],
+      "duration": "45-60 minutes",
+      "category": "haircut"
+    },
+    {
+      "slug": "haircut-shave-combo",
+      "title": "Haircut & Shave Combo",
+      "shortDescription": "Complete grooming package",
+      "description": "Our most popular service combines a precision haircut with a traditional hot towel shave. Get the full barbershop experience and save time with our combo package.",
+      "benefits": [
+        "Full haircut service",
+        "Traditional hot towel shave",
+        "Beard trim and shaping",
+        "Scalp and facial massage",
+        "Premium products throughout",
+        "Priority booking for combos"
+      ],
+      "duration": "60-75 minutes",
+      "category": "combo"
+    },
+    {
+      "slug": "kids-haircut",
+      "title": "Kids Haircut",
+      "shortDescription": "Patient, fun haircuts for children",
+      "description": "We specialize in making kids' haircuts a fun, stress-free experience. Our patient barbers work with children of all ages to deliver great cuts in a friendly environment.",
+      "benefits": [
+        "Patient, kid-friendly approach",
+        "Fun atmosphere with distractions",
+        "Quick, efficient service",
+        "First haircut certificates available",
+        "Lollipop and sticker rewards",
+        "Parents welcome to stay close"
+      ],
+      "duration": "15-25 minutes",
+      "category": "kids"
+    }
+  ]
+}
+

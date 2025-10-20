@@ -215,14 +215,114 @@ async function verifyDeletion(client, tenantId) {
 }
 
 /**
+ * Perform a dry-run deletion to see what would be deleted
+ * @param {number} tenantId - The tenant ID to analyze
+ * @param {Object} actor - The user performing the dry-run
+ * @returns {Object} Dry-run result with details of what would be deleted
+ */
+export async function dryRunDeleteTenant(tenantId, actor) {
+  const pool = await getPool();
+  
+  try {
+    logger.info('Starting dry-run tenant deletion analysis', { 
+      tenantId, 
+      actor: actor.email 
+    });
+    
+    // 1. Get tenant information
+    const tenant = await getTenantInfo(tenantId);
+    
+    // 2. Run validation
+    const validation = await validateTenantDeletion(tenantId);
+    
+    // 3. Get detailed counts of what will be deleted
+    const detailedCounts = await pool.query(`
+      SELECT 
+        (SELECT COUNT(*) FROM tenants.services WHERE business_id = $1) as services,
+        (SELECT COUNT(*) FROM tenants.service_tiers WHERE service_id IN (SELECT id FROM tenants.services WHERE business_id = $1)) as service_tiers,
+        (SELECT COUNT(*) FROM tenants.service_areas WHERE business_id = $1) as service_areas,
+        (SELECT COUNT(*) FROM tenants.subscriptions WHERE business_id = $1) as subscriptions,
+        (SELECT COUNT(*) FROM booking.bookings WHERE tenant_id = $1) as bookings,
+        (SELECT COUNT(*) FROM booking.quotes WHERE affiliate_id = $1) as quotes,
+        (SELECT COUNT(*) FROM booking.availability WHERE tenant_id = $1) as availability,
+        (SELECT COUNT(*) FROM booking.blackout_dates WHERE tenant_id = $1) as blackout_dates,
+        (SELECT COUNT(*) FROM schedule.time_blocks WHERE affiliate_id = $1) as time_blocks,
+        (SELECT COUNT(*) FROM schedule.blocked_days WHERE affiliate_id = $1) as blocked_days,
+        (SELECT COUNT(*) FROM schedule.appointments WHERE affiliate_id = $1) as appointments,
+        (SELECT COUNT(*) FROM schedule.schedule_settings WHERE affiliate_id = $1) as schedule_settings,
+        (SELECT COUNT(*) FROM website.content WHERE business_id = $1) as website_content,
+        (SELECT COUNT(*) FROM reputation.reviews WHERE tenant_id = $1 OR tenant_slug = $2) as reviews,
+        (SELECT COUNT(*) FROM tenants.tenant_images WHERE tenant_slug = $2) as tenant_images,
+        (SELECT COUNT(*) FROM system.health_monitoring WHERE business_id = $1 OR tenant_slug = $2) as health_monitoring,
+        (SELECT COUNT(*) FROM analytics.events WHERE tenant_id = $1) as analytics_events,
+        (SELECT COUNT(*) FROM auth.users WHERE id = $3) as user_record
+    `, [tenantId, tenant.slug, tenant.user_id]);
+    
+    const counts = detailedCounts.rows[0];
+    
+    // Calculate total records
+    const totalRecords = Object.values(counts).reduce((sum, val) => sum + parseInt(val || 0), 0);
+    
+    // Build summary
+    const summary = {
+      tenant: {
+        id: tenant.id,
+        slug: tenant.slug,
+        business_name: tenant.business_name,
+        email: tenant.email,
+        status: tenant.application_status
+      },
+      validation: {
+        canDeleteSafely: validation.isValid,
+        issues: validation.issues
+      },
+      recordsToDelete: counts,
+      totalRecords,
+      impact: {
+        hasActiveSubscription: validation.issues.some(i => i.type === 'active_subscription'),
+        hasPendingBookings: validation.issues.some(i => i.type === 'pending_bookings'),
+        hasRecentActivity: validation.issues.some(i => i.type === 'recent_activity')
+      },
+      recommendation: validation.isValid 
+        ? 'Safe to delete' 
+        : 'Requires force=true flag due to validation issues'
+    };
+    
+    logger.info('Dry-run analysis completed', {
+      tenantId,
+      totalRecords,
+      canDeleteSafely: validation.isValid
+    });
+    
+    return {
+      success: true,
+      dryRun: true,
+      summary
+    };
+    
+  } catch (error) {
+    logger.error('Dry-run deletion analysis failed:', error);
+    throw error;
+  }
+}
+
+/**
  * Delete a tenant and all associated data
  * @param {number} tenantId - The tenant ID to delete
  * @param {Object} actor - The user performing the deletion
  * @param {Object} options - Deletion options
+ * @param {boolean} [options.force=false] - Force deletion despite validation issues
+ * @param {boolean} [options.skipValidation=false] - Skip validation entirely
+ * @param {boolean} [options.dryRun=false] - Only analyze what would be deleted without actually deleting
  * @returns {Object} Deletion result
  */
 export async function deleteTenant(tenantId, actor, options = {}) {
-  const { force = false, skipValidation = false } = options;
+  const { force = false, skipValidation = false, dryRun = false } = options;
+  
+  // Handle dry-run mode
+  if (dryRun) {
+    return dryRunDeleteTenant(tenantId, actor);
+  }
   
   const pool = await getPool();
   const client = await pool.connect();
@@ -384,5 +484,6 @@ export {
   getTenantInfo,
   validateTenantDeletion,
   createTenantSnapshot,
-  verifyDeletion
+  verifyDeletion,
+  dryRunDeleteTenant
 };

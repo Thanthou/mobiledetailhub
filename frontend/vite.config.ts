@@ -97,9 +97,9 @@ export default defineConfig({
     minify: false, // easier debugging
     rollupOptions: {
       input: {
-        "main-site": path.resolve(__dirname, "main-site/index.html"),
-        "tenant-app": path.resolve(__dirname, "tenant-app/index.html"),
-        "admin-app": path.resolve(__dirname, "admin-app/index.html"),
+        "main-site": path.resolve(__dirname, "apps/main-site/index.html"),
+        "tenant-app": path.resolve(__dirname, "apps/tenant-app/index.html"),
+        "admin-app": path.resolve(__dirname, "apps/admin-app/index.html"),
       },
       external: (id) => id.includes('.legacy') || id.includes('_archive'),
       output: {

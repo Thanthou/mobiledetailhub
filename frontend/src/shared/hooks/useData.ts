@@ -6,7 +6,7 @@
 
 import { useContext } from 'react';
 
-import { DataContext, type DataContextType } from '@/shared/contexts/DataContext';
+import { DataContext, type DataContextType } from '@shared/contexts/DataContext';
 
 /**
  * Hook to access tenant/business data from DataContext

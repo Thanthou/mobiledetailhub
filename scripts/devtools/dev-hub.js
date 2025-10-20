@@ -43,6 +43,28 @@ function getTarget(host) {
 const proxyCache = new Map();
 let loggedTargets = new Set();
 
+// ✅ OPTION B: Serve tenant SPA fallback for preview routes (backup safety layer)
+app.use((req, res, next) => {
+  const host = req.headers.host?.split(':')[0] || '';
+  
+  console.log(`[HUB] 🔍 Request: ${req.method} ${req.path} | Host: ${host}`);
+  
+  // Only intercept tenant preview routes
+  if (host.includes('tenant') || host.includes('tenant.localhost')) {
+    // If request looks like /something-preview or /test-route, serve tenant index.html
+    if (/\/.*-preview$/.test(req.path) || req.path === '/test-route') {
+      const tenantIndex = path.join(__dirname, '../../frontend/index.tenant.html');
+      if (fs.existsSync(tenantIndex)) {
+        console.log(`[HUB] 📄 Serving tenant SPA fallback for: ${req.path}`);
+        return res.sendFile(tenantIndex);
+      }
+    }
+  }
+  
+  console.log(`[HUB] ➡️  Proxying to target...`);
+  next();
+});
+
 app.use((req, res) => {
   const host = req.headers.host?.split(':')[0];
   const target = getTarget(host);
@@ -105,7 +127,7 @@ app.use((req, res) => {
 const PORT = 8080;
 const server = app.listen(PORT, () => {
   console.log(`🧭 Dev Hub running on port ${PORT}`);
-  console.log(`📱 Main Site: http://main.localhost:${PORT}`);
+  console.log(`📱 Main Site: http://localhost:${PORT}`);
   console.log(`🔐 Admin App: http://admin.localhost:${PORT}`);
   console.log(`🏢 Tenant App: http://tenant.localhost:${PORT}`);
   console.log(`📊 Registry: http://localhost:${PORT}/.port-registry.json`);
@@ -113,7 +135,7 @@ const server = app.listen(PORT, () => {
   // Show clickable links after a delay to ensure all services are up
   setTimeout(() => {
     console.log('\n🚀 ===== DEVELOPMENT ENVIRONMENT READY =====');
-    console.log('📱 Main Website:     http://main.localhost:8080/');
+    console.log('📱 Main Website:     http://localhost:8080/');
     console.log('🔐 Admin Interface:  http://admin.localhost:8080/');
     console.log('🏢 Tenant Dashboard: http://tenant.localhost:8080/');
     console.log('📊 Port Registry:    http://localhost:8080/.port-registry.json');

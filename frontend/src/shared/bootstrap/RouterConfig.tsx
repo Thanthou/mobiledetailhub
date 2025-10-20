@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
-import { LoginPage, ProtectedRoute } from '@/shared/ui';
+import { LoginPage, ProtectedRoute } from '@shared/ui';
 
 export interface RouterConfigProps {
   /**

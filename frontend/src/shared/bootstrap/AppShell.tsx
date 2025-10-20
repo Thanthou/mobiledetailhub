@@ -2,12 +2,13 @@ import React, { PropsWithChildren } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { HelmetProvider } from 'react-helmet-async';
 
-import { ErrorBoundary } from '@/shared/ui';
-import { AuthProvider } from '@/shared/contexts/AuthContext';
-import { DataProvider } from '@/shared/contexts/DataContext';
-import { TenantConfigProvider } from '@/shared/contexts/TenantConfigContext';
-import { WebsiteContentProvider } from '@/shared/contexts/WebsiteContentContext';
-import { UnifiedTenantProvider } from '@/shared/contexts/TenantContext';
+import { ErrorBoundary } from '@shared/ui';
+import { AuthProvider } from '@shared/contexts/AuthContext';
+import { DataProvider } from '@shared/contexts/DataContext';
+import { TenantConfigProvider } from '@shared/contexts/TenantConfigContext';
+import { WebsiteContentProvider } from '@shared/contexts/WebsiteContentContext';
+import { UnifiedTenantProvider } from '@shared/contexts/TenantContext';
+import { ConfigProvider } from '@shared/components/ConfigProvider';
 import { SEOManager } from './SEOManager';
 
 // Create a single QueryClient instance for all apps
@@ -62,11 +63,13 @@ export const AppShell: React.FC<AppShellProps> = ({
 }) => {
   const baseProviders = (
     <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
-      </QueryClientProvider>
+      <ConfigProvider>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </QueryClientProvider>
+      </ConfigProvider>
     </ErrorBoundary>
   );
 
@@ -78,20 +81,22 @@ export const AppShell: React.FC<AppShellProps> = ({
   // Main site and tenant apps need full provider stack
   const fullProviders = (
     <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <UnifiedTenantProvider>
-            <DataProvider>
-              <TenantConfigProvider>
-                <WebsiteContentProvider>
-                  {children}
-                </WebsiteContentProvider>
-              </TenantConfigProvider>
-            </DataProvider>
-          </UnifiedTenantProvider>
-        </AuthProvider>
-        {/* TODO: Add ReactQueryDevtools when enableDevTools is true */}
-      </QueryClientProvider>
+      <ConfigProvider>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <UnifiedTenantProvider>
+              <DataProvider>
+                <TenantConfigProvider>
+                  <WebsiteContentProvider>
+                    {children}
+                  </WebsiteContentProvider>
+                </TenantConfigProvider>
+              </DataProvider>
+            </UnifiedTenantProvider>
+          </AuthProvider>
+          {/* TODO: Add ReactQueryDevtools when enableDevTools is true */}
+        </QueryClientProvider>
+      </ConfigProvider>
     </ErrorBoundary>
   );
 

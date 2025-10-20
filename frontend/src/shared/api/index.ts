@@ -14,6 +14,21 @@ export type {
 export { apiService } from './api';
 export { ApiClient,apiClient } from './apiClient';
 export { ApiClient as ApiClientClass, apiClient as apiClientInstance } from './client';
+
+// Runtime API Client (recommended for new code)
+export {
+  RuntimeApiClient,
+  createRuntimeApiClient,
+  apiCall,
+  getApiUrl,
+  getRuntimeApiBaseUrl
+} from './runtimeApiClient';
+export type {
+  RuntimeConfig,
+  CustomError,
+  ErrorResponse
+} from './runtimeApiClient';
+
 export * from './errors';
 
 // Tenant config API

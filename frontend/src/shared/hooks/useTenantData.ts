@@ -7,8 +7,8 @@
 
 import { useQuery } from '@tanstack/react-query';
 
-import { fetchBusinessBySlug } from '@/shared/api/tenantApi';
-import type { Business } from '@/shared/types/tenant-business.types';
+import { fetchBusinessBySlug } from '@shared/api/tenantApi';
+import type { Business } from '@shared/types/tenant-business.types';
 
 interface UseTenantDataOptions {
   /**

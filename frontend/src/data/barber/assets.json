@@ -1,0 +1,41 @@
+{
+  "logo": {
+    "default": {
+      "url": "/barber/icons/logo.png",
+      "alt": "Barbershop Logo",
+      "width": 200,
+      "height": 200
+    }
+  },
+  "hero": [
+    {
+      "desktop": {
+        "url": "/barber/images/hero/hero1.png",
+        "alt": "Professional barber cutting hair"
+      },
+      "mobile": {
+        "url": "/barber/images/hero/hero1-mobile.png",
+        "alt": "Professional barber cutting hair"
+      }
+    }
+  ],
+  "services": {
+    "classic-haircut": {
+      "url": "/barber/images/services/classic-haircut.png",
+      "alt": "Classic men's haircut"
+    },
+    "hot-towel-shave": {
+      "url": "/barber/images/services/hot-towel-shave.png",
+      "alt": "Traditional hot towel shave"
+    },
+    "beard-trim": {
+      "url": "/barber/images/services/beard-trim.png",
+      "alt": "Professional beard trim and styling"
+    },
+    "fade-haircut": {
+      "url": "/barber/images/services/fade-haircut.png",
+      "alt": "Modern fade haircut"
+    }
+  }
+}
+

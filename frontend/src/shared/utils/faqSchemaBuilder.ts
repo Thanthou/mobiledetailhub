@@ -4,7 +4,7 @@
  */
 
 import type { FAQItem } from '@/tenant-app/components/faq/types';
-import type { LocationPage } from '@/shared/types/location';
+import type { LocationPage } from '@shared/types/location';
 
 import { convertFAQItemsToSchemaFormat,generateFAQSchema } from './schemaUtils';
 

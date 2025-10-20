@@ -3,11 +3,11 @@
  * Handles loading and merging main site config with location-specific data
  */
 
-import type { LocationPage, MainSiteConfig } from '@/shared/types/location';
+import type { LocationPage, MainSiteConfig } from '@shared/types/location';
 import { 
   createMergedLocationData, 
   type DeepMergeOptions, 
-  validateMergedData} from '@/shared/utils/deepMerge';
+  validateMergedData} from '@shared/utils/deepMerge';
 
 /**
  * Load and merge location data

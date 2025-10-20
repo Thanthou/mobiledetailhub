@@ -7,8 +7,8 @@
 
 import { useParams } from 'react-router-dom';
 
-import { env } from '@/shared/env';
-import { getTenantFromDomain } from '@/shared/utils/domainUtils';
+import { env } from '@shared/env';
+import { getTenantFromDomain } from '@shared/utils/domainUtils';
 
 /**
  * Get tenant slug from URL params (dev) or domain (production)

@@ -6,7 +6,7 @@
  * 
  * @example
  * ```ts
- * import { env, config } from '@/shared/env';
+ * import { env, config } from '@shared/env';
  * 
  * // Use env for raw values
  * if (env.DEV) { ... }

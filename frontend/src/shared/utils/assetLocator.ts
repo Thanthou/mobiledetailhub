@@ -7,7 +7,7 @@
  * Pure function - no IO, no network calls, no DOM access.
  */
 
-import type { Vertical } from '@/shared/types';
+import type { Vertical } from '@shared/types';
 
 /**
  * Supported asset types for tenant branding and content

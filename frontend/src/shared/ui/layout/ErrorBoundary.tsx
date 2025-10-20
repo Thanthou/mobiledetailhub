@@ -2,8 +2,8 @@ import type { ErrorInfo, ReactNode } from 'react';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-import { env } from '@/shared/env';
-import { handleReactError } from '@/shared/utils/errorMonitoring';
+import { env } from '@shared/env';
+import { handleReactError } from '@shared/utils/errorMonitoring';
 
 interface Props {
   children: ReactNode;

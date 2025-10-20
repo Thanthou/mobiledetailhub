@@ -1,5 +1,5 @@
 import { useData } from '@/tenant-app/components/header/contexts/DataProvider';
-import type { MainSiteConfig } from '@/shared/types/location';
+import type { MainSiteConfig } from '@shared/types/location';
 
 /**
  * Hook to access the correct site.json based on the tenant's industry

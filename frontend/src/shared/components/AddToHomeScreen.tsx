@@ -8,8 +8,8 @@
 import React, { useEffect, useState } from 'react';
 import { Download, Smartphone, X } from 'lucide-react';
 
-import { useMobileDetection } from '@/shared/hooks/useMobileDetection';
-import { Button } from '@/shared/ui';
+import { useMobileDetection } from '@shared/hooks/useMobileDetection';
+import { Button } from '@shared/ui';
 
 interface AddToHomeScreenProps {
   tenantSlug?: string;

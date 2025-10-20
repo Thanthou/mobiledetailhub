@@ -127,7 +127,7 @@ export function useTenantsList(vertical?: Vertical) {
  * @example
  * ```tsx
  * import { useQueryClient } from '@tanstack/react-query';
- * import { prefetchTenantConfig } from '@/shared/hooks';
+ * import { prefetchTenantConfig } from '@shared/hooks';
  * 
  * function TenantLink({ slug }: { slug: string }) {
  *   const queryClient = useQueryClient();

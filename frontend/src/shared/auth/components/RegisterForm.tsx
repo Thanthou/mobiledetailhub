@@ -1,7 +1,7 @@
 import React from 'react';
 import { Eye, EyeOff, Lock, Mail, Phone, User } from 'lucide-react';
 
-import { Button } from '@/shared/ui';
+import { Button } from '@shared/ui';
 
 import { useRegisterForm } from '../hooks/useRegisterForm';
 import { RegisterFormProps } from '../types';

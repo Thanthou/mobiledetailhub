@@ -1,0 +1,26 @@
+{
+  "industry": "barber",
+  "displayName": "Barber Shop",
+  "description": "Professional barbershop services for men and children",
+  "defaultServiceCategories": [
+    "haircut",
+    "shave",
+    "beard",
+    "combo",
+    "kids"
+  ],
+  "typicalServices": [
+    "Classic Haircut",
+    "Hot Towel Shave",
+    "Beard Trim",
+    "Fade Haircut",
+    "Kids Haircut"
+  ],
+  "bookingEnabled": true,
+  "appointmentDuration": {
+    "min": 15,
+    "max": 75,
+    "default": 30
+  }
+}
+

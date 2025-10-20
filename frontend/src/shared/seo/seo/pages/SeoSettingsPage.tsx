@@ -6,7 +6,7 @@
 
 import React from 'react';
 
-import { Input } from '@/shared/ui';
+import { Input } from '@shared/ui';
 
 interface SeoSettingsPageProps {
   seo: {

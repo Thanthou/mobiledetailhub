@@ -1,0 +1,16 @@
+{
+  "description": "Default text content for new barber shop tenants",
+  "hero": {
+    "h1": "Premium Barbershop Services",
+    "subTitle": "Expert cuts, classic shaves, and modern grooming for the modern gentleman"
+  },
+  "reviews": {
+    "title": "What Our Clients Say",
+    "subtitle": "Rated 5 stars by clients who trust us with their signature style"
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Everything you need to know about our barbershop services"
+  }
+}
+

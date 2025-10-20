@@ -6,7 +6,7 @@
 
 import React from 'react';
 
-import { cn, parseCurrency } from '@/shared/utils';
+import { cn, parseCurrency } from '@shared/utils';
 
 export interface PriceInputProps {
   label: string;

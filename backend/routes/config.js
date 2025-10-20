@@ -13,38 +13,64 @@ const router = express.Router();
 /**
  * GET /api/config
  * Returns runtime configuration for frontend applications
+ * 
+ * This endpoint provides runtime configuration that can be changed without rebuilding.
+ * The frontend fetches this at boot and uses it to configure API URLs, feature flags, etc.
  */
 router.get('/', (req, res) => {
   try {
+    // Determine API base URL based on environment
+    const apiBaseUrl = process.env.NODE_ENV === 'production'
+      ? (process.env.API_BASE_URL || '/api')
+      : '/api'; // Always use proxy in development
+    
+    const apiUrl = process.env.NODE_ENV === 'production'
+      ? (process.env.API_URL || '')
+      : ''; // Empty in dev to use Vite proxy
+    
     const config = {
       // API Configuration
-      apiBaseUrl: process.env.API_BASE_URL || '/api',
-      apiUrl: process.env.API_URL || '',
+      apiBaseUrl,
+      apiUrl,
+      backendUrl: process.env.NODE_ENV === 'development' 
+        ? `http://localhost:${process.env.PORT || 3001}`
+        : '',
       
-      // Third-party API Keys (only public keys)
+      // Third-party API Keys (only public keys - NEVER send private keys!)
       googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
       stripePublishableKey: process.env.STRIPE_PUBLISHABLE_KEY || 'pk_test_placeholder',
       
-      // Feature Flags
+      // Feature Flags (runtime toggleable)
       features: {
-        serviceWorker: process.env.ENABLE_SERVICE_WORKER === 'true',
-        analytics: process.env.ENABLE_ANALYTICS === 'true',
-        maps: process.env.ENABLE_GOOGLE_MAPS === 'true',
-        stripe: process.env.ENABLE_STRIPE === 'true',
-        debugMode: process.env.NODE_ENV === 'development'
+        serviceWorker: process.env.ENABLE_SERVICE_WORKER === 'true' && process.env.NODE_ENV === 'production',
+        analytics: process.env.ENABLE_ANALYTICS !== 'false', // Enabled by default
+        maps: process.env.ENABLE_GOOGLE_MAPS !== 'false', // Enabled by default
+        stripe: process.env.ENABLE_STRIPE !== 'false', // Enabled by default
+        debugMode: process.env.NODE_ENV === 'development',
+        booking: process.env.ENABLE_BOOKING !== 'false', // Enabled by default
+        reviews: process.env.ENABLE_REVIEWS !== 'false', // Enabled by default
       },
       
       // Environment info
       environment: {
         mode: process.env.NODE_ENV || 'development',
         version: process.env.APP_VERSION || '1.0.0',
-        buildTime: process.env.BUILD_TIME || new Date().toISOString()
+        buildTime: process.env.BUILD_TIME || new Date().toISOString(),
+        commitHash: process.env.COMMIT_HASH || 'unknown',
       },
       
       // Multi-tenant configuration
       tenant: {
-        defaultDomain: process.env.DEFAULT_DOMAIN || 'thatsmartsite.com',
-        subdomainPattern: process.env.SUBDOMAIN_PATTERN || '*.thatsmartsite.com'
+        defaultDomain: process.env.BASE_DOMAIN || 'thatsmartsite.com',
+        subdomainPattern: `*.${process.env.BASE_DOMAIN || 'thatsmartsite.com'}`,
+        allowCustomDomains: process.env.ALLOW_CUSTOM_DOMAINS !== 'false',
+      },
+      
+      // Client-side settings
+      client: {
+        maxUploadSize: parseInt(process.env.MAX_UPLOAD_SIZE || '5242880'), // 5MB default
+        sessionTimeout: parseInt(process.env.SESSION_TIMEOUT || '86400000'), // 24h default
+        enableOfflineMode: process.env.ENABLE_OFFLINE_MODE === 'true',
       }
     };
     
@@ -55,7 +81,16 @@ router.get('/', (req, res) => {
     
     // Cache the config for 5 minutes
     res.header('Cache-Control', 'public, max-age=300');
-    res.header('ETag', `"config-${Date.now()}"`);
+    
+    // Add informative headers
+    res.header('X-Config-Version', process.env.APP_VERSION || '1.0.0');
+    res.header('X-Config-Timestamp', new Date().toISOString());
+    
+    logger.debug('Runtime config served', {
+      environment: config.environment.mode,
+      serviceWorkerEnabled: config.features.serviceWorker,
+      apiBaseUrl: config.apiBaseUrl
+    });
     
     res.json({
       success: true,

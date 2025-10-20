@@ -7,15 +7,15 @@
 
 import React, { useMemo } from 'react';
 
-import { useImageRotation, useImageRotationHover } from '@/shared/hooks';
-import { cn } from '@/shared/utils/cn';
+import { useImageRotation, useImageRotationHover } from '@shared/hooks';
+import { cn } from '@shared/utils/cn';
 import {
   getAccessibilityAttributes,
   getImageOpacityClasses,
   getTransitionStyles,
   getVisibleImageIndices,
   type ImageRotationConfig
-} from '@/shared/utils/imageRotation';
+} from '@shared/utils/imageRotation';
 
 export interface ImageCarouselProps extends Omit<ImageRotationConfig, 'images'> {
   /** Array of image URLs to display */

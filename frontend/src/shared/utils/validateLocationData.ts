@@ -3,8 +3,8 @@
  * Use these functions to validate location data at build time or runtime
  */
 
-import type { LocationPage, MainSiteConfig } from '@/shared/types/location';
-import { validateLocationData, validateMainSiteConfig, type ValidationResult } from '@/shared/validation/locationSchema';
+import type { LocationPage, MainSiteConfig } from '@shared/types/location';
+import { validateLocationData, validateMainSiteConfig, type ValidationResult } from '@shared/validation/locationSchema';
 
 /**
  * Validate a single location file

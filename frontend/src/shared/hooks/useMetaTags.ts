@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 
-import { useData } from '@/shared/hooks/useData';
-import { useIndustrySiteData } from '@/shared/hooks/useIndustrySiteData';
-import { getAbsoluteUrl } from '@/shared/utils';
+import { useData } from '@shared/hooks/useData';
+import { useIndustrySiteData } from '@shared/hooks/useIndustrySiteData';
+import { getAbsoluteUrl } from '@shared/utils';
 
 export interface UseMetaTagsOptions {
   /** Custom page title (for OG/Twitter tags) */

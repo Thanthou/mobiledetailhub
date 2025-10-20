@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types -- Using TypeScript interfaces instead of PropTypes */
 import React from 'react';
 
-import { cn } from '@/shared/utils/cn';
+import { cn } from '@shared/utils/cn';
 /* eslint-enable react/prop-types -- Re-enable after TypeScript interface declarations */
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {

@@ -10,16 +10,16 @@
 import React, { createContext } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
-import { fetchIndustryConfig } from '@/shared/api/industryConfigApi';
-import { useTenantData } from '@/shared/hooks/useTenantData';
-import { useTenantSlug } from '@/shared/hooks/useTenantSlug';
-import type { MainSiteConfig } from '@/shared/types/location';
+import { fetchIndustryConfig } from '@shared/api/industryConfigApi';
+import { useTenantData } from '@shared/hooks/useTenantData';
+import { useTenantSlug } from '@shared/hooks/useTenantSlug';
+import type { MainSiteConfig } from '@shared/types/location';
 import {
   getBusinessEmail,
   getPrimaryLocation,
   type SocialMediaLinks,
   transformSocialMedia,
-} from '@/shared/utils/tenantDataTransform';
+} from '@shared/utils/tenantDataTransform';
 
 /**
  * Data context type definition

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import { cn } from '@/shared/utils/cn';
+import { cn } from '@shared/utils/cn';
 
 import { Button } from './Button';
 

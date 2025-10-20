@@ -4,7 +4,7 @@
  * Includes array deduplication and special handling for different data types
  */
 
-import type { LocationPage, MainSiteConfig } from '@/shared/types/location';
+import type { LocationPage, MainSiteConfig } from '@shared/types/location';
 
 // Type-safe representations for merge operations
 type PlainObject = Record<string, unknown>;

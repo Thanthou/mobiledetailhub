@@ -20,7 +20,7 @@ const CUSTOM_DOMAIN_MAPPINGS: Record<string, string> = {
 /**
  * Reserved subdomains that should not be treated as tenant slugs
  */
-const RESERVED_SUBDOMAINS = ['www', 'thatsmartsite', 'api', 'admin', 'staging', 'dev', 'main-site'];
+const RESERVED_SUBDOMAINS = ['www', 'thatsmartsite', 'api', 'admin', 'tenant', 'staging', 'dev', 'main-site', 'main'];
 
 /**
  * Extract tenant slug from subdomain
@@ -42,9 +42,11 @@ function getTenantFromSubdomain(hostname: string): string | null {
     return null;
   }
   
-  // Handle both .thatsmartsite.com and .lvh.me domains
-  const domain = parts.slice(-2).join('.');
-  if (domain === 'thatsmartsite.com' || domain === 'lvh.me') {
+  // Handle development and production domains
+  const domain = parts.slice(-1)[0]; // Get TLD (last part)
+  
+  // Allow: .thatsmartsite.com, .lvh.me, .localhost
+  if (domain === 'localhost' || parts.slice(-2).join('.') === 'thatsmartsite.com' || parts.slice(-2).join('.') === 'lvh.me') {
     return subdomain;
   }
   

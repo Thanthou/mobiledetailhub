@@ -15,7 +15,7 @@
  * Components consume hooks, hooks use this API client.
  */
 
-import { apiClient } from '@/shared/api';
+import { apiClient } from '@shared/api';
 
 /**
  * Response types for this feature

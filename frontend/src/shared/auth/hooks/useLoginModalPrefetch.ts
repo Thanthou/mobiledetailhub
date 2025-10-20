@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { usePerformanceMonitor } from '@/shared/hooks';
+import { usePerformanceMonitor } from '@shared/hooks';
 
 // Enhanced prefetch function with better error handling and caching
 const prefetchLoginModal = (() => {

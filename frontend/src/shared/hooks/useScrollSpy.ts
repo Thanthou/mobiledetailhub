@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-import { type SectionId,useSectionStore } from '@/shared/state/sectionStore';
+import { type SectionId,useSectionStore } from '@shared/state/sectionStore';
 
 type Opts = {
   ids: SectionId[];

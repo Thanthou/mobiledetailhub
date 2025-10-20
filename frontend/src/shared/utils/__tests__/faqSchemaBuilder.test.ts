@@ -4,7 +4,7 @@
 
 import { describe, expect,it } from 'vitest';
 
-import type { LocationPage } from '@/shared/types/location';
+import type { LocationPage } from '@shared/types/location';
 
 import {
   buildLocationFAQSchema,

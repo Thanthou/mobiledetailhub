@@ -1,5 +1,5 @@
 // frontend/src/shared/utils/findBusinessByLocation.ts
-import { config, env } from '@/shared/env';
+import { config, env } from '@shared/env';
 
 interface BusinessLookupResponse {
   slugs?: string[];

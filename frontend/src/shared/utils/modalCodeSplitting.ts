@@ -106,7 +106,7 @@ class ModalPrefetchManager {
         importPromise = import('@/tenant-app/components/quotes/components/RequestQuoteModal') as Promise<ModalModule>;
         break;
       case 'login':
-        importPromise = import('@/shared/auth/components/LoginModal') as Promise<ModalModule>;
+        importPromise = import('@shared/auth/components/LoginModal') as Promise<ModalModule>;
         break;
       default:
         // Unknown modal type

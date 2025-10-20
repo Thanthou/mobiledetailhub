@@ -59,6 +59,9 @@ import healthMonitoringRoutes from './routes/healthMonitoring.js'
 import reviewsRoutes from './routes/reviews.js'
 import domainRoutes from './routes/domains.js'
 import tenantDashboardRoutes from './routes/tenantDashboard.js'
+import createAnalyticsRouter from './routes/analytics.new.js'
+import { startAutoFlush } from './utils/analyticsQueue.js'
+import { getPool } from './database/pool.js'
 
 // Suppress debug/info noise in development
 if (process.env.LOG_LEVEL !== 'debug') {
@@ -67,6 +70,27 @@ if (process.env.LOG_LEVEL !== 'debug') {
 }
 
 const app = express()
+
+// Initialize pool and analytics router with resilience
+let analyticsRouter;
+let autoFlushHandle;
+
+try {
+  const pool = await getPool();
+  analyticsRouter = createAnalyticsRouter(pool);
+  autoFlushHandle = startAutoFlush(pool);
+  logger.info('Analytics router initialized with database pool');
+} catch (error) {
+  logger.error('Failed to initialize analytics router', { error: error.message });
+  // Create a dummy router that returns 503
+  analyticsRouter = express.Router();
+  analyticsRouter.all('*', (req, res) => {
+    res.status(503).json({
+      success: false,
+      error: 'Analytics service temporarily unavailable'
+    });
+  });
+}
 
 // Get __dirname equivalent for ES modules
 const __filename = fileURLToPath(import.meta.url)
@@ -153,6 +177,7 @@ app.use('/api/payments', paymentRoutes)
 app.use('/api/auth', authRoutes)
 app.use('/api/tenants', tenantsRoutes)
 app.use('/api/admin', adminRoutes)
+app.use('/api/analytics', analyticsRouter)
 app.use('/api/locations', locationsRoutes)
 app.use('/api/website-content', websiteContentRoutes)
 app.use('/api/google-reviews', googleReviewsRoutes)
@@ -164,6 +189,7 @@ app.use('/api/reviews', reviewsRoutes)
 app.use('/api/subdomain', subdomainTestRoutes)
 app.use('/api/domains', domainRoutes)
 app.use('/api/dashboard', tenantDashboardRoutes)
+logger.info('Analytics routes loaded at /api/analytics (hardened)')
 logger.info('Reviews routes loaded at /api/reviews')
 logger.info('Subdomain test routes loaded at /api/subdomain')
 logger.info('Domain routes loaded at /api/domains')
@@ -292,18 +318,8 @@ app.use((err, req, res, next) => {
   }
 });
 
-// Try to load dynamic port from port finder, fallback to env or default
-let PORT = process.env.PORT || 3001;
-try {
-  const portFile = path.join(__dirname, '../.backend-port.json');
-  if (fs.existsSync(portFile)) {
-    const portData = JSON.parse(fs.readFileSync(portFile, 'utf8'));
-    PORT = portData.port;
-  }
-} catch (error) {
-  // Fallback to default if port file doesn't exist or is invalid
-}
-
+// Static port configuration (no dynamic port detection)
+const PORT = process.env.BACKEND_PORT || process.env.PORT || 3001;
 const HOST = '0.0.0.0'
 
 logger.info({
@@ -368,3 +384,48 @@ async function initializeAsync() {
     }, 'Async initialization failed - server is still running, but some features may not work')
   }
 }
+
+// Graceful shutdown
+process.on('SIGTERM', async () => {
+  logger.info('SIGTERM received, shutting down gracefully');
+  
+  // Stop analytics queue auto-flush
+  if (autoFlushHandle) {
+    const { stopAutoFlush } = await import('./utils/analyticsQueue.js');
+    stopAutoFlush(autoFlushHandle);
+  }
+  
+  // Close server
+  server.close(() => {
+    logger.info('Server closed');
+    process.exit(0);
+  });
+  
+  // Force close after 10 seconds
+  setTimeout(() => {
+    logger.error('Forcing shutdown after timeout');
+    process.exit(1);
+  }, 10000);
+});
+
+process.on('SIGINT', async () => {
+  logger.info('SIGINT received, shutting down gracefully');
+  
+  // Stop analytics queue auto-flush
+  if (autoFlushHandle) {
+    const { stopAutoFlush } = await import('./utils/analyticsQueue.js');
+    stopAutoFlush(autoFlushHandle);
+  }
+  
+  // Close server
+  server.close(() => {
+    logger.info('Server closed');
+    process.exit(0);
+  });
+  
+  // Force close after 10 seconds
+  setTimeout(() => {
+    logger.error('Forcing shutdown after timeout');
+    process.exit(1);
+  }, 10000);
+});

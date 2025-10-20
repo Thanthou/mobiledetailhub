@@ -5,7 +5,7 @@
  */
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useTenantContext } from '@/shared/contexts/TenantContext';
+import { useTenantContext } from '@shared/contexts/TenantContext';
 import {
   getTenantDashboard,
   getTenantOverview,
@@ -18,7 +18,7 @@ import {
   type ReviewAnalytics,
   type PerformanceAnalytics,
   type ActivityAnalytics
-} from '@/shared/api/tenantDashboardApi';
+} from '@shared/api/tenantDashboardApi';
 
 /**
  * Hook to get comprehensive tenant dashboard analytics

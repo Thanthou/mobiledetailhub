@@ -8,14 +8,14 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
-import { fetchBusinessBySlug } from '@/shared/api/tenantApi';
-import { useTenantSlug } from '@/shared/hooks/useTenantSlug';
+import { fetchBusinessBySlug } from '@shared/api/tenantApi';
+import { useTenantSlug } from '@shared/hooks/useTenantSlug';
 import type { 
   TenantInfo, 
   TenantContextProviderProps, 
   UseTenantContextReturn,
   TenantValidationResult 
-} from '@/shared/types/tenant.types';
+} from '@shared/types/tenant.types';
 
 /**
  * Tenant context type definition

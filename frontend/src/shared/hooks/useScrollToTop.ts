@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import { scrollRestoration } from '@/shared/utils';
+import { scrollRestoration } from '@shared/utils';
 
 /**
  * Enhanced scroll restoration hook that handles both scroll-to-top

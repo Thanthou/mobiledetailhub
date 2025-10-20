@@ -5,7 +5,7 @@
  * Pure functions with no side effects
  */
 
-import type { Business } from '@/shared/types/tenant-business.types';
+import type { Business } from '@shared/types/tenant-business.types';
 
 /**
  * Social media links object

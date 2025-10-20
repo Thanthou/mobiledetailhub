@@ -2,8 +2,8 @@ import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 
-import { injectAllSchemas } from '@/shared/utils/schemaUtils';
-import { defaultOrganizationSchema, defaultWebsiteSchema } from '@/shared/seo/defaultSchemas';
+import { injectAllSchemas } from '@shared/utils/schemaUtils';
+import { defaultOrganizationSchema, defaultWebsiteSchema } from '@shared/seo/defaultSchemas';
 
 /**
  * SEO Manager component that handles:

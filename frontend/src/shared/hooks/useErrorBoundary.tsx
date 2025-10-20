@@ -1,6 +1,6 @@
 import { useCallback, useEffect,useState } from 'react';
 
-import { env } from '@/shared/env';
+import { env } from '@shared/env';
 
 interface ErrorBoundaryState {
   hasError: boolean;

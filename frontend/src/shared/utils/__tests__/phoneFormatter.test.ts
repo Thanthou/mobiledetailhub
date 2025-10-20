@@ -3,7 +3,7 @@
  * This file demonstrates how the phone formatter works with various inputs
  */
 
-import { env } from '@/shared/env';
+import { env } from '@shared/env';
 
 import { formatPhoneNumber, getPhoneDigits, isCompletePhoneNumber } from '../phoneFormatter';
 

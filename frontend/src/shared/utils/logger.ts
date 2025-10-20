@@ -3,7 +3,7 @@
  * Disables logging in production to avoid console noise
  */
 
-import { env } from '@/shared/env';
+import { env } from '@shared/env';
 
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 

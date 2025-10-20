@@ -3,7 +3,7 @@
  * Helpers for converting between old (simple) and new (centralized) tenant config formats
  */
 
-import { TenantConfig, Vertical } from '@/shared/types';
+import { TenantConfig, Vertical } from '@shared/types';
 
 import { getTenantAssetUrl } from './assetLocator';
 

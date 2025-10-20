@@ -1,25 +1,52 @@
-import { defineConfig, mergeConfig } from 'vite';
-import { sharedConfig } from './vite.config.shared';
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 import path from 'path';
+import { fileURLToPath } from 'node:url';
 
-export default defineConfig(
-  mergeConfig(sharedConfig, {
-    server: {
-      host: 'tenant.localhost',
-      port: 5179,
-      hmr: {
-        protocol: 'ws',
-        host: 'tenant.localhost',
-        port: 5179,
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+export default defineConfig({
+  root: 'apps/tenant-app',
+  base: '/',
+  plugins: [react()],
+  resolve: {
+    alias: {
+      '@shared': path.resolve(__dirname, 'src/shared'),
+      '@/main-site': path.resolve(__dirname, 'apps/main-site/src'),
+      '@/admin-app': path.resolve(__dirname, 'apps/admin-app/src'),
+      '@/tenant-app': path.resolve(__dirname, 'apps/tenant-app/src'),
+      '@/data': path.resolve(__dirname, 'src/data'),
+      '@/../config': path.resolve(__dirname, 'config'),
+    },
+    dedupe: ['react', 'react-dom', 'scheduler'],
+  },
+  optimizeDeps: {
+    exclude: ['lucide-react'],
+  },
+  server: {
+    port: 5179,
+    strictPort: true,
+    host: '0.0.0.0',
+    open: false,
+    cors: true,
+    fs: {
+      allow: ['../..'], // Allow accessing src directory from apps/tenant-app
+    },
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/uploads': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        secure: false,
       },
     },
-    build: {
-      outDir: 'dist/tenant-app',
-      rollupOptions: {
-        input: {
-          tenant: path.resolve(__dirname, 'tenant-app/index.html'),
-        },
-      },
-    },
-  })
-);
+  },
+  build: {
+    outDir: '../../dist/tenant-app',
+    emptyOutDir: true,
+  },
+});

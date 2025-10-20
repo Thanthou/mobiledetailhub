@@ -1,8 +1,8 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 
-import { env } from '@/shared/env';
-import { useAuth } from '@/shared/hooks/useAuth';
+import { env } from '@shared/env';
+import { useAuth } from '@shared/hooks/useAuth';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;

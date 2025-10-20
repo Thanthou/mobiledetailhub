@@ -6,7 +6,7 @@
  */
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { errorTrackingService } from '@/shared/services/errorTrackingService';
+import { errorTrackingService } from '@shared/services/errorTrackingService';
 
 interface Props {
   children: ReactNode;

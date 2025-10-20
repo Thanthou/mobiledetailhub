@@ -1,27 +1,13 @@
 import react from '@vitejs/plugin-react';
 import { fileURLToPath } from 'node:url';
 import path from 'path';
-import fs from 'fs';
 import { defineConfig, UserConfig } from 'vite';
 import { visualizer } from 'rollup-plugin-visualizer';
 
 //─────────────────────────────────────────────
-// 🔧 Helper — dynamic backend port detection
+// 🔧 Static backend port configuration
 //─────────────────────────────────────────────
-function getBackendPort(): number {
-  try {
-    const portFile = path.join(__dirname, '../.backend-port.json');
-    if (fs.existsSync(portFile)) {
-      const portData = JSON.parse(fs.readFileSync(portFile, 'utf8'));
-      return portData.port || 3001;
-    }
-  } catch {
-    // Fallback to default
-  }
-  return 3001;
-}
-
-const backendPort = getBackendPort();
+const backendPort = 3001;
 
 //─────────────────────────────────────────────
 // 🚀 Shared Vite Configuration
@@ -67,6 +53,9 @@ export const sharedConfig: UserConfig = {
   },
 
   server: {
+    fs: {
+      allow: ['..'], // Allow accessing files from parent directory (src/)
+    },
     proxy: {
       '/api': {
         target: `http://localhost:${backendPort}`,

@@ -5,7 +5,7 @@
  * Industry-agnostic: All functions accept site config as parameter
  */
 
-import type { LocationPage, MainSiteConfig } from '@/shared/types/location';
+import type { LocationPage, MainSiteConfig } from '@shared/types/location';
 
 /**
  * Automatically generate Schema.org image array from location images

@@ -1,5 +1,7 @@
 // Website content API calls
 
+import { apiCall } from './runtimeApiClient';
+
 export interface FAQItem {
   question: string;
   answer: string;
@@ -29,17 +31,11 @@ export interface WebsiteContentResponse {
 export const websiteContentApi = {
   // Get website content for a specific tenant
   getWebsiteContent: async (tenantSlug: string): Promise<WebsiteContentData> => {
-    const response = await fetch(`/api/website-content/${tenantSlug}`, {
+    const data = await apiCall<WebsiteContentResponse>(`/api/website-content/${tenantSlug}`, {
       headers: {
         'Content-Type': 'application/json',
       },
     });
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch website content: ${response.statusText}`);
-    }
-
-    const data = await response.json() as WebsiteContentResponse;
     
     if (!data.success || !data.content) {
       throw new Error(data.message || 'Failed to fetch website content');
@@ -50,17 +46,11 @@ export const websiteContentApi = {
 
   // Get website content for the main site (no tenant slug)
   getMainSiteContent: async (): Promise<WebsiteContentData> => {
-    const response = await fetch('/api/website-content/main', {
+    const data = await apiCall<WebsiteContentResponse>('/api/website-content/main', {
       headers: {
         'Content-Type': 'application/json',
       },
     });
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch main site content: ${response.statusText}`);
-    }
-
-    const data = await response.json() as WebsiteContentResponse;
     
     if (!data.success || !data.content) {
       throw new Error(data.message || 'Failed to fetch main site content');

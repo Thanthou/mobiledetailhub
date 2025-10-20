@@ -4,7 +4,7 @@
  * All functions accept MainSiteConfig to support multi-industry architecture
  */
 
-import type { MainSiteConfig } from '@/shared/types/location';
+import type { MainSiteConfig } from '@shared/types/location';
 
 import { formatPhoneNumber } from './phoneFormatter';
 

@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import { performanceMonitor } from '@/shared/utils';
+import { performanceMonitor } from '@shared/utils';
 
 /**
  * Hook for monitoring component performance

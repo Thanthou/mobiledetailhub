@@ -1,7 +1,7 @@
 import React from 'react';
 import { LucideIcon } from 'lucide-react';
 
-import { cn } from '@/shared/utils/cn';
+import { cn } from '@shared/utils/cn';
 
 export interface FilterChipProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   isSelected?: boolean;

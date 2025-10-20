@@ -6,11 +6,13 @@
  */
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { apiCall } from '@shared/api';
 
 export interface RuntimeConfig {
   // API Configuration
   apiBaseUrl: string;
   apiUrl: string;
+  backendUrl?: string;
   
   // Third-party API Keys
   googleMapsApiKey?: string;
@@ -23,6 +25,8 @@ export interface RuntimeConfig {
     maps: boolean;
     stripe: boolean;
     debugMode: boolean;
+    booking?: boolean;
+    reviews?: boolean;
   };
   
   // Environment info
@@ -30,12 +34,21 @@ export interface RuntimeConfig {
     mode: string;
     version: string;
     buildTime: string;
+    commitHash?: string;
   };
   
   // Multi-tenant configuration
   tenant: {
     defaultDomain: string;
     subdomainPattern: string;
+    allowCustomDomains?: boolean;
+  };
+  
+  // Client-side settings
+  client?: {
+    maxUploadSize: number;
+    sessionTimeout: number;
+    enableOfflineMode: boolean;
   };
 }
 
@@ -63,21 +76,22 @@ export function ConfigProvider({ children, fallbackConfig }: ConfigProviderProps
       setLoading(true);
       setError(null);
       
-      const response = await fetch('/api/config', {
+      const data = await apiCall('/api/config', {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
         },
       });
       
-      if (!response.ok) {
-        throw new Error(`Failed to fetch config: ${response.status} ${response.statusText}`);
-      }
-      
-      const data = await response.json();
-      
       if (data.success && data.config) {
-        setConfig(data.config);
+        const loadedConfig = data.config;
+        setConfig(loadedConfig);
+        
+        console.log('[ConfigProvider] Runtime config loaded:', {
+          apiBaseUrl: loadedConfig.apiBaseUrl,
+          environment: loadedConfig.environment?.mode,
+          features: Object.keys(loadedConfig.features || {})
+        });
       } else {
         throw new Error('Invalid config response format');
       }
@@ -88,7 +102,9 @@ export function ConfigProvider({ children, fallbackConfig }: ConfigProviderProps
       
       // Use fallback config if available
       if (fallbackConfig) {
-        setConfig(fallbackConfig as RuntimeConfig);
+        const fallback = fallbackConfig as RuntimeConfig;
+        setConfig(fallback);
+        console.log('[ConfigProvider] Using fallback config');
       }
       
       console.warn('Failed to fetch runtime config, using fallback:', errorMessage);
@@ -174,4 +190,24 @@ export function useStripeEnabled(): boolean {
 
 export function useDebugMode(): boolean {
   return useConfigValue('features.debugMode', false);
+}
+
+export function useBookingEnabled(): boolean {
+  return useConfigValue('features.booking', true);
+}
+
+export function useReviewsEnabled(): boolean {
+  return useConfigValue('features.reviews', true);
+}
+
+export function useMaxUploadSize(): number {
+  return useConfigValue('client.maxUploadSize', 5242880);
+}
+
+export function useSessionTimeout(): number {
+  return useConfigValue('client.sessionTimeout', 86400000);
+}
+
+export function useOfflineMode(): boolean {
+  return useConfigValue('client.enableOfflineMode', false);
 }

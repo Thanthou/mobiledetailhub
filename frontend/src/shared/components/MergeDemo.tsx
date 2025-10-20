@@ -12,11 +12,11 @@ import React from 'react';
 
 // import bullheadCityData from '@/data/locations/az/bullhead-city.json';
 // import lasVegasData from '@/data/locations/nv/las-vegas.json';
-// import { useMergedLocationDataDebug } from '@/shared/hooks/useMergedLocationData';
-// import type { LocationPage } from '@/shared/types/location';
+// import { useMergedLocationDataDebug } from '@shared/hooks/useMergedLocationData';
+// import type { LocationPage } from '@shared/types/location';
 
 // Commented-out code below references these - uncomment if re-enabling
-// import { ValidationStatus } from '@/shared/ui';
+// import { ValidationStatus } from '@shared/ui';
 
 interface MergeDemoProps {
   className?: string;

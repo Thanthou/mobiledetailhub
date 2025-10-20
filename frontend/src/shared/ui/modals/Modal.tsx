@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
-import { cn } from '@/shared/utils/cn';
+import { cn } from '@shared/utils/cn';
 
 export interface ModalProps {
   isOpen: boolean;

@@ -198,11 +198,42 @@ const apiLimiter = rateLimit({
   }
 });
 
+// Analytics ingest endpoint rate limiting
+// More permissive than auth but still prevents abuse
+const analyticsLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: process.env.NODE_ENV === 'production' ? 200 : 10000, // 200 events per 15min in prod, disabled in dev
+  skipSuccessfulRequests: false, // Count all requests to prevent spam
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res) => {
+    const retryAfterSeconds = Math.ceil(req.rateLimit.resetTime / 1000);
+    
+    logger.warn('Analytics rate limit exceeded', {
+      ip: req.ip,
+      userAgent: req.get('User-Agent'),
+      host: req.get('host'),
+      tenantSlug: req.tenantSlug,
+      retryAfter: retryAfterSeconds
+    });
+    
+    res.set('Retry-After', retryAfterSeconds);
+    res.status(429).json({
+      code: 'RATE_LIMITED',
+      error: 'Too many analytics requests. Please try again later.',
+      retryAfterSeconds: retryAfterSeconds,
+      remainingAttempts: 0,
+      resetTime: req.rateLimit.resetTime
+    });
+  }
+});
+
 export {
   authLimiter,
   sensitiveAuthLimiter,
   refreshTokenLimiter,
   adminLimiter,
   criticalAdminLimiter,
-  apiLimiter
+  apiLimiter,
+  analyticsLimiter
 };

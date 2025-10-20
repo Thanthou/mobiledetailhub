@@ -10,15 +10,15 @@
 
     "dev": "concurrently \"cd frontend && npm run dev\" \"cd backend && npm run dev\" \"node scripts/error-monitor/index.js --target=all\"",
     "dev:frontend": "node scripts/devtools/cli/find-free-port.js && node scripts/devtools/cli/start-frontend.js",
-    "dev:backend": "node scripts/devtools/cli/find-free-backend-port.js && cd backend && npm run dev",
-    "dev:main": "node scripts/devtools/cli/start-main-app.js",
-    "dev:admin": "node scripts/devtools/cli/start-admin-app.js",
-    "dev:tenant": "node scripts/devtools/cli/start-tenant-app.js",
+    "dev:backend": "cd backend && nodemon server.js",
+    "dev:main": "cd frontend && npm run dev:main",
+    "dev:admin": "cd frontend && npm run dev:admin",
+    "dev:tenant": "cd frontend && npm run dev:tenant",
     "dev:hub": "node scripts/devtools/dev-hub.js",
     "dev:monitor": "node scripts/devtools/cli/dev-monitor.js",
-    "predev:all": "node scripts/automation/cleanup/kill-node-processes.js && node scripts/automation/port-registry.js clear",
-    "dev:all": "npm run predev:all && concurrently -n HUB,MAIN,ADMIN,TENANT,BACKEND -c gray,cyan,magenta,yellow,green \"npm run dev:hub\" \"npm run dev:main\" \"npm run dev:admin\" \"npm run dev:tenant\" \"npm run dev:backend\"",
-    "dev:apps": "npm run predev:all && concurrently -n HUB,MAIN,ADMIN,TENANT -c gray,cyan,magenta,yellow \"npm run dev:hub\" \"npm run dev:main\" \"npm run dev:admin\" \"npm run dev:tenant\"",
+    "dev:all": "concurrently -n MAIN,ADMIN,TENANT,BACKEND -c cyan,magenta,yellow,green \"npm run dev:main\" \"npm run dev:admin\" \"npm run dev:tenant\" \"npm run dev:backend\"",
+    "dev:apps": "concurrently -n MAIN,ADMIN,TENANT -c cyan,magenta,yellow \"npm run dev:main\" \"npm run dev:admin\" \"npm run dev:tenant\"",
+    "dev:kill": "node scripts/automation/cleanup/kill-node-processes.js",
     "dev:clean": "scripts/automation/cleanup/cleanup-and-dev.bat",
 
     "audit:all": "node scripts/project/run-all.js",
@@ -46,6 +46,7 @@
     "test:integration": "node scripts/testing/integration/verify-onboarding.js",
     "validate": "node scripts/testing/frontend/validate-build.js",
     "validate:env": "node scripts/devtools/validate-env.js",
+    "verify:static": "node scripts/verify-static.js",
 
     "lint": "eslint backend/ scripts/",
     "lint:fix": "eslint backend/ scripts/ --fix",
@@ -69,7 +70,7 @@
     "devtools:metrics": "node scripts/devtools/metrics/scorecard.js",
     "devtools:fix": "node scripts/devtools/fixers/fix-express-routes.js",
     "cli": "node scripts/devtools/cli/index.js",
-    "folder-dump": "node scripts/project/folder-dump.js"
+    "code-scan": "node scripts/project/code-scan.js"
   },
 
   "devDependencies": {
