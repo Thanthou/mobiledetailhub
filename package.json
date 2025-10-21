@@ -31,11 +31,18 @@
     "audit:routing": "node scripts/audits/audit-routing.js",
     "audit:performance": "node scripts/audits/audit-performance.js",
     "audit:security": "node scripts/audits/audit-security.js",
+    "audit:boundaries": "node scripts/audits/audit-boundaries.js",
+    "audit:middleware": "node scripts/audits/audit-middleware.js",
+    "audit:api": "node scripts/audits/audit-api-contracts.js",
+    "audit:assets": "node scripts/audits/audit-assets.js",
     "audit:seo": "node scripts/audits/audit-seo.js && node scripts/audits/schema-validator.js",
     "audit:schema-validation": "node scripts/audits/schema-validator.js",
     "audit:overview": "node scripts/audits/audit-overview.js",
     "audit:db": "node scripts/audits/audit-db.js",
     "audit:depends": "node scripts/audits/audit-dependencies.js",
+    "audit:dependencies": "node scripts/audits/audit-dependencies.js",
+    
+    "test": "npm run test:all",
     
     "serve:audit": "npm run preview --prefix frontend",
     "fix:routes": "node scripts/devtools/fixers/fix-express-routes.js",

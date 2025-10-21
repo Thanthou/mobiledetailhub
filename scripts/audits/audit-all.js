@@ -9,6 +9,7 @@
  */
 
 import { spawn } from 'child_process';
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { color } from './shared/audit-utils.js';
@@ -24,6 +25,10 @@ const AUDITS = [
   { name: 'Security', script: 'audit-security.js', critical: true },
   { name: 'Database', script: 'audit-db.js', critical: true },
   { name: 'Schema Switching', script: 'audit-schema.js', critical: true },
+  { name: 'Import Boundaries', script: 'audit-boundaries.js', critical: true },
+  { name: 'Middleware', script: 'audit-middleware.js', critical: false },
+  { name: 'API Contracts', script: 'audit-api-contracts.js', critical: false },
+  { name: 'Assets', script: 'audit-assets.js', critical: false },
   { name: 'Backend Routes', script: 'audit-routes.js', critical: false },
   { name: 'Frontend Routing', script: 'audit-routing.js', critical: false },
   { name: 'Dependencies', script: 'audit-dependencies.js', critical: false },
@@ -66,15 +71,21 @@ function runAudit(audit) {
       // Try to parse JSON result from stdout (format: AUDIT_RESULT:{json})
       let warnings = 0;
       let errors = 0;
+      let issues = [];
       
-      const jsonMatch = stdout.match(/AUDIT_RESULT:(\{.*?\})/);
-      if (jsonMatch) {
+      // Find the AUDIT_RESULT marker and extract everything after it
+      const markerIndex = stdout.indexOf('AUDIT_RESULT:');
+      if (markerIndex !== -1) {
         try {
-          const result = JSON.parse(jsonMatch[1]);
+          // Extract JSON string from marker to end (or to next line)
+          const jsonStr = stdout.substring(markerIndex + 'AUDIT_RESULT:'.length).trim().split('\n')[0];
+          const result = JSON.parse(jsonStr);
           warnings = result.warnings || 0;
           errors = result.errors || 0;
+          issues = result.issues || [];
         } catch (e) {
           // Fallback to old parsing if JSON parse fails
+          console.error(`Failed to parse audit result JSON: ${e.message}`);
           warnings = parseCount(stdout, 'warning');
           errors = parseCount(stdout, 'error');
         }
@@ -96,6 +107,7 @@ function runAudit(audit) {
         warnings,
         errors: actualErrors,
         healthy,
+        issues,
         stdout,
         stderr,
       });
@@ -111,6 +123,7 @@ function runAudit(audit) {
         warnings: 0,
         errors: 1,
         healthy: false,
+        issues: [{ severity: 'error', message: err.message, path: audit.script }],
         stdout: '',
         stderr: err.message,
       });
@@ -213,6 +226,118 @@ function getStatusEmoji(result) {
   return '🟢';
 }
 
+//────────────────────────────────────────────────────────────
+// 📝 Write Summary File
+//────────────────────────────────────────────────────────────
+function writeSummaryFile(results) {
+  const summaryDir = path.join(process.cwd(), 'docs', 'audits', 'summaries');
+  
+  // Ensure directory exists
+  if (!fs.existsSync(summaryDir)) {
+    fs.mkdirSync(summaryDir, { recursive: true });
+  }
+
+  const timestamp = new Date().toISOString();
+  const lines = [
+    '# All Audits - Issues Summary',
+    '',
+    `**Generated:** ${timestamp}`,
+    `**Total Audits:** ${results.length}`,
+    '',
+    '---',
+    ''
+  ];
+
+  // Collect all errors
+  const allErrors = [];
+  const allWarnings = [];
+
+  results.forEach(result => {
+    if (result.issues && result.issues.length > 0) {
+      result.issues.forEach(issue => {
+        if (issue.severity === 'error') {
+          allErrors.push({
+            audit: result.name,
+            message: issue.message,
+            path: issue.path || 'N/A'
+          });
+        } else if (issue.severity === 'warning') {
+          allWarnings.push({
+            audit: result.name,
+            message: issue.message,
+            path: issue.path || 'N/A'
+          });
+        }
+      });
+    }
+  });
+
+  // Write errors section
+  if (allErrors.length > 0) {
+    lines.push('## ❌ Errors');
+    lines.push('');
+    lines.push(`**Total Errors:** ${allErrors.length}`);
+    lines.push('');
+
+    allErrors.forEach((error, idx) => {
+      lines.push(`### ${idx + 1}. ${error.audit}`);
+      lines.push('');
+      lines.push(`**Error:** ${error.message}`);
+      lines.push('');
+      lines.push(`**Path:** \`${error.path}\``);
+      lines.push('');
+    });
+  } else {
+    lines.push('## ✅ No Errors Found');
+    lines.push('');
+  }
+
+  lines.push('---');
+  lines.push('');
+
+  // Write warnings section
+  if (allWarnings.length > 0) {
+    lines.push('## ⚠️  Warnings');
+    lines.push('');
+    lines.push(`**Total Warnings:** ${allWarnings.length}`);
+    lines.push('');
+
+    allWarnings.forEach((warning, idx) => {
+      lines.push(`### ${idx + 1}. ${warning.audit}`);
+      lines.push('');
+      lines.push(`**Warning:** ${warning.message}`);
+      lines.push('');
+      lines.push(`**Path:** \`${warning.path}\``);
+      lines.push('');
+    });
+  } else {
+    lines.push('## ✅ No Warnings Found');
+    lines.push('');
+  }
+
+  lines.push('---');
+  lines.push('');
+  lines.push('## 📊 Audit Results Summary');
+  lines.push('');
+
+  results.forEach(result => {
+    const emoji = getStatusEmoji(result);
+    const status = result.healthy ? 'Pass' : 'Fail';
+    lines.push(`- ${emoji} **${result.name}**: ${status} (${result.errors} errors, ${result.warnings} warnings)`);
+  });
+
+  lines.push('');
+  lines.push('---');
+  lines.push('');
+  lines.push(`_Generated by \`npm run audit:all\` at ${timestamp}_`);
+
+  // Write file
+  const summaryPath = path.join(summaryDir, 'all-errors.md');
+  fs.writeFileSync(summaryPath, lines.join('\n'));
+
+  return summaryPath;
+}
+
 //────────────────────────────────────────────────────────────────
 // 🚀 Main Execution
 //────────────────────────────────────────────────────────────────
@@ -231,9 +356,14 @@ async function main() {
     const result = await runAudit(audit);
     results.push(result);
 
-    // Clear the line and show quick status
-    process.stdout.clearLine(0);
-    process.stdout.cursorTo(0);
+    // Clear the line and show quick status (if supported)
+    if (typeof process.stdout.clearLine === 'function') {
+      process.stdout.clearLine(0);
+      process.stdout.cursorTo(0);
+    } else {
+      // Fallback for terminals that don't support clearLine
+      console.log('');
+    }
 
     const emoji = getStatusEmoji(result);
     console.log(`${emoji} ${audit.name} ${color.gray(`(${result.duration}ms)`)}`);
@@ -260,7 +390,15 @@ async function main() {
 
   const success = displayResults(results);
 
-  console.log(color.gray('📄 Detailed reports available in docs/audits/\n'));
+  // Write comprehensive summary file
+  try {
+    const summaryPath = writeSummaryFile(results);
+    console.log(color.gray(`📄 Detailed reports available in docs/audits/`));
+    console.log(color.gray(`📋 Issues summary written to ${path.relative(process.cwd(), summaryPath)}\n`));
+  } catch (error) {
+    console.error(color.yellow(`⚠️  Failed to write summary file: ${error.message}`));
+    console.log(color.gray('📄 Detailed reports available in docs/audits/\n'));
+  }
 
   process.exit(success ? 0 : 1);
 }

@@ -333,20 +333,16 @@ export function finishAudit(result, exitProcess = true) {
     if (result.errors > 0) {
       const errors = result.issues.filter(i => i.severity === 'error');
       errors.forEach(err => {
-        console.log(`     ${color.red('🔴')} ${err.message}`);
-        if (err.path) {
-          console.log(color.gray(`        ${err.path}`));
-        }
+        const pathStr = err.path ? ` ${color.gray(err.path)}` : '';
+        console.log(`     ${color.red('🔴')} ${err.message}${pathStr}`);
       });
     }
     
     if (result.warnings > 0) {
       const warnings = result.issues.filter(i => i.severity === 'warning');
       warnings.forEach(warn => {
-        console.log(`     ${color.yellow('🟡')} ${warn.message}`);
-        if (warn.path) {
-          console.log(color.gray(`        ${warn.path}`));
-        }
+        const pathStr = warn.path ? ` ${color.gray(warn.path)}` : '';
+        console.log(`     ${color.yellow('🟡')} ${warn.message}${pathStr}`);
       });
     }
     
@@ -366,11 +362,13 @@ export function finishAudit(result, exitProcess = true) {
     // In silent mode, output parseable JSON for audit:all
     // Use a special prefix so it's easy to parse
     console.log(`AUDIT_RESULT:${JSON.stringify({
+      name: result.name,
       passed: result.passed,
       warnings: result.warnings,
       errors: result.errors,
       score: result.getScore(),
-      healthy: result.isHealthy()
+      healthy: result.isHealthy(),
+      issues: result.issues // Include actual error/warning messages with paths
     })}`);
   }
 
