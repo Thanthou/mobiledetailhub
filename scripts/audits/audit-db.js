@@ -2,10 +2,19 @@
 /**
  * Unified Database Audit
  * Comprehensive database health check combining inspect, overview, and table checks
+ * 
+ * Uses generated schema snapshot (backend/schemas/current-schema.json) if available.
+ * Run 'npm run migrate' or 'npm run db:snapshot' to generate/update the snapshot.
  */
 
 import { getPool } from '../../backend/database/pool.js';
 import chalk from 'chalk';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const snapshotPath = path.join(__dirname, '../../backend/schemas/current-schema.json');
 
 const results = {
   passed: 0,
@@ -13,6 +22,31 @@ const results = {
   warnings: 0,
   issues: []
 };
+
+/**
+ * Load expected tables from schema snapshot
+ * Returns null if snapshot doesn't exist
+ */
+function loadExpectedTablesFromSnapshot() {
+  try {
+    if (!fs.existsSync(snapshotPath)) {
+      return null;
+    }
+    
+    const snapshot = JSON.parse(fs.readFileSync(snapshotPath, 'utf-8'));
+    const expectedTables = {};
+    
+    // Convert snapshot format to expectedTables format
+    for (const [schemaName, schemaData] of Object.entries(snapshot.schemas)) {
+      expectedTables[schemaName] = schemaData.tables.map(t => t.name);
+    }
+    
+    return expectedTables;
+  } catch (error) {
+    console.warn(chalk.yellow(`⚠️  Failed to load schema snapshot: ${error.message}`));
+    return null;
+  }
+}
 
 async function checkDatabaseConnection() {
   console.log(chalk.blue('🔌 Testing database connection...'));
@@ -49,7 +83,7 @@ async function checkSchemas(pool) {
       ORDER BY schema_name
     `);
     
-    const expectedSchemas = ['tenants', 'website', 'system', 'analytics', 'booking', 'schedule', 'reputation'];
+    const expectedSchemas = ['tenants', 'auth', 'website', 'system', 'analytics', 'booking', 'schedule', 'reputation', 'customers'];
     const existingSchemas = result.rows.map(row => row.schema_name);
     
     console.log(chalk.green(`✅ Found ${existingSchemas.length} schemas`));
@@ -103,16 +137,21 @@ async function checkTables(pool, schemas) {
     
     console.log(chalk.green(`✅ Found ${result.rows.length} tables across ${schemas.length} schemas`));
     
-    // Check for expected tables in each schema
-    const expectedTables = {
-      tenants: ['business', 'users', 'settings'],
-      website: ['seo_config', 'content', 'pages'],
-      system: ['schema_migrations', 'audit_logs'],
-      analytics: ['events', 'sessions'],
-      booking: ['appointments', 'time_blocks'],
-      schedule: ['availability', 'time_slots'],
-      reputation: ['reviews', 'ratings']
-    };
+    // Load expected tables from snapshot or use fallback
+    let expectedTables = loadExpectedTablesFromSnapshot();
+    
+    if (!expectedTables) {
+      // Fallback to minimal expectations if snapshot doesn't exist
+      console.log(chalk.yellow('⚠️  No schema snapshot found. Using minimal validation.'));
+      console.log(chalk.yellow('    Run: npm run db:snapshot (or npm run migrate) to generate snapshot\n'));
+      
+      expectedTables = {
+        tenants: ['business'],
+        auth: ['users'],
+        system: ['schema_migrations'],
+        // Minimal fallback - won't catch missing tables
+      };
+    }
     
     Object.entries(expectedTables).forEach(([schema, expectedTableList]) => {
       if (tablesBySchema[schema]) {
@@ -196,7 +235,7 @@ async function checkConstraints(pool) {
       FROM information_schema.table_constraints tc
       JOIN information_schema.key_column_usage kcu 
         ON tc.constraint_name = kcu.constraint_name
-      WHERE tc.table_schema = ANY(ARRAY['tenants', 'website', 'system', 'analytics', 'booking', 'schedule', 'reputation'])
+      WHERE tc.table_schema = ANY(ARRAY['tenants', 'auth', 'website', 'system', 'analytics', 'booking', 'schedule', 'reputation', 'customers'])
       ORDER BY tc.table_schema, tc.table_name, tc.constraint_type
     `);
     
@@ -236,7 +275,7 @@ async function checkIndexes(pool) {
         indexname,
         indexdef
       FROM pg_indexes 
-      WHERE schemaname = ANY(ARRAY['tenants', 'website', 'system', 'analytics', 'booking', 'schedule', 'reputation'])
+      WHERE schemaname = ANY(ARRAY['tenants', 'auth', 'website', 'system', 'analytics', 'booking', 'schedule', 'reputation', 'customers'])
       ORDER BY schemaname, tablename, indexname
     `);
     
@@ -246,8 +285,10 @@ async function checkIndexes(pool) {
     const criticalIndexes = [
       'tenants.business.slug',
       'tenants.business.business_email',
-      'website.seo_config.business_id',
-      'system.schema_migrations.filename'
+      'auth.users.email',
+      'system.schema_migrations.filename',
+      'reputation.reviews.tenant_slug',
+      'customers.customers.email'
     ];
     
     const existingIndexes = result.rows.map(row => `${row.schemaname}.${row.tablename}.${row.indexname}`);

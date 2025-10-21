@@ -19,6 +19,8 @@
     "dev:apps": "concurrently -n MAIN,ADMIN,TENANT -c cyan,magenta,yellow \"npm run dev:main\" \"npm run dev:admin\" \"npm run dev:tenant\"",
     "dev:kill": "node scripts/automation/cleanup/kill-node-processes.js",
     "dev:clean": "scripts/automation/cleanup/cleanup-and-dev.bat",
+    
+    "audit:list": "node scripts/devtools/list-audit-commands.js",
     "audit:all": "node scripts/project/run-all.js",
     "audit:env": "node scripts/audits/audit-env.js",
     "audit:schema": "node scripts/audits/audit-schema.js",
@@ -30,6 +32,7 @@
     "audit:overview": "node scripts/audits/audit-overview.js",
     "audit:db": "node scripts/audits/audit-db.js",
     "audit:depends": "node scripts/audits/audit-dependencies.js",
+    
     "serve:audit": "npm run preview --prefix frontend",
     "fix:routes": "node scripts/devtools/fixers/fix-express-routes.js",
     "fix:remaining": "node scripts/devtools/fixers/fix-remaining-routes.js",
