@@ -7,15 +7,26 @@
 import { ServiceData } from '@/tenant-app/components/services/types/service.types';
 
 /**
+ * Map service URL slugs to file names
+ * Some services have shorter file names than their URL slugs
+ */
+const SERVICE_FILE_MAPPINGS: Record<string, string> = {
+  'paint-protection-film': 'ppf',
+  'ppf-installation': 'ppf',
+  // Add more mappings as needed
+};
+
+/**
  * Load service data for a specific industry and service type
  * 
  * @param industry - Industry slug (e.g., 'mobile-detailing')
- * @param serviceType - Service slug (e.g., 'auto-detailing', 'ceramic-coating')
+ * @param serviceType - Service slug (e.g., 'auto-detailing', 'paint-protection-film')
  * @returns ServiceData object or null if not found
  * 
  * @example
  * ```ts
  * const serviceData = await loadServiceData('mobile-detailing', 'auto-detailing');
+ * const ppfData = await loadServiceData('mobile-detailing', 'paint-protection-film');
  * ```
  */
 export async function loadServiceData(
@@ -23,8 +34,11 @@ export async function loadServiceData(
   serviceType: string
 ): Promise<ServiceData | null> {
   try {
+    // Map URL slug to file name if needed
+    const fileName = SERVICE_FILE_MAPPINGS[serviceType] || serviceType;
+    
     // Dynamic import based on industry and service type
-    const module = await import(`@/data/${industry}/services/${serviceType}.json`);
+    const module = await import(`@/data/${industry}/services/${fileName}.json`);
     return module.default as ServiceData;
   } catch (error) {
     console.error(`Failed to load service data for ${industry}/${serviceType}:`, error);

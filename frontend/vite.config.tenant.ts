@@ -10,7 +10,7 @@ export default defineConfig({
   root: 'apps/tenant-app',
   base: '/',
   publicDir: sharedPublicConfig.publicDir, // Shared public folder
-  assetsInclude: ['**/*.jfif', '**/*.jpe', '**/*.jfif'], // Include JFIF images
+  assetsInclude: ['**/*.jfif', '**/*.jpe', '**/*.mp4', '**/*.webm'], // Include JFIF images and videos
   plugins: [react()],
   resolve: {
     alias: {
