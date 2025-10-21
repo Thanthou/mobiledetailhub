@@ -53,18 +53,14 @@ export function useRotatingReviews(reviews: Review[]) {
           // Use only gallery images for background rotation
           images = shuffleArray(galleryImages);
           
-          // If we still don't have enough images, add some defaults
-          if (images.length < 3) {
-            const defaultImages = [
-              '/industries/mobile-detailing/images/gallery/dodge-viper-gts-grigio-telesto-studio.png',
-              '/industries/mobile-detailing/images/gallery/bmw-m4-competition-grigio-telesto-studio.png'
-            ];
-            images = shuffleArray([...images, ...defaultImages]);
+          // If we have images, we're good to go
+          if (images.length === 0) {
+            console.warn(`No gallery images found for ${industry}. Background will be plain.`);
           }
         } catch (galleryError: unknown) {
-          // Fallback to default images only
-          console.warn('Failed to load gallery images:', galleryError);
-          images = ['/industries/mobile-detailing/images/gallery/dodge-viper-gts-grigio-telesto-studio.png'];
+          // Fallback to empty array - component will handle gracefully
+          console.warn(`Failed to load gallery images for ${industry}:`, galleryError);
+          images = [];
         }
 
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Prevents state updates after component unmount

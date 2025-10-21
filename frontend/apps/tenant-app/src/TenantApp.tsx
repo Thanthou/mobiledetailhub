@@ -31,10 +31,15 @@ function PreviewRoutes() {
       <Routes>
         {/* Industry-specific preview routes */}
         <Route path="/mobile-detailing-preview" element={<PreviewPage />} />
+        <Route path="/mobile-detailing-preview/services/:serviceType" element={<ServicePage />} />
         <Route path="/maid-service-preview" element={<PreviewPage />} />
+        <Route path="/maid-service-preview/services/:serviceType" element={<ServicePage />} />
         <Route path="/lawncare-preview" element={<PreviewPage />} />
+        <Route path="/lawncare-preview/services/:serviceType" element={<ServicePage />} />
         <Route path="/pet-grooming-preview" element={<PreviewPage />} />
+        <Route path="/pet-grooming-preview/services/:serviceType" element={<ServicePage />} />
         <Route path="/barber-preview" element={<PreviewPage />} />
+        <Route path="/barber-preview/services/:serviceType" element={<ServicePage />} />
         
         {/* Generic preview route */}
         <Route path="/preview" element={<PreviewPage />} />

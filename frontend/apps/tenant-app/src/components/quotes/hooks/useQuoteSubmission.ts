@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 
 import { useAnalytics } from '@shared/hooks/useAnalytics';
+import { useDataOptional } from '@shared/hooks/useData';
 
 import { quotesApi } from '../api/quotes.api';
 import { type QuoteFormData, quoteRequestSchema } from '../types';
@@ -11,12 +12,28 @@ import { type QuoteFormData, quoteRequestSchema } from '../types';
  */
 export const useQuoteSubmission = () => {
   const { logEvent } = useAnalytics();
+  const data = useDataOptional();
+  const isPreview = data?.isPreview || false;
+  
   const submitQuote = useCallback(async (
     formData: QuoteFormData,
     slug: string | undefined,
     onSuccess: () => void,
     onError: (error: string) => void
   ) => {
+    // In preview mode, just simulate success without actually submitting
+    if (isPreview) {
+      console.log('[Preview Mode] Quote form submission simulated:', formData);
+      setTimeout(() => {
+        logEvent('quote_preview_demo', {
+          services_count: formData.services.length,
+          vehicle_type: formData.vehicleType || '',
+        });
+        onSuccess();
+      }, 500); // Simulate network delay
+      return;
+    }
+    
     try {
       // Validate form data with Zod schema
       const validatedData = quoteRequestSchema.parse({
@@ -52,7 +69,7 @@ export const useQuoteSubmission = () => {
       console.error('Quote submission error:', err);
       onError('Failed to submit quote. Please try again.');
     }
-  }, [logEvent]);
+  }, [logEvent, isPreview]);
 
   return {
     submitQuote

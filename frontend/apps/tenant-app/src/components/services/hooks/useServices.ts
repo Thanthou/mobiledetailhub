@@ -12,7 +12,9 @@ import { useData } from '@shared/hooks';
 const getServicesFromSiteData = (
   siteConfig: any,
   locationData: LocationPage | null | undefined, 
-  tenantSlug?: string
+  tenantSlug?: string,
+  isPreview?: boolean,
+  industry?: string | null
 ): Service[] => {
   // Check for servicesGrid (MainSiteConfig) or services.grid (legacy assets.json)
   const servicesGrid = siteConfig?.servicesGrid || siteConfig?.services?.grid;
@@ -52,10 +54,21 @@ const getServicesFromSiteData = (
           priority: service.priority
         };
 
-    // Construct route - use href from config if available
-    const route = service.href || (env.DEV && tenantSlug
-      ? `/${tenantSlug}/services/${service.slug}`
-      : `/service/${service.slug}`);
+    // Construct route based on context
+    let route: string;
+    if (isPreview && industry) {
+      // Preview mode: /{industry}-preview/services/{serviceSlug}
+      route = `/${industry}-preview/services/${service.slug}`;
+    } else if (service.href) {
+      // Use href from config if available
+      route = service.href;
+    } else if (env.DEV && tenantSlug) {
+      // Dev mode: /{tenantSlug}/services/{serviceSlug}
+      route = `/${tenantSlug}/services/${service.slug}`;
+    } else {
+      // Production: /service/${serviceSlug}
+      route = `/service/${service.slug}`;
+    }
     
 
     const serviceData = {
@@ -78,7 +91,7 @@ const getServicesFromSiteData = (
 export const useServices = (locationData: LocationPage | null | undefined) => {
   const navigate = useNavigate();
   const tenantSlug = useTenantSlug();
-  const { isPreviewMode, previewConfig } = usePreviewData();
+  const { isPreviewMode, previewConfig, industry } = usePreviewData();
   const data = useData();
 
   const handleServiceClick = (service: Service) => {
@@ -88,12 +101,12 @@ export const useServices = (locationData: LocationPage | null | undefined) => {
   const getServices = () => {
     // In preview mode, use previewConfig assets
     if (isPreviewMode && previewConfig) {
-      return getServicesFromSiteData(previewConfig, locationData, tenantSlug);
+      return getServicesFromSiteData(previewConfig, locationData, tenantSlug, true, industry);
     }
     
     // In live mode, use siteConfig from DataContext
     if (data?.siteConfig) {
-      return getServicesFromSiteData(data.siteConfig, locationData, tenantSlug);
+      return getServicesFromSiteData(data.siteConfig, locationData, tenantSlug, false, null);
     }
     
     return [];

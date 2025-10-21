@@ -10,49 +10,50 @@
     "faq_subtitle": "Find answers to common questions about our mobile detailing services",
     "reviews_title": "What Our Customers Say",
     "reviews_subtitle": "Don't just take our word for it. See what our satisfied customers have to say about our premium mobile detailing services.",
-  
+    "reviews_averge" : 4.8,
+    "reviews_total" : 999,
     "reviews": [
     {
-      "name": "Michael Chen",
+      "name": "Michael Garcia",
       "rating": 5,
       "text": "Absolutely incredible service! My car looks better than the day I bought it. The team was professional, on-time, and the attention to detail was outstanding.",
       "date": "2024-01-15",
-      "avatar": "/data/preview-avatars/avatar-1.jfif"
+      "avatar": "/data/preview-avatars/avatar-2.jfif"
     },
     {
       "name": "Sarah Johnson",
       "rating": 5,
       "text": "Best detailing service in Austin! They came to my office and had my SUV looking brand new in just a few hours. Highly recommend the ceramic coating.",
       "date": "2024-01-10",
-      "avatar": "/data/preview-avatars/avatar-2.jfif"
+      "avatar": "/data/preview-avatars/avatar-1.jfif"
     },
     {
       "name": "Robert Davis",
       "rating": 5,
       "text": "Worth every penny. The convenience of mobile service plus the quality of work makes this a no-brainer. My Tesla has never looked better!",
       "date": "2024-01-05",
-      "avatar": "/data/preview-avatars/avatar-3.jfif"
+      "avatar": "/data/preview-avatars/avatar-4.jfif"
     },
     {
-      "name": "Jennifer Martinez",
+      "name": "Jennifer Andrews",
       "rating": 5,
       "text": "I've tried several detailing services and this is by far the best. They removed stains I thought were permanent. My car interior looks brand new!",
       "date": "2023-12-28",
-      "avatar": "/data/preview-avatars/avatar-4.jfif"
+      "avatar": "/data/preview-avatars/avatar-5.jfif"
     },
     {
       "name": "David Thompson",
       "rating": 5,
       "text": "Outstanding ceramic coating application! The water just beads right off. Three months later and my car still looks freshly detailed. Highly professional service.",
       "date": "2023-12-20",
-      "avatar": "/data/preview-avatars/avatar-5.jfif"
+      "avatar": "/data/preview-avatars/avatar-6.jfif"
     },
     {
       "name": "Amanda Lee",
       "rating": 5,
       "text": "They detailed my boat and it looks amazing! Very impressed with their attention to marine surfaces. Will definitely use them again for my vehicles.",
       "date": "2023-12-15",
-      "avatar": "/data/preview-avatars/avatar-6.jfif"
+      "avatar": "/data/preview-avatars/avatar-3.jfif"
     }
   ]
 }

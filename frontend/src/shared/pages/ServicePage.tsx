@@ -6,6 +6,7 @@ import { PreviewCTAButton, PreviewDataProvider, usePreviewParams } from '@/admin
 import { LazyRequestQuoteModal } from '@/tenant-app/components/quotes';
 import { Process, Results, ServiceCTA, ServiceHero, WhatItIs } from '@/tenant-app/components/services';
 import { useServicePage } from '@/tenant-app/components/services/hooks/useServicePage';
+import { usePreviewData } from '@/tenant-app/contexts/PreviewDataProvider';
 
 interface ServicePageProps {
   onRequestQuote?: () => void;
@@ -16,7 +17,10 @@ const ServicePage: React.FC<ServicePageProps> = ({ onRequestQuote }) => {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('t');
   
-  // If token is present, we're in preview mode
+  // Check if we're in URL-based preview mode (new system)
+  const { isPreviewMode } = usePreviewData();
+  
+  // If token is present, we're in old preview mode (admin preview)
   const { payload } = usePreviewParams();
   
   // Quote modal state for preview mode
@@ -71,6 +75,28 @@ const ServicePage: React.FC<ServicePageProps> = ({ onRequestQuote }) => {
           />
         )}
       </PreviewDataProvider>
+    );
+  }
+
+  // URL-based preview mode (/{industry}-preview/services/:serviceType)
+  if (isPreviewMode) {
+    return (
+      <main className="bg-stone-900 text-white">
+        <Header />
+        <ServiceHero serviceData={serviceData} onRequestQuote={handleOpenQuoteModal} />
+        <WhatItIs serviceData={serviceData} />
+        <Process serviceData={serviceData} />
+        <Results serviceData={serviceData} />
+        <ServiceCTA serviceData={serviceData} onRequestQuote={handleOpenQuoteModal} />
+        
+        {/* Quote Modal */}
+        {isQuoteModalOpen && (
+          <LazyRequestQuoteModal 
+            isOpen={isQuoteModalOpen} 
+            onClose={handleCloseQuoteModal} 
+          />
+        )}
+      </main>
     );
   }
 

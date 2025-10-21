@@ -32,50 +32,36 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ review, isOpen, onClose }) =>
                   href={review.reviewerUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center text-white font-semibold text-xl overflow-hidden hover:bg-orange-600 transition-colors"
+                  className="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center text-white font-semibold text-xl overflow-hidden hover:bg-orange-600 transition-colors flex-shrink-0"
                 >
                   {review.profileImage ? (
-                    <picture>
-                      <source
-                        type="image/webp"
-                        srcSet={`${review.profileImage.replace(/\.(png|jpg|jpeg)$/i, '.webp')} 64w`}
-                        sizes="64px"
-                      />
-                      <img 
-                        src={review.profileImage} 
-                        alt={review.customerName}
-                        className="w-full h-full object-cover rounded-full"
-                        width={64}
-                        height={64}
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    </picture>
+                    <img 
+                      src={review.profileImage} 
+                      alt={review.customerName}
+                      className="w-full h-full object-cover rounded-full"
+                      width={64}
+                      height={64}
+                      loading="eager"
+                      decoding="sync"
+                    />
                   ) : (
-                    review.customerName.charAt(0).toUpperCase()
+                    <span className="text-2xl">{review.customerName?.charAt(0).toUpperCase() || '?'}</span>
                   )}
                 </a>
               ) : (
-                <div className="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center text-white font-semibold text-xl overflow-hidden">
+                <div className="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center text-white font-semibold text-xl overflow-hidden flex-shrink-0">
                   {review.profileImage ? (
-                    <picture>
-                      <source
-                        type="image/webp"
-                        srcSet={`${review.profileImage.replace(/\.(png|jpg|jpeg)$/i, '.webp')} 64w`}
-                        sizes="64px"
-                      />
-                      <img 
-                        src={review.profileImage} 
-                        alt={review.customerName}
-                        className="w-full h-full object-cover rounded-full"
-                        width={64}
-                        height={64}
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    </picture>
+                    <img 
+                      src={review.profileImage} 
+                      alt={review.customerName}
+                      className="w-full h-full object-cover rounded-full"
+                      width={64}
+                      height={64}
+                      loading="eager"
+                      decoding="sync"
+                    />
                   ) : (
-                    review.customerName.charAt(0).toUpperCase()
+                    <span className="text-2xl">{review.customerName?.charAt(0).toUpperCase() || '?'}</span>
                   )}
                 </div>
               )}
@@ -114,41 +100,35 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ review, isOpen, onClose }) =>
                   rel="noopener noreferrer"
                   className="hover:opacity-80 transition-opacity"
                 >
-                  <picture>
-                    <source
-                      type="image/webp"
-                      srcSet={`/icons/${review.reviewSource}.webp`}
-                      sizes="32px"
-                    />
-                    <img 
-                      src={`/icons/${review.reviewSource}.png`}
-                      alt={review.reviewSource}
-                      className="w-8 h-8 rounded"
-                      width={32}
-                      height={32}
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  </picture>
+                  <img 
+                    src={`/icons/${review.reviewSource}.png`}
+                    alt={`${review.reviewSource} review`}
+                    className="w-8 h-8 rounded object-contain"
+                    width={32}
+                    height={32}
+                    loading="eager"
+                    decoding="sync"
+                    onError={(e) => {
+                      console.error(`Failed to load ${review.reviewSource} icon`);
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
                 </a>
               )}
               {review.reviewSource && !review.reviewerUrl && (
-                <picture>
-                  <source
-                    type="image/webp"
-                    srcSet={`/shared/icons/${review.reviewSource}.webp`}
-                    sizes="32px"
-                  />
-                  <img 
-                    src={`/shared/icons/${review.reviewSource}.png`}
-                    alt={review.reviewSource}
-                    className="w-8 h-8 rounded"
-                    width={32}
-                    height={32}
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </picture>
+                <img 
+                  src={`/icons/${review.reviewSource}.png`}
+                  alt={`${review.reviewSource} review`}
+                  className="w-8 h-8 rounded object-contain"
+                  width={32}
+                  height={32}
+                  loading="eager"
+                  decoding="sync"
+                  onError={(e) => {
+                    console.error(`Failed to load ${review.reviewSource} icon`);
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
               )}
             </div>
           </div>

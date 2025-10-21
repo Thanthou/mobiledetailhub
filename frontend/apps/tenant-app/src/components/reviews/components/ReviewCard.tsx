@@ -100,22 +100,19 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, onReviewClick }) => {
         </div>
         <div>
           {review.reviewSource && (
-            <picture>
-              <source
-                type="image/webp"
-                srcSet={`/icons/${review.reviewSource}.webp`}
-                sizes="20px"
-              />
-              <img 
-                src={`/icons/${review.reviewSource}.png`}
-                alt={review.reviewSource}
-                className="w-5 h-5 rounded"
-                width={20}
-                height={20}
-                loading="lazy"
-                decoding="async"
-              />
-            </picture>
+            <img 
+              src={`/icons/${review.reviewSource}.png`}
+              alt={`${review.reviewSource} review`}
+              className="w-5 h-5 rounded object-contain"
+              width={20}
+              height={20}
+              loading="eager"
+              decoding="sync"
+              onError={(e) => {
+                console.error(`Failed to load ${review.reviewSource} icon`);
+                e.currentTarget.style.display = 'none';
+              }}
+            />
           )}
         </div>
       </div>

@@ -5,10 +5,13 @@
  * Start minimal, add components one at a time.
  */
 
-import { useEffect } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { usePreviewData } from '../contexts/PreviewDataProvider';
 import { useFavicon, useScrollSpy } from '@shared/hooks';
 import { setPageTitle } from '@shared/utils';
+
+// Lazy load the quote modal
+const LazyRequestQuoteModal = lazy(() => import('./quotes/components/LazyRequestQuoteModal'));
 
 // Import tenant components one by one
 import Header from '../components/header/components/Header';
@@ -26,6 +29,7 @@ import Gallery from '../components/gallery/components/Gallery';
  */
 export function PreviewPage() {
   const { isLoading, previewConfig, industry } = usePreviewData();
+  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
   
   // Set industry-specific favicon (one line!)
   useFavicon(industry);
@@ -38,6 +42,10 @@ export function PreviewPage() {
     threshold: 0.55,
     updateHash: false, // Don't update URL hash in preview mode
   });
+  
+  // Quote modal handlers
+  const handleOpenQuoteModal = () => setIsQuoteModalOpen(true);
+  const handleCloseQuoteModal = () => setIsQuoteModalOpen(false);
   
   // Set page title
   useEffect(() => {
@@ -97,13 +105,21 @@ export function PreviewPage() {
     <>
       <Header />
       <main className="snap-container overflow-y-scroll h-screen snap-y snap-mandatory">
-        <Hero />
+        <Hero onRequestQuote={handleOpenQuoteModal} />
         <ServicesGrid />
         <Reviews />
         <FAQ />
         <Gallery />
         {/* Note: Footer is included inside Gallery component */}
       </main>
+      
+      {/* Quote Modal - Lazy loaded */}
+      <Suspense fallback={null}>
+        <LazyRequestQuoteModal 
+          isOpen={isQuoteModalOpen} 
+          onClose={handleCloseQuoteModal}
+        />
+      </Suspense>
     </>
   );
 }
