@@ -1,7 +1,7 @@
 import React from 'react';
 
 // Import the actual tenant onboarding component
-import TenantApplicationPage from '@/admin-app/components/tenantOnboarding/components/TenantApplicationPage';
+import TenantApplicationPage from '@admin-app/components/tenantOnboarding/components/TenantApplicationPage';
 
 export function TenantOnboardingPage() {
   // The TenantApplicationPage is a complete onboarding flow

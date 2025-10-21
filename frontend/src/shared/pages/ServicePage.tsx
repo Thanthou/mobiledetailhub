@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-import { DataProvider, Header } from '@/tenant-app/components/header';
-import { PreviewCTAButton, PreviewDataProvider, usePreviewParams } from '@/admin-app/components/preview';
-import { LazyRequestQuoteModal } from '@/tenant-app/components/quotes';
-import { Process, Results, ServiceCTA, ServiceHero, WhatItIs } from '@/tenant-app/components/services';
-import { useServicePage } from '@/tenant-app/components/services/hooks/useServicePage';
-import { usePreviewData } from '@/tenant-app/contexts/PreviewDataProvider';
+import { DataProvider, Header } from '@tenant-app/components/header';
+import { PreviewCTAButton, PreviewDataProvider, usePreviewParams } from '@admin-app/components/preview';
+import { LazyRequestQuoteModal } from '@tenant-app/components/quotes';
+import { Process, Results, ServiceCTA, ServiceHero, WhatItIs } from '@tenant-app/components/services';
+import { useServicePage } from '@tenant-app/components/services/hooks/useServicePage';
+import { usePreviewData } from '@tenant-app/contexts/PreviewDataProvider';
 
 interface ServicePageProps {
   onRequestQuote?: () => void;

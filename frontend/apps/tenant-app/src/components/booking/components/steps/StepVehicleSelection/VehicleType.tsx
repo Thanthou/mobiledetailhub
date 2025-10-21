@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-import { getMakesForType, getModelsForMake, getVehicleYears } from '@/data/mobile-detailing/vehicle_data';
+import { getMakesForType, getModelsForMake, getVehicleYears } from '@data/mobile-detailing/vehicle_data';
 import { useDataOptional } from '@shared/hooks/useData';
 
 interface VehicleSelectionProps {

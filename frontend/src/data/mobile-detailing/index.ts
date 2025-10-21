@@ -3,7 +3,7 @@
  * Assembles modular config files into MainSiteConfig structure
  */
 
-import type { MainSiteConfig } from '@/shared/types/location';
+import type { MainSiteConfig } from '@shared/types/location';
 
 import assetsData from './assets.json';
 import contentDefaults from './content-defaults.json';

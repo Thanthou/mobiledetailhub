@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { useBookingData } from '@/tenant-app/components/booking/state';
+import { useBookingData } from '@tenant-app/components/booking/state';
 
 const StepLocation: React.FC = () => {
   const { bookingData, setLocation } = useBookingData();

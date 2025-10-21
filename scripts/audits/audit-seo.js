@@ -42,9 +42,13 @@ const publicDir = path.join(root, "frontend/public");
 /*──────────────────────────────────────────────────────────────
 | 🧩 Multi-App Configuration
 |──────────────────────────────────────────────────────────────*/
+// Support custom URLs via environment variables (fallback to production)
+const BASE_URL = process.env.SEO_BASE_URL || "https://thatsmartsite.com";
+const TENANT_URL = process.env.SEO_TENANT_URL || "https://demo.thatsmartsite.com";
+
 const APPS = [
-  { name: "main-site", description: "Marketing & Onboarding", liveUrl: "https://thatsmartsite.com" },
-  { name: "tenant-app", description: "Live Tenant Storefronts", liveUrl: "https://demo.thatsmartsite.com" },
+  { name: "main-site", description: "Marketing & Onboarding", liveUrl: BASE_URL },
+  { name: "tenant-app", description: "Live Tenant Storefronts", liveUrl: TENANT_URL },
   // { name: "admin-app", description: "Tenant Dashboard" }, // Excluded from SEO audit
 ];
 

@@ -4,7 +4,7 @@
  * Dynamically loads service detail JSON files based on industry and service type
  */
 
-import { ServiceData } from '@/tenant-app/components/services/types/service.types';
+import { ServiceData } from '@tenant-app/components/services/types/service.types';
 
 /**
  * Map service URL slugs to file names

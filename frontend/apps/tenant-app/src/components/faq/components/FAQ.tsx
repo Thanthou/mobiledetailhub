@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { useFAQContent,useRotatingBackground } from '@/tenant-app/components/faq/hooks';
+import { useFAQContent,useRotatingBackground } from '@tenant-app/components/faq/hooks';
 import { getImageOpacityClasses, getTransitionStyles } from '@shared/utils';
 
 import FAQCategoryFilter from './FAQCategoryFilter';

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { galleryApi } from '../api/gallery.api';
 import { GalleryImage } from '../types';
-import { usePreviewData } from '@/tenant-app/contexts/PreviewDataProvider';
+import { usePreviewData } from '@tenant-app/contexts/PreviewDataProvider';
 
 export const useGallery = () => {
   const [images, setImages] = useState<GalleryImage[]>([]);

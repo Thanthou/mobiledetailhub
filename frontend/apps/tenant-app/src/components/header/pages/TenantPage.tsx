@@ -4,8 +4,8 @@ import { useSearchParams } from 'react-router-dom';
 import HomePage from '@shared/pages/HomePage';
 // Page-level composition - intentionally imports from features
 // eslint-disable-next-line no-restricted-imports -- Page composition needs quote modal
-import { LazyRequestQuoteModal } from '@/tenant-app/components/quotes';
-import { MobileDetailingPreview as IndustryPreviewPage } from '@/tenant-app/pages/MobileDetailingPreview';
+import { LazyRequestQuoteModal } from '@tenant-app/components/quotes';
+import { MobileDetailingPreview as IndustryPreviewPage } from '@tenant-app/pages/MobileDetailingPreview';
 
 import { DataProvider } from '../contexts/DataProvider';
 

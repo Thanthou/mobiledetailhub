@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { useServiceTiers } from '@/tenant-app/components/booking/hooks';
-import { useBookingService, useBookingVehicle } from '@/tenant-app/components/booking/state';
+import { useServiceTiers } from '@tenant-app/components/booking/hooks';
+import { useBookingService, useBookingVehicle } from '@tenant-app/components/booking/state';
 
 import ServiceCarousel from './ServiceCarousel';
 

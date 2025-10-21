@@ -20,6 +20,9 @@
     "dev:kill": "node scripts/automation/cleanup/kill-node-processes.js",
     "dev:clean": "scripts/automation/cleanup/cleanup-and-dev.bat",
     
+    "migrate": "cd backend && npm run migrate",
+    "db:snapshot": "cd backend && npm run db:snapshot",
+    
     "audit:list": "node scripts/devtools/list-audit-commands.js",
     "audit:all": "node scripts/project/run-all.js",
     "audit:env": "node scripts/audits/audit-env.js",

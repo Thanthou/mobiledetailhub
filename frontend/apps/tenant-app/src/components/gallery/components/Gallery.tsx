@@ -3,7 +3,7 @@ import React, { useRef, useState } from 'react';
 // Gallery section includes footer as part of its display
 // This is intentional and part of the gallery feature's design
 // eslint-disable-next-line no-restricted-imports -- Gallery displays footer as bottom half of section
-import { Footer } from '@/tenant-app/components/footer';
+import { Footer } from '@tenant-app/components/footer';
 
 import { useGallery } from '../hooks/useGallery';
 import { useRotatingGallery } from '../hooks/useRotatingGallery';

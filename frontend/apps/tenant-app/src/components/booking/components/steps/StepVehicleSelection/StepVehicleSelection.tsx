@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useBookingVehicle } from '@/tenant-app/components/booking/state';
+import { useBookingVehicle } from '@tenant-app/components/booking/state';
 
 import Tabs from './Tabs';
 import VehicleSelection from './VehicleType';

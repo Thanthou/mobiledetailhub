@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Car } from 'lucide-react';
 
-import { getMakesForType, getModelsForMake, getVehicleYears } from '@/data/mobile-detailing/vehicle_data';
+import { getMakesForType, getModelsForMake, getVehicleYears } from '@data/mobile-detailing/vehicle_data';
 
 import { type QuoteFormData } from '../types';
 

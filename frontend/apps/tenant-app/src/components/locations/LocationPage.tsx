@@ -3,18 +3,18 @@ import { useEffect } from "react";
 // Page-level composition - intentionally imports from multiple features
 // This is a top-level page that composes multiple feature components
 // eslint-disable-next-line no-restricted-imports -- Page composition
-import { FAQ } from '@/tenant-app/components/faq';
+import { FAQ } from '@tenant-app/components/faq';
 // eslint-disable-next-line no-restricted-imports -- Page composition
-import { Footer } from '@/tenant-app/components/footer';
+import { Footer } from '@tenant-app/components/footer';
 // eslint-disable-next-line no-restricted-imports -- Page composition
-import { Hero } from '@/tenant-app/components/hero';
-import { useLocationPageState } from '@/tenant-app/components/locations/hooks';
+import { Hero } from '@tenant-app/components/hero';
+import { useLocationPageState } from '@tenant-app/components/locations/hooks';
 // eslint-disable-next-line no-restricted-imports -- Page composition
-import { RequestQuoteModal } from '@/tenant-app/components/quotes';
+import { RequestQuoteModal } from '@tenant-app/components/quotes';
 // eslint-disable-next-line no-restricted-imports -- Page composition
-import { Reviews } from '@/tenant-app/components/reviews';
+import { Reviews } from '@tenant-app/components/reviews';
 // eslint-disable-next-line no-restricted-imports -- Page composition
-import { Services } from '@/tenant-app/components/services';
+import { Services } from '@tenant-app/components/services';
 import HomePageLayout from '@shared/components/HomePageLayout';
 import { useBrowserTab, useMetaTags } from '@shared/hooks';
 import type { LocationPage as LocationPageType } from '@shared/types/location';

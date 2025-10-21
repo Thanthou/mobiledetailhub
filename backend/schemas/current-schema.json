@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "generated_at": "2025-10-21T09:32:46.884Z",
+  "generated_at": "2025-10-21T09:37:45.710Z",
   "database_version": "PostgreSQL 17.5 on x86_64-windows, compiled by msvc-19.44.35209, 64-bit",
   "schemas": {
     "analytics": {
@@ -5150,6 +5150,10 @@
             {
               "name": "idx_business_custom_domain",
               "definition": "CREATE INDEX idx_business_custom_domain ON tenants.business USING btree (custom_domain)"
+            },
+            {
+              "name": "idx_business_email",
+              "definition": "CREATE INDEX idx_business_email ON tenants.business USING btree (business_email)"
             },
             {
               "name": "idx_business_example_field",

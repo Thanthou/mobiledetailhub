@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { reviewsApi } from '../api';
 import type { DatabaseReview,Review, ReviewQueryParams } from '../types';
-import { usePreviewData } from '@/tenant-app/contexts/PreviewDataProvider';
+import { usePreviewData } from '@tenant-app/contexts/PreviewDataProvider';
 
 // Convert database review to frontend review format
 const convertDatabaseReviewToReview = (dbReview: DatabaseReview): Review => {

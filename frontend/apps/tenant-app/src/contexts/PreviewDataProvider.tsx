@@ -14,10 +14,10 @@
 
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import type { MainSiteConfig } from '@shared/types/location';
-import type { IndustryPreviewData } from '@/data/preview-types';
+import type { IndustryPreviewData } from '@data/preview-types';
 import { DataContext, type DataContextType } from '@shared/contexts/DataContext';
 import { getPreviewIndustry } from '@shared/utils';
-import { loadIndustryPreview } from '@/data/preview-loader';
+import { loadIndustryPreview } from '@data/preview-loader';
 
 interface PreviewDataProviderProps {
   children: React.ReactNode;
@@ -84,27 +84,27 @@ export function PreviewDataProvider({ children }: PreviewDataProviderProps) {
         
         switch (industry) {
           case 'mobile-detailing': {
-            const { loadMobileDetailingConfig } = await import('@/data/mobile-detailing');
+            const { loadMobileDetailingConfig } = await import('@data/mobile-detailing');
             config = loadMobileDetailingConfig();
             break;
           }
           case 'maid-service': {
-            const { loadMaidServiceConfig } = await import('@/data/maid-service');
+            const { loadMaidServiceConfig } = await import('@data/maid-service');
             config = await loadMaidServiceConfig();
             break;
           }
           case 'lawncare': {
-            const { loadLawncareConfig } = await import('@/data/lawncare');
+            const { loadLawncareConfig } = await import('@data/lawncare');
             config = await loadLawncareConfig();
             break;
           }
           case 'pet-grooming': {
-            const { loadPetGroomingConfig } = await import('@/data/pet-grooming');
+            const { loadPetGroomingConfig } = await import('@data/pet-grooming');
             config = await loadPetGroomingConfig();
             break;
           }
           case 'barber': {
-            const { loadBarberConfig } = await import('@/data/barber');
+            const { loadBarberConfig } = await import('@data/barber');
             config = await loadBarberConfig();
             break;
           }

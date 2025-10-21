@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 
-import { ServiceData } from '@/tenant-app/components/services/types/service.types';
+import { ServiceData } from '@tenant-app/components/services/types/service.types';
 import { loadServiceData } from '@shared/utils/serviceLoader';
-import { usePreviewData } from '@/tenant-app/contexts/PreviewDataProvider';
+import { usePreviewData } from '@tenant-app/contexts/PreviewDataProvider';
 import { useData } from '@shared/hooks';
 
 export const useServicePage = () => {

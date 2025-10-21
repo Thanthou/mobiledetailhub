@@ -1,9 +1,9 @@
 import React, { useCallback, useState } from 'react';
 import { CheckCircle } from 'lucide-react';
 
-import type { AddonItem } from '@/tenant-app/components/booking/hooks';
-import { useAddons } from '@/tenant-app/components/booking/hooks';
-import { useBookingAddons, useBookingVehicle } from '@/tenant-app/components/booking/state';
+import type { AddonItem } from '@tenant-app/components/booking/hooks';
+import { useAddons } from '@tenant-app/components/booking/hooks';
+import { useBookingAddons, useBookingVehicle } from '@tenant-app/components/booking/state';
 import { Carousel } from '@shared/ui';
 
 import AddonDetailsModal from './AddonDetailsModal';

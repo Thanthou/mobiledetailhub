@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { useServices } from '@/tenant-app/components/services/hooks/useServices';
-import { ServicesGridProps } from '@/tenant-app/components/services/types/service.types';
+import { useServices } from '@tenant-app/components/services/hooks/useServices';
+import { ServicesGridProps } from '@tenant-app/components/services/types/service.types';
 
 import ServiceCard from './ServiceCard';
 

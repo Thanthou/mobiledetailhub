@@ -1,7 +1,7 @@
 import React from 'react';
 import { Plus } from 'lucide-react';
 
-import type { BookingData } from '@/tenant-app/components/booking/state';
+import type { BookingData } from '@tenant-app/components/booking/state';
 
 interface Addon {
   id: string;

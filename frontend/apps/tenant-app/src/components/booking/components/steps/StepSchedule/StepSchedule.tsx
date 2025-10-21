@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-import { useScheduleOptions } from '@/tenant-app/components/booking/hooks';
-import type { ScheduleOption } from '@/tenant-app/components/booking/hooks/useScheduleOptions';
-import { useBookingSchedule } from '@/tenant-app/components/booking/state';
+import { useScheduleOptions } from '@tenant-app/components/booking/hooks';
+import type { ScheduleOption } from '@tenant-app/components/booking/hooks/useScheduleOptions';
+import { useBookingSchedule } from '@tenant-app/components/booking/state';
 
 const StepSchedule: React.FC = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date());

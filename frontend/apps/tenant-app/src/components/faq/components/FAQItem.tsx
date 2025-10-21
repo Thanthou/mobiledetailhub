@@ -1,7 +1,7 @@
 import React from 'react';
 import { ChevronDown } from 'lucide-react';
 
-import type { FAQItem as FAQItemType } from '@/tenant-app/components/faq/types';
+import type { FAQItem as FAQItemType } from '@tenant-app/components/faq/types';
 
 import ServiceAreasLink from './ServiceAreasLink';
 

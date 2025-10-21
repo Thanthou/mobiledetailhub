@@ -1,5 +1,5 @@
-import { useReviews } from '@/tenant-app/components/reviews/hooks/useReviews';
-import type { ReviewQueryParams } from '@/tenant-app/components/reviews/types';
+import { useReviews } from '@tenant-app/components/reviews/hooks/useReviews';
+import type { ReviewQueryParams } from '@tenant-app/components/reviews/types';
 import { useDataOptional } from '@shared/hooks/useData';
 
 /**

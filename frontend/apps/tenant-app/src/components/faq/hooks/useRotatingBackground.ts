@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { useImageRotation } from '@shared/hooks';
 import { GalleryImage } from '@shared/types';
-import { usePreviewData } from '@/tenant-app/contexts/PreviewDataProvider';
+import { usePreviewData } from '@tenant-app/contexts/PreviewDataProvider';
 
 // Fisher-Yates shuffle algorithm
 function shuffleArray<T>(array: T[]): T[] {

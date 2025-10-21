@@ -7,7 +7,7 @@
  * available as a reference/backup.
  */
 
-import type { MainSiteConfig } from '@/shared/types/location';
+import type { MainSiteConfig } from '@shared/types/location';
 
 /**
  * Load and assemble maid-service config from modular files

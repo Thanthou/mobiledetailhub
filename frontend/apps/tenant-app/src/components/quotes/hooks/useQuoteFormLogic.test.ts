@@ -4,7 +4,7 @@ import { renderHook } from '@testing-library/react';
 import { useQuoteFormLogic } from './useQuoteFormLogic';
 
 // Mock the dependencies
-jest.mock('@/tenant-app/components/booking/hooks', () => ({
+jest.mock('@tenant-app/components/booking/hooks', () => ({
   useVehicleData: () => ({
     vehicleTypes: [],
     getMakes: jest.fn(),

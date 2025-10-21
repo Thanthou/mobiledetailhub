@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import type { DashboardTab, DetailerData } from '@/tenant-app/components/tenantDashboard/types';
+import type { DashboardTab, DetailerData } from '@tenant-app/components/tenantDashboard/types';
 import { useBrowserTab } from '@shared/hooks';
 import { useTenantSlug } from '@shared/hooks/useTenantSlug';
 

@@ -1,188 +1,126 @@
 {
   "lighthouseVersion": "13.0.0",
   "requestedUrl": "http://localhost:4173/main-site/",
-  "mainDocumentUrl": "http://localhost:4173/main-site/",
-  "finalDisplayedUrl": "http://localhost:4173/",
-  "finalUrl": "http://localhost:4173/main-site/",
-  "fetchTime": "2025-10-20T00:55:00.985Z",
+  "mainDocumentUrl": "chrome-error://chromewebdata/",
+  "finalDisplayedUrl": "chrome-error://chromewebdata/",
+  "finalUrl": "chrome-error://chromewebdata/",
+  "fetchTime": "2025-10-21T10:06:42.291Z",
   "gatherMode": "navigation",
-  "runWarnings": [],
+  "runtimeError": {
+    "code": "CHROME_INTERSTITIAL_ERROR",
+    "message": "Chrome prevented page load with an interstitial. Make sure you are testing the correct URL and that the server is properly responding to all requests.",
+    "errorStack": "LighthouseError: CHROME_INTERSTITIAL_ERROR\n    at getInterstitialError (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/lib/navigation-error.js:97:10)\n    at getPageLoadError (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/lib/navigation-error.js:163:29)\n    at _computeNavigationResult (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:146:7)\n    at async gatherFn (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:297:23)\n    at async Runner.gather (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/runner.js:211:25)\n    at async navigationGather (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:303:21)\n    at async navigation (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/index.js:58:24)\n    at async runLighthouse (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/cli/run.js:210:26)\n    at async file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/cli/index.js:10:1",
+    "artifactKey": "PageLoadError"
+  },
+  "runWarnings": [
+    "The page may not be loading as expected because your test URL (http://localhost:4173/main-site/) was redirected to chrome-error://chromewebdata/. Try testing the second URL directly.",
+    "Chrome prevented page load with an interstitial. Make sure you are testing the correct URL and that the server is properly responding to all requests."
+  ],
   "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/141.0.0.0 Safari/537.36",
   "environment": {
-    "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Mobile Safari/537.36",
     "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/141.0.0.0 Safari/537.36",
-    "benchmarkIndex": 2884,
-    "credits": {
-      "axe-core": "4.11.0"
-    }
+    "benchmarkIndex": 2975.5,
+    "credits": {}
   },
   "audits": {
     "document-title": {
       "id": "document-title",
       "title": "Document has a `<title>` element",
       "description": "The title gives screen reader users an overview of the page, and search engine users rely on it heavily to determine if a page is relevant to their search. [Learn more about document titles](https://dequeuniversity.com/rules/axe/4.11/document-title).",
-      "score": 1,
-      "scoreDisplayMode": "binary",
-      "details": {
-        "type": "table",
-        "headings": [
-          {
-            "key": "node",
-            "valueType": "node",
-            "subItemsHeading": {
-              "key": "relatedNode",
-              "valueType": "node"
-            },
-            "label": "Failing Elements"
-          }
-        ],
-        "items": []
-      }
+      "score": null,
+      "scoreDisplayMode": "error",
+      "errorMessage": "Chrome prevented page load with an interstitial. Make sure you are testing the correct URL and that the server is properly responding to all requests.",
+      "errorStack": "LighthouseError: CHROME_INTERSTITIAL_ERROR\n    at getInterstitialError (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/lib/navigation-error.js:97:10)\n    at getPageLoadError (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/lib/navigation-error.js:163:29)\n    at _computeNavigationResult (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:146:7)\n    at async gatherFn (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:297:23)\n    at async Runner.gather (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/runner.js:211:25)\n    at async navigationGather (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:303:21)\n    at async navigation (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/index.js:58:24)\n    at async runLighthouse (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/cli/run.js:210:26)\n    at async file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/cli/index.js:10:1"
     },
     "image-alt": {
       "id": "image-alt",
       "title": "Image elements have `[alt]` attributes",
       "description": "Informative elements should aim for short, descriptive alternate text. Decorative elements can be ignored with an empty alt attribute. [Learn more about the `alt` attribute](https://dequeuniversity.com/rules/axe/4.11/image-alt).",
       "score": null,
-      "scoreDisplayMode": "notApplicable"
+      "scoreDisplayMode": "error",
+      "errorMessage": "Chrome prevented page load with an interstitial. Make sure you are testing the correct URL and that the server is properly responding to all requests.",
+      "errorStack": "LighthouseError: CHROME_INTERSTITIAL_ERROR\n    at getInterstitialError (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/lib/navigation-error.js:97:10)\n    at getPageLoadError (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/lib/navigation-error.js:163:29)\n    at _computeNavigationResult (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:146:7)\n    at async gatherFn (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:297:23)\n    at async Runner.gather (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/runner.js:211:25)\n    at async navigationGather (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:303:21)\n    at async navigation (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/index.js:58:24)\n    at async runLighthouse (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/cli/run.js:210:26)\n    at async file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/cli/index.js:10:1"
     },
     "meta-description": {
       "id": "meta-description",
       "title": "Document has a meta description",
       "description": "Meta descriptions may be included in search results to concisely summarize page content. [Learn more about the meta description](https://developer.chrome.com/docs/lighthouse/seo/meta-description/).",
-      "score": 1,
-      "scoreDisplayMode": "binary"
+      "score": null,
+      "scoreDisplayMode": "error",
+      "errorMessage": "Chrome prevented page load with an interstitial. Make sure you are testing the correct URL and that the server is properly responding to all requests.",
+      "errorStack": "LighthouseError: CHROME_INTERSTITIAL_ERROR\n    at getInterstitialError (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/lib/navigation-error.js:97:10)\n    at getPageLoadError (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/lib/navigation-error.js:163:29)\n    at _computeNavigationResult (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:146:7)\n    at async gatherFn (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:297:23)\n    at async Runner.gather (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/runner.js:211:25)\n    at async navigationGather (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:303:21)\n    at async navigation (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/index.js:58:24)\n    at async runLighthouse (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/cli/run.js:210:26)\n    at async file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/cli/index.js:10:1"
     },
     "http-status-code": {
       "id": "http-status-code",
       "title": "Page has successful HTTP status code",
       "description": "Pages with unsuccessful HTTP status codes may not be indexed properly. [Learn more about HTTP status codes](https://developer.chrome.com/docs/lighthouse/seo/http-status-code/).",
-      "score": 1,
-      "scoreDisplayMode": "binary"
+      "score": null,
+      "scoreDisplayMode": "error",
+      "errorMessage": "Chrome prevented page load with an interstitial. Make sure you are testing the correct URL and that the server is properly responding to all requests.",
+      "errorStack": "LighthouseError: CHROME_INTERSTITIAL_ERROR\n    at getInterstitialError (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/lib/navigation-error.js:97:10)\n    at getPageLoadError (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/lib/navigation-error.js:163:29)\n    at _computeNavigationResult (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:146:7)\n    at async gatherFn (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:297:23)\n    at async Runner.gather (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/runner.js:211:25)\n    at async navigationGather (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:303:21)\n    at async navigation (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/index.js:58:24)\n    at async runLighthouse (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/cli/run.js:210:26)\n    at async file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/cli/index.js:10:1"
     },
     "link-text": {
       "id": "link-text",
       "title": "Links have descriptive text",
       "description": "Descriptive link text helps search engines understand your content. [Learn how to make links more accessible](https://developer.chrome.com/docs/lighthouse/seo/link-text/).",
-      "score": 1,
-      "scoreDisplayMode": "binary",
-      "details": {
-        "type": "table",
-        "headings": [
-          {
-            "key": "href",
-            "valueType": "url",
-            "label": "Link destination"
-          },
-          {
-            "key": "text",
-            "valueType": "text",
-            "label": "Link Text"
-          }
-        ],
-        "items": []
-      }
+      "score": null,
+      "scoreDisplayMode": "error",
+      "errorMessage": "Chrome prevented page load with an interstitial. Make sure you are testing the correct URL and that the server is properly responding to all requests.",
+      "errorStack": "LighthouseError: CHROME_INTERSTITIAL_ERROR\n    at getInterstitialError (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/lib/navigation-error.js:97:10)\n    at getPageLoadError (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/lib/navigation-error.js:163:29)\n    at _computeNavigationResult (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:146:7)\n    at async gatherFn (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:297:23)\n    at async Runner.gather (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/runner.js:211:25)\n    at async navigationGather (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:303:21)\n    at async navigation (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/index.js:58:24)\n    at async runLighthouse (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/cli/run.js:210:26)\n    at async file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/cli/index.js:10:1"
     },
     "crawlable-anchors": {
       "id": "crawlable-anchors",
       "title": "Links are crawlable",
       "description": "Search engines may use `href` attributes on links to crawl websites. Ensure that the `href` attribute of anchor elements links to an appropriate destination, so more pages of the site can be discovered. [Learn how to make links crawlable](https://support.google.com/webmasters/answer/9112205)",
-      "score": 1,
-      "scoreDisplayMode": "binary",
-      "details": {
-        "type": "table",
-        "headings": [
-          {
-            "key": "node",
-            "valueType": "node",
-            "label": "Uncrawlable Link"
-          }
-        ],
-        "items": []
-      }
+      "score": null,
+      "scoreDisplayMode": "error",
+      "errorMessage": "Chrome prevented page load with an interstitial. Make sure you are testing the correct URL and that the server is properly responding to all requests.",
+      "errorStack": "LighthouseError: CHROME_INTERSTITIAL_ERROR\n    at getInterstitialError (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/lib/navigation-error.js:97:10)\n    at getPageLoadError (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/lib/navigation-error.js:163:29)\n    at _computeNavigationResult (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:146:7)\n    at async gatherFn (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:297:23)\n    at async Runner.gather (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/runner.js:211:25)\n    at async navigationGather (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:303:21)\n    at async navigation (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/index.js:58:24)\n    at async runLighthouse (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/cli/run.js:210:26)\n    at async file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/cli/index.js:10:1"
     },
     "is-crawlable": {
       "id": "is-crawlable",
       "title": "Page isn’t blocked from indexing",
       "description": "Search engines are unable to include your pages in search results if they don't have permission to crawl them. [Learn more about crawler directives](https://developer.chrome.com/docs/lighthouse/seo/is-crawlable/).",
-      "score": 1,
-      "scoreDisplayMode": "binary",
-      "warnings": [],
-      "details": {
-        "type": "table",
-        "headings": [
-          {
-            "key": "source",
-            "valueType": "code",
-            "label": "Blocking Directive Source"
-          }
-        ],
-        "items": []
-      }
+      "score": null,
+      "scoreDisplayMode": "error",
+      "errorMessage": "Chrome prevented page load with an interstitial. Make sure you are testing the correct URL and that the server is properly responding to all requests.",
+      "errorStack": "LighthouseError: CHROME_INTERSTITIAL_ERROR\n    at getInterstitialError (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/lib/navigation-error.js:97:10)\n    at getPageLoadError (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/lib/navigation-error.js:163:29)\n    at _computeNavigationResult (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:146:7)\n    at async gatherFn (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:297:23)\n    at async Runner.gather (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/runner.js:211:25)\n    at async navigationGather (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:303:21)\n    at async navigation (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/index.js:58:24)\n    at async runLighthouse (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/cli/run.js:210:26)\n    at async file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/cli/index.js:10:1"
     },
     "robots-txt": {
       "id": "robots-txt",
       "title": "robots.txt is valid",
       "description": "If your robots.txt file is malformed, crawlers may not be able to understand how you want your website to be crawled or indexed. [Learn more about robots.txt](https://developer.chrome.com/docs/lighthouse/seo/invalid-robots-txt/).",
-      "score": 1,
-      "scoreDisplayMode": "binary",
-      "details": {
-        "type": "table",
-        "headings": [
-          {
-            "key": "index",
-            "valueType": "text",
-            "label": "Line #"
-          },
-          {
-            "key": "line",
-            "valueType": "code",
-            "label": "Content"
-          },
-          {
-            "key": "message",
-            "valueType": "code",
-            "label": "Error"
-          }
-        ],
-        "items": []
-      }
+      "score": null,
+      "scoreDisplayMode": "error",
+      "errorMessage": "Chrome prevented page load with an interstitial. Make sure you are testing the correct URL and that the server is properly responding to all requests.",
+      "errorStack": "LighthouseError: CHROME_INTERSTITIAL_ERROR\n    at getInterstitialError (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/lib/navigation-error.js:97:10)\n    at getPageLoadError (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/lib/navigation-error.js:163:29)\n    at _computeNavigationResult (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:146:7)\n    at async gatherFn (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:297:23)\n    at async Runner.gather (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/runner.js:211:25)\n    at async navigationGather (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:303:21)\n    at async navigation (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/index.js:58:24)\n    at async runLighthouse (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/cli/run.js:210:26)\n    at async file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/cli/index.js:10:1"
     },
     "hreflang": {
       "id": "hreflang",
       "title": "Document has a valid `hreflang`",
       "description": "hreflang links tell search engines what version of a page they should list in search results for a given language or region. [Learn more about `hreflang`](https://developer.chrome.com/docs/lighthouse/seo/hreflang/).",
-      "score": 1,
-      "scoreDisplayMode": "binary",
-      "details": {
-        "type": "table",
-        "headings": [
-          {
-            "key": "source",
-            "valueType": "code",
-            "subItemsHeading": {
-              "key": "reason",
-              "valueType": "text"
-            },
-            "label": ""
-          }
-        ],
-        "items": []
-      }
+      "score": null,
+      "scoreDisplayMode": "error",
+      "errorMessage": "Chrome prevented page load with an interstitial. Make sure you are testing the correct URL and that the server is properly responding to all requests.",
+      "errorStack": "LighthouseError: CHROME_INTERSTITIAL_ERROR\n    at getInterstitialError (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/lib/navigation-error.js:97:10)\n    at getPageLoadError (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/lib/navigation-error.js:163:29)\n    at _computeNavigationResult (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:146:7)\n    at async gatherFn (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:297:23)\n    at async Runner.gather (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/runner.js:211:25)\n    at async navigationGather (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:303:21)\n    at async navigation (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/index.js:58:24)\n    at async runLighthouse (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/cli/run.js:210:26)\n    at async file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/cli/index.js:10:1"
     },
     "canonical": {
       "id": "canonical",
       "title": "Document has a valid `rel=canonical`",
       "description": "Canonical links suggest which URL to show in search results. [Learn more about canonical links](https://developer.chrome.com/docs/lighthouse/seo/canonical/).",
       "score": null,
-      "scoreDisplayMode": "notApplicable"
+      "scoreDisplayMode": "error",
+      "errorMessage": "Chrome prevented page load with an interstitial. Make sure you are testing the correct URL and that the server is properly responding to all requests.",
+      "errorStack": "LighthouseError: CHROME_INTERSTITIAL_ERROR\n    at getInterstitialError (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/lib/navigation-error.js:97:10)\n    at getPageLoadError (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/lib/navigation-error.js:163:29)\n    at _computeNavigationResult (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:146:7)\n    at async gatherFn (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:297:23)\n    at async Runner.gather (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/runner.js:211:25)\n    at async navigationGather (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:303:21)\n    at async navigation (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/index.js:58:24)\n    at async runLighthouse (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/cli/run.js:210:26)\n    at async file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/cli/index.js:10:1"
     },
     "structured-data": {
       "id": "structured-data",
       "title": "Structured data is valid",
       "description": "Run the [Structured Data Testing Tool](https://developers.google.com/search/docs/appearance/structured-data/) to validate structured data. [Learn more about Structured Data](https://developer.chrome.com/docs/lighthouse/seo/structured-data/).",
       "score": null,
-      "scoreDisplayMode": "manual"
+      "scoreDisplayMode": "error",
+      "errorMessage": "Chrome prevented page load with an interstitial. Make sure you are testing the correct URL and that the server is properly responding to all requests.",
+      "errorStack": "LighthouseError: CHROME_INTERSTITIAL_ERROR\n    at getInterstitialError (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/lib/navigation-error.js:97:10)\n    at getPageLoadError (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/lib/navigation-error.js:163:29)\n    at _computeNavigationResult (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:146:7)\n    at async gatherFn (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:297:23)\n    at async Runner.gather (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/runner.js:211:25)\n    at async navigationGather (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/gather/navigation-runner.js:303:21)\n    at async navigation (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/core/index.js:58:24)\n    at async runLighthouse (file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/cli/run.js:210:26)\n    at async file:///C:/Users/colem/AppData/Roaming/npm/node_modules/lighthouse/cli/index.js:10:1"
     }
   },
   "configSettings": {
@@ -287,7 +225,7 @@
         },
         {
           "id": "image-alt",
-          "weight": 0,
+          "weight": 1,
           "group": "seo-content"
         },
         {
@@ -297,7 +235,7 @@
         },
         {
           "id": "canonical",
-          "weight": 0,
+          "weight": 1,
           "group": "seo-content"
         },
         {
@@ -306,7 +244,7 @@
         }
       ],
       "id": "seo",
-      "score": 1
+      "score": null
     }
   },
   "categoryGroups": {
@@ -382,415 +320,172 @@
     }
   },
   "stackPacks": [],
-  "entities": [
-    {
-      "name": "localhost",
-      "origins": [
-        "http://localhost:4173"
-      ],
-      "isFirstParty": true,
-      "isUnrecognized": true
-    },
-    {
-      "name": "Stripe",
-      "homepage": "https://stripe.com",
-      "origins": [
-        "https://js.stripe.com",
-        "https://m.stripe.network",
-        "https://r.stripe.com",
-        "https://m.stripe.com"
-      ],
-      "category": "utility"
-    }
-  ],
-  "fullPageScreenshot": {
-    "screenshot": {
-      "data": "data:image/webp;base64,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",
-      "width": 412,
-      "height": 976
-    },
-    "nodes": {
-      "1-0-H3": {
-        "id": "",
-        "top": 572,
-        "bottom": 600,
-        "left": 24,
-        "right": 388,
-        "width": 364,
-        "height": 28
-      },
-      "1-1-H1": {
-        "id": "",
-        "top": 0,
-        "bottom": 120,
-        "left": 24,
-        "right": 388,
-        "width": 364,
-        "height": 120
-      },
-      "1-2-MAIN": {
-        "id": "",
-        "top": 0,
-        "bottom": 976,
-        "left": 0,
-        "right": 412,
-        "width": 412,
-        "height": 976
-      },
-      "1-3-A": {
-        "id": "",
-        "top": 288,
-        "bottom": 348,
-        "left": 24,
-        "right": 388,
-        "width": 364,
-        "height": 60
-      },
-      "1-4-A": {
-        "id": "",
-        "top": 364,
-        "bottom": 428,
-        "left": 24,
-        "right": 388,
-        "width": 364,
-        "height": 64
-      },
-      "1-5-LINK": {
-        "id": "",
-        "top": 0,
-        "bottom": 0,
-        "left": 0,
-        "right": 0,
-        "width": 0,
-        "height": 0
-      },
-      "1-6-LINK": {
-        "id": "",
-        "top": 0,
-        "bottom": 0,
-        "left": 0,
-        "right": 0,
-        "width": 0,
-        "height": 0
-      },
-      "1-7-LINK": {
-        "id": "",
-        "top": 0,
-        "bottom": 0,
-        "left": 0,
-        "right": 0,
-        "width": 0,
-        "height": 0
-      },
-      "1-8-LINK": {
-        "id": "",
-        "top": 0,
-        "bottom": 0,
-        "left": 0,
-        "right": 0,
-        "width": 0,
-        "height": 0
-      },
-      "1-9-LINK": {
-        "id": "",
-        "top": 0,
-        "bottom": 0,
-        "left": 0,
-        "right": 0,
-        "width": 0,
-        "height": 0
-      },
-      "1-10-LINK": {
-        "id": "",
-        "top": 0,
-        "bottom": 0,
-        "left": 0,
-        "right": 0,
-        "width": 0,
-        "height": 0
-      },
-      "1-11-LINK": {
-        "id": "",
-        "top": 0,
-        "bottom": 0,
-        "left": 0,
-        "right": 0,
-        "width": 0,
-        "height": 0
-      },
-      "1-12-META": {
-        "id": "",
-        "top": 0,
-        "bottom": 0,
-        "left": 0,
-        "right": 0,
-        "width": 0,
-        "height": 0
-      },
-      "1-13-META": {
-        "id": "",
-        "top": 0,
-        "bottom": 0,
-        "left": 0,
-        "right": 0,
-        "width": 0,
-        "height": 0
-      },
-      "1-14-META": {
-        "id": "",
-        "top": 0,
-        "bottom": 0,
-        "left": 0,
-        "right": 0,
-        "width": 0,
-        "height": 0
-      }
-    }
-  },
   "timing": {
     "entries": [
       {
-        "startTime": 1380.15,
+        "startTime": 1450.72,
         "name": "lh:config",
-        "duration": 470.87,
+        "duration": 490.32,
         "entryType": "measure"
       },
       {
-        "startTime": 1381.33,
+        "startTime": 1452.06,
         "name": "lh:config:resolveArtifactsToDefns",
-        "duration": 37.11,
+        "duration": 46.05,
         "entryType": "measure"
       },
       {
-        "startTime": 1851.14,
+        "startTime": 1941.15,
         "name": "lh:runner:gather",
-        "duration": 5362.17,
+        "duration": 3869.24,
         "entryType": "measure"
       },
       {
-        "startTime": 1898.77,
+        "startTime": 1995.85,
         "name": "lh:driver:connect",
-        "duration": 5.29,
+        "duration": 6.46,
         "entryType": "measure"
       },
       {
-        "startTime": 1904.25,
+        "startTime": 2002.53,
         "name": "lh:driver:navigate",
-        "duration": 4.17,
+        "duration": 4.68,
         "entryType": "measure"
       },
       {
-        "startTime": 1908.66,
+        "startTime": 2007.47,
         "name": "lh:gather:getBenchmarkIndex",
-        "duration": 1003.24,
+        "duration": 1003.01,
         "entryType": "measure"
       },
       {
-        "startTime": 2912.03,
+        "startTime": 3010.66,
         "name": "lh:gather:getVersion",
-        "duration": 0.91,
+        "duration": 0.69,
         "entryType": "measure"
       },
       {
-        "startTime": 2913.03,
+        "startTime": 3011.41,
         "name": "lh:gather:getDevicePixelRatio",
-        "duration": 1.15,
+        "duration": 0.88,
         "entryType": "measure"
       },
       {
-        "startTime": 2914.8,
+        "startTime": 3012.94,
         "name": "lh:prepare:navigationMode",
-        "duration": 17.17,
+        "duration": 17.25,
         "entryType": "measure"
       },
       {
-        "startTime": 2915.55,
+        "startTime": 3013.67,
         "name": "lh:gather:getVersion",
-        "duration": 0.42,
+        "duration": 0.43,
         "entryType": "measure"
       },
       {
-        "startTime": 2930.35,
+        "startTime": 3028.49,
         "name": "lh:gather:prepareThrottlingAndNetwork",
-        "duration": 1.57,
+        "duration": 1.67,
         "entryType": "measure"
       },
       {
-        "startTime": 2936.02,
+        "startTime": 3034.99,
         "name": "lh:driver:navigate",
-        "duration": 2993.82,
+        "duration": 2761.46,
         "entryType": "measure"
       },
       {
-        "startTime": 5932.47,
+        "startTime": 5798.7,
         "name": "lh:computed:NetworkRecords",
-        "duration": 1.53,
+        "duration": 0.45,
         "entryType": "measure"
       },
       {
-        "startTime": 5934.48,
-        "name": "lh:gather:getArtifact:DevtoolsLog",
-        "duration": 0.03,
-        "entryType": "measure"
-      },
-      {
-        "startTime": 5934.52,
-        "name": "lh:gather:getArtifact:Accessibility",
-        "duration": 126.1,
-        "entryType": "measure"
-      },
-      {
-        "startTime": 6060.65,
-        "name": "lh:gather:getArtifact:AnchorElements",
-        "duration": 7.57,
-        "entryType": "measure"
-      },
-      {
-        "startTime": 6068.32,
-        "name": "lh:gather:getArtifact:LinkElements",
-        "duration": 2.68,
-        "entryType": "measure"
-      },
-      {
-        "startTime": 6070.82,
-        "name": "lh:computed:MainResource",
-        "duration": 0.16,
-        "entryType": "measure"
-      },
-      {
-        "startTime": 6071.01,
-        "name": "lh:gather:getArtifact:MetaElements",
-        "duration": 1.93,
-        "entryType": "measure"
-      },
-      {
-        "startTime": 6072.97,
-        "name": "lh:gather:getArtifact:NetworkUserAgent",
-        "duration": 0.06,
-        "entryType": "measure"
-      },
-      {
-        "startTime": 6073.04,
-        "name": "lh:gather:getArtifact:RobotsTxt",
-        "duration": 4.22,
-        "entryType": "measure"
-      },
-      {
-        "startTime": 6077.28,
-        "name": "lh:gather:getArtifact:Stacks",
-        "duration": 9.27,
-        "entryType": "measure"
-      },
-      {
-        "startTime": 6077.38,
-        "name": "lh:gather:collectStacks",
-        "duration": 9.14,
-        "entryType": "measure"
-      },
-      {
-        "startTime": 6086.57,
-        "name": "lh:gather:getArtifact:FullPageScreenshot",
-        "duration": 1114.18,
-        "entryType": "measure"
-      },
-      {
-        "startTime": 7197.43,
-        "name": "lh:gather:getVersion",
-        "duration": 0.79,
-        "entryType": "measure"
-      },
-      {
-        "startTime": 7213.62,
+        "startTime": 5810.66,
         "name": "lh:runner:audit",
-        "duration": 28.27,
+        "duration": 13.6,
         "entryType": "measure"
       },
       {
-        "startTime": 7213.72,
+        "startTime": 5810.76,
         "name": "lh:runner:auditing",
-        "duration": 27.89,
+        "duration": 13.22,
         "entryType": "measure"
       },
       {
-        "startTime": 7215.38,
+        "startTime": 5811.42,
         "name": "lh:audit:document-title",
-        "duration": 9.82,
+        "duration": 1.32,
         "entryType": "measure"
       },
       {
-        "startTime": 7225.71,
+        "startTime": 5813.08,
         "name": "lh:audit:image-alt",
-        "duration": 4.94,
+        "duration": 0.88,
         "entryType": "measure"
       },
       {
-        "startTime": 7231,
+        "startTime": 5814.27,
         "name": "lh:audit:meta-description",
-        "duration": 1.06,
+        "duration": 0.93,
         "entryType": "measure"
       },
       {
-        "startTime": 7232.42,
+        "startTime": 5815.5,
         "name": "lh:audit:http-status-code",
-        "duration": 1.09,
+        "duration": 0.78,
         "entryType": "measure"
       },
       {
-        "startTime": 7233.81,
+        "startTime": 5816.57,
         "name": "lh:audit:link-text",
+        "duration": 0.84,
+        "entryType": "measure"
+      },
+      {
+        "startTime": 5817.74,
+        "name": "lh:audit:crawlable-anchors",
+        "duration": 0.89,
+        "entryType": "measure"
+      },
+      {
+        "startTime": 5818.98,
+        "name": "lh:audit:is-crawlable",
         "duration": 0.85,
         "entryType": "measure"
       },
       {
-        "startTime": 7234.9,
-        "name": "lh:audit:crawlable-anchors",
-        "duration": 0.91,
-        "entryType": "measure"
-      },
-      {
-        "startTime": 7236.05,
-        "name": "lh:audit:is-crawlable",
-        "duration": 1.7,
-        "entryType": "measure"
-      },
-      {
-        "startTime": 7237.98,
+        "startTime": 5820.13,
         "name": "lh:audit:robots-txt",
-        "duration": 0.94,
+        "duration": 0.82,
         "entryType": "measure"
       },
       {
-        "startTime": 7239.14,
+        "startTime": 5821.27,
         "name": "lh:audit:hreflang",
-        "duration": 0.75,
+        "duration": 0.82,
         "entryType": "measure"
       },
       {
-        "startTime": 7240.14,
+        "startTime": 5822.38,
         "name": "lh:audit:canonical",
-        "duration": 0.83,
+        "duration": 0.95,
         "entryType": "measure"
       },
       {
-        "startTime": 7241.14,
+        "startTime": 5823.52,
         "name": "lh:audit:structured-data",
-        "duration": 0.46,
+        "duration": 0.45,
         "entryType": "measure"
       },
       {
-        "startTime": 7241.62,
+        "startTime": 5824,
         "name": "lh:runner:generate",
-        "duration": 0.26,
-        "entryType": "measure"
-      },
-      {
-        "startTime": 7242.19,
-        "name": "lh:computed:EntityClassification",
-        "duration": 1.19,
+        "duration": 0.25,
         "entryType": "measure"
       }
     ],
-    "total": 5390.4400000000005
+    "total": 3882.8399999999997
   },
   "i18n": {
     "rendererFormattedStrings": {
@@ -856,14 +551,100 @@
       "warningHeader": "Warnings: "
     },
     "icuMessagePaths": {
+      "core/lib/lh-error.js | pageLoadFailedInterstitial": [
+        {
+          "values": {
+            "errorCode": "CHROME_INTERSTITIAL_ERROR"
+          },
+          "path": "runtimeError.message"
+        },
+        {
+          "values": {
+            "errorCode": "CHROME_INTERSTITIAL_ERROR"
+          },
+          "path": "runWarnings[1]"
+        },
+        {
+          "values": {
+            "errorCode": "CHROME_INTERSTITIAL_ERROR"
+          },
+          "path": "audits[document-title].errorMessage"
+        },
+        {
+          "values": {
+            "errorCode": "CHROME_INTERSTITIAL_ERROR"
+          },
+          "path": "audits[image-alt].errorMessage"
+        },
+        {
+          "values": {
+            "errorCode": "CHROME_INTERSTITIAL_ERROR"
+          },
+          "path": "audits[meta-description].errorMessage"
+        },
+        {
+          "values": {
+            "errorCode": "CHROME_INTERSTITIAL_ERROR"
+          },
+          "path": "audits[http-status-code].errorMessage"
+        },
+        {
+          "values": {
+            "errorCode": "CHROME_INTERSTITIAL_ERROR"
+          },
+          "path": "audits[link-text].errorMessage"
+        },
+        {
+          "values": {
+            "errorCode": "CHROME_INTERSTITIAL_ERROR"
+          },
+          "path": "audits[crawlable-anchors].errorMessage"
+        },
+        {
+          "values": {
+            "errorCode": "CHROME_INTERSTITIAL_ERROR"
+          },
+          "path": "audits[is-crawlable].errorMessage"
+        },
+        {
+          "values": {
+            "errorCode": "CHROME_INTERSTITIAL_ERROR"
+          },
+          "path": "audits[robots-txt].errorMessage"
+        },
+        {
+          "values": {
+            "errorCode": "CHROME_INTERSTITIAL_ERROR"
+          },
+          "path": "audits.hreflang.errorMessage"
+        },
+        {
+          "values": {
+            "errorCode": "CHROME_INTERSTITIAL_ERROR"
+          },
+          "path": "audits.canonical.errorMessage"
+        },
+        {
+          "values": {
+            "errorCode": "CHROME_INTERSTITIAL_ERROR"
+          },
+          "path": "audits[structured-data].errorMessage"
+        }
+      ],
+      "core/gather/driver/navigation.js | warningRedirected": [
+        {
+          "values": {
+            "requested": "http://localhost:4173/main-site/",
+            "final": "chrome-error://chromewebdata/"
+          },
+          "path": "runWarnings[0]"
+        }
+      ],
       "core/audits/accessibility/document-title.js | title": [
         "audits[document-title].title"
       ],
       "core/audits/accessibility/document-title.js | description": [
         "audits[document-title].description"
-      ],
-      "core/lib/i18n/i18n.js | columnFailingElem": [
-        "audits[document-title].details.headings[0].label"
       ],
       "core/audits/accessibility/image-alt.js | title": [
         "audits[image-alt].title"
@@ -894,9 +675,6 @@
       ],
       "core/audits/seo/crawlable-anchors.js | description": [
         "audits[crawlable-anchors].description"
-      ],
-      "core/audits/seo/crawlable-anchors.js | columnFailingLink": [
-        "audits[crawlable-anchors].details.headings[0].label"
       ],
       "core/audits/seo/is-crawlable.js | title": [
         "audits[is-crawlable].title"

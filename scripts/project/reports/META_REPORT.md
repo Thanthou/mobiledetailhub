@@ -1,79 +1,127 @@
 # META REPORT
-Generated: 2025-10-19T09:56:22.219Z
+Generated: 2025-10-21T09:46:51.684Z
 Node: v24.3.0
 Reports: consolidated to ≤10 files
 
 ## .CURSORRULES SNAPSHOT
 {
-  "name": "That Smart Site - Cursor Rules",
-  "purpose": "Multi-tenant, white-label website generator for industry-specific local services (mobile detailing, maid service, lawn care, pet grooming, barber shops). Launch fast, conversion-focused sites per tenant with SEO/location pages, booking hooks, and review integrations — all from one shared codebase.",
-  "description": "Feature-first architecture. Strong TS + linting discipline. Clear import boundaries. Clean UI with Tailwind + shadcn/ui.",
-  "priorities": [
-    "Clean, modular TypeScript (feature-first; components/ui only, side-effects in hooks, pure utils, isolated types)",
-    "Multi-tenant config: per-tenant JSON, location pages, industry presets, theme tokens",
-    "Reuse and composability across industries without copy-paste (shared primitives + industry adapters)",
-    "Strict linting/formatting, testable units, and clear boundaries (no business logic in presentational components)",
-    "SEO scaffolding: city/service pages, JSON-LD, meta helpers; GBP/reviews integration",
-    "Performance + accessibility defaults (image pipelines, srcset, lazy/priority rules, a11y checks)",
-    "Easy onboarding flows and preview links for prospects"
+  "version": 2,
+  "metadata": {
+    "project": "That Smart Site (Multi-Tenant SaaS)",
+    "description": "That Smart Site is a white-label SaaS platform that generates websites for local service businesses (detailing, lawn care, maid service, pet grooming, etc.). Each tenant gets their own live subdomain site, managed via a multi-app frontend (main-site, tenant-app, admin-app) and Node.js/Express backend. The goal is modularity, maintainability, and automated provisioning at scale.",
+    "architecture": "frontend (3 separate React apps) + backend (Express + PostgreSQL, multi-tenant schemas)",
+    "philosophy": [
+      "Code should be clean, predictable, and testable.",
+      "Each app must remain independent yet interoperable through shared modules.",
+      "Side effects live in hooks or services; pure logic lives in utils.",
+      "Frontend apps follow feature-first structure with strict import boundaries.",
+      "Automation scripts (audits, deploys, etc.) follow consistent doc and output structure."
+    ]
+  },
+
+  "structure": {
+    "frontend": {
+      "apps": [
+        {
+          "name": "main-site",
+          "purpose": "Public marketing + onboarding app. Handles signup, pricing, and tenant provisioning.",
+          "entry": "frontend/src/main-site/MainSiteApp.tsx"
+        },
+        {
+          "name": "tenant-app",
+          "purpose": "Live tenant website for clients. Loads dynamic content and booking flows per subdomain.",
+          "entry": "frontend/src/tenant-app/TenantApp.tsx"
+        },
+        {
+          "name": "admin-app",
+          "purpose": "Dashboard for tenants to manage sites, analytics, and SEO health.",
+          "entry": "frontend/src/admin-app/AdminApp.tsx"
+        }
+      ],
+      "shared": "frontend/src/shared/",
+      "bootstrap": "frontend/src/bootstrap/",
+      "rules": [
+        {
+          "pattern": "frontend/src/(main-site|tenant-app|admin-app)/**",
+          "mustImportFrom": [
+            "frontend/src/shared/**",
+            "frontend/src/bootstrap/**"
+          ],
+          "forbidImportsFrom": [
+            "frontend/src/(main-site|tenant-app|admin-app)/**"
+          ],
+          "rationale": "Apps may depend on shared or bootstrap layers, but never import from each other."
+        },
+        {
+          "pattern": "frontend/src/shared/**",
+          "forbidImportsFrom": [
+            "frontend/src/(main-site|tenant-app|admin-app)/**"
+          ],
+          "rationale": "Shared layer must remain pure and reusable."
+        },
+        {
+          "pattern": "frontend/src/bootstrap/**",
+          "forbidImportsFrom": [
+            "frontend/src/(main-site|tenant-app|admin-app)/**"
+          ],
+          "rationale": "Bootstrap layer initializes contexts and shells, not app-specific logic."
+        }
+      ]
+    },
+
+    "backend": {
+      "base": "backend/",
+      "rules": [
+        {
+          "pattern": "backend/controllers/**",
+          "mustImportFrom": [
+            "backend/services/**",
+            "backend/middleware/**"
+          ],
+          "rationale": "Controllers should orchestrate, not contain business logic."
+        },
+        {
+          "pattern": "backend/services/**",
+          "forbidImportsFrom": [
+            "backend/controllers/**"
+          ],
+          "rationale": "Services provide reusable logic and data access, independent of route handling."
+        },
+        {
+          "pattern": "backend/middleware/**",
+          "rationale": "Middleware handles authentication, tenants, validation, and logging. Should not call controllers directly."
+        }
+      ]
+    },
+
+    "scripts": {
+      "base": "scripts/",
+      "rules": [
+        {
+          "pattern": "scripts/audits/**",
+          "purpose": "Automated health and SEO audits. Must output reports to docs/audits."
+        },
+        {
+          "pattern": "scripts/devtools/**",
+          "purpose": "Developer utilities (lint, fixers, metrics, snapshot generation). No runtime dependencies."
+        },
+        {
+          "pattern": "scripts/automation/**",
+          "purpose": "Deployment and cron jobs. Should log clearly and write to docs/logs."
+        }
+      ]
+    }
+  },
+
+  "frontend_philosophy": [
+    "Use React + TypeScript exclusively; keep components small, pure, and composable.",
+    "Hooks handle all side effects; utils remain pure functions.",
+    "UI components go in shared/ui with Tailwind and shadcn conventions.",
+    "Each app entrypoint (AdminApp, TenantApp, MainSiteApp) owns its own routing, layout, and providers.",
+    "Global state uses Zustand or Context Providers; never cross app boundaries."
   ],
-  "rules": [
-    {
-      "pattern": "**/*",
-      "instructions": [
-        "Architecture: feature-first. Each domain lives under frontend/src/features/<domain>/{components,hooks,api,state,types,pages,utils}.",
-        "Boundaries: code inside one feature must NOT import from another feature directly. Only allowed paths are '@/features/<same-domain>/**' and '@/shared/**'. If a cross-feature need arises, extract to '@/shared/**'.",
-        "Exports: prefer named exports. Only 'default export' allowed for top-level page components or small wrapper components.",
-        "Types: keep Typescript strict. Avoid 'any', prefer zod schemas at boundaries. Co-locate types with the feature in 'types/'.",
-        "State: use Zustand stores in 'state/'. Keep stores minimal; side-effects live in hooks.",
-        "Hooks: data-fetching hooks use React Query under 'hooks/'. Query keys are namespaced by feature, e.g. ['affiliate','bySlug',slug].",
-        "API layer: feature-local clients in 'api/'. No direct fetch in components. Centralize endpoints & DTO mapping here.",
-        "UI: presentational components in 'components/'. Pure, no side-effects. Style with Tailwind; prefer shadcn/ui primitives.",
-        "Utils: put pure helpers in 'utils/'. No IO, no DOM. Tested in isolation.",
-        "Routing: pages go in 'pages/'. Pages compose feature components; avoid business logic in pages.",
-        "Accessibility: follow jsx-a11y. Interactive elements use buttons/links properly. Labels on inputs.",
-        "Testing: vitest + @testing-library/react. Tests live next to files or under __tests__ per feature.",
-        "Filesize: split long components. If a file >200 lines or a component has >3 responsibilities, extract.",
-        "Naming: components PascalCase, hooks start with use*, stores end with Store, types end with .types.ts, schema .schema.ts, API clients .api.ts.",
-        "Imports: use path alias '@/'. Avoid relative traversals like '../../../'. Barrel files are allowed only inside a feature.",
-        "CSS: Tailwind only; avoid ad-hoc inline styles except dynamic calculations.",
-        "Lint: fix eslint warnings unless explicitly documented with a comment.",
-        "Comments: add a top-of-file comment block when logic is non-trivial (why > what)."
-      ]
-    },
-    {
-      "pattern": "frontend/src/features/**/components/**/*.{ts,tsx}",
-      "instructions": [
-        "Components must be pure and stateless except for local UI state.",
-        "No fetch, no direct API calls here; get data via props or feature hooks.",
-        "Tailwind classes only; keep classNames short and readable. Extract reusable styles into small components."
-      ]
-    },
-    {
-      "pattern": "frontend/src/features/**/hooks/**/*.{ts,tsx}",
-      "instructions": [
-        "Encapsulate side-effects (fetching, subscriptions, timers).",
-        "Use React Query for server cache; include robust error/loading states.",
-        "All hooks must be testable; inject API clients when helpful."
-      ]
-    },
-    {
-      "pattern": "frontend/src/features/**/api/**/*.{ts,tsx}",
-      "instructions": [
-        "Single responsibility: HTTP calls + data mapping.",
-        "Zod-validate external data at the boundary; return typed objects.",
-        "No UI imports, no DOM usage."
-      ]
-    },
-    {
-      "pattern": "frontend/src/features/**/state/**/*.{ts,tsx}",
-      "instructions": [
-        "Use Zustand create() with explicit types.",
-        "No async side-effects inside the store; put them in hooks that update store."
-      ]
-    },
-    {
-      "pattern": "frontend/src/shared/**/*",
-      "instructions": [
-        "Shared is the ONLY place cross-feature code may live.",
-        "Keep share
+
+  "backend_philosophy": [
+    "Express routes are grouped by feature domain (auth, tenants, payments, SEO).",
+    "Each route → controller → service → database chain must remain unidirectional.",
+    "withTenant and tenantResolver handle schema routing at

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { ServiceCardProps } from '@/tenant-app/components/services/types/service.types';
+import { ServiceCardProps } from '@tenant-app/components/services/types/service.types';
 
 const ServiceCard: React.FC<ServiceCardProps> = ({ 
   service, 

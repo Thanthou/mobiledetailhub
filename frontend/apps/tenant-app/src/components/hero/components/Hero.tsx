@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useHeroContent } from '@/tenant-app/components/hero/hooks/useHeroContent';
+import { useHeroContent } from '@tenant-app/components/hero/hooks/useHeroContent';
 import { BREAKPOINTS, useMediaQuery } from '@shared/hooks';
 
 import ContentContainer from './ContentContainer';

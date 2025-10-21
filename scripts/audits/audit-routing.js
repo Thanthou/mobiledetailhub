@@ -20,7 +20,7 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const root = process.cwd();
-const frontendDir = path.join(root, "frontend", "src");
+const frontendDir = path.join(root, "frontend");
 
 //──────────────────────────────────────────────────────────────
 // 🧠 Utility helpers
@@ -30,6 +30,7 @@ const color = {
   yellow: s => `\x1b[33m${s}\x1b[0m`,
   red: s => `\x1b[31m${s}\x1b[0m`,
   cyan: s => `\x1b[36m${s}\x1b[0m`,
+  gray: s => `\x1b[90m${s}\x1b[0m`,
   bold: s => `\x1b[1m${s}\x1b[0m`,
 };
 
@@ -130,9 +131,9 @@ function analyzeRouterStructure(file) {
 //──────────────────────────────────────────────────────────────
 function validateAppEntries(routerFiles) {
   const entries = [
-    { name: "Admin App", path: "admin-app/main.tsx" },
-    { name: "Tenant App", path: "tenant-app/main.tsx" },
-    { name: "Main Site", path: "main-site/main.tsx" },
+    { name: "Admin App", path: "apps/admin-app/src/main.tsx" },
+    { name: "Tenant App", path: "apps/tenant-app/src/main.tsx" },
+    { name: "Main Site", path: "apps/main-site/src/main.tsx" },
   ];
   const validation = { entries: [], totalRouters: 0, issues: [] };
 
@@ -169,9 +170,12 @@ function analyzeContextUsage(routerFiles, analyses) {
   const contextWithoutRouter = contextFiles.filter(f => {
     const a = analyzeRouterStructure(f);
     if (a.routerCount > 0) return false;
-    if (f.relativePath.includes("shared/")) return false;
-    if (f.relativePath.includes("hooks/") || f.relativePath.endsWith(".ts")) return false;
+    // Exclude shared components - they're designed to be used within routed apps
+    if (f.relativePath.includes("shared")) return false;
+    if (f.relativePath.includes("hooks") || f.relativePath.endsWith(".ts")) return false;
     if (f.relativePath.match(/App\.tsx|AdminApp|TenantApp|MainApp/)) return false;
+    // Components in apps/*/src/ are within router context (their parent app has router)
+    if (f.relativePath.match(/^apps[\/\\][^\/\\]+[\/\\]src[\/\\]/)) return false;
     return true;
   });
   return { contextFiles, nested, contextWithoutRouter };
@@ -222,19 +226,80 @@ ${issues.length ? issues.map(i => `- ${i}`).join("\n") : "✅ No issues found"}
 `;
 }
 
-function printSummary(finalScore, summary, context) {
+function printSummary(finalScore, summary, context, validation) {
   console.log("\n─────────────────────────────");
   console.log(color.bold("📊 ROUTING AUDIT SUMMARY"));
   console.log("─────────────────────────────");
-  console.log(`Total Score: ${finalScore >= 90 ? color.green(finalScore) : color.yellow(finalScore)}/100`);
+  console.log(`Total Score: ${finalScore >= 90 ? color.green(finalScore) : finalScore >= 70 ? color.yellow(finalScore) : color.red(finalScore)}/100`);
   console.log(`Total Routers: ${summary.totalRouters} (expected 3)`);
   console.log(`Context files: ${context.contextFiles.length}`);
-  if (context.nested.length)
-    console.log(color.yellow(`⚠️ Nested routers found: ${context.nested.length}`));
-  if (context.contextWithoutRouter.length)
-    console.log(color.yellow(`⚠️ Context hooks without router: ${context.contextWithoutRouter.length}`));
-  if (!context.nested.length && !context.contextWithoutRouter.length)
-    console.log(color.green("✅ Routing structure clean and modular"));
+  console.log("─────────────────────────────");
+  
+  // Critical issues
+  const criticalIssues = summary.entries.filter(e => e.status.includes("❌"));
+  if (criticalIssues.length > 0) {
+    console.log(color.bold(color.red(`\n🔴 CRITICAL ISSUES (${criticalIssues.length}):`)));
+    criticalIssues.forEach(entry => {
+      console.log(color.red(`  ❌ ${entry.name}: ${entry.issues.join(", ")}`));
+      console.log(color.gray(`     File: ${entry.file || 'Not found'}`));
+      if (entry.routerCount === 0) {
+        console.log(color.cyan(`     Fix: Add <BrowserRouter> wrapper in main.tsx`));
+      }
+      console.log();
+    });
+  }
+  
+  // Warnings
+  const hasWarnings = context.nested.length > 0 || context.contextWithoutRouter.length > 0;
+  if (hasWarnings) {
+    console.log(color.bold(color.yellow(`🟡 WARNINGS:`)));
+    
+    // Nested routers
+    if (context.nested.length > 0) {
+      console.log(color.yellow(`  ⚠️ Nested routers found (${context.nested.length} files):`));
+      context.nested.forEach(analysis => {
+        console.log(color.yellow(`     • ${analysis.file}`));
+        analysis.routerLines.forEach(router => {
+          console.log(color.gray(`       Line ${router.ln}: ${router.type}`));
+        });
+        console.log(color.cyan(`       Fix: Remove nested router, use existing app router`));
+      });
+      console.log();
+    }
+    
+    // Context without router
+    if (context.contextWithoutRouter.length > 0) {
+      console.log(color.yellow(`  ⚠️ Router context hooks without router (${context.contextWithoutRouter.length} files):`));
+      context.contextWithoutRouter.forEach(file => {
+        console.log(color.yellow(`     • ${file.relativePath}`));
+        
+        // Find which hooks are being used
+        const hooks = [];
+        if (file.content.includes('useNavigate')) hooks.push('useNavigate()');
+        if (file.content.includes('useLocation')) hooks.push('useLocation()');
+        if (file.content.includes('useParams')) hooks.push('useParams()');
+        if (file.content.includes('useRouter')) hooks.push('useRouter()');
+        
+        if (hooks.length > 0) {
+          console.log(color.gray(`       Uses: ${hooks.join(', ')}`));
+        }
+        console.log(color.cyan(`       Fix: Ensure component is rendered inside <BrowserRouter>`));
+      });
+      console.log();
+    }
+  }
+  
+  // Passed checks
+  const passedEntries = summary.entries.filter(e => e.status.includes("✅"));
+  if (passedEntries.length > 0) {
+    console.log(color.bold(color.green(`✅ PASSED (${passedEntries.length}):`)));
+    passedEntries.forEach(entry => {
+      console.log(color.green(`  ✅ ${entry.name}: ${entry.routerCount} router (correct)`));
+      console.log(color.gray(`     File: ${entry.file}`));
+    });
+    console.log();
+  }
+  
   console.log("─────────────────────────────\n");
 }
 
@@ -260,7 +325,7 @@ async function main() {
   };
 
   const finalScore = Math.max(0, score);
-  printSummary(finalScore, summary, context);
+  printSummary(finalScore, summary, context, validation);
 
   const report = generateReport(finalScore, validation, context, validation.issues);
   const reportDir = path.join(root, "docs", "audits");

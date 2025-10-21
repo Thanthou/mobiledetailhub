@@ -1,29 +1,30 @@
 # Performance Audit
-Generated: 2025-10-19T09:35:52.720Z
+Generated: 2025-10-21T09:48:46.984Z
 
-## 📊 Performance Score: 100/100
+## 📊 Performance Score: 90/100
 🟢 Excellent
 
 ## 🛣️ Routes
-- Total: 25
-- Lazy: 18
-- Eager: 7
+- Total: 2
+- Lazy: 0
+- Eager: 2
 
 ## 📦 Bundles
-- Count: 69
-- Total Size: 1.73MB
-- Large Bundles (>500KB): 0
+- Count: 286
+- Total Size: 8.92MB
+- Large Bundles (>500KB): 2
 
 ## 🧩 Components
-- Total: 643
-- Large (200+ lines): 68
-- Warnings (500+): 3
+- Total: 241
+- Large (200+ lines): 28
+- Warnings (500+): 1
 - Errors (750+): 0
 
 ## ⚠️ Issues
-✅ No issues found
+- 🔴 2 bundles exceed 500KB
 
 ## 📝 Recommendations
+- Use dynamic imports and lazy loading for large chunks
 
 
 

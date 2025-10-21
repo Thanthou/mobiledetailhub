@@ -7,13 +7,13 @@
 
 import React, { useState } from 'react';
 
-import { FAQ } from '@/tenant-app/components/faq';
-import { Gallery } from '@/tenant-app/components/gallery';
-import { Header } from '@/tenant-app/components/header';
-import { Hero } from '@/tenant-app/components/hero';
-import { LazyRequestQuoteModal } from '@/tenant-app/components/quotes';
-import { Reviews } from '@/tenant-app/components/reviews';
-import { ServicesGrid } from '@/tenant-app/components/services';
+import { FAQ } from '@tenant-app/components/faq';
+import { Gallery } from '@tenant-app/components/gallery';
+import { Header } from '@tenant-app/components/header';
+import { Hero } from '@tenant-app/components/hero';
+import { LazyRequestQuoteModal } from '@tenant-app/components/quotes';
+import { Reviews } from '@tenant-app/components/reviews';
+import { ServicesGrid } from '@tenant-app/components/services';
 import { useBrowserTab, useIsDesktop, useScrollSpy } from '@shared/hooks';
 import { SeoHead } from '@shared/seo';
 import type { SectionId } from '@shared/state/sectionStore';

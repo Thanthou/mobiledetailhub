@@ -1,7 +1,7 @@
 import React from 'react';
 
-import type { DashboardTab } from '@/tenant-app/components/tenantDashboard/types';
-import { DASHBOARD_TABS } from '@/tenant-app/components/tenantDashboard/utils/constants';
+import type { DashboardTab } from '@tenant-app/components/tenantDashboard/types';
+import { DASHBOARD_TABS } from '@tenant-app/components/tenantDashboard/utils/constants';
 
 import { getTabConfig } from '../config/tabConfig';
 

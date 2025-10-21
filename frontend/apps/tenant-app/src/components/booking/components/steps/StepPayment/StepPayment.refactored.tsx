@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { usePaymentData, usePaymentForm } from '@/tenant-app/components/booking/hooks';
-import { useBookingPayment } from '@/tenant-app/components/booking/state';
+import { usePaymentData, usePaymentForm } from '@tenant-app/components/booking/hooks';
+import { useBookingPayment } from '@tenant-app/components/booking/state';
 
 import { PaymentOption } from '../../payment/PaymentOption';
 import { PaymentSummary, PaymentTabs, SummarySection, VehicleSection } from './components';

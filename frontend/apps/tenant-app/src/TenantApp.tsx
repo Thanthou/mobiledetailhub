@@ -3,10 +3,10 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { useRouterDebug } from '@shared/useRouterDebug';
 import { registerModalImporter, inPreviewMode } from '@shared/utils';
 
-import { TenantPage } from '@/tenant-app/components/header';
-import { LazyRequestQuoteModal } from '@/tenant-app/components/quotes';
-import { DashboardPage } from '@/tenant-app/components/tenantDashboard';
-import TenantApplicationPage from '@/admin-app/components/tenantOnboarding/components/TenantApplicationPage';
+import { TenantPage } from '@tenant-app/components/header';
+import { LazyRequestQuoteModal } from '@tenant-app/components/quotes';
+import { DashboardPage } from '@tenant-app/components/tenantDashboard';
+import TenantApplicationPage from '@admin-app/components/tenantOnboarding/components/TenantApplicationPage';
 import { LoginPage, ProtectedRoute } from '@shared/ui';
 import { SEOManager } from '@shared/bootstrap';
 
@@ -114,7 +114,7 @@ export default function TenantApp() {
     if (isPreview) return;
     
     registerModalImporter('quote', () => 
-      import('@/tenant-app/components/quotes/components/RequestQuoteModal') as Promise<{ default: React.ComponentType<unknown> }>
+      import('@tenant-app/components/quotes/components/RequestQuoteModal') as Promise<{ default: React.ComponentType<unknown> }>
     );
     registerModalImporter('login', () => 
       import('@shared/auth/components/LoginModal') as Promise<{ default: React.ComponentType<unknown> }>

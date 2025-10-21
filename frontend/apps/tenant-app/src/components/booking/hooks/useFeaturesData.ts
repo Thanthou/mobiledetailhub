@@ -48,19 +48,19 @@ const loadFeaturesData = async (vehicleType: string, category?: string, itemType
     // TODO: Make this industry-agnostic by using DataContext to get industry
     switch (folderName) {
       case 'cars':
-        featuresModule = await import('@/data/mobile-detailing/pricing/cars/service/features.json') as ImportedFeaturesModule;
+        featuresModule = await import('@data/mobile-detailing/pricing/cars/service/features.json') as ImportedFeaturesModule;
         break;
       case 'trucks':
-        featuresModule = await import('@/data/mobile-detailing/pricing/trucks/service/features.json') as ImportedFeaturesModule;
+        featuresModule = await import('@data/mobile-detailing/pricing/trucks/service/features.json') as ImportedFeaturesModule;
         break;
       case 'suvs':
-        featuresModule = await import('@/data/mobile-detailing/pricing/suvs/service/features.json') as ImportedFeaturesModule;
+        featuresModule = await import('@data/mobile-detailing/pricing/suvs/service/features.json') as ImportedFeaturesModule;
         break;
       case 'rvs':
-        featuresModule = await import('@/data/mobile-detailing/pricing/rvs/service/features.json') as ImportedFeaturesModule;
+        featuresModule = await import('@data/mobile-detailing/pricing/rvs/service/features.json') as ImportedFeaturesModule;
         break;
       case 'boats':
-        featuresModule = await import('@/data/mobile-detailing/pricing/boats/service/features.json') as ImportedFeaturesModule;
+        featuresModule = await import('@data/mobile-detailing/pricing/boats/service/features.json') as ImportedFeaturesModule;
         break;
     }
   } else {
@@ -70,48 +70,48 @@ const loadFeaturesData = async (vehicleType: string, category?: string, itemType
       case 'cars':
         switch (category) {
           case 'windows':
-            featuresModule = await import('@/data/mobile-detailing/pricing/cars/addons/windows/features.json') as ImportedFeaturesModule;
+            featuresModule = await import('@data/mobile-detailing/pricing/cars/addons/windows/features.json') as ImportedFeaturesModule;
             break;
           case 'wheels':
-            featuresModule = await import('@/data/mobile-detailing/pricing/cars/addons/wheels/features.json') as ImportedFeaturesModule;
+            featuresModule = await import('@data/mobile-detailing/pricing/cars/addons/wheels/features.json') as ImportedFeaturesModule;
             break;
           case 'trim':
-            featuresModule = await import('@/data/mobile-detailing/pricing/cars/addons/trim/features.json') as ImportedFeaturesModule;
+            featuresModule = await import('@data/mobile-detailing/pricing/cars/addons/trim/features.json') as ImportedFeaturesModule;
             break;
           case 'engine':
-            featuresModule = await import('@/data/mobile-detailing/pricing/cars/addons/engine/features.json') as ImportedFeaturesModule;
+            featuresModule = await import('@data/mobile-detailing/pricing/cars/addons/engine/features.json') as ImportedFeaturesModule;
             break;
         }
         break;
       case 'trucks':
         switch (category) {
           case 'windows':
-            featuresModule = await import('@/data/mobile-detailing/pricing/trucks/addons/windows/features.json') as ImportedFeaturesModule;
+            featuresModule = await import('@data/mobile-detailing/pricing/trucks/addons/windows/features.json') as ImportedFeaturesModule;
             break;
           case 'wheels':
-            featuresModule = await import('@/data/mobile-detailing/pricing/trucks/addons/wheels/features.json') as ImportedFeaturesModule;
+            featuresModule = await import('@data/mobile-detailing/pricing/trucks/addons/wheels/features.json') as ImportedFeaturesModule;
             break;
           case 'trim':
-            featuresModule = await import('@/data/mobile-detailing/pricing/trucks/addons/trim/features.json') as ImportedFeaturesModule;
+            featuresModule = await import('@data/mobile-detailing/pricing/trucks/addons/trim/features.json') as ImportedFeaturesModule;
             break;
           case 'engine':
-            featuresModule = await import('@/data/mobile-detailing/pricing/trucks/addons/engine/features.json') as ImportedFeaturesModule;
+            featuresModule = await import('@data/mobile-detailing/pricing/trucks/addons/engine/features.json') as ImportedFeaturesModule;
             break;
         }
         break;
       case 'suvs':
         switch (category) {
           case 'windows':
-            featuresModule = await import('@/data/mobile-detailing/pricing/suvs/addons/windows/features.json') as ImportedFeaturesModule;
+            featuresModule = await import('@data/mobile-detailing/pricing/suvs/addons/windows/features.json') as ImportedFeaturesModule;
             break;
           case 'wheels':
-            featuresModule = await import('@/data/mobile-detailing/pricing/suvs/addons/wheels/features.json') as ImportedFeaturesModule;
+            featuresModule = await import('@data/mobile-detailing/pricing/suvs/addons/wheels/features.json') as ImportedFeaturesModule;
             break;
           case 'trim':
-            featuresModule = await import('@/data/mobile-detailing/pricing/suvs/addons/trim/features.json') as ImportedFeaturesModule;
+            featuresModule = await import('@data/mobile-detailing/pricing/suvs/addons/trim/features.json') as ImportedFeaturesModule;
             break;
           case 'engine':
-            featuresModule = await import('@/data/mobile-detailing/pricing/suvs/addons/engine/features.json') as ImportedFeaturesModule;
+            featuresModule = await import('@data/mobile-detailing/pricing/suvs/addons/engine/features.json') as ImportedFeaturesModule;
             break;
         }
         break;

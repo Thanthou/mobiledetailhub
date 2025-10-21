@@ -1,6 +1,6 @@
 import React from 'react';
 
-import type { BookingData } from '@/tenant-app/components/booking/state';
+import type { BookingData } from '@tenant-app/components/booking/state';
 
 interface VehicleSectionProps {
   bookingData: BookingData;

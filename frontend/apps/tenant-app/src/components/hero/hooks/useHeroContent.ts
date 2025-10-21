@@ -1,6 +1,6 @@
 import { useWebsiteContent } from '@shared/contexts/WebsiteContentContext';
 import { useIndustrySiteData } from '@shared/hooks/useIndustrySiteData';
-import { usePreviewData } from '@/tenant-app/contexts/PreviewDataProvider';
+import { usePreviewData } from '@tenant-app/contexts/PreviewDataProvider';
 import type { LocationPage } from '@shared/types/location';
 
 interface UseHeroContentReturn {

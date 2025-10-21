@@ -69,22 +69,22 @@ export async function getIndustryTemplate(
     
     switch (industry) {
       case 'mobile-detailing': {
-        const { loadMobileDetailingConfig } = await import('@/data/mobile-detailing');
+        const { loadMobileDetailingConfig } = await import('@data/mobile-detailing');
         config = loadMobileDetailingConfig();
         break;
       }
       case 'pet-grooming': {
-        const { loadPetGroomingConfig } = await import('@/data/pet-grooming');
+        const { loadPetGroomingConfig } = await import('@data/pet-grooming');
         config = await loadPetGroomingConfig();
         break;
       }
       case 'maid-service': {
-        const { loadMaidServiceConfig } = await import('@/data/maid-service');
+        const { loadMaidServiceConfig } = await import('@data/maid-service');
         config = await loadMaidServiceConfig();
         break;
       }
       case 'lawncare': {
-        const { loadLawncareConfig } = await import('@/data/lawncare');
+        const { loadLawncareConfig } = await import('@data/lawncare');
         config = await loadLawncareConfig();
         break;
       }

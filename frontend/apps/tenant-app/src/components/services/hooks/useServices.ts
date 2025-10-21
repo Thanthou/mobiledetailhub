@@ -1,11 +1,11 @@
 import { useNavigate } from 'react-router-dom';
 
-import { Service } from '@/tenant-app/components/services/types/service.types';
+import { Service } from '@tenant-app/components/services/types/service.types';
 import { env } from '@shared/env';
 import { useTenantSlug } from '@shared/hooks/useTenantSlug';
 import type { LocationPage } from '@shared/types/location';
 import { getServiceImageFromLocation } from '@shared/utils/schemaUtils';
-import { usePreviewData } from '@/tenant-app/contexts/PreviewDataProvider';
+import { usePreviewData } from '@tenant-app/contexts/PreviewDataProvider';
 import { useData } from '@shared/hooks';
 
 // Transform config servicesGrid to Service format with location-specific images

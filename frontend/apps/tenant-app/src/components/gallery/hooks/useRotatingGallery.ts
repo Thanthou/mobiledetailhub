@@ -2,7 +2,7 @@ import { useCallback,useEffect, useRef, useState } from 'react';
 
 import { galleryApi } from '../api/gallery.api';
 import { GalleryImage } from '../types';
-import { usePreviewData } from '@/tenant-app/contexts/PreviewDataProvider';
+import { usePreviewData } from '@tenant-app/contexts/PreviewDataProvider';
 
 // Fisher-Yates shuffle algorithm
 function shuffleArray<T>(array: T[]): T[] {

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Menu, X } from 'lucide-react';
 
-import { NAV_LINKS } from '@/tenant-app/components/header/utils/constants';
-import { handleSectionClick } from '@/tenant-app/components/header/utils/navigation';
+import { NAV_LINKS } from '@tenant-app/components/header/utils/constants';
+import { handleSectionClick } from '@tenant-app/components/header/utils/navigation';
 import { useReviewsAvailability } from '@shared/hooks';
 import { getNavId,useSectionStore } from '@shared/state/sectionStore';
 

@@ -1,7 +1,7 @@
 import { useEffect,useState } from 'react';
 
 import { useImageRotation } from '@shared/hooks/useImageRotation';
-import { usePreviewData } from '@/tenant-app/contexts/PreviewDataProvider';
+import { usePreviewData } from '@tenant-app/contexts/PreviewDataProvider';
 
 import type { Review } from '../types';
 

@@ -1,5 +1,5 @@
 # Multi-App SEO Audit Report
-Generated: 2025-10-20T01:04:21.783Z
+Generated: 2025-10-21T10:06:52.313Z
 
 ---
 
@@ -8,7 +8,7 @@ Generated: 2025-10-20T01:04:21.783Z
 
 | Metric | Score | Status |
 |---------|-------|--------|
-| Lighthouse (Average) | NaN | ⚠️ Needs Work |
+| Lighthouse (Average) | 0 | ⚠️ Needs Work |
 | Schema Quality | 10 | ⚠️ Limited |
 | HTML Meta Tags | ✅ Complete | Titles & descriptions found |
 | Static SEO / Analytics | ✅ Present | Helmet, GA, OG, Sitemap, Robots |
@@ -18,26 +18,38 @@ Generated: 2025-10-20T01:04:21.783Z
 
 | App | Score | Description |
 |-----|-------|-------------|
-| **main-site** | N/A/100 | Marketing & Onboarding |
-| **tenant-app** | N/A/100 | Live Tenant Storefronts |
+| **main-site** | 0/100 | Marketing & Onboarding |
+| **tenant-app** | 0/100 | Live Tenant Storefronts |
 
 ---
 
 ## 🔍 Lighthouse SEO — Per-App Results
 
 ### main-site — Marketing & Onboarding
-**Score:** N/A/100 ⚠️ Needs Work
+**Score:** 0/100 ⚠️ Needs Work
 
 **Key Findings:**
-- Report not available
+
+- Mobile Friendly: ⚠️ No
+- Valid hreflang: N/A
+- Document Title: ⚠️ Missing
+- Meta Description: ⚠️ Missing
+- Crawlable Links: ⚠️ No
+
 
 ---
 
 ### tenant-app — Live Tenant Storefronts
-**Score:** N/A/100 ⚠️ Needs Work
+**Score:** 0/100 ⚠️ Needs Work
 
 **Key Findings:**
-- Report not available
+
+- Mobile Friendly: ⚠️ No
+- Valid hreflang: N/A
+- Document Title: ⚠️ Missing
+- Meta Description: ⚠️ Missing
+- Crawlable Links: ⚠️ No
+
 
 
 **General Recommendations:**
@@ -61,7 +73,7 @@ Generated: 2025-10-20T01:04:21.783Z
 
 
 **Findings:**
-- Source files with @type: 35
+- Source files with @type: 20
 - Schema types covered: 0
 
 **Recommendations:**
@@ -92,7 +104,7 @@ Generated: 2025-10-20T01:04:21.783Z
 | Analytics | ✅ Google Analytics / GTM found | Confirms GA4 or GTM tracking |
 | OpenGraph / JSON-LD | ✅ OpenGraph / JSON-LD present | Social and structured markup present |
 | Sitemap | ✅ Sitemap generation found | Sitemap generator detected |
-| Robots.txt | ✅ robots.txt found | Public-facing file verified |
+| Robots.txt | ⚠️ Missing robots.txt | Public-facing file verified |
 
 **Recommendations:**
 - Confirm analytics ID matches your main property (GA4 / GTM).  

@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { AlertCircle } from 'lucide-react';
 
-import type { DetailerData } from '@/tenant-app/components/tenantDashboard/types';
+import type { DetailerData } from '@tenant-app/components/tenantDashboard/types';
 
 import { addServiceArea, deleteServiceArea,saveServiceAreas } from '../../api/locationsApi';
 import { useTenantBusinessData } from '../../hooks/useTenantBusinessData';

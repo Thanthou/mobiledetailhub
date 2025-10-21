@@ -29,26 +29,16 @@ console.log('\n' + chalk.cyan('═'.repeat(70)));
 console.log(chalk.cyan.bold('  📋 Available Audit Commands'));
 console.log(chalk.cyan('═'.repeat(70)) + '\n');
 
-// Display commands in a nice format
+// Display commands in a clean two-column format
 auditCommands.forEach(([command, script]) => {
   const shortCommand = command.replace('audit:', '');
-  const npmCommand = chalk.green(`npm run ${command}`);
   const description = getCommandDescription(shortCommand);
   
-  console.log(chalk.yellow(`  ${shortCommand.padEnd(20)}`));
-  console.log(`    ${chalk.gray('Command:')} ${npmCommand}`);
-  console.log(`    ${chalk.gray('Description:')} ${description}`);
-  console.log(`    ${chalk.gray('Script:')} ${chalk.dim(script)}`);
-  console.log();
+  console.log(`${chalk.yellow(shortCommand.padEnd(22))}${chalk.white(description)}`);
 });
 
-// Display footer with usage
-console.log(chalk.cyan('─'.repeat(70)));
-console.log(chalk.white.bold('  Usage:'));
-console.log(`    ${chalk.green('npm run audit:list')}       ${chalk.gray('Show this list')}`);
-console.log(`    ${chalk.green('npm run audit:<name>')}     ${chalk.gray('Run a specific audit')}`);
-console.log(`    ${chalk.green('npm run audit:all')}        ${chalk.gray('Run all audits')}`);
-console.log(chalk.cyan('═'.repeat(70)) + '\n');
+// Display footer
+console.log('\n' + chalk.cyan('═'.repeat(70)) + '\n');
 
 /**
  * Get human-readable description for each audit command

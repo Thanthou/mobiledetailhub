@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import { useAddons } from './useAddons';
 import { useServiceTiers } from './useServiceTiers';
-import { useBookingAddons, useBookingData, useBookingService } from '@/tenant-app/components/booking/state';
+import { useBookingAddons, useBookingData, useBookingService } from '@tenant-app/components/booking/state';
 
 /**
  * Hook to manage payment step data and calculations

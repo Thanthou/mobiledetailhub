@@ -1,6 +1,6 @@
 import React from 'react';
 
-import type { DashboardTab, DetailerData } from '@/tenant-app/components/tenantDashboard/types';
+import type { DashboardTab, DetailerData } from '@tenant-app/components/tenantDashboard/types';
 
 import { getTabConfig } from '../config/tabConfig';
 import CustomersTab from '../tabs/customers/CustomersTab';

@@ -3,7 +3,7 @@
  * Generates FAQPage JSON-LD schemas for all pages at build time
  */
 
-import type { FAQItem } from '@/tenant-app/components/faq/types';
+import type { FAQItem } from '@tenant-app/components/faq/types';
 import type { LocationPage } from '@shared/types/location';
 
 import { convertFAQItemsToSchemaFormat,generateFAQSchema } from './schemaUtils';

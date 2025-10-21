@@ -1,4 +1,4 @@
-import { useData } from '@/tenant-app/components/header/contexts/DataProvider';
+import { useData } from '@tenant-app/components/header/contexts/DataProvider';
 import type { MainSiteConfig } from '@shared/types/location';
 
 /**

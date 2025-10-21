@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ServiceData } from '@/tenant-app/components/services/types/service.types';
+import { ServiceData } from '@tenant-app/components/services/types/service.types';
 import { CTAButtons } from '@shared/ui';
 
 interface ServiceCTAProps {

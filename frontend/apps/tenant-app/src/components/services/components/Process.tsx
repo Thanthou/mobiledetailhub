@@ -1,6 +1,6 @@
 import React from 'react';
 
-import type { ProcessStep as ProcessStepType, ServiceData } from '@/tenant-app/components/services/types/service-data';
+import type { ProcessStep as ProcessStepType, ServiceData } from '@tenant-app/components/services/types/service-data';
 
 interface ProcessProps {
   serviceData: ServiceData;

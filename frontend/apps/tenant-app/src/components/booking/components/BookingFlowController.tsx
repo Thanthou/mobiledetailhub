@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { useBookingStep } from '@/tenant-app/components/booking/state';
+import { useBookingStep } from '@tenant-app/components/booking/state';
 
 import BookingLayout from './BookingLayout';
 import { StepAddons, StepLocation, StepPayment,StepSchedule, StepService, StepVehicleSelection } from './steps';

@@ -44,11 +44,12 @@ export default defineConfig({
 
   resolve: {
     alias: {
-      "@": fileURLToPath(new URL("./src", import.meta.url)),
+      "@": fileURLToPath(new URL("./apps", import.meta.url)),
       "@shared": path.resolve(__dirname, "src/shared"),
-      "@admin": path.resolve(__dirname, "src/admin-app"),
-      "@tenant": path.resolve(__dirname, "src/tenant-app"),
-      "@main": path.resolve(__dirname, "src/main-site"),
+      "@admin-app": path.resolve(__dirname, "apps/admin-app/src"),
+      "@tenant-app": path.resolve(__dirname, "apps/tenant-app/src"),
+      "@main-site": path.resolve(__dirname, "apps/main-site/src"),
+      "@data": path.resolve(__dirname, "src/data"),
     },
     dedupe: ['react', 'react-dom', 'scheduler'],
   },

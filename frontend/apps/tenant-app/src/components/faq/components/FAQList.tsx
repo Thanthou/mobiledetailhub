@@ -1,6 +1,6 @@
 import React from 'react';
 
-import type { FAQItem as FAQItemType } from '@/tenant-app/components/faq/types';
+import type { FAQItem as FAQItemType } from '@tenant-app/components/faq/types';
 
 import FAQItem from './FAQItem';
 

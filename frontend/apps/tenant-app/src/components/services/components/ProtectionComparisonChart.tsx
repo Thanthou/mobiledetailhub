@@ -7,7 +7,7 @@ import {
   PRODUCT_LABELS,
   type ProductKey,
   type Ratings
-} from '@/tenant-app/components/services/utils/protectionComparison';
+} from '@tenant-app/components/services/utils/protectionComparison';
 
 export interface ProtectionComparisonChartProps {
   ratings?: Ratings;
