@@ -1,34 +1,49 @@
-# Routing Validation Audit
-Generated: 2025-10-21T10:09:50.186Z
+# Frontend Routing Audit Report
 
-## 📊 Score: 100/100
+**Generated:** 2025-10-21T11:25:44.701Z
+**Duration:** 67ms
+**Score:** 100/100
 
-### Summary
-- Total Router Files: undefined
-- Total Routers: 3
-- Expected: 3 (one per app)
+---
 
-### App Entries
-- Admin App: ✅ Valid (1 routers)
-- Tenant App: ✅ Valid (1 routers)
-- Main Site: ✅ Valid (1 routers)
+## Summary
 
-### Router Context
-- Files using router context: 12
-- Files with multiple routers: 0
-- Files using context without router: 0
+- ✅ **Passed:** 7
+- ⚠️  **Warnings:** 0
+- ❌ **Errors:** 0
 
+## Description
+
+Validates frontend routing architecture: ensures each app has exactly one router, no nested routers, and proper router context usage.
+
+## ✅ All Checks Passed!
+
+No issues found during this audit.
+
+---
+
+## Detailed Log
+
+
+## App Entry Points
+
+✅ Admin App: has exactly 1 router
+✅ Tenant App: has exactly 1 router
+✅ Main Site: has exactly 1 router
+✅ Total routers: 3 (expected 3)
+
+## Router Context Usage
+
+✅ 12 files use router hooks
+✅ No nested routers detected
 ✅ All router context usage properly wrapped
 
 ---
 
-## ⚠️ Issues
-✅ No issues found
+## Recommendations
 
----
-
-## 📝 Recommendations
-- Maintain one router instance per app.
-- Avoid nested routers in shared or layout components.
-- Ensure useNavigate and useRouter only appear inside routed components.
-- Keep route definitions close to app entry points.
+1. Maintain one router instance per app (Admin, Tenant, Main)
+2. Avoid nested routers in shared or layout components
+3. Ensure useNavigate and useRouter only appear inside routed components
+4. Keep route definitions close to app entry points
+5. Use React Router v6 patterns consistently

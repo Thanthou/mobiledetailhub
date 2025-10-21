@@ -1,5 +1,5 @@
 # Multi-App SEO Audit Report
-Generated: 2025-10-21T10:06:52.313Z
+Generated: 2025-10-21T11:16:02.716Z
 
 ---
 
@@ -8,7 +8,7 @@ Generated: 2025-10-21T10:06:52.313Z
 
 | Metric | Score | Status |
 |---------|-------|--------|
-| Lighthouse (Average) | 0 | ⚠️ Needs Work |
+| Lighthouse (Average) | NaN | ⚠️ Needs Work |
 | Schema Quality | 10 | ⚠️ Limited |
 | HTML Meta Tags | ✅ Complete | Titles & descriptions found |
 | Static SEO / Analytics | ✅ Present | Helmet, GA, OG, Sitemap, Robots |
@@ -18,38 +18,26 @@ Generated: 2025-10-21T10:06:52.313Z
 
 | App | Score | Description |
 |-----|-------|-------------|
-| **main-site** | 0/100 | Marketing & Onboarding |
-| **tenant-app** | 0/100 | Live Tenant Storefronts |
+| **main-site** | N/A/100 | Marketing & Onboarding |
+| **tenant-app** | N/A/100 | Live Tenant Storefronts |
 
 ---
 
 ## 🔍 Lighthouse SEO — Per-App Results
 
 ### main-site — Marketing & Onboarding
-**Score:** 0/100 ⚠️ Needs Work
+**Score:** N/A/100 ⚠️ Needs Work
 
 **Key Findings:**
-
-- Mobile Friendly: ⚠️ No
-- Valid hreflang: N/A
-- Document Title: ⚠️ Missing
-- Meta Description: ⚠️ Missing
-- Crawlable Links: ⚠️ No
-
+- Report not available
 
 ---
 
 ### tenant-app — Live Tenant Storefronts
-**Score:** 0/100 ⚠️ Needs Work
+**Score:** N/A/100 ⚠️ Needs Work
 
 **Key Findings:**
-
-- Mobile Friendly: ⚠️ No
-- Valid hreflang: N/A
-- Document Title: ⚠️ Missing
-- Meta Description: ⚠️ Missing
-- Crawlable Links: ⚠️ No
-
+- Report not available
 
 
 **General Recommendations:**

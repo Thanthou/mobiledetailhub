@@ -33,14 +33,8 @@ async function register(req, res) {
   
   const result = await authService.registerUser(userData, userAgent, ipAddress);
   
-  // Set HttpOnly cookies for enhanced security
-  res.cookie('access_token', result.tokens.accessToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    path: '/',
-    maxAge: 15 * 60 * 1000 // 15 minutes (matches access token expiry)
-  });
+    // Set HttpOnly cookies for enhanced security
+    res.cookie('access_token', result.tokens.accessToken, AUTH_CONFIG.getAccessCookieOptions());
   
   res.cookie(AUTH_CONFIG.REFRESH_COOKIE_NAME, result.tokens.refreshToken, AUTH_CONFIG.getRefreshCookieOptions())
   
@@ -78,13 +72,7 @@ async function login(req, res) {
     }, 'Login successful');
     
     // Set HttpOnly cookies for enhanced security
-    res.cookie('access_token', result.tokens.accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 15 * 60 * 1000 // 15 minutes (matches access token expiry)
-    });
+    res.cookie('access_token', result.tokens.accessToken, AUTH_CONFIG.getAccessCookieOptions());
     
     res.cookie(AUTH_CONFIG.REFRESH_COOKIE_NAME, result.tokens.refreshToken, AUTH_CONFIG.getRefreshCookieOptions())
     
@@ -109,6 +97,7 @@ async function login(req, res) {
 
 /**
  * Refresh access token
+ * SECURITY: Rotates both access and refresh tokens
  */
 async function refreshToken(req, res) {
   const { refreshToken: token } = req.body;
@@ -117,10 +106,20 @@ async function refreshToken(req, res) {
   
   const result = await authService.refreshAccessToken(token, userAgent, ipAddress);
   
+  // Set new access token cookie
+  res.cookie('access_token', result.tokens.accessToken, AUTH_CONFIG.getAccessCookieOptions());
+  
+  // Set new refresh token cookie (rotated for security)
+  res.cookie(AUTH_CONFIG.REFRESH_COOKIE_NAME, result.tokens.refreshToken, AUTH_CONFIG.getRefreshCookieOptions());
+  
   res.json({
     success: true,
     message: 'Token refreshed successfully',
-    data: result
+    user: result.user,
+    accessToken: result.tokens.accessToken,
+    refreshToken: result.tokens.refreshToken,
+    expiresIn: result.tokens.expiresIn,
+    refreshExpiresIn: result.tokens.refreshExpiresIn
   });
 }
 

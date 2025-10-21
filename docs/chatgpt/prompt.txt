@@ -4,27 +4,24 @@ You are ChatGPT, analyzing the contents of this folder (**docs/chatgpt**).
 
 ## 📦 Context to Read
 - **cursorrules** → architecture, business goals, conventions
-- **filetree.txt** → filtered directory structure (source of truth for what exists)
-- **codedump-*.txt** → complete text/code source of the project
+- **filetree.txt** → filtered directory structure
+- **codedump-*.txt** → full text/code source
+- **CHECKS_REPORT.md** → PASS/FAIL snapshot of common pitfalls (trust this to skip non-issues)
+- **checks.json** → machine-readable results
+- **KEYFILES.md** → quick jump-list of critical files
 
 ---
 
 ### 🧩 OUTPUT: Top 5 Focus Analysis (Markdown)
-Produce a **Markdown-formatted** report with the **five most impactful priorities** for development. For each item include:
-1) **Title** (concise)
-2) **Type** — 🐞 *Bug/Code Smell*, ⚙️ *Refactor/Optimization*, 🚀 *Feature/Enhancement*
-3) **Problem** — what’s missing or suboptimal (1–2 short paragraphs)
-4) **Solution** — a Cursor-ready plan:
-   - Mention affected files/directories (**must exist in `filetree.txt`**)
-   - Clear step-by-step tasks
-   - Minimal code/pseudocode where helpful
-   - Enough specificity for Cursor to begin implementation
+Produce a **Markdown-formatted** report with the **five most impactful priorities** for development. For each:
+1) **Title**
+2) **Type** — 🐞 Bug/Code Smell, ⚙️ Refactor/Optimization, 🚀 Feature/Enhancement
+3) **Problem** — short explanation
+4) **Solution** — Cursor-ready steps (mention existing files from filetree)
+5) Code/pseudocode where helpful
 
-At the very end of Output append this block exactly:
+At the very end append:
 
 💡 **Cursor Prompt:**  
 Here are 5 high-impact improvements we should work on.  
 Let’s tackle them **one at a time**, starting with #1.
-
-
----

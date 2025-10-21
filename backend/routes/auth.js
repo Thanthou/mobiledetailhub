@@ -4,6 +4,7 @@ import { validateBody, validateQuery } from '../middleware/zodValidation.js';
 import { authSchemas } from '../schemas/apiSchemas.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import { authLimiter, sensitiveAuthLimiter, refreshTokenLimiter } from '../middleware/rateLimiter.js';
+import { csrfProtection } from '../middleware/csrfProtection.js';
 import * as authController from '../controllers/authController.js';
 import * as passwordResetController from '../controllers/passwordResetController.js';
 import * as passwordSetupController from '../controllers/passwordSetupController.js';
@@ -87,8 +88,10 @@ router.get('/me', authenticateToken, asyncHandler(async (req, res) => {
  * 
  * Returns new access token + optional refresh token
  * No Authorization header required (uses refresh token for authentication)
+ * 
+ * SECURITY: Protected with CSRF check to prevent cross-origin token theft
  */
-router.post('/refresh', refreshTokenLimiter, asyncHandler(async (req, res) => {
+router.post('/refresh', csrfProtection, refreshTokenLimiter, asyncHandler(async (req, res) => {
   // Accept refresh token from body or cookie (flexible input)
   const refreshToken = req.body.refreshToken || req.cookies?.refreshToken;
   
@@ -137,13 +140,7 @@ router.post('/refresh', refreshTokenLimiter, asyncHandler(async (req, res) => {
 
   // Set HttpOnly cookies for enhanced security
   const { AUTH_CONFIG } = await import('../config/auth.js');
-  res.cookie('access_token', tokens.accessToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    path: '/',
-    maxAge: 15 * 60 * 1000 // 15 minutes (matches access token expiry)
-  });
+  res.cookie('access_token', tokens.accessToken, AUTH_CONFIG.getAccessCookieOptions());
   
   res.cookie(AUTH_CONFIG.REFRESH_COOKIE_NAME, tokens.refreshToken, AUTH_CONFIG.getRefreshCookieOptions());
 

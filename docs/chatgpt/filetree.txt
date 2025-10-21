@@ -13,7 +13,7 @@
 📄 .gitlab-ci.yml
 📁 .husky/
    📁 _/
-
+      📄 husky.sh
 📄 .lintstagedrc.json
 📄 .port-registry.json
 📄 .prettierrc.json
@@ -47,6 +47,22 @@
       📄 withTenant.js
       📄 zodValidation.js
    📁 migrations/
+      📄 2025-10-17_0001_create_error_logs_table.sql
+      📄 2025-10-17_1400_create_schemas.sql
+      📄 2025-10-17_1500_analytics.sql
+      📄 2025-10-17_1501_tenants.sql
+      📄 2025-10-17_1502_auth.sql
+      📄 2025-10-17_1503_booking.sql
+      📄 2025-10-17_1504_customers.sql
+      📄 2025-10-17_1505_reputation.sql
+      📄 2025-10-17_1506_schedule.sql
+      📄 2025-10-17_1507_system.sql
+      📄 2025-10-17_1508_website.sql
+      📄 2025-10-17_1600_example_migration.sql
+      📄 2025-10-19_add_cascade_delete_constraints.sql
+      📄 2025-10-20_0001_add_seo_audit_tracking.sql
+      📄 2025-10-20_0002_add_preview_expires_at.sql
+      📄 2025-10-21_0001_add_business_email_index.sql
       📄 README.md
    📁 mocks/
       📄 mockReviews.json

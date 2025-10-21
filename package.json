@@ -24,7 +24,7 @@
     "db:snapshot": "cd backend && npm run db:snapshot",
     
     "audit:list": "node scripts/devtools/list-audit-commands.js",
-    "audit:all": "node scripts/project/run-all.js",
+    "audit:all": "node scripts/audits/audit-all.js",
     "audit:env": "node scripts/audits/audit-env.js",
     "audit:schema": "node scripts/audits/audit-schema.js",
     "audit:routes": "node scripts/audits/audit-routes.js",

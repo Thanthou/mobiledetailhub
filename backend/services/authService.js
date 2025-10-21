@@ -172,7 +172,8 @@ async function loginUser(credentials, userAgent, ipAddress) {
 }
 
 /**
- * Refresh access token
+ * Refresh access token with rotation
+ * SECURITY: Rotates refresh token on each use to prevent token reuse attacks
  */
 async function refreshAccessToken(refreshToken, userAgent, ipAddress) {
   if (!refreshToken) {
@@ -204,7 +205,7 @@ async function refreshAccessToken(refreshToken, userAgent, ipAddress) {
 
   const user = result.rows[0];
 
-  // Generate new access token
+  // Generate new token pair (both access AND refresh)
   const tokenPayload = { 
     userId: user.id, 
     email: user.email, 
@@ -212,6 +213,22 @@ async function refreshAccessToken(refreshToken, userAgent, ipAddress) {
   };
   
   const tokens = generateTokenPair(tokenPayload);
+
+  // SECURITY: Revoke the old refresh token to prevent reuse
+  await revokeRefreshToken(refreshToken);
+
+  // Store the new refresh token
+  const deviceId = generateDeviceId(userAgent, ipAddress);
+  const newTokenHash = crypto.createHash('sha256').update(tokens.refreshToken).digest('hex');
+  
+  await storeRefreshToken(
+    user.id,
+    newTokenHash,
+    new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+    ipAddress,
+    userAgent,
+    deviceId
+  );
 
   return {
     user: {
@@ -221,7 +238,8 @@ async function refreshAccessToken(refreshToken, userAgent, ipAddress) {
       phone: user.phone,
       is_admin: user.is_admin
     },
-    tokens
+    tokens,
+    deviceId
   };
 }
 

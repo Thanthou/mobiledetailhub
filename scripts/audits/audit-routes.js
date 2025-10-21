@@ -11,227 +11,189 @@
  *  - Inconsistent response structures
  *  - Missing documentation/comments
  * --------------------------------------------------------------
- * 🧾 Outputs:
- *  - Markdown Report → docs/audits/ROUTES_AUDIT.md
- *  - Color-coded CLI summary
  */
 
 import { promises as fs } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { 
+  createAuditResult, 
+  saveReport, 
+  finishAudit,
+  fileExists 
+} from './shared/audit-utils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const root = process.cwd();
 const routesDir = path.resolve(root, "backend/routes");
 
-//──────────────────────────────────────────────────────────────
-// 🧠 Utility helpers
-//──────────────────────────────────────────────────────────────
-const color = {
-  green: s => `\x1b[32m${s}\x1b[0m`,
-  yellow: s => `\x1b[33m${s}\x1b[0m`,
-  red: s => `\x1b[31m${s}\x1b[0m`,
-  cyan: s => `\x1b[36m${s}\x1b[0m`,
-  bold: s => `\x1b[1m${s}\x1b[0m`,
-};
-
-const issues = {
-  mixedImports: [],
-  inconsistentLogging: [],
-  missingErrorHandling: [],
-  disabledValidation: [],
-  legacyPoolImport: [],
-  inconsistentResponses: [],
-  missingDocumentation: [],
-};
-
-const reportLines = [];
-const logLine = (msg, type = "info") => {
-  const colorized =
-    type === "success"
-      ? color.green(msg)
-      : type === "warn"
-      ? color.yellow(msg)
-      : type === "error"
-      ? color.red(msg)
-      : msg;
-  console.log(colorized);
-  reportLines.push(msg);
-};
+// Check if running in silent mode
+const isSilent = process.argv.includes('--silent') || process.env.AUDIT_SILENT === 'true';
 
 //──────────────────────────────────────────────────────────────
 // 🔍 Scan individual route file
 //──────────────────────────────────────────────────────────────
-async function scanRouteFile(filePath) {
+async function scanRouteFile(audit, filePath) {
   const content = await fs.readFile(filePath, "utf8");
   const relativePath = path.relative(routesDir, filePath);
   const fileName = path.basename(filePath);
-  const fileIssues = { path: relativePath, fileName, issues: [] };
+  
+  let hasIssues = false;
 
-  const push = (type, msg) => {
-    fileIssues.issues.push(msg);
-    issues[type].push(relativePath);
-  };
-
-  // Mixed imports
+  // Mixed imports - ERROR (critical consistency issue)
   const hasImport = content.includes("import ");
   const hasRequire = content.includes("require(");
-  if (hasImport && hasRequire) push("mixedImports", "Mixed import/require patterns");
+  if (hasImport && hasRequire) {
+    audit.error(`${fileName}: Mixed import/require patterns`, {
+      path: `backend/routes/${fileName}`,
+      details: 'Convert all routes to ES6 imports for consistency'
+    });
+    hasIssues = true;
+  }
 
-  // Logging
+  // Logging - WARNING
   const hasConsoleLog = /console\.(log|error|warn)/.test(content);
   const hasLogger = content.includes("logger.") || content.includes("createModuleLogger");
-  if (hasConsoleLog && !hasLogger) push("inconsistentLogging", "Uses console.log instead of structured logger");
+  if (hasConsoleLog && !hasLogger) {
+    audit.warn(`${fileName}: Uses console.log instead of structured logger`, {
+      path: `backend/routes/${fileName}`,
+      details: 'Replace console.log with createModuleLogger'
+    });
+    hasIssues = true;
+  }
 
-  // Error handling
+  // Error handling - WARNING
   const hasAsyncRoutes = /async\s*\(\s*req,\s*res/.test(content);
   const hasAsyncHandler = content.includes("asyncHandler");
-  if (hasAsyncRoutes && !hasAsyncHandler)
-    push("missingErrorHandling", "Async route without asyncHandler wrapper");
+  if (hasAsyncRoutes && !hasAsyncHandler) {
+    audit.warn(`${fileName}: Async route without asyncHandler wrapper`, {
+      path: `backend/routes/${fileName}`,
+      details: 'Wrap async routes with asyncHandler middleware to catch errors'
+    });
+    hasIssues = true;
+  }
 
-  // Disabled validation
-  if (content.match(/\/\/\s*TODO: Re-enable validation/i) || content.match(/\/\/\s*import { validate/))
-    push("disabledValidation", "Validation middleware commented out or disabled");
+  // Disabled validation - WARNING
+  if (content.match(/\/\/\s*TODO: Re-enable validation/i) || content.match(/\/\/\s*import { validate/)) {
+    audit.warn(`${fileName}: Validation middleware commented out or disabled`, {
+      path: `backend/routes/${fileName}`,
+      details: 'Re-enable and enforce request validation middleware'
+    });
+    hasIssues = true;
+  }
 
-  // Legacy pool
+  // Legacy pool - WARNING
   if (
     content.includes("import { pool } from '../database/pool.js'") ||
     content.includes("const { pool } = require('../database/pool')")
-  )
-    push("legacyPoolImport", "Uses legacy pool import (should use getPool)");
+  ) {
+    audit.warn(`${fileName}: Uses legacy pool import (should use getPool)`, {
+      path: `backend/routes/${fileName}`,
+      details: 'Use getPool() instead of direct pool import'
+    });
+    hasIssues = true;
+  }
 
-  // Inconsistent responses
+  // Inconsistent responses - WARNING
   const responsePatterns = [
     content.match(/res\.json\(\{[^}]*success[^}]*\}/g) || [],
     content.match(/res\.json\(\{[^}]*data[^}]*\}/g) || [],
     content.match(/res\.json\(\{[^}]*error[^}]*\}/g) || [],
   ];
   const uniqueResponseTypes = responsePatterns.filter(p => p.length > 0).length;
-  if (uniqueResponseTypes > 1)
-    push("inconsistentResponses", "Inconsistent response format patterns");
+  if (uniqueResponseTypes > 1) {
+    audit.warn(`${fileName}: Inconsistent response format patterns`, {
+      path: `backend/routes/${fileName}`,
+      details: 'Standardize response JSON structure: { success, data/error }'
+    });
+    hasIssues = true;
+  }
 
-  // Documentation
+  // Documentation - INFO (not critical, just nice to have)
   const hasJSDoc = content.includes("/**") && content.includes("*/");
   const hasRouteComments = content.match(/\/\/\s*(GET|POST|PUT|DELETE)/);
-  if (!hasJSDoc && !hasRouteComments) push("missingDocumentation", "Missing API documentation");
+  if (!hasJSDoc && !hasRouteComments) {
+    audit.warn(`${fileName}: Missing API documentation`, {
+      path: `backend/routes/${fileName}`,
+      details: 'Add JSDoc or route-level comments for each endpoint'
+    });
+    hasIssues = true;
+  }
 
-  return fileIssues;
-}
-
-//──────────────────────────────────────────────────────────────
-// 🧮 Summary + Markdown Report
-//──────────────────────────────────────────────────────────────
-function generateReport(totalFiles, fileResults, healthScore) {
-  const ts = new Date().toISOString();
-  const filesWithIssues = fileResults.filter(r => r.issues.length > 0);
-  return `# Express Routes Audit
-Generated: ${ts}
-
-## 📊 Summary
-- Total Files: ${totalFiles}
-- Files with Issues: ${filesWithIssues.length}
-- Health Score: ${healthScore}/100
-
----
-
-## 🧩 Issues by Type
-
-### 🔴 Mixed Import/Require Patterns (${issues.mixedImports.length})
-${issues.mixedImports.map(f => `- ${f}`).join("\n") || "✅ None"}
-
-### 🟡 Inconsistent Logging (${issues.inconsistentLogging.length})
-${issues.inconsistentLogging.map(f => `- ${f}`).join("\n") || "✅ None"}
-
-### 🟡 Missing Error Handling (${issues.missingErrorHandling.length})
-${issues.missingErrorHandling.map(f => `- ${f}`).join("\n") || "✅ None"}
-
-### 🟡 Disabled Validation (${issues.disabledValidation.length})
-${issues.disabledValidation.map(f => `- ${f}`).join("\n") || "✅ None"}
-
-### 🟡 Legacy Pool Import (${issues.legacyPoolImport.length})
-${issues.legacyPoolImport.map(f => `- ${f}`).join("\n") || "✅ None"}
-
-### 🟡 Inconsistent Responses (${issues.inconsistentResponses.length})
-${issues.inconsistentResponses.map(f => `- ${f}`).join("\n") || "✅ None"}
-
-### 🟡 Missing Documentation (${issues.missingDocumentation.length})
-${issues.missingDocumentation.map(f => `- ${f}`).join("\n") || "✅ None"}
-
----
-
-## 📝 Recommendations
-${issues.mixedImports.length ? "- Convert all routes to ES6 imports\n" : ""}
-${issues.inconsistentLogging.length ? "- Replace console.log with structured logger\n" : ""}
-${issues.missingErrorHandling.length ? "- Wrap async routes with asyncHandler middleware\n" : ""}
-${issues.disabledValidation.length ? "- Re-enable and enforce request validation middleware\n" : ""}
-${issues.legacyPoolImport.length ? "- Use getPool() instead of legacy pool imports\n" : ""}
-${issues.inconsistentResponses.length ? "- Standardize response JSON structure across routes\n" : ""}
-${issues.missingDocumentation.length ? "- Add JSDoc or route-level comments for each endpoint\n" : ""}
-${!Object.values(issues).some(a => a.length) ? "✅ All route files meet consistency standards!" : ""}
-`;
-}
-
-function printSummary(totalFiles, fileResults, healthScore) {
-  const filesWithIssues = fileResults.filter(r => r.issues.length > 0).length;
-  console.log("\n─────────────────────────────");
-  console.log(color.bold("📊 ROUTES AUDIT SUMMARY"));
-  console.log("─────────────────────────────");
-  console.log(`Total Files: ${totalFiles}`);
-  console.log(`Files with Issues: ${filesWithIssues}`);
-  console.log(`Health Score: ${healthScore >= 90 ? color.green(healthScore) : healthScore >= 70 ? color.yellow(healthScore) : color.red(healthScore)}/100`);
-
-  if (healthScore >= 90) console.log(color.green("✅ Excellent - Minimal cleanup needed"));
-  else if (healthScore >= 70) console.log(color.yellow("⚠️ Needs Improvement"));
-  else console.log(color.red("❌ Requires Major Cleanup"));
-
-  console.log("─────────────────────────────\n");
+  // If no issues, log success
+  if (!hasIssues) {
+    audit.pass(`${fileName}: Clean`);
+  }
 }
 
 //──────────────────────────────────────────────────────────────
 // 🚀 Main Audit Runner
 //──────────────────────────────────────────────────────────────
 async function auditExpressRoutes() {
-  console.log(color.cyan("\n🚀 Running Express Routes Consistency Audit...\n"));
+  const audit = createAuditResult('Backend Routes', isSilent);
+
+  audit.section('Route File Scanning');
+
+  // Check if routes directory exists
+  if (!fileExists(routesDir)) {
+    audit.error('Routes directory not found', {
+      path: routesDir,
+      details: 'Expected backend/routes/ directory'
+    });
+    
+    saveReport(audit, 'ROUTES_AUDIT.md', {
+      description: 'Validates Express route files for consistency, error handling, and code quality.',
+      recommendations: [
+        'Create backend/routes/ directory',
+        'Organize route files by feature',
+        'Follow consistent patterns across all routes'
+      ]
+    });
+    
+    finishAudit(audit);
+    return;
+  }
 
   try {
     const files = await fs.readdir(routesDir);
-    const routeFiles = files.filter(f => f.endsWith(".js"));
-    console.log(`📂 Found ${routeFiles.length} route files\n`);
+    const routeFiles = files.filter(f => f.endsWith(".js") && !f.startsWith("__"));
+    
+    audit.debug(`Found ${routeFiles.length} route files to scan`);
 
-    const results = [];
+    // Scan each file
     for (const f of routeFiles) {
-      const res = await scanRouteFile(path.join(routesDir, f));
-      results.push(res);
+      await scanRouteFile(audit, path.join(routesDir, f));
     }
 
-    // Per-file summary
-    results.forEach(r => {
-      if (!r.issues.length) logLine(`✅ ${r.fileName}: Clean`, "success");
-      else {
-        logLine(`⚠️ ${r.fileName}: ${r.issues.length} issue(s)`, "warn");
-        r.issues.forEach(i => logLine(`   - ${i}`, "warn"));
-      }
+    // Generate report
+    saveReport(audit, 'ROUTES_AUDIT.md', {
+      description: 'Validates Express route files for consistency in imports, logging, error handling, validation, and response formats.',
+      recommendations: [
+        'Convert all routes to ES6 imports (no require)',
+        'Replace console.log with createModuleLogger',
+        'Wrap async routes with asyncHandler middleware',
+        'Re-enable and enforce request validation middleware',
+        'Use getPool() instead of direct pool imports',
+        'Standardize response JSON structure: { success, data/error }',
+        'Add JSDoc or route-level comments for API documentation'
+      ]
     });
 
-    // Health score
-    const totalFiles = routeFiles.length;
-    const filesWithIssues = results.filter(r => r.issues.length > 0).length;
-    const healthScore = Math.round(((totalFiles - filesWithIssues) / totalFiles) * 100);
+    // Finish and exit
+    finishAudit(audit);
 
-    printSummary(totalFiles, results, healthScore);
-
-    // Markdown report
-    const report = generateReport(totalFiles, results, healthScore);
-    const reportDir = path.join(root, "docs", "audits");
-    await fs.mkdir(reportDir, { recursive: true });
-    const reportPath = path.join(reportDir, "ROUTES_AUDIT.md");
-    await fs.writeFile(reportPath, report, "utf8");
-
-    console.log(color.green(`✅ Express Routes audit complete → ${reportPath}\n`));
   } catch (err) {
-    console.error(color.red(`❌ Error during audit: ${err.message}`));
-    process.exit(1);
+    audit.error(`Audit failed: ${err.message}`, {
+      details: err.stack
+    });
+    
+    saveReport(audit, 'ROUTES_AUDIT.md', {
+      description: 'Route audit failed during execution.',
+      recommendations: ['Check error details and retry']
+    });
+    
+    finishAudit(audit);
   }
 }
 

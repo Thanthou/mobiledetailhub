@@ -1,0 +1,72 @@
+[
+  {
+    "id": "dev_env_hosts_proxy",
+    "description": "Dev hub proxies by host; .port-registry.json present; hosts documented",
+    "pass": true,
+    "pointers": [
+      ".port-registry.json",
+      "devtools/dev-hub.js",
+      "docs/frontend/DEV_SETUP.md"
+    ]
+  },
+  {
+    "id": "request_logger_correlation",
+    "description": "Request logger assigns correlation ID and logs via on-finished",
+    "pass": false,
+    "pointers": [
+      "backend/middleware/requestLogger.js"
+    ]
+  },
+  {
+    "id": "auth_access_ttl",
+    "description": "Access token TTL ≤ 1h (ideally 15m)",
+    "pass": false,
+    "pointers": [
+      "backend/config/auth.js"
+    ],
+    "recommend": "Use 15m for ACCESS_EXPIRES_IN"
+  },
+  {
+    "id": "auth_refresh_rotation",
+    "description": "Refresh flow invalidates old token and issues new one",
+    "pass": false,
+    "pointers": [
+      "backend/services/authService.js",
+      "backend/controllers/authController.js"
+    ]
+  },
+  {
+    "id": "auth_csrf_boundary",
+    "description": "Refresh endpoint has origin/CSRF/samesite guard",
+    "pass": true,
+    "pointers": [
+      "backend/controllers/authController.js",
+      "backend/config/auth.js"
+    ]
+  },
+  {
+    "id": "env_fail_fast",
+    "description": "env.async.js throws in production if JWT secrets missing",
+    "pass": false,
+    "pointers": [
+      "backend/config/env.async.js"
+    ]
+  },
+  {
+    "id": "domains_flow",
+    "description": "Domain availability/status endpoints present; verify TODO noted",
+    "pass": true,
+    "pointers": [
+      "backend/controllers/domainController.js"
+    ]
+  },
+  {
+    "id": "dashboard_filters_pagination",
+    "description": "getDateFilter + pagination + tenant guard",
+    "pass": true,
+    "pointers": [
+      "backend/controllers/tenantDashboardController.js",
+      "backend/middleware/withTenant.js"
+    ]
+  }
+]

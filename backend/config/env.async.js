@@ -65,10 +65,39 @@ export async function loadEnv() {
       console.warn('⚠️  DATABASE_URL not provided — DB connection will be lazy.');
     }
 
+    // SECURITY: In production, critical secrets MUST be present
+    if (env.NODE_ENV === 'production') {
+      const missingSecrets = [];
+      
+      if (!env.JWT_SECRET) {
+        missingSecrets.push('JWT_SECRET');
+      }
+      if (!env.JWT_REFRESH_SECRET) {
+        missingSecrets.push('JWT_REFRESH_SECRET');
+      }
+      if (!env.DATABASE_URL) {
+        missingSecrets.push('DATABASE_URL');
+      }
+      
+      if (missingSecrets.length > 0) {
+        const errorMsg = `❌ CRITICAL: Missing required secrets in production: ${missingSecrets.join(', ')}`;
+        console.error(errorMsg);
+        throw new Error(errorMsg);
+      }
+      
+      console.log('✅ Production environment validated: All critical secrets present');
+    }
+
     return env;
   } catch (err) {
+    if (process.env.NODE_ENV === 'production') {
+      // In production, crash immediately if validation fails
+      console.error('❌ FATAL: Environment validation failed in production');
+      throw err;
+    }
+    // In development, just warn and continue
     console.error('❌ Failed to load environment:', err.message);
-    return {}; // never crash server
+    return {}; // never crash server in dev
   }
 }
 

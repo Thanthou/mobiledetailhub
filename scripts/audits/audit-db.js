@@ -8,32 +8,34 @@
  */
 
 import { getPool } from '../../backend/database/pool.js';
-import chalk from 'chalk';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { 
+  createAuditResult, 
+  saveReport, 
+  finishAudit,
+  readJson
+} from './shared/audit-utils.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const snapshotPath = path.join(__dirname, '../../backend/schemas/current-schema.json');
 
-const results = {
-  passed: 0,
-  failed: 0,
-  warnings: 0,
-  issues: []
-};
+// Check if running in silent mode
+const isSilent = process.argv.includes('--silent') || process.env.AUDIT_SILENT === 'true';
 
 /**
  * Load expected tables from schema snapshot
  * Returns null if snapshot doesn't exist
  */
-function loadExpectedTablesFromSnapshot() {
+function loadExpectedTablesFromSnapshot(audit) {
+  const snapshot = readJson(snapshotPath);
+  
+  if (!snapshot) {
+    return null;
+  }
+  
   try {
-    if (!fs.existsSync(snapshotPath)) {
-      return null;
-    }
-    
-    const snapshot = JSON.parse(fs.readFileSync(snapshotPath, 'utf-8'));
     const expectedTables = {};
     
     // Convert snapshot format to expectedTables format
@@ -43,37 +45,33 @@ function loadExpectedTablesFromSnapshot() {
     
     return expectedTables;
   } catch (error) {
-    console.warn(chalk.yellow(`⚠️  Failed to load schema snapshot: ${error.message}`));
+    audit.warn(`Failed to parse schema snapshot: ${error.message}`);
     return null;
   }
 }
 
-async function checkDatabaseConnection() {
-  console.log(chalk.blue('🔌 Testing database connection...'));
+async function checkDatabaseConnection(audit) {
+  audit.section('Database Connection');
   
   try {
     const pool = await getPool();
     const result = await pool.query('SELECT NOW() as current_time, version() as version');
     
-    console.log(chalk.green(`✅ Database connected successfully`));
-    console.log(chalk.gray(`   Server: ${result.rows[0].version}`));
-    console.log(chalk.gray(`   Time: ${result.rows[0].current_time}`));
+    audit.pass('Database connected successfully');
+    audit.debug(`  Server: ${result.rows[0].version.split(',')[0]}`);
+    audit.debug(`  Time: ${result.rows[0].current_time}`);
     
-    results.passed++;
     return pool;
   } catch (error) {
-    console.log(chalk.red(`❌ Database connection failed: ${error.message}`));
-    results.failed++;
-    results.issues.push({
-      type: 'connection',
-      message: `Database connection failed: ${error.message}`
+    audit.error(`Database connection failed: ${error.message}`, {
+      details: 'Check DATABASE_URL and ensure PostgreSQL is running'
     });
     return null;
   }
 }
 
-async function checkSchemas(pool) {
-  console.log(chalk.blue('\n📋 Checking database schemas...'));
+async function checkSchemas(audit, pool) {
+  audit.section('Database Schemas');
   
   try {
     const result = await pool.query(`
@@ -86,35 +84,27 @@ async function checkSchemas(pool) {
     const expectedSchemas = ['tenants', 'auth', 'website', 'system', 'analytics', 'booking', 'schedule', 'reputation', 'customers'];
     const existingSchemas = result.rows.map(row => row.schema_name);
     
-    console.log(chalk.green(`✅ Found ${existingSchemas.length} schemas`));
-    console.log(chalk.gray(`   Schemas: ${existingSchemas.join(', ')}`));
+    audit.pass(`Found ${existingSchemas.length} schemas`);
+    audit.debug(`  Schemas: ${existingSchemas.join(', ')}`);
     
     const missingSchemas = expectedSchemas.filter(schema => !existingSchemas.includes(schema));
     if (missingSchemas.length > 0) {
-      console.log(chalk.yellow(`⚠️  Missing schemas: ${missingSchemas.join(', ')}`));
-      results.warnings++;
-      results.issues.push({
-        type: 'missing_schemas',
-        message: `Missing schemas: ${missingSchemas.join(', ')}`
+      audit.warn(`Missing schemas: ${missingSchemas.join(', ')}`, {
+        details: 'Run migrations to create missing schemas'
       });
     } else {
-      results.passed++;
+      audit.pass('All expected schemas present');
     }
     
     return existingSchemas;
   } catch (error) {
-    console.log(chalk.red(`❌ Schema check failed: ${error.message}`));
-    results.failed++;
-    results.issues.push({
-      type: 'schema_error',
-      message: `Schema check failed: ${error.message}`
-    });
+    audit.error(`Schema check failed: ${error.message}`);
     return [];
   }
 }
 
-async function checkTables(pool, schemas) {
-  console.log(chalk.blue('\n📊 Checking tables...'));
+async function checkTables(audit, pool, schemas) {
+  audit.section('Database Tables');
   
   try {
     const result = await pool.query(`
@@ -135,24 +125,25 @@ async function checkTables(pool, schemas) {
       tablesBySchema[row.table_schema].push(row.table_name);
     });
     
-    console.log(chalk.green(`✅ Found ${result.rows.length} tables across ${schemas.length} schemas`));
+    audit.pass(`Found ${result.rows.length} tables across ${schemas.length} schemas`);
     
     // Load expected tables from snapshot or use fallback
-    let expectedTables = loadExpectedTablesFromSnapshot();
+    let expectedTables = loadExpectedTablesFromSnapshot(audit);
     
     if (!expectedTables) {
-      // Fallback to minimal expectations if snapshot doesn't exist
-      console.log(chalk.yellow('⚠️  No schema snapshot found. Using minimal validation.'));
-      console.log(chalk.yellow('    Run: npm run db:snapshot (or npm run migrate) to generate snapshot\n'));
+      audit.warn('No schema snapshot found - using minimal validation', {
+        details: 'Run: npm run db:snapshot to generate snapshot'
+      });
       
       expectedTables = {
         tenants: ['business'],
         auth: ['users'],
         system: ['schema_migrations'],
-        // Minimal fallback - won't catch missing tables
       };
     }
     
+    // Check each schema for missing tables
+    let allTablesPresent = true;
     Object.entries(expectedTables).forEach(([schema, expectedTableList]) => {
       if (tablesBySchema[schema]) {
         const missingTables = expectedTableList.filter(table => 
@@ -160,32 +151,31 @@ async function checkTables(pool, schemas) {
         );
         
         if (missingTables.length > 0) {
-          console.log(chalk.yellow(`⚠️  ${schema} schema missing tables: ${missingTables.join(', ')}`));
-          results.warnings++;
-          results.issues.push({
-            type: 'missing_tables',
-            schema,
-            message: `Missing tables in ${schema}: ${missingTables.join(', ')}`
+          audit.error(`${schema} schema missing tables: ${missingTables.join(', ')}`, {
+            path: `database/${schema}`,
+            details: 'Run migrations to create missing tables'
           });
+          allTablesPresent = false;
         } else {
-          console.log(chalk.green(`✅ ${schema} schema has all expected tables`));
-          results.passed++;
+          audit.pass(`${schema} schema has all expected tables`);
         }
+      } else {
+        audit.error(`Schema ${schema} not found in database`);
+        allTablesPresent = false;
       }
     });
     
+    if (allTablesPresent) {
+      audit.pass('All expected tables present');
+    }
+    
   } catch (error) {
-    console.log(chalk.red(`❌ Table check failed: ${error.message}`));
-    results.failed++;
-    results.issues.push({
-      type: 'table_error',
-      message: `Table check failed: ${error.message}`
-    });
+    audit.error(`Table check failed: ${error.message}`);
   }
 }
 
-async function checkMigrations(pool) {
-  console.log(chalk.blue('\n🔄 Checking migrations...'));
+async function checkMigrations(audit, pool) {
+  audit.section('Database Migrations');
   
   try {
     const result = await pool.query(`
@@ -195,34 +185,28 @@ async function checkMigrations(pool) {
         checksum
       FROM system.schema_migrations 
       ORDER BY applied_at DESC
+      LIMIT 5
     `);
     
-    console.log(chalk.green(`✅ Found ${result.rows.length} applied migrations`));
-    
-    if (result.rows.length > 0) {
-      console.log(chalk.gray(`   Latest: ${result.rows[0].filename} (${result.rows[0].applied_at})`));
-      results.passed++;
-    } else {
-      console.log(chalk.yellow(`⚠️  No migrations found in system.schema_migrations`));
-      results.warnings++;
-      results.issues.push({
-        type: 'no_migrations',
-        message: 'No migrations found in system.schema_migrations table'
+    if (result.rows.length === 0) {
+      audit.warn('No migrations found in system.schema_migrations', {
+        details: 'Run migrations to initialize database'
       });
+    } else {
+      audit.pass(`Found ${result.rows.length} recent migrations`);
+      audit.debug(`  Latest: ${result.rows[0].filename}`);
+      audit.debug(`  Applied: ${result.rows[0].applied_at}`);
     }
     
   } catch (error) {
-    console.log(chalk.red(`❌ Migration check failed: ${error.message}`));
-    results.failed++;
-    results.issues.push({
-      type: 'migration_error',
-      message: `Migration check failed: ${error.message}`
+    audit.error(`Migration check failed: ${error.message}`, {
+      details: 'Ensure system.schema_migrations table exists'
     });
   }
 }
 
-async function checkConstraints(pool) {
-  console.log(chalk.blue('\n🔗 Checking constraints...'));
+async function checkConstraints(audit, pool) {
+  audit.section('Database Constraints');
   
   try {
     const result = await pool.query(`
@@ -247,25 +231,18 @@ async function checkConstraints(pool) {
       constraintsByType[row.constraint_type]++;
     });
     
-    console.log(chalk.green(`✅ Found ${result.rows.length} constraints`));
+    audit.pass(`Found ${result.rows.length} constraints`);
     Object.entries(constraintsByType).forEach(([type, count]) => {
-      console.log(chalk.gray(`   ${type}: ${count}`));
+      audit.debug(`  ${type}: ${count}`);
     });
-    
-    results.passed++;
     
   } catch (error) {
-    console.log(chalk.red(`❌ Constraint check failed: ${error.message}`));
-    results.failed++;
-    results.issues.push({
-      type: 'constraint_error',
-      message: `Constraint check failed: ${error.message}`
-    });
+    audit.error(`Constraint check failed: ${error.message}`);
   }
 }
 
-async function checkIndexes(pool) {
-  console.log(chalk.blue('\n📇 Checking indexes...'));
+async function checkIndexes(audit, pool) {
+  audit.section('Database Indexes');
   
   try {
     const result = await pool.query(`
@@ -279,135 +256,100 @@ async function checkIndexes(pool) {
       ORDER BY schemaname, tablename, indexname
     `);
     
-    console.log(chalk.green(`✅ Found ${result.rows.length} indexes`));
+    audit.pass(`Found ${result.rows.length} indexes`);
     
     // Check for critical indexes
     const criticalIndexes = [
-      'tenants.business.slug',
-      'tenants.business.business_email',
-      'auth.users.email',
-      'system.schema_migrations.filename',
-      'reputation.reviews.tenant_slug',
-      'customers.customers.email'
+      { schema: 'tenants', table: 'business', column: 'slug' },
+      { schema: 'tenants', table: 'business', column: 'business_email' },
+      { schema: 'auth', table: 'users', column: 'email' },
+      { schema: 'system', table: 'schema_migrations', column: 'filename' },
     ];
     
-    const existingIndexes = result.rows.map(row => `${row.schemaname}.${row.tablename}.${row.indexname}`);
+    const existingIndexDefs = result.rows.map(row => row.indexdef.toLowerCase());
     
-    const missingCritical = criticalIndexes.filter(index => 
-      !existingIndexes.some(existing => existing.includes(index.split('.')[2]))
-    );
-    
-    if (missingCritical.length > 0) {
-      console.log(chalk.yellow(`⚠️  Missing critical indexes: ${missingCritical.join(', ')}`));
-      results.warnings++;
-      results.issues.push({
-        type: 'missing_indexes',
-        message: `Missing critical indexes: ${missingCritical.join(', ')}`
-      });
-    } else {
-      console.log(chalk.green(`✅ All critical indexes present`));
-      results.passed++;
-    }
+    criticalIndexes.forEach(idx => {
+      const hasIndex = existingIndexDefs.some(def => 
+        def.includes(idx.table) && def.includes(idx.column)
+      );
+      
+      if (!hasIndex) {
+        audit.warn(`Missing index on ${idx.schema}.${idx.table}.${idx.column}`, {
+          details: 'Consider adding index for query performance'
+        });
+      }
+    });
     
   } catch (error) {
-    console.log(chalk.red(`❌ Index check failed: ${error.message}`));
-    results.failed++;
-    results.issues.push({
-      type: 'index_error',
-      message: `Index check failed: ${error.message}`
-    });
+    audit.error(`Index check failed: ${error.message}`);
   }
-}
-
-function generateReport() {
-  console.log(chalk.blue.bold('\n📊 Database Audit Report\n'));
-  
-  console.log(chalk.green(`✅ Passed: ${results.passed}`));
-  if (results.failed > 0) {
-    console.log(chalk.red(`❌ Failed: ${results.failed}`));
-  }
-  if (results.warnings > 0) {
-    console.log(chalk.yellow(`⚠️  Warnings: ${results.warnings}`));
-  }
-
-  if (results.issues.length > 0) {
-    console.log(chalk.red('\n🚨 Issues Found:\n'));
-    
-    results.issues.forEach((issue, index) => {
-      console.log(chalk.red(`❌ ${issue.message}`));
-      console.log();
-    });
-  } else {
-    console.log(chalk.green('\n🎉 All database checks passed!'));
-  }
-
-  return results.failed === 0;
 }
 
 async function main() {
   const args = process.argv.slice(2);
   const quick = args.includes('--quick');
   const deep = args.includes('--deep');
-  const fix = args.includes('--fix');
 
-  console.log(chalk.blue.bold('🔍 Database Audit\n'));
-
-  if (quick) {
-    console.log(chalk.yellow('⚡ Quick mode - Basic checks only\n'));
-  } else if (deep) {
-    console.log(chalk.yellow('🔍 Deep mode - Comprehensive checks\n'));
-  } else {
-    console.log(chalk.yellow('📊 Standard mode - Balanced checks\n'));
-  }
+  const audit = createAuditResult('Database', isSilent);
 
   // Check database connection
-  const pool = await checkDatabaseConnection();
+  const pool = await checkDatabaseConnection(audit);
   if (!pool) {
-    console.log(chalk.red('\n❌ Cannot proceed without database connection'));
-    process.exit(1);
+    audit.error('Cannot proceed without database connection');
+    
+    saveReport(audit, 'DATABASE_AUDIT.md', {
+      description: 'Validates database structure, connectivity, and integrity.',
+      recommendations: [
+        'Verify DATABASE_URL is correct',
+        'Ensure PostgreSQL is running',
+        'Run migrations to create missing schemas/tables',
+        'Add indexes on frequently queried columns',
+        'Review constraint violations'
+      ]
+    });
+    
+    finishAudit(audit);
+    return;
   }
 
   // Check schemas
-  const schemas = await checkSchemas(pool);
+  const schemas = await checkSchemas(audit, pool);
 
   // Check tables
-  await checkTables(pool, schemas);
+  await checkTables(audit, pool, schemas);
 
   // Check migrations
-  await checkMigrations(pool);
+  await checkMigrations(audit, pool);
 
   if (!quick) {
     // Check constraints
-    await checkConstraints(pool);
+    await checkConstraints(audit, pool);
 
     // Check indexes
-    await checkIndexes(pool);
+    await checkIndexes(audit, pool);
   }
 
   if (deep) {
-    // Additional deep checks could be added here
-    console.log(chalk.blue('\n🔍 Deep analysis completed'));
+    audit.debug('Deep analysis completed');
   }
 
   // Generate report
-  const success = generateReport();
+  saveReport(audit, 'DATABASE_AUDIT.md', {
+    description: 'Validates database structure, connectivity, and integrity.',
+    recommendations: [
+      'Run migrations before deployment',
+      'Ensure all expected schemas and tables exist',
+      'Add indexes on frequently queried columns for performance',
+      'Review and fix any constraint violations',
+      'Keep schema snapshot updated: npm run db:snapshot'
+    ]
+  });
 
-  if (fix && results.issues.length > 0) {
-    console.log(chalk.yellow('\n🔧 Fix mode enabled - attempting to fix issues...'));
-    // Fix logic would go here
-    console.log(chalk.yellow('Fix functionality not yet implemented'));
-  }
-
-  if (!success) {
-    console.log(chalk.red('\n❌ Database audit failed. Fix the issues above before proceeding.'));
-    process.exit(1);
-  } else {
-    console.log(chalk.green('\n✅ Database audit completed successfully!'));
-    process.exit(0);
-  }
+  // Finish and exit
+  finishAudit(audit);
 }
 
 main().catch(error => {
-  console.error(chalk.red('❌ Database audit failed:'), error);
+  console.error(`❌ Database audit failed: ${error.message}`);
   process.exit(1);
 });
