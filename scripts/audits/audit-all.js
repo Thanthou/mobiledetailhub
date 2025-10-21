@@ -21,12 +21,14 @@ const __dirname = path.dirname(__filename);
 //────────────────────────────────────────────────────────────────
 const AUDITS = [
   { name: 'Environment', script: 'audit-env.js', critical: true },
+  { name: 'Security', script: 'audit-security.js', critical: true },
   { name: 'Database', script: 'audit-db.js', critical: true },
   { name: 'Schema Switching', script: 'audit-schema.js', critical: true },
   { name: 'Backend Routes', script: 'audit-routes.js', critical: false },
   { name: 'Frontend Routing', script: 'audit-routing.js', critical: false },
   { name: 'Dependencies', script: 'audit-dependencies.js', critical: false },
   { name: 'Performance', script: 'audit-performance.js', critical: false },
+  { name: 'Project Overview', script: 'audit-overview.js', critical: false },
   // { name: 'SEO', script: 'audit-seo.js', critical: false },
 ];
 
