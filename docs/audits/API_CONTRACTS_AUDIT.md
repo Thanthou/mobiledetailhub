@@ -1,6 +1,6 @@
 # API Contracts Audit Report
 
-**Generated:** 2025-10-21T12:30:05.230Z
+**Generated:** 2025-10-21T21:26:27.669Z
 **Duration:** 13ms
 **Score:** 0/100
 
@@ -8,8 +8,8 @@
 
 ## Summary
 
-- ✅ **Passed:** 157
-- ⚠️  **Warnings:** 44
+- ✅ **Passed:** 151
+- ⚠️  **Warnings:** 40
 - ❌ **Errors:** 0
 
 ## Description
@@ -44,69 +44,61 @@ Validates consistent request/response shapes across API endpoints
 
 12. **Route file missing validation: services.js**
 
-13. **Route file missing validation: stockImages.js**
+13. **Route file missing validation: subdomainTest.js**
 
-14. **Route file missing validation: subdomainTest.js**
+14. **Route file missing validation: tenantImages.js**
 
-15. **Route file missing validation: tenantImages.js**
+15. **Route file missing validation: tenantManifest.js**
 
-16. **Route file missing validation: tenantManifest.js**
+16. **Route file missing validation: websiteContent.js**
 
-17. **Route file missing validation: upload.js**
+17. **Controller missing validation: tenantDashboardController.js**
 
-18. **Route file missing validation: websiteContent.js**
+18. **Route file missing validation middleware: config.js**
 
-19. **Controller missing validation: tenantDashboardController.js**
+19. **Route file missing validation middleware: domains.js**
 
-20. **Route file missing validation middleware: config.js**
+20. **Route file missing validation middleware: errorTracking.js**
 
-21. **Route file missing validation middleware: domains.js**
+21. **Body parsing without validation in errorTracking.js**
 
-22. **Route file missing validation middleware: errorTracking.js**
+22. **Route file missing validation middleware: gallery.js**
 
-23. **Body parsing without validation in errorTracking.js**
+23. **Route file missing validation middleware: googleAnalytics.js**
 
-24. **Route file missing validation middleware: gallery.js**
+24. **Route file missing validation middleware: googleAuth.js**
 
-25. **Route file missing validation middleware: googleAnalytics.js**
+25. **Route file missing validation middleware: googleReviews.js**
 
-26. **Route file missing validation middleware: googleAuth.js**
+26. **Route file missing validation middleware: health.js**
 
-27. **Route file missing validation middleware: googleReviews.js**
+27. **Route file missing validation middleware: payments.js**
 
-28. **Route file missing validation middleware: health.js**
+28. **Body parsing without validation in payments.js**
 
-29. **Route file missing validation middleware: payments.js**
+29. **Route file missing validation middleware: reviews.js**
 
-30. **Body parsing without validation in payments.js**
+30. **Body parsing without validation in reviews.js**
 
-31. **Route file missing validation middleware: reviews.js**
+31. **Route file missing validation middleware: seo.js**
 
-32. **Body parsing without validation in reviews.js**
+32. **Route file missing validation middleware: services.js**
 
-33. **Route file missing validation middleware: seo.js**
+33. **Body parsing without validation in services.js**
 
-34. **Route file missing validation middleware: services.js**
+34. **Route file missing validation middleware: subdomainTest.js**
 
-35. **Body parsing without validation in services.js**
+35. **Route file missing validation middleware: tenantImages.js**
 
-36. **Route file missing validation middleware: stockImages.js**
+36. **Body parsing without validation in tenantImages.js**
 
-37. **Route file missing validation middleware: subdomainTest.js**
+37. **Route file missing validation middleware: tenantManifest.js**
 
-38. **Route file missing validation middleware: tenantImages.js**
+38. **Route file missing validation middleware: websiteContent.js**
 
-39. **Body parsing without validation in tenantImages.js**
+39. **Body parsing without validation in websiteContent.js**
 
-40. **Route file missing validation middleware: tenantManifest.js**
-
-41. **Route file missing validation middleware: upload.js**
-
-42. **Route file missing validation middleware: websiteContent.js**
-
-43. **Body parsing without validation in websiteContent.js**
-
-44. **No API documentation found**
+40. **No API documentation found**
    - Path: `docs/`
 
 ---
@@ -116,14 +108,11 @@ Validates consistent request/response shapes across API endpoints
 
 ## Route Files Analysis
 
-Found 32 route files: admin.js, analytics.js, analytics.new.js, auth.js, avatar.js, config.js, customers.js, domains.js, errorTracking.js, gallery.js, googleAnalytics.js, googleAuth.js, googleReviews.js, health.js, healthMonitoring.js, locations.js, payments.js, previews.js, reviews.js, schedule.js, seo.js, serviceAreas.js, services.js, stockImages.js, subdomainTest.js, tenantDashboard.js, tenantImages.js, tenantManifest.js, tenantReviews.js, tenants.js, upload.js, websiteContent.js
+Found 29 route files: admin.js, analytics.new.js, auth.js, avatar.js, config.js, customers.js, domains.js, errorTracking.js, gallery.js, googleAnalytics.js, googleAuth.js, googleReviews.js, health.js, healthMonitoring.js, locations.js, payments.js, previews.js, reviews.js, schedule.js, seo.js, serviceAreas.js, services.js, subdomainTest.js, tenantDashboard.js, tenantImages.js, tenantManifest.js, tenantReviews.js, tenants.js, websiteContent.js
 ✅ Route file has validation: admin.js
 Found 3 GET endpoints in admin.js
 Found 3 POST endpoints in admin.js
 Found 3 DELETE endpoints in admin.js
-✅ Route file has validation: analytics.js
-Found 2 GET endpoints in analytics.js
-Found 1 POST endpoints in analytics.js
 ✅ Route file has validation: analytics.new.js
 Found 3 GET endpoints in analytics.new.js
 Found 1 POST endpoints in analytics.new.js
@@ -189,8 +178,6 @@ Found 1 GET endpoints in services.js
 Found 1 POST endpoints in services.js
 Found 1 PUT endpoints in services.js
 Found 1 DELETE endpoints in services.js
-⚠️ **WARNING**: Route file missing validation: stockImages.js
-Found 1 GET endpoints in stockImages.js
 ⚠️ **WARNING**: Route file missing validation: subdomainTest.js
 Found 3 GET endpoints in subdomainTest.js
 ✅ Route file has validation: tenantDashboard.js
@@ -208,14 +195,11 @@ Found 1 DELETE endpoints in tenantReviews.js
 Found 3 GET endpoints in tenants.js
 Found 1 POST endpoints in tenants.js
 Found 1 PUT endpoints in tenants.js
-⚠️ **WARNING**: Route file missing validation: upload.js
-Found 1 GET endpoints in upload.js
-Found 3 POST endpoints in upload.js
 ⚠️ **WARNING**: Route file missing validation: websiteContent.js
 Found 2 GET endpoints in websiteContent.js
 Found 1 PUT endpoints in websiteContent.js
-Total endpoints across all routes: 149
-Routes with validation: 14/32
+Total endpoints across all routes: 141
+Routes with validation: 13/29
 
 ## Controller Patterns
 
@@ -325,8 +309,6 @@ Controllers with proper error handling: 6/6
 
 ✅ Route file has validation middleware: admin.js
 ✅ Body parsing with validation in admin.js
-✅ Route file has validation middleware: analytics.js
-✅ Body parsing with validation in analytics.js
 ✅ Route file has validation middleware: analytics.new.js
 ✅ Body parsing with validation in analytics.new.js
 ✅ Route file has validation middleware: auth.js
@@ -358,7 +340,6 @@ Controllers with proper error handling: 6/6
 ✅ Route file has validation middleware: serviceAreas.js
 ⚠️ **WARNING**: Route file missing validation middleware: services.js
 ⚠️ **WARNING**: Body parsing without validation in services.js
-⚠️ **WARNING**: Route file missing validation middleware: stockImages.js
 ⚠️ **WARNING**: Route file missing validation middleware: subdomainTest.js
 ✅ Route file has validation middleware: tenantDashboard.js
 ⚠️ **WARNING**: Route file missing validation middleware: tenantImages.js
@@ -367,17 +348,15 @@ Controllers with proper error handling: 6/6
 ✅ Route file has validation middleware: tenantReviews.js
 ✅ Body parsing with validation in tenantReviews.js
 ✅ Route file has validation middleware: tenants.js
-⚠️ **WARNING**: Route file missing validation middleware: upload.js
 ⚠️ **WARNING**: Route file missing validation middleware: websiteContent.js
 ⚠️ **WARNING**: Body parsing without validation in websiteContent.js
-Routes with validation: 94/149
+Routes with validation: 91/141
 
 ## API Documentation
 
 ⚠️ **WARNING**: No API documentation found
    - Path: `docs/`
 ✅ Route file has documentation: admin.js
-✅ Route file has documentation: analytics.js
 ✅ Route file has documentation: analytics.new.js
 ✅ Route file has documentation: auth.js
 ✅ Route file has documentation: avatar.js
@@ -399,21 +378,19 @@ Routes with validation: 94/149
 ✅ Route file has documentation: seo.js
 ✅ Route file has documentation: serviceAreas.js
 ✅ Route file has documentation: services.js
-✅ Route file has documentation: stockImages.js
 ✅ Route file has documentation: subdomainTest.js
 ✅ Route file has documentation: tenantDashboard.js
 ✅ Route file has documentation: tenantImages.js
 ✅ Route file has documentation: tenantManifest.js
 ✅ Route file has documentation: tenantReviews.js
 ✅ Route file has documentation: tenants.js
-✅ Route file has documentation: upload.js
 ✅ Route file has documentation: websiteContent.js
-Route files with documentation: 32/32
+Route files with documentation: 29/29
 
 ## Summary
 
-Total API contract checks: 201
-Score: 78/100
+Total API contract checks: 191
+Score: 79/100
 
 ---
 

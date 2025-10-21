@@ -4,10 +4,10 @@
   - Pointers: .port-registry.json, devtools/dev-hub.js, docs/frontend/DEV_SETUP.md
 - ❌ **request_logger_correlation** — Request logger assigns correlation ID and logs via on-finished
   - Pointers: backend/middleware/requestLogger.js
-- ❌ **auth_access_ttl** — Access token TTL ≤ 1h (ideally 15m)
+- ✅ **auth_access_ttl** — Access token TTL ≤ 1h (ideally 15m)
   - Pointers: backend/config/auth.js
   - Recommendation: Use 15m for ACCESS_EXPIRES_IN
-- ❌ **auth_refresh_rotation** — Refresh flow invalidates old token and issues new one
+- ✅ **auth_refresh_rotation** — Refresh flow invalidates old token and issues new one
   - Pointers: backend/services/authService.js, backend/controllers/authController.js
 - ✅ **auth_csrf_boundary** — Refresh endpoint has origin/CSRF/samesite guard
   - Pointers: backend/controllers/authController.js, backend/config/auth.js

@@ -41,6 +41,13 @@
     "audit:db": "node scripts/audits/audit-db.js",
     "audit:depends": "node scripts/audits/audit-dependencies.js",
     "audit:dependencies": "node scripts/audits/audit-dependencies.js",
+    "audit:flows": "npm run audit:flows:backend && npm run audit:flows:frontend",
+    "audit:flows:backend": "node scripts/audits/audit-flows.js",
+    "audit:flows:frontend": "node scripts/audits/audit-flows-frontend.js",
+    "audit:flows:main": "node scripts/audits/audit-flows-frontend.js main-site",
+    "audit:flows:tenant": "node scripts/audits/audit-flows-frontend.js tenant-app",
+    "audit:flows:admin": "node scripts/audits/audit-flows-frontend.js admin-app",
+    "audit:dead-code": "node scripts/audits/list-dead-code.js",
     
     "test": "npm run test:all",
     

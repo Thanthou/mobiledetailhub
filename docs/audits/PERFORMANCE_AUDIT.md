@@ -1,7 +1,7 @@
 # Performance Audit Report
 
-**Generated:** 2025-10-21T12:30:11.060Z
-**Duration:** 56ms
+**Generated:** 2025-10-21T21:26:33.661Z
+**Duration:** 61ms
 **Score:** 77/100
 
 ---
@@ -54,7 +54,7 @@ Analyzes frontend performance: route loading strategy, bundle sizes, and compone
 
 ## Component Sizes
 
-✅ Total components: 241
+✅ Total components: 239
 ⚠️ **WARNING**: Large component: schemaUtils.ts (549 lines)
    - Path: `shared\utils\schemaUtils.ts`
 

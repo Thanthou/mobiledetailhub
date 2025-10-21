@@ -1,17 +1,17 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
-import { useRouterDebug } from '@shared/useRouterDebug';
+import { useRouterDebug } from '@shared/hooks';
 import { registerModalImporter, inPreviewMode } from '@shared/utils';
 
 import { TenantPage } from '@tenant-app/components/header';
 import { LazyRequestQuoteModal } from '@tenant-app/components/quotes';
 import { DashboardPage } from '@tenant-app/components/tenantDashboard';
-import TenantApplicationPage from '@admin-app/components/tenantOnboarding/components/TenantApplicationPage';
+import TenantApplicationPage from '@shared/components/tenantOnboarding/components/TenantApplicationPage';
 import { LoginPage, ProtectedRoute } from '@shared/ui';
 import { SEOManager } from '@shared/bootstrap';
 
-import HomePage from '@shared/pages/HomePage';
-import ServicePage from '@shared/pages/ServicePage';
+import HomePage from './pages/HomePage';
+import ServicePage from './pages/ServicePage';
 import PreviewPage from './components/PreviewPage';
 
 // Heavy modules are NOT imported here - they stay out of the initial bundle

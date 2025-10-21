@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import onFinished from 'on-finished';
 import { createRequestLogger as createPinoRequestLogger, logApiRequest } from '../config/logger.js';
 import { logger } from '../config/logger.js';
 // PII patterns for redaction
@@ -81,20 +82,33 @@ const requestLogger = (req, res, next) => {
     contentLength: req.get('Content-Length')
   });
   
-  // Override res.end to log response details
-  const originalEnd = res.end;
-  res.end = function(chunk, encoding) {
+  // Use on-finished to log response completion
+  // This properly handles all completion scenarios:
+  // - Normal response end
+  // - Aborted connections (client disconnect)
+  // - Errors thrown before res.end()
+  // - Piped/streamed responses
+  onFinished(res, (err, res) => {
     const duration = Date.now() - req.startTime;
     
-    // Use the new pino API request logging
-    logApiRequest(req, res, duration);
+    if (err) {
+      // Connection was terminated abnormally (client disconnect, error, etc.)
+      logger.warn('Request finished with error', {
+        requestId: req.id,
+        method: req.method,
+        path: req.path,
+        statusCode: res.statusCode,
+        duration,
+        error: err.message
+      });
+    } else {
+      // Normal completion - use the pino API request logging
+      logApiRequest(req, res, duration);
+    }
     
     // Clean up global request context
     global.currentRequest = null;
-    
-    // Call original end method
-    originalEnd.call(this, chunk, encoding);
-  };
+  });
   
   next();
 };

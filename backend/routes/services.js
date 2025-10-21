@@ -5,10 +5,10 @@
  */
 
 import express from 'express';
-import { pool } from '../database/pool';
+import { getPool } from '../database/pool.js';
 import { createModuleLogger } from '../config/logger.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
-import { getDatabaseId } from '../utils/vehicleMapping';
+import { getDatabaseId } from '../utils/vehicleMapping.js';
 import { sendSuccess, sendError, sendValidationError } from '../utils/responseFormatter.js';
 
 const router = express.Router();
@@ -18,6 +18,7 @@ const logger = createModuleLogger('services');
 // POST /api/services - Create a new service
 router.post('/', async (req, res) => {
   try {
+    const pool = await getPool();
     const { tenant_id, vehicle_id, service_category_id, base_price_cents, name, description, tiers } = req.body;
     
     

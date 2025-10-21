@@ -5,12 +5,12 @@
  */
 
 import express from 'express';
-import {  pool  } from '../database/pool';import { createModuleLogger } from '../config/logger.js';
-;
-import {  authenticateToken  } from '../middleware/auth';;
-import {  withTenantByUser  } from '../middleware/withTenant';;
-import {  validateBody  } from '../middleware/validation';;
-import {  apiLimiter  } from '../middleware/rateLimiter';;
+import { getPool } from '../database/pool.js';
+import { createModuleLogger } from '../config/logger.js';
+import { authenticateToken } from '../middleware/auth.js';
+import { withTenantByUser } from '../middleware/withTenant.js';
+import { validateBody } from '../middleware/validation.js';
+import { apiLimiter } from '../middleware/rateLimiter.js';
 // import {  asyncHandler  } from '../middleware/errorHandler';; // Unused import
 // TODO: Add request logging middleware when needed
 // import {  requestLogger  } from '../middleware/requestLogger';;

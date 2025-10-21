@@ -35,7 +35,15 @@ import express from 'express'
 import cors from 'cors'
 import { fileURLToPath } from 'url'
 
-// Environment validation will be done after server starts
+// 🔒 CRITICAL: Validate environment BEFORE starting server
+// This ensures JWT secrets and DATABASE_URL are present in production
+import { loadEnv } from './config/env.js'
+const env = await loadEnv()
+logger.info({
+  environment: env.NODE_ENV,
+  databaseUrlExists: !!env.DATABASE_URL,
+  jwtConfigured: !!(env.JWT_SECRET && env.JWT_REFRESH_SECRET)
+}, '✅ Environment validation passed - proceeding with server initialization')
 
 import { requestLogger } from './middleware/requestLogger.js';
 import { tenantResolver } from './middleware/tenantResolver.js'
@@ -64,6 +72,18 @@ import previewRoutes from './routes/previews.js'
 import createAnalyticsRouter from './routes/analytics.new.js'
 import { startAutoFlush } from './utils/analyticsQueue.js'
 import { getPool } from './database/pool.js'
+// Missing routes that need to be mounted
+import seoRoutes from './routes/seo.js'
+import avatarRoutes from './routes/avatar.js'
+import servicesRoutes from './routes/services.js'
+import serviceAreasRoutes from './routes/serviceAreas.js'
+import customersRoutes from './routes/customers.js'
+import scheduleRoutes from './routes/schedule.js'
+import tenantImagesRoutes from './routes/tenantImages.js'
+import tenantManifestRoutes from './routes/tenantManifest.js'
+import tenantReviewsRoutes from './routes/tenantReviews.js'
+import galleryRoutes from './routes/gallery.js'
+import errorTrackingRoutes from './routes/errorTracking.js'
 
 // Suppress debug/info noise in development
 if (process.env.LOG_LEVEL !== 'debug') {
@@ -195,6 +215,19 @@ app.use('/api/subdomain', subdomainTestRoutes)
 app.use('/api/domains', domainRoutes)
 app.use('/api/dashboard', tenantDashboardRoutes)
 app.use('/api/previews', previewRoutes)
+// Newly mounted routes (previously unreachable)
+app.use('/api/services', servicesRoutes)
+app.use('/api/service-areas', serviceAreasRoutes)
+app.use('/api/customers', customersRoutes)
+app.use('/api/schedule', scheduleRoutes)
+app.use('/api/avatar', avatarRoutes)
+app.use('/api/tenant-images', tenantImagesRoutes)
+app.use('/api/tenant-reviews', tenantReviewsRoutes)
+app.use('/api/gallery', galleryRoutes)
+app.use('/api/error-tracking', errorTrackingRoutes)
+// SEO routes at root level (for robots.txt, sitemap.xml, manifest.json)
+app.use('/', seoRoutes)
+app.use('/', tenantManifestRoutes)
 logger.info('Analytics routes loaded at /api/analytics (hardened)')
 logger.info('Reviews routes loaded at /api/reviews')
 logger.info('Subdomain test routes loaded at /api/subdomain')
@@ -352,30 +385,28 @@ app.listen(PORT, HOST, () => {
   initializeAsync()
 })
 
-// Async initialization after server starts
+// Async initialization after server starts (non-critical operations only)
 async function initializeAsync() {
+  // Update OAuth redirect URI with dynamic port (non-critical)
   try {
-    logger.info('Testing async environment validation...')
-    const { loadEnv } = await import('./config/env.js')
-    const env = await loadEnv()
-    logger.info({
-      environment: env.NODE_ENV,
-      databaseUrlExists: !!env.DATABASE_URL
-    }, 'Environment validation passed')
-    
-    // Update OAuth redirect URI with dynamic port
-    try {
-      const { updateOAuthRedirect } = await import('../scripts/devtools/cli/update-oauth-redirect.js')
-      updateOAuthRedirect()
-    } catch (error) {
-      logger.warn('Could not update OAuth redirect URI:', error.message)
-    }
-    
-    // Initialize HealthMonitor after environment is loaded
+    const { updateOAuthRedirect } = await import('../scripts/devtools/cli/update-oauth-redirect.js')
+    updateOAuthRedirect()
+    logger.info('OAuth redirect URI updated')
+  } catch (error) {
+    logger.warn('Could not update OAuth redirect URI:', error.message)
+  }
+  
+  // Initialize HealthMonitor (non-critical)
+  try {
     const { default: healthMonitor } = await import('./services/healthMonitor.js')
     healthMonitor.initialize()
-    
-    // Test database connection (non-blocking)
+    logger.info('Health monitor initialized')
+  } catch (error) {
+    logger.warn('Could not initialize health monitor:', error.message)
+  }
+  
+  // Test database connection (critical - crash if it fails in production)
+  try {
     logger.info('Testing database connection...')
     const { getPool } = await import('./database/pool.js')
     const pool = await getPool()
@@ -383,18 +414,43 @@ async function initializeAsync() {
     await client.query('SELECT 1')
     client.release()
     logger.info('Database connection verified')
-    
   } catch (error) {
     logger.error({
       error: error.message,
       stack: error.stack
-    }, 'Async initialization failed - server is still running, but some features may not work')
+    }, '❌ Database connection failed')
+    
+    // In production, database is critical - crash immediately
+    if (process.env.NODE_ENV === 'production') {
+      logger.error('FATAL: Cannot start server without database in production')
+      process.exit(1)
+    }
+    
+    logger.warn('Continuing in development mode without database')
+  }
+  
+  // Initialize cron jobs for automated maintenance
+  try {
+    const { initializeCronJobs } = await import('./services/cronService.js')
+    initializeCronJobs()
+    logger.info('Cron jobs initialized (token cleanup every hour)')
+  } catch (error) {
+    logger.warn('Could not initialize cron jobs:', error.message)
   }
 }
 
 // Graceful shutdown
 process.on('SIGTERM', async () => {
   logger.info('SIGTERM received, shutting down gracefully');
+  
+  // Stop cron jobs
+  try {
+    const { stopCronJobs } = await import('./services/cronService.js');
+    stopCronJobs();
+    logger.info('Cron jobs stopped');
+  } catch (error) {
+    logger.warn('Could not stop cron jobs:', error.message);
+  }
   
   // Stop analytics queue auto-flush
   if (autoFlushHandle) {
@@ -417,6 +473,15 @@ process.on('SIGTERM', async () => {
 
 process.on('SIGINT', async () => {
   logger.info('SIGINT received, shutting down gracefully');
+  
+  // Stop cron jobs
+  try {
+    const { stopCronJobs } = await import('./services/cronService.js');
+    stopCronJobs();
+    logger.info('Cron jobs stopped');
+  } catch (error) {
+    logger.warn('Could not stop cron jobs:', error.message);
+  }
   
   // Stop analytics queue auto-flush
   if (autoFlushHandle) {

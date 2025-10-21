@@ -1,7 +1,7 @@
 # Middleware Audit Report
 
-**Generated:** 2025-10-21T12:30:05.179Z
-**Duration:** 3ms
+**Generated:** 2025-10-21T21:26:27.614Z
+**Duration:** 4ms
 **Score:** 76/100
 
 ---
@@ -51,7 +51,7 @@ Validates middleware configuration, order, and security settings
 
 ## Middleware Files Check
 
-Found 13 middleware files: auth, csrfProtection, errorHandler, rateLimiter, requestLogger, subdomainMiddleware, tenantResolver, tenantValidation, unifiedErrorHandler, upload, validation, withTenant, zodValidation
+Found 11 middleware files: auth, csrfProtection, errorHandler, rateLimiter, requestLogger, subdomainMiddleware, tenantResolver, tenantValidation, validation, withTenant, zodValidation
 ✅ Middleware file exists: auth.js
 ✅ Middleware file exists: errorHandler.js
 ✅ Middleware file exists: requestLogger.js

@@ -1,19 +1,17 @@
 import express from 'express';
 import fs from 'fs';
-import googleBusinessScraper from '../services/googleBusinessScraper';
+import googleBusinessScraper from '../services/googleBusinessScraper.js';
 import { logger } from '../config/logger.js';
 import multer from 'multer';
 import path from 'path';
-import { authenticateToken } from '../middleware/auth';
-import { generateAvatarFilename, ensureUploadsDir } from '../utils/avatarUtils';
-import { pool } from '../database/pool';
+import { authenticateToken } from '../middleware/auth.js';
+import { generateAvatarFilename, ensureUploadsDir } from '../utils/avatarUtils.js';
+import { getPool } from '../database/pool.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
-import { validateFileMagic } from '../utils/uploadValidator';
+import { validateFileMagic } from '../utils/uploadValidator.js';
 import { sendSuccess, sendError, sendValidationError } from '../utils/responseFormatter.js';
 
-
 const router = express.Router();
-;
 // TODO: Add authentication to protected routes
 //
 
@@ -53,6 +51,7 @@ const upload = multer({
  */
 router.post('/upload-avatar', upload.single('avatar'), async (req, res) => {
   try {
+    const pool = await getPool();
     if (!req.file) {
       return res.status(400).json({
         status: 'error',
@@ -142,6 +141,7 @@ router.post('/upload-avatar', upload.single('avatar'), async (req, res) => {
  */
 router.post('/', async (req, res) => {
   try {
+    const pool = await getPool();
     const {
       tenant_slug,
       customer_name,
@@ -325,6 +325,7 @@ router.get('/test-scraping', async (req, res) => {
  */
 router.get('/:tenant_slug', async (req, res) => {
   try {
+    const pool = await getPool();
     const { tenant_slug } = req.params;
     const { limit = 10, offset = 0 } = req.query;
 
@@ -375,6 +376,7 @@ router.get('/:tenant_slug', async (req, res) => {
  */
 router.delete('/:id', async (req, res) => {
   try {
+    const pool = await getPool();
     const { id } = req.params;
 
     const query = `
@@ -410,6 +412,7 @@ router.delete('/:id', async (req, res) => {
  */
 router.post('/scrape-google-business', async (req, res) => {
   try {
+    const pool = await getPool();
     const { gbpUrl, tenantSlug } = req.body;
 
     if (!gbpUrl) {

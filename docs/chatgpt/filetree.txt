@@ -35,6 +35,7 @@
       📄 pool.js
    📁 middleware/
       📄 auth.js
+      📄 csrfProtection.js
       📄 errorHandler.js
       📄 rateLimiter.js
       📄 requestLogger.js
@@ -179,8 +180,12 @@
    📁 archive/
 
    📁 audits/
+      📄 API_CONTRACTS_AUDIT.md
       📁 archive/
 
+      📄 ASSETS_AUDIT.md
+      📄 BOUNDARIES_AUDIT.md
+      📄 DATABASE_AUDIT.md
       📄 DEPENDENCY_AUDIT.md
       📄 ENV_AUDIT.md
       📄 HEALTH_MONITOR_SEO_INTEGRATION.md
@@ -192,6 +197,7 @@
          📄 tenant-app-seo.report.json
       📄 lighthouse-seo.report.json
       📄 LOCAL_SEO_AUDIT.md
+      📄 MIDDLEWARE_AUDIT.md
       📄 MULTI_APP_SEO_AUDIT.md
       📄 PERFORMANCE_AUDIT.md
       📄 PRODUCTION_SEO_AUDIT.md
@@ -203,6 +209,7 @@
       📄 SCHEMA_AUDIT.md
       📄 SCHEMA_COVERAGE_AUDITOR.md
       📄 SCHEMA_VERIFICATION_REPORT.md
+      📄 SECURITY_AUDIT.md
       📄 SEO_AUDIT.md
       📄 SEO_AUDIT_REPORT.md
       📄 SEO_CURSOR_ANCHORING.md
@@ -210,8 +217,9 @@
       📄 SEO_INTEGRATION_EXAMPLES.md
       📄 SEO_PHASE1_STATUS.md
       📄 SEO_STRUCTURE.md
+      📄 SHARED_FOLDER_AUDIT.md
       📁 summaries/
-
+         📄 all-errors.md
    📁 automation/
       📁 monitor/
 
@@ -219,6 +227,7 @@
       📄 WEBHOOK_SETUP.md
    📁 backend/
       📄 ANALYTICS_HARDENING.md
+      📄 AUTH_HARDENING_COMPLETE.md
       📄 BACKEND_FIX_SUMMARY.md
       📄 DATACONTEXT_REFACTOR.md
       📁 migrations/
@@ -254,6 +263,8 @@
       📄 STATIC_SETUP_GUIDE.md
       📄 STATIC_TROUBLESHOOTING.md
    📁 devtools/
+      📄 AUDIT_MIGRATION_COMPLETE.md
+      📄 AUDIT_STANDARDIZATION.md
       📁 cli/
 
       📄 DEV_HUB_SETUP.md
@@ -1034,8 +1045,10 @@
                📄 usePreviewParams.ts
             📄 main.tsx
             📁 pages/
+               📄 HomePage.tsx
                📄 IndustryPreviewPage.tsx
                📄 MobileDetailingPreview.tsx
+               📄 ServicePage.tsx
             📄 TenantApp.tsx
             📄 TenantProviders.tsx
    📁 config/
@@ -1214,8 +1227,6 @@
          📄 preview-types.ts
          📄 README.md
       📄 env.d.ts
-      📁 features/
-         📄 ARCHITECTURE.md
       📄 index.css
       📁 shared/
          📁 api/
@@ -1268,10 +1279,6 @@
                📄 index.ts
             📁 utils/
                📄 index.ts
-         📁 backend/
-            📁 uploads/
-               📁 gallery/
-
          📁 bootstrap/
             📄 AppShell.tsx
             📄 index.ts
@@ -1310,15 +1317,6 @@
          📁 env/
             📄 index.ts
          📄 env.ts
-         📁 frontend/
-            📁 public/
-               📁 images/
-                  📁 gallery/
-
-            📁 src/
-               📁 features/
-                  📁 tenantDashboard/
-
          📁 hooks/
             📄 CONFIG_ACCESS_GUIDE.md
             📄 index.ts
@@ -1349,6 +1347,7 @@
             📄 usePreviewAsyncCore.ts
             📄 usePWAStatus.ts
             📄 useReviewsAvailability.ts
+            📄 useRouterDebug.ts
             📄 useScrollSpy.ts
             📄 useScrollToTop.ts
             📄 useSectionAsync.ts
@@ -1364,13 +1363,8 @@
             📁 __tests__/
                📄 useSEO.test.tsx
          📄 index.ts
-         📁 industries/
-
          📁 lib/
 
-         📁 pages/
-            📄 HomePage.tsx
-            📄 ServicePage.tsx
          📁 schemas/
             📄 booking.ts
             📄 index.ts
@@ -1406,8 +1400,6 @@
             📄 errorTrackingService.ts
          📁 state/
             📄 sectionStore.ts
-         📁 tenant/
-
          📁 testing/
             📄 README.md
          📁 types/
@@ -1466,7 +1458,6 @@
             📁 utility/
                📄 Spinner.tsx
                📄 toast.tsx
-         📄 useRouterDebug.ts
          📁 utils/
             📄 assetLocator.md
             📄 assetLocator.ts
@@ -1552,16 +1543,25 @@
 📄 render.yaml
 📁 scripts/
    📁 audits/
+      📄 audit-all.js
+      📄 audit-api-contracts.js
+      📄 audit-assets.js
+      📄 audit-boundaries.js
       📄 audit-db.js
       📄 audit-dependencies.js
       📄 audit-env.js
+      📄 audit-middleware.js
       📄 audit-overview.js
       📄 audit-performance.js
       📄 audit-routes.js
       📄 audit-routing.js
       📄 audit-schema.js
+      📄 audit-security.js
       📄 audit-seo.js
       📄 schema-validator.js
+      📁 shared/
+         📄 audit-utils.js
+         📄 README.md
    📁 automation/
       📁 cleanup/
          📄 cleanup-tokens.js
@@ -1703,5 +1703,5 @@
    📄 verify-static.js
 📁 todos/
    📄 current-goals.md
+   📄 features.md
    📄 pricing.md
-   📄 schemas.md

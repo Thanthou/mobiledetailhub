@@ -1,0 +1,710 @@
+{
+  "timestamp": "2025-10-21T22:40:09.984Z",
+  "total": 138,
+  "byApp": {
+    "MAIN_SITE": [],
+    "TENANT_APP": [
+      "apps/tenant-app/src/components/booking/components/BookingForm.tsx",
+      "apps/tenant-app/src/components/booking/components/steps/StepAddons/Header.tsx",
+      "apps/tenant-app/src/components/booking/components/steps/StepPayment/StepPayment.refactored.tsx",
+      "apps/tenant-app/src/components/booking/components/steps/StepService/Header.tsx",
+      "apps/tenant-app/src/components/booking/components/steps/StepVehicleSelection/Header.tsx",
+      "apps/tenant-app/src/components/booking/hooks/useBookingAsync.ts",
+      "apps/tenant-app/src/components/cta/components/MobileCTAButtons.tsx",
+      "apps/tenant-app/src/components/cta/components/SmartCTAButtons.tsx",
+      "apps/tenant-app/src/components/cta/hooks/useBookingCapabilities.ts",
+      "apps/tenant-app/src/components/customers/classes/Customer.ts",
+      "apps/tenant-app/src/components/header/routes/tenantRoutes.tsx",
+      "apps/tenant-app/src/components/locations/api/locations.api.ts",
+      "apps/tenant-app/src/components/locations/components/LocationSelector.tsx",
+      "apps/tenant-app/src/components/locations/hooks/useLocationPageState.ts",
+      "apps/tenant-app/src/components/locations/LocationPage.tsx",
+      "apps/tenant-app/src/components/locations/utils/googleMaps.helpers.ts",
+      "apps/tenant-app/src/components/locations/utils/googlePlace.ts",
+      "apps/tenant-app/src/components/locations/utils/placesLoader.ts",
+      "apps/tenant-app/src/components/quotes/hooks/useQuoteFormLogic.refactored.ts",
+      "apps/tenant-app/src/components/quotes/quotes/api/quotes.api.ts",
+      "apps/tenant-app/src/components/quotes/quotes/components/ContactSection.tsx",
+      "apps/tenant-app/src/components/quotes/quotes/components/LazyRequestQuoteModal.tsx",
+      "apps/tenant-app/src/components/quotes/quotes/components/QuoteForm.tsx",
+      "apps/tenant-app/src/components/quotes/quotes/components/RequestQuoteModal.tsx",
+      "apps/tenant-app/src/components/quotes/quotes/components/ServicesSection.tsx",
+      "apps/tenant-app/src/components/quotes/quotes/components/SuccessMessage.tsx",
+      "apps/tenant-app/src/components/quotes/quotes/components/VehicleSection.tsx",
+      "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteForm.ts",
+      "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteFormLogic.refactored.ts",
+      "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteFormLogic.ts",
+      "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteFormState.ts",
+      "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteModal.ts",
+      "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteSubmission.ts",
+      "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteTenantData.ts",
+      "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteValidation.ts",
+      "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteVehicleData.ts",
+      "apps/tenant-app/src/components/reviews/api/reviewsApi.ts",
+      "apps/tenant-app/src/components/reviews/components/GoogleReviewsTest.tsx",
+      "apps/tenant-app/src/components/reviews/hooks/useGoogleReviews.ts",
+      "apps/tenant-app/src/components/reviews/hooks/useReviews.ts",
+      "apps/tenant-app/src/components/reviews/hooks/useReviewsAvailability.ts",
+      "apps/tenant-app/src/components/reviews/hooks/useReviewsContent.ts",
+      "apps/tenant-app/src/components/reviews/hooks/useReviewsRating.ts",
+      "apps/tenant-app/src/components/reviews/hooks/useRotatingReviews.ts",
+      "apps/tenant-app/src/components/reviews/utils/reviewUtils.ts",
+      "apps/tenant-app/src/components/services/api/services.api.ts",
+      "apps/tenant-app/src/components/tenantDashboard/components/AddToHomeScreen.tsx",
+      "apps/tenant-app/src/components/tenantDashboard/components/AutoSaveStatus.tsx",
+      "apps/tenant-app/src/components/tenantDashboard/hooks/useDashboardData.ts",
+      "apps/tenant-app/src/components/tenantDashboard/tabs/locations/components/LocationCard.tsx",
+      "apps/tenant-app/src/components/tenantDashboard/tabs/locations/components/LocationSearch.tsx",
+      "apps/tenant-app/src/components/tenantDashboard/tabs/locations/hooks/useLocationSearch.ts",
+      "apps/tenant-app/src/components/tenantDashboard/tabs/overview/components/MetricsCards.tsx",
+      "apps/tenant-app/src/components/tenantDashboard/tabs/overview/components/NotificationPanel.tsx",
+      "apps/tenant-app/src/components/tenantDashboard/tabs/overview/components/RecentAppointments.tsx",
+      "apps/tenant-app/src/components/tenantDashboard/tabs/overview/components/RecentReviews.tsx",
+      "apps/tenant-app/src/components/tenantDashboard/tabs/overview/hooks/useDashboardStats.ts",
+      "apps/tenant-app/src/components/tenantDashboard/tabs/overview/hooks/useNotifications.ts",
+      "apps/tenant-app/src/components/tenantDashboard/tabs/overview/hooks/useRecentAppointments.ts",
+      "apps/tenant-app/src/components/tenantDashboard/tabs/overview/hooks/useRecentReviews.ts",
+      "apps/tenant-app/src/components/tenantDashboard/tabs/overview/utils/getStatusColor.ts",
+      "apps/tenant-app/src/components/tenantDashboard/tabs/performance/PerformanceTab.tsx",
+      "apps/tenant-app/src/components/tenantDashboard/tabs/profile/components/SocialMediaUrlField.tsx",
+      "apps/tenant-app/src/components/tenantDashboard/tabs/schedule/api/appointments.ts",
+      "apps/tenant-app/src/components/tenantDashboard/tabs/schedule/api/blockedDays.ts",
+      "apps/tenant-app/src/components/tenantDashboard/tabs/schedule/api/scheduleSettings.ts",
+      "apps/tenant-app/src/components/tenantDashboard/tabs/schedule/api/timeBlocks.ts",
+      "apps/tenant-app/src/components/tenantDashboard/tabs/services/components/AddServiceModal.tsx",
+      "apps/tenant-app/src/components/tenantDashboard/tabs/services/components/FeatureList.tsx",
+      "apps/tenant-app/src/components/tenantDashboard/tabs/services/components/SelectedServiceDetailsDisplay.tsx",
+      "apps/tenant-app/src/components/tenantDashboard/tabs/services/components/SelectedServiceDisplay.tsx",
+      "apps/tenant-app/src/components/tenantDashboard/tabs/services/components/ServiceActionsHeader.tsx",
+      "apps/tenant-app/src/components/tenantDashboard/tabs/services/components/ServiceTierCards.tsx",
+      "apps/tenant-app/src/components/tenantDashboard/tabs/services/FixedServicesTab.tsx",
+      "apps/tenant-app/src/components/tenantDashboard/tabs/services/hooks/useFixedServicesHandlers.ts",
+      "apps/tenant-app/src/components/tenantDashboard/tabs/services/hooks/useServiceOperations.ts",
+      "apps/tenant-app/src/components/tenantDashboard/tabs/services/hooks/useServiceSelection.ts",
+      "apps/tenant-app/src/components/tenantDashboard/tabs/services/ServicesTab.tsx",
+      "apps/tenant-app/src/components/tenantDashboard/tabs/services/types/ServiceFeature.ts",
+      "apps/tenant-app/src/components/tenantDashboard/utils/tenantEvents.ts",
+      "apps/tenant-app/src/hooks/usePreviewParams.ts",
+      "apps/tenant-app/src/pages/IndustryPreviewPage.tsx"
+    ],
+    "ADMIN_APP": [
+      "apps/admin-app/src/components/adminDashboard/api/admin.api.ts",
+      "apps/admin-app/src/components/adminDashboard/components/AdminLayout.tsx",
+      "apps/admin-app/src/components/adminDashboard/components/AdminTabs.tsx",
+      "apps/admin-app/src/components/adminDashboard/components/shared/ApplicationModal.tsx",
+      "apps/admin-app/src/components/adminDashboard/components/shared/DeleteConfirmationModal.tsx",
+      "apps/admin-app/src/components/adminDashboard/components/shared/Toast.tsx",
+      "apps/admin-app/src/components/adminDashboard/components/TabContent.tsx",
+      "apps/admin-app/src/components/adminDashboard/components/tabs/analytics/AnalyticsTab.tsx",
+      "apps/admin-app/src/components/adminDashboard/components/tabs/analytics/SEOHealthCard.tsx",
+      "apps/admin-app/src/components/adminDashboard/components/tabs/reviews/ReviewsTab.tsx",
+      "apps/admin-app/src/components/adminDashboard/components/tabs/settings/SettingsTab.tsx",
+      "apps/admin-app/src/components/adminDashboard/components/tabs/users/UsersTab.tsx",
+      "apps/admin-app/src/components/adminDashboard/DashboardPage.tsx",
+      "apps/admin-app/src/components/adminDashboard/hooks/useSeedReview.ts",
+      "apps/admin-app/src/components/adminDashboard/utils/constants.ts",
+      "apps/admin-app/src/components/devPreview/components/ViewportFrame.tsx",
+      "apps/admin-app/src/components/devPreview/components/ViewportSwitcher.tsx",
+      "apps/admin-app/src/components/devPreview/hooks/useViewportAsync.ts",
+      "apps/admin-app/src/components/devPreview/state/viewportStore.ts",
+      "apps/admin-app/src/components/preview/api/preview.api.ts",
+      "apps/admin-app/src/components/preview/components/PreviewBanner.tsx",
+      "apps/admin-app/src/components/preview/components/PreviewCTAButton.tsx",
+      "apps/admin-app/src/components/preview/components/PreviewDataProvider.tsx",
+      "apps/admin-app/src/components/preview/components/PreviewError.tsx",
+      "apps/admin-app/src/components/preview/components/PreviewLoading.tsx",
+      "apps/admin-app/src/components/preview/components/PreviewPage.tsx",
+      "apps/admin-app/src/components/preview/hooks/usePreviewAsync.ts",
+      "apps/admin-app/src/components/preview/hooks/usePreviewParams.ts",
+      "apps/admin-app/src/components/preview/pages/PreviewGeneratorPage.tsx",
+      "apps/admin-app/src/components/preview/state/previewStore.ts",
+      "apps/admin-app/src/components/tenantOnboarding/api/api.ts",
+      "apps/admin-app/src/components/tenantOnboarding/api/onboarding.api.ts",
+      "apps/admin-app/src/components/tenantOnboarding/api/payments.api.ts",
+      "apps/admin-app/src/components/tenantOnboarding/components/ApplicationHeader.tsx",
+      "apps/admin-app/src/components/tenantOnboarding/components/BusinessInformationSection.tsx",
+      "apps/admin-app/src/components/tenantOnboarding/components/GoogleBusinessProfileModal.tsx",
+      "apps/admin-app/src/components/tenantOnboarding/components/IdentityContactSection.tsx",
+      "apps/admin-app/src/components/tenantOnboarding/components/LegalTermsSection.tsx",
+      "apps/admin-app/src/components/tenantOnboarding/components/LocationInput.tsx",
+      "apps/admin-app/src/components/tenantOnboarding/components/OperatingBasicsSection.tsx",
+      "apps/admin-app/src/components/tenantOnboarding/components/PaymentSection.tsx",
+      "apps/admin-app/src/components/tenantOnboarding/components/PersonalInformationSection.tsx",
+      "apps/admin-app/src/components/tenantOnboarding/components/PlanSelectionSection.tsx",
+      "apps/admin-app/src/components/tenantOnboarding/components/ProofOfWorkSection.tsx",
+      "apps/admin-app/src/components/tenantOnboarding/components/SocialMediaSection.tsx",
+      "apps/admin-app/src/components/tenantOnboarding/components/StepProgress.tsx",
+      "apps/admin-app/src/components/tenantOnboarding/components/SubmitSection.tsx",
+      "apps/admin-app/src/components/tenantOnboarding/components/SuccessPage.tsx",
+      "apps/admin-app/src/components/tenantOnboarding/components/TenantApplicationPage.tsx",
+      "apps/admin-app/src/components/tenantOnboarding/components/TenantPrivacyModal.tsx",
+      "apps/admin-app/src/components/tenantOnboarding/components/TenantTermsModal.tsx",
+      "apps/admin-app/src/components/tenantOnboarding/hooks/useAutoSave.ts",
+      "apps/admin-app/src/components/tenantOnboarding/hooks/useFileUpload.ts",
+      "apps/admin-app/src/components/tenantOnboarding/hooks/useFormHandlers.ts",
+      "apps/admin-app/src/components/tenantOnboarding/hooks/useLocalDraft.ts",
+      "apps/admin-app/src/components/tenantOnboarding/utils/validation.ts"
+    ]
+  },
+  "byCategory": {
+    "components": 86,
+    "refactored": 3,
+    "hooks": 35,
+    "api": 13,
+    "pages": 1
+  },
+  "files": [
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/booking/components/BookingForm.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/booking/components/steps/StepAddons/Header.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/booking/components/steps/StepPayment/StepPayment.refactored.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/booking/components/steps/StepService/Header.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/booking/components/steps/StepVehicleSelection/Header.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/booking/hooks/useBookingAsync.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/cta/components/MobileCTAButtons.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/cta/components/SmartCTAButtons.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/cta/hooks/useBookingCapabilities.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/customers/classes/Customer.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/header/routes/tenantRoutes.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/locations/api/locations.api.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/locations/components/LocationSelector.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/locations/hooks/useLocationPageState.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/locations/LocationPage.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/locations/utils/googleMaps.helpers.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/locations/utils/googlePlace.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/locations/utils/placesLoader.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/quotes/hooks/useQuoteFormLogic.refactored.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/quotes/quotes/api/quotes.api.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/quotes/quotes/components/ContactSection.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/quotes/quotes/components/LazyRequestQuoteModal.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/quotes/quotes/components/QuoteForm.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/quotes/quotes/components/RequestQuoteModal.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/quotes/quotes/components/ServicesSection.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/quotes/quotes/components/SuccessMessage.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/quotes/quotes/components/VehicleSection.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteForm.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteFormLogic.refactored.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteFormLogic.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteFormState.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteModal.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteSubmission.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteTenantData.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteValidation.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteVehicleData.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/reviews/api/reviewsApi.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/reviews/components/GoogleReviewsTest.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/reviews/hooks/useGoogleReviews.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/reviews/hooks/useReviews.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/reviews/hooks/useReviewsAvailability.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/reviews/hooks/useReviewsContent.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/reviews/hooks/useReviewsRating.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/reviews/hooks/useRotatingReviews.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/reviews/utils/reviewUtils.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/services/api/services.api.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/tenantDashboard/components/AddToHomeScreen.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/tenantDashboard/components/AutoSaveStatus.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/tenantDashboard/hooks/useDashboardData.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/tenantDashboard/tabs/locations/components/LocationCard.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/tenantDashboard/tabs/locations/components/LocationSearch.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/tenantDashboard/tabs/locations/hooks/useLocationSearch.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/tenantDashboard/tabs/overview/components/MetricsCards.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/tenantDashboard/tabs/overview/components/NotificationPanel.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/tenantDashboard/tabs/overview/components/RecentAppointments.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/tenantDashboard/tabs/overview/components/RecentReviews.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/tenantDashboard/tabs/overview/hooks/useDashboardStats.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/tenantDashboard/tabs/overview/hooks/useNotifications.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/tenantDashboard/tabs/overview/hooks/useRecentAppointments.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/tenantDashboard/tabs/overview/hooks/useRecentReviews.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/tenantDashboard/tabs/overview/utils/getStatusColor.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/tenantDashboard/tabs/performance/PerformanceTab.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/tenantDashboard/tabs/profile/components/SocialMediaUrlField.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/tenantDashboard/tabs/schedule/api/appointments.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/tenantDashboard/tabs/schedule/api/blockedDays.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/tenantDashboard/tabs/schedule/api/scheduleSettings.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/tenantDashboard/tabs/schedule/api/timeBlocks.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/tenantDashboard/tabs/services/components/AddServiceModal.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/tenantDashboard/tabs/services/components/FeatureList.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/tenantDashboard/tabs/services/components/SelectedServiceDetailsDisplay.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/tenantDashboard/tabs/services/components/SelectedServiceDisplay.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/tenantDashboard/tabs/services/components/ServiceActionsHeader.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/tenantDashboard/tabs/services/components/ServiceTierCards.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/tenantDashboard/tabs/services/FixedServicesTab.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/tenantDashboard/tabs/services/hooks/useFixedServicesHandlers.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/tenantDashboard/tabs/services/hooks/useServiceOperations.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/tenantDashboard/tabs/services/hooks/useServiceSelection.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/tenantDashboard/tabs/services/ServicesTab.tsx"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/tenantDashboard/tabs/services/types/ServiceFeature.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/components/tenantDashboard/utils/tenantEvents.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/hooks/usePreviewParams.ts"
+    },
+    {
+      "app": "TENANT_APP",
+      "path": "apps/tenant-app/src/pages/IndustryPreviewPage.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/adminDashboard/api/admin.api.ts"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/adminDashboard/components/AdminLayout.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/adminDashboard/components/AdminTabs.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/adminDashboard/components/shared/ApplicationModal.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/adminDashboard/components/shared/DeleteConfirmationModal.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/adminDashboard/components/shared/Toast.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/adminDashboard/components/TabContent.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/adminDashboard/components/tabs/analytics/AnalyticsTab.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/adminDashboard/components/tabs/analytics/SEOHealthCard.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/adminDashboard/components/tabs/reviews/ReviewsTab.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/adminDashboard/components/tabs/settings/SettingsTab.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/adminDashboard/components/tabs/users/UsersTab.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/adminDashboard/DashboardPage.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/adminDashboard/hooks/useSeedReview.ts"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/adminDashboard/utils/constants.ts"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/devPreview/components/ViewportFrame.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/devPreview/components/ViewportSwitcher.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/devPreview/hooks/useViewportAsync.ts"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/devPreview/state/viewportStore.ts"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/preview/api/preview.api.ts"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/preview/components/PreviewBanner.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/preview/components/PreviewCTAButton.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/preview/components/PreviewDataProvider.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/preview/components/PreviewError.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/preview/components/PreviewLoading.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/preview/components/PreviewPage.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/preview/hooks/usePreviewAsync.ts"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/preview/hooks/usePreviewParams.ts"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/preview/pages/PreviewGeneratorPage.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/preview/state/previewStore.ts"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/tenantOnboarding/api/api.ts"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/tenantOnboarding/api/onboarding.api.ts"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/tenantOnboarding/api/payments.api.ts"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/tenantOnboarding/components/ApplicationHeader.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/tenantOnboarding/components/BusinessInformationSection.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/tenantOnboarding/components/GoogleBusinessProfileModal.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/tenantOnboarding/components/IdentityContactSection.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/tenantOnboarding/components/LegalTermsSection.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/tenantOnboarding/components/LocationInput.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/tenantOnboarding/components/OperatingBasicsSection.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/tenantOnboarding/components/PaymentSection.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/tenantOnboarding/components/PersonalInformationSection.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/tenantOnboarding/components/PlanSelectionSection.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/tenantOnboarding/components/ProofOfWorkSection.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/tenantOnboarding/components/SocialMediaSection.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/tenantOnboarding/components/StepProgress.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/tenantOnboarding/components/SubmitSection.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/tenantOnboarding/components/SuccessPage.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/tenantOnboarding/components/TenantApplicationPage.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/tenantOnboarding/components/TenantPrivacyModal.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/tenantOnboarding/components/TenantTermsModal.tsx"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/tenantOnboarding/hooks/useAutoSave.ts"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/tenantOnboarding/hooks/useFileUpload.ts"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/tenantOnboarding/hooks/useFormHandlers.ts"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/tenantOnboarding/hooks/useLocalDraft.ts"
+    },
+    {
+      "app": "ADMIN_APP",
+      "path": "apps/admin-app/src/components/tenantOnboarding/utils/validation.ts"
+    }
+  ]
+}

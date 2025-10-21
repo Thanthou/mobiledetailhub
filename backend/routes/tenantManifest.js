@@ -1,13 +1,13 @@
 import express from 'express';
 import { logger } from '../config/logger.js';
-import { pool } from '../database/pool';import { asyncHandler } from '../middleware/errorHandler.js';
+import { getPool } from '../database/pool.js';
+import { asyncHandler } from '../middleware/errorHandler.js';
 
 /**
  * Tenant PWA Manifest Generator
  * Generates tenant-specific manifest.json for "Add to Home Screen"
  */
 const router = express.Router();
-;
 
 /**
  * GET /:slug/manifest.json
@@ -15,6 +15,7 @@ const router = express.Router();
  */
 router.get('/:slug/manifest.json', async (req, res) => {
   try {
+    const pool = await getPool();
     const { slug } = req.params;
 
     // Fetch tenant business info

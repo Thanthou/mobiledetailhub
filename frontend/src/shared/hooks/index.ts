@@ -74,4 +74,7 @@ export { useVehicleData } from './useVehicleData';
 // Reviews availability hook
 export { useReviewsAvailability } from './useReviewsAvailability';
 
+// Router debug hook
+export { useRouterDebug } from './useRouterDebug';
+
 // Legacy business data hooks removed - now using DataProvider for tenant-based routing

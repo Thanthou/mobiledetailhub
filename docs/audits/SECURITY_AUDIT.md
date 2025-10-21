@@ -1,7 +1,7 @@
 # Security Audit Report
 
-**Generated:** 2025-10-21T12:30:04.376Z
-**Duration:** 26ms
+**Generated:** 2025-10-21T21:26:26.184Z
+**Duration:** 25ms
 **Score:** 100/100
 
 ---
@@ -61,11 +61,11 @@ No issues found during this audit.
 
 ## Hardcoded Secrets Scan
 
-✅ No hardcoded secrets found (scanned 107 files)
+✅ No hardcoded secrets found (scanned 92 files)
 
 ## SQL Injection Prevention
 
-✅ No SQL injection vulnerabilities found (scanned 107 files)
+✅ No SQL injection vulnerabilities found (scanned 92 files)
 
 ## CORS Configuration
 

@@ -1,15 +1,15 @@
 # Backend Routes Audit Report
 
-**Generated:** 2025-10-21T12:30:05.335Z
+**Generated:** 2025-10-21T21:26:27.771Z
 **Duration:** 13ms
-**Score:** 94/100
+**Score:** 91/100
 
 ---
 
 ## Summary
 
-- ✅ **Passed:** 30
-- ⚠️  **Warnings:** 2
+- ✅ **Passed:** 26
+- ⚠️  **Warnings:** 3
 - ❌ **Errors:** 0
 
 ## Description
@@ -24,7 +24,11 @@ Validates Express route files for consistency in imports, logging, error handlin
    - Path: `backend/routes/admin.js`
    - Details: Standardize response JSON structure: { success, data/error }
 
-2. **errorTracking.js: Inconsistent response format patterns**
+2. **avatar.js: Uses legacy pool import (should use getPool)**
+   - Path: `backend/routes/avatar.js`
+   - Details: Use getPool() instead of direct pool import
+
+3. **errorTracking.js: Inconsistent response format patterns**
    - Path: `backend/routes/errorTracking.js`
    - Details: Standardize response JSON structure: { success, data/error }
 
@@ -37,10 +41,10 @@ Validates Express route files for consistency in imports, logging, error handlin
 
 ⚠️ **WARNING**: admin.js: Inconsistent response format patterns
    - Path: `backend/routes/admin.js`
-✅ analytics.js: Clean
 ✅ analytics.new.js: Clean
 ✅ auth.js: Clean
-✅ avatar.js: Clean
+⚠️ **WARNING**: avatar.js: Uses legacy pool import (should use getPool)
+   - Path: `backend/routes/avatar.js`
 ✅ config.js: Clean
 ✅ customers.js: Clean
 ✅ domains.js: Clean
@@ -60,14 +64,12 @@ Validates Express route files for consistency in imports, logging, error handlin
 ✅ seo.js: Clean
 ✅ serviceAreas.js: Clean
 ✅ services.js: Clean
-✅ stockImages.js: Clean
 ✅ subdomainTest.js: Clean
 ✅ tenantDashboard.js: Clean
 ✅ tenantImages.js: Clean
 ✅ tenantManifest.js: Clean
 ✅ tenantReviews.js: Clean
 ✅ tenants.js: Clean
-✅ upload.js: Clean
 ✅ websiteContent.js: Clean
 
 ---

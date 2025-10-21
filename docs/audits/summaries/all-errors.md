@@ -1,21 +1,33 @@
 # All Audits - Issues Summary
 
-**Generated:** 2025-10-21T12:30:11.111Z
-**Total Audits:** 13
+**Generated:** 2025-10-21T21:26:33.713Z
+**Total Audits:** 14
 
 ---
 
 ## ❌ Errors
 
-**Total Errors:** 2
+**Total Errors:** 4
 
-### 1. Performance
+### 1. Dependencies
+
+**Error:** @babel/parser not installed
+
+**Path:** `scripts\audits\audit-flows.js`
+
+### 2. Dependencies
+
+**Error:** @babel/traverse not installed
+
+**Path:** `scripts\audits\audit-flows.js`
+
+### 3. Performance
 
 **Error:** Large bundle: react-vendor--vAscSmE.js (1122KB)
 
 **Path:** `assets\react-vendor--vAscSmE.js`
 
-### 2. Performance
+### 4. Performance
 
 **Error:** Large bundle: tenant-app-LfYPzNrW.js (807KB)
 
@@ -25,7 +37,7 @@
 
 ## ⚠️  Warnings
 
-**Total Warnings:** 64
+**Total Warnings:** 61
 
 ### 1. Schema Switching
 
@@ -155,257 +167,239 @@
 
 ### 22. API Contracts
 
-**Warning:** Route file missing validation: stockImages.js
+**Warning:** Route file missing validation: subdomainTest.js
 
 **Path:** `N/A`
 
 ### 23. API Contracts
 
-**Warning:** Route file missing validation: subdomainTest.js
+**Warning:** Route file missing validation: tenantImages.js
 
 **Path:** `N/A`
 
 ### 24. API Contracts
 
-**Warning:** Route file missing validation: tenantImages.js
+**Warning:** Route file missing validation: tenantManifest.js
 
 **Path:** `N/A`
 
 ### 25. API Contracts
 
-**Warning:** Route file missing validation: tenantManifest.js
+**Warning:** Route file missing validation: websiteContent.js
 
 **Path:** `N/A`
 
 ### 26. API Contracts
 
-**Warning:** Route file missing validation: upload.js
+**Warning:** Controller missing validation: tenantDashboardController.js
 
 **Path:** `N/A`
 
 ### 27. API Contracts
 
-**Warning:** Route file missing validation: websiteContent.js
+**Warning:** Route file missing validation middleware: config.js
 
 **Path:** `N/A`
 
 ### 28. API Contracts
 
-**Warning:** Controller missing validation: tenantDashboardController.js
+**Warning:** Route file missing validation middleware: domains.js
 
 **Path:** `N/A`
 
 ### 29. API Contracts
 
-**Warning:** Route file missing validation middleware: config.js
+**Warning:** Route file missing validation middleware: errorTracking.js
 
 **Path:** `N/A`
 
 ### 30. API Contracts
 
-**Warning:** Route file missing validation middleware: domains.js
+**Warning:** Body parsing without validation in errorTracking.js
 
 **Path:** `N/A`
 
 ### 31. API Contracts
 
-**Warning:** Route file missing validation middleware: errorTracking.js
+**Warning:** Route file missing validation middleware: gallery.js
 
 **Path:** `N/A`
 
 ### 32. API Contracts
 
-**Warning:** Body parsing without validation in errorTracking.js
+**Warning:** Route file missing validation middleware: googleAnalytics.js
 
 **Path:** `N/A`
 
 ### 33. API Contracts
 
-**Warning:** Route file missing validation middleware: gallery.js
+**Warning:** Route file missing validation middleware: googleAuth.js
 
 **Path:** `N/A`
 
 ### 34. API Contracts
 
-**Warning:** Route file missing validation middleware: googleAnalytics.js
+**Warning:** Route file missing validation middleware: googleReviews.js
 
 **Path:** `N/A`
 
 ### 35. API Contracts
 
-**Warning:** Route file missing validation middleware: googleAuth.js
+**Warning:** Route file missing validation middleware: health.js
 
 **Path:** `N/A`
 
 ### 36. API Contracts
 
-**Warning:** Route file missing validation middleware: googleReviews.js
+**Warning:** Route file missing validation middleware: payments.js
 
 **Path:** `N/A`
 
 ### 37. API Contracts
 
-**Warning:** Route file missing validation middleware: health.js
+**Warning:** Body parsing without validation in payments.js
 
 **Path:** `N/A`
 
 ### 38. API Contracts
 
-**Warning:** Route file missing validation middleware: payments.js
+**Warning:** Route file missing validation middleware: reviews.js
 
 **Path:** `N/A`
 
 ### 39. API Contracts
 
-**Warning:** Body parsing without validation in payments.js
+**Warning:** Body parsing without validation in reviews.js
 
 **Path:** `N/A`
 
 ### 40. API Contracts
 
-**Warning:** Route file missing validation middleware: reviews.js
+**Warning:** Route file missing validation middleware: seo.js
 
 **Path:** `N/A`
 
 ### 41. API Contracts
 
-**Warning:** Body parsing without validation in reviews.js
+**Warning:** Route file missing validation middleware: services.js
 
 **Path:** `N/A`
 
 ### 42. API Contracts
 
-**Warning:** Route file missing validation middleware: seo.js
+**Warning:** Body parsing without validation in services.js
 
 **Path:** `N/A`
 
 ### 43. API Contracts
 
-**Warning:** Route file missing validation middleware: services.js
+**Warning:** Route file missing validation middleware: subdomainTest.js
 
 **Path:** `N/A`
 
 ### 44. API Contracts
 
-**Warning:** Body parsing without validation in services.js
+**Warning:** Route file missing validation middleware: tenantImages.js
 
 **Path:** `N/A`
 
 ### 45. API Contracts
 
-**Warning:** Route file missing validation middleware: stockImages.js
+**Warning:** Body parsing without validation in tenantImages.js
 
 **Path:** `N/A`
 
 ### 46. API Contracts
 
-**Warning:** Route file missing validation middleware: subdomainTest.js
+**Warning:** Route file missing validation middleware: tenantManifest.js
 
 **Path:** `N/A`
 
 ### 47. API Contracts
 
-**Warning:** Route file missing validation middleware: tenantImages.js
+**Warning:** Route file missing validation middleware: websiteContent.js
 
 **Path:** `N/A`
 
 ### 48. API Contracts
 
-**Warning:** Body parsing without validation in tenantImages.js
+**Warning:** Body parsing without validation in websiteContent.js
 
 **Path:** `N/A`
 
 ### 49. API Contracts
 
-**Warning:** Route file missing validation middleware: tenantManifest.js
-
-**Path:** `N/A`
-
-### 50. API Contracts
-
-**Warning:** Route file missing validation middleware: upload.js
-
-**Path:** `N/A`
-
-### 51. API Contracts
-
-**Warning:** Route file missing validation middleware: websiteContent.js
-
-**Path:** `N/A`
-
-### 52. API Contracts
-
-**Warning:** Body parsing without validation in websiteContent.js
-
-**Path:** `N/A`
-
-### 53. API Contracts
-
 **Warning:** No API documentation found
 
 **Path:** `docs/`
 
-### 54. Assets
+### 50. Assets
 
 **Warning:** Apple touch icon not referenced in HTML: index.html
 
 **Path:** `N/A`
 
-### 55. Assets
+### 51. Assets
 
 **Warning:** Theme color meta tag missing: index.html
 
 **Path:** `N/A`
 
-### 56. Assets
+### 52. Assets
 
 **Warning:** Apple touch icon not referenced in HTML: index.html
 
 **Path:** `N/A`
 
-### 57. Assets
+### 53. Assets
 
 **Warning:** Apple touch icon not referenced in HTML: index.html
 
 **Path:** `N/A`
 
-### 58. Assets
+### 54. Assets
 
 **Warning:** Security headers not configured
 
 **Path:** `backend/server.js`
 
-### 59. Assets
+### 55. Assets
 
 **Warning:** No WebP images found - consider adding WebP support for better performance
 
 **Path:** `N/A`
 
-### 60. Assets
+### 56. Assets
 
 **Warning:** Vite build optimization not configured
 
 **Path:** `frontend/vite.config.ts`
 
-### 61. Backend Routes
+### 57. Backend Routes
 
 **Warning:** admin.js: Inconsistent response format patterns
 
 **Path:** `backend/routes/admin.js`
 
-### 62. Backend Routes
+### 58. Backend Routes
+
+**Warning:** avatar.js: Uses legacy pool import (should use getPool)
+
+**Path:** `backend/routes/avatar.js`
+
+### 59. Backend Routes
 
 **Warning:** errorTracking.js: Inconsistent response format patterns
 
 **Path:** `backend/routes/errorTracking.js`
 
-### 63. Performance
+### 60. Performance
 
 **Warning:** Large component: schemaUtils.ts (549 lines)
 
 **Path:** `shared\utils\schemaUtils.ts`
 
-### 64. Project Overview
+### 61. Project Overview
 
 **Warning:** No audit reports found
 
@@ -420,15 +414,16 @@
 - 🟢 **Database**: Pass (0 errors, 0 warnings)
 - 🟡 **Schema Switching**: Pass (0 errors, 1 warnings)
 - 🟢 **Import Boundaries**: Pass (0 errors, 0 warnings)
+- 🟢 **Backend Flow Tracer**: Pass (0 errors, 0 warnings)
 - 🟡 **Middleware**: Pass (0 errors, 8 warnings)
-- 🟡 **API Contracts**: Pass (0 errors, 44 warnings)
+- 🟡 **API Contracts**: Pass (0 errors, 40 warnings)
 - 🟡 **Assets**: Pass (0 errors, 7 warnings)
-- 🟡 **Backend Routes**: Pass (0 errors, 2 warnings)
+- 🟡 **Backend Routes**: Pass (0 errors, 3 warnings)
 - 🟢 **Frontend Routing**: Pass (0 errors, 0 warnings)
-- 🟢 **Dependencies**: Pass (0 errors, 0 warnings)
+- 🔴 **Dependencies**: Fail (2 errors, 0 warnings)
 - 🔴 **Performance**: Fail (2 errors, 1 warnings)
 - 🟡 **Project Overview**: Pass (0 errors, 1 warnings)
 
 ---
 
-_Generated by `npm run audit:all` at 2025-10-21T12:30:11.111Z_
+_Generated by `npm run audit:all` at 2025-10-21T21:26:33.713Z_

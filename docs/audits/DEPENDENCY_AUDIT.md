@@ -1,24 +1,32 @@
 # Dependencies Audit Report
 
-**Generated:** 2025-10-21T12:30:10.944Z
-**Duration:** 4790ms
-**Score:** 100/100
+**Generated:** 2025-10-21T21:26:33.539Z
+**Duration:** 4967ms
+**Score:** 80/100
 
 ---
 
 ## Summary
 
-- ✅ **Passed:** 11
+- ✅ **Passed:** 10
 - ⚠️  **Warnings:** 0
-- ❌ **Errors:** 0
+- ❌ **Errors:** 2
 
 ## Description
 
 Validates file dependencies, npm packages, circular dependencies, hosts file entries, and port availability.
 
-## ✅ All Checks Passed!
+## Issues Found
 
-No issues found during this audit.
+### 🔴 Critical Errors
+
+1. **@babel/parser not installed**
+   - Path: `scripts\audits\audit-flows.js`
+   - Details: Run: npm install
+
+2. **@babel/traverse not installed**
+   - Path: `scripts\audits\audit-flows.js`
+   - Details: Run: npm install
 
 ---
 
@@ -32,7 +40,10 @@ No issues found during this audit.
 
 ## NPM Dependencies
 
-✅ All dependencies installed
+❌ **ERROR**: @babel/parser not installed
+   - Path: `scripts\audits\audit-flows.js`
+❌ **ERROR**: @babel/traverse not installed
+   - Path: `scripts\audits\audit-flows.js`
 
 ## Circular Dependencies
 

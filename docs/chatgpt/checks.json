@@ -20,7 +20,7 @@
   {
     "id": "auth_access_ttl",
     "description": "Access token TTL ≤ 1h (ideally 15m)",
-    "pass": false,
+    "pass": true,
     "pointers": [
       "backend/config/auth.js"
     ],
@@ -29,7 +29,7 @@
   {
     "id": "auth_refresh_rotation",
     "description": "Refresh flow invalidates old token and issues new one",
-    "pass": false,
+    "pass": true,
     "pointers": [
       "backend/services/authService.js",
       "backend/controllers/authController.js"

@@ -1,14 +1,13 @@
 import express from 'express';
 import { logger } from '../config/logger.js';
-import { asyncHandler } from '../middleware/errorHandler';
+import { asyncHandler } from '../middleware/errorHandler.js';
 import { getPool } from '../database/pool.js';
-import { robotsRoute, sitemapRoute, seoConfigRoute, previewRoute } from './seo';
 
 /**
  * SEO Routes - Centralized SEO endpoint management
  * 
- * This module anchors Cursor's understanding of SEO backend functionality.
- * All SEO-related API endpoints should be defined here.
+ * This module provides robots.txt, sitemap.xml, and other SEO endpoints
+ * for tenant websites.
  */
 const router = express.Router();
 
@@ -17,17 +16,6 @@ const router = express.Router();
 const sitemapCache = new Map();
 const ONE_HOUR_MS = 60 * 60 * 1000;
 const TWENTY_FOUR_HOURS_MS = 24 * ONE_HOUR_MS;
-
-// Import the modular SEO routes
-// TODO: Fix TypeScript
-imports - these are .ts files in ./seo/ directory
-//
-
-// Use the modular routes
-// router.use('/', robotsRoute);
-// router.use('/', sitemapRoute);
-// router.use('/api/seo', seoConfigRoute);
-// router.use('/', previewRoute);
 
 /**
  * GET /robots.txt
@@ -131,6 +119,7 @@ router.get('/sitemap.xml', asyncHandler(async (req, res) => {
     
     // Get tenant information from database
     let tenantData = null;
+    const pool = await getPool();
     if (pool) {
       try {
         // Try to find tenant by domain or slug

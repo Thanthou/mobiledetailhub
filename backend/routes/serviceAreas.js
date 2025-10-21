@@ -1,10 +1,10 @@
 import express from 'express';
 import { logger } from '../config/logger.js';
-import { asyncHandler } from '../middleware/errorHandler';
-import { getPlatformServiceAreas, getTenantsForCity } from '../utils/serviceAreaProcessor';
+import { asyncHandler } from '../middleware/errorHandler.js';
+import { getPlatformServiceAreas, getTenantsForCity } from '../utils/serviceAreaProcessor.js';
 import { getPool } from '../database/pool.js';
-import { serviceAreaSchemas } from '../utils/validationSchemas';
-import { validateParams } from '../middleware/validation';
+import { serviceAreaSchemas } from '../utils/validationSchemas.js';
+import { validateParams } from '../middleware/validation.js';
 
 /**
  * @fileoverview API routes for serviceAreas
@@ -18,6 +18,7 @@ router.get('/footer', asyncHandler(async (req, res) => {
   try {
     logger.info('Footer service areas endpoint called');
 
+    const pool = await getPool();
     if (!pool) {
       logger.error('Database connection not available');
       const error = new Error('Database connection not available');

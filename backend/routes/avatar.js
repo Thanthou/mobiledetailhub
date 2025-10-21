@@ -10,10 +10,11 @@ import path from 'path';
 import fs from 'fs';
 const router = express.Router();
 import { authenticateToken, requireAdmin } from '../middleware/auth.js';
-import { generateAvatarFilename, ensureUploadsDir } from '../utils/avatarUtils.js';
+import { generateAvatarFilename, ensureUploadsDir, findCustomAvatar } from '../utils/avatarUtils.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import { validateFileMagic } from '../utils/uploadValidator.js';
 import { logger } from '../config/logger.js';
+import { pool } from '../database/pool.js';
 // Configure multer for avatar uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -168,7 +169,6 @@ router.post('/upload', authenticateToken, requireAdmin, upload.single('avatar'),
 
     // Update the review record with the new avatar URL
     try {
-      import {  pool  } from '../database/pool';;
       await pool.query(
         'UPDATE reputation.reviews SET reviewer_avatar_url = $1 WHERE id = $2',
         [avatarUrl, parseInt(reviewId)]
@@ -221,7 +221,6 @@ router.get('/info/:reviewId', authenticateToken, requireAdmin, asyncHandler((req
     });
   }
 
-  import {  findCustomAvatar  } from '../utils/avatarUtils';;
   const customAvatar = findCustomAvatar(reviewerName, parseInt(reviewId));
   
   res.json({
@@ -245,7 +244,6 @@ router.delete('/:reviewId', authenticateToken, requireAdmin, asyncHandler((req, 
     });
   }
 
-  import {  findCustomAvatar  } from '../utils/avatarUtils';;
   const customAvatar = findCustomAvatar(reviewerName, parseInt(reviewId));
   
   if (!customAvatar) {

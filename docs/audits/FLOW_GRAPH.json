@@ -1,0 +1,5714 @@
+{
+  "metadata": {
+    "generated": "2025-10-21T22:38:16.678Z",
+    "totalNodes": 86,
+    "totalEdges": 269,
+    "reachableNodes": 81,
+    "unreachableNodes": 5
+  },
+  "nodes": [
+    {
+      "id": "config\\auth.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [],
+      "routes": [],
+      "importCount": 1,
+      "importedByCount": 2
+    },
+    {
+      "id": "config\\env.async.js",
+      "reachable": false,
+      "exports": [
+        {
+          "name": "loadEnv",
+          "type": "function"
+        },
+        {
+          "name": "env",
+          "type": "variable"
+        }
+      ],
+      "functions": [
+        "loadEnv"
+      ],
+      "routes": [],
+      "importCount": 0,
+      "importedByCount": 0
+    },
+    {
+      "id": "config\\env.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [],
+      "routes": [],
+      "importCount": 0,
+      "importedByCount": 14
+    },
+    {
+      "id": "config\\logger.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [],
+      "routes": [
+        {
+          "method": "get",
+          "path": "User-Agent",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "User-Agent",
+          "handlers": []
+        }
+      ],
+      "importCount": 1,
+      "importedByCount": 63
+    },
+    {
+      "id": "config\\logging-environments.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [],
+      "routes": [],
+      "importCount": 1,
+      "importedByCount": 1
+    },
+    {
+      "id": "controllers\\authController.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [
+        "checkEmail",
+        "register",
+        "login",
+        "refreshToken",
+        "logout",
+        "logoutAll",
+        "getUserTokens",
+        "revokeDevice",
+        "getProfile",
+        "updateProfile",
+        "changePassword"
+      ],
+      "routes": [
+        {
+          "method": "get",
+          "path": "User-Agent",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "User-Agent",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "User-Agent",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "User-Agent",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "User-Agent",
+          "handlers": []
+        }
+      ],
+      "importCount": 3,
+      "importedByCount": 1
+    },
+    {
+      "id": "controllers\\domainController.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "getDomainTenant",
+          "type": "function"
+        },
+        {
+          "name": "setCustomDomain",
+          "type": "function"
+        },
+        {
+          "name": "removeCustomDomain",
+          "type": "function"
+        },
+        {
+          "name": "getDomainStatus",
+          "type": "function"
+        },
+        {
+          "name": "verifyDomain",
+          "type": "function"
+        },
+        {
+          "name": "checkDomainAvailability",
+          "type": "function"
+        }
+      ],
+      "functions": [
+        "getDomainTenant",
+        "setCustomDomain",
+        "removeCustomDomain",
+        "getDomainStatus",
+        "verifyDomain",
+        "checkDomainAvailability"
+      ],
+      "routes": [],
+      "importCount": 2,
+      "importedByCount": 1
+    },
+    {
+      "id": "controllers\\passwordResetController.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [],
+      "routes": [
+        {
+          "method": "get",
+          "path": "User-Agent",
+          "handlers": []
+        }
+      ],
+      "importCount": 2,
+      "importedByCount": 1
+    },
+    {
+      "id": "controllers\\passwordSetupController.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [],
+      "routes": [
+        {
+          "method": "get",
+          "path": "User-Agent",
+          "handlers": []
+        }
+      ],
+      "importCount": 2,
+      "importedByCount": 1
+    },
+    {
+      "id": "controllers\\tenantController.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [
+        "createTenant",
+        "getTenantBySlug",
+        "getTenantsByIndustry",
+        "updateTenantBySlug",
+        "getIndustries"
+      ],
+      "routes": [],
+      "importCount": 2,
+      "importedByCount": 1
+    },
+    {
+      "id": "controllers\\tenantDashboardController.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [
+        "getTenantDashboard",
+        "getTenantOverview",
+        "getTenantReviews",
+        "getTenantPerformance",
+        "getTenantActivity",
+        "getDateFilter"
+      ],
+      "routes": [],
+      "importCount": 3,
+      "importedByCount": 1
+    },
+    {
+      "id": "database\\pool.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "getPool",
+          "type": "function"
+        },
+        {
+          "name": "closePool",
+          "type": "function"
+        }
+      ],
+      "functions": [
+        "getPool",
+        "closePool"
+      ],
+      "routes": [],
+      "importCount": 1,
+      "importedByCount": 34
+    },
+    {
+      "id": "middleware\\auth.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [],
+      "routes": [],
+      "importCount": 2,
+      "importedByCount": 8
+    },
+    {
+      "id": "middleware\\csrfProtection.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "csrfProtection",
+          "type": "variable"
+        },
+        {
+          "name": "strictCsrfProtection",
+          "type": "variable"
+        }
+      ],
+      "functions": [],
+      "routes": [
+        {
+          "method": "get",
+          "path": "origin",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "referer",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "origin",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "referer",
+          "handlers": []
+        }
+      ],
+      "importCount": 1,
+      "importedByCount": 1
+    },
+    {
+      "id": "middleware\\errorHandler.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [],
+      "routes": [
+        {
+          "method": "get",
+          "path": "User-Agent",
+          "handlers": []
+        }
+      ],
+      "importCount": 4,
+      "importedByCount": 29
+    },
+    {
+      "id": "middleware\\rateLimiter.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [],
+      "routes": [
+        {
+          "method": "get",
+          "path": "User-Agent",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "User-Agent",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "User-Agent",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "User-Agent",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "User-Agent",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "User-Agent",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "User-Agent",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "host",
+          "handlers": []
+        }
+      ],
+      "importCount": 1,
+      "importedByCount": 5
+    },
+    {
+      "id": "middleware\\requestLogger.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [],
+      "routes": [
+        {
+          "method": "get",
+          "path": "User-Agent",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "Content-Type",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "Content-Length",
+          "handlers": []
+        }
+      ],
+      "importCount": 2,
+      "importedByCount": 1
+    },
+    {
+      "id": "middleware\\subdomainMiddleware.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "extractSubdomain",
+          "type": "function"
+        },
+        {
+          "name": "createSubdomainMiddleware",
+          "type": "function"
+        },
+        {
+          "name": "createAdminSubdomainMiddleware",
+          "type": "function"
+        },
+        {
+          "name": "addTenantContext",
+          "type": "function"
+        },
+        {
+          "name": "generateTenantUrl",
+          "type": "function"
+        }
+      ],
+      "functions": [
+        "extractSubdomain",
+        "createSubdomainMiddleware",
+        "createAdminSubdomainMiddleware",
+        "addTenantContext",
+        "generateTenantUrl"
+      ],
+      "routes": [
+        {
+          "method": "get",
+          "path": "User-Agent",
+          "handlers": []
+        }
+      ],
+      "importCount": 4,
+      "importedByCount": 1
+    },
+    {
+      "id": "middleware\\tenantResolver.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "tenantResolver",
+          "type": "function"
+        },
+        {
+          "name": "tenantResolverWithDB",
+          "type": "function"
+        }
+      ],
+      "functions": [
+        "tenantResolver",
+        "tenantResolverWithDB"
+      ],
+      "routes": [],
+      "importCount": 2,
+      "importedByCount": 2
+    },
+    {
+      "id": "middleware\\tenantValidation.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [],
+      "routes": [],
+      "importCount": 3,
+      "importedByCount": 1
+    },
+    {
+      "id": "middleware\\validation.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [
+        "parseSize"
+      ],
+      "routes": [],
+      "importCount": 3,
+      "importedByCount": 3
+    },
+    {
+      "id": "middleware\\withTenant.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [
+        "switchToTenantSchema",
+        "getTenantBySlug",
+        "getTenantByUserId"
+      ],
+      "routes": [],
+      "importCount": 4,
+      "importedByCount": 4
+    },
+    {
+      "id": "middleware\\zodValidation.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [],
+      "routes": [],
+      "importCount": 1,
+      "importedByCount": 5
+    },
+    {
+      "id": "routes\\admin.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "router",
+          "type": "default"
+        }
+      ],
+      "functions": [],
+      "routes": [
+        {
+          "method": "delete",
+          "path": "/tenants/:id",
+          "handlers": [
+            "criticalAdminLimiter",
+            "authenticateToken",
+            "requireAdmin"
+          ]
+        },
+        {
+          "method": "delete",
+          "path": "/tenants/:id/soft",
+          "handlers": [
+            "criticalAdminLimiter",
+            "authenticateToken",
+            "requireAdmin"
+          ]
+        },
+        {
+          "method": "delete",
+          "path": "/tenants/:id/legacy",
+          "handlers": [
+            "authenticateToken",
+            "requireAdmin"
+          ]
+        },
+        {
+          "method": "get",
+          "path": "/users",
+          "handlers": [
+            "authenticateToken",
+            "requireAdmin"
+          ]
+        },
+        {
+          "method": "get",
+          "path": "/pending-applications",
+          "handlers": [
+            "authenticateToken",
+            "requireAdmin"
+          ]
+        },
+        {
+          "method": "post",
+          "path": "/approve-application/:id",
+          "handlers": [
+            "authenticateToken",
+            "requireAdmin"
+          ]
+        },
+        {
+          "method": "post",
+          "path": "/reject-application/:id",
+          "handlers": [
+            "authenticateToken",
+            "requireAdmin"
+          ]
+        },
+        {
+          "method": "get",
+          "path": "/service-areas",
+          "handlers": [
+            "authenticateToken",
+            "requireAdmin"
+          ]
+        },
+        {
+          "method": "post",
+          "path": "/seed-reviews",
+          "handlers": [
+            "authenticateToken",
+            "requireAdmin"
+          ]
+        }
+      ],
+      "importCount": 7,
+      "importedByCount": 1
+    },
+    {
+      "id": "routes\\analytics.new.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [
+        "createAnalyticsRouter"
+      ],
+      "routes": [
+        {
+          "method": "get",
+          "path": "X-Analytics-Key",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "host",
+          "handlers": []
+        },
+        {
+          "method": "post",
+          "path": "/track",
+          "handlers": [
+            "analyticsLimiter",
+            "verifyIngestKey"
+          ]
+        },
+        {
+          "method": "get",
+          "path": "User-Agent",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "Referer",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "host",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "host",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/events/:tenantId",
+          "handlers": [
+            "authenticateToken",
+            "requireAdmin"
+          ]
+        },
+        {
+          "method": "get",
+          "path": "User-Agent",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/summary/:tenantId",
+          "handlers": [
+            "authenticateToken",
+            "requireAdmin"
+          ]
+        },
+        {
+          "method": "get",
+          "path": "User-Agent",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/queue/status",
+          "handlers": [
+            "authenticateToken",
+            "requireAdmin"
+          ]
+        }
+      ],
+      "importCount": 8,
+      "importedByCount": 1
+    },
+    {
+      "id": "routes\\auth.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "router",
+          "type": "default"
+        }
+      ],
+      "functions": [],
+      "routes": [
+        {
+          "method": "get",
+          "path": "/check-email",
+          "handlers": [
+            "authLimiter"
+          ]
+        },
+        {
+          "method": "post",
+          "path": "/register",
+          "handlers": [
+            "sensitiveAuthLimiter"
+          ]
+        },
+        {
+          "method": "post",
+          "path": "/login",
+          "handlers": [
+            "sensitiveAuthLimiter"
+          ]
+        },
+        {
+          "method": "get",
+          "path": "/me",
+          "handlers": [
+            "authenticateToken"
+          ]
+        },
+        {
+          "method": "post",
+          "path": "/refresh",
+          "handlers": [
+            "csrfProtection",
+            "refreshTokenLimiter"
+          ]
+        },
+        {
+          "method": "get",
+          "path": "User-Agent",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "User-Agent",
+          "handlers": []
+        },
+        {
+          "method": "post",
+          "path": "/logout",
+          "handlers": [
+            "authenticateToken"
+          ]
+        },
+        {
+          "method": "get",
+          "path": "User-Agent",
+          "handlers": []
+        },
+        {
+          "method": "post",
+          "path": "/logout-device",
+          "handlers": [
+            "authenticateToken"
+          ]
+        },
+        {
+          "method": "get",
+          "path": "/sessions",
+          "handlers": [
+            "authenticateToken"
+          ]
+        },
+        {
+          "method": "post",
+          "path": "/request-password-reset",
+          "handlers": [
+            "authLimiter",
+            "passwordResetController.requestPasswordReset"
+          ]
+        },
+        {
+          "method": "post",
+          "path": "/reset-password",
+          "handlers": [
+            "authLimiter",
+            "passwordResetController.resetPassword"
+          ]
+        },
+        {
+          "method": "get",
+          "path": "/validate-reset-token",
+          "handlers": [
+            "authLimiter",
+            "passwordResetController.validateResetToken"
+          ]
+        },
+        {
+          "method": "get",
+          "path": "/reset-stats",
+          "handlers": [
+            "authenticateToken",
+            "passwordResetController.getResetStats"
+          ]
+        },
+        {
+          "method": "post",
+          "path": "/create-password-setup",
+          "handlers": [
+            "authLimiter",
+            "passwordSetupController.createPasswordSetup"
+          ]
+        },
+        {
+          "method": "post",
+          "path": "/setup-password",
+          "handlers": [
+            "authLimiter",
+            "passwordSetupController.setupPassword"
+          ]
+        },
+        {
+          "method": "get",
+          "path": "/validate-setup-token",
+          "handlers": [
+            "authLimiter",
+            "passwordSetupController.validateSetupToken"
+          ]
+        },
+        {
+          "method": "get",
+          "path": "/setup-stats",
+          "handlers": [
+            "authenticateToken",
+            "passwordSetupController.getSetupStats"
+          ]
+        },
+        {
+          "method": "post",
+          "path": "/promote-admin",
+          "handlers": [
+            "authLimiter"
+          ]
+        }
+      ],
+      "importCount": 12,
+      "importedByCount": 1
+    },
+    {
+      "id": "routes\\avatar.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "router",
+          "type": "default"
+        }
+      ],
+      "functions": [],
+      "routes": [
+        {
+          "method": "post",
+          "path": "/test-upload",
+          "handlers": []
+        },
+        {
+          "method": "post",
+          "path": "/upload",
+          "handlers": [
+            "authenticateToken",
+            "requireAdmin"
+          ]
+        },
+        {
+          "method": "get",
+          "path": "/info/:reviewId",
+          "handlers": [
+            "authenticateToken",
+            "requireAdmin"
+          ]
+        },
+        {
+          "method": "delete",
+          "path": "/:reviewId",
+          "handlers": [
+            "authenticateToken",
+            "requireAdmin"
+          ]
+        }
+      ],
+      "importCount": 6,
+      "importedByCount": 1
+    },
+    {
+      "id": "routes\\config.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "router",
+          "type": "default"
+        }
+      ],
+      "functions": [],
+      "routes": [
+        {
+          "method": "get",
+          "path": "/",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/health",
+          "handlers": []
+        }
+      ],
+      "importCount": 1,
+      "importedByCount": 1
+    },
+    {
+      "id": "routes\\customers.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "router",
+          "type": "default"
+        }
+      ],
+      "functions": [],
+      "routes": [
+        {
+          "method": "get",
+          "path": "/",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/field/:field",
+          "handlers": []
+        }
+      ],
+      "importCount": 4,
+      "importedByCount": 1
+    },
+    {
+      "id": "routes\\domains.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "router",
+          "type": "default"
+        }
+      ],
+      "functions": [],
+      "routes": [
+        {
+          "method": "get",
+          "path": "User-Agent",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/:domain",
+          "handlers": [
+            "domainController.getDomainTenant"
+          ]
+        },
+        {
+          "method": "get",
+          "path": "/:domain/available",
+          "handlers": [
+            "domainController.checkDomainAvailability"
+          ]
+        },
+        {
+          "method": "put",
+          "path": "/:tenantId",
+          "handlers": [
+            "domainController.setCustomDomain"
+          ]
+        },
+        {
+          "method": "delete",
+          "path": "/:tenantId",
+          "handlers": [
+            "domainController.removeCustomDomain"
+          ]
+        },
+        {
+          "method": "get",
+          "path": "/:tenantId/status",
+          "handlers": [
+            "domainController.getDomainStatus"
+          ]
+        },
+        {
+          "method": "post",
+          "path": "/:tenantId/verify",
+          "handlers": [
+            "domainController.verifyDomain"
+          ]
+        }
+      ],
+      "importCount": 2,
+      "importedByCount": 1
+    },
+    {
+      "id": "routes\\errorTracking.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "router",
+          "type": "default"
+        }
+      ],
+      "functions": [],
+      "routes": [
+        {
+          "method": "post",
+          "path": "/track",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/stats",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/health",
+          "handlers": []
+        }
+      ],
+      "importCount": 4,
+      "importedByCount": 1
+    },
+    {
+      "id": "routes\\gallery.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "router",
+          "type": "default"
+        }
+      ],
+      "functions": [],
+      "routes": [
+        {
+          "method": "get",
+          "path": "/images",
+          "handlers": []
+        }
+      ],
+      "importCount": 1,
+      "importedByCount": 1
+    },
+    {
+      "id": "routes\\googleAnalytics.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "router",
+          "type": "default"
+        }
+      ],
+      "functions": [],
+      "routes": [
+        {
+          "method": "get",
+          "path": "/test",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/auth",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/callback",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/status",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/summary",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/realtime",
+          "handlers": []
+        }
+      ],
+      "importCount": 6,
+      "importedByCount": 1
+    },
+    {
+      "id": "routes\\googleAuth.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "router",
+          "type": "default"
+        }
+      ],
+      "functions": [
+        "storeOAuthTokens"
+      ],
+      "routes": [
+        {
+          "method": "get",
+          "path": "/auth",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/oauth/callback",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/tokens/:tenantId",
+          "handlers": []
+        }
+      ],
+      "importCount": 5,
+      "importedByCount": 1
+    },
+    {
+      "id": "routes\\googleReviews.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "router",
+          "type": "default"
+        }
+      ],
+      "functions": [],
+      "routes": [
+        {
+          "method": "get",
+          "path": "/:tenantSlug",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/:tenantSlug/health",
+          "handlers": []
+        }
+      ],
+      "importCount": 5,
+      "importedByCount": 1
+    },
+    {
+      "id": "routes\\health.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "router",
+          "type": "default"
+        }
+      ],
+      "functions": [
+        "updateShutdownStatus"
+      ],
+      "routes": [
+        {
+          "method": "get",
+          "path": "/",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/live",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/ready",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/db-status",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/test-db",
+          "handlers": []
+        }
+      ],
+      "importCount": 4,
+      "importedByCount": 1
+    },
+    {
+      "id": "routes\\healthMonitoring.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "router",
+          "type": "default"
+        }
+      ],
+      "functions": [
+        "_saveHealthData",
+        "_saveCrUXData",
+        "_saveOverallHealth",
+        "determineStatus"
+      ],
+      "routes": [
+        {
+          "method": "get",
+          "path": "/:tenantSlug",
+          "handlers": []
+        },
+        {
+          "method": "post",
+          "path": "/:tenantSlug/scan",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/:tenantSlug/history",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/test-api",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/test-lighthouse",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/seo/:tenantSlug",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/seo/:tenantSlug/history",
+          "handlers": []
+        }
+      ],
+      "importCount": 5,
+      "importedByCount": 1
+    },
+    {
+      "id": "routes\\locations.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "router",
+          "type": "default"
+        }
+      ],
+      "functions": [],
+      "routes": [
+        {
+          "method": "get",
+          "path": "/service-areas/:slug",
+          "handlers": [
+            "withTenantBySlug"
+          ]
+        },
+        {
+          "method": "put",
+          "path": "/service-areas/:slug",
+          "handlers": [
+            "withTenantBySlug"
+          ]
+        },
+        {
+          "method": "post",
+          "path": "/service-areas/:slug",
+          "handlers": [
+            "withTenantBySlug"
+          ]
+        },
+        {
+          "method": "delete",
+          "path": "/service-areas/:slug/:areaId",
+          "handlers": [
+            "withTenantBySlug"
+          ]
+        }
+      ],
+      "importCount": 5,
+      "importedByCount": 1
+    },
+    {
+      "id": "routes\\payments.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "router",
+          "type": "default"
+        }
+      ],
+      "functions": [],
+      "routes": [
+        {
+          "method": "post",
+          "path": "/create-intent",
+          "handlers": []
+        },
+        {
+          "method": "post",
+          "path": "/confirm",
+          "handlers": []
+        }
+      ],
+      "importCount": 5,
+      "importedByCount": 1
+    },
+    {
+      "id": "routes\\previews.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "router",
+          "type": "default"
+        }
+      ],
+      "functions": [],
+      "routes": [
+        {
+          "method": "post",
+          "path": "/",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/verify",
+          "handlers": []
+        }
+      ],
+      "importCount": 2,
+      "importedByCount": 1
+    },
+    {
+      "id": "routes\\reviews.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "router",
+          "type": "default"
+        }
+      ],
+      "functions": [],
+      "routes": [
+        {
+          "method": "get",
+          "path": "/",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/:id",
+          "handlers": []
+        },
+        {
+          "method": "post",
+          "path": "/",
+          "handlers": []
+        },
+        {
+          "method": "put",
+          "path": "/:id",
+          "handlers": [
+            "authenticateToken"
+          ]
+        },
+        {
+          "method": "delete",
+          "path": "/:id",
+          "handlers": [
+            "authenticateToken"
+          ]
+        }
+      ],
+      "importCount": 5,
+      "importedByCount": 1
+    },
+    {
+      "id": "routes\\schedule.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [],
+      "routes": [
+        {
+          "method": "get",
+          "path": "/appointments",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/appointments/date/:date",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/appointments/:id",
+          "handlers": []
+        },
+        {
+          "method": "post",
+          "path": "/appointments",
+          "handlers": []
+        },
+        {
+          "method": "put",
+          "path": "/appointments/:id",
+          "handlers": []
+        },
+        {
+          "method": "patch",
+          "path": "/appointments/:id/status",
+          "handlers": []
+        },
+        {
+          "method": "delete",
+          "path": "/appointments/:id",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/appointments/available-slots",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/time-blocks",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/time-blocks/date/:date",
+          "handlers": []
+        },
+        {
+          "method": "post",
+          "path": "/time-blocks",
+          "handlers": []
+        },
+        {
+          "method": "put",
+          "path": "/time-blocks/:id",
+          "handlers": []
+        },
+        {
+          "method": "delete",
+          "path": "/time-blocks/:id",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/blocked-days",
+          "handlers": []
+        },
+        {
+          "method": "post",
+          "path": "/blocked-days/toggle",
+          "handlers": []
+        },
+        {
+          "method": "post",
+          "path": "/blocked-days",
+          "handlers": []
+        },
+        {
+          "method": "delete",
+          "path": "/blocked-days/:date",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/settings",
+          "handlers": []
+        },
+        {
+          "method": "put",
+          "path": "/settings",
+          "handlers": []
+        },
+        {
+          "method": "post",
+          "path": "/settings/reset",
+          "handlers": []
+        }
+      ],
+      "importCount": 6,
+      "importedByCount": 1
+    },
+    {
+      "id": "routes\\seo.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "router",
+          "type": "default"
+        }
+      ],
+      "functions": [],
+      "routes": [
+        {
+          "method": "get",
+          "path": "/robots.txt",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "host",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "x-forwarded-proto",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/sitemap.xml",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "host",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "x-forwarded-proto",
+          "handlers": []
+        }
+      ],
+      "importCount": 3,
+      "importedByCount": 1
+    },
+    {
+      "id": "routes\\serviceAreas.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "router",
+          "type": "default"
+        }
+      ],
+      "functions": [],
+      "routes": [
+        {
+          "method": "get",
+          "path": "/footer",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/:state_code",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/platform/coverage",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/city/:slug",
+          "handlers": []
+        }
+      ],
+      "importCount": 6,
+      "importedByCount": 1
+    },
+    {
+      "id": "routes\\services.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [],
+      "routes": [
+        {
+          "method": "post",
+          "path": "/",
+          "handlers": []
+        },
+        {
+          "method": "put",
+          "path": "/:serviceId",
+          "handlers": []
+        },
+        {
+          "method": "delete",
+          "path": "/:serviceId",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/tenant/:tenantId/vehicle/:vehicleId/category/:categoryId",
+          "handlers": []
+        }
+      ],
+      "importCount": 5,
+      "importedByCount": 1
+    },
+    {
+      "id": "routes\\subdomainTest.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "router",
+          "type": "default"
+        }
+      ],
+      "functions": [],
+      "routes": [
+        {
+          "method": "get",
+          "path": "/info",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/test",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/tenant-content/:slug",
+          "handlers": []
+        }
+      ],
+      "importCount": 3,
+      "importedByCount": 1
+    },
+    {
+      "id": "routes\\tenantDashboard.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "router",
+          "type": "default"
+        }
+      ],
+      "functions": [],
+      "routes": [
+        {
+          "method": "get",
+          "path": "/:tenantSlug/dashboard",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/:tenantSlug/dashboard/overview",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/:tenantSlug/dashboard/reviews",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/:tenantSlug/dashboard/performance",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/:tenantSlug/dashboard/activity",
+          "handlers": []
+        }
+      ],
+      "importCount": 5,
+      "importedByCount": 1
+    },
+    {
+      "id": "routes\\tenantImages.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "router",
+          "type": "default"
+        }
+      ],
+      "functions": [],
+      "routes": [
+        {
+          "method": "get",
+          "path": "/images",
+          "handlers": []
+        },
+        {
+          "method": "post",
+          "path": "/upload",
+          "handlers": []
+        }
+      ],
+      "importCount": 3,
+      "importedByCount": 1
+    },
+    {
+      "id": "routes\\tenantManifest.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "router",
+          "type": "default"
+        }
+      ],
+      "functions": [],
+      "routes": [
+        {
+          "method": "get",
+          "path": "/:slug/manifest.json",
+          "handlers": []
+        }
+      ],
+      "importCount": 3,
+      "importedByCount": 1
+    },
+    {
+      "id": "routes\\tenantReviews.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "router",
+          "type": "default"
+        }
+      ],
+      "functions": [],
+      "routes": [
+        {
+          "method": "post",
+          "path": "/upload-avatar",
+          "handlers": []
+        },
+        {
+          "method": "post",
+          "path": "/",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/check-gbp-url/:tenantSlug",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/test-scraping",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/:tenant_slug",
+          "handlers": []
+        },
+        {
+          "method": "delete",
+          "path": "/:id",
+          "handlers": []
+        },
+        {
+          "method": "post",
+          "path": "/scrape-google-business",
+          "handlers": []
+        }
+      ],
+      "importCount": 8,
+      "importedByCount": 1
+    },
+    {
+      "id": "routes\\tenants.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "router",
+          "type": "default"
+        }
+      ],
+      "functions": [],
+      "routes": [
+        {
+          "method": "post",
+          "path": "/signup",
+          "handlers": [
+            "sensitiveAuthLimiter"
+          ]
+        },
+        {
+          "method": "get",
+          "path": "/:slug",
+          "handlers": [
+            "apiLimiter"
+          ]
+        },
+        {
+          "method": "put",
+          "path": "/:slug",
+          "handlers": [
+            "apiLimiter"
+          ]
+        },
+        {
+          "method": "get",
+          "path": "/",
+          "handlers": [
+            "apiLimiter"
+          ]
+        },
+        {
+          "method": "get",
+          "path": "/industries/list",
+          "handlers": [
+            "apiLimiter"
+          ]
+        }
+      ],
+      "importCount": 5,
+      "importedByCount": 1
+    },
+    {
+      "id": "routes\\websiteContent.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "router",
+          "type": "default"
+        }
+      ],
+      "functions": [],
+      "routes": [
+        {
+          "method": "put",
+          "path": "/:slug",
+          "handlers": [
+            "withTenantBySlug"
+          ]
+        },
+        {
+          "method": "get",
+          "path": "/:slug",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/main",
+          "handlers": []
+        }
+      ],
+      "importCount": 5,
+      "importedByCount": 1
+    },
+    {
+      "id": "schemas\\apiSchemas.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [],
+      "routes": [],
+      "importCount": 0,
+      "importedByCount": 5
+    },
+    {
+      "id": "scripts\\cleanup-tokens.js",
+      "reachable": false,
+      "exports": [
+        {
+          "name": "cleanupTokens",
+          "type": "function"
+        }
+      ],
+      "functions": [
+        "cleanupTokens"
+      ],
+      "routes": [],
+      "importCount": 2,
+      "importedByCount": 1
+    },
+    {
+      "id": "server.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [
+        "initializeAsync"
+      ],
+      "routes": [
+        {
+          "method": "all",
+          "path": "*",
+          "handlers": []
+        },
+        {
+          "method": "post",
+          "path": "/api/debug/body",
+          "handlers": []
+        },
+        {
+          "method": "use",
+          "path": "/api/payments",
+          "handlers": [
+            "paymentRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/auth",
+          "handlers": [
+            "authRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/tenants",
+          "handlers": [
+            "tenantsRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/admin",
+          "handlers": [
+            "adminRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/analytics",
+          "handlers": [
+            "analyticsRouter"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/locations",
+          "handlers": [
+            "locationsRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/website-content",
+          "handlers": [
+            "websiteContentRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/google-reviews",
+          "handlers": [
+            "googleReviewsRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/config",
+          "handlers": [
+            "configRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/google/analytics",
+          "handlers": [
+            "googleAnalyticsRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/google",
+          "handlers": [
+            "googleAuthRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/health-monitoring",
+          "handlers": [
+            "healthMonitoringRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/reviews",
+          "handlers": [
+            "reviewsRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/subdomain",
+          "handlers": [
+            "subdomainTestRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/domains",
+          "handlers": [
+            "domainRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/dashboard",
+          "handlers": [
+            "tenantDashboardRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/previews",
+          "handlers": [
+            "previewRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/services",
+          "handlers": [
+            "servicesRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/service-areas",
+          "handlers": [
+            "serviceAreasRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/customers",
+          "handlers": [
+            "customersRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/schedule",
+          "handlers": [
+            "scheduleRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/avatar",
+          "handlers": [
+            "avatarRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/tenant-images",
+          "handlers": [
+            "tenantImagesRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/tenant-reviews",
+          "handlers": [
+            "tenantReviewsRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/gallery",
+          "handlers": [
+            "galleryRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/error-tracking",
+          "handlers": [
+            "errorTrackingRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/",
+          "handlers": [
+            "seoRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/",
+          "handlers": [
+            "tenantManifestRoutes"
+          ]
+        },
+        {
+          "method": "get",
+          "path": "/",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/api/health",
+          "handlers": []
+        },
+        {
+          "method": "use",
+          "path": "/api/health/detailed",
+          "handlers": [
+            "healthRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/assets",
+          "handlers": []
+        },
+        {
+          "method": "use",
+          "path": "/admin",
+          "handlers": []
+        },
+        {
+          "method": "use",
+          "path": "/tenant",
+          "handlers": []
+        },
+        {
+          "method": "use",
+          "path": "/",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "*",
+          "handlers": []
+        }
+      ],
+      "importCount": 36,
+      "importedByCount": 0
+    },
+    {
+      "id": "services\\authService.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [
+        "checkEmailExists",
+        "registerUser",
+        "loginUser",
+        "refreshAccessToken",
+        "logoutUser",
+        "logoutAllDevices",
+        "getUserTokenList",
+        "revokeDeviceTokenById",
+        "getUserProfile",
+        "updateUserProfile",
+        "changePassword"
+      ],
+      "routes": [],
+      "importCount": 4,
+      "importedByCount": 2
+    },
+    {
+      "id": "services\\cronService.js",
+      "reachable": false,
+      "exports": [],
+      "functions": [],
+      "routes": [],
+      "importCount": 2,
+      "importedByCount": 0
+    },
+    {
+      "id": "services\\domainService.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "getTenantByDomain",
+          "type": "function"
+        },
+        {
+          "name": "setTenantDomain",
+          "type": "function"
+        },
+        {
+          "name": "removeTenantDomain",
+          "type": "function"
+        },
+        {
+          "name": "getDomainStatus",
+          "type": "function"
+        },
+        {
+          "name": "updateDomainVerification",
+          "type": "function"
+        },
+        {
+          "name": "updateSSLStatus",
+          "type": "function"
+        },
+        {
+          "name": "isDomainAvailable",
+          "type": "function"
+        }
+      ],
+      "functions": [
+        "getTenantByDomain",
+        "setTenantDomain",
+        "removeTenantDomain",
+        "getDomainStatus",
+        "updateDomainVerification",
+        "updateSSLStatus",
+        "isDomainAvailable",
+        "isValidDomain"
+      ],
+      "routes": [],
+      "importCount": 2,
+      "importedByCount": 2
+    },
+    {
+      "id": "services\\emailService.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [
+        "sendWelcomeEmail",
+        "sendTestEmail"
+      ],
+      "routes": [],
+      "importCount": 2,
+      "importedByCount": 2
+    },
+    {
+      "id": "services\\googleAnalytics.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [
+        "getStoredTokens",
+        "refreshAccessToken",
+        "updateStoredToken",
+        "getValidAccessToken",
+        "getGA4PropertyId",
+        "getAnalyticsSummary",
+        "getRealtimeData"
+      ],
+      "routes": [],
+      "importCount": 2,
+      "importedByCount": 1
+    },
+    {
+      "id": "services\\googleApi.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "getGoogleReviews",
+          "type": "function"
+        },
+        {
+          "name": "getTenantAccessToken",
+          "type": "function"
+        },
+        {
+          "name": "refreshGoogleToken",
+          "type": "function"
+        },
+        {
+          "name": "updateTenantToken",
+          "type": "function"
+        },
+        {
+          "name": "isGoogleOAuthConfigured",
+          "type": "function"
+        },
+        {
+          "name": "getOAuthStatus",
+          "type": "function"
+        }
+      ],
+      "functions": [
+        "getGoogleReviews",
+        "getTenantAccessToken",
+        "refreshGoogleToken",
+        "updateTenantToken",
+        "isGoogleOAuthConfigured",
+        "getOAuthStatus"
+      ],
+      "routes": [],
+      "importCount": 2,
+      "importedByCount": 1
+    },
+    {
+      "id": "services\\googleBusinessScraper.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [],
+      "routes": [],
+      "importCount": 0,
+      "importedByCount": 1
+    },
+    {
+      "id": "services\\healthMonitor.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "healthMonitor",
+          "type": "default"
+        }
+      ],
+      "functions": [],
+      "routes": [],
+      "importCount": 2,
+      "importedByCount": 1
+    },
+    {
+      "id": "services\\passwordResetService.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [],
+      "routes": [],
+      "importCount": 4,
+      "importedByCount": 1
+    },
+    {
+      "id": "services\\passwordSetupService.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [],
+      "routes": [],
+      "importCount": 3,
+      "importedByCount": 1
+    },
+    {
+      "id": "services\\refreshTokenService.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [],
+      "routes": [],
+      "importCount": 2,
+      "importedByCount": 2
+    },
+    {
+      "id": "services\\stripeService.js",
+      "reachable": false,
+      "exports": [
+        {
+          "name": "StripeService",
+          "type": "default"
+        }
+      ],
+      "functions": [],
+      "routes": [],
+      "importCount": 2,
+      "importedByCount": 0
+    },
+    {
+      "id": "services\\tenantAnalyticsService.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [
+        "getTenantDashboardAnalytics",
+        "getBasicTenantStats",
+        "getReviewAnalytics",
+        "getPerformanceAnalytics",
+        "getRecentActivity",
+        "getServiceAnalytics",
+        "generateSummary",
+        "calculateOverallHealth",
+        "generateRecommendations",
+        "calculateReviewTrend",
+        "getDateFilter"
+      ],
+      "routes": [],
+      "importCount": 2,
+      "importedByCount": 1
+    },
+    {
+      "id": "services\\tenantDeletionService.js",
+      "reachable": false,
+      "exports": [
+        {
+          "name": "dryRunDeleteTenant",
+          "type": "function"
+        },
+        {
+          "name": "deleteTenant",
+          "type": "function"
+        },
+        {
+          "name": "softDeleteTenant",
+          "type": "function"
+        }
+      ],
+      "functions": [
+        "getTenantInfo",
+        "validateTenantDeletion",
+        "createTenantSnapshot",
+        "performManualCleanup",
+        "verifyDeletion",
+        "dryRunDeleteTenant",
+        "deleteTenant",
+        "softDeleteTenant"
+      ],
+      "routes": [],
+      "importCount": 2,
+      "importedByCount": 0
+    },
+    {
+      "id": "services\\tenantService.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "getTenantBySlug",
+          "type": "function"
+        },
+        {
+          "name": "getTenantById",
+          "type": "function"
+        },
+        {
+          "name": "getTenantWebsiteContent",
+          "type": "function"
+        },
+        {
+          "name": "validateTenantSlug",
+          "type": "function"
+        },
+        {
+          "name": "getAllActiveTenants",
+          "type": "function"
+        }
+      ],
+      "functions": [
+        "getTenantBySlug",
+        "getTenantById",
+        "getTenantWebsiteContent",
+        "validateTenantSlug",
+        "getAllActiveTenants"
+      ],
+      "routes": [],
+      "importCount": 2,
+      "importedByCount": 2
+    },
+    {
+      "id": "services\\unifiedErrorService.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "ERROR_SEVERITY",
+          "type": "variable"
+        },
+        {
+          "name": "ERROR_CATEGORY",
+          "type": "variable"
+        },
+        {
+          "name": "unifiedErrorService",
+          "type": "variable"
+        },
+        {
+          "name": "createError",
+          "type": "variable"
+        },
+        {
+          "name": "createValidationError",
+          "type": "variable"
+        },
+        {
+          "name": "createAuthenticationError",
+          "type": "variable"
+        },
+        {
+          "name": "createAuthorizationError",
+          "type": "variable"
+        },
+        {
+          "name": "createDatabaseError",
+          "type": "variable"
+        },
+        {
+          "name": "createBusinessLogicError",
+          "type": "variable"
+        }
+      ],
+      "functions": [],
+      "routes": [
+        {
+          "method": "get",
+          "path": "User-Agent",
+          "handlers": []
+        }
+      ],
+      "importCount": 2,
+      "importedByCount": 1
+    },
+    {
+      "id": "utils\\analyticsQueue.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "queueEvent",
+          "type": "function"
+        },
+        {
+          "name": "getQueueSize",
+          "type": "function"
+        },
+        {
+          "name": "flushQueue",
+          "type": "function"
+        },
+        {
+          "name": "startAutoFlush",
+          "type": "function"
+        },
+        {
+          "name": "stopAutoFlush",
+          "type": "function"
+        }
+      ],
+      "functions": [
+        "queueEvent",
+        "getQueueSize",
+        "flushQueue",
+        "startAutoFlush",
+        "stopAutoFlush"
+      ],
+      "routes": [],
+      "importCount": 1,
+      "importedByCount": 2
+    },
+    {
+      "id": "utils\\avatarUtils.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [],
+      "routes": [],
+      "importCount": 1,
+      "importedByCount": 2
+    },
+    {
+      "id": "utils\\errorMonitor.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [],
+      "routes": [
+        {
+          "method": "get",
+          "path": "User-Agent",
+          "handlers": []
+        }
+      ],
+      "importCount": 1,
+      "importedByCount": 1
+    },
+    {
+      "id": "utils\\logger.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "loggerWrapper",
+          "type": "default"
+        }
+      ],
+      "functions": [],
+      "routes": [],
+      "importCount": 1,
+      "importedByCount": 2
+    },
+    {
+      "id": "utils\\previewToken.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "signPreview",
+          "type": "function"
+        },
+        {
+          "name": "verifyPreview",
+          "type": "function"
+        }
+      ],
+      "functions": [
+        "signPreview",
+        "verifyPreview"
+      ],
+      "routes": [],
+      "importCount": 1,
+      "importedByCount": 1
+    },
+    {
+      "id": "utils\\responseFormatter.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "sendSuccess",
+          "type": "variable"
+        },
+        {
+          "name": "sendError",
+          "type": "variable"
+        },
+        {
+          "name": "sendValidationError",
+          "type": "variable"
+        },
+        {
+          "name": "sendNotFound",
+          "type": "variable"
+        },
+        {
+          "name": "sendUnauthorized",
+          "type": "variable"
+        },
+        {
+          "name": "sendForbidden",
+          "type": "variable"
+        }
+      ],
+      "functions": [],
+      "routes": [],
+      "importCount": 0,
+      "importedByCount": 11
+    },
+    {
+      "id": "utils\\serviceAreaProcessor.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [
+        "processTenantServiceAreas",
+        "getPlatformServiceAreas",
+        "getTenantsForCity"
+      ],
+      "routes": [],
+      "importCount": 0,
+      "importedByCount": 1
+    },
+    {
+      "id": "utils\\tenantContextContract.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [
+        "transformBusinessToTenantInfo",
+        "validateTenantContext",
+        "createTenantContext",
+        "attachTenantContext",
+        "generateTenantApiResponse",
+        "generateTenantErrorResponse"
+      ],
+      "routes": [],
+      "importCount": 0,
+      "importedByCount": 3
+    },
+    {
+      "id": "utils\\tenantResolution.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "extractSubdomain",
+          "type": "function"
+        },
+        {
+          "name": "resolveTenant",
+          "type": "function"
+        },
+        {
+          "name": "createTenantResolutionMiddleware",
+          "type": "function"
+        },
+        {
+          "name": "requireTenant",
+          "type": "function"
+        }
+      ],
+      "functions": [
+        "extractSubdomain",
+        "resolveTenant",
+        "createTenantResolutionMiddleware",
+        "requireTenant"
+      ],
+      "routes": [
+        {
+          "method": "get",
+          "path": "X-Tenant-Slug",
+          "handlers": []
+        }
+      ],
+      "importCount": 1,
+      "importedByCount": 1
+    },
+    {
+      "id": "utils\\tenantUtils.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "isDummyTenant",
+          "type": "function"
+        },
+        {
+          "name": "getDummyTenantSlugs",
+          "type": "function"
+        },
+        {
+          "name": "isValidTenantSlug",
+          "type": "function"
+        }
+      ],
+      "functions": [
+        "isDummyTenant",
+        "getDummyTenantSlugs",
+        "isValidTenantSlug"
+      ],
+      "routes": [],
+      "importCount": 0,
+      "importedByCount": 1
+    },
+    {
+      "id": "utils\\tokenManager.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [],
+      "routes": [],
+      "importCount": 4,
+      "importedByCount": 2
+    },
+    {
+      "id": "utils\\uploadValidator.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [
+        "validateFileMagic",
+        "validateFile",
+        "validateFiles",
+        "validateUploadRequest",
+        "getAllowedMimeTypes",
+        "getAllowedExtensions",
+        "createMulterConfig"
+      ],
+      "routes": [],
+      "importCount": 1,
+      "importedByCount": 2
+    },
+    {
+      "id": "utils\\validationSchemas.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [],
+      "routes": [],
+      "importCount": 1,
+      "importedByCount": 3
+    },
+    {
+      "id": "utils\\validators.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [],
+      "routes": [],
+      "importCount": 0,
+      "importedByCount": 3
+    },
+    {
+      "id": "utils\\vehicleMapping.js",
+      "reachable": true,
+      "exports": [],
+      "functions": [],
+      "routes": [],
+      "importCount": 0,
+      "importedByCount": 1
+    }
+  ],
+  "edges": [
+    {
+      "from": "config\\auth.js",
+      "to": "config\\env.js",
+      "specifiers": [
+        {
+          "name": "env",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "config\\logger.js",
+      "to": "config\\logging-environments.js",
+      "specifiers": [
+        {
+          "name": "getLoggingConfig",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "config\\logging-environments.js",
+      "to": "config\\env.js",
+      "specifiers": [
+        {
+          "name": "env",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "controllers\\authController.js",
+      "to": "services\\authService.js",
+      "specifiers": [
+        {
+          "name": "authService",
+          "type": "namespace"
+        }
+      ]
+    },
+    {
+      "from": "controllers\\authController.js",
+      "to": "config\\auth.js",
+      "specifiers": [
+        {
+          "name": "AUTH_CONFIG",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "controllers\\authController.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "controllers\\domainController.js",
+      "to": "services\\domainService.js",
+      "specifiers": [
+        {
+          "name": "domainService",
+          "type": "namespace"
+        }
+      ]
+    },
+    {
+      "from": "controllers\\domainController.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "controllers\\passwordResetController.js",
+      "to": "services\\passwordResetService.js",
+      "specifiers": [
+        {
+          "name": "passwordResetService",
+          "type": "namespace"
+        }
+      ]
+    },
+    {
+      "from": "controllers\\passwordResetController.js",
+      "to": "middleware\\errorHandler.js",
+      "specifiers": [
+        {
+          "name": "asyncHandler",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "controllers\\passwordSetupController.js",
+      "to": "services\\passwordSetupService.js",
+      "specifiers": [
+        {
+          "name": "passwordSetupService",
+          "type": "namespace"
+        }
+      ]
+    },
+    {
+      "from": "controllers\\passwordSetupController.js",
+      "to": "middleware\\errorHandler.js",
+      "specifiers": [
+        {
+          "name": "asyncHandler",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "controllers\\tenantController.js",
+      "to": "services\\tenantService.js",
+      "specifiers": [
+        {
+          "name": "tenantService",
+          "type": "namespace"
+        }
+      ]
+    },
+    {
+      "from": "controllers\\tenantController.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "controllers\\tenantDashboardController.js",
+      "to": "services\\tenantAnalyticsService.js",
+      "specifiers": [
+        {
+          "name": "tenantAnalyticsService",
+          "type": "namespace"
+        }
+      ]
+    },
+    {
+      "from": "controllers\\tenantDashboardController.js",
+      "to": "utils\\tenantContextContract.js",
+      "specifiers": [
+        {
+          "name": "generateTenantApiResponse",
+          "type": "named"
+        },
+        {
+          "name": "generateTenantErrorResponse",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "controllers\\tenantDashboardController.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "database\\pool.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "middleware\\auth.js",
+      "to": "utils\\tokenManager.js",
+      "specifiers": [
+        {
+          "name": "verifyAccessToken",
+          "type": "named"
+        },
+        {
+          "name": "isTokenBlacklisted",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "middleware\\auth.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "logger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "middleware\\csrfProtection.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "middleware\\errorHandler.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "logger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "middleware\\errorHandler.js",
+      "to": "utils\\validators.js",
+      "specifiers": [
+        {
+          "name": "ValidationError",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "middleware\\errorHandler.js",
+      "to": "utils\\errorMonitor.js",
+      "specifiers": [
+        {
+          "name": "errorMonitor",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "middleware\\errorHandler.js",
+      "to": "utils\\responseFormatter.js",
+      "specifiers": [
+        {
+          "name": "sendError",
+          "type": "named"
+        },
+        {
+          "name": "sendValidationError",
+          "type": "named"
+        },
+        {
+          "name": "sendNotFound",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "middleware\\rateLimiter.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "logger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "middleware\\requestLogger.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createRequestLogger",
+          "type": "named"
+        },
+        {
+          "name": "logApiRequest",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "middleware\\requestLogger.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "logger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "middleware\\subdomainMiddleware.js",
+      "to": "services\\tenantService.js",
+      "specifiers": [
+        {
+          "name": "getTenantBySlug",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "middleware\\subdomainMiddleware.js",
+      "to": "services\\domainService.js",
+      "specifiers": [
+        {
+          "name": "getTenantByDomain",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "middleware\\subdomainMiddleware.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "middleware\\subdomainMiddleware.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "middleware\\tenantResolver.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "logger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "middleware\\tenantResolver.js",
+      "to": "utils\\tenantResolution.js",
+      "specifiers": [
+        {
+          "name": "resolveTenant",
+          "type": "named"
+        },
+        {
+          "name": "RESERVED_SUBDOMAINS",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "middleware\\tenantValidation.js",
+      "to": "utils\\tenantContextContract.js",
+      "specifiers": [
+        {
+          "name": "validateTenantContext",
+          "type": "named"
+        },
+        {
+          "name": "generateTenantApiResponse",
+          "type": "named"
+        },
+        {
+          "name": "generateTenantErrorResponse",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "middleware\\tenantValidation.js",
+      "to": "middleware\\errorHandler.js",
+      "specifiers": [
+        {
+          "name": "asyncHandler",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "middleware\\tenantValidation.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "middleware\\validation.js",
+      "to": "utils\\validators.js",
+      "specifiers": [
+        {
+          "name": "ValidationError",
+          "type": "named"
+        },
+        {
+          "name": "sanitizers",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "middleware\\validation.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "middleware\\validation.js",
+      "to": "utils\\validationSchemas.js",
+      "specifiers": [
+        {
+          "name": "reviewSchemas",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "middleware\\withTenant.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "middleware\\withTenant.js",
+      "to": "middleware\\errorHandler.js",
+      "specifiers": [
+        {
+          "name": "asyncHandler",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "middleware\\withTenant.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "middleware\\withTenant.js",
+      "to": "utils\\tenantContextContract.js",
+      "specifiers": [
+        {
+          "name": "transformBusinessToTenantInfo",
+          "type": "named"
+        },
+        {
+          "name": "validateTenantContext",
+          "type": "named"
+        },
+        {
+          "name": "attachTenantContext",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "middleware\\zodValidation.js",
+      "to": "middleware\\errorHandler.js",
+      "specifiers": [
+        {
+          "name": "asyncHandler",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\admin.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\admin.js",
+      "to": "middleware\\auth.js",
+      "specifiers": [
+        {
+          "name": "authenticateToken",
+          "type": "named"
+        },
+        {
+          "name": "requireAdmin",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\admin.js",
+      "to": "middleware\\zodValidation.js",
+      "specifiers": [
+        {
+          "name": "validateBody",
+          "type": "named"
+        },
+        {
+          "name": "validateParams",
+          "type": "named"
+        },
+        {
+          "name": "validateQuery",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\admin.js",
+      "to": "schemas\\apiSchemas.js",
+      "specifiers": [
+        {
+          "name": "adminSchemas",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\admin.js",
+      "to": "middleware\\errorHandler.js",
+      "specifiers": [
+        {
+          "name": "asyncHandler",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\admin.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\admin.js",
+      "to": "middleware\\rateLimiter.js",
+      "specifiers": [
+        {
+          "name": "criticalAdminLimiter",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\analytics.new.js",
+      "to": "middleware\\errorHandler.js",
+      "specifiers": [
+        {
+          "name": "asyncHandler",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\analytics.new.js",
+      "to": "middleware\\auth.js",
+      "specifiers": [
+        {
+          "name": "authenticateToken",
+          "type": "named"
+        },
+        {
+          "name": "requireAdmin",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\analytics.new.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "logger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\analytics.new.js",
+      "to": "middleware\\zodValidation.js",
+      "specifiers": [
+        {
+          "name": "validateBody",
+          "type": "named"
+        },
+        {
+          "name": "validateParams",
+          "type": "named"
+        },
+        {
+          "name": "validateQuery",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\analytics.new.js",
+      "to": "schemas\\apiSchemas.js",
+      "specifiers": [
+        {
+          "name": "analyticsSchemas",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\analytics.new.js",
+      "to": "middleware\\rateLimiter.js",
+      "specifiers": [
+        {
+          "name": "analyticsLimiter",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\analytics.new.js",
+      "to": "middleware\\tenantResolver.js",
+      "specifiers": [
+        {
+          "name": "tenantResolverWithDB",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\analytics.new.js",
+      "to": "utils\\analyticsQueue.js",
+      "specifiers": [
+        {
+          "name": "queueEvent",
+          "type": "named"
+        },
+        {
+          "name": "getQueueSize",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\auth.js",
+      "to": "middleware\\auth.js",
+      "specifiers": [
+        {
+          "name": "authenticateToken",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\auth.js",
+      "to": "middleware\\zodValidation.js",
+      "specifiers": [
+        {
+          "name": "validateBody",
+          "type": "named"
+        },
+        {
+          "name": "validateQuery",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\auth.js",
+      "to": "schemas\\apiSchemas.js",
+      "specifiers": [
+        {
+          "name": "authSchemas",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\auth.js",
+      "to": "middleware\\errorHandler.js",
+      "specifiers": [
+        {
+          "name": "asyncHandler",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\auth.js",
+      "to": "middleware\\rateLimiter.js",
+      "specifiers": [
+        {
+          "name": "authLimiter",
+          "type": "named"
+        },
+        {
+          "name": "sensitiveAuthLimiter",
+          "type": "named"
+        },
+        {
+          "name": "refreshTokenLimiter",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\auth.js",
+      "to": "middleware\\csrfProtection.js",
+      "specifiers": [
+        {
+          "name": "csrfProtection",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\auth.js",
+      "to": "controllers\\authController.js",
+      "specifiers": [
+        {
+          "name": "authController",
+          "type": "namespace"
+        }
+      ]
+    },
+    {
+      "from": "routes\\auth.js",
+      "to": "controllers\\passwordResetController.js",
+      "specifiers": [
+        {
+          "name": "passwordResetController",
+          "type": "namespace"
+        }
+      ]
+    },
+    {
+      "from": "routes\\auth.js",
+      "to": "controllers\\passwordSetupController.js",
+      "specifiers": [
+        {
+          "name": "passwordSetupController",
+          "type": "namespace"
+        }
+      ]
+    },
+    {
+      "from": "routes\\auth.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\auth.js",
+      "to": "services\\authService.js",
+      "specifiers": [
+        {
+          "name": "authService",
+          "type": "namespace"
+        }
+      ]
+    },
+    {
+      "from": "routes\\auth.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\avatar.js",
+      "to": "middleware\\auth.js",
+      "specifiers": [
+        {
+          "name": "authenticateToken",
+          "type": "named"
+        },
+        {
+          "name": "requireAdmin",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\avatar.js",
+      "to": "utils\\avatarUtils.js",
+      "specifiers": [
+        {
+          "name": "generateAvatarFilename",
+          "type": "named"
+        },
+        {
+          "name": "ensureUploadsDir",
+          "type": "named"
+        },
+        {
+          "name": "findCustomAvatar",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\avatar.js",
+      "to": "middleware\\errorHandler.js",
+      "specifiers": [
+        {
+          "name": "asyncHandler",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\avatar.js",
+      "to": "utils\\uploadValidator.js",
+      "specifiers": [
+        {
+          "name": "validateFileMagic",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\avatar.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "logger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\avatar.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "pool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\config.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "logger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\customers.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\customers.js",
+      "to": "middleware\\validation.js",
+      "specifiers": [
+        {
+          "name": "validateParams",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\customers.js",
+      "to": "utils\\validationSchemas.js",
+      "specifiers": [
+        {
+          "name": "customerSchemas",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\customers.js",
+      "to": "middleware\\errorHandler.js",
+      "specifiers": [
+        {
+          "name": "asyncHandler",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\domains.js",
+      "to": "controllers\\domainController.js",
+      "specifiers": [
+        {
+          "name": "domainController",
+          "type": "namespace"
+        }
+      ]
+    },
+    {
+      "from": "routes\\domains.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\errorTracking.js",
+      "to": "services\\unifiedErrorService.js",
+      "specifiers": [
+        {
+          "name": "unifiedErrorService",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\errorTracking.js",
+      "to": "middleware\\errorHandler.js",
+      "specifiers": [
+        {
+          "name": "asyncHandler",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\errorTracking.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\errorTracking.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\gallery.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\googleAnalytics.js",
+      "to": "middleware\\errorHandler.js",
+      "specifiers": [
+        {
+          "name": "asyncHandler",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\googleAnalytics.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "logger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\googleAnalytics.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\googleAnalytics.js",
+      "to": "config\\env.js",
+      "specifiers": [
+        {
+          "name": "env",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\googleAnalytics.js",
+      "to": "services\\googleAnalytics.js",
+      "specifiers": [
+        {
+          "name": "analyticsService",
+          "type": "namespace"
+        }
+      ]
+    },
+    {
+      "from": "routes\\googleAnalytics.js",
+      "to": "utils\\responseFormatter.js",
+      "specifiers": [
+        {
+          "name": "sendSuccess",
+          "type": "named"
+        },
+        {
+          "name": "sendError",
+          "type": "named"
+        },
+        {
+          "name": "sendValidationError",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\googleAuth.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\googleAuth.js",
+      "to": "config\\env.js",
+      "specifiers": [
+        {
+          "name": "env",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\googleAuth.js",
+      "to": "middleware\\errorHandler.js",
+      "specifiers": [
+        {
+          "name": "asyncHandler",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\googleAuth.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\googleAuth.js",
+      "to": "utils\\responseFormatter.js",
+      "specifiers": [
+        {
+          "name": "sendSuccess",
+          "type": "named"
+        },
+        {
+          "name": "sendError",
+          "type": "named"
+        },
+        {
+          "name": "sendValidationError",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\googleReviews.js",
+      "to": "services\\googleApi.js",
+      "specifiers": [
+        {
+          "name": "getGoogleReviews",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\googleReviews.js",
+      "to": "utils\\tenantUtils.js",
+      "specifiers": [
+        {
+          "name": "isDummyTenant",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\googleReviews.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "logger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\googleReviews.js",
+      "to": "middleware\\errorHandler.js",
+      "specifiers": [
+        {
+          "name": "asyncHandler",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\googleReviews.js",
+      "to": "utils\\responseFormatter.js",
+      "specifiers": [
+        {
+          "name": "sendSuccess",
+          "type": "named"
+        },
+        {
+          "name": "sendError",
+          "type": "named"
+        },
+        {
+          "name": "sendValidationError",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\health.js",
+      "to": "middleware\\errorHandler.js",
+      "specifiers": [
+        {
+          "name": "asyncHandler",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\health.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\health.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "logger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\health.js",
+      "to": "utils\\responseFormatter.js",
+      "specifiers": [
+        {
+          "name": "sendSuccess",
+          "type": "named"
+        },
+        {
+          "name": "sendError",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\healthMonitoring.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\healthMonitoring.js",
+      "to": "middleware\\errorHandler.js",
+      "specifiers": [
+        {
+          "name": "asyncHandler",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\healthMonitoring.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "logger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\healthMonitoring.js",
+      "to": "services\\healthMonitor.js",
+      "specifiers": [
+        {
+          "name": "healthMonitor",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "routes\\healthMonitoring.js",
+      "to": "utils\\responseFormatter.js",
+      "specifiers": [
+        {
+          "name": "sendSuccess",
+          "type": "named"
+        },
+        {
+          "name": "sendError",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\locations.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\locations.js",
+      "to": "middleware\\withTenant.js",
+      "specifiers": [
+        {
+          "name": "withTenantBySlug",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\locations.js",
+      "to": "middleware\\zodValidation.js",
+      "specifiers": [
+        {
+          "name": "validateBody",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\locations.js",
+      "to": "schemas\\apiSchemas.js",
+      "specifiers": [
+        {
+          "name": "serviceAreaSchemas",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\locations.js",
+      "to": "middleware\\errorHandler.js",
+      "specifiers": [
+        {
+          "name": "asyncHandler",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\payments.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\payments.js",
+      "to": "services\\emailService.js",
+      "specifiers": [
+        {
+          "name": "sendWelcomeEmail",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\payments.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\payments.js",
+      "to": "utils\\responseFormatter.js",
+      "specifiers": [
+        {
+          "name": "sendSuccess",
+          "type": "named"
+        },
+        {
+          "name": "sendError",
+          "type": "named"
+        },
+        {
+          "name": "sendValidationError",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\payments.js",
+      "to": "middleware\\errorHandler.js",
+      "specifiers": [
+        {
+          "name": "asyncHandler",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\previews.js",
+      "to": "utils\\previewToken.js",
+      "specifiers": [
+        {
+          "name": "signPreview",
+          "type": "named"
+        },
+        {
+          "name": "verifyPreview",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\previews.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\reviews.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\reviews.js",
+      "to": "middleware\\auth.js",
+      "specifiers": [
+        {
+          "name": "authenticateToken",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\reviews.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "logger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\reviews.js",
+      "to": "middleware\\errorHandler.js",
+      "specifiers": [
+        {
+          "name": "asyncHandler",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\reviews.js",
+      "to": "utils\\responseFormatter.js",
+      "specifiers": [
+        {
+          "name": "sendSuccess",
+          "type": "named"
+        },
+        {
+          "name": "sendError",
+          "type": "named"
+        },
+        {
+          "name": "sendValidationError",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\schedule.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\schedule.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\schedule.js",
+      "to": "middleware\\auth.js",
+      "specifiers": [
+        {
+          "name": "authenticateToken",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\schedule.js",
+      "to": "middleware\\withTenant.js",
+      "specifiers": [
+        {
+          "name": "withTenantByUser",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\schedule.js",
+      "to": "middleware\\validation.js",
+      "specifiers": [
+        {
+          "name": "validateBody",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\schedule.js",
+      "to": "middleware\\rateLimiter.js",
+      "specifiers": [
+        {
+          "name": "apiLimiter",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\seo.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "logger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\seo.js",
+      "to": "middleware\\errorHandler.js",
+      "specifiers": [
+        {
+          "name": "asyncHandler",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\seo.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\serviceAreas.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "logger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\serviceAreas.js",
+      "to": "middleware\\errorHandler.js",
+      "specifiers": [
+        {
+          "name": "asyncHandler",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\serviceAreas.js",
+      "to": "utils\\serviceAreaProcessor.js",
+      "specifiers": [
+        {
+          "name": "getPlatformServiceAreas",
+          "type": "named"
+        },
+        {
+          "name": "getTenantsForCity",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\serviceAreas.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\serviceAreas.js",
+      "to": "utils\\validationSchemas.js",
+      "specifiers": [
+        {
+          "name": "serviceAreaSchemas",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\serviceAreas.js",
+      "to": "middleware\\validation.js",
+      "specifiers": [
+        {
+          "name": "validateParams",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\services.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\services.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\services.js",
+      "to": "middleware\\errorHandler.js",
+      "specifiers": [
+        {
+          "name": "asyncHandler",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\services.js",
+      "to": "utils\\vehicleMapping.js",
+      "specifiers": [
+        {
+          "name": "getDatabaseId",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\services.js",
+      "to": "utils\\responseFormatter.js",
+      "specifiers": [
+        {
+          "name": "sendSuccess",
+          "type": "named"
+        },
+        {
+          "name": "sendError",
+          "type": "named"
+        },
+        {
+          "name": "sendValidationError",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\subdomainTest.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\subdomainTest.js",
+      "to": "middleware\\errorHandler.js",
+      "specifiers": [
+        {
+          "name": "asyncHandler",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\subdomainTest.js",
+      "to": "utils\\responseFormatter.js",
+      "specifiers": [
+        {
+          "name": "sendSuccess",
+          "type": "named"
+        },
+        {
+          "name": "sendError",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\tenantDashboard.js",
+      "to": "middleware\\auth.js",
+      "specifiers": [
+        {
+          "name": "authenticateToken",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\tenantDashboard.js",
+      "to": "middleware\\withTenant.js",
+      "specifiers": [
+        {
+          "name": "withTenant",
+          "type": "named"
+        },
+        {
+          "name": "validateTenantExists",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\tenantDashboard.js",
+      "to": "middleware\\tenantValidation.js",
+      "specifiers": [
+        {
+          "name": "validateTenantAccess",
+          "type": "named"
+        },
+        {
+          "name": "validateTenantApproved",
+          "type": "named"
+        },
+        {
+          "name": "addTenantHeaders",
+          "type": "named"
+        },
+        {
+          "name": "logTenantContext",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\tenantDashboard.js",
+      "to": "controllers\\tenantDashboardController.js",
+      "specifiers": [
+        {
+          "name": "getTenantDashboard",
+          "type": "named"
+        },
+        {
+          "name": "getTenantOverview",
+          "type": "named"
+        },
+        {
+          "name": "getTenantReviews",
+          "type": "named"
+        },
+        {
+          "name": "getTenantPerformance",
+          "type": "named"
+        },
+        {
+          "name": "getTenantActivity",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\tenantDashboard.js",
+      "to": "middleware\\errorHandler.js",
+      "specifiers": [
+        {
+          "name": "asyncHandler",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\tenantImages.js",
+      "to": "middleware\\errorHandler.js",
+      "specifiers": [
+        {
+          "name": "asyncHandler",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\tenantImages.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\tenantImages.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\tenantManifest.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "logger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\tenantManifest.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\tenantManifest.js",
+      "to": "middleware\\errorHandler.js",
+      "specifiers": [
+        {
+          "name": "asyncHandler",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\tenantReviews.js",
+      "to": "services\\googleBusinessScraper.js",
+      "specifiers": [
+        {
+          "name": "googleBusinessScraper",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "routes\\tenantReviews.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "logger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\tenantReviews.js",
+      "to": "middleware\\auth.js",
+      "specifiers": [
+        {
+          "name": "authenticateToken",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\tenantReviews.js",
+      "to": "utils\\avatarUtils.js",
+      "specifiers": [
+        {
+          "name": "generateAvatarFilename",
+          "type": "named"
+        },
+        {
+          "name": "ensureUploadsDir",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\tenantReviews.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\tenantReviews.js",
+      "to": "middleware\\errorHandler.js",
+      "specifiers": [
+        {
+          "name": "asyncHandler",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\tenantReviews.js",
+      "to": "utils\\uploadValidator.js",
+      "specifiers": [
+        {
+          "name": "validateFileMagic",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\tenantReviews.js",
+      "to": "utils\\responseFormatter.js",
+      "specifiers": [
+        {
+          "name": "sendSuccess",
+          "type": "named"
+        },
+        {
+          "name": "sendError",
+          "type": "named"
+        },
+        {
+          "name": "sendValidationError",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\tenants.js",
+      "to": "middleware\\errorHandler.js",
+      "specifiers": [
+        {
+          "name": "asyncHandler",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\tenants.js",
+      "to": "middleware\\zodValidation.js",
+      "specifiers": [
+        {
+          "name": "validateBody",
+          "type": "named"
+        },
+        {
+          "name": "validateParams",
+          "type": "named"
+        },
+        {
+          "name": "validateQuery",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\tenants.js",
+      "to": "schemas\\apiSchemas.js",
+      "specifiers": [
+        {
+          "name": "tenantSchemas",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\tenants.js",
+      "to": "middleware\\rateLimiter.js",
+      "specifiers": [
+        {
+          "name": "apiLimiter",
+          "type": "named"
+        },
+        {
+          "name": "sensitiveAuthLimiter",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\tenants.js",
+      "to": "controllers\\tenantController.js",
+      "specifiers": [
+        {
+          "name": "tenantController",
+          "type": "namespace"
+        }
+      ]
+    },
+    {
+      "from": "routes\\websiteContent.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\websiteContent.js",
+      "to": "middleware\\withTenant.js",
+      "specifiers": [
+        {
+          "name": "withTenantBySlug",
+          "type": "named"
+        },
+        {
+          "name": "getTenantBySlug",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\websiteContent.js",
+      "to": "config\\env.js",
+      "specifiers": [
+        {
+          "name": "env",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\websiteContent.js",
+      "to": "middleware\\errorHandler.js",
+      "specifiers": [
+        {
+          "name": "asyncHandler",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\websiteContent.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "scripts\\cleanup-tokens.js",
+      "to": "services\\refreshTokenService.js",
+      "specifiers": [
+        {
+          "name": "cleanupExpiredTokens",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "scripts\\cleanup-tokens.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "logger",
+          "type": "named"
+        },
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "config\\env.js",
+      "specifiers": [
+        {
+          "name": "loadEnv",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "middleware\\requestLogger.js",
+      "specifiers": [
+        {
+          "name": "requestLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "middleware\\tenantResolver.js",
+      "specifiers": [
+        {
+          "name": "tenantResolver",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "middleware\\subdomainMiddleware.js",
+      "specifiers": [
+        {
+          "name": "createSubdomainMiddleware",
+          "type": "named"
+        },
+        {
+          "name": "createAdminSubdomainMiddleware",
+          "type": "named"
+        },
+        {
+          "name": "addTenantContext",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "routes\\payments.js",
+      "specifiers": [
+        {
+          "name": "paymentRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "routes\\health.js",
+      "specifiers": [
+        {
+          "name": "healthRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "routes\\auth.js",
+      "specifiers": [
+        {
+          "name": "authRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "routes\\tenants.js",
+      "specifiers": [
+        {
+          "name": "tenantsRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "routes\\admin.js",
+      "specifiers": [
+        {
+          "name": "adminRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "routes\\subdomainTest.js",
+      "specifiers": [
+        {
+          "name": "subdomainTestRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "routes\\locations.js",
+      "specifiers": [
+        {
+          "name": "locationsRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "routes\\websiteContent.js",
+      "specifiers": [
+        {
+          "name": "websiteContentRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "routes\\googleReviews.js",
+      "specifiers": [
+        {
+          "name": "googleReviewsRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "routes\\config.js",
+      "specifiers": [
+        {
+          "name": "configRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "routes\\googleAuth.js",
+      "specifiers": [
+        {
+          "name": "googleAuthRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "routes\\googleAnalytics.js",
+      "specifiers": [
+        {
+          "name": "googleAnalyticsRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "routes\\healthMonitoring.js",
+      "specifiers": [
+        {
+          "name": "healthMonitoringRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "routes\\reviews.js",
+      "specifiers": [
+        {
+          "name": "reviewsRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "routes\\domains.js",
+      "specifiers": [
+        {
+          "name": "domainRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "routes\\tenantDashboard.js",
+      "specifiers": [
+        {
+          "name": "tenantDashboardRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "routes\\previews.js",
+      "specifiers": [
+        {
+          "name": "previewRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "routes\\analytics.new.js",
+      "specifiers": [
+        {
+          "name": "createAnalyticsRouter",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "utils\\analyticsQueue.js",
+      "specifiers": [
+        {
+          "name": "startAutoFlush",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "routes\\seo.js",
+      "specifiers": [
+        {
+          "name": "seoRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "routes\\avatar.js",
+      "specifiers": [
+        {
+          "name": "avatarRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "routes\\services.js",
+      "specifiers": [
+        {
+          "name": "servicesRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "routes\\serviceAreas.js",
+      "specifiers": [
+        {
+          "name": "serviceAreasRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "routes\\customers.js",
+      "specifiers": [
+        {
+          "name": "customersRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "routes\\schedule.js",
+      "specifiers": [
+        {
+          "name": "scheduleRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "routes\\tenantImages.js",
+      "specifiers": [
+        {
+          "name": "tenantImagesRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "routes\\tenantManifest.js",
+      "specifiers": [
+        {
+          "name": "tenantManifestRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "routes\\tenantReviews.js",
+      "specifiers": [
+        {
+          "name": "tenantReviewsRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "routes\\gallery.js",
+      "specifiers": [
+        {
+          "name": "galleryRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "routes\\errorTracking.js",
+      "specifiers": [
+        {
+          "name": "errorTrackingRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "services\\authService.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "services\\authService.js",
+      "to": "utils\\tokenManager.js",
+      "specifiers": [
+        {
+          "name": "generateTokenPair",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "services\\authService.js",
+      "to": "services\\refreshTokenService.js",
+      "specifiers": [
+        {
+          "name": "storeRefreshToken",
+          "type": "named"
+        },
+        {
+          "name": "validateRefreshToken",
+          "type": "named"
+        },
+        {
+          "name": "revokeRefreshToken",
+          "type": "named"
+        },
+        {
+          "name": "revokeAllUserTokens",
+          "type": "named"
+        },
+        {
+          "name": "revokeDeviceToken",
+          "type": "named"
+        },
+        {
+          "name": "generateDeviceId",
+          "type": "named"
+        },
+        {
+          "name": "getUserTokens",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "services\\authService.js",
+      "to": "config\\env.js",
+      "specifiers": [
+        {
+          "name": "env",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "services\\cronService.js",
+      "to": "scripts\\cleanup-tokens.js",
+      "specifiers": [
+        {
+          "name": "cleanupTokens",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "services\\cronService.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "services\\domainService.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "services\\domainService.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "services\\emailService.js",
+      "to": "config\\env.js",
+      "specifiers": [
+        {
+          "name": "env",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "services\\emailService.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "logger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "services\\googleAnalytics.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "services\\googleAnalytics.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "logger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "services\\googleApi.js",
+      "to": "config\\env.js",
+      "specifiers": [
+        {
+          "name": "env",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "services\\googleApi.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "logger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "services\\healthMonitor.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "logger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "services\\healthMonitor.js",
+      "to": "config\\env.js",
+      "specifiers": [
+        {
+          "name": "loadEnv",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "services\\passwordResetService.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "services\\passwordResetService.js",
+      "to": "config\\env.js",
+      "specifiers": [
+        {
+          "name": "env",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "services\\passwordResetService.js",
+      "to": "services\\emailService.js",
+      "specifiers": [
+        {
+          "name": "emailService",
+          "type": "namespace"
+        }
+      ]
+    },
+    {
+      "from": "services\\passwordResetService.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "services\\passwordSetupService.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "services\\passwordSetupService.js",
+      "to": "config\\env.js",
+      "specifiers": [
+        {
+          "name": "env",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "services\\passwordSetupService.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "services\\refreshTokenService.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "services\\refreshTokenService.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "logger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "services\\stripeService.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "services\\stripeService.js",
+      "to": "config\\env.js",
+      "specifiers": [
+        {
+          "name": "env",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "services\\tenantAnalyticsService.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "services\\tenantAnalyticsService.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "services\\tenantDeletionService.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "services\\tenantDeletionService.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "logger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "services\\tenantService.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "services\\tenantService.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "services\\unifiedErrorService.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "logger",
+          "type": "named"
+        },
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        },
+        {
+          "name": "logError",
+          "type": "named"
+        },
+        {
+          "name": "logSecurityEvent",
+          "type": "named"
+        },
+        {
+          "name": "logBusinessEvent",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "services\\unifiedErrorService.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "utils\\analyticsQueue.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "logger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "utils\\avatarUtils.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "utils\\errorMonitor.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "utils\\logger.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "logger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "utils\\previewToken.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "utils\\tenantResolution.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "utils\\tokenManager.js",
+      "to": "utils\\logger.js",
+      "specifiers": [
+        {
+          "name": "logger",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "utils\\tokenManager.js",
+      "to": "config\\env.js",
+      "specifiers": [
+        {
+          "name": "env",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "utils\\tokenManager.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "utils\\tokenManager.js",
+      "to": "config\\auth.js",
+      "specifiers": [
+        {
+          "name": "AUTH_CONFIG",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "utils\\uploadValidator.js",
+      "to": "utils\\logger.js",
+      "specifiers": [
+        {
+          "name": "logger",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "utils\\validationSchemas.js",
+      "to": "utils\\validators.js",
+      "specifiers": [
+        {
+          "name": "validators",
+          "type": "named"
+        }
+      ]
+    }
+  ]
+}
