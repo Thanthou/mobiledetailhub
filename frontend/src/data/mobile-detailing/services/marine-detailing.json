@@ -19,13 +19,13 @@
         "deck cleaning"
       ],
       "canonicalPath": "/service/marine-detailing",
-      "ogImage": "/mobile-detailing/images/services/marine-detailing/hero.png",
+      "ogImage": "/industries/mobile-detailing/images/services/marine-detailing/hero.png",
       "robots": "index,follow"
     },
   
     "hero": {
       "image": {
-        "src": "/mobile-detailing/images/services/marine-detailing/hero.png",
+        "src": "/industries/mobile-detailing/images/services/marine-detailing/hero.png",
         "alt": "Professional boat and marine detailing service",
         "caption": "Premium mobile marine detailing at your marina or dock"
       },
@@ -62,7 +62,7 @@
         "Preps hull/deck for long-term ceramic or polymer coatings"
       ],
       "image": {
-        "src": "/mobile-detailing/images/services/marine-detailing/what-it-is.jpg",
+        "src": "/industries/mobile-detailing/images/services/marine-detailing/what-it-is.jpg",
         "alt": "Marine detailing explanation graphic"
       }
     },
@@ -78,7 +78,7 @@
             "Fresh-water pre-rinse with salt neutralizer",
             "Marine-safe foam wash and contact wash"
           ],
-          "image": { "src": "/mobile-detailing/images/services/marine-detailing/process-1.jpg", "alt": "Marine assessment and preparation" }
+          "image": { "src": "/industries/mobile-detailing/images/services/marine-detailing/process-1.jpg", "alt": "Marine assessment and preparation" }
         },
         {
           "number": 2,
@@ -88,7 +88,7 @@
             "Spot barnacle/marine growth removal (where accessible)",
             "Light gelcoat oxidation treatment to restore clarity"
           ],
-          "image": { "src": "/mobile-detailing/images/services/marine-detailing/process-2.png", "alt": "Marine decontamination and oxidation treatment" }
+          "image": { "src": "/industries/mobile-detailing/images/services/marine-detailing/process-2.png", "alt": "Marine decontamination and oxidation treatment" }
         },
         {
           "number": 3,
@@ -98,7 +98,7 @@
             "Non-slip deck & vinyl cleaned and dressed appropriately",
             "Metals polished; plastics restored to satin-matte"
           ],
-          "image": { "src": "/mobile-detailing/images/services/marine-detailing/process-3.png", "alt": "Marine protection and finishing" }
+          "image": { "src": "/industries/mobile-detailing/images/services/marine-detailing/process-3.png", "alt": "Marine protection and finishing" }
         }
       ]
     },
@@ -110,8 +110,8 @@
         "Clean, decontaminated surfaces that enhance coating longevity"
       ],
       "images": {
-        "before": { "src": "/mobile-detailing/images/services/marine-detailing/before.png", "alt": "Boat before detailing" },
-        "after": { "src": "/mobile-detailing/images/services/marine-detailing/after.jpg", "alt": "Boat after detailing" }
+        "before": { "src": "/industries/mobile-detailing/images/services/marine-detailing/before.png", "alt": "Boat before detailing" },
+        "after": { "src": "/industries/mobile-detailing/images/services/marine-detailing/after.jpg", "alt": "Boat after detailing" }
       },
       "containerSize": "large"
     },
@@ -119,7 +119,7 @@
     "gallery": {
       "title": "Marine Detailing Gallery",
       "images": [
-        { "id": "1", "src": "/mobile-detailing/images/services/marine-detailing/hero.png", "alt": "Marine detailing service", "caption": "Professional marine detailing" }
+        { "id": "1", "src": "/industries/mobile-detailing/images/services/marine-detailing/hero.png", "alt": "Marine detailing service", "caption": "Professional marine detailing" }
       ]
     },
   

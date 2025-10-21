@@ -12,7 +12,7 @@ import chalk from "chalk";
 import Table from "cli-table3";
 
 // --- Settings ---
-const DAILY_TARGET = 3500;          // lines/day = 100 DPV
+const DAILY_TARGET = 5000;          // lines/day = 100 DPV
 const MAX_LINES_PER_DAY = 10000;    // cap extreme days
 
 // --- Parse git log ---

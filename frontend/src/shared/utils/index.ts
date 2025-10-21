@@ -75,6 +75,7 @@ export {
   type ModalType,
   type PrefetchStrategy,
   preloadCriticalModals,
+  registerModalImporter,
   useModalTriggerRef} from './modalCodeSplitting';
 
 // Business utilities
@@ -162,6 +163,23 @@ export {
   getTenantFromDomain,
   isReservedSubdomain
 } from './domainUtils';
+
+// Preview mode detection utilities
+export {
+  getPreviewIndustry,
+  inPreviewMode,
+  isPreviewHost,
+  isPreviewPath
+} from './isPreview';
+
+// Industry asset utilities
+export {
+  getFavicon,
+  getIndustryLogo,
+  getIndustryLogoAlt,
+  setFavicon,
+  setPageTitle
+} from './industryAssets';
 
 // Tenant data transformation utilities
 export {

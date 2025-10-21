@@ -25,7 +25,7 @@
   
     "hero": {
       "image": {
-        "src": "/mobile-detailing/images/services/paint-correction/hero.jpg",
+        "src": "/industries/mobile-detailing/images/services/paint-correction/hero.jpg",
         "alt": "Professional paint correction machine polishing a vehicle panel",
         "caption": "Defect removal and gloss restoration with calibrated polishing systems"
       },
@@ -60,7 +60,7 @@
         "Creates a pristine surface that maximizes coating/PPF bond"
       ],
       "image": {
-        "src": "/mobile-detailing/images/services/paint-correction/what-it-is.png",
+        "src": "/industries/mobile-detailing/images/services/paint-correction/what-it-is.png",
         "alt": "Close-up before/after of corrected automotive paint"
       }
     },
@@ -76,7 +76,7 @@
             "Iron/fallout remover and clay bar treatment",
             "Mask sensitive trim and edges"
           ],
-          "image": { "src": "/mobile-detailing/images/services/paint-correction/process-1.jpg", "alt": "Decontamination and preparation before polishing" }
+          "image": { "src": "/industries/mobile-detailing/images/services/paint-correction/process-1.jpg", "alt": "Decontamination and preparation before polishing" }
         },
         {
           "number": 2,
@@ -86,7 +86,7 @@
             "Test spot to choose optimal pad/polish combo",
             "Single or multi-stage machine polishing to target defects"
           ],
-          "image": { "src": "/mobile-detailing/images/services/paint-correction/process-2.jpg", "alt": "Machine polishing and defect removal" }
+          "image": { "src": "/industries/mobile-detailing/images/services/paint-correction/process-2.jpg", "alt": "Machine polishing and defect removal" }
         },
         {
           "number": 3,
@@ -96,7 +96,7 @@
             "Panel wipe to remove polishing oils (filler-free check)",
             "Sealant or ceramic coating application (if selected)"
           ],
-          "image": { "src": "/mobile-detailing/images/services/paint-correction/process-3.jpg", "alt": "Refinement and protection after correction" }
+          "image": { "src": "/industries/mobile-detailing/images/services/paint-correction/process-3.jpg", "alt": "Refinement and protection after correction" }
         }
       ]
     },
@@ -108,8 +108,8 @@
         "Perfect foundation for ceramic coating or PPF"
       ],
       "images": {
-        "before": { "src": "/mobile-detailing/images/services/paint-correction/before.jpg", "alt": "Paint before correction with visible swirls" },
-        "after": { "src": "/mobile-detailing/images/services/paint-correction/after.jpg", "alt": "Paint after correction with high gloss" }
+        "before": { "src": "/industries/mobile-detailing/images/services/paint-correction/before.jpg", "alt": "Paint before correction with visible swirls" },
+        "after": { "src": "/industries/mobile-detailing/images/services/paint-correction/after.jpg", "alt": "Paint after correction with high gloss" }
       },
       "containerSize": "large"
     },
@@ -117,7 +117,7 @@
     "gallery": {
       "title": "Paint Correction Gallery",
       "images": [
-        { "id": "1", "src": "/mobile-detailing/images/services/paint-correction/hero.jpg", "alt": "High-gloss paint after correction", "caption": "Defect removal and high-gloss finish" }
+        { "id": "1", "src": "/industries/mobile-detailing/images/services/paint-correction/hero.jpg", "alt": "High-gloss paint after correction", "caption": "Defect removal and high-gloss finish" }
       ]
     },
   

@@ -73,7 +73,7 @@ export const useBrowserTab = (options: UseBrowserTabOptions = {}) => {
   const faviconUrl = customFavicon 
     || logoUrl 
     || (industry ? getTenantAssetUrl({ vertical: industry as Vertical, type: 'logo' }) : null)
-    || '/shared/icons/logo-white.svg'; // Platform logo fallback (white for clean favicon)
+    || '/icons/logo-white.svg'; // Platform logo fallback (white for clean favicon)
 
   // Determine the manifest URL - use tenant-specific manifest if we're in a tenant context
   const manifestUrl = data?.slug ? `/${data.slug}/manifest.json` : '/manifest.webmanifest';

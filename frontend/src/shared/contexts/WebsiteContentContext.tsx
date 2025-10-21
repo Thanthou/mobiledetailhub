@@ -34,7 +34,8 @@ export const WebsiteContentProvider: React.FC<WebsiteContentProviderProps> = ({ 
     currentPath.startsWith('/login') ||
     currentPath.startsWith('/booking') ||
     currentPath.startsWith('/preview-generator') ||
-    currentPath.startsWith('/preview');
+    currentPath.startsWith('/preview') ||
+    currentPath.includes('-preview'); // Match any industry preview (e.g., /mobile-detailing-preview)
 
   const {
     data: content,

@@ -117,11 +117,11 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ review, isOpen, onClose }) =>
                   <picture>
                     <source
                       type="image/webp"
-                      srcSet={`/shared/icons/${review.reviewSource}.webp`}
+                      srcSet={`/icons/${review.reviewSource}.webp`}
                       sizes="32px"
                     />
                     <img 
-                      src={`/shared/icons/${review.reviewSource}.png`}
+                      src={`/icons/${review.reviewSource}.png`}
                       alt={review.reviewSource}
                       className="w-8 h-8 rounded"
                       width={32}

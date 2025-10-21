@@ -7,10 +7,16 @@ This directory contains industry-specific data for the multi-tenant platform.
 ```
 data/
 ├── mobile-detailing/
+│   ├── index.ts               ← Industry config loader (loadMobileDetailingConfig)
 │   ├── assets.json            ← Images and their metadata (logos, hero, thumbnails)
 │   ├── content-defaults.json  ← Text defaults for DB provisioning (ONE-TIME USE)
 │   ├── seo-defaults.json      ← SEO defaults for DB provisioning (ONE-TIME USE)
-│   ├── site.json              ← [LEGACY - being phased out]
+│   ├── preview/               ← Preview mode mock data (demo sites)
+│   │   ├── index.ts           ← Preview data loader
+│   │   ├── business.json      ← Mock business info (name, phone, city, tagline)
+│   │   ├── services.json      ← Mock service listings for preview
+│   │   ├── reviews.json       ← Mock customer reviews
+│   │   └── faqs.json          ← Mock FAQ items
 │   ├── services/              ← Service detail pages (self-contained JSON files)
 │   ├── faq/                   ← FAQ utilities (loaded from code, not JSON)
 │   ├── pricing/               ← Pricing data (addon feature)
@@ -18,7 +24,10 @@ data/
 │   └── vehicle_data/          ← Vehicle make/model lookups
 ├── lawncare/
 ├── maid-service/
-└── pet-grooming/
+├── pet-grooming/
+├── barber/
+├── preview-types.ts           ← Shared TypeScript types for preview data
+└── preview-loader.ts          ← Universal preview data loader
 ```
 
 ---
@@ -94,6 +103,46 @@ Page-level SEO defaults for database provisioning:
 ```
 
 **Used at:** Signup only (one-time) - Populates SEO fields in DB
+
+---
+
+### `preview/` - Preview Mode Mock Data
+
+Contains **mock business data** for industry preview/demo pages:
+
+**Structure:**
+```
+preview/
+├── index.ts         ← Exports getMobileDetailingPreview() function
+└── defaults.json    ← Single file with all preview data
+    ├── businessName, phone, email, city, state
+    ├── h1, subTitle (hero content)
+    ├── reviews_title, reviews_subtitle
+    ├── faq_title, faq_subtitle
+    └── reviews[] (array of customer testimonials)
+```
+
+**Purpose:**
+- Powers industry preview pages (e.g., `/mobile-detailing-preview`)
+- Shows prospects what their site could look like
+- Separates mock data from real tenant data
+
+**Used at:** Preview mode only - Loaded by `PreviewDataProvider`
+
+**Loading:**
+```typescript
+import { loadIndustryPreview } from '@/data/preview-loader';
+
+const previewData = await loadIndustryPreview('mobile-detailing');
+// Returns: { business, services, reviews, faqs }
+```
+
+**Location:** `frontend/src/data/{industry}/preview/`
+
+**Why separate from tenant data?**
+- Preview data = Mock/demo data for showing prospects
+- Tenant data = Real business data from database
+- Clear separation prevents confusion
 
 ---
 

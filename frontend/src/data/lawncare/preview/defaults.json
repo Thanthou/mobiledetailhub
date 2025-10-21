@@ -1,0 +1,59 @@
+{
+  "businessName": "Green Valley Lawn Care",
+  "phone": "(555) 345-6789",
+  "email": "service@greenvalleylawn.com",
+  "city": "Anywhere",
+  "state": "USA",
+  "h1": "Your Lawn, Our Passion",
+  "subTitle": "Professional lawn care and landscaping services.",
+  "faq_title": "Frequently Asked Questions",
+  "faq_subtitle": "Find answers to common questions about our lawn care services",
+  "reviews_title": "What Our Customers Say",
+  "reviews_subtitle": "See what our satisfied customers have to say about our lawn care services.",
+  
+  "reviews": [
+    {
+      "name": "Tom Anderson",
+      "rating": 5,
+      "text": "Green Valley has been taking care of our lawn for 3 years. Always reliable, great communication, and our yard looks fantastic year-round.",
+      "date": "2024-01-20",
+      "avatar": "/data/preview-avatars/avatar-5.jfif"
+    },
+    {
+      "name": "Lisa Brown",
+      "rating": 5,
+      "text": "They transformed our boring yard into a beautiful landscape! The design was exactly what we wanted and the installation was flawless.",
+      "date": "2024-01-14",
+      "avatar": "/data/preview-avatars/avatar-2.jfif"
+    },
+    {
+      "name": "Mark Wilson",
+      "rating": 5,
+      "text": "Best lawn service in Charlotte. Fair pricing, excellent work, and they genuinely care about the quality of their service.",
+      "date": "2024-01-09",
+      "avatar": "/data/preview-avatars/avatar-3.jfif"
+    },
+    {
+      "name": "Patricia Davis",
+      "rating": 5,
+      "text": "Their fertilization program made such a difference! My lawn went from patchy brown to lush green in just a few treatments. Amazing results!",
+      "date": "2023-12-28",
+      "avatar": "/data/preview-avatars/avatar-6.jfif"
+    },
+    {
+      "name": "James Miller",
+      "rating": 5,
+      "text": "Weekly mowing service is perfect. They edge, trim, and blow everything off. My neighbors keep asking who does my lawn!",
+      "date": "2023-12-20",
+      "avatar": "/data/preview-avatars/avatar-1.jfif"
+    },
+    {
+      "name": "Susan Martinez",
+      "rating": 5,
+      "text": "Fall cleanup was thorough and efficient. They cleaned out all the flower beds and hauled everything away. Ready for spring now!",
+      "date": "2023-12-15",
+      "avatar": "/data/preview-avatars/avatar-4.jfif"
+    }
+  ]
+}
+

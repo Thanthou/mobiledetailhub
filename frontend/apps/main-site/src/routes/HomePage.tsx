@@ -5,7 +5,7 @@ export function HomePage() {
   return (
     <main 
       className="relative min-h-screen bg-cover bg-center bg-no-repeat bg-fixed"
-      style={{ backgroundImage: "url('/shared/images/background.png')" }}
+      style={{ backgroundImage: "url('/images/background.png')" }}
     >
       {/* Dark overlay for readability */}
       <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/60 to-black/70"></div>

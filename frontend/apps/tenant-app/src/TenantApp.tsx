@@ -1,9 +1,9 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { useRouterDebug } from '@shared/useRouterDebug';
-import { registerModalImporter } from '@shared/utils';
+import { registerModalImporter, inPreviewMode } from '@shared/utils';
 
-import { DataProvider, TenantPage } from '@/tenant-app/components/header';
+import { TenantPage } from '@/tenant-app/components/header';
 import { LazyRequestQuoteModal } from '@/tenant-app/components/quotes';
 import { DashboardPage } from '@/tenant-app/components/tenantDashboard';
 import TenantApplicationPage from '@/admin-app/components/tenantOnboarding/components/TenantApplicationPage';
@@ -18,40 +18,47 @@ import PreviewPage from './components/PreviewPage';
 const Booking = lazy(() => import('./components/booking/BookingApp'));
 
 
-export default function TenantApp() {
-  useRouterDebug('TenantApp');
-  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
-
-  // Register modal importers for prefetching
-  useEffect(() => {
-    registerModalImporter('quote', () => 
-      import('@/tenant-app/components/quotes/components/RequestQuoteModal') as Promise<{ default: React.ComponentType<unknown> }>
-    );
-    registerModalImporter('login', () => 
-      import('@shared/auth/components/LoginModal') as Promise<{ default: React.ComponentType<unknown> }>
-    );
-  }, []);
-
-  const handleOpenQuoteModal = () => {
-    setIsQuoteModalOpen(true);
-  };
-  const handleCloseQuoteModal = () => {
-    setIsQuoteModalOpen(false);
-  };
-
-  const routes = (
-    <Suspense fallback={<div className="p-8 text-white">Loading…</div>}>
+/**
+ * Preview Routes Component
+ * 
+ * Handles all preview-related routing.
+ * Preview pages use PreviewDataProvider (already mounted by TenantProviders).
+ * No live data fetching occurs in preview mode.
+ */
+function PreviewRoutes() {
+  return (
+    <Suspense fallback={<div className="p-8 text-white">Loading preview…</div>}>
       <Routes>
-        {/* Root path - show tenant page (wrapped in DataProvider from AppShell) */}
-        <Route path="/" element={<TenantPage />} />
-        
-        {/* Preview routes - MUST come before other routes to avoid conflicts */}
+        {/* Industry-specific preview routes */}
         <Route path="/mobile-detailing-preview" element={<PreviewPage />} />
         <Route path="/maid-service-preview" element={<PreviewPage />} />
         <Route path="/lawncare-preview" element={<PreviewPage />} />
         <Route path="/pet-grooming-preview" element={<PreviewPage />} />
         <Route path="/barber-preview" element={<PreviewPage />} />
+        
+        {/* Generic preview route */}
         <Route path="/preview" element={<PreviewPage />} />
+        
+        {/* Catch-all for preview mode */}
+        <Route path="*" element={<PreviewPage />} />
+      </Routes>
+    </Suspense>
+  );
+}
+
+/**
+ * Live Tenant Routes Component
+ * 
+ * Handles all live tenant routing.
+ * These routes use LiveDataProvider (mounted by TenantProviders).
+ * Fetches real tenant data from API.
+ */
+function LiveRoutes() {
+  return (
+    <Suspense fallback={<div className="p-8 text-white">Loading…</div>}>
+      <Routes>
+        {/* Root path - show tenant page */}
+        <Route path="/" element={<TenantPage />} />
         
         {/* Login route */}
         <Route path="/login" element={<LoginPage />} />
@@ -75,35 +82,61 @@ export default function TenantApp() {
         {/* Service routes - must come before generic businessSlug route */}
         <Route path=":businessSlug/services/:serviceType" element={<ServicePage />} />
         
+        {/* Business-specific dashboard */}
         <Route path=":businessSlug/dashboard" element={
-          <div style={{ padding: '20px', background: 'red', color: 'white' }}>
-            <h1>DASHBOARD ROUTE MATCHED!</h1>
-            <p>Business Slug: {window.location.pathname.split('/')[1]}</p>
-            <ProtectedRoute requiredRole={['admin', 'tenant']} fallbackPath="/">
-                <DashboardPage />
-            </ProtectedRoute>
-          </div>
+          <ProtectedRoute requiredRole={['admin', 'tenant']} fallbackPath="/">
+            <DashboardPage />
+          </ProtectedRoute>
         } />
+        
+        {/* Business-specific booking */}
         <Route path=":businessSlug/booking" element={<Booking />} />
         
-        {/* Tenant-specific routes */}
+        {/* Tenant-specific home page */}
         <Route path=":businessSlug" element={<HomePage />} />
-        
-        {/* NO CATCH-ALL REDIRECT - let main.tsx routes handle preview paths */}
       </Routes>
     </Suspense>
   );
+}
+
+export default function TenantApp() {
+  useRouterDebug('TenantApp');
+  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
+  const isPreview = inPreviewMode();
+
+  // Register modal importers for prefetching (skip in preview)
+  useEffect(() => {
+    if (isPreview) return;
+    
+    registerModalImporter('quote', () => 
+      import('@/tenant-app/components/quotes/components/RequestQuoteModal') as Promise<{ default: React.ComponentType<unknown> }>
+    );
+    registerModalImporter('login', () => 
+      import('@shared/auth/components/LoginModal') as Promise<{ default: React.ComponentType<unknown> }>
+    );
+  }, [isPreview]);
+
+  const handleOpenQuoteModal = () => {
+    setIsQuoteModalOpen(true);
+  };
+  const handleCloseQuoteModal = () => {
+    setIsQuoteModalOpen(false);
+  };
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <>
       <SEOManager />
-      {routes}
       
-      {/* Quote Modal */}
-      <LazyRequestQuoteModal 
-        isOpen={isQuoteModalOpen}
-        onClose={handleCloseQuoteModal}
-      />
-    </div>
+      {/* Split routing: preview vs live */}
+      {isPreview ? <PreviewRoutes /> : <LiveRoutes />}
+      
+      {/* Quote Modal (only in live mode) */}
+      {!isPreview && (
+        <LazyRequestQuoteModal 
+          isOpen={isQuoteModalOpen}
+          onClose={handleCloseQuoteModal}
+        />
+      )}
+    </>
   );
 }

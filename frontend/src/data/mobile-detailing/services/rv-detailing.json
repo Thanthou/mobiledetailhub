@@ -25,7 +25,7 @@
   
     "hero": {
       "image": {
-        "src": "/mobile-detailing/images/services/rv-detailing/hero.jpg",
+        "src": "/industries/mobile-detailing/images/services/rv-detailing/hero.jpg",
         "alt": "Professional RV detailing service",
         "caption": "Mobile RV detailing at your site, storage facility, or park"
       },
@@ -62,7 +62,7 @@
         "Applies UV sealant for easier washing and seasonal protection"
       ],
       "image": {
-        "src": "/mobile-detailing/images/services/rv-detailing/what-it-is.jpg",
+        "src": "/industries/mobile-detailing/images/services/rv-detailing/what-it-is.jpg",
         "alt": "RV detailing explanation graphic"
       }
     },
@@ -78,7 +78,7 @@
             "Pre-rinse and foam wash with RV-safe detergents",
             "Bug/tar treatment and safe contact wash"
           ],
-          "image": { "src": "/mobile-detailing/images/services/rv-detailing/process-1.jpg", "alt": "RV inspection and preparation" }
+          "image": { "src": "/industries/mobile-detailing/images/services/rv-detailing/process-1.jpg", "alt": "RV inspection and preparation" }
         },
         {
           "number": 2,
@@ -88,7 +88,7 @@
             "Roof cleaning and treatment to resist UV/chalking",
             "Black streak removal along gutters and trim"
           ],
-          "image": { "src": "/mobile-detailing/images/services/rv-detailing/process-2.jpg", "alt": "RV decontamination and roof treatment" }
+          "image": { "src": "/industries/mobile-detailing/images/services/rv-detailing/process-2.jpg", "alt": "RV decontamination and roof treatment" }
         },
         {
           "number": 3,
@@ -98,7 +98,7 @@
             "UV sealant or wax applied to exterior surfaces",
             "Trim/tires dressed to a clean satin finish"
           ],
-          "image": { "src": "/mobile-detailing/images/services/rv-detailing/process-3.jpg", "alt": "RV protection and finishing" }
+          "image": { "src": "/industries/mobile-detailing/images/services/rv-detailing/process-3.jpg", "alt": "RV protection and finishing" }
         }
       ]
     },
@@ -110,8 +110,8 @@
         "Protected surfaces that wash easier and stay glossy longer"
       ],
       "images": {
-        "before": { "src": "/mobile-detailing/images/services/rv-detailing/before.jpg", "alt": "RV before detailing" },
-        "after": { "src": "/mobile-detailing/images/services/rv-detailing/after.jpg", "alt": "RV after detailing" }
+        "before": { "src": "/industries/mobile-detailing/images/services/rv-detailing/before.jpg", "alt": "RV before detailing" },
+        "after": { "src": "/industries/mobile-detailing/images/services/rv-detailing/after.jpg", "alt": "RV after detailing" }
       },
       "containerSize": "large"
     },
@@ -119,7 +119,7 @@
     "gallery": {
       "title": "RV Detailing Gallery",
       "images": [
-        { "id": "1", "src": "/mobile-detailing/images/services/rv-detailing/hero.jpg", "alt": "RV detailing service", "caption": "Professional RV detailing" }
+        { "id": "1", "src": "/industries/mobile-detailing/images/services/rv-detailing/hero.jpg", "alt": "RV detailing service", "caption": "Professional RV detailing" }
       ]
     },
   

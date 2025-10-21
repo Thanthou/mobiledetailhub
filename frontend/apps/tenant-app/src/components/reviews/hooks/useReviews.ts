@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { reviewsApi } from '../api';
 import type { DatabaseReview,Review, ReviewQueryParams } from '../types';
+import { usePreviewData } from '@/tenant-app/contexts/PreviewDataProvider';
 
 // Convert database review to frontend review format
 const convertDatabaseReviewToReview = (dbReview: DatabaseReview): Review => {
@@ -30,11 +31,15 @@ const convertDatabaseReviewToReview = (dbReview: DatabaseReview): Review => {
 };
 
 export const useReviews = (params: ReviewQueryParams = {}) => {
+  // Check for preview mode and get preview data
+  const { isPreviewMode, previewData } = usePreviewData();
+  
   // Create a stable query key based on params
   const queryKey = ['reviews', params];
   
-  // Only fetch if we have meaningful params
+  // Only fetch if we have meaningful params AND not in preview mode
   const hasParams = Object.values(params).some(value => value !== undefined && value !== '');
+  const shouldFetch = hasParams && !isPreviewMode;
   
   const {
     data: response,
@@ -61,11 +66,35 @@ export const useReviews = (params: ReviewQueryParams = {}) => {
         throw err;
       }
     },
-    enabled: hasParams,
+    enabled: shouldFetch,
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 1
   });
 
+  // In preview mode, return preview data
+  if (isPreviewMode && previewData?.reviews) {
+    // Transform preview reviews to match Review type
+    const previewReviews: Review[] = previewData.reviews.map((review, index) => ({
+      id: `preview-${index}`,
+      customerName: review.name,
+      rating: review.rating,
+      reviewText: review.text,
+      date: review.date,
+      reviewSource: 'google' as const,
+      profileImage: review.avatar,
+      isVerified: true,
+    }));
+
+    return {
+      reviews: previewReviews,
+      loading: false,
+      error: null,
+      pagination: null,
+      refetch: () => {},
+      loadMore: () => {}
+    };
+  }
+  
   // Convert database reviews to frontend format
   const reviews = response?.data ? response.data.map(convertDatabaseReviewToReview) : [];
   const pagination = response?.pagination || null;

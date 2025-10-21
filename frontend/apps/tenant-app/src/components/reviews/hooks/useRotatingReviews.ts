@@ -1,6 +1,7 @@
 import { useEffect,useState } from 'react';
 
 import { useImageRotation } from '@shared/hooks/useImageRotation';
+import { usePreviewData } from '@/tenant-app/contexts/PreviewDataProvider';
 
 import type { Review } from '../types';
 
@@ -22,6 +23,7 @@ export function useRotatingReviews(reviews: Review[]) {
   const [reviewImages, setReviewImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { isPreviewMode, industry } = usePreviewData();
 
   // Load gallery images for background rotation (no avatar images)
   useEffect(() => {
@@ -33,9 +35,10 @@ export function useRotatingReviews(reviews: Review[]) {
 
         let images: string[] = [];
 
-        // Load gallery images for background rotation (no avatar images)
+        // Load gallery images for background rotation
+        const galleryUrl = `/industries/${industry || 'mobile-detailing'}/data/gallery.json`;
         try {
-          const res = await fetch('/mobile-detailing/data/gallery.json');
+          const res = await fetch(galleryUrl);
           if (!res.ok) throw new Error(`Failed to fetch gallery data: ${res.status}`);
           const galleryData: unknown = await res.json();
           const galleryImages = Array.isArray(galleryData) 
@@ -53,15 +56,15 @@ export function useRotatingReviews(reviews: Review[]) {
           // If we still don't have enough images, add some defaults
           if (images.length < 3) {
             const defaultImages = [
-              '/mobile-detailing/images/gallery/dodge-viper-gts-grigio-telesto-studio.png',
-              '/mobile-detailing/images/gallery/bmw-m4-competition-grigio-telesto-studio.png'
+              '/industries/mobile-detailing/images/gallery/dodge-viper-gts-grigio-telesto-studio.png',
+              '/industries/mobile-detailing/images/gallery/bmw-m4-competition-grigio-telesto-studio.png'
             ];
             images = shuffleArray([...images, ...defaultImages]);
           }
         } catch (galleryError: unknown) {
           // Fallback to default images only
           console.warn('Failed to load gallery images:', galleryError);
-          images = ['/mobile-detailing/images/gallery/dodge-viper-gts-grigio-telesto-studio.png'];
+          images = ['/industries/mobile-detailing/images/gallery/dodge-viper-gts-grigio-telesto-studio.png'];
         }
 
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Prevents state updates after component unmount
@@ -82,12 +85,12 @@ export function useRotatingReviews(reviews: Review[]) {
     return () => {
       cancelled = true;
     };
-  }, [reviews]);
+  }, [industry]); // Load based on industry, not isPreviewMode
 
-  // Use the image rotation utility
+  // Use the image rotation utility (only if we have images)
   const rotation = useImageRotation({
-    images: reviewImages,
-    autoRotate: true,
+    images: reviewImages.length > 0 ? reviewImages : [''], // Provide dummy if empty
+    autoRotate: reviewImages.length > 0, // Only rotate if we have images
     interval: 8000, // Match FAQ interval
     fadeDuration: 2000, // 2 seconds fade duration
     preloadNext: true,

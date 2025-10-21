@@ -2,12 +2,14 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import { fileURLToPath } from 'node:url';
+import { sharedPublicConfig } from './vite.shared-public.config';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   root: 'apps/admin-app',
   base: '/',
+  publicDir: sharedPublicConfig.publicDir, // Shared public folder
   plugins: [react()],
   resolve: {
     alias: {

@@ -1,23 +1,30 @@
 import { useNavigate } from 'react-router-dom';
 
-import assetsData from '@/data/mobile-detailing/assets.json';
-import autoDetailingData from '@/data/mobile-detailing/services/auto-detailing.json';
-import ceramicCoatingData from '@/data/mobile-detailing/services/ceramic-coating.json';
-import marineDetailingData from '@/data/mobile-detailing/services/marine-detailing.json';
-import paintCorrectionData from '@/data/mobile-detailing/services/paint-correction.json';
-import ppfData from '@/data/mobile-detailing/services/ppf.json';
-import rvDetailingData from '@/data/mobile-detailing/services/rv-detailing.json';
 import { Service } from '@/tenant-app/components/services/types/service.types';
 import { env } from '@shared/env';
 import { useTenantSlug } from '@shared/hooks/useTenantSlug';
 import type { LocationPage } from '@shared/types/location';
 import { getServiceImageFromLocation } from '@shared/utils/schemaUtils';
+import { usePreviewData } from '@/tenant-app/contexts/PreviewDataProvider';
+import { useData } from '@shared/hooks';
 
-// Transform assets.json services.grid data to Service format with location-specific images
-const getServicesFromSiteData = (locationData: LocationPage | null | undefined, tenantSlug?: string): Service[] => {
-  return assetsData.services.grid.map((service, index) => {
-    // Get thumbnail data for this service
-    const thumbnail = assetsData.services.thumbnails[service.slug as keyof typeof assetsData.services.thumbnails];
+// Transform config servicesGrid to Service format with location-specific images
+const getServicesFromSiteData = (
+  siteConfig: any,
+  locationData: LocationPage | null | undefined, 
+  tenantSlug?: string
+): Service[] => {
+  // Check for servicesGrid (MainSiteConfig) or services.grid (legacy assets.json)
+  const servicesGrid = siteConfig?.servicesGrid || siteConfig?.services?.grid;
+  
+  if (!servicesGrid || !Array.isArray(servicesGrid)) {
+    return [];
+  }
+  
+  return servicesGrid.map((service: any, index: number) => {
+    // For MainSiteConfig, the service already has image/alt
+    // For legacy assets.json, we need to get thumbnail data
+    const thumbnail = siteConfig?.services?.thumbnails?.[service.slug] || {};
     // Determine service role for location-specific images
     let serviceRole: "auto" | "marine" | "rv" | null = null;
     if (service.slug.includes('auto-detailing')) {
@@ -28,36 +35,39 @@ const getServicesFromSiteData = (locationData: LocationPage | null | undefined, 
       serviceRole = 'rv';
     }
 
-    // Get location-specific image if available, otherwise use default thumbnail
+    // Get image URL - MainSiteConfig uses 'image', legacy uses thumbnail.url
+    const imageUrl = service.image || thumbnail.url || '';
+    const imageAlt = service.alt || thumbnail.alt || service.title || '';
+    const imageWidth = service.width || thumbnail.width || 400;
+    const imageHeight = service.height || thumbnail.height || 300;
+    
+    // Get location-specific image if available, otherwise use default
     const imageData = serviceRole && locationData 
-      ? getServiceImageFromLocation(locationData, serviceRole, thumbnail.url || '')
+      ? getServiceImageFromLocation(locationData, serviceRole, imageUrl)
       : {
-          url: thumbnail.url || '',
-          alt: thumbnail.alt || '',
-          width: thumbnail.width || 400,
-          height: thumbnail.height || 300,
+          url: imageUrl,
+          alt: imageAlt,
+          width: imageWidth,
+          height: imageHeight,
           priority: service.priority
         };
 
-    // Construct route based on environment
-    // Development: /{tenantSlug}/services/{serviceSlug}
-    // Production: /service/{serviceSlug}
-    const route = env.DEV && tenantSlug
+    // Construct route - use href from config if available
+    const route = service.href || (env.DEV && tenantSlug
       ? `/${tenantSlug}/services/${service.slug}`
-      : `/service/${service.slug}`;
+      : `/service/${service.slug}`);
     
 
     const serviceData = {
       id: (index + 1).toString(),
       title: service.title,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- service.alt from JSON, type refinement planned
-      description: service.alt, // Using alt text as description
+      description: imageAlt, // Using alt text as description
       imageUrl: imageData.url,
       route: route,
-      category: service.slug.split('-')[0] || 'general', // Extract category from slug
+      category: service.slug?.split('-')[0] || 'general', // Extract category from slug
       imageWidth: imageData.width,
       imageHeight: imageData.height,
-      imagePriority: imageData.priority
+      imagePriority: imageData.priority || service.priority
     };
     
     
@@ -67,59 +77,42 @@ const getServicesFromSiteData = (locationData: LocationPage | null | undefined, 
 
 export const useServices = (locationData: LocationPage | null | undefined) => {
   const navigate = useNavigate();
-  const tenantSlug = useTenantSlug(); // Use the proper tenant slug hook
+  const tenantSlug = useTenantSlug();
+  const { isPreviewMode, previewConfig } = usePreviewData();
+  const data = useData();
 
   const handleServiceClick = (service: Service) => {
     void navigate(service.route);
   };
 
   const getServices = () => {
-    return getServicesFromSiteData(locationData, tenantSlug);
+    // In preview mode, use previewConfig assets
+    if (isPreviewMode && previewConfig) {
+      return getServicesFromSiteData(previewConfig, locationData, tenantSlug);
+    }
+    
+    // In live mode, use siteConfig from DataContext
+    if (data?.siteConfig) {
+      return getServicesFromSiteData(data.siteConfig, locationData, tenantSlug);
+    }
+    
+    return [];
   };
 
+  const services = getServices();
+
   const getServiceById = (id: string) => {
-    return getServicesFromSiteData(locationData, tenantSlug).find(service => service.id === id);
+    return services.find(service => service.id === id);
   };
 
   const getServicesByCategory = (category: string) => {
-    return getServicesFromSiteData(locationData, tenantSlug).filter(service => service.category === category);
+    return services.filter(service => service.category === category);
   };
-
-  const getAutoDetailingData = () => {
-    return autoDetailingData;
-  };
-
-  const getMarineDetailingData = () => {
-    return marineDetailingData;
-  };
-
-  const getRvDetailingData = () => {
-    return rvDetailingData;
-  };
-
-  const getCeramicCoatingData = () => {
-    return ceramicCoatingData;
-  };
-
-  const getPaintCorrectionData = () => {
-    return paintCorrectionData;
-  };
-
-  const getPpfData = () => {
-    return ppfData;
-  };
-
 
   return {
-    services: getServices(),
+    services,
     handleServiceClick,
     getServiceById,
     getServicesByCategory,
-    getAutoDetailingData,
-    getMarineDetailingData,
-    getRvDetailingData,
-    getCeramicCoatingData,
-    getPaintCorrectionData,
-    getPpfData,
   };
 };

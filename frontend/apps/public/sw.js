@@ -7,7 +7,7 @@ const CACHE_NAME = 'tss-pwa-v1.0.1';
 const STATIC_CACHE_URLS = [
   '/',
   '/manifest.webmanifest',
-  '/shared/icons/logo.png'
+  '/icons/logo.png'
 ];
 
 // Cache tenant manifests separately with longer TTL

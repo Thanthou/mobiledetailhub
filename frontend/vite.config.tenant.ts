@@ -2,12 +2,15 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import { fileURLToPath } from 'node:url';
+import { sharedPublicConfig } from './vite.shared-public.config';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   root: 'apps/tenant-app',
   base: '/',
+  publicDir: sharedPublicConfig.publicDir, // Shared public folder
+  assetsInclude: ['**/*.jfif', '**/*.jpe', '**/*.jfif'], // Include JFIF images
   plugins: [react()],
   resolve: {
     alias: {
@@ -29,8 +32,16 @@ export default defineConfig({
     host: '0.0.0.0',
     open: false,
     cors: true,
+    hmr: {
+      host: 'localhost', // Prevent WebSocket reconnect loop
+      protocol: 'ws',
+    },
     fs: {
-      allow: ['../..'], // Allow accessing src directory from apps/tenant-app
+      strict: false,
+      allow: sharedPublicConfig.server.fs.allow, // Use shared fs config
+    },
+    watch: {
+      ignored: sharedPublicConfig.server.watch.ignored, // CRITICAL: Prevent infinite reload
     },
     proxy: {
       '/api': {

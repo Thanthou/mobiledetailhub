@@ -67,25 +67,30 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   // Step 1: Get tenant slug from URL or domain
   const slug = useTenantSlug();
   
-  // Step 2: Fetch tenant/business data
+  // Step 2: Check if we're on a preview route (skip tenant data fetching)
+  const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+  const isPreviewRoute = currentPath.includes('-preview');
+  
+  // Step 3: Fetch tenant/business data (disabled for preview routes)
   const { data: businessData, isLoading: isLoadingBusiness } = useTenantData({ 
-    slug: slug 
+    slug: slug,
+    enabled: !isPreviewRoute  // Disable fetching for preview routes
   });
   
-  // Step 3: Fetch industry config based on tenant's industry
+  // Step 4: Fetch industry config based on tenant's industry (disabled for preview routes)
   const industry = businessData?.industry || 'mobile-detailing';
   const { data: siteConfig, isLoading: isLoadingSiteConfig } = useQuery({
     queryKey: ['shared','siteConfig', industry],
     queryFn: () => fetchIndustryConfig(industry),
-    enabled: !!businessData?.industry,
+    enabled: !!businessData?.industry && !isPreviewRoute,  // Disable for preview routes
     staleTime: 10 * 60 * 1000, // 10 minutes
     retry: 2
   });
   
-  // Step 4: Compute derived state
+  // Step 5: Compute derived state
   const isLoading = isLoadingBusiness || isLoadingSiteConfig;
   
-  // Step 5: Transform and assemble context value
+  // Step 6: Transform and assemble context value
   const transformedSocialMedia = businessData ? transformSocialMedia(businessData) : {};
   
   const contextValue: DataContextType = {

@@ -1,32 +1,65 @@
 /**
- * Preview Page Component
+ * Preview Page Component - Incremental Build
  * 
- * Renders industry preview pages using actual tenant components with preview data
- * Shows what a tenant site looks like for each industry
+ * Building piece by piece to avoid render loops.
+ * Start minimal, add components one at a time.
  */
 
-import React, { useState } from 'react';
-import { usePreviewParams } from '../hooks/usePreviewParams';
-import { PreviewDataProvider, usePreviewData } from '../contexts/PreviewDataContext';
+import { useEffect } from 'react';
+import { usePreviewData } from '../contexts/PreviewDataProvider';
+import { useFavicon, useScrollSpy } from '@shared/hooks';
+import { setPageTitle } from '@shared/utils';
 
-// Import the actual tenant-app components
+// Import tenant components one by one
 import Header from '../components/header/components/Header';
 import Hero from '../components/hero/components/Hero';
 import ServicesGrid from '../components/services/components/ServicesGrid';
 import Reviews from '../components/reviews/components/Reviews';
 import FAQ from '../components/faq/components/FAQ';
 import Gallery from '../components/gallery/components/Gallery';
-import Footer from '../components/footer/components/Footer';
-import { LazyRequestQuoteModal } from '../components/quotes';
+// Note: Footer is included inside Gallery component, no need to import separately
 
-
-function PreviewContent() {
-  const { isPreviewMode, isLoading, previewConfig } = usePreviewData();
-  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
+/**
+ * Preview Page - Incremental Component Build
+ * 
+ * Clean architecture using simple hooks and utilities.
+ */
+export function PreviewPage() {
+  const { isLoading, previewConfig, industry } = usePreviewData();
   
-  const handleOpenQuoteModal = () => setIsQuoteModalOpen(true);
-  const handleCloseQuoteModal = () => setIsQuoteModalOpen(false);
+  // Set industry-specific favicon (one line!)
+  useFavicon(industry);
   
+  // Track which section is currently visible for header navigation
+  // Include both mobile and desktop section IDs for responsive layouts
+  useScrollSpy({
+    ids: ['top', 'services', 'services-desktop', 'reviews', 'faq', 'gallery', 'gallery-desktop', 'footer'],
+    headerPx: 88, // Header height
+    threshold: 0.55,
+    updateHash: false, // Don't update URL hash in preview mode
+  });
+  
+  // Set page title
+  useEffect(() => {
+    if (industry) {
+      const displayName = industry.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      setPageTitle(`${displayName} Preview | That Smart Site`);
+    } else {
+      setPageTitle('Preview | That Smart Site');
+    }
+    
+    // Stop favicon spinner
+    const stopSpinner = () => {
+      if (document.readyState === 'complete') {
+        window.dispatchEvent(new Event('load'));
+      }
+    };
+    stopSpinner();
+    const timeoutId = setTimeout(stopSpinner, 100);
+    return () => clearTimeout(timeoutId);
+  }, [industry]);
+  
+  // Show loading state
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
@@ -38,7 +71,8 @@ function PreviewContent() {
     );
   }
   
-  if (!isPreviewMode || !previewConfig) {
+  // Show error state
+  if (!previewConfig) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white/10 rounded-lg p-8 text-center">
@@ -58,56 +92,19 @@ function PreviewContent() {
     );
   }
   
+  // Render preview page - components added incrementally
   return (
-    <div className="min-h-screen bg-gray-900">
-      {/* Use the actual tenant-app components */}
+    <>
       <Header />
-      <Hero onRequestQuote={handleOpenQuoteModal} />
-      <ServicesGrid />
-      <Reviews />
-      <FAQ />
-      <Gallery />
-      <Footer />
-      
-      {/* Quote Modal */}
-      {isQuoteModalOpen && (
-        <LazyRequestQuoteModal 
-          isOpen={isQuoteModalOpen}
-          onClose={handleCloseQuoteModal}
-        />
-      )}
-    </div>
-  );
-}
-
-export function PreviewPage() {
-  const previewParams = usePreviewParams();
-  
-  // If no preview mode detected, show error
-  if (!previewParams.mode) {
-    return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white/10 rounded-lg p-8 text-center">
-          <div className="text-6xl mb-4">🔍</div>
-          <h1 className="text-2xl font-bold text-white mb-2">Preview Not Found</h1>
-          <p className="text-white/70 mb-6">
-            This doesn't appear to be a valid preview URL.
-          </p>
-          <a 
-            href="http://localhost:5175" 
-            className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
-          >
-            Back to Main Site
-          </a>
-        </div>
-      </div>
-    );
-  }
-  
-  return (
-    <PreviewDataProvider>
-      <PreviewContent />
-    </PreviewDataProvider>
+      <main className="snap-container overflow-y-scroll h-screen snap-y snap-mandatory">
+        <Hero />
+        <ServicesGrid />
+        <Reviews />
+        <FAQ />
+        <Gallery />
+        {/* Note: Footer is included inside Gallery component */}
+      </main>
+    </>
   );
 }
 

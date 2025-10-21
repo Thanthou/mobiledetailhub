@@ -3,6 +3,8 @@ export { useAuth } from './useAuth';
 
 // SEO & Browser Tab Management
 export { setBrowserTab, setBrowserTitle, setFavicon, useBrowserTab } from './useBrowserTab';
+export { usePageTitle } from './usePageTitle';
+export { useFavicon } from './useFavicon';
 export { setMetaDescription, setOgImage, useMetaTags } from './useMetaTags';
 export { useSEO } from './useSEO';
 export {

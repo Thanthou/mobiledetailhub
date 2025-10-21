@@ -8,6 +8,13 @@ interface ReviewCardProps {
 }
 
 const ReviewCard: React.FC<ReviewCardProps> = ({ review, onReviewClick }) => {
+  const [imageError, setImageError] = React.useState(false);
+
+  // Reset imageError when review changes
+  React.useEffect(() => {
+    setImageError(false);
+  }, [review.id]);
+
   const handleClick = () => {
     onReviewClick?.(review);
   };
@@ -19,9 +26,13 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, onReviewClick }) => {
     }
   };
 
+  const handleImageError = () => {
+    setImageError(true);
+  };
+
   return (
     <div 
-      className="relative bg-white/10 backdrop-blur-sm rounded-lg p-6 md:p-8 lg:p-9 cursor-pointer hover:bg-white/20 transition-colors"
+      className="relative bg-white/10 backdrop-blur-sm rounded-lg p-6 md:p-8 lg:p-9 cursor-pointer hover:bg-white/20 transition-colors h-[400px] flex flex-col"
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       role="button"
@@ -30,26 +41,20 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, onReviewClick }) => {
     >
       <div className="flex items-center mb-4 md:mb-5 lg:mb-6">
         <div className="flex items-center space-x-4">
-          <div className="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center text-white font-semibold overflow-hidden">
-            {review.profileImage ? (
-              <picture>
-                <source
-                  type="image/webp"
-                  srcSet={`${review.profileImage.replace(/\.(png|jpg|jpeg)$/i, '.webp')} 64w`}
-                  sizes="64px"
-                />
-                <img 
-                  src={review.profileImage} 
-                  alt={review.customerName}
-                  className="w-full h-full object-cover rounded-full"
-                  width={64}
-                  height={64}
-                  loading="lazy"
-                  decoding="async"
-                />
-              </picture>
+          <div className={`w-16 h-16 rounded-full flex items-center justify-center text-white font-semibold overflow-hidden flex-shrink-0 ${review.profileImage && !imageError ? 'bg-transparent' : 'bg-orange-500'}`}>
+            {review.profileImage && !imageError ? (
+              <img 
+                src={review.profileImage} 
+                alt={review.customerName}
+                className="w-full h-full object-cover rounded-full"
+                width={64}
+                height={64}
+                loading="eager"
+                decoding="sync"
+                onError={handleImageError}
+              />
             ) : (
-              review.customerName.charAt(0).toUpperCase()
+              <span className="text-2xl">{review.customerName?.charAt(0).toUpperCase() || '?'}</span>
             )}
           </div>
           <div>
@@ -70,19 +75,17 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, onReviewClick }) => {
         </div>
       </div>
 
-      {/* Review Content - Word Count Based */}
-      <div className="flex flex-col justify-start pb-16">
+      {/* Review Content - Fixed height with overflow handling */}
+      <div className="flex-1 flex flex-col justify-start pb-16 min-h-0">
         {/* Review Title */}
         {review.title && (
-          <h5 className="text-white font-medium mb-2 text-base">
-            {review.title.split(' ').slice(0, 8).join(' ')}
-            {review.title.split(' ').length > 8 && '...'}
+          <h5 className="text-white font-medium mb-2 text-base line-clamp-2">
+            {review.title}
           </h5>
         )}
 
-        <p className="text-gray-300 text-base leading-relaxed">
-          {review.reviewText.split(' ').slice(0, 25).join(' ')}
-          {review.reviewText.split(' ').length > 25 && '...'}
+        <p className="text-gray-300 text-base leading-relaxed line-clamp-6 overflow-hidden">
+          {review.reviewText}
         </p>
       </div>
 
@@ -100,11 +103,11 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, onReviewClick }) => {
             <picture>
               <source
                 type="image/webp"
-                srcSet={`/shared/icons/${review.reviewSource}.webp`}
+                srcSet={`/icons/${review.reviewSource}.webp`}
                 sizes="20px"
               />
               <img 
-                src={`/shared/icons/${review.reviewSource}.png`}
+                src={`/icons/${review.reviewSource}.png`}
                 alt={review.reviewSource}
                 className="w-5 h-5 rounded"
                 width={20}

@@ -42,7 +42,12 @@ const FollowUs: React.FC<FollowUsProps> = ({ socialMedia }) => {
     }
   ];
 
-  const visibleLinks = socialLinks.filter(link => link.url !== undefined); // Show if URL field exists (even if empty)
+  const visibleLinks = socialLinks.filter(link => {
+    // In preview mode, show all 4 platforms
+    if (isPreview) return true;
+    // In live mode, only show if URL is defined (even if empty string)
+    return link.url !== undefined;
+  });
 
   return (
     <div className="text-center">

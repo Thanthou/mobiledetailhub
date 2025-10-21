@@ -1,11 +1,10 @@
-📄 .backend-port.json
 📁 .cursor/
    📁 commands/
       📄 f.md
+      📄 flushdns.md
       📄 typescript-eslintno-unnecessary-condition.md
       📄 typescript-eslintno-unsafe-assignment.md
 📄 .eslintrc.cjs
-📄 .frontend-port.json
 📁 .github/
    📁 workflows/
       📄 code-quality.yml
@@ -167,6 +166,7 @@
    📁 audits/
       📁 archive/
 
+      📄 DEPENDENCY_AUDIT.md
       📄 ENV_AUDIT.md
       📄 HEALTH_MONITOR_SEO_INTEGRATION.md
       📁 lighthouse/
@@ -256,12 +256,15 @@
          📄 MOBILE_HERO_IMAGES.md
          📄 MOBILE_IMPLEMENTATION_SUMMARY.md
          📄 PERFORMANCE_OVERVIEW.md
+      📄 PREVIEW_FLOW_DIAGRAM.md
+      📄 PREVIEW_SYSTEM_SETUP.md
       📄 QUICK_START.md
       📄 RUNTIME_CONFIG_DISCIPLINE.md
    📁 integration/
 
    📁 overview/
 
+   📄 PREVIEW_SYSTEM_READY.md
    📁 project/
       📁 milestones/
 
@@ -413,9 +416,7 @@
             📄 main.tsx
             📄 MainSiteApp.tsx
             📁 pages/
-               📄 HomePage.tsx
-               📄 MobileDetailingPreview.tsx
-               📄 ServicePage.tsx
+
             📄 providers.tsx
             📁 routes/
                📄 HomePage.tsx
@@ -424,6 +425,8 @@
                📄 TenantOnboardingPage.tsx
       📁 tenant-app/
          📄 index.html
+         📁 public/
+
          📁 src/
             📁 components/
                📁 booking/
@@ -640,6 +643,7 @@
                      📄 googlePlace.ts
                      📄 index.ts
                      📄 placesLoader.ts
+               📄 PreviewPage.tsx
                📁 quotes/
                   📁 api/
                      📄 quotes.api.ts
@@ -923,9 +927,16 @@
                      📄 tenantEvents.ts
                      📁 __tests__/
 
+            📁 contexts/
+               📄 PreviewDataProvider.tsx
+            📁 data/
+               📄 previewMockData.ts
+            📁 hooks/
+               📄 usePreviewParams.ts
             📄 main.tsx
             📁 pages/
                📄 IndustryPreviewPage.tsx
+               📄 MobileDetailingPreview.tsx
             📄 TenantApp.tsx
             📄 TenantProviders.tsx
    📁 config/
@@ -1299,6 +1310,7 @@
             📄 useMergedLocationData.ts
             📄 useMetaTags.ts
             📄 useMobileDetection.ts
+            📄 usePageTitle.ts
             📄 usePerformanceMonitor.ts
             📄 usePrefetch.ts
             📄 usePreviewAsyncCore.ts
@@ -1323,6 +1335,9 @@
 
          📁 lib/
 
+         📁 pages/
+            📄 HomePage.tsx
+            📄 ServicePage.tsx
          📁 schemas/
             📄 booking.ts
             📄 index.ts
@@ -1437,6 +1452,7 @@
             📄 imageUtils.ts
             📄 index.ts
             📄 industryRegistry.ts
+            📄 isPreview.ts
             📄 loadDefaults.ts
             📄 locationDataLoader.ts
             📄 locationsUtils.ts
@@ -1500,6 +1516,7 @@
 📁 scripts/
    📁 audits/
       📄 audit-db.js
+      📄 audit-dependencies.js
       📄 audit-env.js
       📄 audit-overview.js
       📄 audit-performance.js
@@ -1573,6 +1590,7 @@
       📄 standardize-logger.js
       📄 standardize-validation.js
       📄 validate-env.js
+      📄 verify-preview-system.js
    📁 fix/
       📄 cleanup-console.js
    📁 frontend/
@@ -1588,8 +1606,7 @@
          📄 index.ts
          📄 io.ts
    📁 lighthouse/
-      📄 budget.json
-      📄 lighthouse.config.js
+
    📁 project/
       📄 code-scan.js
       📄 config.js
@@ -1611,13 +1628,13 @@
    📄 README.md
    📁 setup/
       📄 seo-provision.js
+      📄 setup-hosts-windows.md
    📁 system/
 
    📁 testing/
       📁 backend/
          📄 create-test-tenant.js
          📄 test-email.js
-         📄 test-lighthouse.js
          📄 test-password.js
          📄 test-site-access.js
          📄 test-subdomain-live.js
@@ -1646,4 +1663,3 @@
    📄 current-goals.md
    📄 pricing.md
    📄 schemas.md
-   📄 scripts.md

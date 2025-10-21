@@ -9,6 +9,12 @@ import { useDataOptional } from '@shared/hooks/useData';
 export const useReviewsAvailability = (): boolean => {
   const data = useDataOptional();
   const isTenant = data?.isTenant || false;
+  const isPreview = data?.isPreview || false;
+  
+  // In preview mode, always show reviews (we have mock data)
+  if (isPreview) {
+    return true;
+  }
   
   // Build query parameters for availability check only
   const queryParams: ReviewQueryParams = {

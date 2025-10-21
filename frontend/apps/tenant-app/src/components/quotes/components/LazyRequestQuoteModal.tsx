@@ -6,6 +6,11 @@ import { type RequestQuoteModalProps } from '../types';
 const RequestQuoteModal = React.lazy(() => import('./RequestQuoteModal'));
 
 const LazyRequestQuoteModal: React.FC<RequestQuoteModalProps> = (props) => {
+  // Only render if modal is actually open
+  if (!props.isOpen) {
+    return null;
+  }
+  
   return (
     <Suspense fallback={<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="bg-stone-800 text-white p-6 rounded-lg">

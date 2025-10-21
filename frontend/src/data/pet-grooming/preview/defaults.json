@@ -1,0 +1,59 @@
+{
+  "businessName": "Pampered Paws Grooming",
+  "phone": "(555) 456-7890",
+  "email": "woof@pamperedpaws.com",
+  "city": "Anywhere",
+  "state": "USA",
+  "h1": "Where Every Pet Gets the Royal Treatment",
+  "subTitle": "Professional pet grooming services for dogs and cats.",
+  "faq_title": "Frequently Asked Questions",
+  "faq_subtitle": "Find answers to common questions about our pet grooming services",
+  "reviews_title": "What Our Customers Say",
+  "reviews_subtitle": "See what our satisfied customers have to say about our pet grooming services.",
+  
+  "reviews": [
+    {
+      "name": "Emily Parker",
+      "rating": 5,
+      "text": "My anxious rescue dog always comes home happy! The groomers are so patient and gentle. She actually gets excited when we pull into the parking lot now!",
+      "date": "2024-01-16",
+      "avatar": "/data/preview-avatars/avatar-2.jfif"
+    },
+    {
+      "name": "James Mitchell",
+      "rating": 5,
+      "text": "Best grooming salon in Seattle! They did an amazing job on our Golden Retriever. He looked like a show dog when we picked him up!",
+      "date": "2024-01-11",
+      "avatar": "/data/preview-avatars/avatar-5.jfif"
+    },
+    {
+      "name": "Rachel Green",
+      "rating": 5,
+      "text": "I have been bringing my two cats here for years. They handle them with such care and patience. Highly recommend for both dogs and cats!",
+      "date": "2024-01-06",
+      "avatar": "/data/preview-avatars/avatar-4.jfif"
+    },
+    {
+      "name": "Michael Davis",
+      "rating": 5,
+      "text": "The de-shedding treatment is a game changer! My Husky sheds so much less now. The house stays cleaner and he looks great!",
+      "date": "2023-12-29",
+      "avatar": "/data/preview-avatars/avatar-1.jfif"
+    },
+    {
+      "name": "Jennifer Lee",
+      "rating": 5,
+      "text": "They trimmed my Poodle's nails perfectly without any stress. Very gentle and professional. My dog actually fell asleep during grooming!",
+      "date": "2023-12-22",
+      "avatar": "/data/preview-avatars/avatar-6.jfif"
+    },
+    {
+      "name": "David Thompson",
+      "rating": 5,
+      "text": "My cat has long hair and gets matted easily. They were so patient and gentle getting all the mats out. He looks like a new cat!",
+      "date": "2023-12-18",
+      "avatar": "/data/preview-avatars/avatar-3.jfif"
+    }
+  ]
+}
+

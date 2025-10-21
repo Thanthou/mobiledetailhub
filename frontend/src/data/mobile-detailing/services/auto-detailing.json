@@ -10,13 +10,13 @@
       "metaDescription": "Thorough interior and exterior detailing that restores clarity, cleanliness, and protection—ideal prep for coatings and PPF.",
       "keywords": ["auto detailing", "mobile detailing", "paint decontamination", "interior deep clean", "sealant"],
       "canonicalPath": "/service/auto-detailing",
-      "ogImage": "/mobile-detailing/images/services/auto-detailing/hero.jpg",
+      "ogImage": "/industries/mobile-detailing/images/services/auto-detailing/hero.jpg",
       "robots": "index,follow"
     },
   
     "hero": {
       "image": {
-        "src": "/mobile-detailing/images/services/auto-detailing/hero.png",
+        "src": "/industries/mobile-detailing/images/services/auto-detailing/hero.png",
         "alt": "Professional auto detailing service",
         "caption": "Premium mobile auto detailing at your location"
       },
@@ -53,7 +53,7 @@
         "Prepares paint for advanced services (Correction, Coating, PPF)"
       ],
       "image": {
-        "src": "/mobile-detailing/images/services/auto-detailing/what-it-is.png",
+        "src": "/industries/mobile-detailing/images/services/auto-detailing/what-it-is.png",
         "alt": "Auto detailing explanation graphic"
       }
     },
@@ -69,7 +69,7 @@
             "Reverse Osmosis mineral-free pre-rinse",
             "Foam and hand wash with contact-safe media"
           ],
-          "image": { "src": "/mobile-detailing/images/services/auto-detailing/process-1.png", "alt": "Assessment and prep" }
+          "image": { "src": "/industries/mobile-detailing/images/services/auto-detailing/process-1.png", "alt": "Assessment and prep" }
         },
         {
           "number": 2,
@@ -79,7 +79,7 @@
             "Removal of iron & bonded contaminants",
             "Surface prepped for correction and protection"
           ],
-          "image": { "src": "/mobile-detailing/images/services/auto-detailing/process-2.png", "alt": "Decontamination step" }
+          "image": { "src": "/industries/mobile-detailing/images/services/auto-detailing/process-2.png", "alt": "Decontamination step" }
         },
         {
           "number": 3,
@@ -89,7 +89,7 @@
             "Interior vacuum and steam/spot clean",
             "Trim and plastics dressed satin-matte"
           ],
-          "image": { "src": "/mobile-detailing/images/services/auto-detailing/process-3.jpg", "alt": "Protection step" }
+          "image": { "src": "/industries/mobile-detailing/images/services/auto-detailing/process-3.jpg", "alt": "Protection step" }
         }
       ]
     },
@@ -101,8 +101,8 @@
         "Contaminant-free surface that maximizes Ceramic Coating/PPF bond"
       ],
       "images": {
-        "before": { "src": "/mobile-detailing/images/services/auto-detailing/before.png", "alt": "Before detailing" },
-        "after": { "src": "/mobile-detailing/images/services/auto-detailing/after.png", "alt": "After detailing" }
+        "before": { "src": "/industries/mobile-detailing/images/services/auto-detailing/before.png", "alt": "Before detailing" },
+        "after": { "src": "/industries/mobile-detailing/images/services/auto-detailing/after.png", "alt": "After detailing" }
       },
       "containerSize": "large"
     },

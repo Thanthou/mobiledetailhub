@@ -23,7 +23,6 @@ export const SEOManager: React.FC = () => {
   useEffect(() => {
     // Handle route changes for analytics and SEO tracking
     // TODO: Add analytics tracking here
-    console.log('Route changed:', location.pathname);
   }, [location.pathname]);
 
   return (

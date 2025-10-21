@@ -49,7 +49,7 @@ const TenantApplicationPage: React.FC = () => {
   const [isSuccess, setIsSuccess] = useState(false);
 
   // Set browser tab title and favicon for onboarding page
-  // Automatically uses platform logo (/shared/icons/logo.png) and default title
+  // Automatically uses platform logo (/icons/logo.png) and default title
   useBrowserTab({
     useBusinessName: false, // Platform page, not tenant-specific
   });

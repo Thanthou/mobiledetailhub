@@ -2,6 +2,7 @@ import { useCallback,useEffect, useRef, useState } from 'react';
 
 import { galleryApi } from '../api/gallery.api';
 import { GalleryImage } from '../types';
+import { usePreviewData } from '@/tenant-app/contexts/PreviewDataProvider';
 
 // Fisher-Yates shuffle algorithm
 function shuffleArray<T>(array: T[]): T[] {
@@ -49,12 +50,15 @@ export function useRotatingGallery() {
     raf: null 
   });
 
+  const { isPreviewMode, industry } = usePreviewData();
+
   // Load data
   useEffect(() => {
     let cancelled = false;
     void (async (): Promise<void> => {
         try {
-          const data = await galleryApi.getGalleryImages();
+          // Pass industry to gallery API (works for both preview and live mode)
+          const data = await galleryApi.getGalleryImages(industry || 'mobile-detailing');
 
           // Check if component is still mounted before updating state
           // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- cancelled can be set to true by cleanup function before async completes
@@ -93,7 +97,7 @@ export function useRotatingGallery() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [industry]);
 
   // Helper: advance nextPtr to an image not currently displayed (avoid dupes)
   const getNextUniqueImage = useCallback((): GalleryImage | null => {

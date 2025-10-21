@@ -53,8 +53,11 @@ const SocialMediaIcons: React.FC = () => {
   ];
 
   const visibleLinks = socialLinks.filter(link => {
+    // In preview mode, show all 4 platforms
+    if (isPreview) return true;
+    // In live mode, only show if URL is defined (even if empty string)
     const url = link.url;
-    return typeof url === 'string'; // Show if URL exists (even if empty)
+    return typeof url === 'string';
   });
 
   if (visibleLinks.length === 0) {

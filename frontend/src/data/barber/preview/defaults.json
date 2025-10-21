@@ -1,0 +1,59 @@
+{
+  "businessName": "Classic Cuts Barbershop",
+  "phone": "(555) 567-8901",
+  "email": "bookings@classiccuts.com",
+  "city": "Anywhere",
+  "state": "USA",
+  "h1": "Timeless Style, Modern Service",
+  "subTitle": "Traditional barbershop services with a modern twist.",
+  "faq_title": "Frequently Asked Questions",
+  "faq_subtitle": "Find answers to common questions about our barbershop services",
+  "reviews_title": "What Our Customers Say",
+  "reviews_subtitle": "See what our satisfied customers have to say about our barbershop.",
+  
+  "reviews": [
+    {
+      "name": "Marcus Johnson",
+      "rating": 5,
+      "text": "Been coming here for 2 years. Consistently great cuts, professional service, and the atmosphere is perfect. This is a real barbershop.",
+      "date": "2024-01-17",
+      "avatar": "/data/preview-avatars/avatar-1.jfif"
+    },
+    {
+      "name": "Alex Rodriguez",
+      "rating": 5,
+      "text": "Best barbershop in Brooklyn! Tony is a master with the clippers and the straight razor shave is incredible. You will not be disappointed.",
+      "date": "2024-01-13",
+      "avatar": "/data/preview-avatars/avatar-3.jfif"
+    },
+    {
+      "name": "Chris Thompson",
+      "rating": 5,
+      "text": "Old-school quality with modern convenience. Online booking is easy and the cuts are always on point. Worth the drive from Manhattan!",
+      "date": "2024-01-07",
+      "avatar": "/data/preview-avatars/avatar-5.jfif"
+    },
+    {
+      "name": "Sarah Mitchell",
+      "rating": 5,
+      "text": "Brought my son here for his first real haircut. They were so patient with him and the cut looks amazing. We'll be regulars now!",
+      "date": "2023-12-30",
+      "avatar": "/data/preview-avatars/avatar-2.jfif"
+    },
+    {
+      "name": "James Wilson",
+      "rating": 5,
+      "text": "The hot towel straight razor shave is worth every penny. So relaxing and my face feels amazing. Best shave I've ever had!",
+      "date": "2023-12-23",
+      "avatar": "/data/preview-avatars/avatar-6.jfif"
+    },
+    {
+      "name": "Michael Chen",
+      "rating": 5,
+      "text": "Finally found a barber who knows how to cut Asian hair properly. The fade is perfect every time. Highly recommend!",
+      "date": "2023-12-19",
+      "avatar": "/data/preview-avatars/avatar-4.jfif"
+    }
+  ]
+}
+

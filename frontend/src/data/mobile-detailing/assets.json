@@ -20,13 +20,13 @@
     {
       "id": "hero-1",
       "desktop": {
-        "url": "/mobile-detailing/images/hero/hero1.png",
+        "url": "/industries/mobile-detailing/images/hero/hero1.png",
         "width": 1536,
         "height": 1024,
         "aspectRatio": 1.5
       },
       "mobile": {
-        "url": "/mobile-detailing/images/hero/hero1-mobile.png",
+        "url": "/industries/mobile-detailing/images/hero/hero1-mobile.png",
         "width": 1024,
         "height": 1536,
         "aspectRatio": 0.666
@@ -37,13 +37,13 @@
     {
       "id": "hero-2",
       "desktop": {
-        "url": "/mobile-detailing/images/hero/hero2.png",
+        "url": "/industries/mobile-detailing/images/hero/hero2.png",
         "width": 1536,
         "height": 1024,
         "aspectRatio": 1.5
       },
       "mobile": {
-        "url": "/mobile-detailing/images/hero/hero2-mobile.png",
+        "url": "/industries/mobile-detailing/images/hero/hero2-mobile.png",
         "width": 1024,
         "height": 1536,
         "aspectRatio": 0.666
@@ -54,13 +54,13 @@
     {
       "id": "hero-3",
       "desktop": {
-        "url": "/mobile-detailing/images/hero/hero3.png",
+        "url": "/industries/mobile-detailing/images/hero/hero3.png",
         "width": 1536,
         "height": 1024,
         "aspectRatio": 1.5
       },
       "mobile": {
-        "url": "/mobile-detailing/images/hero/hero3-mobile.png",
+        "url": "/industries/mobile-detailing/images/hero/hero3-mobile.png",
         "width": 1024,
         "height": 1536,
         "aspectRatio": 0.666
@@ -71,13 +71,13 @@
     {
       "id": "hero-4",
       "desktop": {
-        "url": "/mobile-detailing/images/hero/hero4.png",
+        "url": "/industries/mobile-detailing/images/hero/hero4.png",
         "width": 1536,
         "height": 1024,
         "aspectRatio": 1.5
       },
       "mobile": {
-        "url": "/mobile-detailing/images/hero/hero4-mobile.png",
+        "url": "/industries/mobile-detailing/images/hero/hero4-mobile.png",
         "width": 1024,
         "height": 1536,
         "aspectRatio": 0.666
@@ -88,13 +88,13 @@
     {
       "id": "hero-5",
       "desktop": {
-        "url": "/mobile-detailing/images/hero/hero5.png",
+        "url": "/industries/mobile-detailing/images/hero/hero5.png",
         "width": 1536,
         "height": 1024,
         "aspectRatio": 1.5
       },
       "mobile": {
-        "url": "/mobile-detailing/images/hero/hero5-mobile.png",
+        "url": "/industries/mobile-detailing/images/hero/hero5-mobile.png",
         "width": 1024,
         "height": 1536,
         "aspectRatio": 0.666
@@ -145,37 +145,37 @@
     ],
     "thumbnails": {
       "auto-detailing": {
-        "url": "/mobile-detailing/images/services/thumbnails/auto.png",
+        "url": "/industries/mobile-detailing/images/services/thumbnails/auto.png",
         "alt": "Professional auto detailing service",
         "width": 1536,
         "height": 1024
       },
       "marine-detailing": {
-        "url": "/mobile-detailing/images/services/thumbnails/boat.png",
+        "url": "/industries/mobile-detailing/images/services/thumbnails/boat.png",
         "alt": "Professional boat and marine detailing service",
         "width": 1536,
         "height": 1024
       },
       "rv-detailing": {
-        "url": "/mobile-detailing/images/services/thumbnails/rv.png",
+        "url": "/industries/mobile-detailing/images/services/thumbnails/rv.png",
         "alt": "Professional RV and motorhome detailing service",
         "width": 1536,
         "height": 1024
       },
       "ceramic-coating": {
-        "url": "/mobile-detailing/images/services/thumbnails/ceramic.png",
+        "url": "/industries/mobile-detailing/images/services/thumbnails/ceramic.png",
         "alt": "Ceramic coating application",
         "width": 1024,
         "height": 1024
       },
       "paint-correction": {
-        "url": "/mobile-detailing/images/services/thumbnails/paint.png",
+        "url": "/industries/mobile-detailing/images/services/thumbnails/paint.png",
         "alt": "Professional paint correction and restoration service",
         "width": 1204,
         "height": 1024
       },
       "paint-protection-film": {
-        "url": "/mobile-detailing/images/services/thumbnails/ppf.png",
+        "url": "/industries/mobile-detailing/images/services/thumbnails/ppf.png",
         "alt": "Paint protection film installation",
         "width": 1024,
         "height": 1024

@@ -1,26 +1,30 @@
 import React from 'react';
 
 import { useData, useTenantConfigLoader } from '@shared/hooks';
-import type { Vertical } from '@shared/types';
-import { getTenantAssetUrl } from '@shared/utils';
+import { getIndustryLogo, getIndustryLogoAlt } from '@shared/utils';
 
 const Logo: React.FC = () => {
-  const { industry, isLoading: isDataLoading } = useData();
-  const { data: tenantConfig, isLoading: isConfigLoading } = useTenantConfigLoader();
+  const { industry, isLoading: isDataLoading, isPreview } = useData();
   
-  const isLoading = isDataLoading || isConfigLoading;
-  const logoUrl = tenantConfig?.branding.logo.url;
+  // Only fetch tenant config in live mode (not preview)
+  const { data: tenantConfig, isLoading: isConfigLoading } = useTenantConfigLoader({
+    enabled: !isPreview,
+  });
+  
+  const isLoading = isDataLoading || (!isPreview && isConfigLoading);
   
   const handleClick = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
   
-  // Use tenant config logo, fallback to industry default via asset locator
-  const src = logoUrl || getTenantAssetUrl({
-    vertical: industry as Vertical,
-    type: 'logo',
-  });
-  const alt = tenantConfig?.branding.businessName || `${industry} Logo`;
+  // Simple: get logo based on mode
+  const src = isPreview
+    ? getIndustryLogo(industry) // Preview: industry logo
+    : tenantConfig?.branding.logo.url || getIndustryLogo(industry); // Live: tenant logo or fallback
+  
+  const alt = isPreview
+    ? getIndustryLogoAlt(industry)
+    : tenantConfig?.branding.businessName || getIndustryLogoAlt(industry);
 
   // During loading (including HMR), show a minimal placeholder
   if (isLoading && !src) {

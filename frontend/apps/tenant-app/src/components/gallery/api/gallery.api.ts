@@ -5,7 +5,14 @@
 
 import { GalleryImage } from '@shared/types/gallery';
 
-const GALLERY_DATA_URL = '/mobile-detailing/data/gallery.json';
+/**
+ * Get gallery data URL for the current industry
+ * In preview mode, loads from frontend/src/data/{industry}/gallery/gallery.json
+ * In live mode, loads from API or public assets
+ */
+const getGalleryDataUrl = (industry: string = 'mobile-detailing'): string => {
+  return `/industries/${industry}/data/gallery.json`;
+};
 
 // Type guard to ensure we have a valid GalleryImage
 const isValidGalleryImage = (item: unknown): item is GalleryImage => {
@@ -21,10 +28,12 @@ export interface GalleryApiResponse {
 export const galleryApi = {
   /**
    * Fetch gallery images
+   * @param industry - Industry slug (e.g., 'mobile-detailing')
    */
-  getGalleryImages: async (): Promise<GalleryImage[]> => {
+  getGalleryImages: async (industry: string = 'mobile-detailing'): Promise<GalleryImage[]> => {
     try {
-      const response = await fetch(GALLERY_DATA_URL);
+      const url = getGalleryDataUrl(industry);
+      const response = await fetch(url);
       
       if (!response.ok) {
         throw new Error(`Failed to fetch gallery data: ${response.status}`);
@@ -40,11 +49,13 @@ export const galleryApi = {
 
   /**
    * Get random gallery images for background rotation
+   * @param count - Number of images to return
+   * @param industry - Industry slug
    */
-  getRandomGalleryImages: async (count: number = 5): Promise<GalleryImage[]> => {
+  getRandomGalleryImages: async (count: number = 5, industry: string = 'mobile-detailing'): Promise<GalleryImage[]> => {
     try {
-      // Call the getGalleryImages function directly to avoid circular reference
-      const response = await fetch(GALLERY_DATA_URL);
+      const url = getGalleryDataUrl(industry);
+      const response = await fetch(url);
       
       if (!response.ok) {
         throw new Error(`Failed to fetch gallery data: ${response.status}`);
@@ -74,11 +85,13 @@ export const galleryApi = {
 
   /**
    * Get gallery images for a specific category
+   * @param category - Category to filter by
+   * @param industry - Industry slug
    */
-  getGalleryImagesByCategory: async (category: string): Promise<GalleryImage[]> => {
+  getGalleryImagesByCategory: async (category: string, industry: string = 'mobile-detailing'): Promise<GalleryImage[]> => {
     try {
-      // Call the getGalleryImages function directly to avoid circular reference
-      const response = await fetch(GALLERY_DATA_URL);
+      const url = getGalleryDataUrl(industry);
+      const response = await fetch(url);
       
       if (!response.ok) {
         throw new Error(`Failed to fetch gallery data: ${response.status}`);
@@ -99,10 +112,11 @@ export const galleryApi = {
 
   /**
    * Get featured gallery images
+   * @param industry - Industry slug
    */
-  getFeaturedGalleryImages: async (): Promise<GalleryImage[]> => {
+  getFeaturedGalleryImages: async (industry: string = 'mobile-detailing'): Promise<GalleryImage[]> => {
     try {
-      const allImages = await galleryApi.getGalleryImages();
+      const allImages = await galleryApi.getGalleryImages(industry);
       // For now, return all images since there's no featured property
       // In the future, you could add a featured property to the data or use tags
       return allImages;
