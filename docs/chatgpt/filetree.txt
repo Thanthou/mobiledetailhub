@@ -17,9 +17,6 @@
 📄 .lintstagedrc.json
 📄 .port-registry.json
 📄 .prettierrc.json
-📁 .tmp_lh/
-   📄 main-site-fetched.html
-   📄 tenant-app-fetched.html
 📁 backend/
    📁 config/
       📄 auth.js
@@ -108,6 +105,8 @@
          📄 seo.test.js
    📁 schemas/
       📄 apiSchemas.js
+      📄 current-schema.json
+      📄 README.md
    📄 server.js
    📁 services/
       📄 authService.js
@@ -215,6 +214,7 @@
          📄 TENANTS_SCHEMA_REVIEW.md
          📄 TENANT_ONBOARDING_SCHEMA.md
          📄 WEBSITE_SCHEMA_REVIEW.md
+      📄 SCHEMA_SNAPSHOT_SYSTEM.md
       📁 services/
          📄 RUNTIME_CONFIGURATION.md
          📄 SUBDOMAIN_ROUTING.md
@@ -250,6 +250,7 @@
          📄 FAQ_ITEMS_IMPLEMENTATION.md
          📄 PWA_ADD_TO_HOME_SCREEN.md
          📄 TIER1_CONTENT_FEATURES.md
+      📄 DATA_STRUCTURE_REFACTOR.md
       📄 DEV_SETUP.md
       📄 HTML_CONSOLIDATION.md
       📁 performance/
@@ -257,6 +258,7 @@
          📄 MOBILE_IMPLEMENTATION_SUMMARY.md
          📄 PERFORMANCE_OVERVIEW.md
       📄 PREVIEW_FLOW_DIAGRAM.md
+      📄 PREVIEW_INDUSTRY_AGNOSTIC_AUDIT.md
       📄 PREVIEW_SYSTEM_SETUP.md
       📄 QUICK_START.md
       📄 RUNTIME_CONFIG_DISCIPLINE.md
@@ -423,10 +425,93 @@
                📄 LoginPage.tsx
                📄 PricingPage.tsx
                📄 TenantOnboardingPage.tsx
+      📁 public/
+         📁 data/
+            📁 preview-avatars/
+               📄 README.md
+         📁 icons/
+            📄 PWA_ICONS_README.md
+            📄 README.md
+         📁 images/
+
+         📁 industries/
+            📁 barber/
+               📁 data/
+
+               📁 icons/
+
+               📁 images/
+
+               📁 video/
+
+            📁 lawncare/
+               📁 data/
+
+               📁 icons/
+
+               📁 images/
+
+               📁 video/
+
+            📁 maid-service/
+               📁 data/
+
+               📁 icons/
+
+               📁 images/
+
+               📁 video/
+
+            📁 mobile-detailing/
+               📁 data/
+                  📄 gallery.json
+               📁 icons/
+
+               📁 images/
+                  📁 gallery/
+
+                  📁 hero/
+                     📄 README.md
+                  📁 services/
+                     📁 airplane-detailing/
+
+                     📁 auto-detailing/
+
+                     📁 ceramic-coating/
+
+                     📁 marine-detailing/
+
+                     📁 paint-correction/
+
+                     📁 ppf-installation/
+
+                     📁 rv-detailing/
+
+                     📁 thumbnails/
+                        📄 README.md
+               📁 video/
+
+            📁 pet-grooming/
+               📁 data/
+
+               📁 icons/
+
+               📁 images/
+
+               📁 video/
+
+         📁 main-site/
+
+         📄 manifest.json
+         📄 robots.txt
+         📁 screenshots/
+
+         📁 static/
+
+         📄 sw.js
+         📄 test.html
       📁 tenant-app/
          📄 index.html
-         📁 public/
-
          📁 src/
             📁 components/
                📁 booking/
@@ -929,8 +1014,6 @@
 
             📁 contexts/
                📄 PreviewDataProvider.tsx
-            📁 data/
-               📄 previewMockData.ts
             📁 hooks/
                📄 usePreviewParams.ts
             📄 main.tsx
@@ -949,88 +1032,6 @@
    📁 plugins/
       📄 vite-schema-injection.js
    📄 postcss.config.js
-   📁 public/
-      📁 barber/
-         📁 data/
-
-         📁 icons/
-
-         📁 images/
-
-         📁 video/
-
-      📁 lawncare/
-         📁 data/
-
-         📁 icons/
-
-         📁 images/
-
-         📁 video/
-
-      📁 maid-service/
-         📁 data/
-
-         📁 icons/
-
-         📁 images/
-
-         📁 video/
-
-      📁 main-site/
-
-      📄 manifest.json
-      📁 mobile-detailing/
-         📁 data/
-            📄 gallery.json
-         📁 icons/
-
-         📁 images/
-            📁 gallery/
-
-            📁 hero/
-               📄 README.md
-            📁 services/
-               📁 airplane-detailing/
-
-               📁 auto-detailing/
-
-               📁 ceramic-coating/
-
-               📁 marine-detailing/
-
-               📁 paint-correction/
-
-               📁 ppf-installation/
-
-               📁 rv-detailing/
-
-               📁 thumbnails/
-                  📄 README.md
-         📁 video/
-
-      📁 pet-grooming/
-         📁 data/
-
-         📁 icons/
-
-         📁 images/
-
-         📁 video/
-
-      📄 robots.txt
-      📁 shared/
-         📁 icons/
-            📄 PWA_ICONS_README.md
-            📄 README.md
-         📁 images/
-
-         📁 js/
-
-         📁 preview-avatars/
-            📄 README.md
-      📄 sw.js
-      📄 test.html
    📁 scripts/
       📄 check-assets.js
       📄 post-build.js
@@ -1045,6 +1046,9 @@
                📄 metadata.json
                📄 services.json
             📄 index.ts
+            📁 preview/
+               📄 defaults.json
+               📄 index.ts
             📄 README.md
             📄 seo-defaults.json
          📄 index.ts
@@ -1057,6 +1061,9 @@
                📄 metadata.json
                📄 services.json
             📄 index.ts
+            📁 preview/
+               📄 defaults.json
+               📄 index.ts
             📄 seo-defaults.json
             📁 _archive/
 
@@ -1069,14 +1076,15 @@
                📄 metadata.json
                📄 services.json
             📄 index.ts
+            📁 preview/
+               📄 defaults.json
+               📄 index.ts
             📄 seo-defaults.json
             📁 _archive/
 
          📁 mobile-detailing/
             📄 assets.json
             📄 content-defaults.json
-            📁 defaults/
-
             📁 faq/
                📄 aftercare.json
                📄 general.json
@@ -1090,6 +1098,9 @@
             📁 gallery/
                📄 gallery.json
             📄 index.ts
+            📁 preview/
+               📄 defaults.json
+               📄 index.ts
             📁 pricing/
                📁 boats/
                   📁 service/
@@ -1177,9 +1188,14 @@
                📄 metadata.json
                📄 services.json
             📄 index.ts
+            📁 preview/
+               📄 defaults.json
+               📄 index.ts
             📄 seo-defaults.json
             📁 _archive/
 
+         📄 preview-loader.ts
+         📄 preview-types.ts
          📄 README.md
       📄 env.d.ts
       📁 features/
@@ -1300,6 +1316,7 @@
             📄 useErrorBoundary.tsx
             📄 useEventListener.ts
             📄 useFAQSchema.ts
+            📄 useFavicon.ts
             📄 useFileUpload.ts
             📄 useImageRotation.ts
             📄 useIndustryConfig.ts
@@ -1451,6 +1468,7 @@
             📄 imageRotation.ts
             📄 imageUtils.ts
             📄 index.ts
+            📄 industryAssets.ts
             📄 industryRegistry.ts
             📄 isPreview.ts
             📄 loadDefaults.ts
@@ -1463,6 +1481,7 @@
             📄 schemaUtils.ts
             📄 scrollRestoration.ts
             📄 scrollToTop.ts
+            📄 serviceLoader.ts
             📄 serviceWorker.ts
             📄 siteUtils.ts
             📄 tenantConfigMigration.ts
@@ -1509,6 +1528,8 @@
    📄 vite.config.shared.ts
    📄 vite.config.tenant.ts
    📄 vite.config.ts
+   📄 vite.shared-public.config.ts
+   📄 vite.shared-public.js
    📄 vitest.config.ts
 📄 package-lock.json
 📄 package.json
@@ -1585,6 +1606,8 @@
          📄 fix-final-routes.js
          📄 fix-remaining-routes.js
          📄 fix-routes.js
+      📄 generate-schema-snapshot.js
+      📄 list-audit-commands.js
       📁 metrics/
          📄 scorecard.js
       📄 standardize-logger.js
@@ -1593,6 +1616,7 @@
       📄 verify-preview-system.js
    📁 fix/
       📄 cleanup-console.js
+      📄 fix-import-aliases.js
    📁 frontend/
       📄 check-import-boundaries.ts
       📄 validate-location-data-refactored.ts
@@ -1605,6 +1629,7 @@
          📄 cli.ts
          📄 index.ts
          📄 io.ts
+   📄 health-check-assets.js
    📁 lighthouse/
 
    📁 project/
@@ -1631,6 +1656,7 @@
       📄 setup-hosts-windows.md
    📁 system/
 
+   📄 test-asset-access.js
    📁 testing/
       📁 backend/
          📄 create-test-tenant.js

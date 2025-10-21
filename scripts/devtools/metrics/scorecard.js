@@ -19,7 +19,7 @@ const MAX_LINES_PER_DAY = 10000;    // cap extreme days
 function getGitHistory() {
   // const logCmd = `git log origin/main --pretty=format:"%ad|%s" --date=short --shortstat --no-merges`;
 
-  const logCmd = `git log --pretty=format:"%ad|%s" --date=short --shortstat --no-merges`;
+  const logCmd = `git log --pretty=format:"%ad|%s" --date=short --shortstat --no-merges -- . ":(exclude)*.md"`;
   const raw = execSync(logCmd, { encoding: "utf-8" });
   const lines = raw.split("\n").filter(Boolean);
 
