@@ -16,3 +16,6 @@ export { usePreviewStore } from './state/previewStore';
 export type { PreviewPayload } from './types/preview.types';
 export { PreviewPayloadSchema } from './types/preview.types';
 
+// Re-export from contexts (for components that use usePreviewData)
+export { PreviewDataProvider as PreviewDataProviderWithContext, usePreviewData } from '@shared/contexts/PreviewDataProvider';
+

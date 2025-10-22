@@ -13,8 +13,13 @@
  * 
  * @example
  * getIndustryLogo('mobile-detailing') → '/industries/mobile-detailing/icons/logo.webp'
+ * getIndustryLogo('main') → '/icons/logo.png'
  */
 export function getIndustryLogo(industry: string): string {
+  // Special case for main marketing site
+  if (industry === 'main') {
+    return '/icons/logo.png';
+  }
   return `/industries/${industry}/icons/logo.webp`;
 }
 
@@ -44,8 +49,13 @@ export function getFavicon(industry?: string | null): string {
  * 
  * @example
  * getIndustryLogoAlt('mobile-detailing') → 'Mobile Detailing Logo'
+ * getIndustryLogoAlt('main') → 'That Smart Site Logo'
  */
 export function getIndustryLogoAlt(industry: string): string {
+  // Special case for main marketing site
+  if (industry === 'main') {
+    return 'That Smart Site Logo';
+  }
   const displayName = industry
     .split('-')
     .map(w => w.charAt(0).toUpperCase() + w.slice(1))

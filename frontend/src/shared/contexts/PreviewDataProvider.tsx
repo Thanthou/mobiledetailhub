@@ -21,6 +21,7 @@ import { loadIndustryPreview } from '@data/preview-loader';
 
 interface PreviewDataProviderProps {
   children: React.ReactNode;
+  industry?: string;
 }
 
 interface PreviewDataContextValue {
@@ -59,17 +60,20 @@ export function usePreviewData(): PreviewDataContextValue {
  * 1. DataContext (mock tenant data for components)
  * 2. PreviewDataContext (preview metadata for hooks)
  */
-export function PreviewDataProvider({ children }: PreviewDataProviderProps) {
+export function PreviewDataProvider({ children, industry: industryProp }: PreviewDataProviderProps) {
   const [previewConfig, setPreviewConfig] = useState<MainSiteConfig | null>(null);
   const [previewData, setPreviewData] = useState<IndustryPreviewData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Extract industry from URL path
-  const industry = getPreviewIndustry();
+  // Use prop if provided, otherwise extract from URL path
+  const industry = industryProp || getPreviewIndustry();
   
   // Load industry config and preview data
   useEffect(() => {
+    console.log('[PreviewDataProvider] useEffect fired! Industry:', industry);
+    
     if (!industry) {
+      console.warn('[PreviewDataProvider] No industry provided, skipping load');
       setPreviewConfig(null);
       setPreviewData(null);
       setIsLoading(false);
@@ -77,12 +81,18 @@ export function PreviewDataProvider({ children }: PreviewDataProviderProps) {
     }
     
     async function loadConfig() {
+      console.log('[PreviewDataProvider] Starting to load config for:', industry);
       setIsLoading(true);
       
       try {
         let config: MainSiteConfig;
         
         switch (industry) {
+          case 'main': {
+            const { loadMainSiteConfig } = await import('@data/main');
+            config = loadMainSiteConfig();
+            break;
+          }
           case 'mobile-detailing': {
             const { loadMobileDetailingConfig } = await import('@data/mobile-detailing');
             config = loadMobileDetailingConfig();
@@ -116,13 +126,16 @@ export function PreviewDataProvider({ children }: PreviewDataProviderProps) {
             return;
         }
         
+        console.log('[PreviewDataProvider] Loaded config for industry:', industry, config);
         setPreviewConfig(config);
         
         // Load preview-specific mock data (business, reviews, FAQs)
         const mockData = await loadIndustryPreview(industry);
+        console.log('[PreviewDataProvider] Loaded preview data for industry:', industry, mockData);
         setPreviewData(mockData);
       } catch (error) {
-        console.error('Failed to load preview config:', error);
+        console.error('[PreviewDataProvider] ERROR loading preview config for', industry, ':', error);
+        alert(`Failed to load preview config for ${industry}: ${error}`);
         setPreviewConfig(null);
         setPreviewData(null);
       } finally {

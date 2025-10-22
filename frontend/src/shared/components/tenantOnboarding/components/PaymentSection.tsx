@@ -242,10 +242,10 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
 
   return (
     <div className="w-full max-w-2xl mx-auto">
-      <div className="bg-stone-800 border border-stone-700 rounded-2xl overflow-hidden">
-        <div className="p-4 sm:p-6 border-b border-stone-700">
+      <div className="bg-gray-800/40 border border-gray-700 rounded-2xl overflow-hidden backdrop-blur-sm">
+        <div className="p-4 sm:p-6 border-b border-gray-700">
           <h2 className="text-white text-xl sm:text-2xl font-semibold flex items-center gap-2">
-            <CreditCard className="h-5 w-5 sm:h-6 sm:w-6 text-orange-600" />
+            <CreditCard className="h-5 w-5 sm:h-6 sm:w-6 text-cyan-400" />
             Payment Information
           </h2>
           <p className="text-gray-400 text-sm sm:text-base mt-2">
@@ -254,7 +254,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
         </div>
 
         <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
-          <div className="bg-stone-700/50 border border-stone-600 rounded-lg p-4">
+          <div className="bg-gray-800/60 border border-gray-600 rounded-lg p-4">
             <div className="flex justify-between items-center">
               <div>
                 <p className="text-sm text-gray-400">Selected Plan</p>
@@ -264,12 +264,12 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
               </div>
               <div className="text-right">
                 <p className="text-sm text-gray-400">Monthly</p>
-                <p className="text-2xl font-bold text-orange-600 mt-1">
+                <p className="text-2xl font-bold text-cyan-400 mt-1">
                   ${(formData.planPrice / 100).toFixed(2)}
                 </p>
               </div>
             </div>
-            <div className="mt-4 pt-4 border-t border-stone-600">
+            <div className="mt-4 pt-4 border-t border-gray-600">
               <p className="text-xs text-gray-400">
                 Billed monthly. Cancel anytime. 14-day money-back guarantee.
               </p>
@@ -278,9 +278,9 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
 
           <div>
             <div className="block text-sm font-medium text-gray-300 mb-3">
-              Card Information <span className="text-orange-500">*</span>
+              Card Information <span className="text-cyan-400">*</span>
             </div>
-            <div className="bg-stone-700 border border-stone-600 rounded-lg p-4">
+            <div className="bg-gray-800/50 border border-gray-600 rounded-lg p-4">
               <CardElement options={CARD_ELEMENT_OPTIONS} onChange={handleCardChange} />
             </div>
             {cardError && (
@@ -314,7 +314,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                 id="sameAddress"
                 checked={formData.useSameAddress}
                 onChange={(e) => { onToggleSameAddress(e.target.checked); }}
-                className="w-4 h-4 rounded border-stone-600 text-orange-600 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-stone-800 bg-stone-700"
+                className="w-4 h-4 rounded border-gray-600 text-cyan-400 focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-gray-800 bg-gray-800"
               />
               <label htmlFor="sameAddress" className="text-sm text-gray-300 cursor-pointer">
                 Billing address same as business address
@@ -380,7 +380,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
           </div>
 
           {/* Payment Button */}
-          <div className="pt-4 border-t border-stone-700">
+          <div className="pt-4 border-t border-gray-700">
             <button
               type="button"
               onClick={() => { void handlePayment(); }}
@@ -391,7 +391,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                 ${
                   !stripe || !clientSecret || isProcessing
                     ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                    : 'bg-orange-600 text-white hover:bg-orange-700 focus:ring-orange-500'
+                    : 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white hover:from-cyan-600 hover:to-purple-600 focus:ring-cyan-500'
                 }
               `}
             >
@@ -410,23 +410,23 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-stone-700">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-gray-700">
             <div className="flex items-start gap-3">
-              <Shield className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+              <Shield className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm font-medium text-white">PCI Compliant</p>
                 <p className="text-xs text-gray-400 mt-0.5">Bank-level security</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <Lock className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+              <Lock className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm font-medium text-white">256-bit SSL</p>
                 <p className="text-xs text-gray-400 mt-0.5">Encrypted connection</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <CreditCard className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+              <CreditCard className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm font-medium text-white">Money-back</p>
                 <p className="text-xs text-gray-400 mt-0.5">14-day guarantee</p>

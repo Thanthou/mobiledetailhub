@@ -52,8 +52,8 @@ const BusinessInformationSection: React.FC<BusinessInformationSectionProps> = ({
   };
 
   return (
-    <div className="bg-stone-800 border border-stone-700 rounded-lg">
-      <div className="p-6 border-b border-stone-700">
+    <div className="bg-gray-800/40 border border-gray-700 rounded-lg backdrop-blur-sm">
+      <div className="p-6 border-b border-gray-700">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-white text-lg font-semibold flex items-center">
@@ -66,7 +66,7 @@ const BusinessInformationSection: React.FC<BusinessInformationSectionProps> = ({
             <button
               type="button"
               onClick={handleAutoFill}
-              className="flex items-center gap-2 px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium rounded-lg transition-colors"
+              className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white text-sm font-medium rounded-lg transition-colors"
               title="Auto-fill with test data"
             >
               <Zap className="h-4 w-4" />
@@ -90,7 +90,7 @@ const BusinessInformationSection: React.FC<BusinessInformationSectionProps> = ({
             onChange={(e) => { handleInputChange('businessName', e.target.value); }}
             placeholder="Enter your business name"
             required
-            className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+            className="w-full bg-gray-800/50 border border-gray-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
           />
         </div>
 
@@ -104,7 +104,7 @@ const BusinessInformationSection: React.FC<BusinessInformationSectionProps> = ({
             value={formData.industry || 'mobile-detailing'}
             onChange={(e) => { handleInputChange('industry', e.target.value); }}
             required
-            className="w-full bg-stone-700 border border-stone-600 text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+            className="w-full bg-gray-800/50 border border-gray-600 text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
           >
             {INDUSTRIES.map((industry) => (
               <option key={industry.value} value={industry.value}>
@@ -130,7 +130,7 @@ const BusinessInformationSection: React.FC<BusinessInformationSectionProps> = ({
             placeholder="(555) 123-4567"
             required
             maxLength={14}
-            className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+            className="w-full bg-gray-800/50 border border-gray-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
           />
         </div>
 
@@ -146,7 +146,7 @@ const BusinessInformationSection: React.FC<BusinessInformationSectionProps> = ({
             onChange={(e) => { handleInputChange('businessEmail', e.target.value); }}
             placeholder="business@example.com"
             required
-            className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+            className="w-full bg-gray-800/50 border border-gray-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
           />
         </div>
 
@@ -166,7 +166,7 @@ const BusinessInformationSection: React.FC<BusinessInformationSectionProps> = ({
                 onChange={(e) => { handleAddressChange('address', e.target.value); }}
                 placeholder="123 Main Street"
                 required
-                className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full bg-gray-800/50 border border-gray-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
               />
             </div>
 
@@ -182,7 +182,7 @@ const BusinessInformationSection: React.FC<BusinessInformationSectionProps> = ({
                 onChange={(e) => { handleAddressChange('city', e.target.value); }}
                 placeholder="Phoenix"
                 required
-                className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full bg-gray-800/50 border border-gray-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
               />
             </div>
 
@@ -198,7 +198,7 @@ const BusinessInformationSection: React.FC<BusinessInformationSectionProps> = ({
                 onChange={(e) => { handleAddressChange('state', e.target.value); }}
                 placeholder="AZ"
                 required
-                className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full bg-gray-800/50 border border-gray-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                 maxLength={2}
               />
             </div>
@@ -215,7 +215,7 @@ const BusinessInformationSection: React.FC<BusinessInformationSectionProps> = ({
                 onChange={(e) => { handleAddressChange('zip', e.target.value); }}
                 placeholder="85001"
                 required
-                className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full bg-gray-800/50 border border-gray-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                 maxLength={10}
               />
             </div>

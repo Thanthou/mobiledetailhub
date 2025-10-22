@@ -1,5 +1,7 @@
-const { pool } = require('../database/pool');
-const logger = require('./logger');
+import { getPool } from '../database/pool.js';
+import { createModuleLogger } from '../config/logger.js';
+
+const logger = createModuleLogger('service-area-processor');
 
 /**
  * Process service areas for an approved tenant
@@ -7,10 +9,8 @@ const logger = require('./logger');
  * This function validates and updates the service_areas field
  */
 async function processTenantServiceAreas(tenantId, serviceAreas) {
-  if (!pool) {
-    throw new Error('Database connection not available');
-  }
-
+  const pool = await getPool();
+  
   if (!serviceAreas || !Array.isArray(serviceAreas) || serviceAreas.length === 0) {
     logger.warn(`No service areas provided for tenant ${tenantId}`);
     return { processed: 0, errors: [] };
@@ -79,10 +79,6 @@ async function processTenantServiceAreas(tenantId, serviceAreas) {
  * Get all service areas for the platform (cities/states where approved tenants serve)
  */
 async function getPlatformServiceAreas() {
-  if (!pool) {
-    throw new Error('Database connection not available');
-  }
-
   const query = `
     SELECT DISTINCT 
       JSONB_ARRAY_ELEMENTS(a.service_areas)->>'state' as state_code,
@@ -94,6 +90,7 @@ async function getPlatformServiceAreas() {
     ORDER BY state_code, city_name
   `;
 
+  const pool = await getPool();
   const result = await pool.query(query);
   return result.rows;
 }
@@ -102,9 +99,7 @@ async function getPlatformServiceAreas() {
  * Get tenants serving a specific city (for directory pages)
  */
 async function getTenantsForCity(slug) {
-  if (!pool) {
-    throw new Error('Database connection not available');
-  }
+  const pool = await getPool();
 
   const query = `
     SELECT 
@@ -123,17 +118,17 @@ async function getTenantsForCity(slug) {
       )
     ORDER BY a.business_name
   `;
-
+  
   const result = await pool.query(query, [slug]);
   return result.rows;
 }
 
-module.exports = {
+export {
   processTenantServiceAreas,
   getPlatformServiceAreas,
   getTenantsForCity,
   // Legacy exports for backward compatibility
-  processAffiliateServiceAreas: processTenantServiceAreas,
-  getMDHServiceAreas: getPlatformServiceAreas,
-  getAffiliatesForCity: getTenantsForCity
+  processTenantServiceAreas as processAffiliateServiceAreas,
+  getPlatformServiceAreas as getMDHServiceAreas,
+  getTenantsForCity as getAffiliatesForCity
 };

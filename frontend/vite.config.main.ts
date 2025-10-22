@@ -7,17 +7,19 @@ import { sharedPublicConfig } from './vite.shared-public.config';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
-  root: 'apps/main-site',
+  root: 'apps/main',
   base: '/',
   publicDir: sharedPublicConfig.publicDir, // Shared public folder
   plugins: [react()],
   resolve: {
     alias: {
       '@shared': path.resolve(__dirname, 'src/shared'),
-      '@/main-site': path.resolve(__dirname, 'apps/main-site/src'),
+      '@/main': path.resolve(__dirname, 'apps/main/src'),
+      '@main': path.resolve(__dirname, 'apps/main/src'),
       '@/admin-app': path.resolve(__dirname, 'apps/admin-app/src'),
-      '@/tenant-app': path.resolve(__dirname, 'apps/tenant-app/src'),
+      '@admin-app': path.resolve(__dirname, 'apps/admin-app/src'),
       '@/data': path.resolve(__dirname, 'src/data'),
+      '@data': path.resolve(__dirname, 'src/data'),
       '@/../config': path.resolve(__dirname, 'config'),
     },
     dedupe: ['react', 'react-dom', 'scheduler'],
@@ -32,7 +34,7 @@ export default defineConfig({
     open: false,
     cors: true,
     fs: {
-      allow: ['../..'], // Allow accessing src directory from apps/main-site
+      allow: ['../..'], // Allow accessing src directory from apps/main
     },
     proxy: {
       '/api': {
@@ -48,7 +50,7 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: '../../dist/main-site',
+    outDir: '../../dist/main',
     emptyOutDir: true,
   },
 });

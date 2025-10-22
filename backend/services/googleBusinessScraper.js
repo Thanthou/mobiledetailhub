@@ -3,8 +3,10 @@
  * Scrapes rating and review count from Google Business Profile pages
  */
 
-const puppeteer = require('puppeteer');
-const logger = require('../utils/logger');
+import puppeteer from 'puppeteer';
+import { createModuleLogger } from '../config/logger.js';
+
+const logger = createModuleLogger('google-business-scraper');
 
 class GoogleBusinessScraper {
   constructor() {
@@ -219,4 +221,4 @@ class GoogleBusinessScraper {
 // Create a singleton instance
 const scraper = new GoogleBusinessScraper();
 
-module.exports = scraper;
+export default scraper;

@@ -34,8 +34,8 @@ const PersonalInformationSection: React.FC<PersonalInformationSectionProps> = ({
   };
 
   return (
-    <div className="bg-stone-800 border border-stone-700 rounded-lg">
-      <div className="p-6 border-b border-stone-700">
+      <div className="bg-gray-800/40 border border-gray-700 rounded-lg backdrop-blur-sm">
+      <div className="p-6 border-b border-gray-700">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-white text-lg font-semibold flex items-center">
@@ -48,7 +48,7 @@ const PersonalInformationSection: React.FC<PersonalInformationSectionProps> = ({
             <button
               type="button"
               onClick={handleAutoFill}
-              className="flex items-center gap-2 px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium rounded-lg transition-colors"
+              className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white text-sm font-medium rounded-lg transition-colors"
               title="Auto-fill with test data"
             >
               <Zap className="h-4 w-4" />
@@ -71,7 +71,7 @@ const PersonalInformationSection: React.FC<PersonalInformationSectionProps> = ({
             onChange={(e) => { handleInputChange('firstName', e.target.value); }}
             placeholder="Enter your first name"
             required
-            className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+            className="w-full bg-gray-800/50 border border-gray-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
           />
         </div>
 
@@ -87,7 +87,7 @@ const PersonalInformationSection: React.FC<PersonalInformationSectionProps> = ({
             onChange={(e) => { handleInputChange('lastName', e.target.value); }}
             placeholder="Enter your last name"
             required
-            className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+            className="w-full bg-gray-800/50 border border-gray-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
           />
         </div>
 
@@ -104,7 +104,7 @@ const PersonalInformationSection: React.FC<PersonalInformationSectionProps> = ({
             placeholder="(555) 123-4567"
             required
             maxLength={14}
-            className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+            className="w-full bg-gray-800/50 border border-gray-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
           />
         </div>
 
@@ -120,7 +120,7 @@ const PersonalInformationSection: React.FC<PersonalInformationSectionProps> = ({
             onChange={(e) => { handleInputChange('personalEmail', e.target.value); }}
             placeholder="your.email@example.com"
             required
-            className="w-full bg-stone-700 border border-stone-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+            className="w-full bg-gray-800/50 border border-gray-600 text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
           />
           {errors['personalEmail'] && (
             <p className="mt-1 text-sm text-red-400">{errors['personalEmail']}</p>

@@ -74,7 +74,7 @@ const getPrimaryVehicleType = (databaseId) => {
   return vehicles.find(vehicleId => priorityOrder.includes(vehicleId)) || vehicles[0] || 'car';
 };
 
-module.exports = {
+export {
   VEHICLE_MAPPINGS,
   getVehicleMapping,
   getDatabaseId,

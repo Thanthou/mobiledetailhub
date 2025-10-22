@@ -565,6 +565,16 @@ function analyzeReachability(graph, entryPoint, debug = false) {
  * Check if a file should be excluded from unreachable analysis
  */
 function shouldExcludeFromUnreachable(file) {
+  // Exclude work-in-progress features (intentionally not integrated yet)
+  if (file.includes('/features-wip/')) {
+    return true;
+  }
+  
+  // Exclude experimental features (proof-of-concept, may be discarded)
+  if (file.includes('/features-experimental/')) {
+    return true;
+  }
+  
   // Exclude index barrel files (re-export organizers)
   if (file.endsWith('/index.ts') || file.endsWith('/index.tsx')) {
     return true;
@@ -897,6 +907,13 @@ async function main() {
     if (report.metrics.unreachableAppFiles > 0) {
       result.warn(`${appName}: ${report.metrics.unreachableAppFiles} unreachable app files`, {
         details: 'Dead code - files not imported from entry point'
+      });
+      
+      // List each unreachable file
+      report.unreachable.appSpecific.forEach(file => {
+        result.warn(`  ${file}`, {
+          details: 'Dead code - not imported from entry point'
+        });
       });
     } else {
       result.pass(`${appName}: No unreachable app files`);

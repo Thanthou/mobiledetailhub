@@ -14,7 +14,7 @@ import { generateAvatarFilename, ensureUploadsDir, findCustomAvatar } from '../u
 import { asyncHandler } from '../middleware/errorHandler.js';
 import { validateFileMagic } from '../utils/uploadValidator.js';
 import { logger } from '../config/logger.js';
-import { pool } from '../database/pool.js';
+import { getPool } from '../database/pool.js';
 // Configure multer for avatar uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -169,6 +169,7 @@ router.post('/upload', authenticateToken, requireAdmin, upload.single('avatar'),
 
     // Update the review record with the new avatar URL
     try {
+      const pool = await getPool();
       await pool.query(
         'UPDATE reputation.reviews SET reviewer_avatar_url = $1 WHERE id = $2',
         [avatarUrl, parseInt(reviewId)]

@@ -1,0 +1,18 @@
+{
+  "logo": {
+    "default": {
+      "url": "/icons/logo.png",
+      "alt": "That Smart Site Logo"
+    },
+    "dark": {
+      "url": "/icons/logo-white.svg",
+      "alt": "That Smart Site Logo"
+    },
+    "light": {
+      "url": "/icons/logo.svg",
+      "alt": "That Smart Site Logo"
+    }
+  },
+  "hero": []
+}
+

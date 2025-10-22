@@ -482,4 +482,4 @@ router.get('/tenant/:tenantId/vehicle/:vehicleId/category/:categoryId', async (r
   }
 });
 
-module.exports = router;
+export default router;

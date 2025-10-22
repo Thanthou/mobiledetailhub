@@ -292,8 +292,18 @@ const TenantApplicationPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-stone-900 text-white">
-      <ApplicationHeader />
+    <div className="relative min-h-screen bg-gray-950 text-white overflow-hidden">
+      {/* Radial gradient lighting effect to match hero */}
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: 'radial-gradient(circle at 50% 30%, rgba(6, 182, 212, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 60%, rgba(168, 85, 247, 0.1) 0%, transparent 50%)',
+        }}
+      />
+      
+      {/* Content layer */}
+      <div className="relative z-10">
+        <ApplicationHeader />
 
       <div className="pt-16 sm:pt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -390,6 +400,7 @@ const TenantApplicationPage: React.FC = () => {
             </div>
           </form>
         </div>
+      </div>
       </div>
     </div>
   );

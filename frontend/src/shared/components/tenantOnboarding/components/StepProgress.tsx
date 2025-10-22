@@ -24,10 +24,10 @@ export const StepProgress: React.FC<StepProgressProps> = ({ steps, currentStep }
                     transition-all duration-300 relative
                     ${
                       isCompleted
-                        ? 'bg-orange-600 border-orange-600 text-white scale-100'
+                        ? 'bg-gradient-to-r from-cyan-500 to-purple-500 border-cyan-500 text-white scale-100'
                         : isActive
-                        ? 'bg-orange-600 border-orange-600 text-white scale-110 shadow-lg shadow-orange-600/50'
-                        : 'bg-stone-800 border-stone-600 text-gray-400'
+                        ? 'bg-gradient-to-r from-cyan-500 to-purple-500 border-cyan-500 text-white scale-110 shadow-lg shadow-cyan-500/50'
+                        : 'bg-gray-800 border-gray-600 text-gray-400'
                     }
                   `}
                 >
@@ -40,7 +40,7 @@ export const StepProgress: React.FC<StepProgressProps> = ({ steps, currentStep }
                 <div
                   className={`
                     text-xs sm:text-sm font-medium mt-2 text-center transition-colors
-                    ${isActive ? 'text-orange-600' : isCompleted ? 'text-gray-300' : 'text-gray-500'}
+                    ${isActive ? 'text-cyan-400' : isCompleted ? 'text-gray-300' : 'text-gray-500'}
                   `}
                 >
                   {step.label}
@@ -51,7 +51,7 @@ export const StepProgress: React.FC<StepProgressProps> = ({ steps, currentStep }
                 <div
                   className={`
                     h-0.5 w-12 sm:w-20 lg:w-24 mx-2 sm:mx-4 mb-6 transition-all duration-500
-                    ${isCompleted ? 'bg-orange-600' : 'bg-stone-700'}
+                    ${isCompleted ? 'bg-gradient-to-r from-cyan-500 to-purple-500' : 'bg-gray-700'}
                   `}
                 />
               )}

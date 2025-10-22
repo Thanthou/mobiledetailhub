@@ -1,0 +1,33 @@
+[
+  {
+    "question": "How quickly can I launch my site?",
+    "answer": "Most businesses are live within 15 minutes. Just fill in your information, pick your industry template, and deploy to your subdomain.",
+    "category": "general"
+  },
+  {
+    "question": "Can I customize the design?",
+    "answer": "Absolutely! Upload your logo, choose brand colors, add your images, and customize all text content. Full control over your branding.",
+    "category": "general"
+  },
+  {
+    "question": "What industries do you support?",
+    "answer": "We support mobile detailing, lawn care, maid service, pet grooming, barber shops, and more. New industry templates are added regularly based on customer demand.",
+    "category": "general"
+  },
+  {
+    "question": "Is SEO included?",
+    "answer": "Every site includes structured data, optimized meta tags, sitemaps, and fast load times. Built specifically for local search and Google rankings.",
+    "category": "general"
+  },
+  {
+    "question": "Do I need technical knowledge?",
+    "answer": "No coding required! Our dashboard makes it easy to manage your content, services, bookings, and more. If you can use email, you can manage your site.",
+    "category": "general"
+  },
+  {
+    "question": "What's included in the booking system?",
+    "answer": "Full booking flow with service selection, scheduling, customer management, and notifications. Turn website visitors into confirmed appointments.",
+    "category": "general"
+  }
+]
+

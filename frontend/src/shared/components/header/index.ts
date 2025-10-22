@@ -12,5 +12,4 @@ export { DataProvider, useData } from './contexts/DataProvider';
 export { TenantProvider, useTenant } from './contexts/TenantContext';
 export { useBusiness } from './hooks/useBusiness';
 export { useTenants } from './hooks/useTenants';
-export { default as TenantPage } from './pages/TenantPage';
 export type { Business, ServiceArea } from './types/business.types';

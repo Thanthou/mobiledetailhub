@@ -37,10 +37,10 @@ export const PlanSelectionSection: React.FC<PlanSelectionSectionProps> = ({
                 relative rounded-2xl border-2 transition-all duration-300 flex flex-col h-full
                 ${
                   isSelected
-                    ? 'border-orange-600 bg-stone-800 shadow-xl shadow-orange-600/20 scale-105'
+                    ? 'border-cyan-500 bg-gray-800 shadow-xl shadow-cyan-500/20 scale-105'
                     : isHovered
-                    ? 'border-orange-500 bg-stone-800/80 scale-102'
-                    : 'border-stone-700 bg-stone-800/60'
+                    ? 'border-cyan-400 bg-gray-800/80 scale-102'
+                    : 'border-gray-700 bg-gray-800/60'
                 }
                 ${plan.popular ? 'lg:scale-105 lg:z-10' : ''}
               `}
@@ -49,7 +49,7 @@ export const PlanSelectionSection: React.FC<PlanSelectionSectionProps> = ({
             >
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-20">
-                  <div className="bg-gradient-to-r from-orange-600 to-orange-500 text-white text-xs sm:text-sm font-bold px-4 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg">
+                  <div className="bg-gradient-to-r from-cyan-500 to-purple-500 text-white text-xs sm:text-sm font-bold px-4 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg">
                     <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
                     MOST POPULAR
                   </div>
@@ -73,7 +73,7 @@ export const PlanSelectionSection: React.FC<PlanSelectionSectionProps> = ({
                 <ul className="space-y-3 sm:space-y-4 mb-6 sm:mb-8 flex-grow">
                   {plan.features.map((feature, index) => (
                     <li key={index} className="flex items-start gap-3">
-                      <Check className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                      <Check className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
                       <span className="text-gray-300 text-sm sm:text-base">{feature}</span>
                     </li>
                   ))}
@@ -85,11 +85,11 @@ export const PlanSelectionSection: React.FC<PlanSelectionSectionProps> = ({
                   className={`
                     w-full py-3 sm:py-3.5 px-6 rounded-lg font-semibold text-base sm:text-lg
                     transition-all duration-200
-                    focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-stone-800
+                    focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800
                     ${
                       isSelected
-                        ? 'bg-orange-600 text-white hover:bg-orange-700 focus:ring-orange-500'
-                        : 'bg-stone-700 text-white hover:bg-stone-600 focus:ring-stone-500'
+                        ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white hover:from-cyan-600 hover:to-purple-600 focus:ring-cyan-500'
+                        : 'bg-gray-700 text-white hover:bg-gray-600 focus:ring-gray-500'
                     }
                   `}
                 >
@@ -104,15 +104,15 @@ export const PlanSelectionSection: React.FC<PlanSelectionSectionProps> = ({
       <div className="mt-8 text-center px-4">
         <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-8 text-sm text-gray-400">
           <div className="flex items-center gap-2">
-            <Check className="w-4 h-4 text-orange-600" />
+            <Check className="w-4 h-4 text-cyan-400" />
             <span>14-day money-back guarantee</span>
           </div>
           <div className="flex items-center gap-2">
-            <Check className="w-4 h-4 text-orange-600" />
+            <Check className="w-4 h-4 text-cyan-400" />
             <span>Cancel anytime</span>
           </div>
           <div className="flex items-center gap-2">
-            <Check className="w-4 h-4 text-orange-600" />
+            <Check className="w-4 h-4 text-cyan-400" />
             <span>No setup fees</span>
           </div>
         </div>

@@ -1,6 +1,6 @@
 # 📊 Frontend Flow Audit - tenant-app
 
-**Generated:** 10/21/2025, 3:45:45 PM
+**Generated:** 10/21/2025, 7:03:28 PM
 
 ## 🔴 Score: 0/100 (Poor Flow Health)
 
@@ -9,9 +9,9 @@
 | Metric | Value |
 |--------|-------|
 | **App Files** | |
-| Total App Files | 358 |
+| Total App Files | 334 |
 | Reachable App Files | 233 |
-| Unreachable App Files | 82 |
+| Unreachable App Files | 63 |
 | **Shared Files** | |
 | Total Shared Files | 392 |
 | Reachable Shared Files | 257 |
@@ -20,13 +20,12 @@
 | Boundary Violations | 0 |
 | Parse Errors | 0 |
 
-## 🔴 Unreachable App Files (82)
+## 🔴 Unreachable App Files (63)
 
 These files in **tenant-app** are not imported from the entry point (dead code):
 
 - apps/tenant-app/src/components/booking/components/BookingForm.tsx
 - apps/tenant-app/src/components/booking/components/steps/StepAddons/Header.tsx
-- apps/tenant-app/src/components/booking/components/steps/StepPayment/StepPayment.refactored.tsx
 - apps/tenant-app/src/components/booking/components/steps/StepService/Header.tsx
 - apps/tenant-app/src/components/booking/components/steps/StepVehicleSelection/Header.tsx
 - apps/tenant-app/src/components/booking/hooks/useBookingAsync.ts
@@ -42,24 +41,6 @@ These files in **tenant-app** are not imported from the entry point (dead code):
 - apps/tenant-app/src/components/locations/utils/googleMaps.helpers.ts
 - apps/tenant-app/src/components/locations/utils/googlePlace.ts
 - apps/tenant-app/src/components/locations/utils/placesLoader.ts
-- apps/tenant-app/src/components/quotes/hooks/useQuoteFormLogic.refactored.ts
-- apps/tenant-app/src/components/quotes/quotes/api/quotes.api.ts
-- apps/tenant-app/src/components/quotes/quotes/components/ContactSection.tsx
-- apps/tenant-app/src/components/quotes/quotes/components/LazyRequestQuoteModal.tsx
-- apps/tenant-app/src/components/quotes/quotes/components/QuoteForm.tsx
-- apps/tenant-app/src/components/quotes/quotes/components/RequestQuoteModal.tsx
-- apps/tenant-app/src/components/quotes/quotes/components/ServicesSection.tsx
-- apps/tenant-app/src/components/quotes/quotes/components/SuccessMessage.tsx
-- apps/tenant-app/src/components/quotes/quotes/components/VehicleSection.tsx
-- apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteForm.ts
-- apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteFormLogic.refactored.ts
-- apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteFormLogic.ts
-- apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteFormState.ts
-- apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteModal.ts
-- apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteSubmission.ts
-- apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteTenantData.ts
-- apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteValidation.ts
-- apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteVehicleData.ts
 - apps/tenant-app/src/components/reviews/api/reviewsApi.ts
 - apps/tenant-app/src/components/reviews/components/GoogleReviewsTest.tsx
 - apps/tenant-app/src/components/reviews/hooks/useGoogleReviews.ts

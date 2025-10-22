@@ -6,7 +6,7 @@ import { Button } from '@shared/ui';
 
 const ApplicationHeader: React.FC = () => {
   return (
-    <header className="fixed top-0 z-50 bg-stone-900/95 backdrop-blur-sm w-full border-b border-stone-800 relative">
+    <header className="fixed top-0 z-50 bg-gray-950/95 backdrop-blur-sm w-full border-b border-gray-800 relative">
       <div className="w-full py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Logo and Business Name */}
@@ -30,7 +30,7 @@ const ApplicationHeader: React.FC = () => {
             <Button 
               variant="ghost"
               size="sm"
-              className="text-gray-300 hover:text-white hover:bg-stone-700 px-3 py-2 rounded-lg transition-colors"
+              className="text-gray-300 hover:text-white hover:bg-gray-800 px-3 py-2 rounded-lg transition-colors"
               leftIcon={<ArrowLeft className="w-4 h-4" />}
             >
               Back
