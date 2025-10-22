@@ -5,6 +5,7 @@ import { HomePage } from './routes/HomePage';
 import { LoginPage } from './routes/LoginPage';
 import { TenantOnboardingPage } from './routes/TenantOnboardingPage';
 import { PricingPage } from './routes/PricingPage';
+import SmartHeroPage from './routes/SmartHeroPage';
 
 // Admin redirect component
 function AdminRedirect() {
@@ -54,7 +55,10 @@ export default function MainSiteApp() {
     <div className="min-h-screen bg-white">
       <Routes>
         {/* Root path - marketing homepage */}
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<SmartHeroPage />} />
+        
+        {/* Dev dashboard (temporary) */}
+        <Route path="/dev" element={<HomePage />} />
         
         {/* Authentication */}
         <Route path="/login" element={<LoginPage />} />

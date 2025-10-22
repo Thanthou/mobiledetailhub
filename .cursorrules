@@ -2,12 +2,11 @@
   "version": 2,
   "metadata": {
     "project": "That Smart Site (Multi-Tenant SaaS)",
-    "description": "That Smart Site is a white-label SaaS platform that generates websites for local service businesses (detailing, lawn care, maid service, pet grooming, etc.). Each tenant gets their own live subdomain site. The platform uses a unified site engine (main app) that powers both the marketing site (thatsmartsite.com) and all tenant sites (subdomain.thatsmartsite.com), plus a separate admin dashboard. Backend: Node.js/Express + PostgreSQL with multi-tenant schemas.",
-    "architecture": "frontend (2 apps: main + admin-app) + backend (Express + PostgreSQL, multi-tenant schemas)",
+    "description": "That Smart Site is a white-label SaaS platform that generates websites for local service businesses (detailing, lawn care, maid service, pet grooming, etc.). The platform has a marketing site (thatsmartsite.com), tenant sites (subdomain.thatsmartsite.com), and an admin dashboard (admin.thatsmartsite.com). Backend: Node.js/Express + PostgreSQL with multi-tenant schemas.",
+    "architecture": "frontend (3 apps: main + tenant-app + admin-app) + backend (Express + PostgreSQL, multi-tenant schemas)",
     "philosophy": [
       "Code should be clean, predictable, and testable.",
-      "The main app is a unified site engine that powers both marketing and tenant sites via runtime branching.",
-      "Marketing site (Tenant-0) is a showcase that 'dogfoods' the platform's own features.",
+      "Three independent apps serve different audiences: marketing site (prospects), tenant sites (end customers), and admin dashboard (platform/tenant management).",
       "Each app must remain independent yet interoperable through shared modules.",
       "Side effects live in hooks or services; pure logic lives in utils.",
       "Frontend apps follow feature-first structure with strict import boundaries.",
@@ -20,24 +19,39 @@
       "apps": [
         {
           "name": "main",
-          "purpose": "Unified site engine powering all public-facing websites. Includes marketing site (thatsmartsite.com as Tenant-0) and all tenant sites (subdomain.thatsmartsite.com). Uses runtime branching to toggle between showcase mode (cinematic, scroll-based) and standard tenant mode (booking, services, reviews).",
+          "purpose": "Marketing site (thatsmartsite.com) that sells the platform to potential tenant customers. Features include pricing, onboarding, template showcases, and platform information.",
           "entry": "frontend/apps/main/src/main.tsx",
           "aliases": ["@/main", "@main"],
           "features": [
-            "Hero sections (dynamic based on tenant config)",
+            "Marketing homepage",
+            "Pricing page",
+            "Tenant onboarding flow",
+            "Template/industry showcases",
+            "Platform features overview",
+            "Login/authentication"
+          ]
+        },
+        {
+          "name": "tenant-app",
+          "purpose": "Tenant websites (subdomain.thatsmartsite.com) - the actual product. Each tenant gets a branded site for their local service business where end customers can book services, view galleries, read reviews, etc.",
+          "entry": "frontend/apps/tenant-app/src/main.tsx",
+          "aliases": ["@/tenant-app", "@tenant-app"],
+          "features": [
+            "Hero sections with tenant branding",
             "Services pages with pricing",
             "Booking flows",
             "Gallery/portfolio",
             "Reviews/testimonials",
             "Quote requests",
+            "FAQ pages",
+            "Service areas",
             "SEO optimization",
-            "Tenant-specific branding (colors, logo, content)",
-            "Marketing mode for Tenant-0 (showcase features, onboarding, pricing)"
+            "Tenant dashboard (for tenant to manage their own site)"
           ]
         },
         {
           "name": "admin-app",
-          "purpose": "Dashboard for platform owner and tenants to manage sites, analytics, content, and system health. Auth-protected, functional UI (no cinematic assets).",
+          "purpose": "Admin dashboard (admin.thatsmartsite.com) for platform owner and tenants to manage sites, analytics, content, and system health. Auth-protected, functional UI.",
           "entry": "frontend/apps/admin-app/src/main.tsx",
           "aliases": ["@/admin-app", "@admin-app"],
           "features": [
@@ -54,21 +68,23 @@
       "bootstrap": "frontend/src/bootstrap/",
       "rules": [
         {
-          "pattern": "frontend/apps/(main|admin-app)/**",
+          "pattern": "frontend/apps/(main|tenant-app|admin-app)/**",
           "mustImportFrom": [
             "frontend/src/shared/**",
             "frontend/src/bootstrap/**"
           ],
           "forbidImportsFrom": [
             "frontend/apps/main/**",
+            "frontend/apps/tenant-app/**",
             "frontend/apps/admin-app/**"
           ],
-          "rationale": "Apps may depend on shared or bootstrap layers, but never import from each other. main and admin-app are independent."
+          "rationale": "Apps may depend on shared or bootstrap layers, but never import from each other. All three apps are independent."
         },
         {
           "pattern": "frontend/src/shared/**",
           "forbidImportsFrom": [
             "frontend/apps/main/**",
+            "frontend/apps/tenant-app/**",
             "frontend/apps/admin-app/**"
           ],
           "rationale": "Shared layer must remain pure and reusable. It cannot depend on any app-specific code."
@@ -77,13 +93,14 @@
           "pattern": "frontend/src/bootstrap/**",
           "forbidImportsFrom": [
             "frontend/apps/main/**",
+            "frontend/apps/tenant-app/**",
             "frontend/apps/admin-app/**"
           ],
           "rationale": "Bootstrap layer initializes contexts and shells, not app-specific logic."
         }
       ],
       "wip_features": {
-        "directory": "frontend/apps/main/src/features-wip/",
+        "directory": "frontend/apps/tenant-app/src/features-wip/",
         "purpose": "Work-in-progress features that are production-ready but not yet integrated into routes. Excluded from audit warnings.",
         "rules": [
           "Features should have a README explaining status, owner, and integration timeline.",
@@ -92,7 +109,7 @@
         ]
       },
       "experimental_features": {
-        "directory": "frontend/apps/main/src/features-experimental/",
+        "directory": "frontend/apps/tenant-app/src/features-experimental/",
         "purpose": "Proof-of-concept features for research and exploration. May be discarded. Excluded from audits.",
         "rules": [
           "Code quality can be lower (learning/research phase).",
@@ -156,10 +173,10 @@
     "Use React + TypeScript exclusively; keep components small, pure, and composable.",
     "Hooks handle all side effects; utils remain pure functions.",
     "UI components go in shared/ui with Tailwind and shadcn conventions.",
-    "The main app uses runtime branching (tenantId === 0 ? <Showcase /> : <TenantSite />) to power both marketing and tenant sites.",
-    "Each app entrypoint (main, admin-app) owns its own routing, layout, and providers.",
+    "Three independent apps serve distinct purposes: main (marketing), tenant-app (product), admin-app (management).",
+    "Each app entrypoint owns its own routing, layout, and providers.",
     "Global state uses Zustand or Context Providers; never cross app boundaries.",
-    "Feature flags toggle extras like onboarding, pricing, or marketing CTAs in main app."
+    "Some UI components may be shared, but business logic and features are app-specific."
   ],
 
   "backend_philosophy": [
@@ -184,13 +201,13 @@
       "Adhere to import boundaries: apps can't import from each other.",
       "Preserve modularity when generating code.",
       "Prefer composition over inheritance.",
-      "Understand that 'main' app powers BOTH marketing site and tenant sites via runtime branching.",
-      "When adding features, consider if they belong in shared/ (used by both apps) or app-specific.",
+      "Understand that main = marketing site, tenant-app = tenant websites, admin-app = dashboard. Three separate apps.",
+      "When adding features, consider if they belong in shared/ (used by all apps) or app-specific.",
       "Use ESM syntax (import/export) in all backend files."
     ],
     "cursor_should_not": [
-      "Mix app logic between admin-app and main.",
-      "Import from main in admin-app or vice versa.",
+      "Mix app logic between main, tenant-app, and admin-app.",
+      "Import from one app into another (all cross-app imports forbidden).",
       "Add new dependencies without justification.",
       "Duplicate shared logic already defined in frontend/src/shared/.",
       "Use CommonJS (require/module.exports) in backend - use ESM only."
@@ -198,10 +215,10 @@
   },
 
   "migration_notes": {
-    "status": "IN PROGRESS",
-    "from": "3-app architecture (main-site, tenant-app, admin-app)",
-    "to": "2-app architecture (main, admin-app)",
-    "guide": "docs/deployment/MIGRATION_TO_MAIN_APP.md",
-    "rationale": "Unified site engine eliminates code duplication, enables marketing site to dogfood the platform, simplifies boundaries, and reduces build complexity."
+    "status": "COMPLETED",
+    "from": "2-app unified architecture (main as unified engine, admin-app)",
+    "to": "3-app architecture (main, tenant-app, admin-app)",
+    "completed_date": "2025-10-22",
+    "rationale": "Marketing site and tenant sites serve fundamentally different audiences and have different requirements. Separating them provides clearer boundaries, independent iteration, and prevents feature bloat in either app."
   }
 }

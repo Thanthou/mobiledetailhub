@@ -15,13 +15,10 @@ import type { MainSiteConfig } from '@shared/types/location';
  */
 export async function loadLawncareConfig(): Promise<MainSiteConfig> {
   // TODO: Populate modular files with actual lawncare data
-  // For now, import the legacy site.json from archive as fallback
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Legacy JSON import, typing refactor planned
-  const legacyConfig = await import('./_archive/site.json.legacy');
+  // Legacy import temporarily disabled to fix Vite build issues
+  // const legacyConfig = await import('./_archive/site.json.bak');
+  // return legacyConfig.default as MainSiteConfig;
   
-  // Return legacy config until modular files are populated
-  // Once populated, replace with assembled config like mobile-detailing
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- Legacy JSON import, typing refactor planned
-  return legacyConfig.default as MainSiteConfig;
+  throw new Error('Lawncare config not yet implemented. Please populate modular files.');
 }
 

@@ -13,7 +13,7 @@ const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
 
 const apps = [
-  { dist: 'dist/main', nestedHtml: 'dist/main/apps/main-site/index.html' },
+  { dist: 'dist/main', nestedHtml: 'dist/main/apps/main/index.html' },
   { dist: 'dist/admin', nestedHtml: 'dist/admin/apps/admin-app/index.html' },
   { dist: 'dist/tenant', nestedHtml: 'dist/tenant/apps/tenant-app/index.html' },
 ];

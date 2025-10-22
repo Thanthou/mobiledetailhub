@@ -15,7 +15,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@shared': path.resolve(__dirname, 'src/shared'),
-      '@/main-site': path.resolve(__dirname, 'apps/main-site/src'),
+      '@/main': path.resolve(__dirname, 'apps/main/src'),
       '@/admin-app': path.resolve(__dirname, 'apps/admin-app/src'),
       '@/tenant-app': path.resolve(__dirname, 'apps/tenant-app/src'),
       '@tenant-app': path.resolve(__dirname, 'apps/tenant-app/src'),
@@ -59,7 +59,7 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: '../../dist/tenant-app',
+    outDir: '../../dist/tenant',
     emptyOutDir: true,
   },
 });

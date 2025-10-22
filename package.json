@@ -15,9 +15,8 @@
     "dev:tenant": "cd frontend && npm run dev:tenant",
     "dev:hub": "node scripts/devtools/dev-hub.js",
     "dev:monitor": "node scripts/devtools/cli/dev-monitor.js",
-    "dev:all": "concurrently -n MAIN,ADMIN,BACKEND -c cyan,magenta,green \"npm run dev:main\" \"npm run dev:admin\" \"npm run dev:backend\"",
-    "dev:all:legacy": "concurrently -n MAIN,ADMIN,TENANT,BACKEND -c cyan,magenta,yellow,green \"npm run dev:main\" \"npm run dev:admin\" \"npm run dev:tenant\" \"npm run dev:backend\"",
-    "dev:apps": "concurrently -n MAIN,ADMIN -c cyan,magenta \"npm run dev:main\" \"npm run dev:admin\"",
+    "dev:all": "concurrently -n MAIN,ADMIN,TENANT,BACKEND -c cyan,magenta,yellow,green \"npm run dev:main\" \"npm run dev:admin\" \"npm run dev:tenant\" \"npm run dev:backend\"",
+    "dev:apps": "concurrently -n MAIN,ADMIN,TENANT -c cyan,magenta,yellow \"npm run dev:main\" \"npm run dev:admin\" \"npm run dev:tenant\"",
     "dev:kill": "node scripts/automation/cleanup/kill-node-processes.js",
     "dev:clean": "scripts/automation/cleanup/cleanup-and-dev.bat",
     
