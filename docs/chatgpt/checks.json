@@ -12,7 +12,7 @@
   {
     "id": "request_logger_correlation",
     "description": "Request logger assigns correlation ID and logs via on-finished",
-    "pass": false,
+    "pass": true,
     "pointers": [
       "backend/middleware/requestLogger.js"
     ]

@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 
 import { ErrorBoundary } from '@shared/ui';
-import MainApp from './MainApp';
+import MainSiteApp from './MainSiteApp';
 import { MainProviders } from './MainProviders';
 import '../../../src/index.css';
 
@@ -19,7 +19,7 @@ root.render(
     <BrowserRouter>
       <ErrorBoundary>
         <MainProviders>
-          <MainApp />
+          <MainSiteApp />
         </MainProviders>
       </ErrorBoundary>
     </BrowserRouter>

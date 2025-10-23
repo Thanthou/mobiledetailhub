@@ -24,6 +24,8 @@ export type { SpinnerProps } from './utility/Spinner';
 export { Spinner } from './utility/Spinner';
 export type { ToastOptions, ToastProps } from './utility/toast';
 export { Toast } from './utility/toast';
+export type { GradientTextProps } from './utility/GradientText';
+export { default as GradientText } from './utility/GradientText';
 
 // Background components
 export { default as BackgroundCarousel } from './carousel/BackgroundCarousel';

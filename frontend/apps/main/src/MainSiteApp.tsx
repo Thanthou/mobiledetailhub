@@ -2,10 +2,10 @@ import React, { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
 import { HomePage } from './routes/HomePage';
+import { DevDashboard } from './routes/DevDashboard';
 import { LoginPage } from './routes/LoginPage';
 import { TenantOnboardingPage } from './routes/TenantOnboardingPage';
 import { PricingPage } from './routes/PricingPage';
-import SmartHeroPage from './routes/SmartHeroPage';
 
 // Admin redirect component
 function AdminRedirect() {
@@ -55,10 +55,10 @@ export default function MainSiteApp() {
     <div className="min-h-screen bg-white">
       <Routes>
         {/* Root path - marketing homepage */}
-        <Route path="/" element={<SmartHeroPage />} />
+        <Route path="/" element={<HomePage />} />
         
         {/* Dev dashboard (temporary) */}
-        <Route path="/dev" element={<HomePage />} />
+        <Route path="/dev" element={<DevDashboard />} />
         
         {/* Authentication */}
         <Route path="/login" element={<LoginPage />} />

@@ -70,8 +70,6 @@ export function PreviewDataProvider({ children, industry: industryProp }: Previe
   
   // Load industry config and preview data
   useEffect(() => {
-    console.log('[PreviewDataProvider] useEffect fired! Industry:', industry);
-    
     if (!industry) {
       console.warn('[PreviewDataProvider] No industry provided, skipping load');
       setPreviewConfig(null);
@@ -81,7 +79,6 @@ export function PreviewDataProvider({ children, industry: industryProp }: Previe
     }
     
     async function loadConfig() {
-      console.log('[PreviewDataProvider] Starting to load config for:', industry);
       setIsLoading(true);
       
       try {
@@ -126,12 +123,10 @@ export function PreviewDataProvider({ children, industry: industryProp }: Previe
             return;
         }
         
-        console.log('[PreviewDataProvider] Loaded config for industry:', industry, config);
         setPreviewConfig(config);
         
         // Load preview-specific mock data (business, reviews, FAQs)
         const mockData = await loadIndustryPreview(industry);
-        console.log('[PreviewDataProvider] Loaded preview data for industry:', industry, mockData);
         setPreviewData(mockData);
       } catch (error) {
         console.error('[PreviewDataProvider] ERROR loading preview config for', industry, ':', error);

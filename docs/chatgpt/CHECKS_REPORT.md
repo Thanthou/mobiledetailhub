@@ -2,7 +2,7 @@
 
 - ✅ **dev_env_hosts_proxy** — Dev hub proxies by host; .port-registry.json present; hosts documented
   - Pointers: .port-registry.json, devtools/dev-hub.js, docs/frontend/DEV_SETUP.md
-- ❌ **request_logger_correlation** — Request logger assigns correlation ID and logs via on-finished
+- ✅ **request_logger_correlation** — Request logger assigns correlation ID and logs via on-finished
   - Pointers: backend/middleware/requestLogger.js
 - ✅ **auth_access_ttl** — Access token TTL ≤ 1h (ideally 15m)
   - Pointers: backend/config/auth.js

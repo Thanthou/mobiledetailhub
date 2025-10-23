@@ -17,6 +17,7 @@
     "dev:monitor": "node scripts/devtools/cli/dev-monitor.js",
     "dev:all": "concurrently -n MAIN,ADMIN,TENANT,BACKEND -c cyan,magenta,yellow,green \"npm run dev:main\" \"npm run dev:admin\" \"npm run dev:tenant\" \"npm run dev:backend\"",
     "dev:apps": "concurrently -n MAIN,ADMIN,TENANT -c cyan,magenta,yellow \"npm run dev:main\" \"npm run dev:admin\" \"npm run dev:tenant\"",
+    "kill": "node scripts/automation/cleanup/kill-node-processes.js",
     "dev:kill": "node scripts/automation/cleanup/kill-node-processes.js",
     "dev:clean": "scripts/automation/cleanup/cleanup-and-dev.bat",
     
