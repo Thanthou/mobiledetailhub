@@ -44,7 +44,7 @@ export function HomePage() {
   };
 
   return (
-    <div ref={scrollContainerRef} className="h-screen overflow-y-scroll snap-y snap-mandatory">
+    <div ref={scrollContainerRef} className="h-screen overflow-y-scroll snap-y snap-mandatory scrollbar-hide">
       <Header onGetStarted={handleLaunchClick} activeSection={activeSection} scrollContainerRef={scrollContainerRef} />
       
       {/* Hero Section */}

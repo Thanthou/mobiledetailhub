@@ -87,7 +87,7 @@ interface Particle {
 }
 
 export default function SmartAdvantageSection() {
-  const [activeCardIndex, setActiveCardIndex] = useState(1);
+  const [activeCardIndex, setActiveCardIndex] = useState(0);
   const sectionRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);

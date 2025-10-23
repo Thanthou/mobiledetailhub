@@ -104,7 +104,7 @@ export function PreviewPage() {
   return (
     <>
       <Header />
-      <main className="snap-container overflow-y-scroll h-screen snap-y snap-mandatory">
+      <main className="snap-container overflow-y-scroll h-screen snap-y snap-mandatory scrollbar-hide">
         <Hero onRequestQuote={handleOpenQuoteModal} />
         <ServicesGrid />
         <Reviews />
