@@ -23,7 +23,10 @@ router.get('/:tenantSlug', asyncHandler(async (req, res) => {
 
     if (!pool) {
       logger.error('Database pool not available');
-      return res.status(500).json({ error: 'Database connection not available' });
+      return res.status(500).json({
+        success: false,
+        error: 'Database connection not available'
+      });
     }
 
 
@@ -139,7 +142,10 @@ router.post('/:tenantSlug/scan', asyncHandler(async (req, res) => {
 
     if (!pool) {
       logger.error('Database pool not available');
-      return res.status(500).json({ error: 'Database connection not available' });
+      return res.status(500).json({
+        success: false,
+        error: 'Database connection not available'
+      });
     }
 
     // Get tenant's website URL from database
@@ -152,7 +158,10 @@ router.post('/:tenantSlug/scan', asyncHandler(async (req, res) => {
     logger.info(`Database query completed`);
 
     if (tenantResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Tenant not found' });
+      return res.status(404).json({
+        success: false,
+        error: 'Tenant not found'
+      });
     }
 
     // Use actual tenant website URL
@@ -161,7 +170,10 @@ router.post('/:tenantSlug/scan', asyncHandler(async (req, res) => {
     logger.info(`Using tenant URL: ${websiteUrl}`);
 
     if (!websiteUrl) {
-      return res.status(400).json({ error: 'No website URL found for this tenant' });
+      return res.status(400).json({
+        success: false,
+        error: 'No website URL found for this tenant'
+      });
     }
 
     logger.info(`Scanning website: ${websiteUrl}`);
@@ -178,7 +190,8 @@ router.post('/:tenantSlug/scan', asyncHandler(async (req, res) => {
 
     if (!healthAnalysis.success) {
       logger.error('Health analysis failed:', healthAnalysis.error);
-      return res.status(500).json({ 
+      return res.status(500).json({
+        success: false,
         error: 'Health analysis failed',
         details: healthAnalysis.error
       });
@@ -314,7 +327,10 @@ router.get('/:tenantSlug/history', asyncHandler(async (req, res) => {
 
     if (!pool) {
       logger.error('Database pool not available');
-      return res.status(500).json({ error: 'Database connection not available' });
+      return res.status(500).json({
+        success: false,
+        error: 'Database connection not available'
+      });
     }
 
     const result = await pool.query(`
@@ -474,15 +490,17 @@ router.get('/test-lighthouse', asyncHandler(async (req, res) => {
     const result = await healthMonitor.runLighthouseLocal(testUrl, 'mobile');
     
     res.json({
-      status: 'success',
-      testResult: result,
-      message: result.success ? 'Lighthouse CLI is working correctly' : 'Lighthouse CLI call failed'
+      success: true,
+      data: {
+        testResult: result,
+        message: result.success ? 'Lighthouse CLI is working correctly' : 'Lighthouse CLI call failed'
+      }
     });
 
   } catch (error) {
     logger.error('Lighthouse test error:', error);
     res.status(500).json({
-      status: 'error',
+      success: false,
       error: error.message
     });
   }

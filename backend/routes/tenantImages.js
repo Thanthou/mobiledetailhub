@@ -42,7 +42,10 @@ router.get('/images', async (req, res) => {
       category: row.image_category
     }));
     
-    res.json(imageUrls);
+    res.json({
+      success: true,
+      data: { images: imageUrls }
+    });
   } catch (error) {
     logger.error('Error reading tenant images:', error);
     res.status(500).json({ error: 'Failed to read tenant images' });
@@ -63,7 +66,10 @@ router.post('/upload', validateBody(tenantImagesSchemas.upload), (req, res) => {
     // TODO: Save file to tenant-specific directory
     // TODO: Insert record into database
     
-    res.json({ message: 'Upload endpoint ready - implementation pending' });
+    res.json({
+      success: true,
+      message: 'Upload endpoint ready - implementation pending'
+    });
   } catch (error) {
     logger.error('Error uploading tenant image:', error);
     res.status(500).json({ error: 'Failed to upload image' });

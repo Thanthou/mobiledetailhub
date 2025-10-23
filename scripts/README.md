@@ -55,6 +55,11 @@ fs.writeFileSync(reportPath, reportContent);
 
 ## 📋 **Available Scripts**
 
+### Setup & Admin
+- `npm run password` - Smart admin password sync (checks .env vs DB, updates if needed)
+- `npm run setup:hosts` - Setup local hosts file for subdomain testing
+
+### Audits & Analysis
 - `npm run overview` - Project overview (outputs to `scripts/project/reports/`)
 - `npm run audit:performance` - Route performance audit (outputs to `scripts/audits/frontend/reports/`)
 - `npm run audit:routing` - Routing validation audit

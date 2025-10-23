@@ -23,7 +23,10 @@ router.get('/', asyncHandler(async (req, res) => {
     error.statusCode = 404;
     throw error;
   }
-  res.json(result.rows[0]);
+  res.json({
+    success: true,
+    data: result.rows[0]
+  });
 }));
 
 // Get customer field
@@ -58,7 +61,10 @@ router.get('/field/:field',
       error.statusCode = 404;
       throw error;
     }
-    res.json({ [field]: result.rows[0][safeField] });
+    res.json({
+      success: true,
+      data: { [field]: result.rows[0][safeField] }
+    });
   })
 );
 

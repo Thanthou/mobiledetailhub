@@ -116,8 +116,6 @@ export function PreviewDataProvider({ children }: PreviewDataProviderProps) {
             return;
         }
         
-        console.log('Loaded preview config for', industry, ':', config);
-        console.log('Hero images:', config?.hero?.Images || config?.hero?.images);
         setPreviewConfig(config);
         
         // Load preview-specific mock data (business, reviews, FAQs)

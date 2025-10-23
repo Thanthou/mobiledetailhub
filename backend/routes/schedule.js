@@ -87,7 +87,10 @@ router.get('/appointments', async (req, res) => {
     `;
 
     const result = await pool.query(query, [tenantId, startDate, endDate]);
-    res.json(result.rows);
+    res.json({
+      success: true,
+      data: { appointments: result.rows }
+    });
   } catch (error) {
     logger.error('Error fetching appointments:', error);
     if (error.message === 'No tenant business found for this user') {
@@ -111,7 +114,10 @@ router.get('/appointments/date/:date', async (req, res) => {
     `;
 
     const result = await pool.query(query, [tenantId, date]);
-    res.json(result.rows);
+    res.json({
+      success: true,
+      data: { appointments: result.rows }
+    });
   } catch (error) {
     logger.error('Error fetching appointments for date:', error);
     res.status(500).json({ error: 'Failed to fetch appointments' });
@@ -132,10 +138,16 @@ router.get('/appointments/:id', async (req, res) => {
     const result = await pool.query(query, [id, tenantId]);
     
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Appointment not found' });
+      return res.status(404).json({
+        success: false,
+        error: 'Appointment not found'
+      });
     }
 
-    res.json(result.rows[0]);
+    res.json({
+      success: true,
+      data: result.rows[0]
+    });
   } catch (error) {
     logger.error('Error fetching appointment:', error);
     res.status(500).json({ error: 'Failed to fetch appointment' });
@@ -193,7 +205,10 @@ router.post('/appointments', validateBody(appointmentSchema.body), async (req, r
       price, deposit, notes, internal_notes, userId
     ]);
 
-    res.status(201).json(result.rows[0]);
+    res.status(201).json({
+      success: true,
+      data: result.rows[0]
+    });
   } catch (error) {
     logger.error('Error creating appointment:', error);
     res.status(500).json({ error: 'Failed to create appointment' });
@@ -251,7 +266,10 @@ router.put('/appointments/:id', validateBody(appointmentSchema.body), async (req
     `;
 
     const result = await pool.query(query, values);
-    res.json(result.rows[0]);
+    res.json({
+      success: true,
+      data: result.rows[0]
+    });
   } catch (error) {
     logger.error('Error updating appointment:', error);
     res.status(500).json({ error: 'Failed to update appointment' });
@@ -281,10 +299,16 @@ router.patch('/appointments/:id/status', async (req, res) => {
     const result = await pool.query(query, [status, userId, id, tenantId]);
     
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Appointment not found' });
+      return res.status(404).json({
+        success: false,
+        error: 'Appointment not found'
+      });
     }
 
-    res.json(result.rows[0]);
+    res.json({
+      success: true,
+      data: result.rows[0]
+    });
   } catch (error) {
     logger.error('Error updating appointment status:', error);
     res.status(500).json({ error: 'Failed to update appointment status' });
@@ -359,7 +383,10 @@ router.get('/appointments/available-slots', async (req, res) => {
     const dayHours = businessHours[dayOfWeek];
 
     if (!dayHours || !dayHours.enabled) {
-      return res.json([]);
+      return res.json({
+        success: true,
+        data: { availableSlots: [] }
+      });
     }
 
     const startTime = new Date(`${date}T${dayHours.start}:00`);
@@ -412,7 +439,10 @@ router.get('/time-blocks', async (req, res) => {
     `;
 
     const result = await pool.query(query, [tenantId, startDate, endDate]);
-    res.json(result.rows);
+    res.json({
+      success: true,
+      data: { timeBlocks: result.rows }
+    });
   } catch (error) {
     logger.error('Error fetching time blocks:', error);
     if (error.message === 'No tenant business found for this user') {
@@ -436,7 +466,10 @@ router.get('/time-blocks/date/:date', async (req, res) => {
     `;
 
     const result = await pool.query(query, [tenantId, date]);
-    res.json(result.rows);
+    res.json({
+      success: true,
+      data: { timeBlocks: result.rows }
+    });
   } catch (error) {
     logger.error('Error fetching time blocks for date:', error);
     res.status(500).json({ error: 'Failed to fetch time blocks' });

@@ -18,15 +18,18 @@ const projectRoot = path.resolve(__dirname, '../..');
 
 const audit = createAuditResult('Assets', process.env.AUDIT_SILENT === 'true');
 
-// Required favicon sizes and formats
+// Modern favicon requirements (SVG + PNG sizes)
 const REQUIRED_FAVICONS = [
-  { name: 'favicon.ico', size: '16x16,32x32', format: 'ico' },
-  { name: 'favicon-16x16.png', size: '16x16', format: 'png' },
-  { name: 'favicon-32x32.png', size: '32x32', format: 'png' },
-  { name: 'apple-touch-icon.png', size: '180x180', format: 'png' },
-  { name: 'android-chrome-192x192.png', size: '192x192', format: 'png' },
-  { name: 'android-chrome-512x512.png', size: '512x512', format: 'png' }
+  { name: 'favicon.svg', size: 'vector', format: 'svg', priority: 'high' },
+  { name: 'favicon-16x16.png', size: '16x16', format: 'png', priority: 'high' },
+  { name: 'favicon-32x32.png', size: '32x32', format: 'png', priority: 'high' },
+  { name: 'apple-touch-icon.png', size: '180x180', format: 'png', priority: 'medium' },
+  { name: 'android-chrome-192x192.png', size: '192x192', format: 'png', priority: 'medium' },
+  { name: 'android-chrome-512x512.png', size: '512x512', format: 'png', priority: 'medium' }
 ];
+
+// Legacy favicon (optional for ancient browsers)
+const LEGACY_FAVICON = { name: 'favicon.ico', size: '16x16,32x32', format: 'ico', priority: 'low' };
 
 // Image optimization thresholds
 const IMAGE_THRESHOLDS = {
@@ -61,13 +64,17 @@ function checkFavicons() {
   
   let foundFavicons = 0;
   let totalRequired = REQUIRED_FAVICONS.length;
+  let highPriorityFound = 0;
+  let highPriorityRequired = REQUIRED_FAVICONS.filter(f => f.priority === 'high').length;
 
-  // Check frontend public directory
+  // Check frontend public directory for modern favicons
   if (fs.existsSync(publicDir)) {
     for (const favicon of REQUIRED_FAVICONS) {
       const faviconPath = path.join(publicDir, favicon.name);
       if (fs.existsSync(faviconPath)) {
         foundFavicons++;
+        if (favicon.priority === 'high') highPriorityFound++;
+        
         audit.pass(`Favicon found: ${favicon.name} (${favicon.size})`);
         
         // Check file size
@@ -79,21 +86,51 @@ function checkFavicons() {
           audit.warn(`Favicon size large: ${favicon.name} (${sizeKB}KB)`, faviconPath);
         }
       } else {
-        audit.warn(`Missing favicon: ${favicon.name}`, publicDir);
+        if (favicon.priority === 'high') {
+          audit.warn(`Missing high-priority favicon: ${favicon.name}`, publicDir);
+        } else {
+          audit.info(`Missing optional favicon: ${favicon.name}`, publicDir);
+        }
       }
     }
   }
 
-  // Check backend public directories
+  // Check for legacy favicon (optional)
+  if (fs.existsSync(publicDir)) {
+    const legacyPath = path.join(publicDir, LEGACY_FAVICON.name);
+    if (fs.existsSync(legacyPath)) {
+      const stats = fs.statSync(legacyPath);
+      const sizeKB = Math.round(stats.size / 1024);
+      if (sizeKB < 100) {
+        audit.pass(`Legacy favicon found: ${LEGACY_FAVICON.name} (${sizeKB}KB)`);
+      } else {
+        audit.warn(`Legacy favicon large: ${LEGACY_FAVICON.name} (${sizeKB}KB)`, legacyPath);
+      }
+    } else {
+      audit.info(`Legacy favicon not found: ${LEGACY_FAVICON.name} (optional for modern browsers)`);
+    }
+  }
+
+  // Check backend public directories for modern favicons
   const backendApps = ['main', 'admin', 'tenant'];
   for (const app of backendApps) {
     const appPublicDir = path.join(backendPublicDir, app);
     if (fs.existsSync(appPublicDir)) {
-      const faviconPath = path.join(appPublicDir, 'favicon.ico');
-      if (fs.existsSync(faviconPath)) {
-        audit.pass(`Backend favicon found: ${app}/favicon.ico`);
+      // Check for SVG favicon (modern)
+      const svgPath = path.join(appPublicDir, 'favicon.svg');
+      if (fs.existsSync(svgPath)) {
+        audit.pass(`Backend SVG favicon found: ${app}/favicon.svg`);
       } else {
-        audit.warn(`Backend favicon missing: ${app}/favicon.ico`, appPublicDir);
+        audit.info(`Backend SVG favicon not found: ${app}/favicon.svg (will use frontend version)`);
+      }
+      
+      // Check for PNG favicons
+      const png16Path = path.join(appPublicDir, 'favicon-16x16.png');
+      const png32Path = path.join(appPublicDir, 'favicon-32x32.png');
+      if (fs.existsSync(png16Path) && fs.existsSync(png32Path)) {
+        audit.pass(`Backend PNG favicons found: ${app}/favicon-*.png`);
+      } else {
+        audit.info(`Backend PNG favicons not found: ${app}/favicon-*.png (will use frontend versions)`);
       }
     }
   }
@@ -101,7 +138,8 @@ function checkFavicons() {
   // Check for favicon in HTML files
   checkFaviconReferences();
 
-  audit.info(`Favicons found: ${foundFavicons}/${totalRequired}`);
+  audit.info(`Modern favicons found: ${foundFavicons}/${totalRequired}`);
+  audit.info(`High-priority favicons: ${highPriorityFound}/${highPriorityRequired}`);
 }
 
 function checkFaviconReferences() {
@@ -116,18 +154,37 @@ function checkFaviconReferences() {
     if (fs.existsSync(htmlFile)) {
       const content = fs.readFileSync(htmlFile, 'utf8');
       
-      if (content.includes('<link rel="icon"')) {
-        audit.pass(`Favicon referenced in HTML: ${path.basename(htmlFile)}`);
+      // Check for modern SVG favicon (highest priority)
+      if (content.includes('<link rel="icon" type="image/svg+xml"')) {
+        audit.pass(`SVG favicon referenced in HTML: ${path.basename(htmlFile)}`);
+      } else if (content.includes('<link rel="icon" href="/favicon.svg"')) {
+        audit.pass(`SVG favicon referenced in HTML: ${path.basename(htmlFile)}`);
       } else {
-        audit.warn(`Favicon not referenced in HTML: ${path.basename(htmlFile)}`, htmlFile);
+        audit.warn(`SVG favicon not referenced in HTML: ${path.basename(htmlFile)}`, htmlFile);
       }
 
+      // Check for PNG favicon references
+      if (content.includes('<link rel="icon" type="image/png"')) {
+        audit.pass(`PNG favicon referenced in HTML: ${path.basename(htmlFile)}`);
+      } else {
+        audit.info(`PNG favicon not referenced in HTML: ${path.basename(htmlFile)} (optional)`);
+      }
+
+      // Check for legacy .ico favicon (optional)
+      if (content.includes('<link rel="icon" type="image/x-icon"')) {
+        audit.pass(`Legacy favicon referenced in HTML: ${path.basename(htmlFile)}`);
+      } else {
+        audit.info(`Legacy favicon not referenced in HTML: ${path.basename(htmlFile)} (optional)`);
+      }
+
+      // Check for Apple touch icon
       if (content.includes('<link rel="apple-touch-icon"')) {
         audit.pass(`Apple touch icon referenced in HTML: ${path.basename(htmlFile)}`);
       } else {
         audit.warn(`Apple touch icon not referenced in HTML: ${path.basename(htmlFile)}`, htmlFile);
       }
 
+      // Check for theme color
       if (content.includes('<meta name="theme-color"')) {
         audit.pass(`Theme color meta tag found: ${path.basename(htmlFile)}`);
       } else {
@@ -259,7 +316,10 @@ function findImageFiles(dir) {
       if (stat.isDirectory()) {
         scanDirectory(filePath);
       } else if (imageExtensions.some(ext => file.toLowerCase().endsWith(ext))) {
-        imageFiles.push(filePath);
+        // Skip .original backup files created by image optimization
+        if (!file.includes('.original.')) {
+          imageFiles.push(filePath);
+        }
       }
     }
   }
