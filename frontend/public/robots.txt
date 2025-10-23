@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://thatsmartsite.com/sitemap.xml
+
+# Disallow admin and tenant dashboards
+Disallow: /admin-dashboard
+Disallow: /tenant-dashboard
+Disallow: /admin/
+Disallow: /tenant/
+
+# Allow main site content
+Allow: /
+Allow: /services/
+Allow: /about
+Allow: /contact
+Allow: /pricing

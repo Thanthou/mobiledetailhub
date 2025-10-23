@@ -53,8 +53,8 @@ const features: Feature[] = [
   },
   {
     icon: Grid3x3,
-    title: 'Industry-Specific Templates',
-    description: 'Professionally designed layouts for each niche.',
+    title: 'Best Practices Layouts',
+    description: 'Professionally designed layouts for your niche.',
     gradient: 'from-red-400 to-rose-500',
     size: 'small'
   },

@@ -2,7 +2,10 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import { asyncHandler } from '../middleware/errorHandler.js';
-import { getPool } from '../database/pool.js';import { createModuleLogger } from '../config/logger.js';
+import { getPool } from '../database/pool.js';
+import { createModuleLogger } from '../config/logger.js';
+import { validateBody } from '../middleware/zodValidation.js';
+import { tenantImagesSchemas } from '../schemas/apiSchemas.js';
 
 /**
  * @fileoverview API routes for tenantImages
@@ -47,7 +50,7 @@ router.get('/images', async (req, res) => {
 });
 
 // Upload new tenant image
-router.post('/upload', (req, res) => {
+router.post('/upload', validateBody(tenantImagesSchemas.upload), (req, res) => {
   try {
     const { tenant, category: _category = 'gallery' } = req.body;
     

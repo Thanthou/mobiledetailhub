@@ -10,12 +10,14 @@ import { withTenantBySlug, getTenantBySlug } from '../middleware/withTenant.js';
 import { env } from '../config/env.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import { createModuleLogger } from '../config/logger.js';
+import { validateBody } from '../middleware/zodValidation.js';
+import { websiteContentSchemas } from '../schemas/apiSchemas.js';
 const router = express.Router();
 const logger = createModuleLogger('routeName');
 
 
 // Save website content for a tenant
-router.put('/:slug', withTenantBySlug, asyncHandler(async (req, res) => {
+router.put('/:slug', withTenantBySlug, validateBody(websiteContentSchemas.update), asyncHandler(async (req, res) => {
   const contentData = req.body;
 
   logger.info('💾 Saving website content for tenant:', req.tenant.slug);

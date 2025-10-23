@@ -10,13 +10,15 @@ import bcrypt from 'bcryptjs'
 import { sendWelcomeEmail } from '../services/emailService.js'
 import { createModuleLogger } from '../config/logger.js'
 import { sendSuccess, sendError, sendValidationError } from '../utils/responseFormatter.js'
+import { validateBody } from '../middleware/zodValidation.js'
+import { paymentSchemas } from '../schemas/apiSchemas.js'
 
 const router = express.Router()
 const logger = createModuleLogger('payments');
 
 
 import { asyncHandler } from '../middleware/errorHandler.js';
-router.post('/create-intent', async (req, res, next) => {
+router.post('/create-intent', validateBody(paymentSchemas.createIntent), async (req, res, next) => {
   try {
     // Debug
     logger.info('=== PAYMENT INTENT DEBUG ===')
@@ -53,7 +55,7 @@ const result = await StripeService.createPaymentIntent({
   }
 })
 
-router.post('/confirm', async (req, res, next) => {
+router.post('/confirm', validateBody(paymentSchemas.confirm), async (req, res, next) => {
   try {
     logger.info('=== PAYMENT CONFIRM DEBUG ===')
     logger.info('Request body:', req.body)

@@ -10,13 +10,15 @@ import { createModuleLogger } from '../config/logger.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import { getDatabaseId } from '../utils/vehicleMapping.js';
 import { sendSuccess, sendError, sendValidationError } from '../utils/responseFormatter.js';
+import { validateBody, validateParams } from '../middleware/zodValidation.js';
+import { serviceSchemas } from '../schemas/apiSchemas.js';
 
 const router = express.Router();
 const logger = createModuleLogger('services');
 
 
 // POST /api/services - Create a new service
-router.post('/', async (req, res) => {
+router.post('/', validateBody(serviceSchemas.create), async (req, res) => {
   try {
     const pool = await getPool();
     const { tenant_id, vehicle_id, service_category_id, base_price_cents, name, description, tiers } = req.body;
@@ -153,7 +155,7 @@ router.post('/', async (req, res) => {
 });
 
 // PUT /api/services/:serviceId - Update a service and its tiers
-router.put('/:serviceId', async (req, res) => {
+router.put('/:serviceId', validateParams(serviceSchemas.deleteParams), validateBody(serviceSchemas.update), async (req, res) => {
   try {
     const { serviceId } = req.params;
     const { tenant_id, vehicle_id, service_category_id, base_price_cents, name, description, tiers } = req.body;
@@ -317,7 +319,7 @@ router.put('/:serviceId', async (req, res) => {
 });
 
 // DELETE /api/services/:serviceId - Delete a service and its tiers
-router.delete('/:serviceId', async (req, res) => {
+router.delete('/:serviceId', validateParams(serviceSchemas.deleteParams), async (req, res) => {
   try {
     const { serviceId } = req.params;
     
@@ -379,7 +381,7 @@ router.delete('/:serviceId', async (req, res) => {
 });
 
 // GET /api/services/tenant/:tenantId/vehicle/:vehicleId/category/:categoryId - Get services with tiers
-router.get('/tenant/:tenantId/vehicle/:vehicleId/category/:categoryId', async (req, res) => {
+router.get('/tenant/:tenantId/vehicle/:vehicleId/category/:categoryId', validateParams(serviceSchemas.getParams), async (req, res) => {
   try {
     const { tenantId, vehicleId, categoryId } = req.params;
     

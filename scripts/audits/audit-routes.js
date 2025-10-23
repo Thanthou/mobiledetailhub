@@ -95,20 +95,41 @@ async function scanRouteFile(audit, filePath) {
     hasIssues = true;
   }
 
-  // Inconsistent responses - WARNING
-  const responsePatterns = [
-    content.match(/res\.json\(\{[^}]*success[^}]*\}/g) || [],
-    content.match(/res\.json\(\{[^}]*data[^}]*\}/g) || [],
-    content.match(/res\.json\(\{[^}]*error[^}]*\}/g) || [],
-  ];
-  const uniqueResponseTypes = responsePatterns.filter(p => p.length > 0).length;
-  if (uniqueResponseTypes > 1) {
-    audit.warn(`${fileName}: Inconsistent response format patterns`, {
+  // Response format consistency - WARNING
+  // Check for standardized pattern: { success: true/false, data/error: ... }
+  const hasSuccessField = /res\.json\(\{[^}]*success:\s*(true|false)/.test(content);
+  const hasDataField = /res\.json\(\{[^}]*data:/.test(content);
+  const hasErrorField = /res\.json\(\{[^}]*error:/.test(content);
+  
+  // Allow pass-through patterns from services (e.g., res.json(result), res.json(data))
+  const hasPassThrough = /res\.json\((result|data|response|output)\)/.test(content);
+  
+  // Check for non-standard inline object patterns (not pass-throughs)
+  const allJsonResponses = content.match(/res\.json\([^)]+\)/g) || [];
+  const inlineResponses = allJsonResponses.filter(r => 
+    r.includes('{') && // Has inline object
+    !r.includes('success:') && // No success field
+    !r.match(/res\.json\((result|data|response|output|tenant|user|stats)\)/) // Not a pass-through
+  );
+  
+  // Standard pattern: { success: true, data } or { success: false, error }
+  const usesStandardPattern = hasSuccessField && (hasDataField || hasErrorField);
+  
+  if (inlineResponses.length > 0 && !usesStandardPattern && !hasPassThrough) {
+    audit.warn(`${fileName}: Non-standard response format`, {
       path: `backend/routes/${fileName}`,
-      details: 'Standardize response JSON structure: { success, data/error }'
+      details: 'Use standardized format: { success: true/false, data/error }'
+    });
+    hasIssues = true;
+  } else if (inlineResponses.length > 0 && usesStandardPattern) {
+    // Mixed standard and non-standard inline responses
+    audit.warn(`${fileName}: Mixed response format patterns`, {
+      path: `backend/routes/${fileName}`,
+      details: 'Some responses missing success field - standardize all inline responses'
     });
     hasIssues = true;
   }
+  // Pass-through responses and fully standardized formats are acceptable
 
   // Documentation - INFO (not critical, just nice to have)
   const hasJSDoc = content.includes("/**") && content.includes("*/");

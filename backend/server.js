@@ -33,6 +33,7 @@ if (process.env.NODE_ENV === 'production') {
 
 import express from 'express'
 import cors from 'cors'
+import helmet from 'helmet'
 import { fileURLToPath } from 'url'
 
 // 🔒 CRITICAL: Validate environment BEFORE starting server
@@ -52,6 +53,9 @@ import {
   createAdminSubdomainMiddleware,
   addTenantContext 
 } from './middleware/subdomainMiddleware.js'
+import { apiLimiter } from './middleware/rateLimiter.js'
+import { csrfProtection } from './middleware/csrfProtection.js'
+import { errorHandler, notFoundHandler } from './middleware/errorHandler.js'
 import paymentRoutes from './routes/payments.js'
 import healthRoutes from './routes/health.js'
 import authRoutes from './routes/auth.js'
@@ -167,6 +171,22 @@ const corsOptions = {
 
 app.use(cors(corsOptions))
 
+// Security headers middleware
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "https:", "blob:"],
+      connectSrc: ["'self'", "https://api.stripe.com"],
+      frameSrc: ["'self'", "https://js.stripe.com"],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+}))
+
 // Request logging middleware (must come before tenant resolution for proper correlation)
 app.use(requestLogger);
 
@@ -190,6 +210,20 @@ app.use(addTenantContext)
 // ✅ Global parsers BEFORE routes
 app.use(express.json({ limit: '1mb' }))
 app.use(express.urlencoded({ extended: true }))
+
+// 🔒 Security middleware
+// Rate limiting for all API routes (configured for development with high limits)
+app.use('/api', apiLimiter)
+
+// CSRF protection for state-changing requests (POST, PUT, DELETE)
+const csrfProtectedMethods = ['POST', 'PUT', 'DELETE', 'PATCH'];
+app.use((req, res, next) => {
+  // Skip CSRF for health checks and GET requests
+  if (req.path.startsWith('/api/health') || !csrfProtectedMethods.includes(req.method)) {
+    return next();
+  }
+  csrfProtection(req, res, next);
+})
 
 // Debug echo route (keep during dev)
 app.post('/api/debug/body', (req, res) => {
@@ -292,7 +326,7 @@ app.use(
   })
 );
 
-// 4️⃣ Serve main-site files (marketing/landing)
+// 4️⃣ Serve main app files (marketing/landing)
 const mainPath = process.env.NODE_ENV === 'production'
   ? path.join(__dirname, 'public', 'main')
   : path.join(__dirname, '../frontend/dist/main');
@@ -317,7 +351,14 @@ app.use(express.static(path.join(__dirname, 'public'), {
   }
 }))
 
-// 6️⃣ Fallback router (3-layer architecture)
+// 🔧 Error handlers MUST come before catch-all routes
+// 404 handler for API routes that don't match
+app.use('/api/*', notFoundHandler);
+
+// Centralized error handler middleware (4 parameters required)
+app.use(errorHandler);
+
+// 6️⃣ Fallback router (3-layer architecture) - serves static HTML for SPAs
 app.get('*', (req, res) => {
   const host = req.hostname.toLowerCase();
   const requestPath = req.path;
@@ -344,18 +385,6 @@ app.get('*', (req, res) => {
     : path.join(__dirname, '../frontend/dist/main/index.html');
   
   res.sendFile(htmlFile);
-})
-
-// Centralized error handler middleware
-app.use((err, req, res, next) => {
-  logger.error({ error: err }, 'Express error handler caught error');
-  if (!res.headersSent) {
-    res.status(500).json({ 
-      success: false, 
-      error: err.message || 'Internal server error',
-      ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
-    });
-  }
 });
 
 // Static port configuration (no dynamic port detection)

@@ -1,14 +1,14 @@
 # Import Boundaries Audit Report
 
-**Generated:** 2025-10-21T21:26:26.989Z
-**Duration:** 90ms
+**Generated:** 2025-10-23T10:28:40.947Z
+**Duration:** 150ms
 **Score:** 100/100
 
 ---
 
 ## Summary
 
-- ✅ **Passed:** 7
+- ✅ **Passed:** 6
 - ⚠️  **Warnings:** 0
 - ❌ **Errors:** 0
 
@@ -24,7 +24,7 @@ No issues found during this audit.
 
 ## Detailed Log
 
-✅ Found 1644 import statements to analyze
+✅ Found 2916 import statements to analyze
 
 ## App Import Boundaries
 
@@ -34,7 +34,6 @@ No issues found during this audit.
 
 ✅ admin-app imports from shared/ (correct)
 ✅ tenant-app imports from shared/ (correct)
-✅ main-site imports from shared/ (correct)
 
 ## Layer Isolation
 
@@ -42,7 +41,7 @@ No issues found during this audit.
 
 ## Import Statistics
 
-✅ Total imports analyzed: 1644
+✅ Total imports analyzed: 2916
 
 ---
 

@@ -91,12 +91,21 @@ function analyzeRouteFiles() {
     const endpointCount = endpointMatches ? endpointMatches.length : 0;
     totalEndpoints += endpointCount;
 
-    // Check for validation middleware
-    if (content.includes('validation') || content.includes('validate') || content.includes('zod')) {
-      endpointsWithValidation++;
-      audit.pass(`Route file has validation: ${file.name}`);
+    // Check if file has routes that need body validation (POST, PUT, PATCH)
+    const hasBodyRoutes = content.match(/router\.(post|put|patch)\(/g);
+    
+    // Only check validation for files with body-accepting routes
+    if (hasBodyRoutes && hasBodyRoutes.length > 0) {
+      // Check for validation middleware
+      if (content.includes('validation') || content.includes('validate') || content.includes('zod')) {
+        endpointsWithValidation++;
+        audit.pass(`Route file has validation: ${file.name}`);
+      } else {
+        audit.warn(`Route file missing validation: ${file.name}`, file.path);
+      }
     } else {
-      audit.warn(`Route file missing validation: ${file.name}`, file.path);
+      // GET-only file, no validation needed
+      audit.pass(`Route file is GET-only (no validation needed): ${file.name}`);
     }
 
     // Check for proper HTTP methods
@@ -277,21 +286,29 @@ function checkRequestValidation() {
     const routeCount = routeMatches ? routeMatches.length : 0;
     totalRoutes += routeCount;
 
-    // Check for validation middleware
-    if (content.includes('validation') || content.includes('validate') || content.includes('zod')) {
-      routesWithValidation += routeCount;
-      audit.pass(`Route file has validation middleware: ${file}`);
-    } else {
-      audit.warn(`Route file missing validation middleware: ${file}`, path.join(routesDir, file));
-    }
-
-    // Check for body parsing
-    if (content.includes('req.body')) {
-      if (content.includes('validation') || content.includes('validate')) {
-        audit.pass(`Body parsing with validation in ${file}`);
+    // Check if file has routes that need body validation (POST, PUT, PATCH)
+    const hasBodyRoutes = content.match(/router\.(post|put|patch)\(/g);
+    
+    if (hasBodyRoutes && hasBodyRoutes.length > 0) {
+      // File has body-accepting routes, check for validation
+      if (content.includes('validation') || content.includes('validate') || content.includes('zod')) {
+        routesWithValidation += routeCount;
+        audit.pass(`Route file has validation middleware: ${file}`);
       } else {
-        audit.warn(`Body parsing without validation in ${file}`, path.join(routesDir, file));
+        audit.warn(`Route file missing validation middleware: ${file}`, path.join(routesDir, file));
       }
+
+      // Check for body parsing
+      if (content.includes('req.body')) {
+        if (content.includes('validation') || content.includes('validate')) {
+          audit.pass(`Body parsing with validation in ${file}`);
+        } else {
+          audit.warn(`Body parsing without validation in ${file}`, path.join(routesDir, file));
+        }
+      }
+    } else {
+      // GET-only file, no validation needed
+      audit.pass(`Route file is GET-only (no validation middleware needed): ${file}`);
     }
   }
 

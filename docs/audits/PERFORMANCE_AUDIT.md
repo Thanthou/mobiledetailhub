@@ -1,32 +1,22 @@
 # Performance Audit Report
 
-**Generated:** 2025-10-21T21:26:33.661Z
-**Duration:** 61ms
-**Score:** 77/100
+**Generated:** 2025-10-23T10:28:50.095Z
+**Duration:** 91ms
+**Score:** 97/100
 
 ---
 
 ## Summary
 
-- ✅ **Passed:** 4
+- ✅ **Passed:** 5
 - ⚠️  **Warnings:** 1
-- ❌ **Errors:** 2
+- ❌ **Errors:** 0
 
 ## Description
 
 Analyzes frontend performance: route loading strategy, bundle sizes, and component complexity.
 
 ## Issues Found
-
-### 🔴 Critical Errors
-
-1. **Large bundle: react-vendor--vAscSmE.js (1122KB)**
-   - Path: `assets\react-vendor--vAscSmE.js`
-   - Details: Use dynamic imports and code splitting to reduce size
-
-2. **Large bundle: tenant-app-LfYPzNrW.js (807KB)**
-   - Path: `tenant-app-LfYPzNrW.js`
-   - Details: Use dynamic imports and code splitting to reduce size
 
 ### 🟡 Warnings
 
@@ -41,20 +31,17 @@ Analyzes frontend performance: route loading strategy, bundle sizes, and compone
 
 ## Route Loading Strategy
 
-✅ Total routes: 2 (0 lazy, 2 eager)
+✅ Total routes: 3 (0 lazy, 3 eager)
 ✅ Route loading strategy is efficient
 
 ## Bundle Sizes
 
-✅ Total bundle size: 3.47MB across 40 files
-❌ **ERROR**: Large bundle: react-vendor--vAscSmE.js (1122KB)
-   - Path: `assets\react-vendor--vAscSmE.js`
-❌ **ERROR**: Large bundle: tenant-app-LfYPzNrW.js (807KB)
-   - Path: `tenant-app-LfYPzNrW.js`
+✅ Total bundle size: 1.29MB across 48 files
+✅ All bundles under 500KB threshold
 
 ## Component Sizes
 
-✅ Total components: 239
+✅ Total components: 418
 ⚠️ **WARNING**: Large component: schemaUtils.ts (549 lines)
    - Path: `shared\utils\schemaUtils.ts`
 

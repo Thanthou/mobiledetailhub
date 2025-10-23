@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "generated": "2025-10-21T22:38:16.678Z",
+    "generated": "2025-10-23T10:28:41.565Z",
     "totalNodes": 86,
-    "totalEdges": 269,
+    "totalEdges": 289,
     "reachableNodes": 81,
     "unreachableNodes": 5
   },
@@ -63,7 +63,7 @@
         }
       ],
       "importCount": 1,
-      "importedByCount": 63
+      "importedByCount": 65
     },
     {
       "id": "config\\logging-environments.js",
@@ -242,7 +242,7 @@
       ],
       "routes": [],
       "importCount": 1,
-      "importedByCount": 34
+      "importedByCount": 35
     },
     {
       "id": "middleware\\auth.js",
@@ -290,7 +290,7 @@
         }
       ],
       "importCount": 1,
-      "importedByCount": 1
+      "importedByCount": 2
     },
     {
       "id": "middleware\\errorHandler.js",
@@ -305,7 +305,7 @@
         }
       ],
       "importCount": 4,
-      "importedByCount": 29
+      "importedByCount": 30
     },
     {
       "id": "middleware\\rateLimiter.js",
@@ -355,7 +355,7 @@
         }
       ],
       "importCount": 1,
-      "importedByCount": 5
+      "importedByCount": 6
     },
     {
       "id": "middleware\\requestLogger.js",
@@ -485,7 +485,7 @@
       "functions": [],
       "routes": [],
       "importCount": 1,
-      "importedByCount": 5
+      "importedByCount": 12
     },
     {
       "id": "routes\\admin.js",
@@ -971,7 +971,7 @@
           ]
         }
       ],
-      "importCount": 2,
+      "importCount": 4,
       "importedByCount": 1
     },
     {
@@ -1001,7 +1001,7 @@
           "handlers": []
         }
       ],
-      "importCount": 4,
+      "importCount": 6,
       "importedByCount": 1
     },
     {
@@ -1288,7 +1288,7 @@
           "handlers": []
         }
       ],
-      "importCount": 5,
+      "importCount": 7,
       "importedByCount": 1
     },
     {
@@ -1357,13 +1357,18 @@
           ]
         }
       ],
-      "importCount": 5,
+      "importCount": 7,
       "importedByCount": 1
     },
     {
       "id": "routes\\schedule.js",
       "reachable": true,
-      "exports": [],
+      "exports": [
+        {
+          "name": "router",
+          "type": "default"
+        }
+      ],
       "functions": [],
       "routes": [
         {
@@ -1558,7 +1563,12 @@
     {
       "id": "routes\\services.js",
       "reachable": true,
-      "exports": [],
+      "exports": [
+        {
+          "name": "router",
+          "type": "default"
+        }
+      ],
       "functions": [],
       "routes": [
         {
@@ -1582,7 +1592,7 @@
           "handlers": []
         }
       ],
-      "importCount": 5,
+      "importCount": 7,
       "importedByCount": 1
     },
     {
@@ -1677,7 +1687,7 @@
           "handlers": []
         }
       ],
-      "importCount": 3,
+      "importCount": 5,
       "importedByCount": 1
     },
     {
@@ -1829,7 +1839,7 @@
           "handlers": []
         }
       ],
-      "importCount": 5,
+      "importCount": 7,
       "importedByCount": 1
     },
     {
@@ -1839,7 +1849,7 @@
       "functions": [],
       "routes": [],
       "importCount": 0,
-      "importedByCount": 5
+      "importedByCount": 12
     },
     {
       "id": "scripts\\cleanup-tokens.js",
@@ -1869,6 +1879,13 @@
           "method": "all",
           "path": "*",
           "handlers": []
+        },
+        {
+          "method": "use",
+          "path": "/api",
+          "handlers": [
+            "apiLimiter"
+          ]
         },
         {
           "method": "post",
@@ -2109,12 +2126,19 @@
           "handlers": []
         },
         {
+          "method": "use",
+          "path": "/api/*",
+          "handlers": [
+            "notFoundHandler"
+          ]
+        },
+        {
           "method": "get",
           "path": "*",
           "handlers": []
         }
       ],
-      "importCount": 36,
+      "importCount": 39,
       "importedByCount": 0
     },
     {
@@ -2267,10 +2291,15 @@
     {
       "id": "services\\googleBusinessScraper.js",
       "reachable": true,
-      "exports": [],
+      "exports": [
+        {
+          "name": "scraper",
+          "type": "default"
+        }
+      ],
       "functions": [],
       "routes": [],
-      "importCount": 0,
+      "importCount": 1,
       "importedByCount": 1
     },
     {
@@ -2607,7 +2636,7 @@
         "getTenantsForCity"
       ],
       "routes": [],
-      "importCount": 0,
+      "importCount": 2,
       "importedByCount": 1
     },
     {
@@ -3615,7 +3644,7 @@
       "to": "database\\pool.js",
       "specifiers": [
         {
-          "name": "pool",
+          "name": "getPool",
           "type": "named"
         }
       ]
@@ -3691,6 +3720,30 @@
       ]
     },
     {
+      "from": "routes\\domains.js",
+      "to": "middleware\\zodValidation.js",
+      "specifiers": [
+        {
+          "name": "validateBody",
+          "type": "named"
+        },
+        {
+          "name": "validateParams",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\domains.js",
+      "to": "schemas\\apiSchemas.js",
+      "specifiers": [
+        {
+          "name": "domainSchemas",
+          "type": "named"
+        }
+      ]
+    },
+    {
       "from": "routes\\errorTracking.js",
       "to": "services\\unifiedErrorService.js",
       "specifiers": [
@@ -3726,6 +3779,26 @@
       "specifiers": [
         {
           "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\errorTracking.js",
+      "to": "middleware\\zodValidation.js",
+      "specifiers": [
+        {
+          "name": "validateBody",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\errorTracking.js",
+      "to": "schemas\\apiSchemas.js",
+      "specifiers": [
+        {
+          "name": "errorTrackingSchemas",
           "type": "named"
         }
       ]
@@ -4122,6 +4195,26 @@
     },
     {
       "from": "routes\\payments.js",
+      "to": "middleware\\zodValidation.js",
+      "specifiers": [
+        {
+          "name": "validateBody",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\payments.js",
+      "to": "schemas\\apiSchemas.js",
+      "specifiers": [
+        {
+          "name": "paymentSchemas",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\payments.js",
       "to": "middleware\\errorHandler.js",
       "specifiers": [
         {
@@ -4208,6 +4301,30 @@
         },
         {
           "name": "sendValidationError",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\reviews.js",
+      "to": "middleware\\zodValidation.js",
+      "specifiers": [
+        {
+          "name": "validateBody",
+          "type": "named"
+        },
+        {
+          "name": "validateQuery",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\reviews.js",
+      "to": "schemas\\apiSchemas.js",
+      "specifiers": [
+        {
+          "name": "reviewSchemas",
           "type": "named"
         }
       ]
@@ -4425,6 +4542,30 @@
       ]
     },
     {
+      "from": "routes\\services.js",
+      "to": "middleware\\zodValidation.js",
+      "specifiers": [
+        {
+          "name": "validateBody",
+          "type": "named"
+        },
+        {
+          "name": "validateParams",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\services.js",
+      "to": "schemas\\apiSchemas.js",
+      "specifiers": [
+        {
+          "name": "serviceSchemas",
+          "type": "named"
+        }
+      ]
+    },
+    {
       "from": "routes\\subdomainTest.js",
       "to": "config\\logger.js",
       "specifiers": [
@@ -4566,6 +4707,26 @@
       "specifiers": [
         {
           "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\tenantImages.js",
+      "to": "middleware\\zodValidation.js",
+      "specifiers": [
+        {
+          "name": "validateBody",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\tenantImages.js",
+      "to": "schemas\\apiSchemas.js",
+      "specifiers": [
+        {
+          "name": "tenantImagesSchemas",
           "type": "named"
         }
       ]
@@ -4809,6 +4970,26 @@
       ]
     },
     {
+      "from": "routes\\websiteContent.js",
+      "to": "middleware\\zodValidation.js",
+      "specifiers": [
+        {
+          "name": "validateBody",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\websiteContent.js",
+      "to": "schemas\\apiSchemas.js",
+      "specifiers": [
+        {
+          "name": "websiteContentSchemas",
+          "type": "named"
+        }
+      ]
+    },
+    {
       "from": "scripts\\cleanup-tokens.js",
       "to": "services\\refreshTokenService.js",
       "specifiers": [
@@ -4886,6 +5067,40 @@
         },
         {
           "name": "addTenantContext",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "middleware\\rateLimiter.js",
+      "specifiers": [
+        {
+          "name": "apiLimiter",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "middleware\\csrfProtection.js",
+      "specifiers": [
+        {
+          "name": "csrfProtection",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "server.js",
+      "to": "middleware\\errorHandler.js",
+      "specifiers": [
+        {
+          "name": "errorHandler",
+          "type": "named"
+        },
+        {
+          "name": "notFoundHandler",
           "type": "named"
         }
       ]
@@ -5365,6 +5580,16 @@
       ]
     },
     {
+      "from": "services\\googleBusinessScraper.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
       "from": "services\\healthMonitor.js",
       "to": "config\\logger.js",
       "specifiers": [
@@ -5632,6 +5857,26 @@
     },
     {
       "from": "utils\\previewToken.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "utils\\serviceAreaProcessor.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "utils\\serviceAreaProcessor.js",
       "to": "config\\logger.js",
       "specifiers": [
         {

@@ -9,6 +9,8 @@ import { unifiedErrorService } from '../services/unifiedErrorService.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import { createModuleLogger } from '../config/logger.js';
 import { getPool } from '../database/pool.js';
+import { validateBody } from '../middleware/zodValidation.js';
+import { errorTrackingSchemas } from '../schemas/apiSchemas.js';
 
 const router = express.Router();
 const logger = createModuleLogger('errorTrackingRoutes');
@@ -17,7 +19,7 @@ const logger = createModuleLogger('errorTrackingRoutes');
  * POST /api/errors/track
  * Receive frontend error reports
  */
-router.post('/track', asyncHandler(async (req, res) => {
+router.post('/track', validateBody(errorTrackingSchemas.track), asyncHandler(async (req, res) => {
   try {
     const { errors, sessionId, timestamp } = req.body;
 

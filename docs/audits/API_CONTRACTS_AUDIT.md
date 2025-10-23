@@ -1,15 +1,15 @@
 # API Contracts Audit Report
 
-**Generated:** 2025-10-21T21:26:27.669Z
-**Duration:** 13ms
-**Score:** 0/100
+**Generated:** 2025-10-23T10:28:41.793Z
+**Duration:** 12ms
+**Score:** 94/100
 
 ---
 
 ## Summary
 
-- ✅ **Passed:** 151
-- ⚠️  **Warnings:** 40
+- ✅ **Passed:** 189
+- ⚠️  **Warnings:** 2
 - ❌ **Errors:** 0
 
 ## Description
@@ -20,85 +20,9 @@ Validates consistent request/response shapes across API endpoints
 
 ### 🟡 Warnings
 
-1. **Route file missing validation: config.js**
+1. **Controller missing validation: tenantDashboardController.js**
 
-2. **Route file missing validation: domains.js**
-
-3. **Route file missing validation: errorTracking.js**
-
-4. **Route file missing validation: gallery.js**
-
-5. **Route file missing validation: googleAnalytics.js**
-
-6. **Route file missing validation: googleAuth.js**
-
-7. **Route file missing validation: googleReviews.js**
-
-8. **Route file missing validation: health.js**
-
-9. **Route file missing validation: payments.js**
-
-10. **Route file missing validation: reviews.js**
-
-11. **Route file missing validation: seo.js**
-
-12. **Route file missing validation: services.js**
-
-13. **Route file missing validation: subdomainTest.js**
-
-14. **Route file missing validation: tenantImages.js**
-
-15. **Route file missing validation: tenantManifest.js**
-
-16. **Route file missing validation: websiteContent.js**
-
-17. **Controller missing validation: tenantDashboardController.js**
-
-18. **Route file missing validation middleware: config.js**
-
-19. **Route file missing validation middleware: domains.js**
-
-20. **Route file missing validation middleware: errorTracking.js**
-
-21. **Body parsing without validation in errorTracking.js**
-
-22. **Route file missing validation middleware: gallery.js**
-
-23. **Route file missing validation middleware: googleAnalytics.js**
-
-24. **Route file missing validation middleware: googleAuth.js**
-
-25. **Route file missing validation middleware: googleReviews.js**
-
-26. **Route file missing validation middleware: health.js**
-
-27. **Route file missing validation middleware: payments.js**
-
-28. **Body parsing without validation in payments.js**
-
-29. **Route file missing validation middleware: reviews.js**
-
-30. **Body parsing without validation in reviews.js**
-
-31. **Route file missing validation middleware: seo.js**
-
-32. **Route file missing validation middleware: services.js**
-
-33. **Body parsing without validation in services.js**
-
-34. **Route file missing validation middleware: subdomainTest.js**
-
-35. **Route file missing validation middleware: tenantImages.js**
-
-36. **Body parsing without validation in tenantImages.js**
-
-37. **Route file missing validation middleware: tenantManifest.js**
-
-38. **Route file missing validation middleware: websiteContent.js**
-
-39. **Body parsing without validation in websiteContent.js**
-
-40. **No API documentation found**
+2. **No API documentation found**
    - Path: `docs/`
 
 ---
@@ -123,27 +47,27 @@ Found 10 POST endpoints in auth.js
 Found 1 GET endpoints in avatar.js
 Found 2 POST endpoints in avatar.js
 Found 1 DELETE endpoints in avatar.js
-⚠️ **WARNING**: Route file missing validation: config.js
+✅ Route file is GET-only (no validation needed): config.js
 Found 2 GET endpoints in config.js
-✅ Route file has validation: customers.js
+✅ Route file is GET-only (no validation needed): customers.js
 Found 2 GET endpoints in customers.js
-⚠️ **WARNING**: Route file missing validation: domains.js
+✅ Route file has validation: domains.js
 Found 3 GET endpoints in domains.js
 Found 1 POST endpoints in domains.js
 Found 1 PUT endpoints in domains.js
 Found 1 DELETE endpoints in domains.js
-⚠️ **WARNING**: Route file missing validation: errorTracking.js
+✅ Route file has validation: errorTracking.js
 Found 2 GET endpoints in errorTracking.js
 Found 1 POST endpoints in errorTracking.js
-⚠️ **WARNING**: Route file missing validation: gallery.js
+✅ Route file is GET-only (no validation needed): gallery.js
 Found 1 GET endpoints in gallery.js
-⚠️ **WARNING**: Route file missing validation: googleAnalytics.js
+✅ Route file is GET-only (no validation needed): googleAnalytics.js
 Found 6 GET endpoints in googleAnalytics.js
-⚠️ **WARNING**: Route file missing validation: googleAuth.js
+✅ Route file is GET-only (no validation needed): googleAuth.js
 Found 3 GET endpoints in googleAuth.js
-⚠️ **WARNING**: Route file missing validation: googleReviews.js
+✅ Route file is GET-only (no validation needed): googleReviews.js
 Found 2 GET endpoints in googleReviews.js
-⚠️ **WARNING**: Route file missing validation: health.js
+✅ Route file is GET-only (no validation needed): health.js
 Found 5 GET endpoints in health.js
 ✅ Route file has validation: healthMonitoring.js
 Found 6 GET endpoints in healthMonitoring.js
@@ -153,12 +77,12 @@ Found 1 GET endpoints in locations.js
 Found 1 POST endpoints in locations.js
 Found 1 PUT endpoints in locations.js
 Found 1 DELETE endpoints in locations.js
-⚠️ **WARNING**: Route file missing validation: payments.js
+✅ Route file has validation: payments.js
 Found 2 POST endpoints in payments.js
 ✅ Route file has validation: previews.js
 Found 1 GET endpoints in previews.js
 Found 1 POST endpoints in previews.js
-⚠️ **WARNING**: Route file missing validation: reviews.js
+✅ Route file has validation: reviews.js
 Found 2 GET endpoints in reviews.js
 Found 1 POST endpoints in reviews.js
 Found 1 PUT endpoints in reviews.js
@@ -169,23 +93,23 @@ Found 5 POST endpoints in schedule.js
 Found 3 PUT endpoints in schedule.js
 Found 1 PATCH endpoints in schedule.js
 Found 3 DELETE endpoints in schedule.js
-⚠️ **WARNING**: Route file missing validation: seo.js
+✅ Route file is GET-only (no validation needed): seo.js
 Found 2 GET endpoints in seo.js
-✅ Route file has validation: serviceAreas.js
+✅ Route file is GET-only (no validation needed): serviceAreas.js
 Found 5 GET endpoints in serviceAreas.js
-⚠️ **WARNING**: Route file missing validation: services.js
+✅ Route file has validation: services.js
 Found 1 GET endpoints in services.js
 Found 1 POST endpoints in services.js
 Found 1 PUT endpoints in services.js
 Found 1 DELETE endpoints in services.js
-⚠️ **WARNING**: Route file missing validation: subdomainTest.js
+✅ Route file is GET-only (no validation needed): subdomainTest.js
 Found 3 GET endpoints in subdomainTest.js
-✅ Route file has validation: tenantDashboard.js
+✅ Route file is GET-only (no validation needed): tenantDashboard.js
 Found 5 GET endpoints in tenantDashboard.js
-⚠️ **WARNING**: Route file missing validation: tenantImages.js
+✅ Route file has validation: tenantImages.js
 Found 1 GET endpoints in tenantImages.js
 Found 1 POST endpoints in tenantImages.js
-⚠️ **WARNING**: Route file missing validation: tenantManifest.js
+✅ Route file is GET-only (no validation needed): tenantManifest.js
 Found 1 GET endpoints in tenantManifest.js
 ✅ Route file has validation: tenantReviews.js
 Found 3 GET endpoints in tenantReviews.js
@@ -195,11 +119,11 @@ Found 1 DELETE endpoints in tenantReviews.js
 Found 3 GET endpoints in tenants.js
 Found 1 POST endpoints in tenants.js
 Found 1 PUT endpoints in tenants.js
-⚠️ **WARNING**: Route file missing validation: websiteContent.js
+✅ Route file has validation: websiteContent.js
 Found 2 GET endpoints in websiteContent.js
 Found 1 PUT endpoints in websiteContent.js
 Total endpoints across all routes: 141
-Routes with validation: 13/29
+Routes with validation: 17/29
 
 ## Controller Patterns
 
@@ -315,42 +239,42 @@ Controllers with proper error handling: 6/6
 ✅ Body parsing with validation in auth.js
 ✅ Route file has validation middleware: avatar.js
 ✅ Body parsing with validation in avatar.js
-⚠️ **WARNING**: Route file missing validation middleware: config.js
-✅ Route file has validation middleware: customers.js
-⚠️ **WARNING**: Route file missing validation middleware: domains.js
-⚠️ **WARNING**: Route file missing validation middleware: errorTracking.js
-⚠️ **WARNING**: Body parsing without validation in errorTracking.js
-⚠️ **WARNING**: Route file missing validation middleware: gallery.js
-⚠️ **WARNING**: Route file missing validation middleware: googleAnalytics.js
-⚠️ **WARNING**: Route file missing validation middleware: googleAuth.js
-⚠️ **WARNING**: Route file missing validation middleware: googleReviews.js
-⚠️ **WARNING**: Route file missing validation middleware: health.js
+✅ Route file is GET-only (no validation middleware needed): config.js
+✅ Route file is GET-only (no validation middleware needed): customers.js
+✅ Route file has validation middleware: domains.js
+✅ Route file has validation middleware: errorTracking.js
+✅ Body parsing with validation in errorTracking.js
+✅ Route file is GET-only (no validation middleware needed): gallery.js
+✅ Route file is GET-only (no validation middleware needed): googleAnalytics.js
+✅ Route file is GET-only (no validation middleware needed): googleAuth.js
+✅ Route file is GET-only (no validation middleware needed): googleReviews.js
+✅ Route file is GET-only (no validation middleware needed): health.js
 ✅ Route file has validation middleware: healthMonitoring.js
 ✅ Route file has validation middleware: locations.js
 ✅ Body parsing with validation in locations.js
-⚠️ **WARNING**: Route file missing validation middleware: payments.js
-⚠️ **WARNING**: Body parsing without validation in payments.js
+✅ Route file has validation middleware: payments.js
+✅ Body parsing with validation in payments.js
 ✅ Route file has validation middleware: previews.js
 ✅ Body parsing with validation in previews.js
-⚠️ **WARNING**: Route file missing validation middleware: reviews.js
-⚠️ **WARNING**: Body parsing without validation in reviews.js
+✅ Route file has validation middleware: reviews.js
+✅ Body parsing with validation in reviews.js
 ✅ Route file has validation middleware: schedule.js
 ✅ Body parsing with validation in schedule.js
-⚠️ **WARNING**: Route file missing validation middleware: seo.js
-✅ Route file has validation middleware: serviceAreas.js
-⚠️ **WARNING**: Route file missing validation middleware: services.js
-⚠️ **WARNING**: Body parsing without validation in services.js
-⚠️ **WARNING**: Route file missing validation middleware: subdomainTest.js
-✅ Route file has validation middleware: tenantDashboard.js
-⚠️ **WARNING**: Route file missing validation middleware: tenantImages.js
-⚠️ **WARNING**: Body parsing without validation in tenantImages.js
-⚠️ **WARNING**: Route file missing validation middleware: tenantManifest.js
+✅ Route file is GET-only (no validation middleware needed): seo.js
+✅ Route file is GET-only (no validation middleware needed): serviceAreas.js
+✅ Route file has validation middleware: services.js
+✅ Body parsing with validation in services.js
+✅ Route file is GET-only (no validation middleware needed): subdomainTest.js
+✅ Route file is GET-only (no validation middleware needed): tenantDashboard.js
+✅ Route file has validation middleware: tenantImages.js
+✅ Body parsing with validation in tenantImages.js
+✅ Route file is GET-only (no validation middleware needed): tenantManifest.js
 ✅ Route file has validation middleware: tenantReviews.js
 ✅ Body parsing with validation in tenantReviews.js
 ✅ Route file has validation middleware: tenants.js
-⚠️ **WARNING**: Route file missing validation middleware: websiteContent.js
-⚠️ **WARNING**: Body parsing without validation in websiteContent.js
-Routes with validation: 91/141
+✅ Route file has validation middleware: websiteContent.js
+✅ Body parsing with validation in websiteContent.js
+Routes with validation: 104/141
 
 ## API Documentation
 
@@ -390,7 +314,7 @@ Route files with documentation: 29/29
 ## Summary
 
 Total API contract checks: 191
-Score: 79/100
+Score: 99/100
 
 ---
 

@@ -14,6 +14,8 @@
 import express from 'express';
 import * as domainController from '../controllers/domainController.js';
 import { createModuleLogger } from '../config/logger.js';
+import { validateBody, validateParams } from '../middleware/zodValidation.js';
+import { domainSchemas } from '../schemas/apiSchemas.js';
 
 const logger = createModuleLogger('domainRoutes');
 const router = express.Router();
@@ -59,7 +61,7 @@ router.get('/:domain/available', domainController.checkDomainAvailability);
  * Body: { "customDomain": "mycustomdomain.com" }
  * Response: { success: true, data: { id, slug, custom_domain, domain_verified, ... } }
  */
-router.put('/:tenantId', domainController.setCustomDomain);
+router.put('/:tenantId', validateParams(domainSchemas.tenantIdParam), validateBody(domainSchemas.setDomain), domainController.setCustomDomain);
 
 /**
  * DELETE /api/domains/:tenantId
@@ -89,7 +91,7 @@ router.get('/:tenantId/status', domainController.getDomainStatus);
  * POST /api/domains/123/verify
  * Response: { success: true, data: { id, custom_domain, domain_verified: true, message: "..." } }
  */
-router.post('/:tenantId/verify', domainController.verifyDomain);
+router.post('/:tenantId/verify', validateParams(domainSchemas.tenantIdParam), domainController.verifyDomain);
 
 // Error handling middleware for domain routes
 router.use((error, req, res, next) => {

@@ -90,7 +90,7 @@ export function PreviewDataProvider({ children }: PreviewDataProviderProps) {
           }
           case 'maid-service': {
             const { loadMaidServiceConfig } = await import('@data/maid-service');
-            config = await loadMaidServiceConfig();
+            config = loadMaidServiceConfig();
             break;
           }
           case 'lawncare': {
@@ -116,6 +116,8 @@ export function PreviewDataProvider({ children }: PreviewDataProviderProps) {
             return;
         }
         
+        console.log('Loaded preview config for', industry, ':', config);
+        console.log('Hero images:', config?.hero?.Images || config?.hero?.images);
         setPreviewConfig(config);
         
         // Load preview-specific mock data (business, reviews, FAQs)

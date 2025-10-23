@@ -16,7 +16,7 @@ export default function Header({ onGetStarted, activeSection, scrollContainerRef
 
   const navItems = [
     { id: 'top', label: 'Home' },
-    { id: 'advantage', label: 'Value' },
+    { id: 'advantage', label: 'Features' },
     { id: 'preview', label: 'Preview' },
     { id: 'pricing', label: 'Pricing' },
     { id: 'contact', label: 'Contact' },

@@ -2,7 +2,7 @@
  * Shared Public Directory Configuration for Vite Multi-App Monorepo
  * 
  * This module provides a reusable configuration for sharing the frontend/public
- * folder across all three Vite apps (main-site, admin-app, tenant-app).
+ * folder across all three Vite apps (main, admin-app, tenant-app).
  * 
  * Problem Solved:
  * - Prevents asset duplication
@@ -21,7 +21,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 /**
  * Shared public directory configuration
  * 
- * Points to frontend/apps/public/ (sibling to main-site, admin-app, tenant-app)
+ * Points to frontend/public/ (standard Vite convention)
  * Configured to prevent file watcher loops
  */
 export const sharedPublicConfig = {
@@ -29,7 +29,7 @@ export const sharedPublicConfig = {
    * Public directory - shared across all apps
    * Contains favicon.ico and industry-specific assets (mobile-detailing/, maid-service/, etc.)
    */
-  publicDir: path.resolve(__dirname, 'apps/public'),
+  publicDir: path.resolve(__dirname, 'public'),
   
   /**
    * Server configuration for shared public
@@ -39,8 +39,8 @@ export const sharedPublicConfig = {
       // Allow Vite to serve files from the shared public directory
       strict: false,
       allow: [
-        path.resolve(__dirname, 'apps/public'),
-        path.resolve(__dirname, 'apps/main-site'),
+        path.resolve(__dirname, 'public'),
+        path.resolve(__dirname, 'apps/main'),
         path.resolve(__dirname, 'apps/admin-app'),
         path.resolve(__dirname, 'apps/tenant-app'),
         path.resolve(__dirname, 'src'),
@@ -52,7 +52,7 @@ export const sharedPublicConfig = {
       // CRITICAL: Prevent infinite reload loops
       // Don't watch the shared public folder - static assets don't need HMR
       ignored: [
-        '**/apps/public/**',      // Shared public folder (NO HMR needed)
+        '**/public/**',           // Shared public folder (NO HMR needed)
         '**/.port-registry.json', // Port registry updates
         '**/node_modules/**',     // Dependencies
         '**/.vite/**',            // Vite cache

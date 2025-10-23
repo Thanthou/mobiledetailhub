@@ -1,6 +1,6 @@
 # 📊 Frontend Flow Audit - admin-app
 
-**Generated:** 10/21/2025, 3:45:45 PM
+**Generated:** 10/23/2025, 3:27:24 AM
 
 ## 🔴 Score: 0/100 (Poor Flow Health)
 
@@ -13,8 +13,8 @@
 | Reachable App Files | 6 |
 | Unreachable App Files | 56 |
 | **Shared Files** | |
-| Total Shared Files | 392 |
-| Reachable Shared Files | 218 |
+| Total Shared Files | 393 |
+| Reachable Shared Files | 219 |
 | Unreachable Shared Files | 139 |
 | **Issues** | |
 | Boundary Violations | 0 |

@@ -336,6 +336,118 @@ const analyticsSchemas = {
 };
 
 /**
+ * Services API Schemas
+ */
+const serviceSchemas = {
+  // POST /api/services - Create a service
+  create: z.object({
+    tenant_id: z.number().int().positive(),
+    vehicle_id: z.union([z.string(), z.number().int().positive()]), // Can be string or number
+    service_category_id: z.number().int().min(1).max(7),
+    name: z.string().min(1).max(255),
+    description: z.string().max(2000).optional(),
+    base_price_cents: z.number().int().min(0).optional(),
+    tiers: z.array(z.object({
+      name: z.string().min(1).max(255),
+      price: z.number().min(0),
+      duration: z.number().int().min(1).optional(),
+      features: z.array(z.string()).optional(),
+      popular: z.boolean().optional(),
+      tierCopies: z.any().optional() // For backwards compatibility
+    })).optional()
+  }),
+  
+  // PUT /api/services/:serviceId - Update a service
+  update: z.object({
+    tenant_id: z.number().int().positive(),
+    vehicle_id: z.union([z.string(), z.number().int().positive()]),
+    service_category_id: z.number().int().min(1).max(7),
+    name: z.string().min(1).max(255),
+    description: z.string().max(2000).optional(),
+    base_price_cents: z.number().int().min(0).optional(),
+    tiers: z.array(z.object({
+      name: z.string().min(1).max(255),
+      price: z.number().min(0),
+      duration: z.number().int().min(1).optional(),
+      features: z.array(z.string()).optional(),
+      popular: z.boolean().optional(),
+      tierCopies: z.any().optional()
+    })).optional()
+  }),
+  
+  // DELETE /api/services/:serviceId - Delete a service
+  deleteParams: z.object({
+    serviceId: z.string().regex(/^\d+$/, 'Service ID must be a number')
+  }),
+  
+  // GET /api/services/tenant/:tenantId/vehicle/:vehicleId/category/:categoryId
+  getParams: z.object({
+    tenantId: z.string().regex(/^\d+$/, 'Tenant ID must be a number'),
+    vehicleId: z.union([z.string(), z.string().regex(/^\d+$/, 'Vehicle ID must be a number')]),
+    categoryId: z.string().regex(/^[1-7]$/, 'Category ID must be between 1 and 7')
+  })
+};
+
+/**
+ * Error Tracking API Schemas
+ */
+const errorTrackingSchemas = {
+  // POST /api/errors/track
+  track: z.object({
+    errors: z.array(z.object({
+      message: z.string(),
+      code: z.string().optional(),
+      severity: z.enum(['critical', 'high', 'medium', 'low', 'info']).optional(),
+      category: z.string().optional(),
+      tenantId: z.union([z.string(), z.number()]).optional(),
+      userId: z.union([z.string(), z.number()]).optional(),
+      correlationId: z.string().optional(),
+      sessionId: z.string().optional(),
+      userAgent: z.string().optional(),
+      url: z.string().optional(),
+      stack: z.string().optional(),
+      componentStack: z.string().optional(),
+      metadata: z.record(z.any()).optional()
+    })),
+    sessionId: z.string().optional(),
+    timestamp: z.string().optional()
+  })
+};
+
+/**
+ * Tenant Images API Schemas
+ */
+const tenantImagesSchemas = {
+  // POST /api/tenant-images/upload
+  upload: z.object({
+    tenant: z.string().min(1, 'Tenant is required'),
+    category: z.string().default('gallery').optional()
+  })
+};
+
+/**
+ * Domain Management API Schemas
+ */
+const domainSchemas = {
+  // PUT /api/domains/:tenantId
+  setDomain: z.object({
+    customDomain: z.string().min(3).max(255).regex(
+      /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*\.[a-z]{2,}$/i,
+      'Invalid domain format'
+    )
+  }),
+  
+  // Params validation
+  tenantIdParam: z.object({
+    tenantId: z.string().regex(/^\d+$/, 'Tenant ID must be a number')
+  }),
+  
+  domainParam: z.object({
+    domain: z.string().min(3).max(255)
+  })
+};
+
+/**
  * Admin API Schemas
  */
 const adminSchemas = {
@@ -394,5 +506,9 @@ export {
   reviewSchemas,
   scheduleSchemas,
   analyticsSchemas,
-  adminSchemas
+  adminSchemas,
+  serviceSchemas,
+  errorTrackingSchemas,
+  tenantImagesSchemas,
+  domainSchemas
 };

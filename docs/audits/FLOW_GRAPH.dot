@@ -174,10 +174,14 @@ digraph BackendFlows {
   routes_customers_js -> middleware_errorHandler_js;
   routes_domains_js -> controllers_domainController_js;
   routes_domains_js -> config_logger_js;
+  routes_domains_js -> middleware_zodValidation_js;
+  routes_domains_js -> schemas_apiSchemas_js;
   routes_errorTracking_js -> services_unifiedErrorService_js;
   routes_errorTracking_js -> middleware_errorHandler_js;
   routes_errorTracking_js -> config_logger_js;
   routes_errorTracking_js -> database_pool_js;
+  routes_errorTracking_js -> middleware_zodValidation_js;
+  routes_errorTracking_js -> schemas_apiSchemas_js;
   routes_gallery_js -> config_logger_js;
   routes_googleAnalytics_js -> middleware_errorHandler_js;
   routes_googleAnalytics_js -> config_logger_js;
@@ -213,6 +217,8 @@ digraph BackendFlows {
   routes_payments_js -> services_emailService_js;
   routes_payments_js -> config_logger_js;
   routes_payments_js -> utils_responseFormatter_js;
+  routes_payments_js -> middleware_zodValidation_js;
+  routes_payments_js -> schemas_apiSchemas_js;
   routes_payments_js -> middleware_errorHandler_js;
   routes_previews_js -> utils_previewToken_js;
   routes_previews_js -> config_logger_js;
@@ -221,6 +227,8 @@ digraph BackendFlows {
   routes_reviews_js -> config_logger_js;
   routes_reviews_js -> middleware_errorHandler_js;
   routes_reviews_js -> utils_responseFormatter_js;
+  routes_reviews_js -> middleware_zodValidation_js;
+  routes_reviews_js -> schemas_apiSchemas_js;
   routes_schedule_js -> database_pool_js;
   routes_schedule_js -> config_logger_js;
   routes_schedule_js -> middleware_auth_js;
@@ -241,6 +249,8 @@ digraph BackendFlows {
   routes_services_js -> middleware_errorHandler_js;
   routes_services_js -> utils_vehicleMapping_js;
   routes_services_js -> utils_responseFormatter_js;
+  routes_services_js -> middleware_zodValidation_js;
+  routes_services_js -> schemas_apiSchemas_js;
   routes_subdomainTest_js -> config_logger_js;
   routes_subdomainTest_js -> middleware_errorHandler_js;
   routes_subdomainTest_js -> utils_responseFormatter_js;
@@ -252,6 +262,8 @@ digraph BackendFlows {
   routes_tenantImages_js -> middleware_errorHandler_js;
   routes_tenantImages_js -> database_pool_js;
   routes_tenantImages_js -> config_logger_js;
+  routes_tenantImages_js -> middleware_zodValidation_js;
+  routes_tenantImages_js -> schemas_apiSchemas_js;
   routes_tenantManifest_js -> config_logger_js;
   routes_tenantManifest_js -> database_pool_js;
   routes_tenantManifest_js -> middleware_errorHandler_js;
@@ -273,6 +285,8 @@ digraph BackendFlows {
   routes_websiteContent_js -> config_env_js;
   routes_websiteContent_js -> middleware_errorHandler_js;
   routes_websiteContent_js -> config_logger_js;
+  routes_websiteContent_js -> middleware_zodValidation_js;
+  routes_websiteContent_js -> schemas_apiSchemas_js;
   scripts_cleanup_tokens_js -> services_refreshTokenService_js;
   scripts_cleanup_tokens_js -> config_logger_js;
   server_js -> config_logger_js;
@@ -280,6 +294,9 @@ digraph BackendFlows {
   server_js -> middleware_requestLogger_js;
   server_js -> middleware_tenantResolver_js;
   server_js -> middleware_subdomainMiddleware_js;
+  server_js -> middleware_rateLimiter_js;
+  server_js -> middleware_csrfProtection_js;
+  server_js -> middleware_errorHandler_js;
   server_js -> routes_payments_js;
   server_js -> routes_health_js;
   server_js -> routes_auth_js;
@@ -325,6 +342,7 @@ digraph BackendFlows {
   services_googleAnalytics_js -> config_logger_js;
   services_googleApi_js -> config_env_js;
   services_googleApi_js -> config_logger_js;
+  services_googleBusinessScraper_js -> config_logger_js;
   services_healthMonitor_js -> config_logger_js;
   services_healthMonitor_js -> config_env_js;
   services_passwordResetService_js -> database_pool_js;
@@ -351,6 +369,8 @@ digraph BackendFlows {
   utils_errorMonitor_js -> config_logger_js;
   utils_logger_js -> config_logger_js;
   utils_previewToken_js -> config_logger_js;
+  utils_serviceAreaProcessor_js -> database_pool_js;
+  utils_serviceAreaProcessor_js -> config_logger_js;
   utils_tenantResolution_js -> config_logger_js;
   utils_tokenManager_js -> utils_logger_js;
   utils_tokenManager_js -> config_env_js;

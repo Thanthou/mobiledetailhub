@@ -39,17 +39,17 @@ const frontendDir = path.join(root, 'frontend');
 
 // Parse command-line flags
 const args = process.argv.slice(2);
-const targetApp = args.find(arg => ['main-site', 'tenant-app', 'admin-app'].includes(arg));
+const targetApp = args.find(arg => ['main', 'tenant-app', 'admin-app'].includes(arg));
 const jsonOutput = args.includes('--json');
 const deepScan = args.includes('--deep');
 
 // App configurations (paths relative to frontend/)
 const APPS = {
-  'main-site': {
-    name: 'main-site',
-    entry: 'apps/main-site/src/main.tsx',
-    dir: path.join(frontendDir, 'apps/main-site'),
-    alias: '@/main-site'
+  'main': {
+    name: 'main',
+    entry: 'apps/main/src/main.tsx',
+    dir: path.join(frontendDir, 'apps/main'),
+    alias: '@/main'
   },
   'tenant-app': {
     name: 'tenant-app',
@@ -108,7 +108,7 @@ function discoverFiles(dir, pattern = /\.(tsx?|jsx?)$/, exclude = /node_modules|
  * Determine which app a file belongs to
  */
 function getAppFromPath(relativePath) {
-  if (relativePath.startsWith('apps/main-site/')) return 'apps/main-site';
+  if (relativePath.startsWith('apps/main/')) return 'apps/main';
   if (relativePath.startsWith('apps/tenant-app/')) return 'apps/tenant-app';
   if (relativePath.startsWith('apps/admin-app/')) return 'apps/admin-app';
   if (relativePath.startsWith('src/shared/')) return 'shared';
@@ -382,12 +382,12 @@ function resolveImportApp(importSource) {
   // Alias imports (Vite aliases)
   if (importSource.startsWith('@shared') || importSource.startsWith('@/shared')) return 'shared';
   if (importSource.startsWith('@bootstrap') || importSource.startsWith('@/bootstrap')) return 'bootstrap';
-  if (importSource.startsWith('@/main-site') || importSource.startsWith('@main-site')) return 'apps/main-site';
+  if (importSource.startsWith('@/main') || importSource.startsWith('@main')) return 'apps/main';
   if (importSource.startsWith('@/tenant-app') || importSource.startsWith('@tenant-app')) return 'apps/tenant-app';
   if (importSource.startsWith('@/admin-app') || importSource.startsWith('@admin-app')) return 'apps/admin-app';
   
   // Path-based imports
-  if (importSource.includes('/apps/main-site')) return 'apps/main-site';
+  if (importSource.includes('/apps/main')) return 'apps/main';
   if (importSource.includes('/apps/tenant-app')) return 'apps/tenant-app';
   if (importSource.includes('/apps/admin-app')) return 'apps/admin-app';
   if (importSource.includes('/shared/') || importSource.includes('/src/shared/')) return 'shared';
@@ -465,9 +465,9 @@ function buildGraph(analyses) {
         else if (source.startsWith('@bootstrap')) {
           aliasResolved = source.replace('@bootstrap', 'src/bootstrap');
         }
-        // @/main-site → apps/main-site/src
-        else if (source.startsWith('@/main-site')) {
-          aliasResolved = source.replace('@/main-site', 'apps/main-site/src');
+        // @/main → apps/main/src
+        else if (source.startsWith('@/main')) {
+          aliasResolved = source.replace('@/main', 'apps/main/src');
         }
         // @/tenant-app or @tenant-app → apps/tenant-app/src
         else if (source.startsWith('@/tenant-app') || source.startsWith('@tenant-app')) {

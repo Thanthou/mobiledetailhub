@@ -1,16 +1,16 @@
 {
-  "description": "Default text content for new maid service tenants - placeholder for future implementation",
+  "description": "Default text content for new maid service tenants",
   "hero": {
-    "h1": "",
-    "subTitle": ""
+    "h1": "Sparkling Clean Homes",
+    "subTitle": "Professional cleaning services you can trust"
   },
   "reviews": {
-    "title": "",
-    "subtitle": ""
+    "title": "What Our Clients Say",
+    "subtitle": "Real reviews from satisfied customers"
   },
   "faq": {
-    "title": "",
-    "subtitle": ""
+    "title": "Frequently Asked Questions",
+    "subtitle": "Everything you need to know about our cleaning services"
   }
 }
 

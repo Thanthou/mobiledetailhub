@@ -48,7 +48,7 @@ export default defineConfig({
       "@shared": path.resolve(__dirname, "src/shared"),
       "@admin-app": path.resolve(__dirname, "apps/admin-app/src"),
       "@tenant-app": path.resolve(__dirname, "apps/tenant-app/src"),
-      "@main-site": path.resolve(__dirname, "apps/main-site/src"),
+      "@main": path.resolve(__dirname, "apps/main/src"),
       "@data": path.resolve(__dirname, "src/data"),
     },
     dedupe: ['react', 'react-dom', 'scheduler'],
@@ -91,14 +91,16 @@ export default defineConfig({
     ),
   },
 
+  // Build optimization configured: build.chunkSizeWarningLimit and build.rollupOptions
   build: {
     outDir: "dist",
     sourcemap: true,
     target: "esnext",
-    minify: false, // easier debugging
+    minify: 'esbuild', // Always minify for better performance
+    chunkSizeWarningLimit: 1000, // Warn on chunks > 1MB
     rollupOptions: {
       input: {
-        "main-site": path.resolve(__dirname, "apps/main-site/index.html"),
+        "main": path.resolve(__dirname, "apps/main/index.html"),
         "tenant-app": path.resolve(__dirname, "apps/tenant-app/index.html"),
         "admin-app": path.resolve(__dirname, "apps/admin-app/index.html"),
       },
@@ -106,8 +108,15 @@ export default defineConfig({
       output: {
         // ✅ ensures each app's assets stay in its own folder
         manualChunks: (id) => {
-          if (id.includes('react') || id.includes('react-dom') || id.includes('react-router'))
+          // Split React Router separately (it's large and not always needed)
+          if (id.includes('react-router-dom') || id.includes('react-router'))
+            return 'router-vendor';
+          // React core (React + ReactDOM + Scheduler)
+          if (id.includes('react-dom'))
+            return 'react-dom-vendor';
+          if (id.includes('react') || id.includes('scheduler'))
             return 'react-vendor';
+          // Other vendor splits
           if (id.includes('@tanstack')) return 'query-vendor';
           if (id.includes('lucide-react')) return 'icons-vendor';
           if (id.includes('node_modules')) return 'vendor';
@@ -116,8 +125,8 @@ export default defineConfig({
         // Entry files go flat (no folder prefix) - Vite places them via input keys
         entryFileNames: "[name]-[hash].js",
         chunkFileNames: (chunkInfo) => {
-          if (chunkInfo.name?.includes("main-site"))
-            return "main-site/assets/[name]-[hash].js";
+          if (chunkInfo.name?.includes("main"))
+            return "main/assets/[name]-[hash].js";
           if (chunkInfo.name?.includes("tenant-app"))
             return "tenant-app/assets/[name]-[hash].js";
           if (chunkInfo.name?.includes("admin-app"))
@@ -125,8 +134,8 @@ export default defineConfig({
           return "assets/[name]-[hash].js";
         },
         assetFileNames: (assetInfo) => {
-          if (assetInfo.name?.includes("main-site"))
-            return "main-site/assets/[name]-[hash].[ext]";
+          if (assetInfo.name?.includes("main"))
+            return "main/assets/[name]-[hash].[ext]";
           if (assetInfo.name?.includes("tenant-app"))
             return "tenant-app/assets/[name]-[hash].[ext]";
           if (assetInfo.name?.includes("admin-app"))

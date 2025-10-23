@@ -1,12 +1,11 @@
 {
-  "timestamp": "2025-10-21T22:40:09.984Z",
-  "total": 138,
+  "timestamp": "2025-10-23T09:58:33.728Z",
+  "total": 119,
   "byApp": {
     "MAIN_SITE": [],
     "TENANT_APP": [
       "apps/tenant-app/src/components/booking/components/BookingForm.tsx",
       "apps/tenant-app/src/components/booking/components/steps/StepAddons/Header.tsx",
-      "apps/tenant-app/src/components/booking/components/steps/StepPayment/StepPayment.refactored.tsx",
       "apps/tenant-app/src/components/booking/components/steps/StepService/Header.tsx",
       "apps/tenant-app/src/components/booking/components/steps/StepVehicleSelection/Header.tsx",
       "apps/tenant-app/src/components/booking/hooks/useBookingAsync.ts",
@@ -22,24 +21,6 @@
       "apps/tenant-app/src/components/locations/utils/googleMaps.helpers.ts",
       "apps/tenant-app/src/components/locations/utils/googlePlace.ts",
       "apps/tenant-app/src/components/locations/utils/placesLoader.ts",
-      "apps/tenant-app/src/components/quotes/hooks/useQuoteFormLogic.refactored.ts",
-      "apps/tenant-app/src/components/quotes/quotes/api/quotes.api.ts",
-      "apps/tenant-app/src/components/quotes/quotes/components/ContactSection.tsx",
-      "apps/tenant-app/src/components/quotes/quotes/components/LazyRequestQuoteModal.tsx",
-      "apps/tenant-app/src/components/quotes/quotes/components/QuoteForm.tsx",
-      "apps/tenant-app/src/components/quotes/quotes/components/RequestQuoteModal.tsx",
-      "apps/tenant-app/src/components/quotes/quotes/components/ServicesSection.tsx",
-      "apps/tenant-app/src/components/quotes/quotes/components/SuccessMessage.tsx",
-      "apps/tenant-app/src/components/quotes/quotes/components/VehicleSection.tsx",
-      "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteForm.ts",
-      "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteFormLogic.refactored.ts",
-      "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteFormLogic.ts",
-      "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteFormState.ts",
-      "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteModal.ts",
-      "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteSubmission.ts",
-      "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteTenantData.ts",
-      "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteValidation.ts",
-      "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteVehicleData.ts",
       "apps/tenant-app/src/components/reviews/api/reviewsApi.ts",
       "apps/tenant-app/src/components/reviews/components/GoogleReviewsTest.tsx",
       "apps/tenant-app/src/components/reviews/hooks/useGoogleReviews.ts",
@@ -147,10 +128,9 @@
     ]
   },
   "byCategory": {
-    "components": 86,
-    "refactored": 3,
-    "hooks": 35,
-    "api": 13,
+    "components": 79,
+    "hooks": 27,
+    "api": 12,
     "pages": 1
   },
   "files": [
@@ -161,10 +141,6 @@
     {
       "app": "TENANT_APP",
       "path": "apps/tenant-app/src/components/booking/components/steps/StepAddons/Header.tsx"
-    },
-    {
-      "app": "TENANT_APP",
-      "path": "apps/tenant-app/src/components/booking/components/steps/StepPayment/StepPayment.refactored.tsx"
     },
     {
       "app": "TENANT_APP",
@@ -225,78 +201,6 @@
     {
       "app": "TENANT_APP",
       "path": "apps/tenant-app/src/components/locations/utils/placesLoader.ts"
-    },
-    {
-      "app": "TENANT_APP",
-      "path": "apps/tenant-app/src/components/quotes/hooks/useQuoteFormLogic.refactored.ts"
-    },
-    {
-      "app": "TENANT_APP",
-      "path": "apps/tenant-app/src/components/quotes/quotes/api/quotes.api.ts"
-    },
-    {
-      "app": "TENANT_APP",
-      "path": "apps/tenant-app/src/components/quotes/quotes/components/ContactSection.tsx"
-    },
-    {
-      "app": "TENANT_APP",
-      "path": "apps/tenant-app/src/components/quotes/quotes/components/LazyRequestQuoteModal.tsx"
-    },
-    {
-      "app": "TENANT_APP",
-      "path": "apps/tenant-app/src/components/quotes/quotes/components/QuoteForm.tsx"
-    },
-    {
-      "app": "TENANT_APP",
-      "path": "apps/tenant-app/src/components/quotes/quotes/components/RequestQuoteModal.tsx"
-    },
-    {
-      "app": "TENANT_APP",
-      "path": "apps/tenant-app/src/components/quotes/quotes/components/ServicesSection.tsx"
-    },
-    {
-      "app": "TENANT_APP",
-      "path": "apps/tenant-app/src/components/quotes/quotes/components/SuccessMessage.tsx"
-    },
-    {
-      "app": "TENANT_APP",
-      "path": "apps/tenant-app/src/components/quotes/quotes/components/VehicleSection.tsx"
-    },
-    {
-      "app": "TENANT_APP",
-      "path": "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteForm.ts"
-    },
-    {
-      "app": "TENANT_APP",
-      "path": "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteFormLogic.refactored.ts"
-    },
-    {
-      "app": "TENANT_APP",
-      "path": "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteFormLogic.ts"
-    },
-    {
-      "app": "TENANT_APP",
-      "path": "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteFormState.ts"
-    },
-    {
-      "app": "TENANT_APP",
-      "path": "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteModal.ts"
-    },
-    {
-      "app": "TENANT_APP",
-      "path": "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteSubmission.ts"
-    },
-    {
-      "app": "TENANT_APP",
-      "path": "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteTenantData.ts"
-    },
-    {
-      "app": "TENANT_APP",
-      "path": "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteValidation.ts"
-    },
-    {
-      "app": "TENANT_APP",
-      "path": "apps/tenant-app/src/components/quotes/quotes/hooks/useQuoteVehicleData.ts"
     },
     {
       "app": "TENANT_APP",

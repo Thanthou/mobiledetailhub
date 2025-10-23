@@ -148,25 +148,54 @@ async function testSchemaIsolation(audit, pool) {
   audit.section('Schema Isolation');
   
   try {
-    // Set search path to tenants only (not public)
+    // Verify that cross-schema queries require explicit schema qualification
     await pool.query("SET search_path TO tenants");
     
-    // Try to query website schema tables
-    const res = await pool.query(`
-      SELECT table_name FROM information_schema.tables
-      WHERE table_schema = 'website' LIMIT 1
-    `);
-    
-    if (res.rows.length) {
-      audit.warn(`Tenants schema can access website table: ${res.rows[0].table_name}`, {
-        details: 'Schemas are not fully isolated - cross-schema queries possible'
+    // Test 1: Verify tenants.business table is accessible without schema prefix
+    try {
+      const tenantsTest = await pool.query("SELECT COUNT(*) FROM business LIMIT 1");
+      audit.pass('Tenants schema accessible via search_path');
+    } catch (err) {
+      audit.error('Tenants schema not accessible in search_path', {
+        details: err.message
       });
-    } else {
-      audit.pass('Schema isolation verified (no cross-schema access)');
     }
+    
+    // Test 2: Verify website tables require explicit schema qualification
+    try {
+      // This should fail because website is not in search_path
+      await pool.query("SELECT COUNT(*) FROM content LIMIT 1");
+      audit.warn('Unqualified table name resolved (unexpected)', {
+        details: 'Website tables should require schema.table qualification'
+      });
+    } catch (err) {
+      // This is expected - content table not found without schema prefix
+      if (err.message.includes('relation') && err.message.includes('does not exist')) {
+        audit.pass('Search path isolation verified (website.content requires schema prefix)');
+      } else {
+        audit.debug(`Isolation test error: ${err.message}`);
+      }
+    }
+    
+    // Test 3: Verify explicit cross-schema queries work (by design for multi-tenancy)
+    try {
+      const crossSchemaTest = await pool.query(`
+        SELECT COUNT(*) FROM website.content wc
+        JOIN tenants.business b ON wc.tenant_id = b.id
+        LIMIT 1
+      `);
+      audit.pass('Cross-schema joins work as expected (multi-tenant design)');
+    } catch (err) {
+      audit.warn('Cross-schema queries failed', {
+        details: `Expected to join tenants.business with website.content: ${err.message}`
+      });
+    }
+    
+    audit.debug('Note: Cross-schema visibility via information_schema is normal PostgreSQL behavior');
+    audit.debug('Data isolation is enforced via application-level tenant_id filtering');
+    
   } catch (err) {
-    // This is actually good - it means isolation is working
-    audit.pass('Schema isolation enforced (cross-schema queries blocked)');
+    audit.error(`Schema isolation test failed: ${err.message}`);
   } finally {
     // Reset to public
     try {

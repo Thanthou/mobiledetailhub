@@ -4,6 +4,8 @@ import { authenticateToken } from '../middleware/auth.js';
 import { logger } from '../config/logger.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import { sendSuccess, sendError, sendValidationError } from '../utils/responseFormatter.js';
+import { validateBody, validateQuery } from '../middleware/zodValidation.js';
+import { reviewSchemas } from '../schemas/apiSchemas.js';
 
 const router = express.Router();
 
@@ -12,7 +14,7 @@ const router = express.Router();
  * Get reviews with optional filtering
  * Query params: tenant_slug, limit, offset
  */
-router.get('/', async (req, res) => {
+router.get('/', validateQuery(reviewSchemas.list), async (req, res) => {
   logger.info('Reviews GET route hit with query:', req.query);
   try {
     const pool = await getPool();
@@ -135,7 +137,7 @@ router.get('/:id', async (req, res) => {
  * POST /api/reviews
  * Create a new review
  */
-router.post('/', async (req, res) => {
+router.post('/', validateBody(reviewSchemas.create), async (req, res) => {
   try {
     const pool = await getPool();
     const {

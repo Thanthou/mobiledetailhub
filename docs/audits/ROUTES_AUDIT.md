@@ -1,15 +1,15 @@
 # Backend Routes Audit Report
 
-**Generated:** 2025-10-21T21:26:27.771Z
+**Generated:** 2025-10-23T10:28:41.917Z
 **Duration:** 13ms
-**Score:** 91/100
+**Score:** 85/100
 
 ---
 
 ## Summary
 
-- ✅ **Passed:** 26
-- ⚠️  **Warnings:** 3
+- ✅ **Passed:** 24
+- ⚠️  **Warnings:** 5
 - ❌ **Errors:** 0
 
 ## Description
@@ -20,17 +20,25 @@ Validates Express route files for consistency in imports, logging, error handlin
 
 ### 🟡 Warnings
 
-1. **admin.js: Inconsistent response format patterns**
-   - Path: `backend/routes/admin.js`
-   - Details: Standardize response JSON structure: { success, data/error }
+1. **auth.js: Non-standard response format**
+   - Path: `backend/routes/auth.js`
+   - Details: Use standardized format: { success: true/false, data/error }
 
-2. **avatar.js: Uses legacy pool import (should use getPool)**
-   - Path: `backend/routes/avatar.js`
-   - Details: Use getPool() instead of direct pool import
+2. **customers.js: Non-standard response format**
+   - Path: `backend/routes/customers.js`
+   - Details: Use standardized format: { success: true/false, data/error }
 
-3. **errorTracking.js: Inconsistent response format patterns**
-   - Path: `backend/routes/errorTracking.js`
-   - Details: Standardize response JSON structure: { success, data/error }
+3. **healthMonitoring.js: Non-standard response format**
+   - Path: `backend/routes/healthMonitoring.js`
+   - Details: Use standardized format: { success: true/false, data/error }
+
+4. **schedule.js: Non-standard response format**
+   - Path: `backend/routes/schedule.js`
+   - Details: Use standardized format: { success: true/false, data/error }
+
+5. **tenantImages.js: Non-standard response format**
+   - Path: `backend/routes/tenantImages.js`
+   - Details: Use standardized format: { success: true/false, data/error }
 
 ---
 
@@ -39,34 +47,36 @@ Validates Express route files for consistency in imports, logging, error handlin
 
 ## Route File Scanning
 
-⚠️ **WARNING**: admin.js: Inconsistent response format patterns
-   - Path: `backend/routes/admin.js`
+✅ admin.js: Clean
 ✅ analytics.new.js: Clean
-✅ auth.js: Clean
-⚠️ **WARNING**: avatar.js: Uses legacy pool import (should use getPool)
-   - Path: `backend/routes/avatar.js`
+⚠️ **WARNING**: auth.js: Non-standard response format
+   - Path: `backend/routes/auth.js`
+✅ avatar.js: Clean
 ✅ config.js: Clean
-✅ customers.js: Clean
+⚠️ **WARNING**: customers.js: Non-standard response format
+   - Path: `backend/routes/customers.js`
 ✅ domains.js: Clean
-⚠️ **WARNING**: errorTracking.js: Inconsistent response format patterns
-   - Path: `backend/routes/errorTracking.js`
+✅ errorTracking.js: Clean
 ✅ gallery.js: Clean
 ✅ googleAnalytics.js: Clean
 ✅ googleAuth.js: Clean
 ✅ googleReviews.js: Clean
 ✅ health.js: Clean
-✅ healthMonitoring.js: Clean
+⚠️ **WARNING**: healthMonitoring.js: Non-standard response format
+   - Path: `backend/routes/healthMonitoring.js`
 ✅ locations.js: Clean
 ✅ payments.js: Clean
 ✅ previews.js: Clean
 ✅ reviews.js: Clean
-✅ schedule.js: Clean
+⚠️ **WARNING**: schedule.js: Non-standard response format
+   - Path: `backend/routes/schedule.js`
 ✅ seo.js: Clean
 ✅ serviceAreas.js: Clean
 ✅ services.js: Clean
 ✅ subdomainTest.js: Clean
 ✅ tenantDashboard.js: Clean
-✅ tenantImages.js: Clean
+⚠️ **WARNING**: tenantImages.js: Non-standard response format
+   - Path: `backend/routes/tenantImages.js`
 ✅ tenantManifest.js: Clean
 ✅ tenantReviews.js: Clean
 ✅ tenants.js: Clean

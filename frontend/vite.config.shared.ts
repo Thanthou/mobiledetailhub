@@ -33,9 +33,9 @@ export const sharedConfig: UserConfig = {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
       '@shared': path.resolve(__dirname, 'src/shared'),
-      '@admin': path.resolve(__dirname, 'src/admin-app'),
-      '@tenant': path.resolve(__dirname, 'src/tenant-app'),
-      '@main': path.resolve(__dirname, 'src/main-site'),
+      '@admin': path.resolve(__dirname, 'apps/admin-app/src'),
+      '@tenant': path.resolve(__dirname, 'apps/tenant-app/src'),
+      '@main': path.resolve(__dirname, 'apps/main/src'),
     },
     // ✅ Prevent React duplication across sub-apps
     dedupe: ['react', 'react-dom', 'scheduler'],
@@ -77,8 +77,8 @@ export const sharedConfig: UserConfig = {
   },
 
   build: {
-    // Disable minification for easier debugging
-    minify: false,
+    // Enable minification for production builds (huge size savings)
+    minify: 'esbuild',
     // Optimize for better performance
     target: 'esnext',
     // Always enable source maps for debugging
@@ -92,9 +92,18 @@ export const sharedConfig: UserConfig = {
       output: {
         // Split vendor chunks to isolate dependencies
         manualChunks: (id: string) => {
-          if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+          // Split React Router separately (it's large and not always needed)
+          if (id.includes('react-router-dom') || id.includes('react-router')) {
+            return 'router-vendor';
+          }
+          // React core (React + ReactDOM + Scheduler)
+          if (id.includes('react-dom')) {
+            return 'react-dom-vendor';
+          }
+          if (id.includes('react') || id.includes('scheduler')) {
             return 'react-vendor';
           }
+          // Other vendor splits
           if (id.includes('@tanstack')) return 'query-vendor';
           if (id.includes('lucide-react')) return 'icons-vendor';
           if (id.includes('node_modules')) return 'vendor';

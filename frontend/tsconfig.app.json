@@ -8,7 +8,7 @@
     "baseUrl": "./",
     "paths": {
       "@shared/*": ["src/shared/*"],
-      "@/main-site/*": ["apps/main-site/src/*"],
+      "@/main/*": ["apps/main/src/*"],
       "@/admin-app/*": ["apps/admin-app/src/*"],
       "@/tenant-app/*": ["apps/tenant-app/src/*"],
       "@/data/*": ["src/data/*"]

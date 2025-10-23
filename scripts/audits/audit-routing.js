@@ -115,7 +115,7 @@ function validateAppEntries(audit, routerFiles) {
   const entries = [
     { name: "Admin App", path: "apps/admin-app/src/main.tsx" },
     { name: "Tenant App", path: "apps/tenant-app/src/main.tsx" },
-    { name: "Main Site", path: "apps/main-site/src/main.tsx" },
+    { name: "Main Site", path: "apps/main/src/main.tsx" },
   ];
 
   let totalRouters = 0;

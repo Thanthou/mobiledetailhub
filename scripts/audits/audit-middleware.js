@@ -120,12 +120,12 @@ function checkServerMiddlewareOrder() {
     { name: 'cors', pattern: /app\.use\(.*cors/i },
     { name: 'helmet', pattern: /app\.use\(.*helmet/i },
     { name: 'compression', pattern: /app\.use\(.*compression/i },
-    { name: 'rateLimiter', pattern: /app\.use\(.*rateLimiter/i },
+    { name: 'rateLimiter', pattern: /app\.use\(.*[rR]ateLimiter|app\.use\(.*apiLimiter/i },
     { name: 'requestLogger', pattern: /app\.use\(.*requestLogger/i },
     { name: 'subdomainMiddleware', pattern: /app\.use\(.*subdomainMiddleware/i },
     { name: 'tenantResolver', pattern: /app\.use\(.*tenantResolver/i },
     { name: 'auth', pattern: /app\.use\(.*auth/i },
-    { name: 'csrfProtection', pattern: /app\.use\(.*csrfProtection/i },
+    { name: 'csrfProtection', pattern: /csrfProtection\(req,\s*res,\s*next\)|app\.use\(.*csrfProtection/i },
     { name: 'validation', pattern: /app\.use\(.*validation/i },
     { name: 'errorHandler', pattern: /app\.use\(.*errorHandler|app\.use\(\s*\(err,\s*req,\s*res,\s*next\)/i }
   ];
@@ -194,12 +194,12 @@ function checkErrorHandling() {
 
   const content = fs.readFileSync(errorHandlerFile, 'utf8');
   
-  // Check for proper error handling patterns
+  // Check for proper error handling patterns (support both function and arrow syntax)
   const errorPatterns = [
-    { name: '4-parameter function', pattern: /function.*\(.*err.*req.*res.*next.*\)/ },
+    { name: '4-parameter function', pattern: /(function.*\(.*err.*req.*res.*next.*\)|const.*=.*\(.*err.*,.*req.*,.*res.*,.*next.*\))/ },
     { name: 'Error logging', pattern: /console\.(log|error|warn)|logger\.(log|error|warn)/ },
     { name: 'Status code handling', pattern: /status.*\d{3}/ },
-    { name: 'JSON response', pattern: /res\.json\(/ }
+    { name: 'JSON response', pattern: /res\.json\(|sendError|sendValidationError|sendNotFound/ }
   ];
 
   for (const { name, pattern } of errorPatterns) {
@@ -210,14 +210,16 @@ function checkErrorHandling() {
     }
   }
 
-  // Check if error handler is last middleware
+  // Check if error handler is last middleware (before catch-all routes)
   const serverFile = path.join(projectRoot, 'backend/server.js');
   if (fs.existsSync(serverFile)) {
     const serverContent = fs.readFileSync(serverFile, 'utf8');
-    const errorHandlerIndex = serverContent.indexOf('errorHandler');
-    const routesIndex = serverContent.indexOf('app.use(\'/\'');
+    const errorHandlerIndex = serverContent.indexOf('app.use(errorHandler)');
+    const apiRoutesEndIndex = serverContent.indexOf('// 🔧 Error handlers');
+    const catchAllIndex = serverContent.indexOf('app.get(\'*\'');
     
-    if (errorHandlerIndex > routesIndex) {
+    // Error handler should be after API routes but before catch-all routes
+    if (errorHandlerIndex > apiRoutesEndIndex && errorHandlerIndex < catchAllIndex) {
       audit.pass('Error handler is positioned after routes (correct)');
     } else {
       audit.warn('Error handler should be positioned after routes', { path: 'backend/server.js' });
@@ -235,7 +237,16 @@ function checkSecurityMiddleware() {
   const serverContent = fs.readFileSync(serverFile, 'utf8');
   
   for (const security of SECURITY_MIDDLEWARE) {
-    const pattern = new RegExp(`app\\.use\\(.*${security}`, 'i');
+    // Create more flexible patterns to match different middleware usage styles
+    let pattern;
+    if (security === 'rateLimiter') {
+      pattern = /app\.use\(.*[rR]ateLimiter|app\.use\(.*apiLimiter/i;
+    } else if (security === 'csrfProtection') {
+      pattern = /csrfProtection\(req,\s*res,\s*next\)|app\.use\(.*csrfProtection/i;
+    } else {
+      pattern = new RegExp(`app\\.use\\(.*${security}`, 'i');
+    }
+    
     if (pattern.test(serverContent)) {
       audit.pass(`Security middleware enabled: ${security}`);
     } else {

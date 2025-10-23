@@ -1,7 +1,7 @@
 # Backend Flow Tracer Audit Report
 
-**Generated:** 2025-10-21T22:38:16.681Z
-**Duration:** 323ms
+**Generated:** 2025-10-23T10:28:41.568Z
+**Duration:** 407ms
 **Score:** 100/100
 
 ---
@@ -59,7 +59,7 @@ No issues found during this audit.
 
 ## HTTP Endpoints
 
-✅ Discovered 224 HTTP endpoints
+✅ Discovered 226 HTTP endpoints
 
 ## Reachability Analysis
 

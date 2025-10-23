@@ -1,6 +1,6 @@
 # 📊 Frontend Flow Audit - tenant-app
 
-**Generated:** 10/21/2025, 7:03:28 PM
+**Generated:** 10/23/2025, 3:27:24 AM
 
 ## 🔴 Score: 0/100 (Poor Flow Health)
 
@@ -13,8 +13,8 @@
 | Reachable App Files | 233 |
 | Unreachable App Files | 63 |
 | **Shared Files** | |
-| Total Shared Files | 392 |
-| Reachable Shared Files | 257 |
+| Total Shared Files | 393 |
+| Reachable Shared Files | 258 |
 | Unreachable Shared Files | 105 |
 | **Issues** | |
 | Boundary Violations | 0 |
