@@ -109,8 +109,8 @@ const authenticateToken = async (req, res, next) => {
     }
     
     logger.error('Authentication error:', { 
-      error: error.message,
-      stack: error.stack,
+      error: error?.message || String(error),
+      stack: error?.stack,
       path: req.path, 
       method: req.method,
       ip: req.ip

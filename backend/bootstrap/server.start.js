@@ -3,7 +3,7 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { existsSync } from 'fs';
-import { loadEnv } from './loadEnv.js';
+import { loadEnv, env } from './loadEnv.js';
 import { setupSecurity } from './setupSecurity.js';
 import { setupMiddleware } from './setupMiddleware.js';
 import { setupRoutes } from './setupRoutes.js';
@@ -47,7 +47,9 @@ app.handle = function(req, res, out) {
       return;
     }
     // No route handling this, invoke finalhandler
-    originalOut(err);
+    if (typeof originalOut === 'function') {
+      originalOut(err);
+    }
   };
   originalHandle(req, res, newOut);
 };
@@ -70,7 +72,7 @@ setupMiddleware(app);
 setupRoutes(app);
 
 // Phase 6: Setup static file serving for frontend apps (production only)
-const NODE_ENV = process.env.NODE_ENV || 'development';
+const NODE_ENV = env.NODE_ENV || 'development';
 
 if (NODE_ENV === 'production') {
   // Production: Serve built frontend apps based on subdomain
@@ -95,7 +97,7 @@ if (NODE_ENV === 'production') {
       htmlFile = path.join(publicPath, 'admin/index.html');
     }
     // Main site (no subdomain or www)
-    else if (subdomain === 'www' || hostname === process.env.BASE_DOMAIN) {
+    else if (subdomain === 'www' || hostname === env.BASE_DOMAIN) {
       htmlFile = path.join(publicPath, 'main/index.html');
     }
     // Tenant subdomains
@@ -123,7 +125,7 @@ if (NODE_ENV === 'production') {
 setupErrors(app);
 
 // Start server
-const PORT = process.env.PORT || 3001;
+const PORT = env.PORT || 3001;
 const server = app.listen(PORT, () => {
   console.log('');
   console.log('╔══════════════════════════════════════════════════════════╗');

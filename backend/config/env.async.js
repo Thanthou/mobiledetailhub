@@ -32,6 +32,8 @@ const EnvSchema = z.object({
   DATABASE_URL: z.string().optional(),
   
   BASE_DOMAIN: z.string().default('thatsmartsite.com'),
+  FRONTEND_URL: z.string().optional(),
+  ADMIN_URL: z.string().optional(),
 
   JWT_SECRET: z.string().optional(),
   JWT_REFRESH_SECRET: z.string().optional(),

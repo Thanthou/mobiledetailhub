@@ -323,11 +323,6 @@ const blacklistTokenInMemory = (token) => {
  * @returns {boolean} True if token is blacklisted
  */
 const isTokenBlacklisted = async (token) => {
-  if (!pool) {
-    logger.warn('Database connection not available for token blacklist check, falling back to memory');
-    return isTokenBlacklistedInMemory(token);
-  }
-
   try {
     const decoded = decodeToken(token);
     if (!decoded || !decoded.jti) {
@@ -349,7 +344,18 @@ const isTokenBlacklisted = async (token) => {
 
     return false;
   } catch (error) {
-    logger.error('Error checking token blacklist in database', { error: error.message });
+    // If table doesn't exist, just use memory fallback silently
+    // This is expected if the token_blacklist migration hasn't been run
+    if (error.code === '42P01') {
+      logger.debug('Token blacklist table does not exist, using in-memory fallback');
+      return isTokenBlacklistedInMemory(token);
+    }
+    
+    // Log other errors
+    logger.warn('Error checking token blacklist in database', { 
+      error: error?.message || String(error),
+      code: error?.code
+    });
     // Fallback to memory check
     return isTokenBlacklistedInMemory(token);
   }

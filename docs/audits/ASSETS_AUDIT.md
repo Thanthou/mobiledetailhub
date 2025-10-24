@@ -1,7 +1,7 @@
 # Assets Audit Report
 
-**Generated:** 2025-10-24T03:46:32.083Z
-**Duration:** 35ms
+**Generated:** 2025-10-24T06:47:20.222Z
+**Duration:** 36ms
 **Score:** 84/100
 
 ---
@@ -119,7 +119,7 @@ High-priority favicons: 3/3
 ✅ Public image size OK: logo.webp (72KB)
 ✅ Public image size OK: favicon.svg (0KB)
 ✅ Public image size OK: logo.webp (51KB)
-✅ Public image size OK: logo-white.png (118KB)
+✅ Public image size OK: logo-white.webp (41KB)
 ✅ Public image size OK: logo.webp (42KB)
 ✅ Public image size OK: hero1.webp (34KB)
 ✅ Public image size OK: hero2-mobile.webp (32KB)
@@ -240,7 +240,7 @@ High-priority favicons: 3/3
 ✅ Public image size OK: icon.svg (1KB)
 ✅ Public image size OK: logo.webp (55KB)
 ✅ Public image size OK: mobile-detailing-preview.webp (131KB)
-✅ WebP images found: 108
+✅ WebP images found: 109
 Total images: 154
 Optimized images: 154/154
 Oversized images: 0

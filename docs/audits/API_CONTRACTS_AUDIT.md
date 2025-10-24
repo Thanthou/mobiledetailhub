@@ -1,6 +1,6 @@
 # API Contracts Audit Report
 
-**Generated:** 2025-10-23T10:28:41.793Z
+**Generated:** 2025-10-24T06:47:20.150Z
 **Duration:** 12ms
 **Score:** 94/100
 
@@ -41,7 +41,7 @@ Found 3 DELETE endpoints in admin.js
 Found 3 GET endpoints in analytics.new.js
 Found 1 POST endpoints in analytics.new.js
 ✅ Route file has validation: auth.js
-Found 7 GET endpoints in auth.js
+Found 8 GET endpoints in auth.js
 Found 10 POST endpoints in auth.js
 ✅ Route file has validation: avatar.js
 Found 1 GET endpoints in avatar.js
@@ -68,7 +68,7 @@ Found 3 GET endpoints in googleAuth.js
 ✅ Route file is GET-only (no validation needed): googleReviews.js
 Found 2 GET endpoints in googleReviews.js
 ✅ Route file is GET-only (no validation needed): health.js
-Found 5 GET endpoints in health.js
+Found 7 GET endpoints in health.js
 ✅ Route file has validation: healthMonitoring.js
 Found 6 GET endpoints in healthMonitoring.js
 Found 1 POST endpoints in healthMonitoring.js
@@ -122,7 +122,7 @@ Found 1 PUT endpoints in tenants.js
 ✅ Route file has validation: websiteContent.js
 Found 2 GET endpoints in websiteContent.js
 Found 1 PUT endpoints in websiteContent.js
-Total endpoints across all routes: 141
+Total endpoints across all routes: 144
 Routes with validation: 17/29
 
 ## Controller Patterns
@@ -274,7 +274,7 @@ Controllers with proper error handling: 6/6
 ✅ Route file has validation middleware: tenants.js
 ✅ Route file has validation middleware: websiteContent.js
 ✅ Body parsing with validation in websiteContent.js
-Routes with validation: 104/141
+Routes with validation: 105/144
 
 ## API Documentation
 

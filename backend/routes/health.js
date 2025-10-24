@@ -9,6 +9,7 @@ const router = express.Router();
 import { getPool } from '../database/pool.js';
 import { logger } from '../config/logger.js';
 import { sendSuccess, sendError } from '../utils/responseFormatter.js';
+import { env } from '../config/env.js';
 
 // Track shutdown status for graceful shutdown
 let isShuttingDown = false;
@@ -42,7 +43,7 @@ router.get('/detailed', async (req, res) => {
       memory: process.memoryUsage(),
       pid: process.pid,
       nodeVersion: process.version,
-      environment: process.env.NODE_ENV
+      environment: env.NODE_ENV
     }
   });
 });

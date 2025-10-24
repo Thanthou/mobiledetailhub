@@ -10,7 +10,7 @@ export async function loadEnv() {
   
   console.log('✅ Environment variables loaded and validated');
   console.log(`   NODE_ENV: ${config.NODE_ENV || env.NODE_ENV || 'development'}`);
-  console.log(`   PORT: ${config.PORT || env.PORT || process.env.PORT || 3001}`);
+  console.log(`   PORT: ${config.PORT || env.PORT || 3001}`);
   console.log(`   DB_HOST: ${config.DB_HOST || env.DB_HOST || 'not set'}`);
   
   return config;

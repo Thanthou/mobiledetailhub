@@ -3,6 +3,7 @@ import helmet from 'helmet';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import express from 'express';
+import { env } from '../config/env.js';
 
 export function setupSecurity(app) {
   // Helmet security headers
@@ -34,8 +35,8 @@ export function setupSecurity(app) {
     'http://localhost:5175', // main app
     'http://localhost:5176', // admin app
     'http://localhost:5177', // tenant app
-    process.env.FRONTEND_URL,
-    process.env.ADMIN_URL,
+    env.FRONTEND_URL,
+    env.ADMIN_URL,
   ].filter(Boolean);
 
   app.use(

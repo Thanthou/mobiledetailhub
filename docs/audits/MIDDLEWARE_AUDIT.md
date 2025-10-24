@@ -1,24 +1,53 @@
 # Middleware Audit Report
 
-**Generated:** 2025-10-23T10:28:41.740Z
+**Generated:** 2025-10-24T06:47:20.095Z
 **Duration:** 4ms
-**Score:** 100/100
+**Score:** 45/100
 
 ---
 
 ## Summary
 
-- ✅ **Passed:** 48
-- ⚠️  **Warnings:** 0
-- ❌ **Errors:** 0
+- ✅ **Passed:** 28
+- ⚠️  **Warnings:** 5
+- ❌ **Errors:** 4
 
 ## Description
 
 Validates middleware configuration, order, and security settings
 
-## ✅ All Checks Passed!
+## Issues Found
 
-No issues found during this audit.
+### 🔴 Critical Errors
+
+1. **Missing critical middleware: errorHandler**
+   - Path: `backend/server.js`
+
+2. **Missing critical middleware: requestLogger**
+   - Path: `backend/server.js`
+
+3. **Missing critical middleware: tenantResolver**
+   - Path: `backend/server.js`
+
+4. **Missing critical middleware: subdomainMiddleware**
+   - Path: `backend/server.js`
+
+### 🟡 Warnings
+
+1. **Error handler should be positioned after routes**
+   - Path: `backend/server.js`
+
+2. **Security middleware missing: helmet**
+   - Path: `backend/server.js`
+
+3. **Security middleware missing: cors**
+   - Path: `backend/server.js`
+
+4. **Security middleware missing: rateLimiter**
+   - Path: `backend/server.js`
+
+5. **Security middleware missing: csrfProtection**
+   - Path: `backend/server.js`
 
 ---
 
@@ -38,20 +67,15 @@ Found 11 middleware files: auth, csrfProtection, errorHandler, rateLimiter, requ
 
 ## Server Middleware Order
 
-✅ Middleware found: cors
-✅ Middleware found: helmet
-✅ Middleware found: rateLimiter
-✅ Middleware found: requestLogger
-✅ Middleware found: subdomainMiddleware
-✅ Middleware found: tenantResolver
-✅ Middleware found: auth
-✅ Middleware found: csrfProtection
-✅ Middleware found: errorHandler
-Found middleware in order: cors → helmet → rateLimiter → requestLogger → subdomainMiddleware → tenantResolver → auth → csrfProtection → errorHandler
-✅ Critical middleware present: errorHandler
-✅ Critical middleware present: requestLogger
-✅ Critical middleware present: tenantResolver
-✅ Critical middleware present: subdomainMiddleware
+Found middleware in order: 
+❌ **ERROR**: Missing critical middleware: errorHandler
+   - Path: `backend/server.js`
+❌ **ERROR**: Missing critical middleware: requestLogger
+   - Path: `backend/server.js`
+❌ **ERROR**: Missing critical middleware: tenantResolver
+   - Path: `backend/server.js`
+❌ **ERROR**: Missing critical middleware: subdomainMiddleware
+   - Path: `backend/server.js`
 
 ## Middleware Dependencies
 
@@ -70,16 +94,19 @@ Found middleware in order: cors → helmet → rateLimiter → requestLogger →
 ✅ Error handler has Error logging
 ✅ Error handler has Status code handling
 ✅ Error handler has JSON response
-✅ Error handler is positioned after routes (correct)
+⚠️ **WARNING**: Error handler should be positioned after routes
+   - Path: `backend/server.js`
 
 ## Security Middleware
 
-✅ Security middleware enabled: helmet
-✅ Security middleware enabled: cors
-✅ Security middleware enabled: rateLimiter
-✅ Security middleware enabled: csrfProtection
-✅ Helmet configured with options
-✅ CORS configured with options
+⚠️ **WARNING**: Security middleware missing: helmet
+   - Path: `backend/server.js`
+⚠️ **WARNING**: Security middleware missing: cors
+   - Path: `backend/server.js`
+⚠️ **WARNING**: Security middleware missing: rateLimiter
+   - Path: `backend/server.js`
+⚠️ **WARNING**: Security middleware missing: csrfProtection
+   - Path: `backend/server.js`
 
 ## Tenant Middleware
 
@@ -98,8 +125,8 @@ Found middleware in order: cors → helmet → rateLimiter → requestLogger →
 
 ## Summary
 
-Total middleware checks: 48
-Score: 100/100
+Total middleware checks: 37
+Score: 76/100
 
 ---
 

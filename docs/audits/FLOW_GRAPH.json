@@ -1,12 +1,314 @@
 {
   "metadata": {
-    "generated": "2025-10-23T10:28:41.565Z",
-    "totalNodes": 86,
-    "totalEdges": 289,
-    "reachableNodes": 81,
+    "generated": "2025-10-24T06:47:19.945Z",
+    "totalNodes": 93,
+    "totalEdges": 314,
+    "reachableNodes": 88,
     "unreachableNodes": 5
   },
   "nodes": [
+    {
+      "id": "bootstrap\\loadEnv.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "loadEnv",
+          "type": "function"
+        }
+      ],
+      "functions": [
+        "loadEnv"
+      ],
+      "routes": [],
+      "importCount": 1,
+      "importedByCount": 1
+    },
+    {
+      "id": "bootstrap\\server.start.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "app",
+          "type": "default"
+        }
+      ],
+      "functions": [],
+      "routes": [
+        {
+          "method": "get",
+          "path": "*",
+          "handlers": []
+        }
+      ],
+      "importCount": 7,
+      "importedByCount": 1
+    },
+    {
+      "id": "bootstrap\\setupErrors.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "setupErrors",
+          "type": "function"
+        }
+      ],
+      "functions": [
+        "setupErrors"
+      ],
+      "routes": [],
+      "importCount": 1,
+      "importedByCount": 1
+    },
+    {
+      "id": "bootstrap\\setupMiddleware.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "setupMiddleware",
+          "type": "function"
+        }
+      ],
+      "functions": [
+        "setupMiddleware"
+      ],
+      "routes": [],
+      "importCount": 4,
+      "importedByCount": 1
+    },
+    {
+      "id": "bootstrap\\setupRoutes.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "setupRoutes",
+          "type": "function"
+        }
+      ],
+      "functions": [
+        "setupRoutes"
+      ],
+      "routes": [
+        {
+          "method": "use",
+          "path": "/api",
+          "handlers": []
+        },
+        {
+          "method": "use",
+          "path": "/api/health",
+          "handlers": [
+            "healthRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/health-monitoring",
+          "handlers": [
+            "healthMonitoringRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/auth",
+          "handlers": [
+            "authRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/google/auth",
+          "handlers": [
+            "googleAuthRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/tenants",
+          "handlers": [
+            "tenantsRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/domains",
+          "handlers": [
+            "domainRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/services",
+          "handlers": [
+            "servicesRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/reviews",
+          "handlers": [
+            "reviewsRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/gallery",
+          "handlers": [
+            "galleryRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/service-areas",
+          "handlers": [
+            "serviceAreasRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/locations",
+          "handlers": [
+            "locationsRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/website-content",
+          "handlers": [
+            "websiteContentRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/customers",
+          "handlers": [
+            "customersRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/schedule",
+          "handlers": [
+            "scheduleRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/payments",
+          "handlers": [
+            "paymentsRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/analytics",
+          "handlers": [
+            "analyticsRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/google/analytics",
+          "handlers": [
+            "googleAnalyticsRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/google/reviews",
+          "handlers": [
+            "googleReviewsRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/seo",
+          "handlers": [
+            "seoRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/config",
+          "handlers": [
+            "configRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/admin",
+          "handlers": [
+            "adminRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/tenant-dashboard",
+          "handlers": [
+            "tenantDashboardRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/tenant/reviews",
+          "handlers": [
+            "tenantReviewsRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/tenant/images",
+          "handlers": [
+            "tenantImagesRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/tenant/manifest",
+          "handlers": [
+            "tenantManifestRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/avatar",
+          "handlers": [
+            "avatarRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/previews",
+          "handlers": [
+            "previewRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/errors",
+          "handlers": [
+            "errorTrackingRoutes"
+          ]
+        }
+      ],
+      "importCount": 29,
+      "importedByCount": 1
+    },
+    {
+      "id": "bootstrap\\setupSecurity.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "setupSecurity",
+          "type": "function"
+        }
+      ],
+      "functions": [
+        "setupSecurity"
+      ],
+      "routes": [],
+      "importCount": 0,
+      "importedByCount": 1
+    },
     {
       "id": "config\\auth.js",
       "reachable": true,
@@ -18,7 +320,7 @@
     },
     {
       "id": "config\\env.async.js",
-      "reachable": false,
+      "reachable": true,
       "exports": [
         {
           "name": "loadEnv",
@@ -34,7 +336,7 @@
       ],
       "routes": [],
       "importCount": 0,
-      "importedByCount": 0
+      "importedByCount": 19
     },
     {
       "id": "config\\env.js",
@@ -43,7 +345,7 @@
       "functions": [],
       "routes": [],
       "importCount": 0,
-      "importedByCount": 14
+      "importedByCount": 13
     },
     {
       "id": "config\\logger.js",
@@ -204,7 +506,7 @@
         "getIndustries"
       ],
       "routes": [],
-      "importCount": 2,
+      "importCount": 3,
       "importedByCount": 1
     },
     {
@@ -241,7 +543,7 @@
         "closePool"
       ],
       "routes": [],
-      "importCount": 1,
+      "importCount": 2,
       "importedByCount": 35
     },
     {
@@ -250,7 +552,7 @@
       "exports": [],
       "functions": [],
       "routes": [],
-      "importCount": 2,
+      "importCount": 3,
       "importedByCount": 8
     },
     {
@@ -289,7 +591,7 @@
           "handlers": []
         }
       ],
-      "importCount": 1,
+      "importCount": 2,
       "importedByCount": 2
     },
     {
@@ -304,7 +606,7 @@
           "handlers": []
         }
       ],
-      "importCount": 4,
+      "importCount": 5,
       "importedByCount": 30
     },
     {
@@ -354,7 +656,7 @@
           "handlers": []
         }
       ],
-      "importCount": 1,
+      "importCount": 2,
       "importedByCount": 6
     },
     {
@@ -362,23 +664,7 @@
       "reachable": true,
       "exports": [],
       "functions": [],
-      "routes": [
-        {
-          "method": "get",
-          "path": "User-Agent",
-          "handlers": []
-        },
-        {
-          "method": "get",
-          "path": "Content-Type",
-          "handlers": []
-        },
-        {
-          "method": "get",
-          "path": "Content-Length",
-          "handlers": []
-        }
-      ],
+      "routes": [],
       "importCount": 2,
       "importedByCount": 1
     },
@@ -414,14 +700,8 @@
         "addTenantContext",
         "generateTenantUrl"
       ],
-      "routes": [
-        {
-          "method": "get",
-          "path": "User-Agent",
-          "handlers": []
-        }
-      ],
-      "importCount": 4,
+      "routes": [],
+      "importCount": 5,
       "importedByCount": 1
     },
     {
@@ -657,7 +937,7 @@
           ]
         }
       ],
-      "importCount": 8,
+      "importCount": 9,
       "importedByCount": 1
     },
     {
@@ -671,6 +951,11 @@
       ],
       "functions": [],
       "routes": [
+        {
+          "method": "get",
+          "path": "/",
+          "handlers": []
+        },
         {
           "method": "get",
           "path": "/check-email",
@@ -815,7 +1100,7 @@
           ]
         }
       ],
-      "importCount": 12,
+      "importCount": 13,
       "importedByCount": 1
     },
     {
@@ -884,7 +1169,7 @@
           "handlers": []
         }
       ],
-      "importCount": 1,
+      "importCount": 2,
       "importedByCount": 1
     },
     {
@@ -1066,7 +1351,7 @@
           "handlers": []
         }
       ],
-      "importCount": 6,
+      "importCount": 7,
       "importedByCount": 1
     },
     {
@@ -1123,7 +1408,7 @@
           "handlers": []
         }
       ],
-      "importCount": 5,
+      "importCount": 6,
       "importedByCount": 1
     },
     {
@@ -1146,7 +1431,17 @@
         },
         {
           "method": "get",
+          "path": "/detailed",
+          "handlers": []
+        },
+        {
+          "method": "get",
           "path": "/live",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/bootstrap",
           "handlers": []
         },
         {
@@ -1357,7 +1652,7 @@
           ]
         }
       ],
-      "importCount": 7,
+      "importCount": 8,
       "importedByCount": 1
     },
     {
@@ -1597,7 +1892,7 @@
     },
     {
       "id": "routes\\subdomainTest.js",
-      "reachable": true,
+      "reachable": false,
       "exports": [
         {
           "name": "router",
@@ -1622,8 +1917,8 @@
           "handlers": []
         }
       ],
-      "importCount": 3,
-      "importedByCount": 1
+      "importCount": 4,
+      "importedByCount": 0
     },
     {
       "id": "routes\\tenantDashboard.js",
@@ -1707,7 +2002,7 @@
           "handlers": []
         }
       ],
-      "importCount": 3,
+      "importCount": 4,
       "importedByCount": 1
     },
     {
@@ -1757,7 +2052,7 @@
           "handlers": []
         }
       ],
-      "importCount": 8,
+      "importCount": 9,
       "importedByCount": 1
     },
     {
@@ -1871,274 +2166,9 @@
       "id": "server.js",
       "reachable": true,
       "exports": [],
-      "functions": [
-        "initializeAsync"
-      ],
-      "routes": [
-        {
-          "method": "all",
-          "path": "*",
-          "handlers": []
-        },
-        {
-          "method": "use",
-          "path": "/api",
-          "handlers": [
-            "apiLimiter"
-          ]
-        },
-        {
-          "method": "post",
-          "path": "/api/debug/body",
-          "handlers": []
-        },
-        {
-          "method": "use",
-          "path": "/api/payments",
-          "handlers": [
-            "paymentRoutes"
-          ]
-        },
-        {
-          "method": "use",
-          "path": "/api/auth",
-          "handlers": [
-            "authRoutes"
-          ]
-        },
-        {
-          "method": "use",
-          "path": "/api/tenants",
-          "handlers": [
-            "tenantsRoutes"
-          ]
-        },
-        {
-          "method": "use",
-          "path": "/api/admin",
-          "handlers": [
-            "adminRoutes"
-          ]
-        },
-        {
-          "method": "use",
-          "path": "/api/analytics",
-          "handlers": [
-            "analyticsRouter"
-          ]
-        },
-        {
-          "method": "use",
-          "path": "/api/locations",
-          "handlers": [
-            "locationsRoutes"
-          ]
-        },
-        {
-          "method": "use",
-          "path": "/api/website-content",
-          "handlers": [
-            "websiteContentRoutes"
-          ]
-        },
-        {
-          "method": "use",
-          "path": "/api/google-reviews",
-          "handlers": [
-            "googleReviewsRoutes"
-          ]
-        },
-        {
-          "method": "use",
-          "path": "/api/config",
-          "handlers": [
-            "configRoutes"
-          ]
-        },
-        {
-          "method": "use",
-          "path": "/api/google/analytics",
-          "handlers": [
-            "googleAnalyticsRoutes"
-          ]
-        },
-        {
-          "method": "use",
-          "path": "/api/google",
-          "handlers": [
-            "googleAuthRoutes"
-          ]
-        },
-        {
-          "method": "use",
-          "path": "/api/health-monitoring",
-          "handlers": [
-            "healthMonitoringRoutes"
-          ]
-        },
-        {
-          "method": "use",
-          "path": "/api/reviews",
-          "handlers": [
-            "reviewsRoutes"
-          ]
-        },
-        {
-          "method": "use",
-          "path": "/api/subdomain",
-          "handlers": [
-            "subdomainTestRoutes"
-          ]
-        },
-        {
-          "method": "use",
-          "path": "/api/domains",
-          "handlers": [
-            "domainRoutes"
-          ]
-        },
-        {
-          "method": "use",
-          "path": "/api/dashboard",
-          "handlers": [
-            "tenantDashboardRoutes"
-          ]
-        },
-        {
-          "method": "use",
-          "path": "/api/previews",
-          "handlers": [
-            "previewRoutes"
-          ]
-        },
-        {
-          "method": "use",
-          "path": "/api/services",
-          "handlers": [
-            "servicesRoutes"
-          ]
-        },
-        {
-          "method": "use",
-          "path": "/api/service-areas",
-          "handlers": [
-            "serviceAreasRoutes"
-          ]
-        },
-        {
-          "method": "use",
-          "path": "/api/customers",
-          "handlers": [
-            "customersRoutes"
-          ]
-        },
-        {
-          "method": "use",
-          "path": "/api/schedule",
-          "handlers": [
-            "scheduleRoutes"
-          ]
-        },
-        {
-          "method": "use",
-          "path": "/api/avatar",
-          "handlers": [
-            "avatarRoutes"
-          ]
-        },
-        {
-          "method": "use",
-          "path": "/api/tenant-images",
-          "handlers": [
-            "tenantImagesRoutes"
-          ]
-        },
-        {
-          "method": "use",
-          "path": "/api/tenant-reviews",
-          "handlers": [
-            "tenantReviewsRoutes"
-          ]
-        },
-        {
-          "method": "use",
-          "path": "/api/gallery",
-          "handlers": [
-            "galleryRoutes"
-          ]
-        },
-        {
-          "method": "use",
-          "path": "/api/error-tracking",
-          "handlers": [
-            "errorTrackingRoutes"
-          ]
-        },
-        {
-          "method": "use",
-          "path": "/",
-          "handlers": [
-            "seoRoutes"
-          ]
-        },
-        {
-          "method": "use",
-          "path": "/",
-          "handlers": [
-            "tenantManifestRoutes"
-          ]
-        },
-        {
-          "method": "get",
-          "path": "/",
-          "handlers": []
-        },
-        {
-          "method": "get",
-          "path": "/api/health",
-          "handlers": []
-        },
-        {
-          "method": "use",
-          "path": "/api/health/detailed",
-          "handlers": [
-            "healthRoutes"
-          ]
-        },
-        {
-          "method": "use",
-          "path": "/assets",
-          "handlers": []
-        },
-        {
-          "method": "use",
-          "path": "/admin",
-          "handlers": []
-        },
-        {
-          "method": "use",
-          "path": "/tenant",
-          "handlers": []
-        },
-        {
-          "method": "use",
-          "path": "/",
-          "handlers": []
-        },
-        {
-          "method": "use",
-          "path": "/api/*",
-          "handlers": [
-            "notFoundHandler"
-          ]
-        },
-        {
-          "method": "get",
-          "path": "*",
-          "handlers": []
-        }
-      ],
-      "importCount": 39,
+      "functions": [],
+      "routes": [],
+      "importCount": 1,
       "importedByCount": 0
     },
     {
@@ -2244,7 +2274,7 @@
         "getRealtimeData"
       ],
       "routes": [],
-      "importCount": 2,
+      "importCount": 3,
       "importedByCount": 1
     },
     {
@@ -2313,7 +2343,7 @@
       ],
       "functions": [],
       "routes": [],
-      "importCount": 2,
+      "importCount": 3,
       "importedByCount": 1
     },
     {
@@ -2331,7 +2361,7 @@
       "exports": [],
       "functions": [],
       "routes": [],
-      "importCount": 3,
+      "importCount": 4,
       "importedByCount": 1
     },
     {
@@ -2381,25 +2411,13 @@
     {
       "id": "services\\tenantDeletionService.js",
       "reachable": false,
-      "exports": [
-        {
-          "name": "dryRunDeleteTenant",
-          "type": "function"
-        },
-        {
-          "name": "deleteTenant",
-          "type": "function"
-        },
-        {
-          "name": "softDeleteTenant",
-          "type": "function"
-        }
-      ],
+      "exports": [],
       "functions": [
         "getTenantInfo",
         "validateTenantDeletion",
         "createTenantSnapshot",
         "performManualCleanup",
+        "safeCleanup",
         "verifyDeletion",
         "dryRunDeleteTenant",
         "deleteTenant",
@@ -2531,7 +2549,7 @@
       ],
       "routes": [],
       "importCount": 1,
-      "importedByCount": 2
+      "importedByCount": 1
     },
     {
       "id": "utils\\avatarUtils.js",
@@ -2589,7 +2607,7 @@
         "verifyPreview"
       ],
       "routes": [],
-      "importCount": 1,
+      "importCount": 2,
       "importedByCount": 1
     },
     {
@@ -2745,6 +2763,48 @@
       "importedByCount": 2
     },
     {
+      "id": "utils\\urlBuilder.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "getFrontendUrls",
+          "type": "function"
+        },
+        {
+          "name": "getFrontendUrl",
+          "type": "function"
+        },
+        {
+          "name": "getBackendUrl",
+          "type": "function"
+        },
+        {
+          "name": "getPorts",
+          "type": "function"
+        },
+        {
+          "name": "getPortRegistry",
+          "type": "function"
+        },
+        {
+          "name": "getAllowedOrigins",
+          "type": "function"
+        }
+      ],
+      "functions": [
+        "buildFrontendUrl",
+        "getFrontendUrls",
+        "getFrontendUrl",
+        "getBackendUrl",
+        "getPorts",
+        "getPortRegistry",
+        "getAllowedOrigins"
+      ],
+      "routes": [],
+      "importCount": 1,
+      "importedByCount": 3
+    },
+    {
       "id": "utils\\validationSchemas.js",
       "reachable": true,
       "exports": [],
@@ -2773,6 +2833,438 @@
     }
   ],
   "edges": [
+    {
+      "from": "bootstrap\\loadEnv.js",
+      "to": "config\\env.async.js",
+      "specifiers": [
+        {
+          "name": "loadEnv",
+          "type": "named"
+        },
+        {
+          "name": "env",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\server.start.js",
+      "to": "bootstrap\\loadEnv.js",
+      "specifiers": [
+        {
+          "name": "loadEnv",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\server.start.js",
+      "to": "bootstrap\\setupSecurity.js",
+      "specifiers": [
+        {
+          "name": "setupSecurity",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\server.start.js",
+      "to": "bootstrap\\setupMiddleware.js",
+      "specifiers": [
+        {
+          "name": "setupMiddleware",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\server.start.js",
+      "to": "bootstrap\\setupRoutes.js",
+      "specifiers": [
+        {
+          "name": "setupRoutes",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\server.start.js",
+      "to": "bootstrap\\setupErrors.js",
+      "specifiers": [
+        {
+          "name": "setupErrors",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\server.start.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "logger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\server.start.js",
+      "to": "database\\pool.js",
+      "specifiers": [
+        {
+          "name": "getPool",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupErrors.js",
+      "to": "middleware\\errorHandler.js",
+      "specifiers": [
+        {
+          "name": "errorHandler",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupMiddleware.js",
+      "to": "middleware\\requestLogger.js",
+      "specifiers": [
+        {
+          "name": "requestLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupMiddleware.js",
+      "to": "middleware\\tenantResolver.js",
+      "specifiers": [
+        {
+          "name": "tenantResolver",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupMiddleware.js",
+      "to": "middleware\\subdomainMiddleware.js",
+      "specifiers": [
+        {
+          "name": "createSubdomainMiddleware",
+          "type": "named"
+        },
+        {
+          "name": "createAdminSubdomainMiddleware",
+          "type": "named"
+        },
+        {
+          "name": "addTenantContext",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupMiddleware.js",
+      "to": "middleware\\csrfProtection.js",
+      "specifiers": [
+        {
+          "name": "csrfProtection",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupRoutes.js",
+      "to": "middleware\\rateLimiter.js",
+      "specifiers": [
+        {
+          "name": "apiLimiter",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupRoutes.js",
+      "to": "routes\\health.js",
+      "specifiers": [
+        {
+          "name": "healthRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupRoutes.js",
+      "to": "routes\\auth.js",
+      "specifiers": [
+        {
+          "name": "authRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupRoutes.js",
+      "to": "routes\\tenants.js",
+      "specifiers": [
+        {
+          "name": "tenantsRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupRoutes.js",
+      "to": "routes\\domains.js",
+      "specifiers": [
+        {
+          "name": "domainRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupRoutes.js",
+      "to": "routes\\services.js",
+      "specifiers": [
+        {
+          "name": "servicesRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupRoutes.js",
+      "to": "routes\\reviews.js",
+      "specifiers": [
+        {
+          "name": "reviewsRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupRoutes.js",
+      "to": "routes\\gallery.js",
+      "specifiers": [
+        {
+          "name": "galleryRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupRoutes.js",
+      "to": "routes\\serviceAreas.js",
+      "specifiers": [
+        {
+          "name": "serviceAreasRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupRoutes.js",
+      "to": "routes\\locations.js",
+      "specifiers": [
+        {
+          "name": "locationsRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupRoutes.js",
+      "to": "routes\\customers.js",
+      "specifiers": [
+        {
+          "name": "customersRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupRoutes.js",
+      "to": "routes\\schedule.js",
+      "specifiers": [
+        {
+          "name": "scheduleRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupRoutes.js",
+      "to": "routes\\payments.js",
+      "specifiers": [
+        {
+          "name": "paymentsRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupRoutes.js",
+      "to": "routes\\analytics.new.js",
+      "specifiers": [
+        {
+          "name": "analyticsRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupRoutes.js",
+      "to": "routes\\googleAnalytics.js",
+      "specifiers": [
+        {
+          "name": "googleAnalyticsRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupRoutes.js",
+      "to": "routes\\googleReviews.js",
+      "specifiers": [
+        {
+          "name": "googleReviewsRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupRoutes.js",
+      "to": "routes\\googleAuth.js",
+      "specifiers": [
+        {
+          "name": "googleAuthRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupRoutes.js",
+      "to": "routes\\seo.js",
+      "specifiers": [
+        {
+          "name": "seoRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupRoutes.js",
+      "to": "routes\\config.js",
+      "specifiers": [
+        {
+          "name": "configRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupRoutes.js",
+      "to": "routes\\websiteContent.js",
+      "specifiers": [
+        {
+          "name": "websiteContentRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupRoutes.js",
+      "to": "routes\\admin.js",
+      "specifiers": [
+        {
+          "name": "adminRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupRoutes.js",
+      "to": "routes\\tenantDashboard.js",
+      "specifiers": [
+        {
+          "name": "tenantDashboardRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupRoutes.js",
+      "to": "routes\\tenantReviews.js",
+      "specifiers": [
+        {
+          "name": "tenantReviewsRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupRoutes.js",
+      "to": "routes\\tenantImages.js",
+      "specifiers": [
+        {
+          "name": "tenantImagesRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupRoutes.js",
+      "to": "routes\\tenantManifest.js",
+      "specifiers": [
+        {
+          "name": "tenantManifestRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupRoutes.js",
+      "to": "routes\\avatar.js",
+      "specifiers": [
+        {
+          "name": "avatarRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupRoutes.js",
+      "to": "routes\\previews.js",
+      "specifiers": [
+        {
+          "name": "previewRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupRoutes.js",
+      "to": "routes\\errorTracking.js",
+      "specifiers": [
+        {
+          "name": "errorTrackingRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupRoutes.js",
+      "to": "routes\\healthMonitoring.js",
+      "specifiers": [
+        {
+          "name": "healthMonitoringRoutes",
+          "type": "default"
+        }
+      ]
+    },
     {
       "from": "config\\auth.js",
       "to": "config\\env.js",
@@ -2914,6 +3406,16 @@
       ]
     },
     {
+      "from": "controllers\\tenantController.js",
+      "to": "utils\\urlBuilder.js",
+      "specifiers": [
+        {
+          "name": "getFrontendUrl",
+          "type": "named"
+        }
+      ]
+    },
+    {
       "from": "controllers\\tenantDashboardController.js",
       "to": "services\\tenantAnalyticsService.js",
       "specifiers": [
@@ -2958,6 +3460,16 @@
       ]
     },
     {
+      "from": "database\\pool.js",
+      "to": "config\\env.async.js",
+      "specifiers": [
+        {
+          "name": "env",
+          "type": "named"
+        }
+      ]
+    },
+    {
       "from": "middleware\\auth.js",
       "to": "utils\\tokenManager.js",
       "specifiers": [
@@ -2982,11 +3494,31 @@
       ]
     },
     {
+      "from": "middleware\\auth.js",
+      "to": "config\\env.async.js",
+      "specifiers": [
+        {
+          "name": "env",
+          "type": "named"
+        }
+      ]
+    },
+    {
       "from": "middleware\\csrfProtection.js",
       "to": "config\\logger.js",
       "specifiers": [
         {
           "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "middleware\\csrfProtection.js",
+      "to": "config\\env.async.js",
+      "specifiers": [
+        {
+          "name": "env",
           "type": "named"
         }
       ]
@@ -3040,11 +3572,31 @@
       ]
     },
     {
+      "from": "middleware\\errorHandler.js",
+      "to": "config\\env.async.js",
+      "specifiers": [
+        {
+          "name": "env",
+          "type": "named"
+        }
+      ]
+    },
+    {
       "from": "middleware\\rateLimiter.js",
       "to": "config\\logger.js",
       "specifiers": [
         {
           "name": "logger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "middleware\\rateLimiter.js",
+      "to": "config\\env.async.js",
+      "specifiers": [
+        {
+          "name": "env",
           "type": "named"
         }
       ]
@@ -3109,6 +3661,16 @@
       "specifiers": [
         {
           "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "middleware\\subdomainMiddleware.js",
+      "to": "config\\env.async.js",
+      "specifiers": [
+        {
+          "name": "env",
           "type": "named"
         }
       ]
@@ -3446,6 +4008,16 @@
       ]
     },
     {
+      "from": "routes\\analytics.new.js",
+      "to": "config\\env.async.js",
+      "specifiers": [
+        {
+          "name": "env",
+          "type": "named"
+        }
+      ]
+    },
+    {
       "from": "routes\\auth.js",
       "to": "middleware\\auth.js",
       "specifiers": [
@@ -3578,6 +4150,16 @@
       ]
     },
     {
+      "from": "routes\\auth.js",
+      "to": "config\\env.async.js",
+      "specifiers": [
+        {
+          "name": "env",
+          "type": "named"
+        }
+      ]
+    },
+    {
       "from": "routes\\avatar.js",
       "to": "middleware\\auth.js",
       "specifiers": [
@@ -3655,6 +4237,16 @@
       "specifiers": [
         {
           "name": "logger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\config.js",
+      "to": "config\\env.async.js",
+      "specifiers": [
+        {
+          "name": "env",
           "type": "named"
         }
       ]
@@ -3882,6 +4474,16 @@
       ]
     },
     {
+      "from": "routes\\googleAnalytics.js",
+      "to": "utils\\urlBuilder.js",
+      "specifiers": [
+        {
+          "name": "getFrontendUrl",
+          "type": "named"
+        }
+      ]
+    },
+    {
       "from": "routes\\googleAuth.js",
       "to": "database\\pool.js",
       "specifiers": [
@@ -3993,6 +4595,16 @@
         },
         {
           "name": "sendValidationError",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\googleReviews.js",
+      "to": "config\\env.async.js",
+      "specifiers": [
+        {
+          "name": "env",
           "type": "named"
         }
       ]
@@ -4330,6 +4942,16 @@
       ]
     },
     {
+      "from": "routes\\reviews.js",
+      "to": "config\\env.async.js",
+      "specifiers": [
+        {
+          "name": "env",
+          "type": "named"
+        }
+      ]
+    },
+    {
       "from": "routes\\schedule.js",
       "to": "database\\pool.js",
       "specifiers": [
@@ -4600,6 +5222,16 @@
       ]
     },
     {
+      "from": "routes\\subdomainTest.js",
+      "to": "config\\env.async.js",
+      "specifiers": [
+        {
+          "name": "env",
+          "type": "named"
+        }
+      ]
+    },
+    {
       "from": "routes\\tenantDashboard.js",
       "to": "middleware\\auth.js",
       "specifiers": [
@@ -4762,6 +5394,16 @@
       ]
     },
     {
+      "from": "routes\\tenantManifest.js",
+      "to": "config\\env.async.js",
+      "specifiers": [
+        {
+          "name": "env",
+          "type": "named"
+        }
+      ]
+    },
+    {
       "from": "routes\\tenantReviews.js",
       "to": "services\\googleBusinessScraper.js",
       "specifiers": [
@@ -4849,6 +5491,16 @@
         },
         {
           "name": "sendValidationError",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\tenantReviews.js",
+      "to": "config\\env.async.js",
+      "specifiers": [
+        {
+          "name": "env",
           "type": "named"
         }
       ]
@@ -5011,409 +5663,8 @@
     },
     {
       "from": "server.js",
-      "to": "config\\logger.js",
-      "specifiers": [
-        {
-          "name": "logger",
-          "type": "named"
-        },
-        {
-          "name": "createModuleLogger",
-          "type": "named"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "config\\env.js",
-      "specifiers": [
-        {
-          "name": "loadEnv",
-          "type": "named"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "middleware\\requestLogger.js",
-      "specifiers": [
-        {
-          "name": "requestLogger",
-          "type": "named"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "middleware\\tenantResolver.js",
-      "specifiers": [
-        {
-          "name": "tenantResolver",
-          "type": "named"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "middleware\\subdomainMiddleware.js",
-      "specifiers": [
-        {
-          "name": "createSubdomainMiddleware",
-          "type": "named"
-        },
-        {
-          "name": "createAdminSubdomainMiddleware",
-          "type": "named"
-        },
-        {
-          "name": "addTenantContext",
-          "type": "named"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "middleware\\rateLimiter.js",
-      "specifiers": [
-        {
-          "name": "apiLimiter",
-          "type": "named"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "middleware\\csrfProtection.js",
-      "specifiers": [
-        {
-          "name": "csrfProtection",
-          "type": "named"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "middleware\\errorHandler.js",
-      "specifiers": [
-        {
-          "name": "errorHandler",
-          "type": "named"
-        },
-        {
-          "name": "notFoundHandler",
-          "type": "named"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "routes\\payments.js",
-      "specifiers": [
-        {
-          "name": "paymentRoutes",
-          "type": "default"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "routes\\health.js",
-      "specifiers": [
-        {
-          "name": "healthRoutes",
-          "type": "default"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "routes\\auth.js",
-      "specifiers": [
-        {
-          "name": "authRoutes",
-          "type": "default"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "routes\\tenants.js",
-      "specifiers": [
-        {
-          "name": "tenantsRoutes",
-          "type": "default"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "routes\\admin.js",
-      "specifiers": [
-        {
-          "name": "adminRoutes",
-          "type": "default"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "routes\\subdomainTest.js",
-      "specifiers": [
-        {
-          "name": "subdomainTestRoutes",
-          "type": "default"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "routes\\locations.js",
-      "specifiers": [
-        {
-          "name": "locationsRoutes",
-          "type": "default"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "routes\\websiteContent.js",
-      "specifiers": [
-        {
-          "name": "websiteContentRoutes",
-          "type": "default"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "routes\\googleReviews.js",
-      "specifiers": [
-        {
-          "name": "googleReviewsRoutes",
-          "type": "default"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "routes\\config.js",
-      "specifiers": [
-        {
-          "name": "configRoutes",
-          "type": "default"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "routes\\googleAuth.js",
-      "specifiers": [
-        {
-          "name": "googleAuthRoutes",
-          "type": "default"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "routes\\googleAnalytics.js",
-      "specifiers": [
-        {
-          "name": "googleAnalyticsRoutes",
-          "type": "default"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "routes\\healthMonitoring.js",
-      "specifiers": [
-        {
-          "name": "healthMonitoringRoutes",
-          "type": "default"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "routes\\reviews.js",
-      "specifiers": [
-        {
-          "name": "reviewsRoutes",
-          "type": "default"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "routes\\domains.js",
-      "specifiers": [
-        {
-          "name": "domainRoutes",
-          "type": "default"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "routes\\tenantDashboard.js",
-      "specifiers": [
-        {
-          "name": "tenantDashboardRoutes",
-          "type": "default"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "routes\\previews.js",
-      "specifiers": [
-        {
-          "name": "previewRoutes",
-          "type": "default"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "routes\\analytics.new.js",
-      "specifiers": [
-        {
-          "name": "createAnalyticsRouter",
-          "type": "default"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "utils\\analyticsQueue.js",
-      "specifiers": [
-        {
-          "name": "startAutoFlush",
-          "type": "named"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "database\\pool.js",
-      "specifiers": [
-        {
-          "name": "getPool",
-          "type": "named"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "routes\\seo.js",
-      "specifiers": [
-        {
-          "name": "seoRoutes",
-          "type": "default"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "routes\\avatar.js",
-      "specifiers": [
-        {
-          "name": "avatarRoutes",
-          "type": "default"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "routes\\services.js",
-      "specifiers": [
-        {
-          "name": "servicesRoutes",
-          "type": "default"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "routes\\serviceAreas.js",
-      "specifiers": [
-        {
-          "name": "serviceAreasRoutes",
-          "type": "default"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "routes\\customers.js",
-      "specifiers": [
-        {
-          "name": "customersRoutes",
-          "type": "default"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "routes\\schedule.js",
-      "specifiers": [
-        {
-          "name": "scheduleRoutes",
-          "type": "default"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "routes\\tenantImages.js",
-      "specifiers": [
-        {
-          "name": "tenantImagesRoutes",
-          "type": "default"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "routes\\tenantManifest.js",
-      "specifiers": [
-        {
-          "name": "tenantManifestRoutes",
-          "type": "default"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "routes\\tenantReviews.js",
-      "specifiers": [
-        {
-          "name": "tenantReviewsRoutes",
-          "type": "default"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "routes\\gallery.js",
-      "specifiers": [
-        {
-          "name": "galleryRoutes",
-          "type": "default"
-        }
-      ]
-    },
-    {
-      "from": "server.js",
-      "to": "routes\\errorTracking.js",
-      "specifiers": [
-        {
-          "name": "errorTrackingRoutes",
-          "type": "default"
-        }
-      ]
+      "to": "bootstrap\\server.start.js",
+      "specifiers": []
     },
     {
       "from": "services\\authService.js",
@@ -5560,6 +5811,16 @@
       ]
     },
     {
+      "from": "services\\googleAnalytics.js",
+      "to": "config\\env.async.js",
+      "specifiers": [
+        {
+          "name": "env",
+          "type": "named"
+        }
+      ]
+    },
+    {
       "from": "services\\googleApi.js",
       "to": "config\\env.js",
       "specifiers": [
@@ -5605,6 +5866,16 @@
       "specifiers": [
         {
           "name": "loadEnv",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "services\\healthMonitor.js",
+      "to": "config\\env.async.js",
+      "specifiers": [
+        {
+          "name": "env",
           "type": "named"
         }
       ]
@@ -5675,6 +5946,16 @@
       "specifiers": [
         {
           "name": "createModuleLogger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "services\\passwordSetupService.js",
+      "to": "utils\\urlBuilder.js",
+      "specifiers": [
+        {
+          "name": "getFrontendUrl",
           "type": "named"
         }
       ]
@@ -5866,6 +6147,16 @@
       ]
     },
     {
+      "from": "utils\\previewToken.js",
+      "to": "config\\env.async.js",
+      "specifiers": [
+        {
+          "name": "env",
+          "type": "named"
+        }
+      ]
+    },
+    {
       "from": "utils\\serviceAreaProcessor.js",
       "to": "database\\pool.js",
       "specifiers": [
@@ -5942,6 +6233,16 @@
         {
           "name": "logger",
           "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "utils\\urlBuilder.js",
+      "to": "config\\env.async.js",
+      "specifiers": [
+        {
+          "name": "env",
+          "type": "named"
         }
       ]
     },

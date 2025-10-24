@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "generated_at": "2025-10-21T09:37:45.710Z",
+  "generated_at": "2025-10-24T06:55:24.684Z",
   "database_version": "PostgreSQL 17.5 on x86_64-windows, compiled by msvc-19.44.35209, 64-bit",
   "schemas": {
     "analytics": {
@@ -579,6 +579,97 @@
               "name": "refresh_tokens_pkey",
               "type": "PRIMARY KEY",
               "columns": "id"
+            }
+          ]
+        },
+        {
+          "name": "token_blacklist",
+          "columns": [
+            {
+              "name": "id",
+              "type": "integer",
+              "nullable": false,
+              "default": "nextval('auth.token_blacklist_id_seq'::regclass)"
+            },
+            {
+              "name": "token_jti",
+              "type": "character varying",
+              "nullable": false,
+              "default": null
+            },
+            {
+              "name": "user_id",
+              "type": "integer",
+              "nullable": true,
+              "default": null
+            },
+            {
+              "name": "reason",
+              "type": "character varying",
+              "nullable": true,
+              "default": null
+            },
+            {
+              "name": "expires_at",
+              "type": "timestamp with time zone",
+              "nullable": false,
+              "default": null
+            },
+            {
+              "name": "created_at",
+              "type": "timestamp with time zone",
+              "nullable": true,
+              "default": "CURRENT_TIMESTAMP"
+            }
+          ],
+          "indexes": [
+            {
+              "name": "idx_token_blacklist_expires",
+              "definition": "CREATE INDEX idx_token_blacklist_expires ON auth.token_blacklist USING btree (expires_at)"
+            },
+            {
+              "name": "idx_token_blacklist_jti",
+              "definition": "CREATE INDEX idx_token_blacklist_jti ON auth.token_blacklist USING btree (token_jti)"
+            },
+            {
+              "name": "token_blacklist_pkey",
+              "definition": "CREATE UNIQUE INDEX token_blacklist_pkey ON auth.token_blacklist USING btree (id)"
+            },
+            {
+              "name": "token_blacklist_token_jti_key",
+              "definition": "CREATE UNIQUE INDEX token_blacklist_token_jti_key ON auth.token_blacklist USING btree (token_jti)"
+            }
+          ],
+          "constraints": [
+            {
+              "name": "60564_62667_1_not_null",
+              "type": "CHECK",
+              "columns": null
+            },
+            {
+              "name": "60564_62667_2_not_null",
+              "type": "CHECK",
+              "columns": null
+            },
+            {
+              "name": "60564_62667_5_not_null",
+              "type": "CHECK",
+              "columns": null
+            },
+            {
+              "name": "token_blacklist_user_id_fkey",
+              "type": "FOREIGN KEY",
+              "columns": "user_id"
+            },
+            {
+              "name": "token_blacklist_pkey",
+              "type": "PRIMARY KEY",
+              "columns": "id"
+            },
+            {
+              "name": "token_blacklist_token_jti_key",
+              "type": "UNIQUE",
+              "columns": "token_jti"
             }
           ]
         },

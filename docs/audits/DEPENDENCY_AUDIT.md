@@ -1,24 +1,27 @@
 # Dependencies Audit Report
 
-**Generated:** 2025-10-23T10:28:49.919Z
-**Duration:** 7164ms
-**Score:** 100/100
+**Generated:** 2025-10-24T06:47:28.348Z
+**Duration:** 7099ms
+**Score:** 97/100
 
 ---
 
 ## Summary
 
-- ✅ **Passed:** 11
-- ⚠️  **Warnings:** 0
+- ✅ **Passed:** 9
+- ⚠️  **Warnings:** 1
 - ❌ **Errors:** 0
 
 ## Description
 
 Validates file dependencies, npm packages, circular dependencies, hosts file entries, and port availability.
 
-## ✅ All Checks Passed!
+## Issues Found
 
-No issues found during this audit.
+### 🟡 Warnings
+
+1. **Port 3001 (backend) is already in use**
+   - Details: Stop existing process or use different port
 
 ---
 
@@ -36,7 +39,7 @@ No issues found during this audit.
 
 ## Circular Dependencies
 
-✅ Analyzed 1045 files
+✅ Analyzed 1046 files
 ✅ No circular dependencies detected
 
 ## Hosts File
@@ -48,8 +51,7 @@ No issues found during this audit.
 ✅ Port 5175 (main) is available
 ✅ Port 5176 (admin) is available
 ✅ Port 5177 (tenant) is available
-✅ Port 3001 (backend) is available
-✅ All registered ports are available
+⚠️ **WARNING**: Port 3001 (backend) is already in use
 
 ---
 
