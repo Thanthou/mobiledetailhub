@@ -39,7 +39,7 @@ export default function PreviewSection() {
       description: 'Professional auto detailing services',
       color: 'from-blue-500 to-cyan-500',
       preview: `${baseUrl}/mobile-detailing-preview`,
-      image: '/previews/mobile-detailing-preview.png',
+      image: '/previews/mobile-detailing-preview.webp',
     },
     {
       name: 'Cleaning Services',

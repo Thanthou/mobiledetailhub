@@ -72,7 +72,7 @@ export default function Header({ onGetStarted, activeSection, scrollContainerRef
             className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
           >
             <img 
-              src="/icons/logo.png" 
+              src="/icons/logo.webp" 
               alt="That Smart Site Logo" 
               className="w-10 h-10 md:w-12 md:h-12 object-contain"
             />

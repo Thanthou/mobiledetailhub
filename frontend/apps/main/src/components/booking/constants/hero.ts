@@ -1,8 +1,8 @@
 // Booking hero configuration constants
 export const BOOKING_HERO_CONSTANTS = {
   IMAGES: [
-    '/images/hero/hero1.png',
-    '/images/hero/hero2.png',
+    '/images/hero/hero1.webp',
+    '/images/hero/hero2.webp',
   ].filter(Boolean),
   
   IMAGE_ROTATION_INTERVAL: 8000, // 8 seconds

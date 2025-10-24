@@ -1,7 +1,7 @@
 {
   "logo": {
     "default": {
-      "url": "/barber/icons/logo.png",
+      "url": "/barber/icons/logo.webp",
       "alt": "Barbershop Logo",
       "width": 200,
       "height": 200
@@ -10,30 +10,30 @@
   "hero": [
     {
       "desktop": {
-        "url": "/barber/images/hero/hero1.png",
+        "url": "/barber/images/hero/hero1.webp",
         "alt": "Professional barber cutting hair"
       },
       "mobile": {
-        "url": "/barber/images/hero/hero1-mobile.png",
+        "url": "/barber/images/hero/hero1-mobile.webp",
         "alt": "Professional barber cutting hair"
       }
     }
   ],
   "services": {
     "classic-haircut": {
-      "url": "/barber/images/services/classic-haircut.png",
+      "url": "/barber/images/services/classic-haircut.webp",
       "alt": "Classic men's haircut"
     },
     "hot-towel-shave": {
-      "url": "/barber/images/services/hot-towel-shave.png",
+      "url": "/barber/images/services/hot-towel-shave.webp",
       "alt": "Traditional hot towel shave"
     },
     "beard-trim": {
-      "url": "/barber/images/services/beard-trim.png",
+      "url": "/barber/images/services/beard-trim.webp",
       "alt": "Professional beard trim and styling"
     },
     "fade-haircut": {
-      "url": "/barber/images/services/fade-haircut.png",
+      "url": "/barber/images/services/fade-haircut.webp",
       "alt": "Modern fade haircut"
     }
   }

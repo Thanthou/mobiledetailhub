@@ -3,15 +3,15 @@
 
   "logo": {
     "default": {
-      "url": "/industries/maid-service/icons/logo.png",
+      "url": "/industries/maid-service/icons/logo.webp",
       "alt": "Maid Service Logo"
     },
     "dark": {
-      "url": "/industries/maid-service/icons/logo.png",
+      "url": "/industries/maid-service/icons/logo.webp",
       "alt": "Maid Service Logo (Dark Mode)"
     },
     "light": {
-      "url": "/industries/maid-service/icons/logo.png",
+      "url": "/industries/maid-service/icons/logo.webp",
       "alt": "Maid Service Logo (Light Mode)"
     }
   },
@@ -20,13 +20,13 @@
     {
       "id": "hero-1",
       "desktop": {
-        "url": "/industries/maid-service/images/hero/hero1.png",
+        "url": "/industries/maid-service/images/hero/hero1.webp",
         "width": 1920,
         "height": 1080,
         "aspectRatio": 1.778
       },
       "mobile": {
-        "url": "/industries/maid-service/images/hero/hero1.png",
+        "url": "/industries/maid-service/images/hero/hero1.webp",
         "width": 1920,
         "height": 1080,
         "aspectRatio": 1.778
@@ -37,13 +37,13 @@
     {
       "id": "hero-2",
       "desktop": {
-        "url": "/industries/maid-service/images/hero/hero2.png",
+        "url": "/industries/maid-service/images/hero/hero2.webp",
         "width": 1920,
         "height": 1080,
         "aspectRatio": 1.778
       },
       "mobile": {
-        "url": "/industries/maid-service/images/hero/hero2-mobile.png",
+        "url": "/industries/maid-service/images/hero/hero2-mobile.webp",
         "width": 1080,
         "height": 1920,
         "aspectRatio": 0.5625
@@ -54,13 +54,13 @@
     {
       "id": "hero-3",
       "desktop": {
-        "url": "/industries/maid-service/images/hero/hero3.png",
+        "url": "/industries/maid-service/images/hero/hero3.webp",
         "width": 1920,
         "height": 1080,
         "aspectRatio": 1.778
       },
       "mobile": {
-        "url": "/industries/maid-service/images/hero/hero3-mobile.png",
+        "url": "/industries/maid-service/images/hero/hero3-mobile.webp",
         "width": 1080,
         "height": 1920,
         "aspectRatio": 0.5625
