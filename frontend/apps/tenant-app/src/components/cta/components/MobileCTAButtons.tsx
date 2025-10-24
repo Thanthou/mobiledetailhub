@@ -36,9 +36,9 @@ const MobileCTAButtons: React.FC<MobileCTAButtonsProps> = ({
   // Mobile-optimized button styles
   const buttonBaseClasses = "flex items-center justify-center gap-2 px-6 py-4 rounded-lg font-semibold text-base transition-all duration-200 active:scale-95";
   
-  const primaryButtonClasses = "bg-orange-500 hover:bg-orange-600 text-white shadow-lg";
-  const secondaryButtonClasses = "bg-white/10 hover:bg-white/20 text-white border border-white/30";
-  const tertiaryButtonClasses = "bg-transparent hover:bg-white/10 text-white border border-white/20";
+  const primaryButtonClasses = "bg-primary hover:bg-primary-hover text-theme-text shadow-lg";
+  const secondaryButtonClasses = "bg-theme-surface-light hover:bg-theme-surface-hover text-theme-text border border-theme-border-light";
+  const tertiaryButtonClasses = "bg-transparent hover:bg-theme-surface-light text-theme-text border border-theme-border";
 
   const containerClasses = {
     horizontal: 'flex flex-row gap-3',

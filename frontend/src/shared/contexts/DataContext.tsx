@@ -70,6 +70,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   // Step 2: Check if we're on a preview route (skip tenant data fetching)
   const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
   const isPreviewRoute = currentPath.includes('-preview');
+  const previewIndustry = isPreviewRoute ? currentPath.match(/\/([a-z-]+)-preview/)?.[1] : null;
   
   // Step 3: Fetch tenant/business data (disabled for preview routes)
   const { data: businessData, isLoading: isLoadingBusiness } = useTenantData({ 
@@ -100,7 +101,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     email: businessData ? getBusinessEmail(businessData) : 'service@thatsmartsite.com',
     owner: businessData?.owner || '',
     location: businessData ? getPrimaryLocation(businessData) : '',
-    industry: businessData?.industry || 'mobile-detailing',
+    industry: isPreviewRoute && previewIndustry ? previewIndustry : (businessData?.industry || 'mobile-detailing'),
     serviceAreas: businessData?.service_areas || [],
     
     // Social media (filtered and transformed)
@@ -112,7 +113,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     // Status
     isLoading,
     isTenant: true, // Always a tenant page
-    isPreview: false // Regular tenant page, not preview
+    isPreview: isPreviewRoute // True if on a preview route
   };
 
   return (

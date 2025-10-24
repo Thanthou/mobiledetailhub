@@ -1,5 +1,4 @@
 {
-  "$schema": "../../schemas/defaults-faq.schema.json",
   "description": "Default FAQ content for maid service tenants",
   
   "faqs": [

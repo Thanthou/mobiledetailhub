@@ -60,11 +60,11 @@ const ReviewsSummary: React.FC<ReviewsSummaryProps> = ({
       {/* Rating Section - Clickable (or span in preview mode) */}
       {isPreview ? (
         <span className="flex items-center gap-2 cursor-pointer">
-          <Star className={`${iconSize} text-orange-400 fill-current`} />
-          <span className={`${textSize} font-bold text-white`}>
+          <Star className={`${iconSize} text-primary-light fill-current`} />
+          <span className={`${textSize} font-bold text-theme-text`}>
             {averageRating.toFixed(1)}
           </span>
-          <span className="text-gray-300">average</span>
+          <span className="text-theme-text-muted">average</span>
         </span>
       ) : (
         <a 
@@ -73,25 +73,25 @@ const ReviewsSummary: React.FC<ReviewsSummaryProps> = ({
           rel="noopener noreferrer"
           className="flex items-center gap-2 hover:opacity-80 transition-opacity duration-200 cursor-pointer"
         >
-          <Star className={`${iconSize} text-orange-400 fill-current`} />
-          <span className={`${textSize} font-bold text-white`}>
+          <Star className={`${iconSize} text-primary-light fill-current`} />
+          <span className={`${textSize} font-bold text-theme-text`}>
             {averageRating.toFixed(1)}
           </span>
-          <span className="text-gray-300">average</span>
+          <span className="text-theme-text-muted">average</span>
         </a>
       )}
       
       {/* Vertical Divider */}
-      <div className={`w-px ${dividerHeight} bg-stone-600`}></div>
+      <div className={`w-px ${dividerHeight} bg-theme-border-light`}></div>
       
       {/* Reviews Count Section - Clickable (or span in preview mode) */}
       {isPreview ? (
         <span className="flex items-center gap-2 cursor-pointer">
-          <Users className={`${usersIconSize} text-orange-400`} />
-          <span className={`${textSize} font-bold text-white`}>
+          <Users className={`${usersIconSize} text-primary-light`} />
+          <span className={`${textSize} font-bold text-theme-text`}>
             {totalReviews.toLocaleString()}
           </span>
-          <span className="text-gray-300">reviews</span>
+          <span className="text-theme-text-muted">reviews</span>
         </span>
       ) : (
         <a 
@@ -100,11 +100,11 @@ const ReviewsSummary: React.FC<ReviewsSummaryProps> = ({
           rel="noopener noreferrer"
           className="flex items-center gap-2 hover:opacity-80 transition-opacity duration-200 cursor-pointer"
         >
-          <Users className={`${usersIconSize} text-orange-400`} />
-          <span className={`${textSize} font-bold text-white`}>
+          <Users className={`${usersIconSize} text-primary-light`} />
+          <span className={`${textSize} font-bold text-theme-text`}>
             {totalReviews.toLocaleString()}
           </span>
-          <span className="text-gray-300">reviews</span>
+          <span className="text-theme-text-muted">reviews</span>
         </a>
       )}
     </div>

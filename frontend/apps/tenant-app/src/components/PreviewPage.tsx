@@ -108,7 +108,7 @@ export function PreviewPage() {
         <Hero onRequestQuote={handleOpenQuoteModal} />
         <ServicesGrid />
         <Reviews />
-        <FAQ />
+        {/* <FAQ /> */}
         <Gallery />
         {/* Note: Footer is included inside Gallery component */}
       </main>

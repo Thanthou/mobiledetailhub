@@ -1,6 +1,10 @@
 // UI utilities
 export { cn } from './cn';
 
+// Theme utilities
+export { loadTheme, applyTheme, loadAndApplyTheme, getCurrentTheme } from './themeLoader';
+export type { Theme } from './themeLoader';
+
 // Performance utilities
 export { performanceMonitor } from './performance';
 

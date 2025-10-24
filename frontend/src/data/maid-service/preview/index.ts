@@ -3,7 +3,8 @@
  */
 
 import type { IndustryPreviewData } from '../../preview-types';
-import defaultsData from './defaults.json';
+import defaultsData from './content.json';
+import mockReviews from '../../shared/mock-reviews.json';
 
 export function getMaidServicePreview(): IndustryPreviewData {
   return {
@@ -14,7 +15,7 @@ export function getMaidServicePreview(): IndustryPreviewData {
       city: defaultsData.city,
       state: defaultsData.state,
     },
-    reviews: defaultsData.reviews,
+    reviews: mockReviews,
   };
 }
 

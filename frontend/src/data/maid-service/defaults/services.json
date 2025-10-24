@@ -1,5 +1,4 @@
 {
-  "$schema": "../../schemas/defaults-services.schema.json",
   "description": "Default service descriptions for maid service tenants (informational only, no pricing)",
   
   "services": [

@@ -1,15 +1,15 @@
 # Assets Audit Report
 
-**Generated:** 2025-10-24T06:47:20.222Z
-**Duration:** 36ms
-**Score:** 84/100
+**Generated:** 2025-10-24T21:31:29.423Z
+**Duration:** 35ms
+**Score:** 81/100
 
 ---
 
 ## Summary
 
-- ✅ **Passed:** 198
-- ⚠️  **Warnings:** 2
+- ✅ **Passed:** 197
+- ⚠️  **Warnings:** 3
 - ❌ **Errors:** 1
 
 ## Description
@@ -30,6 +30,8 @@ Validates static assets, favicons, images, and file serving configuration
 
 2. **Security headers not configured**
    - Path: `backend/server.js`
+
+3. **Public image size large: hero1.png (1228KB)**
 
 ---
 
@@ -121,7 +123,7 @@ High-priority favicons: 3/3
 ✅ Public image size OK: logo.webp (51KB)
 ✅ Public image size OK: logo-white.webp (41KB)
 ✅ Public image size OK: logo.webp (42KB)
-✅ Public image size OK: hero1.webp (34KB)
+⚠️ **WARNING**: Public image size large: hero1.png (1228KB)
 ✅ Public image size OK: hero2-mobile.webp (32KB)
 ✅ Public image size OK: hero2.webp (55KB)
 ✅ Public image size OK: hero3-mobile.webp (37KB)
@@ -240,10 +242,10 @@ High-priority favicons: 3/3
 ✅ Public image size OK: icon.svg (1KB)
 ✅ Public image size OK: logo.webp (55KB)
 ✅ Public image size OK: mobile-detailing-preview.webp (131KB)
-✅ WebP images found: 109
+✅ WebP images found: 108
 Total images: 154
-Optimized images: 154/154
-Oversized images: 0
+Optimized images: 153/154
+Oversized images: 1
 
 ## Asset Organization
 
@@ -274,7 +276,7 @@ Public apps found: admin, main, tenant
 ## Summary
 
 Total asset checks: 201
-Score: 99/100
+Score: 98/100
 
 ---
 

@@ -1,0 +1,43 @@
+{
+  "name": "ecofriendly",
+  "displayName": "Eco-Friendly",
+  "description": "Fresh sage green palette - natural, eco-friendly, sustainable",
+  
+  "colors": {
+    "primary": "#10b981",
+    "primary-hover": "#059669",
+    "primary-light": "#34d399",
+    "primary-dark": "#064e3b",
+    
+    "background": "#0f172a",
+    "surface": "#1e293b",
+    "surface-light": "rgba(16, 185, 129, 0.1)",
+    "surface-hover": "rgba(16, 185, 129, 0.2)",
+    
+    "text": "#ffffff",
+    "text-muted": "#d1fae5",
+    "text-dim": "#a7f3d0",
+    
+    "text-dark": "#0f172a",
+    "text-dark-muted": "#475569",
+    "text-dark-dim": "#64748b",
+    
+    "border": "rgba(16, 185, 129, 0.2)",
+    "border-light": "rgba(16, 185, 129, 0.3)",
+    "border-dark": "rgba(16, 185, 129, 0.1)"
+  },
+  
+  "tailwind": {
+    "primary": "emerald-500",
+    "primary-hover": "emerald-600",
+    "primary-light": "emerald-400",
+    "primary-dark": "emerald-900",
+    
+    "background": "slate-950",
+    "surface": "slate-800",
+    "text": "white",
+    "text-muted": "emerald-100",
+    "text-light": "white"
+  }
+}
+

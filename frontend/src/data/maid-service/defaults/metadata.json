@@ -1,66 +1,45 @@
 {
-  "$schema": "../../schemas/defaults-metadata.schema.json",
   "description": "Default SEO metadata for maid service tenants",
   
-  "seo": {
-    "titleTemplate": "{businessName} | Professional House Cleaning",
-    "defaultTitle": "Professional House Cleaning Services",
-    "description": "Professional residential cleaning services you can trust. Standard cleaning, deep cleaning, and move-in/out services. Background-checked, insured team members.",
-    "keywords": [
-      "house cleaning",
-      "maid service",
-      "home cleaning",
-      "residential cleaning",
-      "deep cleaning",
-      "move in cleaning",
-      "move out cleaning",
-      "recurring cleaning"
-    ],
-    "openGraph": {
-      "type": "website",
-      "locale": "en_US",
-      "siteName": "Professional House Cleaning Services"
-    },
-    "twitter": {
-      "card": "summary_large_image",
-      "site": "@housecleaning"
-    }
-  },
-
-  "pages": {
-    "home": {
-      "title": "Professional House Cleaning Services | {businessName}",
-      "description": "Reliable, thorough house cleaning services for your home. Standard cleaning, deep cleaning, and move-in/out services in {serviceArea}."
-    },
-    "services": {
-      "title": "Our Cleaning Services | {businessName}",
-      "description": "Explore our comprehensive cleaning services including standard cleaning, deep cleaning, move-in/out cleaning, and recurring service options."
-    },
-    "about": {
-      "title": "About Us | {businessName}",
-      "description": "Learn about our professional cleaning team and our commitment to delivering spotless results with every visit."
-    },
-    "contact": {
-      "title": "Contact Us | {businessName}",
-      "description": "Get in touch to schedule your house cleaning service or request a free quote. Serving {serviceArea} and surrounding areas."
-    },
-    "quote": {
-      "title": "Request a Quote | {businessName}",
-      "description": "Get a free, customized quote for house cleaning services. Tell us about your home and we'll provide a detailed estimate."
-    }
-  },
-
-  "structuredData": {
-    "organizationType": "LocalBusiness",
-    "additionalTypes": [
-      "HousePainter",
-      "HomeAndConstructionBusiness"
-    ],
-    "defaultServiceArea": {
-      "type": "radius",
-      "value": 20,
-      "unit": "miles"
-    }
-  }
+  "seo_titleTemplate": "{businessName} | Professional House Cleaning",
+  "seo_defaultTitle": "Professional House Cleaning Services",
+  "seo_description": "Professional residential cleaning services you can trust. Standard cleaning, deep cleaning, and move-in/out services. Background-checked, insured team members.",
+  "seo_keywords": [
+    "house cleaning",
+    "maid service",
+    "home cleaning",
+    "residential cleaning",
+    "deep cleaning",
+    "move in cleaning",
+    "move out cleaning",
+    "recurring cleaning"
+  ],
+  
+  "og_type": "website",
+  "og_locale": "en_US",
+  "og_siteName": "Professional House Cleaning Services",
+  
+  "twitter_card": "summary_large_image",
+  "twitter_site": "@housecleaning",
+  
+  "page_home_title": "Professional House Cleaning Services | {businessName}",
+  "page_home_description": "Reliable, thorough house cleaning services for your home. Standard cleaning, deep cleaning, and move-in/out services in {serviceArea}.",
+  
+  "page_services_title": "Our Cleaning Services | {businessName}",
+  "page_services_description": "Explore our comprehensive cleaning services including standard cleaning, deep cleaning, move-in/out cleaning, and recurring service options.",
+  
+  "page_about_title": "About Us | {businessName}",
+  "page_about_description": "Learn about our professional cleaning team and our commitment to delivering spotless results with every visit.",
+  
+  "page_contact_title": "Contact Us | {businessName}",
+  "page_contact_description": "Get in touch to schedule your house cleaning service or request a free quote. Serving {serviceArea} and surrounding areas.",
+  
+  "page_quote_title": "Request a Quote | {businessName}",
+  "page_quote_description": "Get a free, customized quote for house cleaning services. Tell us about your home and we'll provide a detailed estimate.",
+  
+  "structuredData_organizationType": "LocalBusiness",
+  "structuredData_additionalTypes": ["HousePainter", "HomeAndConstructionBusiness"],
+  "structuredData_serviceArea_type": "radius",
+  "structuredData_serviceArea_value": 20,
+  "structuredData_serviceArea_unit": "miles"
 }
-

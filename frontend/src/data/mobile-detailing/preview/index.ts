@@ -7,6 +7,7 @@
 
 import type { IndustryPreviewData } from '../../preview-types';
 import defaultsData from './defaults.json';
+import mockReviews from '../../shared/mock-reviews.json';
 
 export function getMobileDetailingPreview(): IndustryPreviewData {
   return {
@@ -17,7 +18,7 @@ export function getMobileDetailingPreview(): IndustryPreviewData {
       city: defaultsData.city,
       state: defaultsData.state,
     },
-    reviews: defaultsData.reviews,
+    reviews: mockReviews,
   };
 }
 

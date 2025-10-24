@@ -47,6 +47,8 @@
     "fix:remaining": "node scripts/devtools/fixers/fix-remaining-routes.js",
     "fix:final": "node scripts/devtools/fixers/fix-final-routes.js",
     "fix:images": "node scripts/devtools/optimize-images.js --run",
+    "images": "node scripts/devtools/optimize-images.js",
+    "images:run": "node scripts/devtools/optimize-images.js --run",
     "test:all": "npm run test:backend && npm run test:frontend",
     "test:backend": "node scripts/testing/backend/test-subdomain.js",
     "test:frontend": "node scripts/testing/frontend/validate-build.js",

@@ -75,7 +75,7 @@ const SocialMediaIcons: React.FC = () => {
           return (
             <span
               key={platform}
-              className="text-white hover:text-orange-400 transition-colors duration-200 cursor-pointer"
+              className="text-theme-text hover:text-primary-light transition-colors duration-200 cursor-pointer"
               aria-label={ariaLabel}
               title="Social media links available in your live site"
             >
@@ -89,7 +89,7 @@ const SocialMediaIcons: React.FC = () => {
           return (
             <span
               key={platform}
-              className="text-white hover:text-orange-400 transition-colors duration-200 cursor-pointer"
+              className="text-theme-text hover:text-primary-light transition-colors duration-200 cursor-pointer"
               aria-label={ariaLabel}
               title="Social media link not configured"
             >

@@ -4,6 +4,7 @@ export type { AuthContextType } from './AuthContext';
 export { DataContext, type DataContextType, DataProvider } from './DataContext';
 export { SiteProvider, useSiteState } from './SiteContext';
 export { TenantConfigContext, type TenantConfigContextType, TenantConfigProvider } from './TenantConfigContext';
+export { ThemeProvider, useTheme } from './ThemeProvider';
 
 // Unified tenant context
 export { 

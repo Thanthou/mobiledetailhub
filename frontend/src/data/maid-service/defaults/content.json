@@ -1,41 +1,16 @@
 {
-  "$schema": "../../schemas/defaults-content.schema.json",
-  "description": "Default content for new maid service tenants - used during provisioning",
-  
-  "hero": {
-    "h1": "Professional House Cleaning Services",
-    "subtitle": "Reliable, thorough cleaning services for your home. From regular maintenance to deep cleaning, we deliver spotless results every time.",
-    "cta": {
-      "primary": {
-        "label": "Book Cleaning",
-        "href": "/quote"
-      },
-      "secondary": {
-        "label": "View Services",
-        "href": "/services"
-      }
-    }
-  },
+  "businessName": "Sparklet Clean Maids",
+  "phone": "(555) 123-4567",
+  "email": "info@cleaningservice.com",
+  "city": "Anywhere",
+  "state": "USA",
+  "h1": "Professional House Cleaning Services",
+  "subTitle": "Reliable, thorough cleaning services for your home.",
+  "faq_title": "Frequently Asked Questions",
+  "faq_subtitle": "Find answers to common questions about our cleaning services",
+  "reviews_title": "What Our Customers Say",
+  "reviews_subtitle": "See what our satisfied customers have to say about our cleaning services.",
+  "reviews_average": 4.9,
+  "reviews_total": 847
 
-  "about": {
-    "title": "About Our Cleaning Service",
-    "content": "We provide professional residential cleaning services with attention to detail and commitment to customer satisfaction. Our trained, insured team members use quality products and proven techniques to deliver consistently excellent results.\n\nWhether you need regular maintenance cleaning or a thorough deep clean, we customize our service to meet your specific needs and preferences.",
-    "highlights": [
-      "Background-checked, trained professionals",
-      "Eco-friendly cleaning products available",
-      "Flexible scheduling options",
-      "Satisfaction guaranteed"
-    ]
-  },
-
-  "footer": {
-    "tagline": "Professional house cleaning you can trust",
-    "description": "Reliable residential cleaning services with attention to detail and commitment to your satisfaction."
-  },
-
-  "contact": {
-    "callToAction": "Ready for a spotlessly clean home?",
-    "description": "Contact us today for a free quote or to schedule your cleaning service."
-  }
 }
-

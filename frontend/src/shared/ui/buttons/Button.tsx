@@ -27,10 +27,10 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const baseStyles = 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50';
     
     const variants = {
-      primary: 'bg-gradient-to-r from-orange-500 to-amber-500 text-white hover:from-orange-600 hover:to-amber-600',
+      primary: 'bg-primary text-theme-text hover:bg-primary-hover',
       secondary: 'bg-gray-600 text-white hover:bg-gray-700',
       outline: 'border border-gray-300 bg-transparent text-gray-700 hover:bg-gray-50',
-      'outline-white': 'border border-white bg-transparent text-white hover:bg-white hover:text-gray-900',
+      'outline-white': 'border border-theme-border-light bg-transparent text-theme-text hover:bg-theme-text hover:text-gray-900',
       ghost: 'text-gray-700 hover:bg-gray-100',
       destructive: 'bg-red-500 text-white hover:bg-red-600',
     };

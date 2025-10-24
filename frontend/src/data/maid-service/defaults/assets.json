@@ -1,0 +1,79 @@
+{
+    "description": "Image assets and their metadata for maid service industry",
+  
+    "logo": {
+      "default": {
+        "url": "/industries/maid-service/icons/logo-white.webp",
+        "alt": "Maid Service Logo"
+      },
+      "dark": {
+        "url": "/industries/maid-service/icons/logo-white.webp",
+        "alt": "Maid Service Logo (Dark Mode)"
+      },
+      "light": {
+        "url": "/industries/maid-service/icons/logo-white.webp",
+        "alt": "Maid Service Logo (Light Mode)"
+      }
+    },
+  
+    "hero": [
+      {
+        "id": "hero-1",
+        "desktop": {
+          "url": "/industries/maid-service/images/hero/hero1.webp",
+          "width": 1920,
+          "height": 1080,
+          "aspectRatio": 1.778
+        },
+        "mobile": {
+          "url": "/industries/maid-service/images/hero/hero1.webp",
+          "width": 1920,
+          "height": 1080,
+          "aspectRatio": 1.778
+        },
+        "alt": "Professional house cleaning service",
+        "priority": true
+      },
+      {
+        "id": "hero-2",
+        "desktop": {
+          "url": "/industries/maid-service/images/hero/hero2.webp",
+          "width": 1920,
+          "height": 1080,
+          "aspectRatio": 1.778
+        },
+        "mobile": {
+          "url": "/industries/maid-service/images/hero/hero2-mobile.webp",
+          "width": 1080,
+          "height": 1920,
+          "aspectRatio": 0.5625
+        },
+        "alt": "Clean and organized home interior",
+        "priority": false
+      },
+      {
+        "id": "hero-3",
+        "desktop": {
+          "url": "/industries/maid-service/images/hero/hero3.webp",
+          "width": 1920,
+          "height": 1080,
+          "aspectRatio": 1.778
+        },
+        "mobile": {
+          "url": "/industries/maid-service/images/hero/hero3-mobile.webp",
+          "width": 1080,
+          "height": 1920,
+          "aspectRatio": 0.5625
+        },
+        "alt": "Professional maid service cleaning",
+        "priority": false
+      }
+    ],
+  
+    "services": {
+      "grid": [],
+      "thumbnails": {}
+    }
+  }
+  
+  

@@ -37,11 +37,11 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection }) => {
   const getNavItemClasses = (link: typeof NAV_LINKS[0]) => {
     const isLinkActive = isActive(link);
     
-    const baseClasses = "nav-link hover:text-orange-400 focus:text-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-black/20 transition-colors duration-200 p-2 font-inherit cursor-pointer rounded";
+    const baseClasses = "nav-link hover:text-primary-light focus:text-primary-light focus:outline-none focus:ring-2 focus:ring-primary-light focus:ring-offset-2 focus:ring-offset-black/20 transition-colors duration-200 p-2 font-inherit cursor-pointer rounded";
     
     const finalClasses = isLinkActive 
-      ? `${baseClasses} text-orange-400 bg-transparent border-none ring-2 ring-orange-400 ring-offset-2 ring-offset-black/20` 
-      : `${baseClasses} text-white bg-transparent border-none`;
+      ? `${baseClasses} text-primary-light bg-transparent border-none ring-2 ring-primary-light ring-offset-2 ring-offset-black/20` 
+      : `${baseClasses} text-theme-text bg-transparent border-none`;
     
     return finalClasses;
   };

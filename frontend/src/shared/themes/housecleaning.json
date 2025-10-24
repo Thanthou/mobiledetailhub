@@ -1,0 +1,42 @@
+{
+  "name": "housecleaning",
+  "displayName": "House Cleaning",
+  "description": "Fresh cyan/sky blue palette - calm, clean, professional",
+  
+  "colors": {
+    "primary": "#0ea5e9",
+    "primary-hover": "#0284c7",
+    "primary-light": "#38bdf8",
+    "primary-dark": "#0c4a6e",
+    
+    "background": "#0f172a",
+    "surface": "#1e293b",
+    "surface-light": "rgba(14, 165, 233, 0.1)",
+    "surface-hover": "rgba(14, 165, 233, 0.2)",
+    
+    "text": "#ffffff",
+    "text-muted": "#e0f2fe",
+    "text-dim": "#bae6fd",
+    
+    "text-dark": "#0f172a",
+    "text-dark-muted": "#475569",
+    "text-dark-dim": "#64748b",
+    
+    "border": "rgba(14, 165, 233, 0.2)",
+    "border-light": "rgba(14, 165, 233, 0.3)",
+    "border-dark": "rgba(14, 165, 233, 0.1)"
+  },
+  
+  "tailwind": {
+    "primary": "sky-500",
+    "primary-hover": "sky-600",
+    "primary-light": "sky-400",
+    "primary-dark": "sky-900",
+    
+    "background": "slate-950",
+    "surface": "slate-800",
+    "text": "white",
+    "text-muted": "sky-100",
+    "text-light": "white"
+  }
+}

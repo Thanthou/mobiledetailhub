@@ -5,8 +5,8 @@
 
 import type { MainSiteConfig } from '@shared/types/location';
 
-import assetsData from './assets.json';
-import previewDefaults from './preview/defaults.json';
+import assetsData from './preview/assets.json';
+import previewDefaults from './preview/content.json';
 import seoDefaults from './seo-defaults.json';
 
 /**

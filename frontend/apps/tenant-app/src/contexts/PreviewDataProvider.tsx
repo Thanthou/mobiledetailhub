@@ -16,6 +16,7 @@ import React, { createContext, useContext, useEffect, useMemo, useState } from '
 import type { MainSiteConfig } from '@shared/types/location';
 import type { IndustryPreviewData } from '@data/preview-types';
 import { DataContext, type DataContextType } from '@shared/contexts/DataContext';
+import { ThemeProvider } from '@shared/contexts/ThemeProvider';
 import { getPreviewIndustry } from '@shared/utils';
 import { loadIndustryPreview } from '@data/preview-loader';
 
@@ -172,11 +173,13 @@ export function PreviewDataProvider({ children }: PreviewDataProviderProps) {
   }), [industry, previewConfig, previewData, isLoading]);
   
   return (
-    <PreviewDataContext.Provider value={previewContextValue}>
-      <DataContext.Provider value={mockTenantData}>
-        {children}
-      </DataContext.Provider>
-    </PreviewDataContext.Provider>
+    <ThemeProvider industry={industry || undefined}>
+      <PreviewDataContext.Provider value={previewContextValue}>
+        <DataContext.Provider value={mockTenantData}>
+          {children}
+        </DataContext.Provider>
+      </PreviewDataContext.Provider>
+    </ThemeProvider>
   );
 }
 

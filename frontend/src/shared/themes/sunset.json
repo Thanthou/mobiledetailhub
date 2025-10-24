@@ -1,0 +1,44 @@
+{
+  "name": "sunset",
+  "displayName": "Sunset",
+  "description": "Warm orange accents on dark gray - perfect for automotive and action-oriented services",
+  
+  "colors": {
+    "primary": "#f97316",
+    "primary-hover": "#ea580c",
+    "primary-light": "#fb923c",
+    "primary-dark": "#c2410c",
+    
+    "background": "#111827",
+    "surface": "#1f2937",
+    "surface-light": "rgba(255, 255, 255, 0.1)",
+    "surface-hover": "rgba(255, 255, 255, 0.2)",
+    
+    "text": "#ffffff",
+    "text-muted": "#d1d5db",
+    "text-dim": "#9ca3af",
+    
+    "text-light": "#ffffff",
+    "text-light-muted": "#d1d5db",
+    "text-light-dim": "#9ca3af",
+    
+    "border": "rgba(255, 255, 255, 0.1)",
+    "border-light": "rgba(255, 255, 255, 0.2)",
+    "border-dark": "rgba(0, 0, 0, 0.2)"
+  },
+  
+  "tailwind": {
+    "primary": "orange-500",
+    "primary-hover": "orange-600",
+    "primary-light": "orange-400",
+    "primary-dark": "orange-700",
+    
+    "background": "gray-900",
+    "surface": "gray-800",
+    "text": "white",
+    "text-muted": "gray-300",
+    "text-dim": "gray-400"
+  }
+}
+    
+

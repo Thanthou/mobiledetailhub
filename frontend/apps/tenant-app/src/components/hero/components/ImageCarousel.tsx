@@ -53,6 +53,10 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
         const imgData: HeroImage | undefined = imageData[index];
         const desktopUrl = image;
         const mobileUrl = imgData?.mobileUrl;
+        
+        // Apply filter to hero2 and hero3 images for maid-service
+        const needsFilter = image.includes('hero2') || image.includes('hero3');
+        const imageFilter = needsFilter ? 'brightness(0.85) contrast(1.05) saturate(0.95)' : undefined;
 
         return (
           <div
@@ -75,7 +79,8 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
                     position: 'absolute',
                     top: 0,
                     left: 0,
-                    zIndex: index === currentIndex ? 2 : 1
+                    zIndex: index === currentIndex ? 2 : 1,
+                    ...(imageFilter && { filter: imageFilter })
                   }}
                   loading={index === 0 ? 'eager' : 'lazy'}
                   decoding="async"
@@ -93,7 +98,8 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
                     position: 'absolute',
                     top: 0,
                     left: 0,
-                    zIndex: index === currentIndex ? 2 : 1
+                    zIndex: index === currentIndex ? 2 : 1,
+                    ...(imageFilter && { filter: imageFilter })
                   }}
                   loading={index === 0 ? 'eager' : 'lazy'}
                   decoding="async"
@@ -112,7 +118,8 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
                   position: 'absolute',
                   top: 0,
                   left: 0,
-                  zIndex: index === currentIndex ? 2 : 1
+                  zIndex: index === currentIndex ? 2 : 1,
+                  ...(imageFilter && { filter: imageFilter })
                 }}
                 loading={index === 0 ? 'eager' : 'lazy'}
                 decoding="async"

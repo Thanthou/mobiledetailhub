@@ -1,0 +1,43 @@
+{
+  "name": "premium",
+  "displayName": "Premium",
+  "description": "Elegant violet/purple palette - upscale, sophisticated, memorable",
+  
+  "colors": {
+    "primary": "#8b5cf6",
+    "primary-hover": "#7c3aed",
+    "primary-light": "#a78bfa",
+    "primary-dark": "#6d28d9",
+    
+    "background": "#0f172a",
+    "surface": "#1e293b",
+    "surface-light": "rgba(139, 92, 246, 0.1)",
+    "surface-hover": "rgba(139, 92, 246, 0.2)",
+    
+    "text": "#ffffff",
+    "text-muted": "#e9d5ff",
+    "text-dim": "#d8b4fe",
+    
+    "text-dark": "#0f172a",
+    "text-dark-muted": "#475569",
+    "text-dark-dim": "#64748b",
+    
+    "border": "rgba(139, 92, 246, 0.2)",
+    "border-light": "rgba(139, 92, 246, 0.3)",
+    "border-dark": "rgba(139, 92, 246, 0.1)"
+  },
+  
+  "tailwind": {
+    "primary": "violet-500",
+    "primary-hover": "violet-600",
+    "primary-light": "violet-400",
+    "primary-dark": "violet-700",
+    
+    "background": "slate-950",
+    "surface": "slate-800",
+    "text": "white",
+    "text-muted": "violet-100",
+    "text-light": "white"
+  }
+}
+
