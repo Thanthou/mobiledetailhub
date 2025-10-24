@@ -63,7 +63,7 @@ export function getAvailableServices(industry: string): string[] {
         'marine-detailing',
         'rv-detailing',
       ];
-    case 'maid-service':
+    case 'house-cleaning':
       return ['standard-clean', 'deep-clean', 'move-in-out'];
     case 'lawncare':
       return ['mowing', 'fertilization', 'landscaping'];

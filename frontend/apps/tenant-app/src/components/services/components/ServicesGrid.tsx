@@ -17,10 +17,10 @@ const ServicesGrid: React.FC<ServicesGridProps> = ({ locationData }) => {
       {/* MOBILE: First 3 services with header */}
       <section 
         id="services" 
-        className="md:hidden relative z-0 h-screen snap-start snap-always bg-stone-800 px-4 py-4"
+        className="md:hidden relative z-0 h-screen snap-start snap-always bg-theme-surface px-4 py-4"
       >
         <div className="mx-auto w-full h-full flex flex-col justify-center">
-          <h2 className="text-3xl font-bold text-white text-center mb-4">
+          <h2 className="text-3xl font-bold text-theme-text text-center mb-4">
             Our Services
           </h2>
           
@@ -37,7 +37,7 @@ const ServicesGrid: React.FC<ServicesGridProps> = ({ locationData }) => {
 
       {/* MOBILE: Last 3 services */}
       <section 
-        className="md:hidden relative z-0 h-screen snap-start snap-always bg-stone-800 px-4 py-2"
+        className="md:hidden relative z-0 h-screen snap-start snap-always bg-theme-surface px-4 py-2"
       >
         <div className="mx-auto w-full h-full flex flex-col justify-start pt-[80px]">
           <ul className="grid grid-cols-1 gap-4 [&>li>div>div]:h-[calc((100vh-200px)/3)]">
@@ -54,10 +54,10 @@ const ServicesGrid: React.FC<ServicesGridProps> = ({ locationData }) => {
       {/* DESKTOP: All services in one section */}
       <section 
         id="services-desktop" 
-        className="hidden md:block relative z-0 min-h-screen snap-start snap-always bg-stone-800 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 py-8 md:py-12 pt-[100px] md:pt-[120px]"
+        className="hidden md:block relative z-0 min-h-screen snap-start snap-always bg-theme-surface px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 py-8 md:py-12 pt-[100px] md:pt-[120px]"
       >
         <div className="mx-auto w-full">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white text-center mb-4 md:mb-6 lg:mb-8">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-theme-text text-center mb-4 md:mb-6 lg:mb-8">
             Our Services
           </h2>
           

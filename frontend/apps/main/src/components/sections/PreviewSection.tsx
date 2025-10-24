@@ -42,10 +42,11 @@ export default function PreviewSection() {
       image: '/previews/mobile-detailing-preview.webp',
     },
     {
-      name: 'Cleaning Services',
+      name: 'House Cleaning',
       description: 'Residential and commercial cleaning',
       color: 'from-purple-500 to-pink-500',
-      preview: `${baseUrl}/maid-service-preview`,
+      preview: `${baseUrl}/house-cleaning-preview`,
+      image: '/previews/house-cleaning-preview.webp',
     },
     {
       name: 'Lawn Care',
@@ -140,7 +141,7 @@ export default function PreviewSection() {
                 onClick={() => window.open(industry.preview, '_blank')}
               >
                 {/* Mini Preview Area */}
-                <div className="bg-gray-800 overflow-hidden flex-shrink-0">
+                <div className="bg-gray-800 overflow-hidden flex-shrink-0 relative">
                   {industry.image ? (
                     // Show preview image if available
                     <img 

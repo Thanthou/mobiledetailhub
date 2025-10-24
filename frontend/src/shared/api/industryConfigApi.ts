@@ -34,9 +34,9 @@ export async function fetchIndustryConfig(industry: string): Promise<MainSiteCon
         return await loadPetGroomingConfig();
       }
       
-      case 'maid-service': {
-        const { loadMaidServiceConfig } = await import('@data/maid-service');
-        return await loadMaidServiceConfig();
+      case 'house-cleaning': {
+        const { loadHouseCleaningConfig } = await import('@data/house-cleaning');
+        return await loadHouseCleaningConfig();
       }
       
       case 'lawncare': {

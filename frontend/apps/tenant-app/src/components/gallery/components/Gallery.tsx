@@ -59,17 +59,17 @@ const Gallery: React.FC<GalleryProps> = ({ onRequestQuote, locationData: _locati
   return (
     <>
       {/* MOBILE: Separate full-screen gallery section */}
-      <section id="gallery" className="md:hidden relative h-screen snap-start snap-always flex items-center justify-center bg-stone-900 px-4">
+      <section id="gallery" className="md:hidden relative h-screen snap-start snap-always flex items-center justify-center bg-theme-background px-4">
         <div className="h-full w-full flex items-center justify-center pt-[72px]">
         {loading ? (
-          <div className="text-stone-400">Loading gallery...</div>
+          <div className="text-theme-text-muted">Loading gallery...</div>
         ) : error ? (
           <div className="text-red-400">Error loading gallery: {error}</div>
         ) : images.length === 0 ? (
-          <div className="text-stone-400">No images available</div>
+          <div className="text-theme-text-muted">No images available</div>
         ) : (
           <div className="relative w-full mx-auto flex flex-col h-full justify-center">
-            <h2 className="text-3xl font-bold text-white text-center mb-8">Gallery</h2>
+            <h2 className="text-3xl font-bold text-theme-text text-center mb-8">Gallery</h2>
             
             {/* Swipeable gallery - full width on mobile */}
             <div
@@ -137,21 +137,21 @@ const Gallery: React.FC<GalleryProps> = ({ onRequestQuote, locationData: _locati
       </section>
 
       {/* MOBILE: Separate footer section */}
-      <section id="footer" className="md:hidden relative snap-start snap-always bg-stone-900">
+      <section id="footer" className="md:hidden relative snap-start snap-always bg-theme-background">
         <div className="pt-[72px] py-12">
         <Footer onRequestQuote={onRequestQuote || (() => { /* noop */ })} />
         </div>
       </section>
 
       {/* DESKTOP: Combined gallery + footer in one section (original) */}
-      <section id="gallery-desktop" className="hidden md:block relative h-screen snap-start snap-always overflow-hidden bg-stone-900">
+      <section id="gallery-desktop" className="hidden md:block relative h-screen snap-start snap-always overflow-hidden bg-theme-background">
         <div className="h-full pt-[88px]">
         <div className="relative z-10 h-full px-4 pt-20">
           {/* Top Half - Gallery */}
           <div className="h-1/2 flex items-center justify-center px-4 sm:px-6 lg:px-8 relative">
             {rotatingLoading ? (
               <div className="flex items-center justify-center">
-                <div className="text-stone-400">Loading gallery...</div>
+                <div className="text-theme-text-muted">Loading gallery...</div>
               </div>
             ) : rotatingError ? (
               <div className="flex items-center justify-center">
@@ -159,7 +159,7 @@ const Gallery: React.FC<GalleryProps> = ({ onRequestQuote, locationData: _locati
               </div>
             ) : currentImages.length === 0 ? (
               <div className="flex items-center justify-center">
-                <div className="text-stone-400">No images available</div>
+                <div className="text-theme-text-muted">No images available</div>
               </div>
             ) : (
               <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 lg:gap-6 w-full">

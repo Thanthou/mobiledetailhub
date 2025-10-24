@@ -70,10 +70,10 @@ export function PreviewPage() {
   // Show loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-theme-background flex items-center justify-center p-4">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-          <p className="text-white text-lg">Loading preview...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-theme-text mx-auto mb-4"></div>
+          <p className="text-theme-text text-lg">Loading preview...</p>
         </div>
       </div>
     );
@@ -82,16 +82,16 @@ export function PreviewPage() {
   // Show error state
   if (!previewConfig) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white/10 rounded-lg p-8 text-center">
+      <div className="min-h-screen bg-theme-background flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-theme-surface-light rounded-lg p-8 text-center">
           <div className="text-6xl mb-4">🔍</div>
-          <h1 className="text-2xl font-bold text-white mb-2">Preview Not Available</h1>
-          <p className="text-white/70 mb-6">
+          <h1 className="text-2xl font-bold text-theme-text mb-2">Preview Not Available</h1>
+          <p className="text-theme-text-muted mb-6">
             Unable to load preview data for this industry.
           </p>
           <a 
             href="http://localhost:5175" 
-            className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+            className="inline-block bg-primary hover:bg-primary-hover text-theme-text font-bold py-3 px-6 rounded-lg transition-colors"
           >
             Back to Main Site
           </a>

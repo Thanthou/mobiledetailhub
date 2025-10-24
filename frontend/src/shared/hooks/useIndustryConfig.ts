@@ -17,7 +17,7 @@ import { fetchIndustryConfig } from '@shared/api/industryConfigApi';
 /**
  * Hook to access industry-specific site configuration
  * 
- * @param industry - Industry identifier (e.g., 'mobile-detailing', 'maid-service', 'pet-grooming')
+ * @param industry - Industry identifier (e.g., 'mobile-detailing', 'house-cleaning', 'pet-grooming')
  * @param options - React Query options
  * @returns Site config with loading/error states
  * 

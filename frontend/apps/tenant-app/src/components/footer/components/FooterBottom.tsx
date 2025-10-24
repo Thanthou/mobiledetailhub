@@ -19,7 +19,7 @@ const FooterBottom: React.FC<FooterBottomProps> = ({ businessInfo, onRequestQuot
         <div className="text-center md:text-right">
           <button
             onClick={onRequestQuote}
-            className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-3 rounded-lg transition-colors duration-200"
+            className="bg-primary hover:bg-primary-hover text-theme-text font-semibold px-6 py-3 rounded-lg transition-colors duration-200"
           >
             Get Quote
           </button>

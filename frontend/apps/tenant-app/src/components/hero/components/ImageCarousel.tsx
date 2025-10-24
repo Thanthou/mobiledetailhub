@@ -54,7 +54,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
         const desktopUrl = image;
         const mobileUrl = imgData?.mobileUrl;
         
-        // Apply filter to hero2 and hero3 images for maid-service
+        // Apply filter to hero2 and hero3 images for house-cleaning
         const needsFilter = image.includes('hero2') || image.includes('hero3');
         const imageFilter = needsFilter ? 'brightness(0.85) contrast(1.05) saturate(0.95)' : undefined;
 

@@ -36,7 +36,7 @@ const SocialMediaColumn: React.FC<SocialMediaColumnProps> = ({ socialMedia }) =>
 
   return (
     <div className="text-center">
-      <h3 className="font-bold text-orange-400 text-xl mb-6">Follow Us</h3>
+      <h3 className="font-bold text-primary-light text-xl mb-6">Follow Us</h3>
       <div className="inline-flex flex-col space-y-3 items-start">
         {visibleLinks.map(({ platform, url, icon: Icon, label }) => {
           const hasUrl = url && url.trim() !== '';
@@ -46,7 +46,7 @@ const SocialMediaColumn: React.FC<SocialMediaColumnProps> = ({ socialMedia }) =>
             return (
               <span
                 key={platform}
-                className="text-white hover:text-orange-400 transition-colors duration-200 flex items-center space-x-3 cursor-pointer"
+                className="text-theme-text hover:text-primary-light transition-colors duration-200 flex items-center space-x-3 cursor-pointer"
                 title="Social media link not configured"
               >
                 <Icon className="h-5 w-5 flex-shrink-0" />

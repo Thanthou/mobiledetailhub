@@ -17,7 +17,7 @@ import type { PreviewPayload } from '../types/preview.types';
 
 const INDUSTRIES = [
   { value: 'mobile-detailing', label: 'Mobile Detailing' },
-  { value: 'maid-service', label: 'Maid Service' },
+  { value: 'house-cleaning', label: 'House Cleaning' },
   { value: 'lawncare', label: 'Lawn Care' },
   { value: 'pet-grooming', label: 'Pet Grooming' },
 ] as const;
@@ -30,8 +30,8 @@ const TEST_DATA = {
     city: 'Bullhead City',
     state: 'AZ'
   },
-  'maid-service': {
-    businessName: 'Sparkle Clean Maids',
+  'house-cleaning': {
+    businessName: 'Sparkle Clean House Cleaning',
     phone: '(602) 555-5678',
     city: 'Phoenix',
     state: 'AZ'

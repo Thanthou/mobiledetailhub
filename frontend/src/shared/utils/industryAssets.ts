@@ -14,7 +14,7 @@
  * @example
  * getIndustryLogo('mobile-detailing') → '/industries/mobile-detailing/icons/logo.webp'
  * getIndustryLogo('main') → '/icons/logo.png'
- * getIndustryLogo('maid-service') → '/industries/maid-service/icons/logo-white.webp'
+ * getIndustryLogo('house-cleaning') → '/industries/house-cleaning/icons/logo-white.webp'
  */
 export function getIndustryLogo(industry: string): string {
   // Special case for main marketing site
@@ -22,9 +22,9 @@ export function getIndustryLogo(industry: string): string {
     return '/icons/logo.png';
   }
   
-  // Special case for maid-service (uses white logo for contrast)
-  if (industry === 'maid-service') {
-    return '/industries/maid-service/icons/logo-white.webp';
+  // Special case for house-cleaning (uses white logo for contrast)
+  if (industry === 'house-cleaning') {
+    return '/industries/house-cleaning/icons/logo-white.webp';
   }
   
   return `/industries/${industry}/icons/logo.webp`;

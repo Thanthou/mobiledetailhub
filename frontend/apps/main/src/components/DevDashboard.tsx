@@ -107,11 +107,11 @@ export function DevDashboard() {
       description: 'Car, boat, RV detailing with ceramic coating, paint correction, PPF'
     },
     { 
-      name: 'Maid Service', 
-      slug: 'maid-service', 
+      name: 'House Cleaning', 
+      slug: 'house-cleaning', 
       icon: '🏠', 
       color: 'bg-pink-100 text-pink-600',
-      previewUrl: 'http://tenant.localhost:5177/maid-service-preview',
+      previewUrl: 'http://tenant.localhost:5177/house-cleaning-preview',
       description: 'Residential and commercial cleaning services'
     },
     { 

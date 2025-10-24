@@ -121,7 +121,7 @@ const tenantSchemas = {
     // Plan information
     selectedPlan: z.enum(['basic', 'premium', 'enterprise']),
     planPrice: commonFields.price,
-    industry: z.enum(['mobile-detailing', 'maid-service', 'lawn-care', 'pet-grooming', 'barber-shop']).default('mobile-detailing'),
+    industry: z.enum(['mobile-detailing', 'house-cleaning', 'lawn-care', 'pet-grooming', 'barber-shop']).default('mobile-detailing'),
     
     // Defaults (optional)
     defaults: z.object({
@@ -162,7 +162,7 @@ const tenantSchemas = {
   
   // GET /api/tenants
   list: z.object({
-    industry: z.enum(['mobile-detailing', 'maid-service', 'lawn-care', 'pet-grooming', 'barber-shop']).optional(),
+    industry: z.enum(['mobile-detailing', 'house-cleaning', 'lawn-care', 'pet-grooming', 'barber-shop']).optional(),
     status: z.enum(['pending', 'approved', 'rejected']).optional(),
     limit: commonFields.limit,
     offset: commonFields.offset

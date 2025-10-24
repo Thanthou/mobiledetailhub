@@ -32,8 +32,8 @@ function PreviewRoutes() {
         {/* Industry-specific preview routes */}
         <Route path="/mobile-detailing-preview" element={<PreviewPage />} />
         <Route path="/mobile-detailing-preview/services/:serviceType" element={<ServicePage />} />
-        <Route path="/maid-service-preview" element={<PreviewPage />} />
-        <Route path="/maid-service-preview/services/:serviceType" element={<ServicePage />} />
+        <Route path="/house-cleaning-preview" element={<PreviewPage />} />
+        <Route path="/house-cleaning-preview/services/:serviceType" element={<ServicePage />} />
         <Route path="/lawncare-preview" element={<PreviewPage />} />
         <Route path="/lawncare-preview/services/:serviceType" element={<ServicePage />} />
         <Route path="/pet-grooming-preview" element={<PreviewPage />} />

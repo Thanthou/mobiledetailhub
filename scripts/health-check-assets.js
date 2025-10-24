@@ -39,7 +39,7 @@ const criticalAssets = [
 const industryAssets = [
   'industries/mobile-detailing/icons/logo.webp',
   'industries/mobile-detailing/data/gallery.json',
-  'industries/maid-service/icons/logo.png',
+  'industries/house-cleaning/icons/logo.png',
   'industries/lawncare/icons/logo.png',
   'industries/pet-grooming/icons/logo.png',
   'industries/barber/icons/logo.png'
@@ -154,7 +154,7 @@ function checkIndustryDirectories() {
   console.log('\n🏭 Checking Industry Directories...');
   console.log('─'.repeat(60));
   
-  const industries = ['mobile-detailing', 'maid-service', 'lawncare', 'pet-grooming', 'barber'];
+  const industries = ['mobile-detailing', 'house-cleaning', 'lawncare', 'pet-grooming', 'barber'];
   let passed = 0;
   let failed = 0;
   

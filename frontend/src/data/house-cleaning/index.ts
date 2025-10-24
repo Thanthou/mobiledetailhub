@@ -1,5 +1,5 @@
 /**
- * Maid Service Industry Config Loader
+ * House Cleaning Industry Config Loader
  * Assembles modular config files into MainSiteConfig structure
  */
 
@@ -10,10 +10,10 @@ import previewDefaults from './preview/content.json';
 import seoDefaults from './seo-defaults.json';
 
 /**
- * Load and assemble maid-service config from modular files
+ * Load and assemble house-cleaning config from modular files
  */
-export function loadMaidServiceConfig(): MainSiteConfig {
-  console.log('Loading maid-service config...');
+export function loadHouseCleaningConfig(): MainSiteConfig {
+  console.log('Loading house-cleaning config...');
   console.log('Assets data:', assetsData);
   
   // Transform assets.json hero images to match MainSiteConfig format
@@ -30,7 +30,7 @@ export function loadMaidServiceConfig(): MainSiteConfig {
 
   // Assemble the full config
   const config: MainSiteConfig = {
-    brand: 'Clean & Shine Maid Service',
+    brand: 'Clean & Shine House Cleaning',
     slug: 'site',
     urlPath: '/',
     
@@ -102,7 +102,7 @@ export function loadMaidServiceConfig(): MainSiteConfig {
     socials: {
       facebook: 'https://www.facebook.com/thatsmartsite',
       instagram: 'https://www.instagram.com/thatsmartsite',
-      googleBusiness: 'https://share.google/maidservice'
+      googleBusiness: 'https://share.google/housecleaning'
     }
   };
 

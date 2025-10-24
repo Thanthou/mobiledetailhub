@@ -85,7 +85,7 @@ const ReviewsCarousel: React.FC<ReviewsCarouselProps> = ({
   if (reviews.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-300 text-lg">No reviews available</p>
+        <p className="text-theme-text-muted text-lg">No reviews available</p>
       </div>
     );
   }
@@ -97,7 +97,7 @@ const ReviewsCarousel: React.FC<ReviewsCarouselProps> = ({
         <>
           <button
             onClick={handlePrevious}
-            className="hidden md:flex absolute -left-12 top-1/2 -translate-y-1/2 z-20 bg-orange-500 hover:bg-orange-600 text-white p-3 rounded-full transition-colors shadow-lg items-center justify-center"
+            className="hidden md:flex absolute -left-12 top-1/2 -translate-y-1/2 z-20 bg-primary hover:bg-primary-hover text-theme-text p-3 rounded-full transition-colors shadow-lg items-center justify-center"
             aria-label="Previous review"
           >
             <ChevronLeft className="h-5 w-5" />
@@ -105,7 +105,7 @@ const ReviewsCarousel: React.FC<ReviewsCarouselProps> = ({
 
           <button
             onClick={handleNext}
-            className="hidden md:flex absolute -right-12 top-1/2 -translate-y-1/2 z-20 bg-orange-500 hover:bg-orange-600 text-white p-3 rounded-full transition-colors shadow-lg items-center justify-center"
+            className="hidden md:flex absolute -right-12 top-1/2 -translate-y-1/2 z-20 bg-primary hover:bg-primary-hover text-theme-text p-3 rounded-full transition-colors shadow-lg items-center justify-center"
             aria-label="Next review"
           >
             <ChevronRight className="h-5 w-5" />
@@ -141,8 +141,8 @@ const ReviewsCarousel: React.FC<ReviewsCarouselProps> = ({
               onClick={() => { setCurrentIndex(index); }}
               className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-colors ${
                 currentIndex === index
-                  ? 'bg-orange-500'
-                  : 'bg-gray-400 hover:bg-gray-300'
+                  ? 'bg-primary'
+                  : 'bg-theme-text-dim hover:bg-theme-text-muted'
               }`}
               aria-label={`Go to review ${index + 1}`}
             />

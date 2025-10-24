@@ -11,10 +11,14 @@ export default {
     'bg-primary-hover',
     'bg-primary-light',
     'bg-primary-dark',
+    'bg-primary/10',
+    'bg-primary/20',
+    'bg-primary/30',
     'hover:bg-primary-hover',
     'text-primary',
     'text-primary-light',
     'hover:text-primary-light',
+    'border-primary/30',
     // Theme text colors
     'text-theme-text',
     'text-theme-text-muted',
@@ -33,6 +37,8 @@ export default {
     'bg-theme-surface-light',
     'bg-theme-surface-hover',
     'hover:bg-theme-surface-hover',
+    'bg-theme-background/85',
+    'backdrop-blur-sm',
     // Borders
     'border-theme-border',
     'border-theme-border-light',

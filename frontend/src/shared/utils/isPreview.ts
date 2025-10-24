@@ -11,7 +11,7 @@
  * 
  * Matches patterns like:
  * - /mobile-detailing-preview
- * - /maid-service-preview/
+ * - /house-cleaning-preview/
  * - /preview/mobile-detailing
  * 
  * @param pathname - URL pathname to check (defaults to window.location.pathname)
@@ -78,7 +78,7 @@ export function inPreviewMode(): boolean {
  * 
  * Examples:
  * - /mobile-detailing-preview → 'mobile-detailing'
- * - /maid-service-preview/ → 'maid-service'
+ * - /house-cleaning-preview/ → 'house-cleaning'
  * - /preview/lawncare → 'lawncare'
  * 
  * @param pathname - URL pathname (defaults to window.location.pathname)

@@ -8,7 +8,7 @@
 // Industry types enum
 export const INDUSTRIES = [
   'mobile-detailing',
-  'maid-service',
+  'house-cleaning',
   'lawncare',
   'pet-grooming',
 ] as const;
@@ -78,9 +78,9 @@ export async function getIndustryTemplate(
         config = await loadPetGroomingConfig();
         break;
       }
-      case 'maid-service': {
-        const { loadMaidServiceConfig } = await import('@data/maid-service');
-        config = await loadMaidServiceConfig();
+      case 'house-cleaning': {
+        const { loadHouseCleaningConfig } = await import('@data/house-cleaning');
+        config = await loadHouseCleaningConfig();
         break;
       }
       case 'lawncare': {

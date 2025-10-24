@@ -32,7 +32,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, onReviewClick }) => {
 
   return (
     <div 
-      className="relative bg-white/10 backdrop-blur-sm rounded-lg p-6 md:p-8 lg:p-9 cursor-pointer hover:bg-white/20 transition-colors h-[400px] flex flex-col"
+      className="relative bg-theme-surface-light backdrop-blur-sm rounded-lg p-6 md:p-8 lg:p-9 cursor-pointer hover:bg-theme-surface-hover transition-colors h-[400px] flex flex-col"
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       role="button"
@@ -41,7 +41,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, onReviewClick }) => {
     >
       <div className="flex items-center mb-4 md:mb-5 lg:mb-6">
         <div className="flex items-center space-x-4">
-          <div className={`w-16 h-16 rounded-full flex items-center justify-center text-white font-semibold overflow-hidden flex-shrink-0 ${review.profileImage && !imageError ? 'bg-transparent' : 'bg-orange-500'}`}>
+          <div className={`w-16 h-16 rounded-full flex items-center justify-center text-theme-text font-semibold overflow-hidden flex-shrink-0 ${review.profileImage && !imageError ? 'bg-transparent' : 'bg-primary'}`}>
             {review.profileImage && !imageError ? (
               <img 
                 src={review.profileImage} 
@@ -58,13 +58,13 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, onReviewClick }) => {
             )}
           </div>
           <div>
-            <h3 className="text-white font-semibold text-lg">{review.customerName}</h3>
+            <h3 className="text-theme-text font-semibold text-lg">{review.customerName}</h3>
             <div className="flex items-center">
               {Array.from({ length: 5 }).map((_, i) => (
                 <span
                   key={i}
                   className={`text-2xl ${
-                    i < review.rating ? 'text-yellow-400' : 'text-gray-400'
+                    i < review.rating ? 'text-yellow-400' : 'text-theme-text-dim'
                   }`}
                 >
                   ★
@@ -79,12 +79,12 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, onReviewClick }) => {
       <div className="flex-1 flex flex-col justify-start pb-16 min-h-0">
         {/* Review Title */}
         {review.title && (
-          <h5 className="text-white font-medium mb-2 text-base line-clamp-2">
+          <h5 className="text-theme-text font-medium mb-2 text-base line-clamp-2">
             {review.title}
           </h5>
         )}
 
-        <p className="text-gray-300 text-base leading-relaxed line-clamp-6 overflow-hidden">
+        <p className="text-theme-text-muted text-base leading-relaxed line-clamp-6 overflow-hidden">
           {review.reviewText}
         </p>
       </div>
@@ -93,7 +93,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, onReviewClick }) => {
       <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
         <div>
           {review.serviceCategory && (
-            <span className="text-sm bg-white/20 text-white px-3 py-2 rounded-full">
+            <span className="text-sm bg-theme-surface-hover text-theme-text px-3 py-2 rounded-full">
               {review.serviceCategory}
             </span>
           )}

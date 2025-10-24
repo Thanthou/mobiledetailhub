@@ -21,7 +21,7 @@ export const VerticalSchema = z.enum([
   'mobile-detailing',
   'pet-grooming',
   'lawn-care',
-  'maid-service',
+  'house-cleaning',
   'hvac',
   'plumbing',
   'electrical'

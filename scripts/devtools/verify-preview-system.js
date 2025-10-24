@@ -103,7 +103,7 @@ if (fs.existsSync(previewDataPath)) {
   
   // Count industries
   const dataContent = fs.readFileSync(previewDataPath, 'utf-8');
-  const industries = ['mobile-detailing', 'maid-service', 'lawncare', 'pet-grooming', 'barber'];
+  const industries = ['mobile-detailing', 'house-cleaning', 'lawncare', 'pet-grooming', 'barber'];
   let foundIndustries = 0;
   industries.forEach(industry => {
     if (dataContent.includes(`'${industry}':`)) {
@@ -133,7 +133,7 @@ if (fs.existsSync(tenantAppPath)) {
   
   const previewRoutes = [
     '/mobile-detailing-preview',
-    '/maid-service-preview',
+    '/house-cleaning-preview',
     '/lawncare-preview',
     '/pet-grooming-preview',
     '/barber-preview'
@@ -225,7 +225,7 @@ if (allChecksPassed) {
 
 console.log(`\n${bold}Preview URLs:${reset}`);
 console.log(`• Mobile Detailing: ${blue}http://tenant.localhost:5177/mobile-detailing-preview${reset}`);
-console.log(`• Maid Service: ${blue}http://tenant.localhost:5177/maid-service-preview${reset}`);
+console.log(`• House Cleaning: ${blue}http://tenant.localhost:5177/house-cleaning-preview${reset}`);
 console.log(`• Lawn Care: ${blue}http://tenant.localhost:5177/lawncare-preview${reset}`);
 console.log(`• Pet Grooming: ${blue}http://tenant.localhost:5177/pet-grooming-preview${reset}`);
 console.log(`• Barber Shop: ${blue}http://tenant.localhost:5177/barber-preview${reset}`);

@@ -13,13 +13,13 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ review, isOpen, onClose }) =>
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-stone-900 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-stone-700">
+      <div className="bg-theme-surface rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-theme-border-light">
         <div className="p-6">
           <div className="flex justify-between items-start mb-4">
-            <h3 className="text-2xl font-bold text-white">Review Details</h3>
+            <h3 className="text-2xl font-bold text-theme-text">Review Details</h3>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-orange-400 text-2xl transition-colors"
+              className="text-theme-text-muted hover:text-primary-light text-2xl transition-colors"
             >
               ×
             </button>
@@ -32,7 +32,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ review, isOpen, onClose }) =>
                   href={review.reviewerUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center text-white font-semibold text-xl overflow-hidden hover:bg-orange-600 transition-colors flex-shrink-0"
+                  className="w-16 h-16 bg-primary rounded-full flex items-center justify-center text-theme-text font-semibold text-xl overflow-hidden hover:bg-primary-hover transition-colors flex-shrink-0"
                 >
                   {review.profileImage ? (
                     <img 
@@ -49,7 +49,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ review, isOpen, onClose }) =>
                   )}
                 </a>
               ) : (
-                <div className="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center text-white font-semibold text-xl overflow-hidden flex-shrink-0">
+                <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center text-theme-text font-semibold text-xl overflow-hidden flex-shrink-0">
                   {review.profileImage ? (
                     <img 
                       src={review.profileImage} 
@@ -71,12 +71,12 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ review, isOpen, onClose }) =>
                     href={review.reviewerUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xl font-semibold text-white hover:text-orange-400 transition-colors"
+                    className="text-xl font-semibold text-theme-text hover:text-primary-light transition-colors"
                   >
                     {review.customerName}
                   </a>
                 ) : (
-                  <h4 className="text-xl font-semibold text-white">{review.customerName}</h4>
+                  <h4 className="text-xl font-semibold text-theme-text">{review.customerName}</h4>
                 )}
                 <div className="flex items-center">
                   {Array.from({ length: 5 }, (_, i) => (
@@ -135,19 +135,19 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ review, isOpen, onClose }) =>
 
           {/* Review Title */}
           {review.title && (
-            <h5 className="text-lg font-medium text-white mb-3">
+            <h5 className="text-lg font-medium text-theme-text mb-3">
               {review.title}
             </h5>
           )}
           
-          <p className="text-gray-300 leading-relaxed mb-4">
+          <p className="text-theme-text-muted leading-relaxed mb-4">
             {review.reviewText}
           </p>
 
           {/* Additional Info */}
           <div className="flex flex-wrap gap-2 mb-4">
             {review.serviceCategory && (
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-orange-500/20 text-orange-400 border border-orange-500/30">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary/20 text-primary-light border border-primary/30">
                 {review.serviceCategory}
               </span>
             )}

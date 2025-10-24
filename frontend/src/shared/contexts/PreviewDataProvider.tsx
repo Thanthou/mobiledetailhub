@@ -91,9 +91,9 @@ export function PreviewDataProvider({ children, industry: industryProp }: Previe
             config = loadMobileDetailingConfig();
             break;
           }
-          case 'maid-service': {
-            const { loadMaidServiceConfig } = await import('@data/maid-service');
-            config = await loadMaidServiceConfig();
+          case 'house-cleaning': {
+            const { loadHouseCleaningConfig } = await import('@data/house-cleaning');
+            config = await loadHouseCleaningConfig();
             break;
           }
           case 'lawncare': {

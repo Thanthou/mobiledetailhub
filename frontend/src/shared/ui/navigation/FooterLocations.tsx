@@ -37,12 +37,12 @@ const FooterLocations: React.FC<FooterLocationsProps> = ({ serviceAreas }) => {
   return (
     <>
       <div className="text-center md:text-right">
-        <h3 className="font-bold text-orange-400 text-xl mb-6">Service Areas</h3>
+        <h3 className="font-bold text-primary-light text-xl mb-6">Service Areas</h3>
         <div className="flex flex-col space-y-3">
           {shouldUseTenantData ? (
             <>
               {displayAreas.map((area, index) => (
-                <div key={index} className="text-white text-lg">
+                <div key={index} className="text-theme-text text-lg">
                   {area.city}, {area.state}
                 </div>
               ))}
@@ -50,7 +50,7 @@ const FooterLocations: React.FC<FooterLocationsProps> = ({ serviceAreas }) => {
                 <div className="flex justify-center md:justify-end">
                   <button
                     onClick={handleViewMore}
-                    className="text-orange-400 hover:text-orange-300 transition-colors duration-200 text-lg bg-transparent border-none p-0 font-inherit cursor-pointer"
+                    className="text-primary-light hover:text-primary transition-colors duration-200 text-lg bg-transparent border-none p-0 font-inherit cursor-pointer"
                   >
                     View More
                   </button>
@@ -58,7 +58,7 @@ const FooterLocations: React.FC<FooterLocationsProps> = ({ serviceAreas }) => {
               )}
             </>
           ) : (
-            <div className="text-white text-lg">
+            <div className="text-theme-text text-lg">
               Multiple Service Areas
             </div>
           )}

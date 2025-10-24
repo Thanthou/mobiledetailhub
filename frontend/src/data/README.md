@@ -23,7 +23,7 @@ data/
 │   ├── gallery/               ← Gallery data
 │   └── vehicle_data/          ← Vehicle make/model lookups
 ├── lawncare/
-├── maid-service/
+├── house-cleaning/
 ├── pet-grooming/
 ├── barber/
 ├── preview-types.ts           ← Shared TypeScript types for preview data

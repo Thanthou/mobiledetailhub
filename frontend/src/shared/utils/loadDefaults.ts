@@ -8,7 +8,7 @@
 export type IndustrySlug = 
   | 'mobile-detailing'
   | 'lawncare'
-  | 'maid-service'
+  | 'house-cleaning'
   | 'pet-grooming';
 
 export interface FAQItem {

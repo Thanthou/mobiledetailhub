@@ -24,7 +24,7 @@ export const PreviewPayloadSchema = z.object({
     .string()
     .length(2, 'State must be 2 characters (e.g., AZ, CA)')
     .regex(/^[A-Z]{2}$/, 'State must be uppercase letters'),
-  industry: z.enum(['mobile-detailing', 'maid-service', 'lawncare', 'pet-grooming'], {
+  industry: z.enum(['mobile-detailing', 'house-cleaning', 'lawncare', 'pet-grooming'], {
     errorMap: () => ({ message: 'Invalid industry type' }),
   }),
 });

@@ -25,7 +25,7 @@ const PreviewPayloadSchema = z.object({
   phone: z.string().min(7, 'Phone number must be at least 7 characters').max(20),
   city: z.string().min(2, 'City must be at least 2 characters').max(50),
   state: z.string().length(2, 'State must be 2 characters').regex(/^[A-Z]{2}$/, 'State must be uppercase'),
-  industry: z.enum(['mobile-detailing', 'maid-service', 'lawncare', 'pet-grooming'], {
+  industry: z.enum(['mobile-detailing', 'house-cleaning', 'lawncare', 'pet-grooming'], {
     errorMap: () => ({ message: 'Invalid industry type' }),
   }),
   tenantId: z.string().uuid().optional(),

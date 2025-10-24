@@ -3,16 +3,16 @@
 
   "logo": {
     "default": {
-      "url": "/industries/maid-service/icons/logo-white.webp",
-      "alt": "Maid Service Logo"
+      "url": "/industries/house-cleaning/icons/logo-white.webp",
+      "alt": "House Cleaning Logo"
     },
     "dark": {
-      "url": "/industries/maid-service/icons/logo-white.webp",
-      "alt": "Maid Service Logo (Dark Mode)"
+      "url": "/industries/house-cleaning/icons/logo-white.webp",
+      "alt": "House Cleaning Logo (Dark Mode)"
     },
     "light": {
-      "url": "/industries/maid-service/icons/logo-white.webp",
-      "alt": "Maid Service Logo (Light Mode)"
+      "url": "/industries/house-cleaning/icons/logo-white.webp",
+      "alt": "House Cleaning Logo (Light Mode)"
     }
   },
 
@@ -20,13 +20,13 @@
     {
       "id": "hero-1",
       "desktop": {
-        "url": "/industries/maid-service/images/hero/hero1.webp",
+        "url": "/industries/house-cleaning/images/hero/hero1.webp",
         "width": 1920,
         "height": 1080,
         "aspectRatio": 1.778
       },
       "mobile": {
-        "url": "/industries/maid-service/images/hero/hero1.webp",
+        "url": "/industries/house-cleaning/images/hero/hero1.webp",
         "width": 1920,
         "height": 1080,
         "aspectRatio": 1.778
@@ -37,16 +37,16 @@
     {
       "id": "hero-2",
       "desktop": {
-        "url": "/industries/maid-service/images/hero/hero2.webp",
+        "url": "/industries/house-cleaning/images/hero/hero2.webp",
         "width": 1920,
         "height": 1080,
         "aspectRatio": 1.778
       },
       "mobile": {
-        "url": "/industries/maid-service/images/hero/hero2-mobile.webp",
-        "width": 1080,
-        "height": 1920,
-        "aspectRatio": 0.5625
+        "url": "/industries/house-cleaning/images/hero/hero2.webp",
+        "width": 1920,
+        "height": 1080,
+        "aspectRatio": 1.778
       },
       "alt": "Clean and organized home interior",
       "priority": false
@@ -54,13 +54,13 @@
     {
       "id": "hero-3",
       "desktop": {
-        "url": "/industries/maid-service/images/hero/hero3.webp",
+        "url": "/industries/house-cleaning/images/hero/hero3.webp",
         "width": 1920,
         "height": 1080,
         "aspectRatio": 1.778
       },
       "mobile": {
-        "url": "/industries/maid-service/images/hero/hero3-mobile.webp",
+        "url": "/industries/house-cleaning/images/hero/hero3-mobile.webp",
         "width": 1080,
         "height": 1920,
         "aspectRatio": 0.5625

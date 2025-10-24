@@ -1,12 +1,12 @@
 /**
- * Maid Service Preview Data Loader
+ * House Cleaning Preview Data Loader
  */
 
 import type { IndustryPreviewData } from '../../preview-types';
 import defaultsData from './content.json';
 import mockReviews from '../../shared/mock-reviews.json';
 
-export function getMaidServicePreview(): IndustryPreviewData {
+export function getHouseCleaningPreview(): IndustryPreviewData {
   return {
     business: {
       businessName: defaultsData.businessName,

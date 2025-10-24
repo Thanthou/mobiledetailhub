@@ -10,7 +10,7 @@ These JSON files provide fallback SEO content for each industry when tenant-spec
 
 - `mobile-detailing.json` - Mobile car detailing defaults
 - `lawncare.json` - Lawn care and landscaping defaults  
-- `maid-service.json` - House cleaning defaults
+- `house-cleaning.json` - House cleaning defaults
 - `pet-grooming.json` - Pet grooming defaults
 
 ## Usage

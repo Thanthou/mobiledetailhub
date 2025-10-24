@@ -24,7 +24,7 @@ interface BusinessInformationSectionProps {
 
 const INDUSTRIES = [
   { value: 'mobile-detailing', label: 'Mobile Detailing' },
-  { value: 'maid-service', label: 'Maid Service' },
+  { value: 'house-cleaning', label: 'House Cleaning' },
   { value: 'lawncare', label: 'Lawn Care' },
   { value: 'pet-grooming', label: 'Pet Grooming' },
   { value: 'barber', label: 'Barber Shop' },

@@ -96,12 +96,12 @@ const Reviews: React.FC<ReviewsProps> = ({
             />
           ))}
           {/* Dark overlay */}
-          <div className="absolute inset-0 bg-stone-900/85"></div>
+          <div className="absolute inset-0 bg-theme-background/85"></div>
         </div>
         <div className="relative z-10 h-full flex items-center justify-center">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-            <p className="text-white text-lg">Loading reviews...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-theme-text mx-auto mb-4"></div>
+            <p className="text-theme-text text-lg">Loading reviews...</p>
           </div>
         </div>
       </section>
@@ -126,12 +126,12 @@ const Reviews: React.FC<ReviewsProps> = ({
             />
           ))}
           {/* Dark overlay */}
-          <div className="absolute inset-0 bg-stone-900/85"></div>
+          <div className="absolute inset-0 bg-theme-background/85"></div>
         </div>
         <div className="relative z-10 h-full flex items-center justify-center">
           <div className="text-center">
             <p className="text-red-400 text-lg mb-4">Error loading reviews</p>
-            <p className="text-white text-sm">{error}</p>
+            <p className="text-theme-text text-sm">{error}</p>
           </div>
         </div>
       </section>
@@ -156,11 +156,11 @@ const Reviews: React.FC<ReviewsProps> = ({
             />
           ))}
           {/* Dark overlay */}
-          <div className="absolute inset-0 bg-stone-900/85"></div>
+          <div className="absolute inset-0 bg-theme-background/85"></div>
         </div>
         <div className="relative z-10 h-full flex items-center justify-center">
           <div className="text-center">
-            <p className="text-white text-lg">No reviews available</p>
+            <p className="text-theme-text text-lg">No reviews available</p>
           </div>
         </div>
       </section>
@@ -184,7 +184,7 @@ const Reviews: React.FC<ReviewsProps> = ({
           />
         ))}
         {/* Dark overlay */}
-        <div className="absolute inset-0 bg-stone-900/85"></div>
+        <div className="absolute inset-0 bg-theme-background/85"></div>
       </div>
       
       {/* Content */}

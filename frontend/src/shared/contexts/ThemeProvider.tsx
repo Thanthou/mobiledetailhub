@@ -57,8 +57,8 @@ export function ThemeProvider({ children, themeName, industry }: ThemeProviderPr
               case 'mobile-detailing':
                 industryThemeConfig = await import('@data/mobile-detailing/theme.json');
                 break;
-              case 'maid-service':
-                industryThemeConfig = await import('@data/maid-service/theme.json');
+              case 'house-cleaning':
+                industryThemeConfig = await import('@data/house-cleaning/theme.json');
                 break;
               default:
                 console.warn(`No theme config for industry: ${industry}, using default`);

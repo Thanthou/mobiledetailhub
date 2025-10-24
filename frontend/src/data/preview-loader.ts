@@ -11,7 +11,7 @@ import type { IndustryPreviewData } from './preview-types';
 /**
  * Load preview data for a specific industry
  * 
- * @param industry - Industry slug (e.g., 'mobile-detailing', 'maid-service')
+ * @param industry - Industry slug (e.g., 'mobile-detailing', 'house-cleaning')
  * @returns Promise resolving to industry preview data
  */
 export async function loadIndustryPreview(industry: string): Promise<IndustryPreviewData | null> {
@@ -22,9 +22,9 @@ export async function loadIndustryPreview(industry: string): Promise<IndustryPre
         const { getMobileDetailingPreview } = await import('./mobile-detailing/preview/index');
         return getMobileDetailingPreview();
       }
-      case 'maid-service': {
-        const { getMaidServicePreview } = await import('./maid-service/preview/index');
-        return getMaidServicePreview();
+      case 'house-cleaning': {
+        const { getHouseCleaningPreview } = await import('./house-cleaning/preview/index');
+        return getHouseCleaningPreview();
       }
       case 'lawncare': {
         const { getLawncarePreview } = await import('./lawncare/preview/index');
@@ -54,7 +54,7 @@ export async function loadIndustryPreview(industry: string): Promise<IndustryPre
 export function getAvailableIndustries(): string[] {
   return [
     'mobile-detailing',
-    'maid-service',
+    'house-cleaning',
     'lawncare',
     'pet-grooming',
     'barber',
