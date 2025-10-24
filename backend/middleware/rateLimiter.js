@@ -156,7 +156,7 @@ const adminLimiter = rateLimit({
 });
 
 // Stricter rate limiting for critical admin operations - DISABLED for development
-const criticalAdminLimiter = rateLimit({
+const criticalAdminLimiterBase = rateLimit({
   windowMs: 5 * 60 * 1000, // 5 minutes
   max: 10000, // Extremely high limit - effectively disabled
   standardHeaders: true,
@@ -185,6 +185,19 @@ const criticalAdminLimiter = rateLimit({
     });
   }
 });
+
+// Wrapper to preserve req.params (express-rate-limit bug workaround)
+const criticalAdminLimiter = (req, res, next) => {
+  const savedParams = { ...req.params };
+  criticalAdminLimiterBase(req, res, (err) => {
+    // Restore params after rate limiter
+    if (savedParams && Object.keys(savedParams).length > 0) {
+      req.params = savedParams;
+    }
+    if (err) return next(err);
+    next();
+  });
+};
 
 // General API rate limiting for other routes - DISABLED for development
 const apiLimiter = rateLimit({

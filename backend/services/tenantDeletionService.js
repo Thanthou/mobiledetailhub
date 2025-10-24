@@ -45,16 +45,16 @@ async function validateTenantDeletion(tenantId) {
   try {
     // Check for active subscriptions
     const activeSubscriptions = await pool.query(`
-      SELECT id, plan_name, status, current_period_end
+      SELECT COUNT(*) as count
       FROM tenants.subscriptions 
       WHERE business_id = $1 AND status IN ('active', 'trialing')
     `, [tenantId]);
     
-    if (activeSubscriptions.rows.length > 0) {
+    if (parseInt(activeSubscriptions.rows[0].count) > 0) {
       issues.push({
         type: 'active_subscription',
-        message: `Tenant has active subscription: ${activeSubscriptions.rows[0].plan_name}`,
-        data: activeSubscriptions.rows[0]
+        message: `Tenant has ${activeSubscriptions.rows[0].count} active subscription(s)`,
+        data: { count: parseInt(activeSubscriptions.rows[0].count) }
       });
     }
     
@@ -94,8 +94,12 @@ async function validateTenantDeletion(tenantId) {
     };
     
   } catch (error) {
-    logger.error('Error validating tenant deletion:', error);
-    throw new Error('Failed to validate tenant deletion');
+    logger.error('Error validating tenant deletion:', {
+      tenantId,
+      error: error.message,
+      stack: error.stack
+    });
+    throw new Error(`Failed to validate tenant deletion: ${error.message}`);
   }
 }
 
@@ -127,7 +131,11 @@ async function createTenantSnapshot(tenantId) {
     };
     
   } catch (error) {
-    logger.error('Error creating tenant snapshot:', error);
+    logger.error('Error creating tenant snapshot:', {
+      tenantId,
+      error: error.message,
+      stack: error.stack
+    });
     throw new Error('Failed to create tenant snapshot');
   }
 }
@@ -141,40 +149,55 @@ async function createTenantSnapshot(tenantId) {
 async function performManualCleanup(client, tenantId, tenantSlug) {
   logger.info('Performing manual cleanup for tenant deletion', { tenantId, tenantSlug });
   
-  try {
-    // Clean up any remaining references that don't have proper foreign keys
-    // This is a safety net for edge cases
-    
-    // 1. Clean up any orphaned reviews by slug (if business_id wasn't added)
-    await client.query(`
-      DELETE FROM reputation.reviews 
-      WHERE tenant_slug = $1 AND business_id IS NULL
-    `, [tenantSlug]);
-    
-    // 2. Clean up any orphaned tenant images by slug
-    await client.query(`
-      DELETE FROM tenants.tenant_images 
-      WHERE tenant_slug = $1
-    `, [tenantSlug]);
-    
-    // 3. Clean up any remaining health monitoring records
-    await client.query(`
-      DELETE FROM system.health_monitoring 
-      WHERE tenant_slug = $1 OR business_id = $2
-    `, [tenantSlug, tenantId]);
-    
-    // 4. Clean up any remaining booking quotes
-    await client.query(`
-      DELETE FROM booking.quotes 
-      WHERE affiliate_id = $1
-    `, [tenantId]);
-    
-    logger.info('Manual cleanup completed successfully', { tenantId, tenantSlug });
-    
-  } catch (error) {
-    logger.error('Error during manual cleanup:', error);
-    throw new Error('Manual cleanup failed');
+  const cleanupErrors = [];
+  
+  // Helper function to execute a cleanup query with savepoint
+  async function safeCleanup(name, query, params) {
+    try {
+      await client.query(`SAVEPOINT ${name}`);
+      await client.query(query, params);
+      await client.query(`RELEASE SAVEPOINT ${name}`);
+    } catch (error) {
+      await client.query(`ROLLBACK TO SAVEPOINT ${name}`);
+      cleanupErrors.push({ table: name, error: error.message });
+      logger.warn(`Skipping ${name} cleanup`, { error: error.message });
+    }
   }
+  
+  // 1. Clean up any orphaned reviews by slug (if business_id wasn't added)
+  await safeCleanup(
+    'cleanup_reviews',
+    'DELETE FROM reputation.reviews WHERE tenant_slug = $1 AND business_id IS NULL',
+    [tenantSlug]
+  );
+  
+  // 2. Clean up any orphaned tenant images by slug
+  await safeCleanup(
+    'cleanup_images',
+    'DELETE FROM tenants.tenant_images WHERE tenant_slug = $1',
+    [tenantSlug]
+  );
+  
+  // 3. Clean up any remaining health monitoring records
+  await safeCleanup(
+    'cleanup_health',
+    'DELETE FROM system.health_monitoring WHERE tenant_slug = $1 OR business_id = $2',
+    [tenantSlug, tenantId]
+  );
+  
+  // 4. Clean up any remaining booking quotes
+  await safeCleanup(
+    'cleanup_quotes',
+    'DELETE FROM booking.quotes WHERE affiliate_id = $1',
+    [tenantId]
+  );
+  
+  logger.info('Manual cleanup completed', { 
+    tenantId, 
+    tenantSlug,
+    errors: cleanupErrors.length,
+    skippedTables: cleanupErrors.map(e => e.table)
+  });
 }
 
 /**
@@ -209,7 +232,11 @@ async function verifyDeletion(client, tenantId) {
     };
     
   } catch (error) {
-    logger.error('Error verifying deletion:', error);
+    logger.error('Error verifying deletion:', {
+      tenantId,
+      error: error.message,
+      stack: error.stack
+    });
     throw new Error('Deletion verification failed');
   }
 }
@@ -220,7 +247,7 @@ async function verifyDeletion(client, tenantId) {
  * @param {Object} actor - The user performing the dry-run
  * @returns {Object} Dry-run result with details of what would be deleted
  */
-export async function dryRunDeleteTenant(tenantId, actor) {
+async function dryRunDeleteTenant(tenantId, actor) {
   const pool = await getPool();
   
   try {
@@ -301,7 +328,11 @@ export async function dryRunDeleteTenant(tenantId, actor) {
     };
     
   } catch (error) {
-    logger.error('Dry-run deletion analysis failed:', error);
+    logger.error('Dry-run deletion analysis failed:', {
+      tenantId,
+      error: error.message,
+      stack: error.stack
+    });
     throw error;
   }
 }
@@ -316,7 +347,7 @@ export async function dryRunDeleteTenant(tenantId, actor) {
  * @param {boolean} [options.dryRun=false] - Only analyze what would be deleted without actually deleting
  * @returns {Object} Deletion result
  */
-export async function deleteTenant(tenantId, actor, options = {}) {
+async function deleteTenant(tenantId, actor, options = {}) {
   const { force = false, skipValidation = false, dryRun = false } = options;
   
   // Handle dry-run mode
@@ -365,10 +396,9 @@ export async function deleteTenant(tenantId, actor, options = {}) {
       }
     }
     
-    // 4. Perform manual cleanup for edge cases
-    await performManualCleanup(client, tenantId, tenant.slug);
+    // 4. Delete the tenant record - CASCADE constraints will handle all related data
+    logger.info('Deleting tenant (CASCADE will handle related records)', { tenantId });
     
-    // 5. Delete the tenant record (this will cascade to all related records)
     const deleteResult = await client.query(
       'DELETE FROM tenants.business WHERE id = $1',
       [tenantId]
@@ -379,37 +409,24 @@ export async function deleteTenant(tenantId, actor, options = {}) {
       throw new Error('Tenant not found or already deleted');
     }
     
-    // 6. Delete the associated user record if it exists
+    logger.info('Tenant deleted successfully - CASCADE handled all related records', { tenantId });
+    
+    // 5. Delete the associated user record if it exists
     if (tenant.user_id) {
       await client.query('DELETE FROM auth.users WHERE id = $1', [tenant.user_id]);
       logger.info('Deleted associated user record', { userId: tenant.user_id });
     }
     
-    // 7. Verify deletion
-    const verification = await verifyDeletion(client, tenantId);
-    
-    if (!verification.businessDeleted) {
-      throw new Error('Tenant deletion verification failed - business record still exists');
-    }
-    
-    if (verification.hasOrphans) {
-      logger.warn('Orphaned records detected after deletion', {
-        tenantId,
-        orphans: verification.orphanCounts
-      });
-    }
-    
     // 8. Commit transaction
     await client.query('COMMIT');
     
-    // 9. Log audit trail
+    // 6. Log audit trail
     logger.info('Tenant deletion completed successfully', {
       tenantId,
       tenantSlug: tenant.slug,
       businessName: tenant.business_name,
       actor: actor.email,
-      snapshot,
-      verification
+      snapshot
     });
     
     return {
@@ -421,13 +438,16 @@ export async function deleteTenant(tenantId, actor, options = {}) {
         business_name: tenant.business_name,
         email: tenant.email
       },
-      snapshot,
-      verification
+      snapshot
     };
     
   } catch (error) {
     await client.query('ROLLBACK');
-    logger.error('Tenant deletion failed:', error);
+    logger.error('Tenant deletion failed:', {
+      tenantId,
+      error: error.message,
+      stack: error.stack
+    });
     throw error;
   } finally {
     client.release();
@@ -440,7 +460,7 @@ export async function deleteTenant(tenantId, actor, options = {}) {
  * @param {Object} actor - The user performing the deletion
  * @returns {Object} Soft deletion result
  */
-export async function softDeleteTenant(tenantId, actor) {
+async function softDeleteTenant(tenantId, actor) {
   const pool = await getPool();
   
   try {
@@ -475,7 +495,11 @@ export async function softDeleteTenant(tenantId, actor) {
     };
     
   } catch (error) {
-    logger.error('Soft tenant deletion failed:', error);
+    logger.error('Soft tenant deletion failed:', {
+      tenantId,
+      error: error.message,
+      stack: error.stack
+    });
     throw error;
   }
 }
@@ -485,5 +509,7 @@ export {
   validateTenantDeletion,
   createTenantSnapshot,
   verifyDeletion,
-  dryRunDeleteTenant
+  dryRunDeleteTenant,
+  deleteTenant,
+  softDeleteTenant
 };

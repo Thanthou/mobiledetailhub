@@ -85,11 +85,6 @@ export function PreviewDataProvider({ children, industry: industryProp }: Previe
         let config: MainSiteConfig;
         
         switch (industry) {
-          case 'main': {
-            const { loadMainSiteConfig } = await import('@data/main');
-            config = loadMainSiteConfig();
-            break;
-          }
           case 'mobile-detailing': {
             const { loadMobileDetailingConfig } = await import('@data/mobile-detailing');
             config = loadMobileDetailingConfig();

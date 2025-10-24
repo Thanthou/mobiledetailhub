@@ -254,28 +254,44 @@ export const UsersTab: React.FC = () => {
   const handleDeleteConfirm = async () => {
     if (!deleteModalState) return;
     
+    // Prevent multiple simultaneous delete attempts
+    if (deletingAffiliate !== null) {
+      console.warn('Delete already in progress, ignoring duplicate request');
+      return;
+    }
+    
     setDeletingAffiliate(deleteModalState.userId);
+    
+    // Store tenant info before closing modal
+    const tenantId = deleteModalState.userId;
+    const tenantName = deleteModalState.name;
+    
     try {
-      const response = await apiService.deleteAffiliate(deleteModalState.userId);
+      console.log(`Attempting to delete tenant ${tenantId}: ${tenantName}`);
+      const response = await apiService.deleteAffiliate(tenantId);
+      console.log('Delete response:', response);
+      
       if (response.success) {
+        console.log('Delete successful, closing modal and refreshing');
         setToast({
-          message: `"${deleteModalState.name}" deleted successfully. All associated data has been removed.`,
+          message: `"${tenantName}" deleted successfully. All associated data has been removed.`,
           type: 'success',
           isVisible: true
         });
-        fetchUsers(activeSubTab, true); // Refresh current tab
         
-        // Notify other components that a tenant was deleted
-        tenantEventManager.notify();
-        
-        // Close modal
+        // Close modal FIRST
         setDeleteModalState(null);
+        setDeletingAffiliate(null);
+        
+        // Then refresh and notify
+        fetchUsers(activeSubTab, true);
+        tenantEventManager.notify();
       } else {
         throw new Error(response.message || 'Failed to delete');
       }
     } catch (err) {
-      console.error('Error deleting:', err);
-      let errorMessage = 'An error occurred';
+      console.error('Error deleting tenant:', err);
+      let errorMessage = 'An error occurred while deleting the tenant';
       if (err instanceof Error) {
         errorMessage = err.message;
       } else if (typeof err === 'string') {
@@ -289,7 +305,6 @@ export const UsersTab: React.FC = () => {
         isVisible: true
       });
       setDeleteModalState(null);
-    } finally {
       setDeletingAffiliate(null);
     }
   };

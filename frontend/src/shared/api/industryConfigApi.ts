@@ -24,11 +24,6 @@ export async function fetchIndustryConfig(industry: string): Promise<MainSiteCon
   try {
     // All industries now use modular config files with index.ts loaders
     switch (industry) {
-      case 'main': {
-        const { loadMainSiteConfig } = await import('@data/main');
-        return loadMainSiteConfig();
-      }
-      
       case 'mobile-detailing': {
         const { loadMobileDetailingConfig } = await import('@data/mobile-detailing');
         return loadMobileDetailingConfig();

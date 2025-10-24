@@ -25,6 +25,7 @@ const logger = createModuleLogger('adminRoutes');
  * @returns {Object} Success response with deleted tenant info (or dry-run analysis)
  */
 router.delete('/tenants/:id', criticalAdminLimiter, authenticateToken, requireAdmin, asyncHandler(async (req, res) => {
+  
   const { id } = req.params;
   const { force = false, dryRun = false } = req.query;
   
@@ -35,7 +36,7 @@ router.delete('/tenants/:id', criticalAdminLimiter, authenticateToken, requireAd
     id, 
     force: isForce,
     dryRun: isDryRun,
-    actor: req.user.email 
+    actor: req.user?.email || 'unknown'
   });
   
   try {
@@ -68,11 +69,16 @@ router.delete('/tenants/:id', criticalAdminLimiter, authenticateToken, requireAd
     res.json(result);
     
   } catch (error) {
-    logger.error('Admin tenant deletion failed:', error);
+    logger.error('Admin tenant deletion failed:', {
+      module: 'adminRoutes',
+      tenantId: id,
+      error: error?.message || 'Unknown error',
+      stack: error?.stack
+    });
     res.status(500).json({
       success: false,
       error: 'Failed to delete tenant',
-      message: error.message
+      message: error?.message || 'Unknown error occurred'
     });
   }
 }));
@@ -101,7 +107,12 @@ router.delete('/tenants/:id/soft', criticalAdminLimiter, authenticateToken, requ
     res.json(result);
     
   } catch (error) {
-    logger.error('Admin soft tenant deletion failed:', error);
+    logger.error('Admin soft tenant deletion failed:', {
+      module: 'adminRoutes',
+      tenantId: id,
+      error: error.message,
+      stack: error.stack
+    });
     res.status(500).json({
       success: false,
       error: 'Failed to soft delete tenant',

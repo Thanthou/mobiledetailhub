@@ -53,9 +53,14 @@ class ErrorMonitor {
   private userId?: string;
   private isEnabled = false; // Disabled to see actual console errors
   private listeners: ((error: ErrorEvent) => void)[] = [];
+  private originalConsoleError: typeof console.error;
+  private originalConsoleWarn: typeof console.warn;
 
   constructor() {
     this.sessionId = this.generateSessionId();
+    // Store original console methods BEFORE overriding
+    this.originalConsoleError = console.error;
+    this.originalConsoleWarn = console.warn;
     this.setupGlobalErrorHandlers();
     this.setupConsoleErrorHandling();
     this.setupNetworkErrorHandling();
@@ -118,9 +123,6 @@ class ErrorMonitor {
 
   private setupConsoleErrorHandling(): void {
     // Override console methods to catch all console errors
-    const originalConsoleError = console.error;
-    const originalConsoleWarn = console.warn;
-
     console.error = (...args: unknown[]) => {
       const stack = new Error().stack;
       this.captureError({
@@ -128,7 +130,7 @@ class ErrorMonitor {
         message: args.map(arg => typeof arg === 'string' ? arg : JSON.stringify(arg)).join(' '),
         ...(stack ? { stack } : {}),
       });
-      originalConsoleError.apply(console, args);
+      this.originalConsoleError.apply(console, args);
     };
 
     console.warn = (...args: unknown[]) => {
@@ -144,7 +146,7 @@ class ErrorMonitor {
         message: `WARNING: ${args.map(arg => typeof arg === 'string' ? arg : JSON.stringify(arg)).join(' ')}`,
         ...(stack ? { stack } : {}),
       });
-      originalConsoleWarn.apply(console, args);
+      this.originalConsoleWarn.apply(console, args);
     };
   }
 
@@ -242,15 +244,15 @@ class ErrorMonitor {
     // Notify listeners
     this.listeners.forEach(listener => { listener(error); });
 
-    // Log to console in development
+    // Log to console in development (use original console.error to avoid infinite loop)
     if (env.DEV) {
       console.group(`🚨 Error Captured (${error.type.toUpperCase()})`);
-      console.error('Message:', error.message);
-      console.error('Timestamp:', error.timestamp.toISOString());
-      console.error('URL:', error.url);
-      if (error.stack) console.error('Stack:', error.stack);
-      if (error.componentStack) console.error('Component Stack:', error.componentStack);
-      if (error.networkInfo) console.error('Network Info:', error.networkInfo);
+      this.originalConsoleError('Message:', error.message);
+      this.originalConsoleError('Timestamp:', error.timestamp.toISOString());
+      this.originalConsoleError('URL:', error.url);
+      if (error.stack) this.originalConsoleError('Stack:', error.stack);
+      if (error.componentStack) this.originalConsoleError('Component Stack:', error.componentStack);
+      if (error.networkInfo) this.originalConsoleError('Network Info:', error.networkInfo);
       console.groupEnd();
     }
   }
