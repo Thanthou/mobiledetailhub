@@ -71,15 +71,12 @@ const requestLogger = (req, res, next) => {
   // Create request-scoped logger
   req.logger = createPinoRequestLogger(req, res, next);
   
-  // Log request start
-  logger.info('Request started', {
+  // Log request start (debug level to reduce noise)
+  logger.debug('Request started', {
     requestId: req.id,
     method: req.method,
     path: req.path,
     ip: req.ip,
-    userAgent: req.get('User-Agent'),
-    contentType: req.get('Content-Type'),
-    contentLength: req.get('Content-Length')
   });
   
   // Use on-finished to log response completion

@@ -19,21 +19,20 @@ const logger = createModuleLogger('errorTrackingRoutes');
  * POST /api/errors/track
  * Receive frontend error reports
  */
-router.post('/track', validateBody(errorTrackingSchemas.track), asyncHandler(async (req, res) => {
+router.post('/track', asyncHandler(async (req, res) => {
   try {
-    const { errors, sessionId, timestamp } = req.body;
+    const { errors, sessionId, timestamp } = req.body || {};
 
-    if (!errors || !Array.isArray(errors)) {
-      return res.status(400).json({
-        success: false,
-        error: {
-          code: 'INVALID_REQUEST',
-          message: 'Errors array is required'
-        }
+    // Be tolerant - if no errors or malformed, just acknowledge and move on
+    if (!errors || !Array.isArray(errors) || errors.length === 0) {
+      return res.status(200).json({
+        success: true,
+        message: 'No errors to track',
+        processed: 0
       });
     }
 
-    logger.info('Received frontend error report', {
+    logger.debug('Received frontend error report', {
       sessionId,
       errorCount: errors.length,
       timestamp
@@ -76,7 +75,7 @@ router.post('/track', validateBody(errorTrackingSchemas.track), asyncHandler(asy
         });
 
       } catch (processError) {
-        logger.error('Failed to process frontend error', {
+        logger.debug('Failed to process frontend error', {
           frontendError: frontendError.code,
           error: processError.message
         });

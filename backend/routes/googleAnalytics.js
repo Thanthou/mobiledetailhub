@@ -5,6 +5,7 @@ import { getPool } from '../database/pool.js';
 import { env } from '../config/env.js';
 import * as analyticsService from '../services/googleAnalytics.js';
 import { sendSuccess, sendError, sendValidationError } from '../utils/responseFormatter.js';
+import { getFrontendUrl } from '../utils/urlBuilder.js';
 
 const router = express.Router();
 
@@ -226,7 +227,7 @@ router.get('/callback', asyncHandler(async (req, res) => {
       });
 
       // Redirect back to tenant dashboard with success message
-      res.redirect(`${env.FRONTEND_URL}/${tenant.slug}/dashboard?ga_connected=true`);
+      res.redirect(`${getFrontendUrl('tenant')}/${tenant.slug}/dashboard?ga_connected=true`);
 
     } catch (dbError) {
       await client.query('ROLLBACK');

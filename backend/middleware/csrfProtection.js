@@ -4,6 +4,7 @@
  */
 
 import { createModuleLogger } from '../config/logger.js';
+import { env } from '../config/env.async.js';
 
 const logger = createModuleLogger('csrfProtection');
 
@@ -12,7 +13,7 @@ const logger = createModuleLogger('csrfProtection');
  * In production, only allow same-origin requests or trusted domains
  */
 const getAllowedOrigins = () => {
-  const isProduction = process.env.NODE_ENV === 'production';
+  const isProduction = env.NODE_ENV === 'production';
   
   if (isProduction) {
     return [
@@ -52,16 +53,28 @@ const isOriginAllowed = (origin, allowedOrigins) => {
   if (!origin) {
     // No origin header - could be same-origin request or server-to-server
     // In production, we might want to be stricter
-    return process.env.NODE_ENV !== 'production';
+    return env.NODE_ENV !== 'production';
+  }
+  
+  // Extract just the origin part from referer (which may include path)
+  let originToCheck = origin;
+  try {
+    const url = new URL(origin);
+    originToCheck = `${url.protocol}//${url.host}`;
+  } catch (e) {
+    // If URL parsing fails, use the origin as-is
+    originToCheck = origin;
   }
   
   for (const allowed of allowedOrigins) {
     if (allowed instanceof RegExp) {
-      if (allowed.test(origin)) {
+      if (allowed.test(originToCheck)) {
         return true;
       }
-    } else if (allowed === origin) {
-      return true;
+    } else if (typeof allowed === 'string' && typeof originToCheck === 'string') {
+      if (allowed === originToCheck || originToCheck.startsWith(allowed)) {
+        return true;
+      }
     }
   }
   

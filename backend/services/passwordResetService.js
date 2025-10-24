@@ -84,8 +84,8 @@ const requestPasswordReset = async (email, ipAddress, userAgent) => {
       [user.id, hashedToken, expiresAt, ipAddress, userAgent]
     );
 
-    // Send reset email
-    const resetUrl = `${env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+    // Send reset email  
+    const resetUrl = `${getFrontendUrl('main')}/reset-password?token=${resetToken}`;
     
     await emailService.sendPasswordResetEmail({
       to: user.email,

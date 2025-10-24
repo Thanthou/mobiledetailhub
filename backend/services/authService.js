@@ -55,7 +55,10 @@ async function registerUser(userData, userAgent, ipAddress) {
   const hashedPassword = await bcrypt.hash(password, saltRounds);
 
   // Check if user should be admin based on environment variable
-  const ADMIN_EMAILS = env.ADMIN_EMAILS || [];
+  // Support both ADMIN_EMAILS (plural) and ADMIN_EMAIL (singular)
+  const adminEmails = env.ADMIN_EMAILS || [];
+  const singleEmail = env.ADMIN_EMAIL ? [env.ADMIN_EMAIL] : [];
+  const ADMIN_EMAILS = [...adminEmails, ...singleEmail];
   const isAdmin = ADMIN_EMAILS.includes(email);
 
   // Create user with admin status if applicable
@@ -126,7 +129,10 @@ async function loginUser(credentials, userAgent, ipAddress) {
   }
 
   // Check if user should be admin based on environment variable
-  const ADMIN_EMAILS = env.ADMIN_EMAILS || [];
+  // Support both ADMIN_EMAILS (plural) and ADMIN_EMAIL (singular)
+  const adminEmails = env.ADMIN_EMAILS || [];
+  const singleEmail = env.ADMIN_EMAIL ? [env.ADMIN_EMAIL] : [];
+  const ADMIN_EMAILS = [...adminEmails, ...singleEmail];
   let isAdmin = user.is_admin || false;
   
   // Auto-promote to admin if email is in ADMIN_EMAILS list

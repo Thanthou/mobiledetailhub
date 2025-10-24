@@ -1,0 +1,17 @@
+{
+  "files.exclude": {
+    "**/.git": true,
+    "**/node_modules": true,
+    "**/dist": true,
+    "backend/uploads/avatars": true,
+    "backend/logs/*.json": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/*.lock": true,
+    "backend/uploads": true,
+    "backend/logs": true
+  }
+}
+

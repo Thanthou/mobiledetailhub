@@ -1,5 +1,6 @@
 import rateLimit from 'express-rate-limit';
 import { logger } from '../config/logger.js';
+import { env } from '../config/env.async.js';
 // ⚠️  DEVELOPMENT MODE: Rate limiting is DISABLED
 // All limits set to 10,000 requests per window to prevent development issues
 // Change max values back to production limits when deploying
@@ -39,6 +40,9 @@ const authLimiter = rateLimit({
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
   handler: (req, res) => {
+    // Prevent double-send race conditions
+    if (res.headersSent) return;
+    
     const retryAfterSeconds = Math.ceil(req.rateLimit.resetTime / 1000);
     
     logger.warn('Rate limit exceeded for auth endpoint', {
@@ -49,7 +53,7 @@ const authLimiter = rateLimit({
     });
     
     res.set('Retry-After', retryAfterSeconds);
-    res.status(429).json({
+    return res.status(429).json({
       code: 'RATE_LIMITED',
       error: 'Too many authentication attempts from this IP, please try again later.',
       retryAfterSeconds: retryAfterSeconds,
@@ -66,6 +70,9 @@ const sensitiveAuthLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res) => {
+    // Prevent double-send race conditions
+    if (res.headersSent) return;
+    
     const retryAfterSeconds = Math.ceil(req.rateLimit.resetTime / 1000);
     
     logger.warn('Sensitive auth rate limit exceeded', {
@@ -76,7 +83,7 @@ const sensitiveAuthLimiter = rateLimit({
     });
     
     res.set('Retry-After', retryAfterSeconds);
-    res.status(429).json({
+    return res.status(429).json({
       code: 'RATE_LIMITED',
       error: 'Too many sensitive authentication attempts from this IP, please try again later.',
       retryAfterSeconds: retryAfterSeconds,
@@ -94,6 +101,9 @@ const refreshTokenLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res) => {
+    // Prevent double-send race conditions
+    if (res.headersSent) return;
+    
     const retryAfterSeconds = Math.ceil(req.rateLimit.resetTime / 1000);
     
     logger.warn('Refresh token rate limit exceeded', {
@@ -104,7 +114,7 @@ const refreshTokenLimiter = rateLimit({
     });
     
     res.set('Retry-After', retryAfterSeconds);
-    res.status(429).json({
+    return res.status(429).json({
       code: 'RATE_LIMITED',
       error: 'Too many refresh token requests from this IP, please try again later.',
       retryAfterSeconds: retryAfterSeconds,
@@ -121,6 +131,9 @@ const adminLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res) => {
+    // Prevent double-send race conditions
+    if (res.headersSent) return;
+    
     const retryAfterSeconds = Math.ceil(req.rateLimit.resetTime / 1000);
     
     logger.warn('Rate limit exceeded for admin endpoint', {
@@ -132,7 +145,7 @@ const adminLimiter = rateLimit({
     });
     
     res.set('Retry-After', retryAfterSeconds);
-    res.status(429).json({
+    return res.status(429).json({
       code: 'RATE_LIMITED',
       error: 'Too many admin requests from this IP, please try again later.',
       retryAfterSeconds: retryAfterSeconds,
@@ -149,6 +162,9 @@ const criticalAdminLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res) => {
+    // Prevent double-send race conditions
+    if (res.headersSent) return;
+    
     const retryAfterSeconds = Math.ceil(req.rateLimit.resetTime / 1000);
     
     logger.warn('Critical admin rate limit exceeded', {
@@ -160,7 +176,7 @@ const criticalAdminLimiter = rateLimit({
     });
     
     res.set('Retry-After', retryAfterSeconds);
-    res.status(429).json({
+    return res.status(429).json({
       code: 'RATE_LIMITED',
       error: 'Too many critical admin operations from this IP, please try again later.',
       retryAfterSeconds: retryAfterSeconds,
@@ -178,6 +194,9 @@ const apiLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res) => {
+    // Prevent double-send race conditions
+    if (res.headersSent) return;
+    
     const retryAfterSeconds = Math.ceil(req.rateLimit.resetTime / 1000);
     
     logger.warn('Rate limit exceeded for API endpoint', {
@@ -188,7 +207,7 @@ const apiLimiter = rateLimit({
     });
     
     res.set('Retry-After', retryAfterSeconds);
-    res.status(429).json({
+    return res.status(429).json({
       code: 'RATE_LIMITED',
       error: 'Too many requests from this IP, please try again later.',
       retryAfterSeconds: retryAfterSeconds,
@@ -202,11 +221,14 @@ const apiLimiter = rateLimit({
 // More permissive than auth but still prevents abuse
 const analyticsLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: process.env.NODE_ENV === 'production' ? 200 : 10000, // 200 events per 15min in prod, disabled in dev
+  max: env.NODE_ENV === 'production' ? 200 : 10000, // 200 events per 15min in prod, disabled in dev
   skipSuccessfulRequests: false, // Count all requests to prevent spam
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res) => {
+    // Prevent double-send race conditions
+    if (res.headersSent) return;
+    
     const retryAfterSeconds = Math.ceil(req.rateLimit.resetTime / 1000);
     
     logger.warn('Analytics rate limit exceeded', {
@@ -218,7 +240,7 @@ const analyticsLimiter = rateLimit({
     });
     
     res.set('Retry-After', retryAfterSeconds);
-    res.status(429).json({
+    return res.status(429).json({
       code: 'RATE_LIMITED',
       error: 'Too many analytics requests. Please try again later.',
       retryAfterSeconds: retryAfterSeconds,

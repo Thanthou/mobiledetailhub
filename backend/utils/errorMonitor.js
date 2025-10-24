@@ -71,48 +71,22 @@ class BackendErrorMonitor {
   }
 
   logErrorToConsole(error) {
-    const timestamp = error.timestamp.toISOString();
-    const type = error.type || 'ERROR';
+    // Only log serious errors (500+) to console, not validation errors (400)
+    if (error.statusCode && error.statusCode < 500) {
+      return; // Skip console logging for client errors
+    }
+    
     const message = error.message || 'Unknown error';
-    const stack = error.stack || '';
     const url = error.url || 'N/A';
     const method = error.method || 'N/A';
     const statusCode = error.statusCode || 'N/A';
-    const userId = error.userId || 'N/A';
-    const ip = error.ip || 'N/A';
 
-    logger.info('\n' + '='.repeat(80));
-    logger.info(`🚨 BACKEND ERROR CAPTURED - ${timestamp}`);
-    logger.info('='.repeat(80));
-    logger.info(`Type: ${type}`);
-    logger.info(`Message: ${message}`);
-    logger.info(`URL: ${method} ${url}`);
-    logger.info(`Status Code: ${statusCode}`);
-    logger.info(`User ID: ${userId}`);
-    logger.info(`IP: ${ip}`);
-    logger.info(`Session ID: ${error.sessionId}`);
+    logger.error(`Backend Error: ${method} ${url} - ${statusCode}: ${message}`);
     
-    if (stack) {
-      logger.info('\nStack Trace:');
-      logger.info(stack);
+    // Only show stack trace for DEBUG level
+    if (error.stack) {
+      logger.debug(error.stack);
     }
-
-    if (error.details) {
-      logger.info('\nAdditional Details:');
-      logger.info(JSON.stringify(error.details, null, 2));
-    }
-
-    if (error.requestBody) {
-      logger.info('\nRequest Body:');
-      logger.info(JSON.stringify(error.requestBody, null, 2));
-    }
-
-    if (error.query) {
-      logger.info('\nQuery:');
-      logger.info(JSON.stringify(error.query, null, 2));
-    }
-
-    logger.info('='.repeat(80) + '\n');
   }
 
   async rotateLogIfNeeded() {

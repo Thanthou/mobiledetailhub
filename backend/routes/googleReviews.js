@@ -11,6 +11,7 @@ import { isDummyTenant } from '../utils/tenantUtils.js';
 import { logger } from '../config/logger.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import { sendSuccess, sendError, sendValidationError } from '../utils/responseFormatter.js';
+import { env } from '../config/env.async.js';
 
 const router = express.Router();
 
@@ -126,7 +127,7 @@ router.get('/:tenantSlug/health', async (req, res) => {
       status: 'healthy',
       timestamp: new Date().toISOString(),
       features: {
-        googleOAuth: process.env.GOOGLE_OAUTH_CLIENT_ID ? 'configured' : 'not_configured',
+        googleOAuth: env.GOOGLE_OAUTH_CLIENT_ID ? 'configured' : 'not_configured',
         mockFallback: 'enabled'
       }
     });

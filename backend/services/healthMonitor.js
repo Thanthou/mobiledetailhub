@@ -9,6 +9,7 @@ import puppeteer from 'puppeteer';
 import * as chromeLauncher from 'chrome-launcher';
 import { logger } from '../config/logger.js';
 import { loadEnv } from '../config/env.js';
+import { env } from '../config/env.async.js';
 
 class HealthMonitor {
   constructor() {
@@ -26,9 +27,9 @@ class HealthMonitor {
   initialize() {
     if (this._initialized) return;
     
-    this.pageSpeedApiKey = process.env.GOOGLE_PAGESPEED_API_KEY || process.env.PAGESPEED_API_KEY;
-    this.cruxApiKey = process.env.GOOGLE_CRUX_API_KEY || process.env.CRUX_API_KEY;
-    this.baseDomain = process.env.BASE_DOMAIN || 'thatsmartsite.com';
+    this.pageSpeedApiKey = env.GOOGLE_PAGESPEED_API_KEY || env.PAGESPEED_API_KEY;
+    this.cruxApiKey = env.GOOGLE_CRUX_API_KEY || env.CRUX_API_KEY;
+    this.baseDomain = env.BASE_DOMAIN || 'thatsmartsite.com';
     
     // Only log API key status if they're actually set (not dummy values)
     if (this.pageSpeedApiKey && this.pageSpeedApiKey !== 'dummy') {
@@ -37,7 +38,7 @@ class HealthMonitor {
     if (this.cruxApiKey && this.cruxApiKey !== 'dummy') {
       logger.info(`HealthMonitor initialized - CrUX API Key: SET`);
     }
-    logger.info(`HealthMonitor initialized - Base Domain: ${this.baseDomain}`);
+    logger.debug(`HealthMonitor initialized - Base Domain: ${this.baseDomain}`);
     
     this._initialized = true;
   }

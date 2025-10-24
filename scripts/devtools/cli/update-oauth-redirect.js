@@ -4,8 +4,9 @@ import path from 'path';
 
 /**
  * Update Google OAuth redirect URI in .env file with dynamic backend port
+ * @param {boolean} silent - Suppress console output (default: true for server startup)
  */
-function updateOAuthRedirect() {
+function updateOAuthRedirect(silent = true) {
   try {
     // Look for .env in current directory or parent directory
     const envPath = fs.existsSync('.env') 
@@ -13,7 +14,7 @@ function updateOAuthRedirect() {
       : path.join(process.cwd(), '../.env');
     
     if (!fs.existsSync(envPath)) {
-      console.log('❌ .env file not found');
+      if (!silent) console.log('❌ .env file not found');
       return;
     }
 
@@ -29,7 +30,7 @@ function updateOAuthRedirect() {
       const registry = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
       backendPort = registry.backend?.port || 3001;
     } catch (error) {
-      console.log('⚠️ No .port-registry.json found, using default port 3001');
+      // Silently use default
     }
 
     // Update GOOGLE_REDIRECT_URI
@@ -37,27 +38,33 @@ function updateOAuthRedirect() {
     
     // Replace the redirect URI
     const redirectUriRegex = /GOOGLE_REDIRECT_URI=.*/;
-    if (redirectUriRegex.test(envContent)) {
-      envContent = envContent.replace(redirectUriRegex, `GOOGLE_REDIRECT_URI=${newRedirectUri}`);
-      console.log(`✅ Updated GOOGLE_REDIRECT_URI to: ${newRedirectUri}`);
-    } else {
-      // Add it if it doesn't exist
-      envContent += `\nGOOGLE_REDIRECT_URI=${newRedirectUri}\n`;
-      console.log(`✅ Added GOOGLE_REDIRECT_URI: ${newRedirectUri}`);
+    const existingUri = envContent.match(redirectUriRegex)?.[0].split('=')[1];
+    
+    if (existingUri !== newRedirectUri) {
+      if (redirectUriRegex.test(envContent)) {
+        envContent = envContent.replace(redirectUriRegex, `GOOGLE_REDIRECT_URI=${newRedirectUri}`);
+      } else {
+        // Add it if it doesn't exist
+        envContent += `\nGOOGLE_REDIRECT_URI=${newRedirectUri}\n`;
+      }
+      
+      // Write back to .env
+      fs.writeFileSync(envPath, envContent);
+      
+      // Only log if not silent
+      if (!silent) {
+        console.log(`✅ Updated GOOGLE_REDIRECT_URI to: ${newRedirectUri}`);
+      }
     }
-
-    // Write back to .env
-    fs.writeFileSync(envPath, envContent);
-    console.log('✅ .env file updated successfully');
     
   } catch (error) {
-    console.error('❌ Failed to update .env file:', error.message);
+    if (!silent) console.error('❌ Failed to update .env file:', error.message);
   }
 }
 
-// Run if called directly
-if (import.meta.url === `file://${process.argv[1]}`) {
-  updateOAuthRedirect();
+// Run if called directly (not silent when run from CLI)
+if (import.meta.url === `file://${process.argv[1].replace(/\\/g, '/')}`) {
+  updateOAuthRedirect(false); // Show output when run manually
 }
 
 export { updateOAuthRedirect };

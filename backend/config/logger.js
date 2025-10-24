@@ -175,7 +175,7 @@ const logApiRequest = (req, res, responseTime) => {
   if (res.statusCode >= 400) {
     logger.warn(logData, `API Request: ${req.method} ${req.originalUrl} - ${res.statusCode}`);
   } else {
-    logger.info(logData, `API Request: ${req.method} ${req.originalUrl} - ${res.statusCode}`);
+    logger.debug(logData, `API Request: ${req.method} ${req.originalUrl} - ${res.statusCode}`);
   }
 };
 

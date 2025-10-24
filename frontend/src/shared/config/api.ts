@@ -1,21 +1,14 @@
-// API configuration based on environment
-const getApiBaseUrl = () => {
-  // In production, use relative URLs (same domain)
-  if (import.meta.env.PROD) {
-    return '';
-  }
-  
-  // In development, use dynamic backend port from Vite env
-  return import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
-};
+// API configuration - always use relative URLs to leverage Vite proxy
+// In production, same domain, so relative works
+// In development, Vite proxy handles /api -> http://localhost:3001
 
-export const API_BASE_URL = getApiBaseUrl();
+export const API_BASE_URL = ''; // Always use relative URLs
 
 export const API_ENDPOINTS = {
   AUTH: {
-    LOGIN: `${API_BASE_URL}/api/auth/login`,
-    ME: `${API_BASE_URL}/api/auth/me`,
-    LOGOUT: `${API_BASE_URL}/api/auth/logout`,
+    LOGIN: '/api/auth/login',
+    ME: '/api/auth/me',
+    LOGOUT: '/api/auth/logout',
   },
-  HEALTH: `${API_BASE_URL}/api/health`,
+  HEALTH: '/api/health',
 } as const;

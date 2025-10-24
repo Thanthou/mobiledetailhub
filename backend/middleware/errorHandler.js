@@ -7,6 +7,7 @@ import { logger } from '../config/logger.js';
 import { ValidationError } from '../utils/validators.js';
 import { errorMonitor } from '../utils/errorMonitor.js';
 import { sendError, sendValidationError, sendNotFound } from '../utils/responseFormatter.js';
+import { env } from '../config/env.async.js';
 
 /**
  * Error handler middleware
@@ -120,7 +121,7 @@ const errorHandler = (err, req, res, next) => {
 
   // Default error response
   const statusCode = err.statusCode || 500;
-  const message = process.env.NODE_ENV === 'production' ? 'Something went wrong' : (err.message || 'Internal server error');
+  const message = env.NODE_ENV === 'production' ? 'Something went wrong' : (err.message || 'Internal server error');
   
   return sendError(res, message, 'Server error', statusCode);
 };
@@ -128,7 +129,12 @@ const errorHandler = (err, req, res, next) => {
 /**
  * 404 handler for unmatched routes
  */
-const notFoundHandler = (req, res) => {
+const notFoundHandler = (req, res, next) => {
+  // If headers already sent, don't try to send 404
+  if (res.headersSent) {
+    return next();
+  }
+
   logger.warn('Route not found:', {
     url: req.url,
     method: req.method,
@@ -142,9 +148,16 @@ const notFoundHandler = (req, res) => {
  * Async error wrapper
  * Wraps async route handlers to catch errors
  */
+// ✅ Promise-safe asyncHandler — prevents Express finalhandler race condition
 const asyncHandler = (fn) => {
-  return (req, res, next) => {
-    Promise.resolve(fn(req, res, next)).catch(next);
+  return function (req, res, next) {
+    // Mark response as being handled SYNCHRONOUSLY to prevent finalhandler
+    res._routeHandled = true;
+    
+    // Execute async function and ensure promise is returned
+    const result = Promise.resolve(fn(req, res, next)).catch(next);
+    
+    return result;
   };
 };
 

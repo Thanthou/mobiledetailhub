@@ -12,7 +12,7 @@ export interface EnvironmentConfig {
  * Get the current environment configuration
  */
 export function getEnvironmentConfig(): EnvironmentConfig {
-  const isDevelopment = import.meta.env.DEV;
+  const isDevelopment = env.DEV;
   
   if (isDevelopment) {
     return {

@@ -7,6 +7,7 @@ import React from 'react';
 
 import { useLocationValidation } from '@shared/hooks/useLocationValidation';
 import type { LocationPage } from '@shared/types/location';
+import { env } from '@shared/config/env';
 
 interface ValidationStatusProps {
   locationData: LocationPage | null | undefined;
@@ -22,7 +23,7 @@ export const ValidationStatus: React.FC<ValidationStatusProps> = ({
   const validation = useLocationValidation(locationData);
 
   // Don't render anything in production
-  if (import.meta.env.PROD) {
+  if (env.PROD) {
     return null;
   }
 

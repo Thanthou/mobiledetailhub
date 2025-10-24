@@ -7,6 +7,7 @@ import { getTenantBySlug } from '../services/tenantService.js';
 import { getTenantByDomain } from '../services/domainService.js';
 import { getPool } from '../database/pool.js';
 import { createModuleLogger } from '../config/logger.js';
+import { env } from '../config/env.async.js';
 
 const logger = createModuleLogger('subdomainMiddleware');
 
@@ -85,12 +86,15 @@ export function createSubdomainMiddleware(options = {}) {
     try {
       const hostname = req.hostname;
       
-      logger.info({
+      // Skip subdomain processing for API routes
+      if (req.path.startsWith('/api/')) {
+        return next();
+      }
+      
+      logger.debug({
         event: 'subdomain_request',
         hostname,
         path: req.path,
-        userAgent: req.get('User-Agent'),
-        ip: req.ip
       }, 'Processing subdomain request');
 
       // 1️⃣ Check for custom domain first
@@ -181,7 +185,7 @@ export function createSubdomainMiddleware(options = {}) {
 
         if (redirectInvalid) {
           // Redirect to main site
-          const mainSiteUrl = process.env.NODE_ENV === 'production' 
+          const mainSiteUrl = env.NODE_ENV === 'production' 
             ? `https://thatsmartsite.com${req.path}`
             : `http://localhost:3001${req.path}`;
           return res.redirect(301, mainSiteUrl);
@@ -258,6 +262,11 @@ export function createSubdomainMiddleware(options = {}) {
  */
 export function createAdminSubdomainMiddleware() {
   return async (req, res, next) => {
+    // Skip subdomain processing for API routes
+    if (req.path.startsWith('/api/')) {
+      return next();
+    }
+    
     const hostname = req.hostname;
     const subdomain = await extractSubdomain(hostname);
     
@@ -326,7 +335,7 @@ export function addTenantContext(req, res, next) {
  * Utility function to generate tenant URLs
  */
 export function generateTenantUrl(tenantSlug, path = '/') {
-  const baseUrl = process.env.NODE_ENV === 'production' 
+  const baseUrl = env.NODE_ENV === 'production' 
     ? 'https://thatsmartsite.com'
     : 'http://localhost:3001';
   

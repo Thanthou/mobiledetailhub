@@ -38,7 +38,7 @@ const initializeCronJobs = () => {
     timezone: 'UTC'
   });
 
-  logger.info('Cron jobs initialized');
+  logger.debug('Cron jobs initialized');
 };
 
 /**

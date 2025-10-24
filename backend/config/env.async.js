@@ -5,29 +5,41 @@
  * - Works in both dev and production
  */
 
-import 'dotenv/config';
-
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { z } from 'zod';
+
+// Load .env from root directory (one level up from backend/)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 /** Schema definition */
 const EnvSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
-  PORT: z.coerce.number().min(1000).max(65535).default(3001),
+  PORT: z.coerce.number().min(1000).max(65535).optional(),
+  BACKEND_PORT: z.coerce.number().min(1000).max(65535).optional(),
 
-  DATABASE_URL: z.string().url().optional(),
+  // Database connection params (individual fields - preferred method)
+  DB_HOST: z.string().optional(),
+  DB_PORT: z.coerce.number().optional().default(5432),
+  DB_NAME: z.string().optional(),
+  DB_USER: z.string().optional(),
+  DB_PASSWORD: z.string().optional(),
+  
+  // DATABASE_URL: Optional connection string (deprecated - use individual params above)
+  DATABASE_URL: z.string().optional(),
   
   BASE_DOMAIN: z.string().default('thatsmartsite.com'),
 
   JWT_SECRET: z.string().optional(),
   JWT_REFRESH_SECRET: z.string().optional(),
 
-  ALLOWED_ORIGINS: z.string().optional().transform(val =>
-    val ? val.split(',').map(v => v.trim()) : ['http://localhost:5173', 'http://localhost:3000']
-  ),
-
   ADMIN_EMAILS: z.string().optional().transform(val =>
     val ? val.split(',').map(v => v.trim()) : []
   ),
+  ADMIN_EMAIL: z.string().optional(), // Support singular form for backward compatibility
   ADMIN_PASSWORD: z.string().optional(),
 
   STRIPE_SECRET_KEY: z.string().optional(),
@@ -35,8 +47,6 @@ const EnvSchema = z.object({
 
   SENDGRID_API_KEY: z.string().optional(),
   FROM_EMAIL: z.string().email().default('hello@thatsmartsite.com'),
-
-  FRONTEND_URL: z.string().optional().default('https://thatsmartsite.com'),
 
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
@@ -61,9 +71,6 @@ export async function loadEnv() {
     }
 
     const env = parsed.success ? parsed.data : EnvSchema.parse({});
-    if (!env.DATABASE_URL) {
-      console.warn('⚠️  DATABASE_URL not provided — DB connection will be lazy.');
-    }
 
     // SECURITY: In production, critical secrets MUST be present
     if (env.NODE_ENV === 'production') {
@@ -75,8 +82,8 @@ export async function loadEnv() {
       if (!env.JWT_REFRESH_SECRET) {
         missingSecrets.push('JWT_REFRESH_SECRET');
       }
-      if (!env.DATABASE_URL) {
-        missingSecrets.push('DATABASE_URL');
+      if (!env.DB_HOST || !env.DB_NAME || !env.DB_USER || !env.DB_PASSWORD) {
+        missingSecrets.push('DB_HOST, DB_NAME, DB_USER, DB_PASSWORD');
       }
       
       if (missingSecrets.length > 0) {

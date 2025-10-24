@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 
 import { ErrorTestButton } from './ErrorTestButton';
 import { RuntimeConfigTest } from './RuntimeConfigTest';
+import { env } from '@shared/config/env';
 
 interface ServiceStatus {
   name: string;
@@ -233,11 +234,11 @@ export function DevDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div className="space-y-2">
             <div className="text-white/60">Node Environment:</div>
-            <div className="text-white font-mono">{import.meta.env.MODE}</div>
+            <div className="text-white font-mono">{env.MODE}</div>
           </div>
           <div className="space-y-2">
             <div className="text-white/60">Backend URL:</div>
-            <div className="text-white font-mono">{import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'}</div>
+            <div className="text-white font-mono">{env.BACKEND_URL || 'http://localhost:3001'}</div>
           </div>
           <div className="space-y-2">
             <div className="text-white/60">Main App:</div>

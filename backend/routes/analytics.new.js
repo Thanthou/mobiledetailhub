@@ -18,6 +18,7 @@ import { analyticsSchemas } from '../schemas/apiSchemas.js';
 import { analyticsLimiter } from '../middleware/rateLimiter.js';
 import { tenantResolverWithDB } from '../middleware/tenantResolver.js';
 import { queueEvent, getQueueSize } from '../utils/analyticsQueue.js';
+import { env } from '../config/env.async.js';
 
 /**
  * Create analytics router with injected dependencies
@@ -36,7 +37,7 @@ export default function createAnalyticsRouter(pool) {
    * Optional - only checks if ANALYTICS_INGEST_KEY is set
    */
   const verifyIngestKey = (req, res, next) => {
-    const ingestKey = process.env.ANALYTICS_INGEST_KEY;
+    const ingestKey = env.ANALYTICS_INGEST_KEY;
     
     // Skip verification if no key is configured
     if (!ingestKey) {

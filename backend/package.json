@@ -5,10 +5,12 @@
   "type": "module",
   "main": "server.js",
   "scripts": {
-    "prestart": "node scripts/kill-port.js",
+    "kill": "node ../scripts/automation/cleanup/kill-node-processes.js",
     "start": "node server.js",
     "start:prod": "node server.js",
-    "dev": "nodemon --delay 2.5 server.js",
+    "dev": "node server.js",
+    "dev:clean": "npm run kill && npm run dev",
+    "audit:returns": "node ../scripts/audits/audit-middleware-returns.js",
     "lint": "cd .. && eslint backend/ --no-cache",
     "lint:fix": "cd .. && eslint backend/ --fix --no-cache",
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -57,7 +59,6 @@
   },
   "devDependencies": {
     "@babel/parser": "^7.28.4",
-    "@babel/traverse": "^7.28.4",
-    "nodemon": "^3.0.1"
+    "@babel/traverse": "^7.28.4"
   }
 }

@@ -33,12 +33,12 @@ async function register(req, res) {
   
   const result = await authService.registerUser(userData, userAgent, ipAddress);
   
-    // Set HttpOnly cookies for enhanced security
-    res.cookie('access_token', result.tokens.accessToken, AUTH_CONFIG.getAccessCookieOptions());
+  // Set HttpOnly cookies for enhanced security
+  res.cookie('access_token', result.tokens.accessToken, AUTH_CONFIG.getAccessCookieOptions());
+  res.cookie(AUTH_CONFIG.REFRESH_COOKIE_NAME, result.tokens.refreshToken, AUTH_CONFIG.getRefreshCookieOptions());
   
-  res.cookie(AUTH_CONFIG.REFRESH_COOKIE_NAME, result.tokens.refreshToken, AUTH_CONFIG.getRefreshCookieOptions())
-  
-  res.status(201).json({
+  // Return to prevent further execution
+  return res.status(201).json({
     success: true,
     user: result.user,
     accessToken: result.tokens.accessToken,
@@ -64,19 +64,30 @@ async function login(req, res) {
   const ipAddress = req.ip;
   
   try {
+    console.log('🟢 STEP 6: Calling authService.loginUser...');
     const result = await authService.loginUser(credentials, userAgent, ipAddress);
+    console.log('🟢 STEP 7: loginUser returned - Headers sent?', res.headersSent);
+    
     logger.info({
       event: 'login_success',
       email: credentials.email,
       userId: result.user.id
     }, 'Login successful');
     
+    // Check if headers were already sent (race condition with 404 handler)
+    if (res.headersSent) {
+      logger.error('Headers already sent before login response');
+      return;
+    }
+    
+    console.log('🟢 STEP 8: Setting cookies...');
     // Set HttpOnly cookies for enhanced security
     res.cookie('access_token', result.tokens.accessToken, AUTH_CONFIG.getAccessCookieOptions());
+    res.cookie(AUTH_CONFIG.REFRESH_COOKIE_NAME, result.tokens.refreshToken, AUTH_CONFIG.getRefreshCookieOptions());
     
-    res.cookie(AUTH_CONFIG.REFRESH_COOKIE_NAME, result.tokens.refreshToken, AUTH_CONFIG.getRefreshCookieOptions())
-    
-    res.json({
+    console.log('🟢 STEP 9: Sending JSON response...');
+    // Return to prevent further execution
+    return res.json({
       success: true,
       user: result.user,
       accessToken: result.tokens.accessToken,

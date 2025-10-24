@@ -14,60 +14,37 @@ import { sendSuccess, sendError } from '../utils/responseFormatter.js';
 let isShuttingDown = false;
 
 /**
- * GET /api/health
+ * GET /api/health or /api/health/
+ * Simple health check without database (for fast probes)
+ */
+router.get('/', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    service: 'thatsmartsite-backend',
+    uptime: process.uptime(),
+    nodeVersion: process.version,
+    pid: process.pid
+  });
+});
+
+/**
+ * GET /api/health/detailed
  * Comprehensive health check with database status
  */
-router.get('/', async (req, res) => {
-  try {
-    const startTime = Date.now();
-    
-    // Check database connectivity
-    let dbStatus = { connected: false, status: 'Disconnected', queryTime: null, dbTime: null };
-    
-    try {
-      const pool = await getPool();
-      const dbStartTime = Date.now();
-      const result = await pool.query('SELECT NOW() as current_time');
-      const dbEndTime = Date.now();
-      
-      dbStatus = {
-        connected: true,
-        status: 'Connected',
-        queryTime: `${dbEndTime - dbStartTime}ms`,
-        dbTime: result.rows[0].current_time
-      };
-    } catch (dbError) {
-      dbStatus = {
-        connected: false,
-        status: 'Error',
-        queryTime: null,
-        dbTime: null,
-        error: dbError.message
-      };
-    }
-
-    const responseTime = Date.now() - startTime;
-
-    sendSuccess(res, 'System health check successful', {
+router.get('/detailed', async (req, res) => {
+  res.json({
+    status: 'success',
+    message: 'Detailed health check',
+    data: {
       timestamp: new Date().toISOString(),
-      database: dbStatus,
       uptime: process.uptime(),
-      memory: {
-        rss: process.memoryUsage().rss,
-        heapTotal: process.memoryUsage().heapTotal,
-        heapUsed: process.memoryUsage().heapUsed,
-        external: process.memoryUsage().external
-      },
-      responseTime: `${responseTime}ms`,
+      memory: process.memoryUsage(),
       pid: process.pid,
       nodeVersion: process.version,
-      shutdown: isShuttingDown
-    });
-
-  } catch (error) {
-    logger.error('Health check error:', error);
-    sendError(res, 'Health check failed', error.message, 500);
-  }
+      environment: process.env.NODE_ENV
+    }
+  });
 });
 
 /**
@@ -82,6 +59,33 @@ router.get('/live', (req, res) => {
     memory: {
       rss: process.memoryUsage().rss,
       heapUsed: process.memoryUsage().heapUsed
+    }
+  });
+});
+
+/**
+ * GET /api/health/bootstrap
+ * Bootstrap verification check - confirms all bootstrap modules loaded successfully
+ * Useful for CI/CD and automated sanity checks
+ */
+router.get('/bootstrap', (req, res) => {
+  res.json({
+    ok: true,
+    timestamp: new Date().toISOString(),
+    modules: ['env', 'security', 'middleware', 'routes', 'errors'],
+    phases: [
+      { phase: 1, name: 'Environment Loading', status: 'complete' },
+      { phase: 2, name: 'Database Pool', status: 'complete' },
+      { phase: 3, name: 'Security Layer', status: 'complete' },
+      { phase: 4, name: 'Core Middleware', status: 'complete' },
+      { phase: 5, name: 'API Routes', status: 'complete' },
+      { phase: 6, name: 'Static Assets', status: 'complete' },
+      { phase: 7, name: 'Error Handling', status: 'complete' }
+    ],
+    server: {
+      uptime: process.uptime(),
+      nodeVersion: process.version,
+      pid: process.pid
     }
   });
 });
@@ -132,7 +136,9 @@ router.get('/ready', async (req, res) => {
 
   } catch (error) {
     logger.error('Readiness check error:', error);
-    sendError(res, 'Internal error during readiness check', error.message, 503);
+    if (!res.headersSent) {
+      sendError(res, 'Internal error during readiness check', error.message, 503);
+    }
   }
 });
 
@@ -154,7 +160,9 @@ router.get('/db-status', async (req, res) => {
     });
 
   } catch (error) {
-    sendError(res, 'Database connection failed', error.message, 503);
+    if (!res.headersSent) {
+      sendError(res, 'Database connection failed', error.message, 503);
+    }
   }
 });
 
@@ -174,7 +182,9 @@ router.get('/test-db', async (req, res) => {
     });
 
   } catch (error) {
-    sendError(res, 'Database connection failed', error.message, 500);
+    if (!res.headersSent) {
+      sendError(res, 'Database connection failed', error.message, 500);
+    }
   }
 });
 

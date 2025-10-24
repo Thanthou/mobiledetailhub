@@ -2,6 +2,7 @@ import express from 'express';
 import { logger } from '../config/logger.js';
 import { getPool } from '../database/pool.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
+import { env } from '../config/env.async.js';
 
 /**
  * Tenant PWA Manifest Generator
@@ -57,19 +58,19 @@ router.get('/:slug/manifest.json', async (req, res) => {
       categories: ['business', 'productivity'],
       icons: [
         {
-          src: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/${tenant.industry}/icons/favicon.svg`,
+          src: `${getFrontendUrl('tenant')}/${tenant.industry}/icons/favicon.svg`,
           sizes: 'any',
           type: 'image/svg+xml',
           purpose: 'any'
         },
         {
-          src: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/${tenant.industry}/icons/favicon-192.webp`,
+          src: `${getFrontendUrl('tenant')}/${tenant.industry}/icons/favicon-192.webp`,
           sizes: '192x192',
           type: 'image/webp',
           purpose: 'any'
         },
         {
-          src: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/${tenant.industry}/icons/favicon-512.webp`,
+          src: `${getFrontendUrl('tenant')}/${tenant.industry}/icons/favicon-512.webp`,
           sizes: '512x512',
           type: 'image/webp',
           purpose: 'any'
@@ -81,14 +82,14 @@ router.get('/:slug/manifest.json', async (req, res) => {
           short_name: 'Dashboard',
           description: 'Open your dashboard',
           url: `/${slug}/dashboard`,
-          icons: [{ src: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/${tenant.industry}/icons/favicon.svg`, sizes: '96x96' }]
+          icons: [{ src: `${getFrontendUrl('tenant')}/${tenant.industry}/icons/favicon.svg`, sizes: '96x96' }]
         },
         {
           name: 'View Website',
           short_name: 'Website',
           description: 'View your live website',
           url: `/${slug}`,
-          icons: [{ src: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/${tenant.industry}/icons/favicon.svg`, sizes: '96x96' }]
+          icons: [{ src: `${getFrontendUrl('tenant')}/${tenant.industry}/icons/favicon.svg`, sizes: '96x96' }]
         }
       ]
     };
@@ -101,7 +102,7 @@ router.get('/:slug/manifest.json', async (req, res) => {
     logger.error('Error generating tenant manifest:', error);
     res.status(500).json({
       error: 'Failed to generate manifest',
-      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+      message: env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
   }
 });

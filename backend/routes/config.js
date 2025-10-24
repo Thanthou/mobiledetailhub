@@ -7,6 +7,7 @@
 
 import express from 'express';
 import { logger } from '../config/logger.js';
+import { env } from '../config/env.async.js';
 
 const router = express.Router();
 
@@ -20,57 +21,57 @@ const router = express.Router();
 router.get('/', (req, res) => {
   try {
     // Determine API base URL based on environment
-    const apiBaseUrl = process.env.NODE_ENV === 'production'
-      ? (process.env.API_BASE_URL || '/api')
+    const apiBaseUrl = env.NODE_ENV === 'production'
+      ? (env.API_BASE_URL || '/api')
       : '/api'; // Always use proxy in development
     
-    const apiUrl = process.env.NODE_ENV === 'production'
-      ? (process.env.API_URL || '')
+    const apiUrl = env.NODE_ENV === 'production'
+      ? (env.API_URL || '')
       : ''; // Empty in dev to use Vite proxy
     
     const config = {
       // API Configuration
       apiBaseUrl,
       apiUrl,
-      backendUrl: process.env.NODE_ENV === 'development' 
-        ? `http://localhost:${process.env.PORT || 3001}`
+      backendUrl: env.NODE_ENV === 'development' 
+        ? `http://localhost:${env.PORT || 3001}`
         : '',
       
       // Third-party API Keys (only public keys - NEVER send private keys!)
-      googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
-      stripePublishableKey: process.env.STRIPE_PUBLISHABLE_KEY || 'pk_test_placeholder',
+      googleMapsApiKey: env.GOOGLE_MAPS_API_KEY,
+      stripePublishableKey: env.STRIPE_PUBLISHABLE_KEY || 'pk_test_placeholder',
       
       // Feature Flags (runtime toggleable)
       features: {
-        serviceWorker: process.env.ENABLE_SERVICE_WORKER === 'true' && process.env.NODE_ENV === 'production',
-        analytics: process.env.ENABLE_ANALYTICS !== 'false', // Enabled by default
-        maps: process.env.ENABLE_GOOGLE_MAPS !== 'false', // Enabled by default
-        stripe: process.env.ENABLE_STRIPE !== 'false', // Enabled by default
-        debugMode: process.env.NODE_ENV === 'development',
-        booking: process.env.ENABLE_BOOKING !== 'false', // Enabled by default
-        reviews: process.env.ENABLE_REVIEWS !== 'false', // Enabled by default
+        serviceWorker: env.ENABLE_SERVICE_WORKER === 'true' && env.NODE_ENV === 'production',
+        analytics: env.ENABLE_ANALYTICS !== 'false', // Enabled by default
+        maps: env.ENABLE_GOOGLE_MAPS !== 'false', // Enabled by default
+        stripe: env.ENABLE_STRIPE !== 'false', // Enabled by default
+        debugMode: env.NODE_ENV === 'development',
+        booking: env.ENABLE_BOOKING !== 'false', // Enabled by default
+        reviews: env.ENABLE_REVIEWS !== 'false', // Enabled by default
       },
       
       // Environment info
       environment: {
-        mode: process.env.NODE_ENV || 'development',
-        version: process.env.APP_VERSION || '1.0.0',
-        buildTime: process.env.BUILD_TIME || new Date().toISOString(),
-        commitHash: process.env.COMMIT_HASH || 'unknown',
+        mode: env.NODE_ENV || 'development',
+        version: env.APP_VERSION || '1.0.0',
+        buildTime: env.BUILD_TIME || new Date().toISOString(),
+        commitHash: env.COMMIT_HASH || 'unknown',
       },
       
       // Multi-tenant configuration
       tenant: {
-        defaultDomain: process.env.BASE_DOMAIN || 'thatsmartsite.com',
-        subdomainPattern: `*.${process.env.BASE_DOMAIN || 'thatsmartsite.com'}`,
-        allowCustomDomains: process.env.ALLOW_CUSTOM_DOMAINS !== 'false',
+        defaultDomain: env.BASE_DOMAIN || 'thatsmartsite.com',
+        subdomainPattern: `*.${env.BASE_DOMAIN || 'thatsmartsite.com'}`,
+        allowCustomDomains: env.ALLOW_CUSTOM_DOMAINS !== 'false',
       },
       
       // Client-side settings
       client: {
-        maxUploadSize: parseInt(process.env.MAX_UPLOAD_SIZE || '5242880'), // 5MB default
-        sessionTimeout: parseInt(process.env.SESSION_TIMEOUT || '86400000'), // 24h default
-        enableOfflineMode: process.env.ENABLE_OFFLINE_MODE === 'true',
+        maxUploadSize: parseInt(env.MAX_UPLOAD_SIZE || '5242880'), // 5MB default
+        sessionTimeout: parseInt(env.SESSION_TIMEOUT || '86400000'), // 24h default
+        enableOfflineMode: env.ENABLE_OFFLINE_MODE === 'true',
       }
     };
     
@@ -83,7 +84,7 @@ router.get('/', (req, res) => {
     res.header('Cache-Control', 'public, max-age=300');
     
     // Add informative headers
-    res.header('X-Config-Version', process.env.APP_VERSION || '1.0.0');
+    res.header('X-Config-Version', env.APP_VERSION || '1.0.0');
     res.header('X-Config-Timestamp', new Date().toISOString());
     
     logger.debug('Runtime config served', {

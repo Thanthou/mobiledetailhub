@@ -1,6 +1,7 @@
 import cookie from 'cookie';
 import { verifyAccessToken, isTokenBlacklisted } from '../utils/tokenManager.js';
 import { logger } from '../config/logger.js';
+import { env } from '../config/env.async.js';
 
 // Authentication Middleware
 const authenticateToken = async (req, res, next) => {
@@ -14,7 +15,7 @@ const authenticateToken = async (req, res, next) => {
     // In development mode, allow requests without authentication for admin routes
     // Check both req.path and req.originalUrl since routes may be mounted
     const isAdminRoute = req.path.includes('/admin') || (req.originalUrl && req.originalUrl.includes('/admin'));
-    if ((process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'dev') && isAdminRoute) {
+    if ((env.NODE_ENV === 'development' || env.NODE_ENV === 'dev') && isAdminRoute) {
       req.user = {
         userId: 1,
         email: 'admin@dev.local',
@@ -124,7 +125,7 @@ const authenticateToken = async (req, res, next) => {
 // Admin Middleware - Role-aware and future-proof
 const requireAdmin = (req, res, next) => {
   // In development mode, allow admin access without authentication
-  if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'dev') {
+  if (env.NODE_ENV === 'development' || env.NODE_ENV === 'dev') {
     // Set mock admin user for development
     if (!req.user) {
       req.user = {

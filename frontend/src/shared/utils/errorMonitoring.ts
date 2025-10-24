@@ -241,7 +241,7 @@ class ErrorMonitor {
     this.listeners.forEach(listener => { listener(error); });
 
     // Log to console in development
-    if (import.meta.env.DEV) {
+    if (env.DEV) {
       console.group(`🚨 Error Captured (${error.type.toUpperCase()})`);
       console.error('Message:', error.message);
       console.error('Timestamp:', error.timestamp.toISOString());

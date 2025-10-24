@@ -22,6 +22,11 @@ errorMonitor.enable();
 // Set up error reporting to backend
 errorMonitor.addListener(async (error) => {
   try {
+    // Prevent infinite loop - don't report errors from error reporting
+    if (error.url?.includes('/api/errors/track')) {
+      return;
+    }
+    
     await apiCall('/api/errors/track', {
       method: 'POST',
       headers: {

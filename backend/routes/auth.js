@@ -11,9 +11,28 @@ import * as passwordSetupController from '../controllers/passwordSetupController
 import { getPool } from '../database/pool.js';
 import * as authService from '../services/authService.js';
 import { createModuleLogger } from '../config/logger.js';
+import { env } from '../config/env.async.js';
 
 const router = express.Router();
 const logger = createModuleLogger('authRoutes');
+
+// Root route - API documentation
+router.get('/', (req, res) => {
+  res.json({
+    service: 'Authentication API',
+    endpoints: {
+      'POST /login': 'Login with email/password',
+      'POST /register': 'Register new account',
+      'POST /logout': 'Logout current session',
+      'POST /refresh': 'Refresh access token',
+      'GET /me': 'Get current user info',
+      'GET /sessions': 'List active sessions',
+      'POST /request-password-reset': 'Request password reset email',
+      'POST /reset-password': 'Reset password with token',
+      'GET /check-email': 'Check if email is registered',
+    }
+  });
+});
 
 // Check if email exists (for onboarding validation)
 router.get('/check-email', 
@@ -31,9 +50,24 @@ router.post('/register',
 
 // User Login
 router.post('/login', 
+  (req, res, next) => {
+    console.log('🔵 STEP 1: /login route hit');
+    next();
+  },
   sensitiveAuthLimiter,
+  (req, res, next) => {
+    console.log('🔵 STEP 2: Passed rate limiter');
+    next();
+  },
   validateBody(authSchemas.login),
-  asyncHandler(authController.login)
+  (req, res, next) => {
+    console.log('🔵 STEP 3: Passed validation');
+    next();
+  },
+  asyncHandler((req, res, next) => {
+    console.log('🔵 STEP 4: Entering auth controller');
+    return authController.login(req, res, next);
+  })
 );
 
 // Get Current User (Protected Route)
@@ -51,7 +85,10 @@ router.get('/me', authenticateToken, asyncHandler(async (req, res) => {
   const user = result.rows[0];
   
   // Check if user should be admin based on environment variable
-  const ADMIN_EMAILS = process.env.ADMIN_EMAILS?.split(',') || [];
+  // Support both ADMIN_EMAILS (plural) and ADMIN_EMAIL (singular)
+  const adminEmails = env.ADMIN_EMAILS || [];
+  const singleEmail = env.ADMIN_EMAIL ? [env.ADMIN_EMAIL] : [];
+  const ADMIN_EMAILS = [...adminEmails, ...singleEmail];
   let isAdmin = user.is_admin || false;
   
   // Auto-promote to admin if email is in ADMIN_EMAILS list
@@ -179,7 +216,7 @@ router.post('/logout', authenticateToken, asyncHandler(async (req, res) => {
   // Clear HttpOnly cookies
   res.clearCookie('access_token', {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/'
   });
@@ -277,10 +314,13 @@ router.post('/promote-admin', authLimiter, asyncHandler(async (req, res) => {
 
   const pool = await getPool();
   
-  const ADMIN_EMAILS = process.env.ADMIN_EMAILS?.split(',') || [];
+  // Support both ADMIN_EMAILS (plural) and ADMIN_EMAIL (singular)
+  const adminEmails = env.ADMIN_EMAILS || [];
+  const singleEmail = env.ADMIN_EMAIL ? [env.ADMIN_EMAIL] : [];
+  const ADMIN_EMAILS = [...adminEmails, ...singleEmail];
   
   if (ADMIN_EMAILS.length === 0) {
-    const error = new Error('No ADMIN_EMAILS configured');
+    const error = new Error('No ADMIN_EMAILS or ADMIN_EMAIL configured');
     error.statusCode = 400;
     throw error;
   }

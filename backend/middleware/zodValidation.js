@@ -26,6 +26,14 @@ const validateBody = (schema) => {
           code: errItem.code
         }));
 
+        // Log validation errors for debugging
+        console.error('❌ Validation failed:', {
+          url: req.url,
+          method: req.method,
+          body: req.body,
+          errors: validationErrors
+        });
+
         const validationError = new Error('Validation failed');
         validationError.statusCode = 400;
         validationError.code = 'VALIDATION_ERROR';

@@ -1,9 +1,6 @@
 📁 .cursor/
    📁 commands/
-      📄 f.md
-      📄 flushdns.md
-      📄 typescript-eslintno-unnecessary-condition.md
-      📄 typescript-eslintno-unsafe-assignment.md
+
 📄 .eslintrc.cjs
 📁 .github/
    📁 workflows/
@@ -17,7 +14,17 @@
 📄 .lintstagedrc.json
 📄 .port-registry.json
 📄 .prettierrc.json
+📁 .vscode/
+   📄 settings.json
 📁 backend/
+   📁 bootstrap/
+      📄 loadEnv.js
+      📄 README.md
+      📄 server.start.js
+      📄 setupErrors.js
+      📄 setupMiddleware.js
+      📄 setupRoutes.js
+      📄 setupSecurity.js
    📁 config/
       📄 auth.js
       📄 env.async.js
@@ -38,6 +45,8 @@
          📄 FLOW_AUDIT.md
       📄 TENANT_DASHBOARD_BRIDGE.md
       📄 UNIFIED_ERROR_LOGGING_SYSTEM.md
+   📁 legacy/
+      📄 server.pre-rebuild.js
    📁 middleware/
       📄 auth.js
       📄 csrfProtection.js
@@ -70,6 +79,7 @@
       📄 README.md
    📁 mocks/
       📄 mockReviews.json
+   📄 nodemon.json
    📄 package-lock.json
    📄 package.json
    📁 public/
@@ -161,6 +171,7 @@
       📄 tenantUtils.js
       📄 tokenManager.js
       📄 uploadValidator.js
+      📄 urlBuilder.js
       📄 validationSchemas.js
       📄 validators.js
       📄 vehicleMapping.js
@@ -179,6 +190,7 @@
       📄 FLOW_AUDIT.md
       📄 FLOW_FRONTEND_ADMIN_APP.md
       📄 FLOW_FRONTEND_AUDIT.md
+      📄 FLOW_FRONTEND_MAIN.md
       📄 FLOW_FRONTEND_MAIN_SITE.md
       📄 FLOW_FRONTEND_TENANT_APP.md
       📄 FLOW_GRAPH.json
@@ -225,6 +237,9 @@
       📄 ANALYTICS_HARDENING.md
       📄 AUTH_HARDENING_COMPLETE.md
       📄 BACKEND_FIX_SUMMARY.md
+      📄 BOOTSTRAP_COMPLETE.md
+      📄 BOOTSTRAP_FINAL_SUMMARY.md
+      📄 BOOTSTRAP_REFACTOR_COMPLETE.md
       📄 DATACONTEXT_REFACTOR.md
       📄 ENV_FAIL_FAST_FIX.md
       📁 migrations/
@@ -245,6 +260,8 @@
       📄 SUBDOMAIN_ROUTING.md
       📄 TENANT_DELETION_SERVICE.md
       📄 TENANT_RESOLUTION_STANDARDIZATION.md
+      📄 WHAT_WE_FIXED.md
+      📄 WHY_NOTHING_IS_BROKEN.md
    📁 chatgpt/
 
    📁 code-scan/
@@ -298,7 +315,6 @@
 
    📁 overview/
 
-   📄 PREVIEW_SYSTEM_READY.md
    📁 project/
       📁 milestones/
 
@@ -314,6 +330,7 @@
       📄 DEVELOPMENT_URLS.md
       📄 LOGGING.md
       📄 MODULAR_CONFIG_IMPLEMENTATION.md
+      📄 PREVIEW_SYSTEM_READY.md
 📄 eslint.config.js
 📁 frontend/
    📄 .eslintrc.cjs
@@ -580,38 +597,7 @@
                   📄 index.ts
                   📁 types/
                      📄 index.ts
-               📁 header/
-                  📁 api/
-                     📄 tenant.api.ts
-                  📁 components/
-                     📄 BusinessInfo.tsx
-                     📄 BusinessInfoDisplay.tsx
-                     📄 DevNavigation.tsx
-                     📄 Header.tsx
-                     📄 index.ts
-                     📄 LoginButton.tsx
-                     📄 Logo.tsx
-                     📄 Navigation.tsx
-                     📄 SocialMediaIcons.tsx
-                     📄 UserMenu.tsx
-                  📁 contexts/
-                     📄 DataProvider.tsx
-                     📄 TenantContext.tsx
-                  📁 hooks/
-                     📄 useBusiness.ts
-                     📄 useTenants.ts
-                  📄 index.ts
-                  📁 pages/
-                     📄 TenantPage.tsx
-                  📁 routes/
-                     📄 tenantRoutes.tsx
-                  📁 types/
-                     📄 business.types.ts
-                     📄 index.ts
-                  📁 utils/
-                     📄 constants.ts
-                     📄 navigation.ts
-               📄 HeaderMain.tsx
+               📄 Header.tsx
                📁 hero/
                   📁 components/
                      📄 ContentContainer.tsx
@@ -703,6 +689,19 @@
                      📄 index.ts
                      📄 reviewUtils.ts
                📄 RuntimeConfigTest.tsx
+               📁 sections/
+                  📄 ContactSection.tsx
+                  📁 demos/
+                     📄 AnalyticsDashboardDemo.tsx
+                     📄 AutomatedSEODemo.tsx
+                     📄 GoogleReviewsDemo.tsx
+                     📄 IndustryTemplatesDemo.tsx
+                     📄 InstantLaunchDemo.tsx
+                     📄 MuchMoreDemo.tsx
+                     📄 SecureBookingDemo.tsx
+                  📄 PreviewSection.tsx
+                  📄 PricingSection.tsx
+                  📄 ValueSection.tsx
                📁 services/
                   📁 api/
                      📄 services.api.ts
@@ -899,6 +898,8 @@
                📄 README.md
             📁 features-wip/
                📄 README.md
+            📁 hooks/
+               📄 useScrollSpy.ts
             📄 main.tsx
             📄 MainApp.tsx
             📄 MainProviders.tsx
@@ -909,10 +910,10 @@
 
             📄 providers.tsx
             📁 routes/
+               📄 DevDashboard.tsx
                📄 HomePage.tsx
                📄 LoginPage.tsx
                📄 PricingPage.tsx
-               📄 SmartHeroPage.tsx
                📄 TenantOnboardingPage.tsx
             📄 vite-env.d.ts
       📁 public/
@@ -949,6 +950,11 @@
                📁 icons/
 
                📁 images/
+                  📁 gallery/
+
+                  📁 hero/
+
+                  📁 services/
 
                📁 video/
 
@@ -993,7 +999,11 @@
 
                📁 video/
 
+         📁 logo/
+
          📄 manifest.json
+         📁 previews/
+
          📄 robots.txt
          📄 sw.js
          📄 test.html
@@ -1490,19 +1500,103 @@
       📄 env.ts
       📄 index.ts
    📄 eslint.config.js
-   📁 frontend/
-      📁 apps/
-         📁 main-backup/
-            📁 src/
-               📁 components/
-                  📁 hero/
-                     📁 components/
-
    📄 package-lock.json
    📄 package.json
    📁 plugins/
       📄 vite-schema-injection.js
    📄 postcss.config.js
+   📁 public/
+      📁 data/
+         📁 preview-avatars/
+            📄 README.md
+      📁 icons/
+         📄 PWA_ICONS_README.md
+         📄 README.md
+      📁 images/
+
+      📁 industries/
+         📁 barber/
+            📁 data/
+
+            📁 icons/
+
+            📁 images/
+
+            📁 video/
+
+         📁 lawncare/
+            📁 data/
+
+            📁 icons/
+
+            📁 images/
+
+            📁 video/
+
+         📁 maid-service/
+            📁 data/
+
+            📁 icons/
+
+            📁 images/
+               📁 gallery/
+
+               📁 hero/
+
+               📁 services/
+
+            📁 video/
+
+         📁 main/
+            📁 data/
+               📄 gallery.json
+         📁 mobile-detailing/
+            📁 data/
+               📄 gallery.json
+            📁 icons/
+
+            📁 images/
+               📁 gallery/
+
+               📁 hero/
+                  📄 README.md
+               📁 services/
+                  📁 airplane-detailing/
+
+                  📁 auto-detailing/
+
+                  📁 ceramic-coating/
+
+                  📁 marine-detailing/
+
+                  📁 paint-correction/
+
+                  📁 ppf-installation/
+
+                  📁 rv-detailing/
+
+                  📁 thumbnails/
+                     📄 README.md
+            📁 video/
+
+         📁 pet-grooming/
+            📁 data/
+
+            📁 icons/
+
+            📁 images/
+
+            📁 video/
+
+      📁 main/
+         📁 previews/
+
+      📄 manifest.json
+      📁 previews/
+
+      📄 robots.txt
+      📄 sw.js
+      📄 test.html
    📁 scripts/
       📄 check-assets.js
       📄 post-build.js
@@ -2006,6 +2100,7 @@
             📄 ValidationStatus.tsx
          📁 config/
             📄 api.ts
+            📄 env.ts
          📁 constants/
             📄 externalUrls.ts
             📄 index.ts
@@ -2164,6 +2259,7 @@
                📄 FooterLocations.tsx
             📄 ReviewsSummary.tsx
             📁 utility/
+               📄 GradientText.tsx
                📄 Spinner.tsx
                📄 toast.tsx
          📁 utils/
@@ -2317,6 +2413,7 @@
          📄 find-free-backend-port.js
          📄 find-free-port.js
          📄 index.js
+         📄 PASSWORD_SYNC_GUIDE.md
          📄 port-discovery.js
          📄 read-port.js
          📄 reset-admin-password.js
@@ -2326,6 +2423,7 @@
          📄 start-frontend.js
          📄 start-main-app.js
          📄 start-tenant-app.js
+         📄 sync-admin-password.js
          📄 update-oauth-redirect.js
          📄 verify-ports-free.js
       📄 dev-hub.js
@@ -2338,6 +2436,7 @@
       📄 list-audit-commands.js
       📁 metrics/
          📄 scorecard.js
+      📄 optimize-images.js
       📄 standardize-logger.js
       📄 standardize-validation.js
       📄 validate-env.js
@@ -2408,6 +2507,7 @@
       📄 db-overview.js
       📄 debug-routing.js
       📄 debug-subdomain.js
+      📄 kill-dev-servers.js
       📄 seo-integration-test.js
    📁 utils/
       📄 cleanup.js

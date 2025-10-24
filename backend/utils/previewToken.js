@@ -8,6 +8,7 @@
 
 import jwt from 'jsonwebtoken';
 import { createModuleLogger } from '../config/logger.js';
+import { env } from '../config/env.async.js';
 
 const logger = createModuleLogger('previewToken');
 
@@ -41,7 +42,7 @@ export function signPreview(payload) {
     };
 
     // Use JWT_SECRET from environment
-    const secret = process.env.JWT_SECRET || 'dev-secret-change-in-production';
+    const secret = env.JWT_SECRET || 'dev-secret-change-in-production';
     
     const token = jwt.sign(tokenPayload, secret, {
       expiresIn: PREVIEW_EXP,
@@ -70,7 +71,7 @@ export function signPreview(payload) {
  */
 export function verifyPreview(token, expectedTenantId = null) {
   try {
-    const secret = process.env.JWT_SECRET || 'dev-secret-change-in-production';
+    const secret = env.JWT_SECRET || 'dev-secret-change-in-production';
     
     const decoded = jwt.verify(token, secret, {
       algorithms: ['HS256'],

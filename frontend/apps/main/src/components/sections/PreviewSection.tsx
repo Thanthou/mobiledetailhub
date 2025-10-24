@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { env } from '@shared/config/env';
 
 export default function PreviewSection() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -22,7 +23,7 @@ export default function PreviewSection() {
 
   // Determine base URL based on environment
   const getPreviewBaseUrl = () => {
-    if (import.meta.env.DEV) {
+    if (env.DEV) {
       // Local development - use tenant subdomain
       return 'http://tenant.localhost:5177';
     }

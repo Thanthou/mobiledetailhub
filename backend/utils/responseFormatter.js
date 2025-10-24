@@ -54,6 +54,11 @@ export const sendValidationError = (res, message, validationErrors = null, statu
  * @param {string} message - Not found message (optional)
  */
 export const sendNotFound = (res, message = 'Resource not found') => {
+  // Don't send if headers already sent
+  if (res.headersSent) {
+    return;
+  }
+  
   return res.status(404).json({
     status: 'error',
     message,

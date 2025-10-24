@@ -8,6 +8,7 @@ import bcrypt from 'bcryptjs';
 import { getPool } from '../database/pool.js';
 import { env } from '../config/env.js';
 import { createModuleLogger } from '../config/logger.js';
+import { getFrontendUrl } from '../utils/urlBuilder.js';
 
 const logger = createModuleLogger('passwordSetupService');
 
@@ -91,7 +92,7 @@ const createPasswordSetupToken = async (userId, email, ipAddress, userAgent) => 
     );
 
     // Create setup URL - redirect to login with token parameter
-    const setupUrl = `${env.FRONTEND_URL}/login?setup_token=${setupToken}`;
+    const setupUrl = `${getFrontendUrl('main')}/login?setup_token=${setupToken}`;
 
     logger.info('Password setup token created', { 
       userId, 

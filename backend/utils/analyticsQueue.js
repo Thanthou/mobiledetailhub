@@ -188,7 +188,7 @@ export function startAutoFlush(pool) {
     }
   }, FLUSH_INTERVAL);
 
-  logger.info('Analytics queue auto-flush started', {
+  logger.debug('Analytics queue auto-flush started', {
     intervalMinutes: 5,
     maxQueueSize: MAX_QUEUE_SIZE
   });

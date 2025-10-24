@@ -5,11 +5,11 @@
   },
   "admin": {
     "port": 5176,
-    "host": "admin.localhost"
+    "host": "localhost"
   },
   "tenant": {
     "port": 5177,
-    "host": "tenant.localhost"
+    "host": "localhost"
   },
   "backend": {
     "port": 3001,

@@ -38,6 +38,8 @@ const generateTokenFamily = () => {
  */
 const storeRefreshToken = async (userId, tokenHash, expiresAt, ipAddress, userAgent, deviceId, tokenFamily = null) => {
   try {
+    // Get database pool
+    const pool = await getPool();
 
     if (!pool) {
       throw new Error('Database connection not available');
@@ -47,7 +49,6 @@ const storeRefreshToken = async (userId, tokenHash, expiresAt, ipAddress, userAg
     const familyId = tokenFamily || generateTokenFamily();
 
     // Check if user already has a token for this device
-    const pool = await getPool();
     const existingToken = await pool.query(
       'SELECT id FROM auth.refresh_tokens WHERE user_id = $1 AND device_id = $2',
       [userId, deviceId]

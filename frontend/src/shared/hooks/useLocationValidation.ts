@@ -7,6 +7,7 @@ import { useMemo } from 'react';
 
 import type { LocationPage } from '@shared/types/location';
 import { validateLocationWithDetails } from '@shared/utils/validateLocationData';
+import { env } from '@shared/config/env';
 
 interface UseLocationValidationResult {
   isValid: boolean;
@@ -107,7 +108,7 @@ export function useLocationValidationDebug(locationData: LocationPage | null | u
   const validation = useLocationValidation(locationData);
   
   useMemo(() => {
-    if (import.meta.env.DEV) {
+    if (env.DEV) {
       const prefix = label ? `[${label}] ` : '';
       
       if (!validation.isValid) {

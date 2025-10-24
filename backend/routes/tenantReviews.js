@@ -10,6 +10,7 @@ import { getPool } from '../database/pool.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import { validateFileMagic } from '../utils/uploadValidator.js';
 import { sendSuccess, sendError, sendValidationError } from '../utils/responseFormatter.js';
+import { env } from '../config/env.async.js';
 
 const router = express.Router();
 // TODO: Add authentication to protected routes
@@ -129,7 +130,7 @@ router.post('/upload-avatar', upload.single('avatar'), async (req, res) => {
     res.status(500).json({
       status: 'error',
       message: 'Failed to upload avatar',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+      error: env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
   }
 });
@@ -238,7 +239,7 @@ router.post('/', async (req, res) => {
     res.status(500).json({
       status: 'error',
       message: 'Failed to create review',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+      error: env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
   }
 });
@@ -365,7 +366,7 @@ router.get('/:tenant_slug', async (req, res) => {
     res.status(500).json({
       status: 'error',
       message: 'Failed to fetch reviews',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+      error: env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
   }
 });
@@ -401,7 +402,7 @@ router.delete('/:id', async (req, res) => {
     res.status(500).json({
       status: 'error',
       message: 'Failed to delete review',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+      error: env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
   }
 });
@@ -445,7 +446,7 @@ router.post('/scrape-google-business', async (req, res) => {
         status: 'error',
         message: 'Failed to scrape Google Business Profile',
         error: scrapeResult.error,
-        debug: process.env.NODE_ENV === 'development' ? scrapeResult : undefined
+        debug: env.NODE_ENV === 'development' ? scrapeResult : undefined
       });
     }
 
@@ -498,7 +499,7 @@ router.post('/scrape-google-business', async (req, res) => {
     res.status(500).json({
       status: 'error',
       message: 'Failed to scrape Google Business Profile',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+      error: env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
   }
 });

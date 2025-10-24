@@ -1,5 +1,6 @@
 import pg from 'pg';
 import { createModuleLogger } from '../config/logger.js';
+import { env } from '../config/env.async.js';
 
 const { Pool } = pg;
 const logger = createModuleLogger('database-pool');
@@ -20,17 +21,17 @@ export async function getPool() {
     const { loadEnv } = await import('../config/env.js');
     await loadEnv();
 
+    // Use individual connection params (preferred method)
     const config = {
-      connectionString: process.env.DATABASE_URL,
-      host: process.env.DB_HOST,
-      port: process.env.DB_PORT,
-      database: process.env.DB_NAME,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-      max: 20, // Maximum number of clients in the pool
-      idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
-      connectionTimeoutMillis: 2000, // Return an error after 2 seconds if connection could not be established
+      host: env.DB_HOST,
+      port: env.DB_PORT,
+      database: env.DB_NAME,
+      user: env.DB_USER,
+      password: env.DB_PASSWORD,
+      ssl: env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+      max: 20,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 2000,
     };
 
     // Remove undefined values
@@ -47,7 +48,7 @@ export async function getPool() {
     await client.query('SELECT NOW()');
     client.release();
 
-    logger.info('Database pool initialized successfully');
+    logger.debug('Database pool initialized successfully');
     
     // Background connection test (non-blocking)
     setImmediate(async () => {

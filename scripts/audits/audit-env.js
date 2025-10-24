@@ -5,6 +5,9 @@
  * ✅ Verifies required env vars by category
  * ✅ Tests database connectivity
  * ✅ Checks for weak file permissions
+ * ✅ Audits backend for direct process.env usage
+ * ✅ Audits frontend for direct import.meta.env usage
+ * ✅ Enforces centralized env utility pattern
  * ✅ Uses standardized audit utilities
  */
 
@@ -12,6 +15,7 @@ import fs from "fs";
 import path from "path";
 import dotenv from "dotenv";
 import { fileURLToPath } from "url";
+import { glob } from "glob";
 import { 
   createAuditResult, 
   saveReport, 
@@ -32,10 +36,12 @@ const isSilent = process.argv.includes('--silent') || process.env.AUDIT_SILENT =
 // 🧩 Required Environment Variable Groups
 //────────────────────────────────────────────
 const requiredEnvVars = {
-  database: ["DATABASE_URL"],
+  database: ["DB_HOST", "DB_NAME", "DB_USER", "DB_PASSWORD"],
   auth: ["JWT_SECRET", "JWT_REFRESH_SECRET"],
   email: ["SENDGRID_API_KEY", "FROM_EMAIL"],
   optional: [
+    "DATABASE_URL", // Deprecated - use DB_HOST, DB_NAME, etc.
+    "DB_PORT", // Optional - defaults to 5432
     "STRIPE_SECRET_KEY",
     "GOOGLE_CLIENT_ID",
     "GOOGLE_CLIENT_SECRET",
@@ -105,29 +111,23 @@ function checkConfigFiles(audit) {
 async function checkDatabaseConnection(audit) {
   audit.section('Database Connectivity');
 
-  if (!process.env.DATABASE_URL) {
-    audit.error('DATABASE_URL not set - skipping connection test');
+  // Check for required DB connection params
+  if (!process.env.DB_HOST || !process.env.DB_NAME || !process.env.DB_USER) {
+    audit.error('DB connection params not set (DB_HOST, DB_NAME, DB_USER) - skipping connection test');
     return;
   }
 
   try {
     const { Pool } = await import("pg");
     
-    // Parse DATABASE_URL
-    let dbConfig;
-    try {
-      const url = new URL(process.env.DATABASE_URL);
-      dbConfig = {
-        host: url.hostname,
-        port: parseInt(url.port) || 5432,
-        user: url.username,
-        password: url.password,
-        database: url.pathname.slice(1), // Remove leading /
-      };
-    } catch (parseError) {
-      audit.error('Invalid DATABASE_URL format', { details: parseError.message });
-      return;
-    }
+    // Use individual DB params (preferred method)
+    const dbConfig = {
+      host: process.env.DB_HOST,
+      port: parseInt(process.env.DB_PORT || '5432'),
+      database: process.env.DB_NAME,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+    };
 
     const pool = new Pool(dbConfig);
     const res = await pool.query("SELECT NOW() as time, version() as version");
@@ -218,6 +218,151 @@ function checkProductionSafety(audit) {
 }
 
 //────────────────────────────────────────────
+// 🔍 Code Usage Audit - Backend
+//────────────────────────────────────────────
+async function auditBackendEnvUsage(audit) {
+  audit.section('Backend Environment Variable Usage');
+
+  const allowedFiles = [
+    'backend/config/env.js',
+    'backend/config/env.async.js',
+    'backend/server.js', // Allowed for initial dotenv.config()
+  ];
+
+  try {
+    // Find all .js files in backend
+    const files = await glob('backend/**/*.js', {
+      ignore: [
+        '**/node_modules/**',
+        '**/dist/**',
+        '**/build/**',
+        '**/*.test.js',
+        '**/*.spec.js',
+      ],
+    });
+
+    const violations = [];
+
+    for (const file of files) {
+      // Skip allowed files
+      if (allowedFiles.some(allowed => file.includes(allowed.replace(/\//g, path.sep)))) {
+        continue;
+      }
+
+      const content = fs.readFileSync(file, 'utf8');
+      const lines = content.split('\n');
+
+      lines.forEach((line, idx) => {
+        // Check for direct process.env usage
+        if (line.includes('process.env.') && !line.trim().startsWith('//') && !line.trim().startsWith('*')) {
+          // Extract the variable name
+          const match = line.match(/process\.env\.([A-Z_]+)/);
+          if (match) {
+            violations.push({
+              file: file.replace(/\\/g, '/'),
+              line: idx + 1,
+              variable: match[1],
+              code: line.trim(),
+            });
+          }
+        }
+      });
+    }
+
+    if (violations.length === 0) {
+      audit.pass('All backend code uses centralized env utility');
+    } else {
+      // Create a separate warning for each violation so they print one by one
+      violations.forEach(v => {
+        audit.warn(
+          `Direct process.env.${v.variable} usage`,
+          { 
+            path: `${v.file}:${v.line}`,
+            details: `Use "import { env } from '../config/env.async.js'" instead`
+          }
+        );
+      });
+    }
+  } catch (error) {
+    audit.error(`Failed to audit backend env usage: ${error.message}`);
+  }
+}
+
+//────────────────────────────────────────────
+// 🔍 Code Usage Audit - Frontend
+//────────────────────────────────────────────
+async function auditFrontendEnvUsage(audit) {
+  audit.section('Frontend Environment Variable Usage');
+
+  const allowedFiles = [
+    'frontend/src/shared/config/env.ts',
+    'frontend/src/shared/config/api.ts', // Currently uses import.meta.env
+    'frontend/vite.config.ts', // Vite config defines env vars
+    'frontend/vite.config.shared.ts', // Vite config defines env vars
+  ];
+
+  try {
+    // Find all .ts and .tsx files in frontend
+    const files = await glob('frontend/**/*.{ts,tsx}', {
+      ignore: [
+        '**/node_modules/**',
+        '**/dist/**',
+        '**/build/**',
+        '**/*.test.ts',
+        '**/*.test.tsx',
+        '**/*.spec.ts',
+        '**/*.spec.tsx',
+      ],
+    });
+
+    const violations = [];
+
+    for (const file of files) {
+      // Skip allowed files
+      if (allowedFiles.some(allowed => file.includes(allowed.replace(/\//g, path.sep)))) {
+        continue;
+      }
+
+      const content = fs.readFileSync(file, 'utf8');
+      const lines = content.split('\n');
+
+      lines.forEach((line, idx) => {
+        // Check for direct import.meta.env usage
+        if (line.includes('import.meta.env.') && !line.trim().startsWith('//') && !line.trim().startsWith('*')) {
+          // Extract the variable name
+          const match = line.match(/import\.meta\.env\.([A-Z_]+)/);
+          if (match) {
+            violations.push({
+              file: file.replace(/\\/g, '/'),
+              line: idx + 1,
+              variable: match[1],
+              code: line.trim(),
+            });
+          }
+        }
+      });
+    }
+
+    if (violations.length === 0) {
+      audit.pass('All frontend code uses centralized env utility');
+    } else {
+      // Create a separate warning for each violation so they print one by one
+      violations.forEach(v => {
+        audit.warn(
+          `Direct import.meta.env.${v.variable} usage`,
+          { 
+            path: `${v.file}:${v.line}`,
+            details: `Create frontend/src/shared/config/env.ts and import from there instead`
+          }
+        );
+      });
+    }
+  } catch (error) {
+    audit.error(`Failed to audit frontend env usage: ${error.message}`);
+  }
+}
+
+//────────────────────────────────────────────
 // 🚀 Main
 //────────────────────────────────────────────
 async function runAuditEnv() {
@@ -228,6 +373,8 @@ async function runAuditEnv() {
   await checkDatabaseConnection(audit);
   checkFilePermissions(audit);
   checkProductionSafety(audit);
+  await auditBackendEnvUsage(audit);
+  await auditFrontendEnvUsage(audit);
 
   // Generate report
   saveReport(audit, 'ENV_AUDIT.md', {
@@ -238,6 +385,8 @@ async function runAuditEnv() {
       'Restrict .env file permissions to 600 on production servers',
       'Keep secrets rotated periodically',
       'Use environment-specific .env files for dev/staging/production',
+      'Backend: Use "import { env } from \'./config/env.async.js\'" instead of process.env',
+      'Frontend: Create centralized env.ts and use it instead of import.meta.env',
     ],
   });
 

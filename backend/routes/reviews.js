@@ -6,6 +6,7 @@ import { asyncHandler } from '../middleware/errorHandler.js';
 import { sendSuccess, sendError, sendValidationError } from '../utils/responseFormatter.js';
 import { validateBody, validateQuery } from '../middleware/zodValidation.js';
 import { reviewSchemas } from '../schemas/apiSchemas.js';
+import { env } from '../config/env.async.js';
 
 const router = express.Router();
 
@@ -204,7 +205,7 @@ router.post('/', validateBody(reviewSchemas.create), async (req, res) => {
     res.status(500).json({
       status: 'error',
       message: 'Failed to create review',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+      error: env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
   }
 });
@@ -267,7 +268,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
     res.status(500).json({
       status: 'error',
       message: 'Failed to update review',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+      error: env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
   }
 });
@@ -299,7 +300,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     res.status(500).json({
       status: 'error',
       message: 'Failed to delete review',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+      error: env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
   }
 });

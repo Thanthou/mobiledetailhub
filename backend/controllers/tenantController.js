@@ -1,5 +1,7 @@
 import * as tenantService from '../services/tenantService.js';
 import { createModuleLogger } from '../config/logger.js';
+import { getFrontendUrl } from '../utils/urlBuilder.js';
+
 const logger = createModuleLogger('tenantController');
 
 
@@ -23,8 +25,8 @@ async function createTenant(req, res) {
   logger.info(`Owner: ${tenantData.firstName} ${tenantData.lastName}`);
   logger.info(`Email: ${tenantData.personalEmail}`);
   logger.info(`Slug: ${result.slug}`);
-  logger.info(`Website URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}${result.websiteUrl}`);
-  logger.info(`Dashboard URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}${result.dashboardUrl}`);
+  logger.info(`Website URL: ${getFrontendUrl('tenant')}${result.websiteUrl}`);
+  logger.info(`Dashboard URL: ${getFrontendUrl('tenant')}${result.dashboardUrl}`);
   logger.info(`Plan: ${tenantData.selectedPlan} ($${tenantData.planPrice}/month)`);
   logger.info('========================\n');
 

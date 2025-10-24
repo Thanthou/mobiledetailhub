@@ -1,14 +1,14 @@
 # Environment Audit Report
 
-**Generated:** 2025-10-23T10:28:39.950Z
-**Duration:** 63ms
+**Generated:** 2025-10-23T19:48:28.239Z
+**Duration:** 346ms
 **Score:** 100/100
 
 ---
 
 ## Summary
 
-- ✅ **Passed:** 6
+- ✅ **Passed:** 8
 - ⚠️  **Warnings:** 0
 - ❌ **Errors:** 0
 
@@ -43,6 +43,14 @@ No issues found during this audit.
 
 ✅ NODE_ENV: development
 
+## Backend Environment Variable Usage
+
+✅ All backend code uses centralized env utility
+
+## Frontend Environment Variable Usage
+
+✅ All frontend code uses centralized env utility
+
 ---
 
 ## Recommendations
@@ -52,3 +60,5 @@ No issues found during this audit.
 3. Restrict .env file permissions to 600 on production servers
 4. Keep secrets rotated periodically
 5. Use environment-specific .env files for dev/staging/production
+6. Backend: Use "import { env } from './config/env.async.js'" instead of process.env
+7. Frontend: Create centralized env.ts and use it instead of import.meta.env

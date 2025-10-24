@@ -7,6 +7,7 @@ import express from 'express';
 import { createModuleLogger } from '../config/logger.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import { sendSuccess, sendError } from '../utils/responseFormatter.js';
+import { env } from '../config/env.async.js';
 
 const logger = createModuleLogger('subdomainTest');
 const router = express.Router();
@@ -137,7 +138,7 @@ router.get('/tenant-content/:slug', async (req, res) => {
     res.status(500).json({
       status: 'error',
       message: 'Internal server error',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong'
+      error: env.NODE_ENV === 'development' ? error.message : 'Something went wrong'
     });
   }
 });
