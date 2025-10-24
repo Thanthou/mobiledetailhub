@@ -165,13 +165,14 @@ router.get('/users', authenticateToken, requireAdmin, asyncHandler(async (req, r
     const { status } = req.query;
     
     // Audit log the users query
-    logger.adminAction('QUERY_USERS', 'users', { 
+    logger.info({
+      action: 'QUERY_USERS',
+      resource: 'users',
       status: status || 'all-users',
-      query: status === 'tenants' ? 'tenants_table' : 'users_table'
-    }, {
+      query: status === 'tenants' ? 'tenants_table' : 'users_table',
       userId: req.user?.userId || 'anonymous',
       email: req.user?.email || 'anonymous'
-    });
+    }, 'Admin action: Query users');
   
   if (status === 'tenants') {
     // For tenants, query the tenants table directly
@@ -296,13 +297,14 @@ router.get('/pending-applications', authenticateToken, requireAdmin, asyncHandle
   const pool = await getPool();
   
   // Audit log the pending applications query
-  logger.adminAction('QUERY_PENDING_APPLICATIONS', 'tenants', { 
+  logger.info({
+    action: 'QUERY_PENDING_APPLICATIONS',
+    resource: 'tenants',
     status: 'pending',
-    query_type: 'pending_applications'
-  }, {
+    query_type: 'pending_applications',
     userId: req.user.userId,
     email: req.user.email
-  });
+  }, 'Admin action: Query pending applications');
   
         const query = `
       SELECT 

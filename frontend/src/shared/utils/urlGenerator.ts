@@ -2,6 +2,8 @@
  * Utility functions for generating URLs based on environment
  */
 
+import { env } from '../config/env';
+
 export interface EnvironmentConfig {
   isDevelopment: boolean;
   baseDomain: string;

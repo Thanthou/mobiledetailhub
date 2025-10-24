@@ -3,6 +3,8 @@
  * Catches all frontend errors including console errors, unhandled promises, and React errors
  */
 
+import { env } from '../config/env';
+
 interface ReactErrorInfo {
   componentStack?: string;
 }
