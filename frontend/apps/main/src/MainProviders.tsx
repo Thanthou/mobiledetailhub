@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { PreviewDataProvider } from '@shared/contexts/PreviewDataProvider';
 import { WebsiteContentProvider } from '@shared/contexts/WebsiteContentContext';
@@ -19,13 +19,13 @@ interface MainProvidersProps {
 /**
  * Main App Providers
  * 
- * Wraps the main app with necessary context providers
- * Uses PreviewDataProvider to provide JSON-based data (no database calls)
+ * Wraps the main app with necessary context providers.
+ * PreviewDataProvider is included for PreviewPage demos, but HomePage doesn't use it.
  */
 export function MainProviders({ children }: MainProvidersProps) {
   return (
     <QueryClientProvider client={queryClient}>
-      <PreviewDataProvider industry="main">
+      <PreviewDataProvider>
         <WebsiteContentProvider>
           {children}
         </WebsiteContentProvider>

@@ -76,6 +76,7 @@
       📄 2025-10-20_0001_add_seo_audit_tracking.sql
       📄 2025-10-20_0002_add_preview_expires_at.sql
       📄 2025-10-21_0001_add_business_email_index.sql
+      📄 2025-10-24_0001_create_token_blacklist.sql
       📄 README.md
    📁 mocks/
       📄 mockReviews.json
@@ -186,6 +187,7 @@
 
       📄 ASSETS_AUDIT.md
       📄 BOUNDARIES_AUDIT.md
+      📄 CODEBASE_ASSESSMENT_2025-10-24.md
       📄 DATABASE_AUDIT.md
       📄 DEPENDENCY_AUDIT.md
       📄 ENV_AUDIT.md

@@ -27,8 +27,8 @@ export default function SmartHero() {
       setShowRocketLaunch(true);
     }, 3000);
     setTimeout(() => {
-      // After animation completes, navigate to onboarding route
-      navigate('/onboarding');
+      // After animation completes, navigate to signup route
+      navigate('/signup');
     }, 5000);
   };
 

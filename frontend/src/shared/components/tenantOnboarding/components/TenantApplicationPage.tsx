@@ -66,8 +66,9 @@ const TenantApplicationPage: React.FC = () => {
 
       if (localData) {
         // Automatically restore saved draft without confirmation popup
-        setFormData(localData);
-        setCurrentStep(localData.step);
+        // But always start at step 0 (pricing) to avoid flickering/jumping
+        setFormData({ ...localData, step: 0 });
+        setCurrentStep(0);
         return;
       }
 
@@ -120,7 +121,7 @@ const TenantApplicationPage: React.FC = () => {
     }));
   };
 
-  const handlePlanSelect = (planId: 'starter' | 'pro' | 'enterprise', price: number) => {
+  const handlePlanSelect = (planId: 'starter' | 'metro' | 'pro', price: number) => {
     setFormData((prev) => ({
       ...prev,
       selectedPlan: planId,

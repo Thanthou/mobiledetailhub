@@ -28,6 +28,7 @@ import avatarRoutes from '../routes/avatar.js';
 import previewRoutes from '../routes/previews.js';
 import errorTrackingRoutes from '../routes/errorTracking.js';
 import healthMonitoringRoutes from '../routes/healthMonitoring.js';
+import performanceRoutes from '../routes/performance.js';
 
 export function setupRoutes(app) {
   // Rate limiting for all API routes EXCEPT health (health must be fast for probes)
@@ -42,6 +43,9 @@ export function setupRoutes(app) {
   // Health checks and monitoring (no auth, no rate limiting)
   app.use('/api/health', healthRoutes);
   app.use('/api/health-monitoring', healthMonitoringRoutes);
+
+  // Performance monitoring (requires auth + admin)
+  app.use('/api/performance', performanceRoutes);
 
   // Authentication
   app.use('/api/auth', authRoutes);
@@ -94,6 +98,6 @@ export function setupRoutes(app) {
   app.use('/api/errors', errorTrackingRoutes);
 
   console.log('🚦 Routes mounted');
-  console.log('   ✓ 25+ API route groups registered');
+  console.log('   ✓ 26+ API route groups registered (including performance monitoring)');
 }
 

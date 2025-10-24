@@ -63,8 +63,10 @@ export default function MainSiteApp() {
         {/* Authentication */}
         <Route path="/login" element={<LoginPage />} />
         
-        {/* Tenant onboarding */}
-        <Route path="/onboard" element={<TenantOnboardingPage />} />
+        {/* Tenant signup/onboarding */}
+        <Route path="/signup" element={<TenantOnboardingPage />} />
+        {/* Legacy redirect */}
+        <Route path="/onboard" element={<Navigate to="/signup" replace />} />
         
         {/* Marketing pages */}
         <Route path="/pricing" element={<PricingPage />} />

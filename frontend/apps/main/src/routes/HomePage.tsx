@@ -1,6 +1,5 @@
-import React, { useState, lazy, Suspense } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { lazy, Suspense } from 'react';
+import { motion } from 'framer-motion';
 import { Rocket, Lightbulb } from 'lucide-react';
 
 import Header from '../components/Header';
@@ -8,69 +7,62 @@ import ValueSection from '../components/sections/ValueSection';
 import PreviewSection from '../components/sections/PreviewSection';
 import PricingSection from '../components/sections/PricingSection';
 import ContactSection from '../components/sections/ContactSection';
+import { LaunchOverlay } from '../components/LaunchOverlay';
+import { RocketPeelTransition } from '../components/RocketPeelTransition';
 import { useScrollSpy } from '../hooks/useScrollSpy';
+import { useLaunchAnimation } from '../hooks/useLaunchAnimation';
 
 // Lazy load the onboarding page - only loads when needed
 const TenantApplicationPage = lazy(() => import('@shared/components/tenantOnboarding/components/TenantApplicationPage'));
 
 export function HomePage() {
-  const navigate = useNavigate();
-  const [showCountdown, setShowCountdown] = useState(false);
-  const [countdownNumber, setCountdownNumber] = useState(3);
-  const [showRocketLaunch, setShowRocketLaunch] = useState(false);
-  const [shouldLoadOnboarding, setShouldLoadOnboarding] = useState(false);
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
   
   // Track which section is currently in view
   const activeSection = useScrollSpy(['top', 'advantage', 'preview', 'pricing', 'contact'], scrollContainerRef);
 
-  const handleLaunchClick = () => {
-    setShowCountdown(true);
-    setCountdownNumber(3);
-    
-    // Start lazy loading onboarding page underneath hero
-    setShouldLoadOnboarding(true);
-
-    setTimeout(() => setCountdownNumber(2), 1000);
-    setTimeout(() => setCountdownNumber(1), 2000);
-    setTimeout(() => {
-      setShowCountdown(false);
-      setShowRocketLaunch(true);
-    }, 3000);
-    setTimeout(() => {
-      // After animation completes, navigate to onboarding route
-      navigate('/onboard');
-    }, 5000);
-  };
+  // Use shared launch animation hook
+  const {
+    handleLaunch: handleLaunchClick,
+    showCountdown,
+    countdownNumber,
+    showTransition,
+    handleTransitionComplete,
+    shouldLoadOnboarding,
+  } = useLaunchAnimation();
 
   return (
     <div ref={scrollContainerRef} className="h-screen overflow-y-scroll snap-y snap-mandatory scrollbar-hide">
+      {/* Global Countdown Overlay via Portal */}
+      <LaunchOverlay 
+        showCountdown={showCountdown}
+        countdownNumber={countdownNumber}
+      />
+      
       <Header onGetStarted={handleLaunchClick} activeSection={activeSection} scrollContainerRef={scrollContainerRef} />
       
       {/* Hero Section */}
       <div id="top" className="relative w-full h-screen overflow-hidden snap-start snap-always">
-        {/* Layer 2 (bottom): Onboarding page - lazy loaded underneath when button clicked */}
+        {/* Layer 2 (bottom): Onboarding page - lazy loaded underneath, revealed by peel */}
         {shouldLoadOnboarding && (
-        <div className="absolute inset-0 z-0">
-          <Suspense fallback={
-            <div className="w-full h-full bg-gray-950 flex items-center justify-center">
-              <div className="text-cyan-400 text-lg animate-pulse">Loading...</div>
-            </div>
-          }>
-            <TenantApplicationPage />
-          </Suspense>
-        </div>
-      )}
+          <div className="absolute inset-0 z-0">
+            <Suspense fallback={
+              <div className="w-full h-full bg-gray-950 flex items-center justify-center">
+                <div className="text-cyan-400 text-lg animate-pulse">Loading...</div>
+              </div>
+            }>
+              <TenantApplicationPage />
+            </Suspense>
+          </div>
+        )}
       
-      {/* Layer 1 (top): Hero page - wipes away to reveal onboarding underneath */}
-      <motion.div
-        className="absolute inset-0 bg-gray-950 z-10"
-        style={{
-          clipPath: showRocketLaunch ? 'inset(0 0 0 0)' : 'inset(0 0 0 0)'
-        }}
-        animate={showRocketLaunch ? { clipPath: 'inset(0 0 100% 0)' } : { clipPath: 'inset(0 0 0 0)' }}
-        transition={{ duration: 2, ease: 'linear' }}
-      >
+        {/* Layer 1 (top): Hero page - wrapped in RocketPeelTransition */}
+        <div className="absolute inset-0 z-10">
+          <RocketPeelTransition
+            isActive={showTransition}
+            onComplete={handleTransitionComplete}
+          >
+            <motion.div className="w-full h-full bg-gray-950">
         {/* Gradient overlay */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -167,7 +159,7 @@ export function HomePage() {
             transition={{ delay: 2, duration: 1 }}
             className="absolute bottom-8 text-gray-500 text-sm"
           >
-            No credit card required. No setup fees. Just smart.
+            No contract. No setup fees. Just smart.
           </motion.div>
         </div>
 
@@ -198,76 +190,116 @@ export function HomePage() {
           }}
           className="absolute bottom-1/4 left-1/4 w-80 h-80 bg-gradient-to-br from-purple-500/20 to-cyan-500/20 rounded-full blur-3xl"
         />
-      </motion.div>
-
-      {/* Rocket launch animation */}
-      <AnimatePresence>
-        {showRocketLaunch && (
-          <motion.div
-            initial={{ y: typeof window !== 'undefined' ? window.innerHeight : 1000 }}
-            animate={{ y: typeof window !== 'undefined' ? -window.innerHeight : -1000 }}
-            transition={{
-              duration: 2,
-              ease: 'linear'
-            }}
-            className="absolute bottom-0 left-1/2 -translate-x-1/2 z-50"
-          >
-            <Rocket className="text-white rotate-[-45deg]" size={240} />
-          </motion.div>
-        )}
-
-        {/* Countdown overlay */}
-        {showCountdown && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 z-50 bg-black/90 flex items-center justify-center"
-          >
-            <motion.div
-              key={countdownNumber}
-              initial={{ scale: 0.5, opacity: 0 }}
-              animate={{
-                scale: [0.5, 1.2, 1],
-                opacity: [0, 1, 1]
-              }}
-              exit={{
-                scale: 1.5,
-                opacity: 0
-              }}
-              transition={{
-                duration: 0.6,
-                times: [0, 0.6, 1],
-                ease: 'easeOut'
-              }}
-              className="relative"
-            >
-              <motion.div
-                animate={{
-                  scale: [1, 1.1, 1],
-                  opacity: [0.8, 1, 0.8]
-                }}
-                transition={{
-                  duration: 0.5,
-                  repeat: 1,
-                  ease: 'easeInOut'
-                }}
-                className="absolute -inset-24 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full blur-[120px]"
-              />
-              <span className="relative text-[20rem] sm:text-[30rem] md:text-[40rem] font-black bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                {countdownNumber}
-              </span>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </RocketPeelTransition>
+        </div>
       </div>
 
       {/* Marketing Sections */}
-      <ValueSection />
-      <PreviewSection />
-      <PricingSection />
-      <ContactSection />
+      
+      {/* Features Section - Same pattern as Hero */}
+      <div id="advantage" className="relative w-full h-screen overflow-hidden snap-start snap-always">
+        {/* Layer 2 (bottom): Onboarding page - lazy loaded underneath, revealed by peel */}
+        {shouldLoadOnboarding && (
+          <div className="absolute inset-0 z-0">
+            <Suspense fallback={
+              <div className="w-full h-full bg-gray-950 flex items-center justify-center">
+                <div className="text-cyan-400 text-lg animate-pulse">Loading...</div>
+              </div>
+            }>
+              <TenantApplicationPage />
+            </Suspense>
+          </div>
+        )}
+      
+        {/* Layer 1 (top): Features page - wrapped in RocketPeelTransition */}
+        <div className="absolute inset-0 z-10">
+          <RocketPeelTransition
+            isActive={showTransition}
+            onComplete={handleTransitionComplete}
+          >
+            <ValueSection />
+          </RocketPeelTransition>
+        </div>
+      </div>
+      
+      {/* Preview Section - Same pattern as Hero */}
+      <div id="preview" className="relative w-full h-screen overflow-hidden snap-start snap-always">
+        {/* Layer 2 (bottom): Onboarding page - lazy loaded underneath, revealed by peel */}
+        {shouldLoadOnboarding && (
+          <div className="absolute inset-0 z-0">
+            <Suspense fallback={
+              <div className="w-full h-full bg-gray-950 flex items-center justify-center">
+                <div className="text-cyan-400 text-lg animate-pulse">Loading...</div>
+              </div>
+            }>
+              <TenantApplicationPage />
+            </Suspense>
+          </div>
+        )}
+      
+        {/* Layer 1 (top): Preview page - wrapped in RocketPeelTransition */}
+        <div className="absolute inset-0 z-10">
+          <RocketPeelTransition
+            isActive={showTransition}
+            onComplete={handleTransitionComplete}
+          >
+            <PreviewSection />
+          </RocketPeelTransition>
+        </div>
+      </div>
+      
+      {/* Pricing Section - Same pattern as Hero */}
+      <div id="pricing" className="relative w-full h-screen overflow-hidden snap-start snap-always">
+        {/* Layer 2 (bottom): Onboarding page - lazy loaded underneath, revealed by peel */}
+        {shouldLoadOnboarding && (
+          <div className="absolute inset-0 z-0">
+            <Suspense fallback={
+              <div className="w-full h-full bg-gray-950 flex items-center justify-center">
+                <div className="text-cyan-400 text-lg animate-pulse">Loading...</div>
+              </div>
+            }>
+              <TenantApplicationPage />
+            </Suspense>
+          </div>
+        )}
+      
+        {/* Layer 1 (top): Pricing page - wrapped in RocketPeelTransition */}
+        <div className="absolute inset-0 z-10">
+          <RocketPeelTransition
+            isActive={showTransition}
+            onComplete={handleTransitionComplete}
+          >
+            <PricingSection onGetStarted={handleLaunchClick} />
+          </RocketPeelTransition>
+        </div>
+      </div>
+      
+      {/* Contact Section - Same pattern as Hero */}
+      <div id="contact" className="relative w-full h-screen overflow-hidden snap-start snap-always">
+        {/* Layer 2 (bottom): Onboarding page - lazy loaded underneath, revealed by peel */}
+        {shouldLoadOnboarding && (
+          <div className="absolute inset-0 z-0">
+            <Suspense fallback={
+              <div className="w-full h-full bg-gray-950 flex items-center justify-center">
+                <div className="text-cyan-400 text-lg animate-pulse">Loading...</div>
+              </div>
+            }>
+              <TenantApplicationPage />
+            </Suspense>
+          </div>
+        )}
+      
+        {/* Layer 1 (top): Contact page - wrapped in RocketPeelTransition */}
+        <div className="absolute inset-0 z-10">
+          <RocketPeelTransition
+            isActive={showTransition}
+            onComplete={handleTransitionComplete}
+          >
+            <ContactSection onGetStarted={handleLaunchClick} />
+          </RocketPeelTransition>
+        </div>
+      </div>
     </div>
   );
 }

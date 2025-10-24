@@ -1,56 +1,22 @@
 import { motion } from 'framer-motion';
 import { Check } from 'lucide-react';
+import { PRICING_PLANS } from '@shared/config/pricing';
 
-export default function PricingSection() {
-  const tiers = [
-    {
-      name: 'Starter',
-      price: '$99',
-      period: '/month',
-      description: 'Perfect for new businesses',
-      features: [
-        'Professional website',
-        'Mobile responsive',
-        'Basic SEO optimization',
-        'Contact forms',
-        'Google Maps integration',
-      ],
-      cta: 'Start Free Trial',
-      highlighted: false,
-    },
-    {
-      name: 'Metro',
-      price: '$199',
-      period: '/month',
-      description: 'Most popular for growing businesses',
-      features: [
-        'Everything in Starter',
-        'Advanced SEO tools',
-        'Google Reviews integration',
-        'Booking system',
-        'Analytics dashboard',
-        'Priority support',
-      ],
-      cta: 'Get Started',
-      highlighted: true,
-    },
-    {
-      name: 'Pro',
-      price: '$299',
-      period: '/month',
-      description: 'For established businesses',
-      features: [
-        'Everything in Metro',
-        'Custom domain',
-        'Advanced analytics',
-        'API access',
-        'White-label options',
-        'Dedicated support',
-      ],
-      cta: 'Contact Sales',
-      highlighted: false,
-    },
-  ];
+interface PricingSectionProps {
+  onGetStarted?: () => void;
+}
+
+export default function PricingSection({ onGetStarted }: PricingSectionProps) {
+  // Use centralized pricing data
+  const tiers = PRICING_PLANS.map(plan => ({
+    name: plan.name,
+    price: `$${plan.price}`,
+    period: `/${plan.interval}`,
+    description: plan.description,
+    features: plan.features,
+    cta: plan.cta || 'Get Started',
+    highlighted: plan.popular || false,
+  }));
 
   return (
     <section id="pricing" className="min-h-screen bg-gray-950 py-24 px-4 snap-start snap-always flex items-center">
@@ -112,6 +78,7 @@ export default function PricingSection() {
               </ul>
 
               <button
+                onClick={onGetStarted}
                 className={`w-full py-3 rounded-full font-semibold transition-all ${
                   tier.highlighted
                     ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white hover:shadow-lg hover:shadow-cyan-500/50'

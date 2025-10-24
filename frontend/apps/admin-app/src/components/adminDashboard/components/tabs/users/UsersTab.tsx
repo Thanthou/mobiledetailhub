@@ -1,6 +1,6 @@
 /* eslint-disable max-lines -- Complex component with multiple sub-tabs, refactoring planned */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ExternalLink, Loader2, Plus, Settings, Trash2, UserCheck, UserCog, UserPlus, Users, UserX } from 'lucide-react';
+import { ExternalLink, Loader2, Settings, Trash2, UserCheck, UserCog, UserPlus, Users, UserX } from 'lucide-react';
 
 import { ApplicationModal, DeleteConfirmationModal } from '../../shared';
 import { Toast } from '@shared/ui';
@@ -8,7 +8,7 @@ import type { UserSubTab } from '../../../types';
 import { apiService } from '@shared/api/api';
 import { Button } from '@shared/ui';
 import { tenantEventManager } from '@shared/utils/tenantEventManager';
-import { generateTenantWebsiteUrl, generateTenantDashboardUrl, generateTenantOnboardingUrl } from '@shared/utils/urlGenerator';
+import { generateTenantWebsiteUrl, generateTenantDashboardUrl } from '@shared/utils/urlGenerator';
 
 interface User {
   id: number;
@@ -569,14 +569,16 @@ export const UsersTab: React.FC = () => {
               <Users className="w-5 h-5 text-blue-400" />
               User Management
             </h2>
-            <Button 
-              variant="primary" 
-              size="sm"
-              className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700"
-              leftIcon={<UserPlus className="w-4 h-4" />}
+            <a
+              href="http://localhost:5175/signup"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors"
+              title="Open tenant signup form"
             >
-              Add User
-            </Button>
+              <UserPlus className="w-4 h-4" />
+              Add Tenant
+            </a>
           </div>
         </div>
         
@@ -602,18 +604,6 @@ export const UsersTab: React.FC = () => {
                 );
               })}
             </nav>
-            
-            {/* Tenant Onboarding Button */}
-            <a
-              href={generateTenantOnboardingUrl()}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md transition-colors"
-              title="Open tenant onboarding form"
-            >
-              <Plus className="w-4 h-4" />
-              New Tenant
-            </a>
           </div>
         </div>
         

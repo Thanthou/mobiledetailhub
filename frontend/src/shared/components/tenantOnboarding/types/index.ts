@@ -30,16 +30,6 @@ export interface Address {
   zip: string;
 }
 
-// Pricing plan interface
-export interface PricingPlan {
-  id: 'starter' | 'pro' | 'enterprise';
-  name: string;
-  price: number;
-  interval: string;
-  features: string[];
-  popular?: boolean;
-}
-
 // Preview state interface
 export interface PreviewState {
   fromPreview?: boolean;
@@ -61,7 +51,7 @@ export interface TenantApplication {
   businessPhone: string;
   businessEmail: string;
   businessAddress: Address;
-  selectedPlan: 'starter' | 'pro' | 'enterprise' | '';
+  selectedPlan: 'starter' | 'metro' | 'pro' | '';
   planPrice: number;
   paymentMethod: string;
   cardNumber: string;
@@ -121,56 +111,8 @@ export const SOURCES = [
   'Other'
 ];
 
-// Pricing plans with updated $15/$25/$35 pricing
-export const pricingPlans: PricingPlan[] = [
-  {
-    id: 'starter',
-    name: 'Starter',
-    price: 15,
-    interval: 'month',
-    features: [
-      'Single location website',
-      '5 custom pages',
-      'Mobile responsive design',
-      'Contact form integration',
-      'Basic SEO optimization',
-      'SSL certificate included',
-      'Email support',
-    ],
-  },
-  {
-    id: 'pro',
-    name: 'Pro',
-    price: 25,
-    interval: 'month',
-    popular: true,
-    features: [
-      'Multi-location support',
-      'Unlimited pages',
-      'Advanced SEO tools',
-      'Online booking system',
-      'Google Maps integration',
-      'Analytics dashboard',
-      'Priority support',
-      'Custom domain',
-    ],
-  },
-  {
-    id: 'enterprise',
-    name: 'Enterprise',
-    price: 35,
-    interval: 'month',
-    features: [
-      'Everything in Pro',
-      'Custom development',
-      'API integrations',
-      'Dedicated account manager',
-      'White-label options',
-      'SLA guarantee',
-      '24/7 phone support',
-    ],
-  },
-];
+// Pricing plans - imported from centralized config
+export { PRICING_PLANS as pricingPlans, type PricingPlan } from '@shared/config/pricing';
 
 // Default values for new simplified tenant application
 export const tenantApplicationDefaultValues: TenantApplication = {

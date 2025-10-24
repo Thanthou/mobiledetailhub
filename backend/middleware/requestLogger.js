@@ -88,6 +88,14 @@ const requestLogger = (req, res, next) => {
   onFinished(res, (err, res) => {
     const duration = Date.now() - req.startTime;
     
+    // Record performance metrics
+    import('../utils/perfMonitor.js').then(({ recordMetric }) => {
+      recordMetric(req.method, req.route?.path || req.path, duration, res.statusCode);
+    }).catch(metricsErr => {
+      // Don't let metrics errors break logging
+      logger.debug('Failed to record performance metric', { error: metricsErr.message });
+    });
+    
     if (err) {
       // Connection was terminated abnormally (client disconnect, error, etc.)
       logger.warn('Request finished with error', {

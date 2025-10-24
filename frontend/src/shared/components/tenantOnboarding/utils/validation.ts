@@ -25,7 +25,7 @@ export const businessInfoSchema = z.object({
 });
 
 export const planSelectionSchema = z.object({
-  selectedPlan: z.enum(['starter', 'pro', 'enterprise'], {
+  selectedPlan: z.enum(['starter', 'metro', 'pro'], {
     errorMap: () => ({ message: 'Please select a plan' }),
   }),
   planPrice: z.number().min(0),

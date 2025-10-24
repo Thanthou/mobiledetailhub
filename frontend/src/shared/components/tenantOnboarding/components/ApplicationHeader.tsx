@@ -12,7 +12,7 @@ const ApplicationHeader: React.FC = () => {
           {/* Logo and Business Name */}
           <div className="flex items-center space-x-3">
             <img 
-              src="/icons/logo.png" 
+              src="/icons/logo.webp" 
               alt="That Smart Site Logo" 
               className="h-14 w-14 object-contain"
               width={56}

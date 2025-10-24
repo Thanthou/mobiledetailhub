@@ -42,33 +42,38 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Check if user is logged in on mount
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      // Verify token with backend
-      fetch(API_ENDPOINTS.AUTH.ME, {
-        headers: {
-          'Authorization': `Bearer ${token}`
+    const checkAuth = async () => {
+      const token = localStorage.getItem('accessToken');
+      
+      try {
+        // Try to verify with backend (will use cookie if localStorage token not present)
+        const headers: HeadersInit = {};
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
         }
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          setUser(data);
+        
+        const response = await fetch(API_ENDPOINTS.AUTH.ME, {
+          headers,
+          credentials: 'include' // Include cookies
+        });
+        
+        const data = await response.json();
+        
+        if (data.success || response.ok) {
+          setUser(data.user || data);
         } else {
           localStorage.removeItem('accessToken');
           localStorage.removeItem('refreshToken');
         }
-      })
-      .catch(() => {
+      } catch (error) {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
-      })
-      .finally(() => {
+      } finally {
         setLoading(false);
-      });
-    } else {
-      setLoading(false);
-    }
+      }
+    };
+    
+    void checkAuth();
   }, []);
 
   const login = async (credentials: LoginCredentials): Promise<boolean> => {
@@ -81,6 +86,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Include cookies
         body: JSON.stringify(credentials),
       });
 

@@ -1,7 +1,11 @@
 import { motion } from 'framer-motion';
 import { Mail, MessageSquare, Phone } from 'lucide-react';
 
-export default function ContactSection() {
+interface ContactSectionProps {
+  onGetStarted?: () => void;
+}
+
+export default function ContactSection({ onGetStarted }: ContactSectionProps) {
   return (
     <section id="contact" className="min-h-screen bg-gray-900 py-24 px-4 snap-start snap-always flex items-center">
       <div className="max-w-7xl mx-auto w-full">
@@ -81,7 +85,10 @@ export default function ContactSection() {
           className="text-center"
         >
           <p className="text-gray-400 mb-6">Ready to transform your online presence?</p>
-          <button className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-purple-500 text-white font-semibold rounded-full text-lg hover:shadow-lg hover:shadow-cyan-500/50 transition-all">
+          <button
+            onClick={onGetStarted}
+            className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-purple-500 text-white font-semibold rounded-full text-lg hover:shadow-lg hover:shadow-cyan-500/50 transition-all"
+          >
             Get Started Today
           </button>
         </motion.div>

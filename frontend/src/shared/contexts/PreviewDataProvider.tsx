@@ -21,7 +21,7 @@ import { loadIndustryPreview } from '@data/preview-loader';
 
 interface PreviewDataProviderProps {
   children: React.ReactNode;
-  industry?: string;
+  industry?: string | undefined;
 }
 
 interface PreviewDataContextValue {
@@ -70,8 +70,8 @@ export function PreviewDataProvider({ children, industry: industryProp }: Previe
   
   // Load industry config and preview data
   useEffect(() => {
-    if (!industry) {
-      console.warn('[PreviewDataProvider] No industry provided, skipping load');
+    if (!industry || industry === 'main') {
+      // No industry specified or marketing site - no preview data needed
       setPreviewConfig(null);
       setPreviewData(null);
       setIsLoading(false);

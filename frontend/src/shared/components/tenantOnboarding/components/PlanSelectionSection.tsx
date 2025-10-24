@@ -5,7 +5,7 @@ import { type PricingPlan,pricingPlans } from '../types';
 
 interface PlanSelectionSectionProps {
   selectedPlan: string;
-  onSelectPlan: (planId: 'starter' | 'pro' | 'enterprise', price: number) => void;
+  onSelectPlan: (planId: 'starter' | 'metro' | 'pro', price: number) => void;
 }
 
 export const PlanSelectionSection: React.FC<PlanSelectionSectionProps> = ({

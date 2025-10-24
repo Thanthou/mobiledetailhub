@@ -1,49 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { PRICING_PLANS } from '@shared/config/pricing';
 
 export function PricingPage() {
-  const plans = [
-    {
-      name: 'Starter',
-      price: '$29',
-      period: '/month',
-      description: 'Perfect for getting started',
-      features: [
-        'Professional website',
-        'Mobile responsive design',
-        'Basic SEO optimization',
-        'Contact form',
-        'Email support'
-      ]
-    },
-    {
-      name: 'Professional',
-      price: '$59',
-      period: '/month',
-      description: 'Most popular for growing businesses',
-      features: [
-        'Everything in Starter',
-        'Online booking system',
-        'Customer reviews integration',
-        'Google Analytics',
-        'Priority support'
-      ],
-      popular: true
-    },
-    {
-      name: 'Enterprise',
-      price: '$99',
-      period: '/month',
-      description: 'For established businesses',
-      features: [
-        'Everything in Professional',
-        'Custom domain support',
-        'Advanced analytics',
-        'API access',
-        'Dedicated support'
-      ]
-    }
-  ];
+  // Use centralized pricing data
+  const plans = PRICING_PLANS.map(plan => ({
+    name: plan.name,
+    price: `$${plan.price}`,
+    period: `/${plan.interval}`,
+    description: plan.description,
+    features: plan.features,
+    popular: plan.popular || false,
+  }));
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -92,7 +60,7 @@ export function PricingPage() {
               </ul>
               
               <Link 
-                to="/onboard" 
+                to="/signup" 
                 className={`w-full block text-center py-3 px-4 rounded-lg font-medium transition-colors ${
                   plan.popular
                     ? 'bg-blue-600 hover:bg-blue-700 text-white'

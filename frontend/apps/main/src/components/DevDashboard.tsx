@@ -84,7 +84,7 @@ export function DevDashboard() {
     {
       title: 'Onboarding Flow',
       description: 'Test tenant signup process',
-      href: '/onboard',
+      href: '/signup',
       icon: '📝',
       color: 'bg-indigo-500',
     },
