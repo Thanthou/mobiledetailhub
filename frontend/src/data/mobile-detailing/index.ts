@@ -6,7 +6,7 @@
 import type { MainSiteConfig } from '@shared/types/location';
 
 import assetsData from './assets.json';
-import contentDefaults from './content-defaults.json';
+import previewDefaults from './preview/defaults.json';
 import seoDefaults from './seo-defaults.json';
 
 /**
@@ -48,8 +48,8 @@ export function loadMobileDetailingConfig(): MainSiteConfig {
     },
     
     hero: {
-      h1: contentDefaults.hero.h1,
-      sub: contentDefaults.hero.subTitle,
+      h1: previewDefaults.h1,
+      sub: previewDefaults.subTitle,
       Images: heroImages, // Note: Capital 'I' for compatibility with ImageCarousel component
       images: heroImages, // Lowercase for type compliance
       ctas: [
@@ -78,16 +78,16 @@ export function loadMobileDetailingConfig(): MainSiteConfig {
     }),
     
     reviews: {
-      title: contentDefaults.reviews.title,
-      subtitle: contentDefaults.reviews.subtitle,
+      title: previewDefaults.reviews_title,
+      subtitle: previewDefaults.reviews_subtitle,
       ratingValue: '4.9',
       reviewCount: 127,
       source: 'Google'
     },
     
     faq: {
-      title: contentDefaults.faq.title,
-      subtitle: contentDefaults.faq.subtitle
+      title: previewDefaults.faq_title,
+      subtitle: previewDefaults.faq_subtitle
     },
     
     contact: {

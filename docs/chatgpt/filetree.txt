@@ -175,6 +175,8 @@
       📄 validationSchemas.js
       📄 validators.js
       📄 vehicleMapping.js
+📄 check-logo.js
+📄 DEV_WORKFLOW.md
 📁 docs/
    📁 archive/
 
@@ -299,6 +301,7 @@
          📄 FAQ_ITEMS_IMPLEMENTATION.md
          📄 PWA_ADD_TO_HOME_SCREEN.md
          📄 TIER1_CONTENT_FEATURES.md
+      📄 DATA_DEFAULTS_MIGRATION.md
       📄 DATA_STRUCTURE_REFACTOR.md
       📄 DEV_SETUP.md
       📄 HTML_CONSOLIDATION.md
@@ -1647,19 +1650,14 @@
             📄 seo-defaults.json
             📁 _archive/
 
-         📁 main/
-            📄 assets.json
-            📄 defaults.json
-            📁 faq/
-               📄 general.json
-            📁 gallery/
-               📄 gallery.json
-            📄 index.ts
-            📄 README.md
-            📄 seo.json
          📁 mobile-detailing/
             📄 assets.json
             📄 content-defaults.json
+            📁 defaults/
+               📄 content.json
+               📄 faq.json
+               📄 metadata.json
+               📄 services.json
             📁 faq/
                📄 aftercare.json
                📄 general.json
@@ -2357,6 +2355,7 @@
       📄 audit-env.js
       📄 audit-flows-frontend.js
       📄 audit-flows.js
+      📄 audit-middleware-returns.js
       📄 audit-middleware.js
       📄 audit-overview.js
       📄 audit-performance.js

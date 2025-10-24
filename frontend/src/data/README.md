@@ -9,16 +9,16 @@ data/
 ├── mobile-detailing/
 │   ├── index.ts               ← Industry config loader (loadMobileDetailingConfig)
 │   ├── assets.json            ← Images and their metadata (logos, hero, thumbnails)
-│   ├── content-defaults.json  ← Text defaults for DB provisioning (ONE-TIME USE)
-│   ├── seo-defaults.json      ← SEO defaults for DB provisioning (ONE-TIME USE)
+│   ├── defaults/              ← Tenant provisioning templates (ONE-TIME USE)
+│   │   ├── content.json       ← Rich text content (hero, about, footer)
+│   │   ├── metadata.json      ← Comprehensive SEO + structured data
+│   │   ├── services.json      ← Service descriptions (no pricing)
+│   │   └── faq.json          ← Default FAQ items
 │   ├── preview/               ← Preview mode mock data (demo sites)
 │   │   ├── index.ts           ← Preview data loader
-│   │   ├── business.json      ← Mock business info (name, phone, city, tagline)
-│   │   ├── services.json      ← Mock service listings for preview
-│   │   ├── reviews.json       ← Mock customer reviews
-│   │   └── faqs.json          ← Mock FAQ items
+│   │   └── defaults.json      ← Single file with all preview data
 │   ├── services/              ← Service detail pages (self-contained JSON files)
-│   ├── faq/                   ← FAQ utilities (loaded from code, not JSON)
+│   ├── faq/                   ← FAQ categories (loaded dynamically)
 │   ├── pricing/               ← Pricing data (addon feature)
 │   ├── gallery/               ← Gallery data
 │   └── vehicle_data/          ← Vehicle make/model lookups
@@ -55,54 +55,72 @@ Contains **shared images** that all tenants start with:
 
 ---
 
-### `content-defaults.json` - Text Provisioning Template
+### `defaults/` - Tenant Provisioning Templates
 
-Contains **text-only defaults** for populating the database during signup:
+Contains **comprehensive defaults** for populating the database during signup.
+
+**Structure:**
+```
+defaults/
+├── content.json     ← Rich text content (hero, about, footer, contact)
+├── metadata.json    ← SEO templates with {businessName}, {serviceArea} placeholders
+├── services.json    ← Service descriptions (educational, no pricing)
+└── faq.json        ← Default FAQ items organized by category
+```
+
+#### `defaults/content.json`
+
+Rich content with placeholders:
 
 ```json
 {
   "hero": {
     "h1": "Professional Mobile Detailing",
-    "subTitle": "Mobile detailing for cars, boats, & RVs."
+    "subtitle": "Mobile detailing for cars, boats, & RVs...",
+    "cta": { "primary": {...}, "secondary": {...} }
   },
-  "reviews": {
-    "title": "What Our Customers Say",
-    "subtitle": "..."
+  "about": {
+    "title": "About Our Service",
+    "content": "...",
+    "highlights": [...]
   },
-  "faq": {
-    "title": "Frequently Asked Questions",
-    "subtitle": "..."
-  }
+  "footer": {...},
+  "contact": {...}
 }
 ```
 
 **Maps to `website.content` table:**
 - `hero.h1` → `hero_title`
-- `hero.subTitle` → `hero_subtitle`
-- `reviews.title` → `reviews_title`
-- `reviews.subtitle` → `reviews_subtitle`
-- `faq.title` → `faq_title`
-- `faq.subtitle` → `faq_subtitle`
+- `hero.subtitle` → `hero_subtitle`
+- `about.title` → `about_title`
+- `about.content` → `about_content`
 
-**Used at:** Signup only (one-time) - Backend reads this to populate DB
+#### `defaults/metadata.json`
 
----
-
-### `seo-defaults.json` - SEO Provisioning Template
-
-Page-level SEO defaults for database provisioning:
+SEO templates with dynamic placeholders:
 
 ```json
 {
-  "title": "Premium Mobile Detailing — Cars, Boats, & RVs",
-  "description": "Professional mobile detailing services...",
-  "ogImage": "/mobile-detailing/images/hero/hero1.png",
-  "canonicalPath": "/",
-  "robots": "index,follow"
+  "seo": {
+    "titleTemplate": "{businessName} | Professional Mobile Detailing",
+    "description": "...",
+    "keywords": [...]
+  },
+  "pages": {
+    "home": {
+      "title": "{businessName} | Mobile Detailing in {serviceArea}",
+      "description": "..."
+    }
+  },
+  "structuredData": {...}
 }
 ```
 
-**Used at:** Signup only (one-time) - Populates SEO fields in DB
+**Placeholders replaced during signup:**
+- `{businessName}` → Tenant's business name
+- `{serviceArea}` → Service area (e.g., "Austin, TX")
+
+**Used at:** Signup only (one-time) - Backend reads and populates DB
 
 ---
 

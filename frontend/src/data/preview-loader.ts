@@ -18,26 +18,6 @@ export async function loadIndustryPreview(industry: string): Promise<IndustryPre
   try {
     // Use explicit imports - Vite can't handle fully dynamic template literals
     switch (industry) {
-      case 'main': {
-        const defaultsModule = await import('./main/defaults.json');
-        const defaults = defaultsModule.default;
-        return {
-          business: {
-            businessName: defaults.businessName,
-            phone: defaults.phone,
-            email: defaults.email,
-            city: defaults.city,
-            state: defaults.state,
-          },
-          reviews: defaults.reviews.map((r: any) => ({
-            name: r.name,
-            rating: r.rating,
-            text: r.text,
-            date: r.date,
-            avatar: r.avatar
-          })),
-        };
-      }
       case 'mobile-detailing': {
         const { getMobileDetailingPreview } = await import('./mobile-detailing/preview/index');
         return getMobileDetailingPreview();

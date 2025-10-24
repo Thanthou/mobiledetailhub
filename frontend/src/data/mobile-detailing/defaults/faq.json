@@ -1,0 +1,132 @@
+{
+  "$schema": "../../schemas/defaults-faq.schema.json",
+  "description": "Default FAQ items for mobile detailing tenants",
+  
+  "categories": [
+    {
+      "slug": "general",
+      "title": "General Questions",
+      "items": [
+        {
+          "question": "What is mobile detailing?",
+          "answer": "Mobile detailing is a professional car care service that comes to your location. We bring all the equipment, water, and supplies needed to detail your vehicle at your home, office, or any convenient location."
+        },
+        {
+          "question": "How long does detailing take?",
+          "answer": "Service time varies depending on the package:\n- Basic wash and detail: 2-3 hours\n- Full interior/exterior detailing: 4-6 hours\n- Paint correction: 8-12 hours\n- Ceramic coating: Full day plus 24-hour cure time\n- PPF installation: 1-3 days depending on coverage"
+        },
+        {
+          "question": "Do you provide water and electricity?",
+          "answer": "Yes! We bring our own water supply and generator, so we're completely self-contained. You don't need to provide anything."
+        },
+        {
+          "question": "What areas do you serve?",
+          "answer": "We serve [your service area] and surrounding communities within a 25-mile radius. Contact us to confirm if we service your location."
+        }
+      ]
+    },
+    {
+      "slug": "services",
+      "title": "Service Details",
+      "items": [
+        {
+          "question": "What's included in a full detail?",
+          "answer": "A full detail includes:\n- Exterior: Hand wash, clay bar treatment, paint decontamination, polish, sealant/wax\n- Interior: Vacuum, steam cleaning, leather conditioning, glass cleaning, trim dressing\n- Wheels: Deep cleaning, tire dressing, brake dust removal\n- Engine bay: Degreasing and dressing (if requested)"
+        },
+        {
+          "question": "What's the difference between ceramic coating and wax?",
+          "answer": "Ceramic coating is a permanent, chemical bond that lasts years, provides superior protection, and makes cleaning easier. Traditional wax is a temporary sacrificial layer that lasts weeks to months. Ceramic coating costs more upfront but provides significantly better long-term value."
+        },
+        {
+          "question": "Is paint correction necessary before ceramic coating?",
+          "answer": "Paint correction removes scratches, swirl marks, and oxidation before coating. While not always required, it's highly recommended because ceramic coating locks in the current paint condition. Correcting the paint first ensures you get the best possible results."
+        },
+        {
+          "question": "What is PPF and where should I apply it?",
+          "answer": "Paint Protection Film (PPF) is a clear, self-healing urethane film that protects against rock chips and scratches. Common coverage areas include:\n- Front bumper, hood, fenders (most impact zones)\n- Full front clip for maximum protection\n- Door edges, rocker panels, rear bumper\n- Full vehicle wrap for complete protection"
+        }
+      ]
+    },
+    {
+      "slug": "pricing",
+      "title": "Pricing & Packages",
+      "items": [
+        {
+          "question": "How much does detailing cost?",
+          "answer": "Pricing varies based on vehicle size, condition, and services selected. Basic packages start around $150-200, while full paint correction and ceramic coating packages range from $800-2000+. Contact us for a detailed quote based on your specific needs."
+        },
+        {
+          "question": "Do you offer discounts or packages?",
+          "answer": "Yes! We offer:\n- Multi-vehicle discounts\n- Recurring maintenance packages\n- Seasonal promotions\n- Referral rewards\nContact us to learn about current offers."
+        },
+        {
+          "question": "What payment methods do you accept?",
+          "answer": "We accept cash, all major credit cards, Venmo, and Zelle. Payment is due upon completion of service."
+        }
+      ]
+    },
+    {
+      "slug": "scheduling",
+      "title": "Scheduling & Availability",
+      "items": [
+        {
+          "question": "How do I book an appointment?",
+          "answer": "You can book online through our website, call us directly, or send us a text. We'll confirm your appointment time and location within 24 hours."
+        },
+        {
+          "question": "How far in advance should I book?",
+          "answer": "We recommend booking 1-2 weeks in advance, especially for weekends. For paint correction, ceramic coating, or PPF installation, plan for 2-3 weeks lead time."
+        },
+        {
+          "question": "What's your cancellation policy?",
+          "answer": "We require 24-hour notice for cancellations or rescheduling. Same-day cancellations may be subject to a fee."
+        },
+        {
+          "question": "Do you work in bad weather?",
+          "answer": "Light rain is usually okay for interior detailing. We'll reschedule exterior services if weather conditions aren't suitable. We'll contact you if we need to reschedule due to weather."
+        }
+      ]
+    },
+    {
+      "slug": "preparation",
+      "title": "Preparation & Requirements",
+      "items": [
+        {
+          "question": "Do I need to prepare my vehicle?",
+          "answer": "Please remove personal items from the vehicle and make sure we have access to all areas. If you have excessive trash or pet hair, there may be an additional cleaning fee."
+        },
+        {
+          "question": "Where should I park my vehicle?",
+          "answer": "Ideally in a driveway, parking lot, or street with adequate space for us to work around the entire vehicle. We need about 10 feet of clearance on all sides."
+        },
+        {
+          "question": "Can you detail in a parking garage?",
+          "answer": "Yes, as long as there's adequate space, lighting, and ventilation. Some services (like paint correction) work best in controlled lighting conditions."
+        }
+      ]
+    },
+    {
+      "slug": "aftercare",
+      "title": "Aftercare & Maintenance",
+      "items": [
+        {
+          "question": "How should I maintain my vehicle after detailing?",
+          "answer": "- Wait 24-48 hours before washing (for sealants/coatings)\n- Use pH-neutral car wash soap\n- Microfiber wash mitts and towels only\n- Avoid automatic car washes\n- Regular maintenance washing every 2 weeks\n- Annual or bi-annual professional detail"
+        },
+        {
+          "question": "How long does ceramic coating last?",
+          "answer": "Professional ceramic coatings typically last 2-5 years with proper maintenance. Consumer-grade coatings last 1-2 years. Durability depends on coating quality, application, and maintenance."
+        },
+        {
+          "question": "Can I still wash my car at a car wash after ceramic coating?",
+          "answer": "Touchless car washes are okay, but avoid brush/friction washes—they can cause scratches and degrade the coating over time. Hand washing with proper technique is always best."
+        },
+        {
+          "question": "What happens if PPF gets damaged?",
+          "answer": "Minor scratches often self-heal with heat (sun or heat gun). Deeper damage can sometimes be wet-sanded and polished. If the film is torn or severely damaged, that section can be replaced without removing the entire installation."
+        }
+      ]
+    }
+  ]
+}
+

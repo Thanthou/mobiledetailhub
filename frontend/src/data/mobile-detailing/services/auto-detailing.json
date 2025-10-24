@@ -16,7 +16,7 @@
   
     "hero": {
       "image": {
-        "src": "/industries/mobile-detailing/images/services/auto-detailing/hero.png",
+        "src": "/industries/mobile-detailing/images/services/auto-detailing/hero.webp",
         "alt": "Professional auto detailing service",
         "caption": "Premium mobile auto detailing at your location"
       },
@@ -53,7 +53,7 @@
         "Prepares paint for advanced services (Correction, Coating, PPF)"
       ],
       "image": {
-        "src": "/industries/mobile-detailing/images/services/auto-detailing/what-it-is.png",
+        "src": "/industries/mobile-detailing/images/services/auto-detailing/what-it-is.webp",
         "alt": "Auto detailing explanation graphic"
       }
     },
@@ -69,7 +69,7 @@
             "Reverse Osmosis mineral-free pre-rinse",
             "Foam and hand wash with contact-safe media"
           ],
-          "image": { "src": "/industries/mobile-detailing/images/services/auto-detailing/process-1.png", "alt": "Assessment and prep" }
+          "image": { "src": "/industries/mobile-detailing/images/services/auto-detailing/process-1.webp", "alt": "Assessment and prep" }
         },
         {
           "number": 2,
@@ -79,7 +79,7 @@
             "Removal of iron & bonded contaminants",
             "Surface prepped for correction and protection"
           ],
-          "image": { "src": "/industries/mobile-detailing/images/services/auto-detailing/process-2.png", "alt": "Decontamination step" }
+          "image": { "src": "/industries/mobile-detailing/images/services/auto-detailing/process-2.webp", "alt": "Decontamination step" }
         },
         {
           "number": 3,
@@ -101,8 +101,8 @@
         "Contaminant-free surface that maximizes Ceramic Coating/PPF bond"
       ],
       "images": {
-        "before": { "src": "/industries/mobile-detailing/images/services/auto-detailing/before.png", "alt": "Before detailing" },
-        "after": { "src": "/industries/mobile-detailing/images/services/auto-detailing/after.png", "alt": "After detailing" }
+        "before": { "src": "/industries/mobile-detailing/images/services/auto-detailing/before.webp", "alt": "Before detailing" },
+        "after": { "src": "/industries/mobile-detailing/images/services/auto-detailing/after.webp", "alt": "After detailing" }
       },
       "containerSize": "large"
     },
@@ -110,7 +110,7 @@
     "gallery": {
       "title": "Auto Detailing Gallery",
       "images": [
-        { "id": "1", "src": "/images/services/auto-detailing/hero.png", "alt": "Auto detailing service", "caption": "Professional auto detailing" }
+        { "id": "1", "src": "/images/services/auto-detailing/hero.webp", "alt": "Auto detailing service", "caption": "Professional auto detailing" }
       ]
     },
   

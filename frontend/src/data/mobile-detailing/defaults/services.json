@@ -1,0 +1,98 @@
+{
+  "$schema": "../../schemas/defaults-services.schema.json",
+  "description": "Default service descriptions for mobile detailing tenants (informational only, no pricing)",
+  
+  "services": [
+    {
+      "slug": "auto-detailing",
+      "title": "Auto Detailing",
+      "shortDescription": "Complete interior and exterior detailing service",
+      "description": "Professional mobile auto detailing service that brings the detail shop to your location. Complete interior and exterior service focused on deep cleaning, decontamination, and entry-level protection.",
+      "benefits": [
+        "Removes bonded contaminants (rail dust, overspray, brake fallout)",
+        "Restores gloss and clarity with safe wash and clay process",
+        "Deep interior cleaning and conditioning",
+        "Protective sealant application",
+        "Water spot removal and paint decontamination"
+      ],
+      "duration": "3-5 hours",
+      "category": "detailing"
+    },
+    {
+      "slug": "paint-correction",
+      "title": "Paint Correction",
+      "shortDescription": "Multi-stage paint polishing to remove defects",
+      "description": "Professional paint correction removes swirl marks, scratches, oxidation, and other paint defects. Our multi-stage machine polishing process restores depth, clarity, and a mirror-like finish.",
+      "benefits": [
+        "Removes swirl marks and light scratches",
+        "Restores paint depth and clarity",
+        "Mirror-like finish preparation",
+        "Essential prep for ceramic coating or PPF",
+        "Long-lasting results with proper maintenance"
+      ],
+      "duration": "Full day (8-12 hours)",
+      "category": "correction"
+    },
+    {
+      "slug": "ceramic-coating",
+      "title": "Ceramic Coating",
+      "shortDescription": "Long-lasting protective coating",
+      "description": "Professional-grade ceramic coating provides long-lasting protection with enhanced gloss, hydrophobic properties, and easier maintenance. Bonds permanently to paint, creating a sacrificial layer that protects against environmental damage.",
+      "benefits": [
+        "Years of durable protection",
+        "Enhanced gloss and depth",
+        "Hydrophobic water-beading effect",
+        "UV protection and oxidation resistance",
+        "Easier cleaning and maintenance"
+      ],
+      "duration": "Full day + 24hr cure",
+      "category": "protection"
+    },
+    {
+      "slug": "ppf",
+      "title": "Paint Protection Film (PPF)",
+      "shortDescription": "Self-healing clear film protection",
+      "description": "Premium paint protection film (PPF) provides the ultimate defense against rock chips, scratches, and road debris. Self-healing technology repairs minor scratches with heat, while maintaining your vehicle's factory finish.",
+      "benefits": [
+        "Protection against rock chips and road debris",
+        "Self-healing technology for minor scratches",
+        "Maintains factory finish and resale value",
+        "Available in gloss or matte finish",
+        "Warranty-backed protection"
+      ],
+      "duration": "1-3 days (depending on coverage)",
+      "category": "protection"
+    },
+    {
+      "slug": "marine-detailing",
+      "title": "Marine Detailing",
+      "shortDescription": "Boat and watercraft detailing",
+      "description": "Specialized detailing services for boats and marine vessels. We understand the unique challenges of saltwater, UV exposure, and marine environments, using products and techniques designed specifically for watercraft.",
+      "benefits": [
+        "Hull cleaning and oxidation removal",
+        "Gel coat restoration and protection",
+        "Interior detailing and upholstery care",
+        "Canvas and vinyl cleaning",
+        "Metal polishing and corrosion prevention"
+      ],
+      "duration": "4-8 hours (size dependent)",
+      "category": "specialized"
+    },
+    {
+      "slug": "rv-detailing",
+      "title": "RV Detailing",
+      "shortDescription": "Complete RV detailing services",
+      "description": "Comprehensive mobile detailing for RVs, motorhomes, and travel trailers. From exterior washing and oxidation removal to interior deep cleaning, we handle the unique requirements of these larger vehicles.",
+      "benefits": [
+        "Exterior wash and oxidation removal",
+        "Roof cleaning and sealing",
+        "Complete interior detailing",
+        "Awning cleaning and protection",
+        "Slide-out maintenance and lubrication"
+      ],
+      "duration": "Full day (varies by size)",
+      "category": "specialized"
+    }
+  ]
+}
+

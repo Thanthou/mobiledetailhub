@@ -3,15 +3,15 @@
 
   "logo": {
     "default": {
-      "url": "/industries/maid-service/icons/logo.webp",
+      "url": "/industries/maid-service/icons/logo-white.webp",
       "alt": "Maid Service Logo"
     },
     "dark": {
-      "url": "/industries/maid-service/icons/logo.webp",
+      "url": "/industries/maid-service/icons/logo-white.webp",
       "alt": "Maid Service Logo (Dark Mode)"
     },
     "light": {
-      "url": "/industries/maid-service/icons/logo.webp",
+      "url": "/industries/maid-service/icons/logo-white.webp",
       "alt": "Maid Service Logo (Light Mode)"
     }
   },

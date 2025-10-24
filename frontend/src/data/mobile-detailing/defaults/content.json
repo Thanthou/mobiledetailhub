@@ -1,0 +1,52 @@
+{
+  "$schema": "../../schemas/defaults-content.schema.json",
+  "description": "Default content for new mobile detailing tenants - used during provisioning",
+  
+  "hero": {
+    "h1": "Professional Mobile Detailing",
+    "subtitle": "Mobile detailing for cars, boats, & RVs. Premium paint correction, ceramic coating, and paint protection film services at your location.",
+    "cta": {
+      "primary": {
+        "label": "Book Service",
+        "href": "/book"
+      },
+      "secondary": {
+        "label": "Get Quote",
+        "href": "/quote"
+      }
+    }
+  },
+
+  "about": {
+    "title": "About Our Mobile Detailing Service",
+    "content": "We provide premium mobile detailing services with professional-grade equipment and products. Our certified technicians specialize in paint correction, ceramic coatings, paint protection film (PPF), and complete interior/exterior detailing.\n\nWe bring the detail shop to your location—home, office, or wherever is most convenient. Whether you need routine maintenance or full paint correction and protection, we deliver showroom-quality results.",
+    "highlights": [
+      "Certified detailing technicians",
+      "Professional-grade equipment",
+      "Mobile convenience—we come to you",
+      "Premium products and materials",
+      "Satisfaction guaranteed"
+    ]
+  },
+
+  "reviews": {
+    "title": "What Our Customers Say",
+    "subtitle": "Don't just take our word for it. See what our satisfied customers have to say about our premium mobile detailing services."
+  },
+
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Find answers to common questions about our mobile detailing services"
+  },
+
+  "footer": {
+    "tagline": "Premium mobile detailing at your location",
+    "description": "Professional paint correction, ceramic coating, PPF, and complete detailing services for cars, boats, and RVs."
+  },
+
+  "contact": {
+    "callToAction": "Ready to restore your vehicle?",
+    "description": "Contact us today for a free quote or to schedule your mobile detailing service."
+  }
+}
+

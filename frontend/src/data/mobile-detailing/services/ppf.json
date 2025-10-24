@@ -20,7 +20,7 @@
         "full body PPF"
       ],
       "canonicalPath": "/service/ppf-installation",
-      "ogImage": "/industries/mobile-detailing/images/services/ppf/hero.png",
+      "ogImage": "/industries/mobile-detailing/images/services/ppf/hero.webp",
       "robots": "index,follow"
     },
   
@@ -79,7 +79,7 @@
             "Panel wipe to remove oils and residues",
             "Pattern selection or bulk templating; seam/edge planning"
           ],
-          "image": { "src": "/industries/mobile-detailing/images/services/ppf-installation/process-1.png", "alt": "Vehicle decontamination and surface preparation for PPF" }
+          "image": { "src": "/industries/mobile-detailing/images/services/ppf-installation/process-1.webp", "alt": "Vehicle decontamination and surface preparation for PPF" }
         },
         {
           "number": 2,
@@ -89,7 +89,7 @@
             "Squeegee set, edge wrapping where applicable",
             "Heat-set and micro-bubble inspection"
           ],
-          "image": { "src": "/industries/mobile-detailing/images/services/ppf-installation/process-2.png", "alt": "Careful squeegee work during PPF installation" }
+          "image": { "src": "/industries/mobile-detailing/images/services/ppf-installation/process-2.webp", "alt": "Careful squeegee work during PPF installation" }
         },
         {
           "number": 3,
@@ -99,7 +99,7 @@
             "Cure time guidance and first-wash instructions",
             "Optional ceramic topper for easier cleaning"
           ],
-          "image": { "src": "/industries/mobile-detailing/images/services/ppf-installation/process-3.png", "alt": "PPF curing and final inspection" }
+          "image": { "src": "/industries/mobile-detailing/images/services/ppf-installation/process-3.webp", "alt": "PPF curing and final inspection" }
         }
       ]
     },
@@ -119,7 +119,7 @@
     "gallery": {
       "title": "PPF Gallery",
       "images": [
-        { "id": "1", "src": "/industries/mobile-detailing/images/services/ppf-installation/hero.png", "alt": "PPF on front end with wrapped edges", "caption": "Invisible coverage, maximum protection" }
+        { "id": "1", "src": "/industries/mobile-detailing/images/services/ppf-installation/hero.webp", "alt": "PPF on front end with wrapped edges", "caption": "Invisible coverage, maximum protection" }
       ]
     },
   

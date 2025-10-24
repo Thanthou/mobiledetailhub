@@ -1,0 +1,73 @@
+{
+  "$schema": "../../schemas/defaults-metadata.schema.json",
+  "description": "Default SEO metadata for mobile detailing tenants",
+  
+  "seo": {
+    "titleTemplate": "{businessName} | Professional Mobile Detailing",
+    "defaultTitle": "Premium Mobile Detailing — Cars, Boats, & RVs",
+    "description": "Professional mobile detailing services. Paint correction, ceramic coating, PPF, and deep interior cleaning for cars, boats, and RVs.",
+    "keywords": [
+      "mobile detailing",
+      "auto detailing",
+      "car detailing",
+      "ceramic coating",
+      "paint correction",
+      "paint protection film",
+      "PPF",
+      "mobile car wash",
+      "professional detailing",
+      "boat detailing",
+      "RV detailing"
+    ],
+    "openGraph": {
+      "type": "website",
+      "locale": "en_US",
+      "siteName": "Premium Mobile Detailing Services"
+    },
+    "twitter": {
+      "card": "summary_large_image",
+      "site": "@mobiledetailing"
+    }
+  },
+
+  "pages": {
+    "home": {
+      "title": "{businessName} | Mobile Detailing in {serviceArea}",
+      "description": "Professional mobile detailing services in {serviceArea}. Paint correction, ceramic coating, PPF, and complete interior/exterior detailing at your location."
+    },
+    "services": {
+      "title": "Our Detailing Services | {businessName}",
+      "description": "Explore our comprehensive mobile detailing services including auto detailing, paint correction, ceramic coating, PPF, and marine/RV detailing."
+    },
+    "about": {
+      "title": "About Us | {businessName}",
+      "description": "Learn about our professional detailing team and our commitment to delivering showroom-quality results with every service."
+    },
+    "contact": {
+      "title": "Contact Us | {businessName}",
+      "description": "Get in touch to schedule your mobile detailing service or request a free quote. Serving {serviceArea} and surrounding areas."
+    },
+    "quote": {
+      "title": "Request a Quote | {businessName}",
+      "description": "Get a free, customized quote for mobile detailing services. Tell us about your vehicle and we'll provide a detailed estimate."
+    },
+    "gallery": {
+      "title": "Our Work | {businessName}",
+      "description": "View before and after photos of our mobile detailing, paint correction, ceramic coating, and PPF installations."
+    }
+  },
+
+  "structuredData": {
+    "organizationType": "LocalBusiness",
+    "additionalTypes": [
+      "AutoRepair",
+      "Automobile Detailing Service"
+    ],
+    "defaultServiceArea": {
+      "type": "radius",
+      "value": 25,
+      "unit": "miles"
+    }
+  }
+}
+

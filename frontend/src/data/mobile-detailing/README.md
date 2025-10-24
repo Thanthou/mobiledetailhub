@@ -1,104 +1,298 @@
-# Mobile Detailing - Modular Config Approach
+# Mobile Detailing Industry Data
 
-## Overview
+Industry-specific configuration, defaults, and assets for mobile detailing tenants.
 
-Mobile detailing uses a **modular config approach** instead of the legacy `site.json` monolithic file. This provides better organization, easier maintenance, and clearer separation of concerns.
-
-## File Structure
+## Directory Structure
 
 ```
 mobile-detailing/
-├── index.ts                    # Config loader/assembler
-├── assets.json                 # Logo, hero images, service thumbnails
-├── content-defaults.json       # Default text content (hero, reviews, FAQ)
-├── seo-defaults.json           # SEO metadata (title, description, keywords)
-├── faq/                        # FAQ categories (general, pricing, scheduling, etc.)
-├── services/                   # Service definitions (auto-detailing, ceramic-coating, etc.)
-├── pricing/                    # Pricing by vehicle type (cars, trucks, SUVs, RVs, boats)
-└── gallery/                    # Gallery images
+├── index.ts                    ← Industry config loader (loadMobileDetailingConfig)
+│
+├── defaults/                   ← Tenant Provisioning Templates (ONE-TIME USE)
+│   ├── content.json           ← Rich text content (hero, about, footer)
+│   ├── metadata.json          ← Comprehensive SEO + structured data
+│   ├── services.json          ← Service descriptions (no pricing)
+│   └── faq.json              ← Default FAQ items
+│
+├── preview/                    ← Preview/Demo Data
+│   ├── index.ts               ← Preview data loader
+│   └── defaults.json          ← Mock business + preview content
+│
+├── assets.json                 ← Runtime Assets (ALWAYS LOADED)
+│   ├── Logos, hero images, service thumbnails
+│   └── Images with alt text, dimensions, aspect ratios
+│
+├── services/                   ← Service Detail Pages (self-contained)
+│   ├── auto-detailing.json
+│   ├── paint-correction.json
+│   ├── ceramic-coating.json
+│   ├── ppf.json
+│   ├── marine-detailing.json
+│   └── rv-detailing.json
+│
+├── faq/                        ← FAQ Categories (dynamic loading)
+│   ├── general.json
+│   ├── services.json
+│   ├── pricing.json
+│   ├── scheduling.json
+│   ├── preparation.json
+│   ├── aftercare.json
+│   ├── payments.json
+│   ├── warranty.json
+│   └── locations.json
+│
+├── pricing/                    ← Dynamic Pricing (addon feature)
+│   ├── cars/
+│   ├── suvs/
+│   ├── trucks/
+│   ├── boats/
+│   └── rvs/
+│
+├── gallery/                    ← Gallery Data
+│   └── gallery.json
+│
+├── vehicle_data/               ← Vehicle Make/Model Lookups
+│   ├── CarMakeModel.json
+│   ├── BoatMakeModel.json
+│   └── RvMakeModel.json
+│
+├── content-defaults.json       ← DEPRECATED (use defaults/content.json)
+└── seo-defaults.json          ← DEPRECATED (use defaults/metadata.json)
 ```
 
-## How It Works
+---
 
-### 1. Config Loader (`index.ts`)
+## Three Distinct Use Cases
 
-The `loadMobileDetailingConfig()` function:
-- Imports the modular JSON files
-- Assembles them into a `MainSiteConfig` object
-- Transforms data structures to match the expected format
-- Returns a complete config compatible with legacy `site.json` format
-
-### 2. DataContext Integration
-
-The `DataContext` automatically detects mobile-detailing and uses the modular loader:
+### 1. **Preview Mode** (`preview/`)
+**Purpose:** Show prospects what their site could look like  
+**When Used:** Marketing preview pages (`/mobile-detailing-preview`)  
+**Loaded By:** `PreviewDataProvider`
 
 ```typescript
-if (industry === 'mobile-detailing') {
-  const { loadMobileDetailingConfig } = await import('@/data/mobile-detailing');
-  return await loadMobileDetailingConfig();
+import { loadIndustryPreview } from '@/data/preview-loader';
+const previewData = await loadIndustryPreview('mobile-detailing');
+```
+
+**Contains:**
+- Mock business info (name, phone, city)
+- Sample content (hero text, reviews)
+- Preview-specific SEO (for ranking the preview page itself)
+
+---
+
+### 2. **Tenant Provisioning** (`defaults/`)
+**Purpose:** Initial data when tenant signs up (ONE-TIME ONLY)  
+**When Used:** Backend reads during signup, writes to database  
+**Never Used:** At runtime (database is source of truth)
+
+**Files:**
+- `content.json` - Hero, about, footer (rich content with placeholders)
+- `metadata.json` - SEO templates with `{businessName}`, `{serviceArea}` placeholders
+- `services.json` - Service descriptions (educational, no pricing)
+- `faq.json` - Default FAQ items organized by category
+
+**Backend Flow:**
+```
+1. Tenant signs up
+2. Backend loads defaults/content.json + metadata.json
+3. Populates website.content table with defaults
+4. Tenant can customize via dashboard
+```
+
+---
+
+### 3. **Runtime Assets** (`assets.json`)
+**Purpose:** Image catalog loaded at runtime  
+**When Used:** EVERY page load (both preview and tenant sites)  
+**Shared By:** All tenants in this industry
+
+**Contains:**
+- Logo variants (default, dark, light)
+- Hero images (desktop + mobile, with dimensions)
+- Service thumbnails with alt text (SEO)
+- Structured metadata for each image
+
+---
+
+## Key Files
+
+### `index.ts` - Industry Config Loader
+
+The `loadMobileDetailingConfig()` function:
+- Loads `preview/defaults.json` for content (hero, reviews, FAQ titles)
+- Loads `assets.json` for images
+- Loads `seo-defaults.json` for SEO (DEPRECATED: should use `defaults/metadata.json`)
+- Assembles into `MainSiteConfig` structure
+- Used by preview pages
+
+**Note:** This currently uses `preview/defaults.json` for content. For tenant provisioning, the backend should use `defaults/` folder instead.
+
+---
+
+### `defaults/content.json` - Rich Content Provisioning
+
+Expanded content with placeholders for tenant provisioning:
+
+```json
+{
+  "hero": {
+    "h1": "Professional Mobile Detailing",
+    "subtitle": "Mobile detailing for cars, boats, & RVs...",
+    "cta": { "primary": {...}, "secondary": {...} }
+  },
+  "about": {
+    "title": "About Our Mobile Detailing Service",
+    "content": "...",
+    "highlights": [...]
+  },
+  "footer": {...},
+  "contact": {...}
 }
 ```
 
-### 3. Hook Support
+**Maps to `website.content` table during tenant signup.**
 
-Both `useIndustryConfig` and `useIndustrySiteData` hooks support the modular approach transparently.
+---
 
-## Benefits
+### `defaults/metadata.json` - Comprehensive SEO Templates
 
-### ✅ Better Organization
-- Separate files for different concerns (assets, content, SEO)
-- Easier to find and update specific data
-- Clear file naming conventions
+SEO templates with placeholders that get populated during provisioning:
 
-### ✅ Reduced Merge Conflicts
-- Multiple developers can work on different config files simultaneously
-- Changes to assets don't conflict with content changes
-
-### ✅ Improved Maintainability
-- Smaller, focused files are easier to understand
-- Clear structure makes it obvious where to add new data
-
-### ✅ Type Safety
-- Each JSON file can have its own schema
-- Easier to validate individual pieces
-
-## Usage
-
-Components don't need to change - they continue to use `useData()` or `useIndustryConfig()` as before:
-
-```tsx
-const { siteConfig } = useData();
-const heroTitle = siteConfig?.hero.h1; // Works automatically!
+```json
+{
+  "seo": {
+    "titleTemplate": "{businessName} | Professional Mobile Detailing",
+    "description": "...",
+    "keywords": [...]
+  },
+  "pages": {
+    "home": {
+      "title": "{businessName} | Mobile Detailing in {serviceArea}",
+      "description": "..."
+    },
+    "services": {...},
+    "contact": {...}
+  },
+  "structuredData": {...}
+}
 ```
 
-## Adding New Data
+**Placeholders replaced during signup:**
+- `{businessName}` → Actual business name
+- `{serviceArea}` → Service area (e.g., "Austin, TX")
 
-### To add a new hero image:
-Edit `assets.json` → `hero` array
+---
 
-### To update default content:
-Edit `content-defaults.json`
+### `defaults/services.json` - Service Descriptions
 
-### To modify SEO metadata:
-Edit `seo-defaults.json`
+Educational content about each service (no pricing):
+
+```json
+{
+  "services": [
+    {
+      "slug": "auto-detailing",
+      "title": "Auto Detailing",
+      "description": "...",
+      "benefits": [...],
+      "duration": "3-5 hours",
+      "category": "detailing"
+    }
+  ]
+}
+```
+
+**Used for:**
+- Populating initial service catalog
+- Providing default descriptions
+- Educational content
+
+---
+
+### `defaults/faq.json` - Default FAQ Items
+
+Comprehensive FAQ organized by category:
+
+```json
+{
+  "categories": [
+    {
+      "slug": "general",
+      "title": "General Questions",
+      "items": [
+        {
+          "question": "What is mobile detailing?",
+          "answer": "..."
+        }
+      ]
+    }
+  ]
+}
+```
+
+**Categories:**
+- General Questions
+- Service Details
+- Pricing & Packages
+- Scheduling & Availability
+- Preparation & Requirements
+- Aftercare & Maintenance
+
+---
+
+## Migration Notes
+
+### DEPRECATED Files
+
+The following files are deprecated and will be removed after backend migration:
+
+- ❌ `content-defaults.json` → Use `defaults/content.json`
+- ❌ `seo-defaults.json` → Use `defaults/metadata.json`
+
+### Backend Integration
+
+The backend provisioning system should be updated to:
+
+1. Load from `defaults/` folder instead of root files
+2. Parse and replace placeholders (`{businessName}`, `{serviceArea}`)
+3. Populate `website.content` table with expanded content
+4. Store SEO metadata with tenant-specific values
+
+---
+
+## Preview vs Tenant Provisioning
+
+| Aspect | Preview (`preview/`) | Tenant Provisioning (`defaults/`) |
+|--------|---------------------|-----------------------------------|
+| **Purpose** | Show prospects what site looks like | Initial data for new tenants |
+| **When Used** | Marketing preview pages | Signup only (one-time) |
+| **Data Type** | Mock/demo data | Template with placeholders |
+| **SEO Goal** | Rank the preview page | Rank tenant's business |
+| **Customizable** | No (static demo) | Yes (tenant can edit via dashboard) |
+| **Storage** | JSON files | Database after provisioning |
+
+---
+
+## Adding New Content
 
 ### To add a new service:
-Create a new file in `services/` directory
+1. Add to `defaults/services.json` (for provisioning)
+2. Create detailed page in `services/{slug}.json` (for runtime)
+3. Add thumbnail to `assets.json`
 
-## Migration from site.json
+### To add a new FAQ category:
+1. Add to `defaults/faq.json` (for provisioning)
+2. Create category file in `faq/{category}.json` (for runtime)
 
-Other industries (pet-grooming, maid-service, lawncare) still use `site.json`. To migrate them:
+### To update defaults:
+1. Edit `defaults/content.json` or `defaults/metadata.json`
+2. Changes only affect NEW tenants (existing tenants use database)
 
-1. Create an `index.ts` loader (copy from mobile-detailing)
-2. Split `site.json` into modular files:
-   - `assets.json` - logo, images, thumbnails
-   - `content-defaults.json` - text content
-   - `seo-defaults.json` - SEO metadata
-3. Update the loader to import and assemble your files
-4. Test thoroughly
-5. Delete old `site.json`
+---
 
-## Type Compatibility Note
+## Related Documentation
 
-Due to a legacy inconsistency, the config includes both `hero.images` (lowercase, type-compliant) and `hero.Images` (capital I, for component compatibility). This will be resolved when we update the `ImageCarousel` component to use the correct property name.
-
+- [Data Structure Overview](../README.md)
+- [FAQ Implementation Guide](../../../../docs/frontend/apps/FAQ_ITEMS_IMPLEMENTATION.md)
+- [Preview Mode Documentation](../../../../docs/frontend/PREVIEW_INDUSTRY_AGNOSTIC_AUDIT.md)

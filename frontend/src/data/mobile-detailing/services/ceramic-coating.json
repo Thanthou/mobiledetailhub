@@ -19,13 +19,13 @@
         "professional ceramic coating"
       ],
       "canonicalPath": "/service/ceramic-coating",
-      "ogImage": "/images/services/ceramic-coating/hero.png",
+      "ogImage": "/images/services/ceramic-coating/hero.webp",
       "robots": "index,follow"
     },
   
     "hero": {
       "image": {
-        "src": "/industries/mobile-detailing/images/services/ceramic-coating/hero.png",
+        "src": "/industries/mobile-detailing/images/services/ceramic-coating/hero.webp",
         "alt": "Professional ceramic coating being applied to vehicle paint",
         "caption": "Pro-grade ceramic coatings installed with proper prep and correction"
       },
@@ -91,7 +91,7 @@
             "Iron/fallout removal and clay bar treatment",
             "Thorough drying and masking of sensitive areas"
           ],
-          "image": { "src": "/industries/mobile-detailing/images/services/ceramic-coating/process-1.png", "alt": "Decontamination prior to coating" }
+          "image": { "src": "/industries/mobile-detailing/images/services/ceramic-coating/process-1.webp", "alt": "Decontamination prior to coating" }
         },
         {
           "number": 2,
@@ -101,7 +101,7 @@
             "Gloss enhancement and defect reduction",
             "Panel wipe to remove polishing oils"
           ],
-          "image": { "src": "/industries/mobile-detailing/images/services/ceramic-coating/process-2.png", "alt": "Paint correction step before coating" }
+          "image": { "src": "/industries/mobile-detailing/images/services/ceramic-coating/process-2.webp", "alt": "Paint correction step before coating" }
         },
         {
           "number": 3,
@@ -111,7 +111,7 @@
           "IR/controlled cure where applicable",
           "Final inspection and aftercare guidance"
           ],
-          "image": { "src": "/industries/mobile-detailing/images/services/ceramic-coating/process-3.png", "alt": "Applying ceramic coating and curing" }
+          "image": { "src": "/industries/mobile-detailing/images/services/ceramic-coating/process-3.webp", "alt": "Applying ceramic coating and curing" }
         }
       ]
     },
@@ -123,8 +123,8 @@
         "Longer-lasting protection vs. waxes and sealants"
       ],
       "images": {
-        "before": { "src": "/industries/mobile-detailing/images/services/ceramic-coating/before.png", "alt": "Before ceramic coating" },
-        "after": { "src": "/industries/mobile-detailing/images/services/ceramic-coating/after.png", "alt": "After ceramic coating" }
+        "before": { "src": "/industries/mobile-detailing/images/services/ceramic-coating/before.webp", "alt": "Before ceramic coating" },
+        "after": { "src": "/industries/mobile-detailing/images/services/ceramic-coating/after.webp", "alt": "After ceramic coating" }
       },
       "containerSize": "large"
     },
@@ -132,7 +132,7 @@
     "gallery": {
       "title": "Ceramic Coating Gallery",
       "images": [
-        { "id": "1", "src": "/industries/mobile-detailing/images/services/ceramic-coating/hero.png", "alt": "Ceramic coating high gloss finish", "caption": "Locked-in gloss and protection" }
+        { "id": "1", "src": "/industries/mobile-detailing/images/services/ceramic-coating/hero.webp", "alt": "Ceramic coating high gloss finish", "caption": "Locked-in gloss and protection" }
       ]
     },
   
