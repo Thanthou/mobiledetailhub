@@ -81,8 +81,7 @@ function LiveRoutes() {
         {/* Booking route */}
         <Route path="/booking" element={<Booking />} />
         
-        {/* Redirect old service routes to tenant-based structure */}
-        <Route path="/services/:serviceType" element={<Navigate to="/services/:serviceType" replace />} />
+        {/* Note: Service routes now handled via tenant slug pattern below */}
         
         {/* Service routes - must come before generic businessSlug route */}
         <Route path=":businessSlug/services/:serviceType" element={<ServicePage />} />

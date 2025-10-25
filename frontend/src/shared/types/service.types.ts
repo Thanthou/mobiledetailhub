@@ -1,3 +1,9 @@
+/**
+ * Shared Service Types
+ * 
+ * Used by service data loader and service detail pages across apps
+ */
+
 export interface ImageRef {
   src: string;
   alt?: string;
@@ -121,3 +127,4 @@ export interface ServiceData {
     service: Record<string, unknown>; // Schema.org Service JSON-LD structure
   };
 }
+

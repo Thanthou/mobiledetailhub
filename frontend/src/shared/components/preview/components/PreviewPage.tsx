@@ -8,12 +8,10 @@
 import React, { useState } from 'react';
 
 import { FAQ } from '@shared/components/faq';
-// Note: Gallery removed - use app-specific implementations
+// Note: Gallery, Services, and Hero removed - use app-specific implementations
 import { Header } from '@shared/components/header';
-import { Hero } from '@shared/components/hero';
 import { LazyRequestQuoteModal } from '@shared/components/quotes';
 import { Reviews } from '@shared/components/reviews';
-import { ServicesGrid } from '@shared/components/services';
 import { useBrowserTab, useIsDesktop, useScrollSpy } from '@shared/hooks';
 import { SeoHead } from '@shared/seo';
 import type { SectionId } from '@shared/state/sectionStore';
@@ -81,8 +79,7 @@ const PreviewPage: React.FC = () => {
       <div className="h-screen snap-y snap-mandatory overflow-y-scroll snap-container">
         {/* Regular site components - they'll get preview data from context */}
         <Header />
-        <Hero onRequestQuote={handleOpenQuoteModal} />
-        <ServicesGrid />
+        {/* Hero removed - use app-specific implementations */}
         <Reviews />
         <FAQ />
         {/* Gallery removed - use app-specific implementations */}

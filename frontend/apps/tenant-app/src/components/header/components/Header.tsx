@@ -28,7 +28,7 @@ export default function Header() {
   return (
     <header
       role="banner"
-      className="fixed top-0 left-0 right-0 z-50 bg-theme-background/40 backdrop-blur supports-[backdrop-filter]:backdrop-blur w-full"
+      className="fixed top-0 left-0 right-0 z-50 bg-theme-background/40 backdrop-blur-sm w-full"
     >
       {/* Skip link */}
       <a
@@ -76,7 +76,7 @@ export default function Header() {
         id="mobile-menu"
         role="dialog"
         aria-modal="true"
-        className={`md:hidden absolute inset-x-0 top-full z-50 bg-theme-background/90 transition-opacity duration-200
+        className={`md:hidden absolute inset-x-0 top-full z-50 bg-theme-background/95 transition-opacity duration-200
           ${open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
         aria-hidden={!open}
       >

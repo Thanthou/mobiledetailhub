@@ -36,13 +36,13 @@ export const useServicePage = () => {
         }
         
         // Load service data dynamically
-        const data = await loadServiceData(industry, serviceType);
+        const loadedData = await loadServiceData(industry, serviceType);
         
-        if (!data) {
+        if (!loadedData) {
           throw new Error(`Service ${serviceType} not found for ${industry}`);
         }
         
-        setServiceData(data);
+        setServiceData(loadedData);
       } catch (err) {
         console.error('Error loading service data:', err);
         setError(err instanceof Error ? err.message : 'Failed to load service');

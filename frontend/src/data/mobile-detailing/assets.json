@@ -109,37 +109,31 @@
       {
         "slug": "auto-detailing",
         "title": "Auto",
-        "href": "/services/auto-detailing",
         "priority": false
       },
       {
         "slug": "marine-detailing",
         "title": "Marine",
-        "href": "/services/marine-detailing",
         "priority": false
       },
       {
         "slug": "rv-detailing",
         "title": "RV",
-        "href": "/services/rv-detailing",
         "priority": false
       },
       {
         "slug": "ceramic-coating",
         "title": "Ceramic Coating",
-        "href": "/services/ceramic-coating",
         "priority": false
       },
       {
         "slug": "paint-correction",
         "title": "Paint Correction",
-        "href": "/services/paint-correction",
         "priority": false
       },
       {
         "slug": "paint-protection-film",
         "title": "Paint Protection Film",
-        "href": "/services/paint-protection-film",
         "priority": false
       }
     ],
