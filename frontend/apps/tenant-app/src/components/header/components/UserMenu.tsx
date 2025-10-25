@@ -163,17 +163,6 @@ const UserMenu: React.FC = () => {
               <Shield className="h-4 w-4 mr-3" />
               Admin Dashboard
             </button>
-            
-            <button
-              onClick={() => { 
-                handleNavigation('/tenant-onboarding'); 
-              }}
-              className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-              role="menuitem"
-            >
-              <Building2 className="h-4 w-4 mr-3" />
-              Tenant Onboarding
-            </button>
           </div>
         )}
       </div>

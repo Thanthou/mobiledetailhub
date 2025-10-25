@@ -1,7 +1,7 @@
 # Import Boundaries Audit Report
 
-**Generated:** 2025-10-25T07:24:35.935Z
-**Duration:** 126ms
+**Generated:** 2025-10-25T22:21:44.818Z
+**Duration:** 101ms
 **Score:** 100/100
 
 ---
@@ -24,7 +24,7 @@ No issues found during this audit.
 
 ## Detailed Log
 
-✅ Found 2521 import statements to analyze
+✅ Found 1896 import statements to analyze
 
 ## App Import Boundaries
 
@@ -41,7 +41,7 @@ No issues found during this audit.
 
 ## Import Statistics
 
-✅ Total imports analyzed: 2521
+✅ Total imports analyzed: 1896
 
 ---
 

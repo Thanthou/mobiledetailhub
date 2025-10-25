@@ -1,7 +1,7 @@
 # Backend Flow Tracer Audit Report
 
-**Generated:** 2025-10-25T21:01:15.883Z
-**Duration:** 345ms
+**Generated:** 2025-10-25T22:21:45.376Z
+**Duration:** 357ms
 **Score:** 58/100
 
 ---

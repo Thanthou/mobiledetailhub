@@ -1,7 +1,7 @@
 # Frontend Routing Audit Report
 
-**Generated:** 2025-10-25T07:24:36.956Z
-**Duration:** 91ms
+**Generated:** 2025-10-25T22:21:45.824Z
+**Duration:** 73ms
 **Score:** 100/100
 
 ---
@@ -34,7 +34,7 @@ No issues found during this audit.
 
 ## Router Context Usage
 
-✅ 21 files use router hooks
+✅ 18 files use router hooks
 ✅ No nested routers detected
 ✅ All router context usage properly wrapped
 

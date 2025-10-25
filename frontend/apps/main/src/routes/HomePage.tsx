@@ -13,7 +13,7 @@ import { useScrollSpy } from '../hooks/useScrollSpy';
 import { useLaunchAnimation } from '../hooks/useLaunchAnimation';
 
 // Lazy load the onboarding page - only loads when needed
-const TenantApplicationPage = lazy(() => import('@shared/components/tenantOnboarding/components/TenantApplicationPage'));
+const TenantApplicationPage = lazy(() => import('@main/components/tenantOnboarding/components/TenantApplicationPage'));
 
 export function HomePage() {
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);

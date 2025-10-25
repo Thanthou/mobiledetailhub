@@ -1,24 +1,27 @@
 # Database Audit Report
 
-**Generated:** 2025-10-25T07:24:35.481Z
-**Duration:** 297ms
-**Score:** 100/100
+**Generated:** 2025-10-25T22:21:44.401Z
+**Duration:** 192ms
+**Score:** 97/100
 
 ---
 
 ## Summary
 
-- ✅ **Passed:** 18
-- ⚠️  **Warnings:** 0
+- ✅ **Passed:** 11
+- ⚠️  **Warnings:** 1
 - ❌ **Errors:** 0
 
 ## Description
 
 Validates database structure, connectivity, and integrity.
 
-## ✅ All Checks Passed!
+## Issues Found
 
-No issues found during this audit.
+### 🟡 Warnings
+
+1. **No schema snapshot found - using minimal validation**
+   - Details: Run: npm run db:snapshot to generate snapshot
 
 ---
 
@@ -37,16 +40,10 @@ No issues found during this audit.
 ## Database Tables
 
 ✅ Found 46 tables across 10 schemas
-✅ analytics schema has all expected tables
-✅ auth schema has all expected tables
-✅ booking schema has all expected tables
-✅ customers schema has all expected tables
-✅ public schema has all expected tables
-✅ reputation schema has all expected tables
-✅ schedule schema has all expected tables
-✅ system schema has all expected tables
+⚠️ **WARNING**: No schema snapshot found - using minimal validation
 ✅ tenants schema has all expected tables
-✅ website schema has all expected tables
+✅ auth schema has all expected tables
+✅ system schema has all expected tables
 ✅ All expected tables present
 
 ## Database Migrations

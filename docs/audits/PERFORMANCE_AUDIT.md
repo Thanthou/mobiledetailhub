@@ -1,24 +1,32 @@
 # Performance Audit Report
 
-**Generated:** 2025-10-25T07:24:44.247Z
-**Duration:** 66ms
-**Score:** 100/100
+**Generated:** 2025-10-25T22:21:51.880Z
+**Duration:** 78ms
+**Score:** 80/100
 
 ---
 
 ## Summary
 
-- ✅ **Passed:** 5
+- ✅ **Passed:** 4
 - ⚠️  **Warnings:** 0
-- ❌ **Errors:** 0
+- ❌ **Errors:** 2
 
 ## Description
 
 Analyzes frontend performance: route loading strategy, bundle sizes, and component complexity.
 
-## ✅ All Checks Passed!
+## Issues Found
 
-No issues found during this audit.
+### 🔴 Critical Errors
+
+1. **Large bundle: index-CsYj9GKf.js (621KB)**
+   - Path: `main\assets\index-CsYj9GKf.js`
+   - Details: Use dynamic imports and code splitting to reduce size
+
+2. **Huge component: db.types.ts (1245 lines)**
+   - Path: `shared\types\generated\db.types.ts`
+   - Details: Split into smaller, focused components for maintainability
 
 ---
 
@@ -32,12 +40,15 @@ No issues found during this audit.
 
 ## Bundle Sizes
 
-✅ Total bundle size: 1.29MB across 48 files
-✅ All bundles under 500KB threshold
+✅ Total bundle size: 1.94MB across 87 files
+❌ **ERROR**: Large bundle: index-CsYj9GKf.js (621KB)
+   - Path: `main\assets\index-CsYj9GKf.js`
 
 ## Component Sizes
 
-✅ Total components: 302
+✅ Total components: 303
+❌ **ERROR**: Huge component: db.types.ts (1245 lines)
+   - Path: `shared\types\generated\db.types.ts`
 
 ---
 

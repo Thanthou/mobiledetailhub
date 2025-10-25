@@ -100,17 +100,6 @@ const DevNavigation: React.FC = () => {
               </button>
               <button
                 onClick={() => {
-                  void navigate('/tenant-onboarding');
-                  setIsAdminOpen(false);
-                }}
-                className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-                role="menuitem"
-              >
-                <Users className="h-4 w-4 mr-3" />
-                Tenant Onboarding
-              </button>
-              <button
-                onClick={() => {
                   void navigate('/preview-generator');
                   setIsAdminOpen(false);
                 }}

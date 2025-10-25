@@ -3,7 +3,6 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 
 import { HomePage } from './routes/HomePage';
 import { DevDashboard } from './routes/DevDashboard';
-import { LoginPage } from './routes/LoginPage';
 import { TenantOnboardingPage } from './routes/TenantOnboardingPage';
 import { PricingPage } from './routes/PricingPage';
 
@@ -59,9 +58,6 @@ export default function MainSiteApp() {
         
         {/* Dev dashboard (temporary) */}
         <Route path="/dev" element={<DevDashboard />} />
-        
-        {/* Authentication */}
-        <Route path="/login" element={<LoginPage />} />
         
         {/* Tenant signup/onboarding */}
         <Route path="/signup" element={<TenantOnboardingPage />} />

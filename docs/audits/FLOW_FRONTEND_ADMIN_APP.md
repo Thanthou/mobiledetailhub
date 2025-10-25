@@ -1,26 +1,26 @@
 # 📊 Frontend Flow Audit - admin-app
 
-**Generated:** 10/25/2025, 2:01:18 PM
+**Generated:** 10/25/2025, 3:45:21 PM
 
-## 🔴 Score: 18/100 (Poor Flow Health)
+## 🟡 Score: 70/100 (Needs Review)
 
 ### Metrics
 
 | Metric | Value |
 |--------|-------|
 | **App Files** | |
-| Total App Files | 61 |
+| Total App Files | 30 |
 | Reachable App Files | 6 |
-| Unreachable App Files | 41 |
+| Unreachable App Files | 15 |
 | **Shared Files** | |
-| Total Shared Files | 280 |
+| Total Shared Files | 249 |
 | Reachable Shared Files | 129 |
-| Unreachable Shared Files | 122 |
+| Unreachable Shared Files | 96 |
 | **Issues** | |
 | Boundary Violations | 0 |
 | Parse Errors | 0 |
 
-## 🔴 Unreachable App Files (41)
+## 🔴 Unreachable App Files (15)
 
 These files in **admin-app** are not imported from the entry point (dead code):
 
@@ -39,34 +39,8 @@ These files in **admin-app** are not imported from the entry point (dead code):
 - apps/admin-app/src/components/adminDashboard/DashboardPage.tsx
 - apps/admin-app/src/components/adminDashboard/hooks/useSeedReview.ts
 - apps/admin-app/src/components/adminDashboard/utils/constants.ts
-- apps/admin-app/src/components/tenantOnboarding/api/api.ts
-- apps/admin-app/src/components/tenantOnboarding/api/onboarding.api.ts
-- apps/admin-app/src/components/tenantOnboarding/api/payments.api.ts
-- apps/admin-app/src/components/tenantOnboarding/components/ApplicationHeader.tsx
-- apps/admin-app/src/components/tenantOnboarding/components/BusinessInformationSection.tsx
-- apps/admin-app/src/components/tenantOnboarding/components/GoogleBusinessProfileModal.tsx
-- apps/admin-app/src/components/tenantOnboarding/components/IdentityContactSection.tsx
-- apps/admin-app/src/components/tenantOnboarding/components/LegalTermsSection.tsx
-- apps/admin-app/src/components/tenantOnboarding/components/LocationInput.tsx
-- apps/admin-app/src/components/tenantOnboarding/components/OperatingBasicsSection.tsx
-- apps/admin-app/src/components/tenantOnboarding/components/PaymentSection.tsx
-- apps/admin-app/src/components/tenantOnboarding/components/PersonalInformationSection.tsx
-- apps/admin-app/src/components/tenantOnboarding/components/PlanSelectionSection.tsx
-- apps/admin-app/src/components/tenantOnboarding/components/ProofOfWorkSection.tsx
-- apps/admin-app/src/components/tenantOnboarding/components/SocialMediaSection.tsx
-- apps/admin-app/src/components/tenantOnboarding/components/StepProgress.tsx
-- apps/admin-app/src/components/tenantOnboarding/components/SubmitSection.tsx
-- apps/admin-app/src/components/tenantOnboarding/components/SuccessPage.tsx
-- apps/admin-app/src/components/tenantOnboarding/components/TenantApplicationPage.tsx
-- apps/admin-app/src/components/tenantOnboarding/components/TenantPrivacyModal.tsx
-- apps/admin-app/src/components/tenantOnboarding/components/TenantTermsModal.tsx
-- apps/admin-app/src/components/tenantOnboarding/hooks/useAutoSave.ts
-- apps/admin-app/src/components/tenantOnboarding/hooks/useFileUpload.ts
-- apps/admin-app/src/components/tenantOnboarding/hooks/useFormHandlers.ts
-- apps/admin-app/src/components/tenantOnboarding/hooks/useLocalDraft.ts
-- apps/admin-app/src/components/tenantOnboarding/utils/validation.ts
 
-## 🟡 Unreachable Shared Files (122)
+## 🟡 Unreachable Shared Files (96)
 
 These shared files are not used by **admin-app** (but may be used by other apps):
 
@@ -91,5 +65,5 @@ These shared files are not used by **admin-app** (but may be used by other apps)
 - src/shared/auth/hooks/useFormValidation.ts
 - src/shared/auth/hooks/useLoginModalPrefetch.ts
 
-... and 102 more
+... and 76 more
 

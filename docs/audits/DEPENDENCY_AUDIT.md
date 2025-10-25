@@ -1,7 +1,7 @@
 # Dependencies Audit Report
 
-**Generated:** 2025-10-25T07:24:44.116Z
-**Duration:** 6502ms
+**Generated:** 2025-10-25T22:21:51.730Z
+**Duration:** 5240ms
 **Score:** 100/100
 
 ---
@@ -36,7 +36,7 @@ No issues found during this audit.
 
 ## Circular Dependencies
 
-✅ Analyzed 923 files
+✅ Analyzed 674 files
 ✅ No circular dependencies detected
 
 ## Hosts File

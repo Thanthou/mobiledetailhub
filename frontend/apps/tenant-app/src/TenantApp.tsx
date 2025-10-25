@@ -6,7 +6,6 @@ import { registerModalImporter, inPreviewMode } from '@shared/utils';
 import { TenantPage } from '@tenant-app/components/header';
 import { LazyRequestQuoteModal } from '@tenant-app/components/quotes';
 import { DashboardPage } from '@tenant-app/components/tenantDashboard';
-import TenantApplicationPage from '@shared/components/tenantOnboarding/components/TenantApplicationPage';
 import { ProtectedRoute } from '@shared/ui';
 import { SEOManager } from '@shared/bootstrap';
 
@@ -80,9 +79,6 @@ function LiveRoutes() {
             <DashboardPage />
           </ProtectedRoute>
         } />
-        
-        {/* Tenant Application */}
-        <Route path="/tenant-onboarding" element={<TenantApplicationPage />} />
         
         {/* Booking route */}
         <Route path="/booking" element={<Booking />} />

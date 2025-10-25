@@ -34,7 +34,7 @@ export function useLaunchAnimation() {
     setShouldLoadOnboarding(true);
     
     // Trigger preload of the route component
-    import('@shared/components/tenantOnboarding/components/TenantApplicationPage').catch(() => {
+    import('@main/components/tenantOnboarding/components/TenantApplicationPage').catch(() => {
       // Silently fail if already loaded
     });
 

@@ -20,7 +20,7 @@ interface MainProvidersProps {
  * Main App Providers
  * 
  * Wraps the main app with necessary context providers.
- * PreviewDataProvider is included for PreviewPage demos, but HomePage doesn't use it.
+ * PreviewDataProvider is included for marketing demos and previews.
  */
 export function MainProviders({ children }: MainProvidersProps) {
   return (

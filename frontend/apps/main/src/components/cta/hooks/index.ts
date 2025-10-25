@@ -1,1 +1,0 @@
-export { useBookingCapabilities } from './useBookingCapabilities';

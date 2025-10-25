@@ -134,14 +134,17 @@ The tenant dashboard includes the following tabs (configurable per tenant):
 **Date:** 2025-10-25
 
 **Changes:**
-1. ✅ Deleted duplicate `frontend/apps/main/src/components/tenantDashboard/`
-2. ✅ Added `/admin` routes alongside `/dashboard` in tenant-app
-3. ✅ No unique features lost (dashboards were 100% identical)
-4. ✅ No breaking changes (all existing `/dashboard` routes still work)
+1. ✅ Deleted duplicate `frontend/apps/main/src/components/tenantDashboard/` (136 files)
+2. ✅ Deleted duplicate `frontend/apps/main/src/components/booking/` (58 files)
+3. ✅ Added `/admin` routes alongside `/dashboard` in tenant-app
+4. ✅ No unique features lost (both duplicates were 100% identical)
+5. ✅ No breaking changes (all existing routes still work)
 
 **Files Changed:**
 - `frontend/apps/tenant-app/src/TenantApp.tsx` (added /admin routes)
-- Deleted: `frontend/apps/main/src/components/tenantDashboard/` (entire folder, 136 files)
+- Deleted: `frontend/apps/main/src/components/tenantDashboard/` (136 files)
+- Deleted: `frontend/apps/main/src/components/booking/` (58 files)
+- Deleted: `frontend/apps/main/src/components/quotes/hooks/useQuoteFormLogic.test.ts` (outdated test)
 
 ## Testing Checklist
 
