@@ -19,15 +19,15 @@ export function getEnvironmentConfig(): EnvironmentConfig {
   if (isDevelopment) {
     return {
       isDevelopment: true,
-      baseDomain: 'lvh.me',
-      port: window.location.port || '5175'
+      baseDomain: env.TENANT_BASE_DOMAIN_DEV,
+      port: env.TENANT_APP_PORT
     };
   }
   
   // Production configuration
   return {
     isDevelopment: false,
-    baseDomain: 'thatsmartsite.com',
+    baseDomain: env.TENANT_BASE_DOMAIN_PROD,
     port: undefined // No port needed in production
   };
 }

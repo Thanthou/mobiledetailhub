@@ -8,7 +8,9 @@ import { env } from '../env';
 import type { Vertical } from '../types/tenant.types';
 import type { Business, BusinessResponse } from '../types/tenant-business.types';
 
-const API_BASE_URL = env.VITE_API_URL || ''; // Empty string uses relative URLs (Vite proxy)
+// In development with subdomains, always use absolute URLs to backend
+// The Vite proxy only works on localhost, not on subdomains
+const API_BASE_URL = env.DEV ? 'http://localhost:3001' : '';
 
 // Re-export types for convenience
 export type { Business, BusinessResponse } from '../types/tenant-business.types';
@@ -98,7 +100,9 @@ export async function fetchTenantBySlug(slug: string): Promise<TenantApiResponse
  * Used by DataContext - returns Business type with BusinessResponse wrapper
  */
 export async function fetchBusinessBySlug(slug: string): Promise<Business> {
-  const response = await fetch(`${API_BASE_URL}/api/tenants/${slug}`);
+  const url = `${API_BASE_URL}/api/tenants/${slug}`;
+  
+  const response = await fetch(url);
   
   if (!response.ok) {
     throw new Error('Failed to fetch business data');

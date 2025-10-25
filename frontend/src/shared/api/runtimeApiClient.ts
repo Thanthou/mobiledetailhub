@@ -80,6 +80,11 @@ export function getRuntimeApiBaseUrl(runtimeConfig?: RuntimeConfig): string {
       return ''; // Use relative URLs for same-domain requests
     }
     
+    // Development tenant subdomains (e.g., demo-mobile-detail.tenant.localhost)
+    if (hostname.includes('tenant.localhost')) {
+      return ''; // Use relative URLs (Vite proxy will handle)
+    }
+    
     // Staging or custom domains
     if (hostname !== 'localhost' && !hostname.startsWith('127.0.0.1')) {
       return `https://${hostname}`;

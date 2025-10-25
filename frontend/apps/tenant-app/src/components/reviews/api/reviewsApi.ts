@@ -1,7 +1,9 @@
 // Reviews API client
 import type { DatabaseReview, ReviewQueryParams, ReviewsResponse } from '../types';
+import { env } from '@shared/env';
 
-const API_BASE_URL = '/api/reviews';
+// Use absolute URL in development for subdomain support
+const API_BASE_URL = env.DEV ? 'http://localhost:3001/api/reviews' : '/api/reviews';
 
 export const reviewsApi = {
   // Get reviews with filtering

@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "slug": "demo-mobile-detail",
+  "industry": "mobile-detailing",
+  "business_name": "Elite Mobile Detailing",
+  "business_email": "contact@elitemobiledetail.com",
+  "business_phone": "(555) 123-4567",
+  "first_name": "Mike",
+  "last_name": "Johnson",
+  "personal_email": "mike@elitemobiledetail.com",
+  "personal_phone": "(555) 987-6543",
+  "password": "DemoPassword123!",
+  "service_area_city": "Austin",
+  "service_area_state": "TX",
+  "service_area_zip": "78701",
+  "facebook_url": "https://facebook.com/elitemobiledetailing",
+  "instagram_url": "https://instagram.com/elitemobiledetailing",
+  "tiktok_url": "https://tiktok.com/@elitemobiledetailing",
+  "youtube_url": "https://youtube.com/@elitemobiledetailing"
+}
+

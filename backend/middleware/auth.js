@@ -81,7 +81,7 @@ const authenticateToken = async (req, res, next) => {
       path: req.path
     });
     
-    next();
+    return next();
   } catch (error) {
     if (error.message === 'Access token expired') {
       logger.debug('Access token expired', { 
@@ -106,6 +106,16 @@ const authenticateToken = async (req, res, next) => {
         code: 'INVALID_TOKEN',
         message: 'The provided token is not valid'
       });
+    }
+    
+    // Check if response was already sent
+    if (res.headersSent) {
+      logger.error('Cannot send auth error response - headers already sent:', { 
+        error: error?.message || String(error),
+        path: req.path, 
+        method: req.method
+      });
+      return;
     }
     
     logger.error('Authentication error:', { 

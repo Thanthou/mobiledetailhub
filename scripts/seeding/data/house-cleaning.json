@@ -1,0 +1,17 @@
+{
+  "enabled": false,
+  "slug": "demo-sparkle-clean",
+  "industry": "house-cleaning",
+  "business_name": "Sparkle & Shine Cleaning",
+  "business_email": "hello@sparkleshineusa.com",
+  "business_phone": "(555) 234-5678",
+  "first_name": "Sarah",
+  "last_name": "Martinez",
+  "personal_email": "sarah@sparkleshineusa.com",
+  "personal_phone": "(555) 876-5432",
+  "password": "DemoPassword123!",
+  "service_area_city": "Denver",
+  "service_area_state": "CO",
+  "service_area_zip": "80202"
+}
+

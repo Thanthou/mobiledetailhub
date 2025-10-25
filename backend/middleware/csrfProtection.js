@@ -41,6 +41,8 @@ const getAllowedOrigins = () => {
     // Dev hub proxy
     'http://localhost:8080',
     'http://127.0.0.1:8080',
+    // Allow tenant subdomains in development
+    /^http:\/\/[a-zA-Z0-9-]+\.tenant\.localhost:5177$/,
     // Allow network IPs for mobile testing
     /^http:\/\/192\.168\.\d{1,3}\.\d{1,3}:(5175|5176|5177|8080)$/
   ];

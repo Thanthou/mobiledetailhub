@@ -1,15 +1,47 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
-import { useSEO, useTenantSlug } from '@shared/hooks';
+import { useFavicon, useSEO, useScrollSpy, useTenantSlug } from '@shared/hooks';
+import { useData } from '@shared/hooks/useData';
+import { setPageTitle } from '@shared/utils';
+
+// Import tenant site components
+import Header from '../components/header/components/Header';
+import Hero from '../components/hero/components/Hero';
+import ServicesGrid from '../components/services/components/ServicesGrid';
+import Reviews from '../components/reviews/components/Reviews';
+import FAQ from '../components/faq/components/FAQ';
+import Gallery from '../components/gallery/components/Gallery';
+import Footer from '../components/footer/components/Footer';
 
 interface HomePageProps {
   onRequestQuote?: () => void;
   locationData?: unknown;
 }
 
-const HomePage: React.FC<HomePageProps> = ({ onRequestQuote, locationData }) => {
+const HomePage: React.FC<HomePageProps> = ({ onRequestQuote }) => {
   // Resolve tenant slug (domain or params). If undefined, we are on platform main site.
   const tenantSlug = useTenantSlug();
+  
+  // Get tenant data for industry/branding
+  const { industry, businessName } = useData();
+
+  // Set industry-specific favicon
+  useFavicon(industry);
+  
+  // Track scroll position for header navigation
+  useScrollSpy({
+    ids: ['top', 'services', 'services-desktop', 'reviews', 'faq', 'gallery', 'gallery-desktop', 'footer'],
+    headerPx: 88,
+    threshold: 0.55,
+    updateHash: false,
+  });
+  
+  // Update page title with business name
+  useEffect(() => {
+    if (businessName && businessName !== 'Loading...') {
+      setPageTitle(businessName);
+    }
+  }, [businessName]);
 
   // Update basic SEO for the platform page. Avoid heavy tenant-dependent hooks/components here.
   useSEO();
@@ -55,15 +87,32 @@ const HomePage: React.FC<HomePageProps> = ({ onRequestQuote, locationData }) => 
     );
   }
 
-  // For tenant slugs, keep this page minimal and let tenant routes/pages handle rich content.
-  // We intentionally avoid importing tenant-app components here to respect app boundaries.
+  // Render full tenant site with all components
+  const handleRequestQuote = onRequestQuote || (() => { /* noop */ });
+  
   return (
-    <div className="min-h-screen bg-white">
-      <div className="container mx-auto px-4 py-16">
-        <h1 className="text-3xl font-bold mb-4">{tenantSlug}</h1>
-        <p className="text-gray-700">Tenant site is loading. Navigate directly to the tenant subdomain route.</p>
-      </div>
-    </div>
+    <>
+      <Header />
+      <main className="snap-container overflow-y-scroll h-screen snap-y snap-mandatory scrollbar-hide">
+        <Hero onRequestQuote={handleRequestQuote} />
+        <ServicesGrid />
+        <Reviews />
+        <FAQ />
+        
+        {/* Gallery renders its own sections (mobile: separate Gallery + Footer, desktop: combined) */}
+        <Gallery onRequestQuote={handleRequestQuote} />
+        
+        {/* Mobile-only Footer section */}
+        <section 
+          id="footer" 
+          className="md:hidden relative snap-start snap-always bg-theme-background"
+        >
+          <div className="pt-[72px] py-12">
+            <Footer onRequestQuote={handleRequestQuote} />
+          </div>
+        </section>
+      </main>
+    </>
   );
 };
 

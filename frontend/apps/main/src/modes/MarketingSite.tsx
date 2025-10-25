@@ -23,6 +23,7 @@ import ServicesGrid from '../components/services/components/ServicesGrid';
 import Reviews from '../components/reviews/components/Reviews';
 import FAQ from '../components/faq/components/FAQ';
 import Gallery from '../components/gallery/components/Gallery';
+import Footer from '../components/footer/components/Footer';
 
 export function MarketingSite() {
   const { isLoading, previewConfig, industry } = usePreviewData();
@@ -66,6 +67,16 @@ export function MarketingSite() {
         <Reviews />
         <FAQ />
         <Gallery onRequestQuote={handleOpenQuoteModal} />
+        
+        {/* Footer - standalone section */}
+        <section 
+          id="footer" 
+          className="relative snap-start snap-always bg-stone-900 min-h-screen flex items-center"
+        >
+          <div className="w-full pt-[88px] py-12">
+            <Footer onRequestQuote={handleOpenQuoteModal} />
+          </div>
+        </section>
       </main>
       
       {/* Quote Modal */}

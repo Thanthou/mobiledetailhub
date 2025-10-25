@@ -2,7 +2,6 @@ import { Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { DashboardPage as AdminDashboard } from './components/adminDashboard';
-import { PreviewGeneratorPage, PreviewPage } from '@shared/components/preview';
 import { LoginPage, ProtectedRoute } from '@shared/ui';
 import { SEOManager } from '@shared/bootstrap';
 
@@ -22,10 +21,6 @@ export default function AdminApp() {
             <AdminDashboard />
           </ProtectedRoute>
         } />
-        
-        {/* Preview routes */}
-        <Route path="/preview-generator" element={<PreviewGeneratorPage />} />
-        <Route path="/preview/:tenantSlug" element={<PreviewPage />} />
         
         {/* Catch all - redirect to admin dashboard */}
         <Route path="*" element={<Navigate to="/admin-dashboard" replace />} />

@@ -43,6 +43,11 @@ export const env = {
   DEV: isDevelopment,
   PROD: isProduction,
   
+  // Tenant App URLs
+  TENANT_APP_PORT: getEnv('VITE_TENANT_APP_PORT', '5177'),
+  TENANT_BASE_DOMAIN_DEV: getEnv('VITE_TENANT_BASE_DOMAIN_DEV', 'tenant.localhost'),
+  TENANT_BASE_DOMAIN_PROD: getEnv('VITE_TENANT_BASE_DOMAIN_PROD', 'thatsmartsite.com'),
+  
   // Add other env vars as needed
   // STRIPE_KEY: getEnv('VITE_STRIPE_PUBLISHABLE_KEY'),
   // GOOGLE_MAPS_KEY: getEnv('VITE_GOOGLE_MAPS_API_KEY'),

@@ -8,7 +8,7 @@
 import React, { useState } from 'react';
 
 import { FAQ } from '@shared/components/faq';
-import { Gallery } from '@shared/components/gallery';
+// Note: Gallery removed - use app-specific implementations
 import { Header } from '@shared/components/header';
 import { Hero } from '@shared/components/hero';
 import { LazyRequestQuoteModal } from '@shared/components/quotes';
@@ -85,7 +85,7 @@ const PreviewPage: React.FC = () => {
         <ServicesGrid />
         <Reviews />
         <FAQ />
-        <Gallery onRequestQuote={handleOpenQuoteModal} />
+        {/* Gallery removed - use app-specific implementations */}
       </div>
       
       {/* Quote Modal */}

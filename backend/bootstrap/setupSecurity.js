@@ -39,9 +39,38 @@ export function setupSecurity(app) {
     env.ADMIN_URL,
   ].filter(Boolean);
 
+  // CORS origin checker (allows tenant subdomains in development)
+  const corsOriginChecker = (origin, callback) => {
+    // No origin (same-origin requests)
+    if (!origin) {
+      return callback(null, true);
+    }
+    
+    // Check exact matches
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // In development, allow tenant subdomains
+    if (env.NODE_ENV === 'development' || env.NODE_ENV === 'dev') {
+      // Allow *.tenant.localhost:5177
+      if (/^http:\/\/[a-zA-Z0-9-]+\.tenant\.localhost:5177$/.test(origin)) {
+        return callback(null, true);
+      }
+    }
+    
+    // Production: allow *.thatsmartsite.com
+    if (/^https:\/\/[a-zA-Z0-9-]+\.thatsmartsite\.com$/.test(origin)) {
+      return callback(null, true);
+    }
+    
+    // Block all other origins
+    callback(new Error('Not allowed by CORS'));
+  };
+
   app.use(
     cors({
-      origin: allowedOrigins,
+      origin: corsOriginChecker,
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token'],

@@ -1,0 +1,17 @@
+{
+  "enabled": false,
+  "slug": "demo-green-lawns",
+  "industry": "lawn-care",
+  "business_name": "Green Lawns Pro",
+  "business_email": "info@greenlawnspro.com",
+  "business_phone": "(555) 345-6789",
+  "first_name": "Tom",
+  "last_name": "Green",
+  "personal_email": "tom@greenlawnspro.com",
+  "personal_phone": "(555) 765-4321",
+  "password": "DemoPassword123!",
+  "service_area_city": "Charlotte",
+  "service_area_state": "NC",
+  "service_area_zip": "28202"
+}
+

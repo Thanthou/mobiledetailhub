@@ -200,7 +200,7 @@ const criticalAdminLimiter = (req, res, next) => {
 };
 
 // General API rate limiting for other routes - DISABLED for development
-const apiLimiter = rateLimit({
+const apiLimiterBase = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 10000, // Extremely high limit - effectively disabled
   skipSuccessfulRequests: true, // Don't count successful requests against rate limit
@@ -229,6 +229,19 @@ const apiLimiter = rateLimit({
     });
   }
 });
+
+// Wrapper to preserve req.params (express-rate-limit bug workaround)
+const apiLimiter = (req, res, next) => {
+  const savedParams = { ...req.params };
+  apiLimiterBase(req, res, (err) => {
+    // Restore params after rate limiter
+    if (savedParams && Object.keys(savedParams).length > 0) {
+      req.params = savedParams;
+    }
+    if (err) return next(err);
+    next();
+  });
+};
 
 // Analytics ingest endpoint rate limiting
 // More permissive than auth but still prevents abuse

@@ -1,10 +1,5 @@
 import React, { useRef, useState } from 'react';
 
-// Gallery section includes footer as part of its display
-// This is intentional and part of the gallery feature's design
-// eslint-disable-next-line no-restricted-imports -- Gallery displays footer as bottom half of section
-import { Footer } from '@main/components/footer';
-
 import { useGallery } from '../hooks/useGallery';
 import { useRotatingGallery } from '../hooks/useRotatingGallery';
 import { GalleryProps } from '../types';
@@ -136,19 +131,10 @@ const Gallery: React.FC<GalleryProps> = ({ onRequestQuote, locationData: _locati
         </div>
       </section>
 
-      {/* MOBILE: Separate footer section */}
-      <section id="footer" className="md:hidden relative snap-start snap-always bg-stone-900">
-        <div className="pt-[72px] py-12">
-        <Footer onRequestQuote={onRequestQuote || (() => { /* noop */ })} />
-        </div>
-      </section>
-
-      {/* DESKTOP: Combined gallery + footer in one section (original) */}
+      {/* DESKTOP: Full-screen gallery section */}
       <section id="gallery-desktop" className="hidden md:block relative h-screen snap-start snap-always overflow-hidden bg-stone-900">
         <div className="h-full pt-[88px]">
-        <div className="relative z-10 h-full px-4 pt-20">
-          {/* Top Half - Gallery */}
-          <div className="h-1/2 flex items-center justify-center px-4 sm:px-6 lg:px-8 relative">
+          <div className="relative z-10 h-full px-4 pt-20 flex items-center justify-center">
             {rotatingLoading ? (
               <div className="flex items-center justify-center">
                 <div className="text-stone-400">Loading gallery...</div>
@@ -162,7 +148,7 @@ const Gallery: React.FC<GalleryProps> = ({ onRequestQuote, locationData: _locati
                 <div className="text-stone-400">No images available</div>
               </div>
             ) : (
-              <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 lg:gap-6 w-full">
+              <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 lg:gap-6 w-full max-w-7xl">
                 {currentImages.map((image, index) => (
                   <RotatingGalleryItem 
                     key={image.id} 
@@ -175,12 +161,6 @@ const Gallery: React.FC<GalleryProps> = ({ onRequestQuote, locationData: _locati
               </ul>
             )}
           </div>
-
-          {/* Bottom Half - Footer Content */}
-          <div className="h-1/2 flex flex-col justify-center border-t border-stone-700">
-            <Footer onRequestQuote={onRequestQuote || (() => { /* noop */ })} />
-          </div>
-        </div>
         </div>
       </section>
     </>

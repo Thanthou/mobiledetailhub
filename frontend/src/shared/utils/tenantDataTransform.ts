@@ -83,7 +83,7 @@ export function transformSocialMedia(business: Business): SocialMediaLinks {
  * ```
  */
 export function getPrimaryLocation(business: Business): string {
-  if (business.service_areas.length === 0) {
+  if (!business.service_areas || business.service_areas.length === 0) {
     return '';
   }
   

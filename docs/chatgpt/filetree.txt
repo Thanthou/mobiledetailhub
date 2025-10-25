@@ -40,11 +40,7 @@
       📄 tenantDashboardController.js
    📁 database/
       📄 pool.js
-   📁 docs/
-      📁 audits/
-         📄 FLOW_AUDIT.md
-      📄 TENANT_DASHBOARD_BRIDGE.md
-      📄 UNIFIED_ERROR_LOGGING_SYSTEM.md
+   📄 jest.config.js
    📁 legacy/
       📄 server.pre-rebuild.js
    📁 middleware/
@@ -108,6 +104,7 @@
       📄 healthMonitoring.js
       📄 locations.js
       📄 payments.js
+      📄 performance.js
       📄 previews.js
       📄 reviews.js
       📄 schedule.js
@@ -124,6 +121,7 @@
       📁 __tests__/
          📄 .eslintrc.js
          📄 analytics.access.test.js
+         📄 auth.integration.test.js
          📄 seo.test.js
    📁 schemas/
       📄 apiSchemas.js
@@ -153,9 +151,16 @@
       📄 welcome.html
    📄 test-db-connection.cjs
    📁 tests/
+      📄 envFailFast.test.js
+      📁 setup/
+         📄 testApp.js
+      📄 tenantDashboard.test.js
       📄 tenantResolution.test.js
       📄 test-affiliate-endpoint.js
       📄 test-affiliate-security.js
+      📁 unit/
+         📄 dateFilter.test.js
+      📄 verify-env-guard.js
    📁 uploads/
       📁 avatars/
 
@@ -164,6 +169,7 @@
       📄 avatarUtils.js
       📄 errorMonitor.js
       📄 logger.js
+      📄 perfMonitor.js
       📄 previewToken.js
       📄 responseFormatter.js
       📄 serviceAreaProcessor.js
@@ -220,6 +226,7 @@
       📄 SCHEMA_COVERAGE_AUDITOR.md
       📄 SCHEMA_VERIFICATION_REPORT.md
       📄 SECURITY_AUDIT.md
+      📄 SECURITY_IMPROVEMENTS_2025-10-24.md
       📄 SEO_AUDIT.md
       📄 SEO_AUDIT_REPORT.md
       📄 SEO_CURSOR_ANCHORING.md
@@ -245,6 +252,11 @@
       📄 BOOTSTRAP_FINAL_SUMMARY.md
       📄 BOOTSTRAP_REFACTOR_COMPLETE.md
       📄 DATACONTEXT_REFACTOR.md
+      📁 docs/
+         📁 audits/
+            📄 FLOW_AUDIT.md
+         📄 TENANT_DASHBOARD_BRIDGE.md
+         📄 UNIFIED_ERROR_LOGGING_SYSTEM.md
       📄 ENV_FAIL_FAST_FIX.md
       📁 migrations/
          📄 MIGRATION_OVERVIEW.md
@@ -614,6 +626,7 @@
                   📁 hooks/
                      📄 useHeroContent.ts
                   📄 index.ts
+               📄 LaunchOverlay.tsx
                📁 locations/
                   📁 api/
                      📄 locations.api.ts
@@ -693,6 +706,7 @@
                   📁 utils/
                      📄 index.ts
                      📄 reviewUtils.ts
+               📄 RocketPeelTransition.tsx
                📄 RuntimeConfigTest.tsx
                📁 sections/
                   📄 ContactSection.tsx
@@ -897,6 +911,8 @@
                      📄 constants.ts
                      📄 index.ts
                      📄 tenantEvents.ts
+            📁 contexts/
+
             📁 features/
 
             📁 features-experimental/
@@ -904,6 +920,7 @@
             📁 features-wip/
                📄 README.md
             📁 hooks/
+               📄 useLaunchAnimation.ts
                📄 useScrollSpy.ts
             📄 main.tsx
             📄 MainApp.tsx
@@ -1529,16 +1546,7 @@
 
             📁 video/
 
-         📁 lawncare/
-            📁 data/
-
-            📁 icons/
-
-            📁 images/
-
-            📁 video/
-
-         📁 maid-service/
+         📁 house-cleaning/
             📁 data/
 
             📁 icons/
@@ -1549,6 +1557,15 @@
                📁 hero/
 
                📁 services/
+
+            📁 video/
+
+         📁 lawncare/
+            📁 data/
+
+            📁 icons/
+
+            📁 images/
 
             📁 video/
 
@@ -1621,23 +1638,22 @@
                📄 index.ts
             📄 README.md
             📄 seo-defaults.json
-         📄 index.ts
-         📁 lawncare/
-            📄 assets.json
-            📄 content-defaults.json
+         📁 house-cleaning/
             📁 defaults/
+               📄 assets.json
                📄 content.json
                📄 faq.json
                📄 metadata.json
                📄 services.json
             📄 index.ts
             📁 preview/
-               📄 defaults.json
+               📄 assets.json
+               📄 content.json
                📄 index.ts
             📄 seo-defaults.json
-            📁 _archive/
-
-         📁 maid-service/
+            📄 theme.json
+         📄 index.ts
+         📁 lawncare/
             📄 assets.json
             📄 content-defaults.json
             📁 defaults/
@@ -1746,6 +1762,7 @@
                📄 paint-correction.json
                📄 ppf.json
                📄 rv-detailing.json
+            📄 theme.json
             📁 vehicle_data/
                📄 AirplaneMakeModel.json
                📄 BoatMakeModel.json
@@ -1772,6 +1789,8 @@
          📄 preview-loader.ts
          📄 preview-types.ts
          📄 README.md
+         📁 shared/
+            📄 mock-reviews.json
       📄 env.d.ts
       📄 index.css
       📁 shared/
@@ -2101,6 +2120,7 @@
          📁 config/
             📄 api.ts
             📄 env.ts
+            📄 pricing.ts
          📁 constants/
             📄 externalUrls.ts
             📄 index.ts
@@ -2114,6 +2134,7 @@
             📄 SiteContext.tsx
             📄 TenantConfigContext.tsx
             📄 TenantContext.tsx
+            📄 ThemeProvider.tsx
             📄 WebsiteContentContext.tsx
          📁 data/
             📄 states.ts
@@ -2205,6 +2226,12 @@
             📄 sectionStore.ts
          📁 testing/
             📄 README.md
+         📁 themes/
+            📄 ecofriendly.json
+            📄 housecleaning.json
+            📄 premium.json
+            📄 README.md
+            📄 sunset.json
          📁 types/
             📄 business.ts
             📄 gallery.types.ts
@@ -2298,6 +2325,7 @@
             📄 tenantConfigMigration.ts
             📄 tenantDataTransform.ts
             📄 tenantEventManager.ts
+            📄 themeLoader.ts
             📄 urlGenerator.ts
             📄 validateLocationData.ts
             📄 validation.ts
@@ -2320,8 +2348,6 @@
          📁 __tests__/
             📄 README.md
             📄 setup.ts
-      📁 tenant-app/
-         📄 main.tsx
       📁 types/
          📄 global.d.ts
          📄 google-maps.d.ts

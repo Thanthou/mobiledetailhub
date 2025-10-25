@@ -20,7 +20,7 @@ import ServicesGrid from '../components/services/components/ServicesGrid';
 import Reviews from '../components/reviews/components/Reviews';
 import FAQ from '../components/faq/components/FAQ';
 import Gallery from '../components/gallery/components/Gallery';
-// Note: Footer is included inside Gallery component, no need to import separately
+import Footer from '../components/footer/components/Footer';
 
 /**
  * Preview Page - Incremental Component Build
@@ -110,7 +110,16 @@ export function PreviewPage() {
         <Reviews />
         <FAQ />
         <Gallery />
-        {/* Note: Footer is included inside Gallery component */}
+        
+        {/* Footer - standalone section */}
+        <section 
+          id="footer" 
+          className="relative snap-start snap-always bg-stone-900 min-h-screen flex items-center"
+        >
+          <div className="w-full pt-[88px] py-12">
+            <Footer onRequestQuote={handleOpenQuoteModal} />
+          </div>
+        </section>
       </main>
       
       {/* Quote Modal - Lazy loaded */}

@@ -1,33 +1,21 @@
 import React from 'react';
 
-import { useData, useTenantConfigLoader } from '@shared/hooks';
+import { useData } from '@shared/hooks';
 import { getIndustryLogo, getIndustryLogoAlt } from '@shared/utils';
 
 const Logo: React.FC = () => {
-  const { industry, isLoading: isDataLoading, isPreview } = useData();
-  
-  // Only fetch tenant config in live mode (not preview)
-  const { data: tenantConfig, isLoading: isConfigLoading } = useTenantConfigLoader({
-    enabled: !isPreview,
-  });
-  
-  const isLoading = isDataLoading || (!isPreview && isConfigLoading);
+  const { industry, isLoading } = useData();
   
   const handleClick = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
   
-  // Simple: get logo based on mode
-  const src = isPreview
-    ? getIndustryLogo(industry) // Preview: industry logo
-    : tenantConfig?.branding.logo.url || getIndustryLogo(industry); // Live: tenant logo or fallback
-  
-  const alt = isPreview
-    ? getIndustryLogoAlt(industry)
-    : tenantConfig?.branding.businessName || getIndustryLogoAlt(industry);
+  // Use industry logo (simpler, no config dependency)
+  const src = getIndustryLogo(industry);
+  const alt = getIndustryLogoAlt(industry);
 
-  // During loading (including HMR), show a minimal placeholder
-  if (isLoading && !src) {
+  // During loading, show a minimal placeholder
+  if (isLoading || !industry) {
     return (
       <div className="h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 lg:h-16 lg:w-16 bg-gray-200 animate-pulse rounded flex-shrink-0" />
     );

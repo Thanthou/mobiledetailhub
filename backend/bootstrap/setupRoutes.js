@@ -32,7 +32,12 @@ import performanceRoutes from '../routes/performance.js';
 
 export function setupRoutes(app) {
   // Rate limiting for all API routes EXCEPT health (health must be fast for probes)
+  // DISABLED in development to prevent double-count errors
   app.use('/api', (req, res, next) => {
+    // Skip rate limiting entirely in development
+    if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'dev') {
+      return next();
+    }
     // Skip rate limiting for health endpoints
     if (req.path.startsWith('/health')) {
       return next();

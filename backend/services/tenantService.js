@@ -33,9 +33,21 @@ export async function getTenantBySlug(slug) {
         b.updated_at,
         b.business_email,
         b.business_phone,
+        b.personal_email,
+        b.personal_phone,
         b.owner,
         b.first_name,
-        b.last_name
+        b.last_name,
+        b.service_areas,
+        b.facebook_url,
+        b.instagram_url,
+        b.youtube_url,
+        b.tiktok_url,
+        b.gbp_url,
+        b.facebook_enabled,
+        b.instagram_enabled,
+        b.youtube_enabled,
+        b.tiktok_enabled
       FROM tenants.business b
       WHERE b.slug = $1 
         AND b.application_status = 'approved'
