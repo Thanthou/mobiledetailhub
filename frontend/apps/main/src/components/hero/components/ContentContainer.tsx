@@ -1,7 +1,5 @@
 import React from 'react';
 
-import { ReviewsSummary } from '@shared/ui';
-
 import CTA from './CTA';
 import TextDisplay from './TextDisplay';
 
@@ -26,10 +24,7 @@ const ContentContainer: React.FC<ContentContainerProps> = ({
         className="mb-0 sm:mb-8" 
       />
       <CTA onRequestQuote={onRequestQuote} />
-      <ReviewsSummary 
-        variant="compact" 
-        className="mt-0 sm:mt-6 text-base sm:text-lg md:text-xl" 
-      />
+      {/* ReviewsSummary removed - main-app doesn't have reviews yet */}
     </div>
   );
 };

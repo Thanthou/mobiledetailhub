@@ -2,7 +2,7 @@ import React from 'react';
 
 import { NAV_LINKS } from '@tenant-app/components/header/utils/constants';
 import { handleSectionClick } from '@tenant-app/components/header/utils/navigation';
-import { useReviewsAvailability } from '@shared/hooks';
+import { useReviewsAvailability } from '@tenant-app/components/reviews/hooks';
 
 interface NavigationProps {
   activeSection: string;

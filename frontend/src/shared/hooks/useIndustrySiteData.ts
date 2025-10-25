@@ -1,4 +1,4 @@
-import { useData } from '@shared/components/header/contexts/DataProvider';
+import { useData } from '@shared/hooks/useData';
 import type { MainSiteConfig } from '@shared/types/location';
 
 /**

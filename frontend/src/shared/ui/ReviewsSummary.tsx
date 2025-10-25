@@ -1,48 +1,23 @@
 import React from 'react';
 import { Star, Users } from 'lucide-react';
 
-import { useReviewsRating } from '@shared/components/reviews/hooks';
 import { useDataOptional } from '@shared/hooks/useData';
-import { useReviewsAvailability } from '@shared/hooks/useReviewsAvailability';
 import type { ReviewsSummaryProps } from '@shared/types/reviews';
 
 const ReviewsSummary: React.FC<ReviewsSummaryProps> = ({ 
-  averageRating: propAverageRating, 
-  totalReviews: propTotalReviews,
-  googleBusinessUrl: propGoogleBusinessUrl,
+  averageRating, 
+  totalReviews,
+  googleBusinessUrl,
   className = '',
   variant = 'default'
 }) => {
   // Check if in preview mode
   const data = useDataOptional();
   const isPreview = data?.isPreview || false;
-  
-  // Check if reviews are available (unless in preview mode)
-  const hasReviews = useReviewsAvailability();
-  
-  // Get data from database (with fallbacks to site.json)
-  const dbData = useReviewsRating();
-  
-  // Use props if provided, otherwise use database/site data
-  // Ensure averageRating is a number (convert if string)
-  const averageRating = typeof propAverageRating === 'number' 
-    ? propAverageRating 
-    : (typeof dbData.averageRating === 'number' 
-      ? dbData.averageRating 
-      : parseFloat(String(dbData.averageRating)) || 4.9);
-      
-  // Ensure totalReviews is a number (convert if string)
-  const totalReviews = typeof propTotalReviews === 'number'
-    ? propTotalReviews
-    : (typeof dbData.totalReviews === 'number'
-      ? dbData.totalReviews
-      : parseInt(String(dbData.totalReviews), 10) || 112);
-      
-  const googleBusinessUrl = propGoogleBusinessUrl ?? dbData.googleBusinessUrl;
   const isCompact = variant === 'compact';
   
-  // Don't render if there are no reviews (unless in preview mode)
-  if (!isPreview && !hasReviews) {
+  // Don't render if no data provided
+  if (!averageRating || !totalReviews) {
     return null;
   }
   

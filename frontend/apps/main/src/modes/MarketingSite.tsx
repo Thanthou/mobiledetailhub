@@ -20,7 +20,6 @@ const LazyRequestQuoteModal = lazy(() => import('../components/quotes/components
 import Header from '../components/header/components/Header';
 import Hero from '../components/hero/components/Hero';
 import ServicesGrid from '../components/services/components/ServicesGrid';
-import Reviews from '../components/reviews/components/Reviews';
 import FAQ from '../components/faq/components/FAQ';
 import Gallery from '../components/gallery/components/Gallery';
 import Footer from '../components/footer/components/Footer';
@@ -34,7 +33,7 @@ export function MarketingSite() {
   
   // Track which section is currently visible for header navigation
   useScrollSpy({
-    ids: ['top', 'services', 'services-desktop', 'reviews', 'faq', 'gallery', 'gallery-desktop', 'footer'],
+    ids: ['top', 'services', 'services-desktop', 'faq', 'gallery', 'gallery-desktop', 'footer'],
     headerPx: 88,
     threshold: 0.55,
     updateHash: false,
@@ -64,7 +63,7 @@ export function MarketingSite() {
       <main className="snap-container overflow-y-scroll h-screen snap-y snap-mandatory scrollbar-hide">
         <Hero onRequestQuote={handleOpenQuoteModal} />
         <ServicesGrid />
-        <Reviews />
+        {/* Reviews removed - main-app doesn't have reviews */}
         <FAQ />
         <Gallery onRequestQuote={handleOpenQuoteModal} />
         

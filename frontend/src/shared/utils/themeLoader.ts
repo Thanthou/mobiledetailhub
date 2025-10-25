@@ -87,8 +87,6 @@ export function applyTheme(theme: Theme): void {
   
   // Store current theme name as data attribute
   root.setAttribute('data-theme', theme.name);
-  
-  console.log(`✅ Applied theme: ${theme.displayName}`);
 }
 
 /**

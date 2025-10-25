@@ -72,7 +72,7 @@ export {
 export { useVehicleData } from './useVehicleData';
 
 // Reviews availability hook
-export { useReviewsAvailability } from './useReviewsAvailability';
+// useReviewsAvailability moved to tenant-app (reviews are tenant-specific)
 
 // Router debug hook
 export { useRouterDebug } from './useRouterDebug';

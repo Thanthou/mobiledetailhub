@@ -3,7 +3,7 @@ import { Menu, X } from 'lucide-react';
 
 import { NAV_LINKS } from '@tenant-app/components/header/utils/constants';
 import { handleSectionClick } from '@tenant-app/components/header/utils/navigation';
-import { useReviewsAvailability } from '@shared/hooks';
+import { useReviewsAvailability } from '@tenant-app/components/reviews/hooks';
 import { getNavId,useSectionStore } from '@shared/state/sectionStore';
 
 import BusinessInfo from './BusinessInfo';

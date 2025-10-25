@@ -16,7 +16,6 @@ const router = express.Router();
  * Query params: tenant_slug, limit, offset
  */
 router.get('/', validateQuery(reviewSchemas.list), async (req, res) => {
-  logger.info('Reviews GET route hit with query:', req.query);
   try {
     const pool = await getPool();
     const {
@@ -28,21 +27,23 @@ router.get('/', validateQuery(reviewSchemas.list), async (req, res) => {
     let query = `
       SELECT 
         r.id,
-        r.tenant_slug,
-        r.customer_name,
+        r.tenant_id,
+        b.slug as tenant_slug,
         r.rating,
-        r.comment,
-        r.reviewer_url,
-        r.vehicle_type,
-        r.paint_correction,
-        r.ceramic_coating,
-        r.paint_protection_film,
+        r.title,
+        r.content,
+        r.is_verified,
+        r.is_featured,
+        r.is_public,
+        r.status,
         r.source,
-        r.avatar_filename,
+        r.external_id,
+        r.external_url,
         r.created_at,
         r.updated_at,
         r.published_at
       FROM reputation.reviews r
+      INNER JOIN tenants.business b ON r.tenant_id = b.id
     `;
 
     const queryParams = [];
@@ -50,7 +51,7 @@ router.get('/', validateQuery(reviewSchemas.list), async (req, res) => {
 
     // Add tenant filter if provided
     if (tenant_slug) {
-      query += ` WHERE r.tenant_slug = $${++paramCount}`;
+      query += ` WHERE b.slug = $${++paramCount}`;
       queryParams.push(tenant_slug);
     }
 
@@ -61,12 +62,16 @@ router.get('/', validateQuery(reviewSchemas.list), async (req, res) => {
     const result = await pool.query(query, queryParams);
     
     // Get total count for pagination
-    let countQuery = `SELECT COUNT(*) as total FROM reputation.reviews r`;
+    let countQuery = `
+      SELECT COUNT(*) as total 
+      FROM reputation.reviews r
+      INNER JOIN tenants.business b ON r.tenant_id = b.id
+    `;
     const countParams = [];
     let countParamCount = 0;
 
     if (tenant_slug) {
-      countQuery += ` WHERE r.tenant_slug = $${++countParamCount}`;
+      countQuery += ` WHERE b.slug = $${++countParamCount}`;
       countParams.push(tenant_slug);
     }
 
@@ -84,7 +89,11 @@ router.get('/', validateQuery(reviewSchemas.list), async (req, res) => {
     });
 
   } catch (error) {
-    logger.error('Error fetching reviews:', error);
+    logger.error('Error fetching reviews:', { 
+      message: error.message, 
+      stack: error.stack,
+      query: req.query 
+    });
     return sendError(res, 'Failed to fetch reviews', error.message, 500);
   }
 });

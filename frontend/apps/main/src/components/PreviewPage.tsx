@@ -17,7 +17,6 @@ const LazyRequestQuoteModal = lazy(() => import('./quotes/components/LazyRequest
 import Header from '../components/header/components/Header';
 import Hero from '../components/hero/components/Hero';
 import ServicesGrid from '../components/services/components/ServicesGrid';
-import Reviews from '../components/reviews/components/Reviews';
 import FAQ from '../components/faq/components/FAQ';
 import Gallery from '../components/gallery/components/Gallery';
 import Footer from '../components/footer/components/Footer';
@@ -37,7 +36,7 @@ export function PreviewPage() {
   // Track which section is currently visible for header navigation
   // Include both mobile and desktop section IDs for responsive layouts
   useScrollSpy({
-    ids: ['top', 'services', 'services-desktop', 'reviews', 'faq', 'gallery', 'gallery-desktop', 'footer'],
+    ids: ['top', 'services', 'services-desktop', 'faq', 'gallery', 'gallery-desktop', 'footer'],
     headerPx: 88, // Header height
     threshold: 0.55,
     updateHash: false, // Don't update URL hash in preview mode
@@ -107,7 +106,7 @@ export function PreviewPage() {
       <main className="snap-container overflow-y-scroll h-screen snap-y snap-mandatory scrollbar-hide">
         <Hero onRequestQuote={handleOpenQuoteModal} />
         <ServicesGrid />
-        <Reviews />
+        {/* Reviews removed - main-app doesn't have reviews */}
         <FAQ />
         <Gallery />
         

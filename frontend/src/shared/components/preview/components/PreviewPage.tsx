@@ -5,13 +5,10 @@
  * Used for sales demos - no tenant record is created yet.
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 
 import { FAQ } from '@shared/components/faq';
-// Note: Gallery, Services, and Hero removed - use app-specific implementations
-import { Header } from '@shared/components/header';
-import { LazyRequestQuoteModal } from '@shared/components/quotes';
-import { Reviews } from '@shared/components/reviews';
+// Note: Gallery, Services, Hero, Header, Quotes, and Reviews removed - use app-specific implementations
 import { useBrowserTab, useIsDesktop, useScrollSpy } from '@shared/hooks';
 import { SeoHead } from '@shared/seo';
 import type { SectionId } from '@shared/state/sectionStore';
@@ -24,16 +21,7 @@ import { PreviewLoading } from './PreviewLoading';
 
 const PreviewPage: React.FC = () => {
   const { payload, isLoading, error } = usePreviewParams();
-  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
   const isDesktop = useIsDesktop();
-
-  const handleOpenQuoteModal = () => {
-    setIsQuoteModalOpen(true);
-  };
-  
-  const handleCloseQuoteModal = () => {
-    setIsQuoteModalOpen(false);
-  };
 
   // Update browser tab title with business name
   useBrowserTab({
@@ -78,20 +66,12 @@ const PreviewPage: React.FC = () => {
       
       <div className="h-screen snap-y snap-mandatory overflow-y-scroll snap-container">
         {/* Regular site components - they'll get preview data from context */}
-        <Header />
-        {/* Hero removed - use app-specific implementations */}
-        <Reviews />
+        {/* Header, Hero, and Reviews removed - use app-specific implementations */}
         <FAQ />
         {/* Gallery removed - use app-specific implementations */}
       </div>
       
-      {/* Quote Modal */}
-      {isQuoteModalOpen && (
-        <LazyRequestQuoteModal 
-          isOpen={isQuoteModalOpen} 
-          onClose={handleCloseQuoteModal} 
-        />
-      )}
+      {/* Quote Modal removed - use app-specific implementations */}
     </PreviewDataProvider>
   );
 };

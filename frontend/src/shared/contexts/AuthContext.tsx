@@ -43,6 +43,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // Check if user is logged in on mount
   useEffect(() => {
     const checkAuth = async () => {
+      // Only check auth on admin or dashboard routes
+      const isAdminSite = window.location.hostname.startsWith('admin.');
+      const isDashboardRoute = window.location.pathname.includes('/dashboard');
+      const needsAuth = isAdminSite || isDashboardRoute;
+      
+      // Skip auth check on public tenant sites
+      if (!needsAuth) {
+        setLoading(false);
+        return;
+      }
+      
       const token = localStorage.getItem('accessToken');
       
       try {

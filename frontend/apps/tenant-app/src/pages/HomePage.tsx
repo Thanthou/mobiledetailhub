@@ -9,6 +9,7 @@ import Header from '../components/header/components/Header';
 import Hero from '../components/hero/components/Hero';
 import ServicesGrid from '../components/services/components/ServicesGrid';
 import Reviews from '../components/reviews/components/Reviews';
+import { useReviewsAvailability } from '../components/reviews/hooks';
 import FAQ from '../components/faq/components/FAQ';
 import Gallery from '../components/gallery/components/Gallery';
 import Footer from '../components/footer/components/Footer';
@@ -24,13 +25,27 @@ const HomePage: React.FC<HomePageProps> = ({ onRequestQuote }) => {
   
   // Get tenant data for industry/branding
   const { industry, businessName } = useData();
+  
+  // Check if reviews are available
+  const hasReviews = useReviewsAvailability();
 
   // Set industry-specific favicon
   useFavicon(industry);
   
-  // Track scroll position for header navigation
+  // Track scroll position for header navigation (conditionally include reviews)
+  const scrollSpyIds = [
+    'top', 
+    'services', 
+    'services-desktop', 
+    ...(hasReviews ? ['reviews'] : []), 
+    'faq', 
+    'gallery', 
+    'gallery-desktop', 
+    'footer'
+  ];
+  
   useScrollSpy({
-    ids: ['top', 'services', 'services-desktop', 'reviews', 'faq', 'gallery', 'gallery-desktop', 'footer'],
+    ids: scrollSpyIds,
     headerPx: 88,
     threshold: 0.55,
     updateHash: false,
@@ -96,7 +111,7 @@ const HomePage: React.FC<HomePageProps> = ({ onRequestQuote }) => {
       <main className="snap-container overflow-y-scroll h-screen snap-y snap-mandatory scrollbar-hide">
         <Hero onRequestQuote={handleRequestQuote} />
         <ServicesGrid />
-        <Reviews />
+        {hasReviews && <Reviews />}
         <FAQ />
         
         {/* Gallery renders its own sections (mobile: separate Gallery + Footer, desktop: combined) */}
