@@ -66,7 +66,7 @@ export const PRICING_PLANS: PricingPlan[] = [
       'Basic booking form',
       'Priority support (chat + email)',
     ],
-    cta: 'Start Free Trial',
+    cta: 'Get Started',
   },
   {
     id: 'pro',

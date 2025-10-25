@@ -90,6 +90,30 @@ export default function PricingSection({ onGetStarted }: PricingSectionProps) {
             </motion.div>
           ))}
         </div>
+
+        {/* Guarantees */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="mt-12 text-center"
+        >
+          <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-8 text-sm text-gray-400">
+            <div className="flex items-center gap-2">
+              <Check className="w-4 h-4 text-cyan-400" />
+              <span>14-day money-back guarantee</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Check className="w-4 h-4 text-cyan-400" />
+              <span>Cancel anytime</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Check className="w-4 h-4 text-cyan-400" />
+              <span>No setup fees</span>
+            </div>
+          </div>
+        </motion.div>
       </div>
     </section>
   );
