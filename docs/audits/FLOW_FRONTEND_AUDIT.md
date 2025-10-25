@@ -1,7 +1,7 @@
 # Frontend Flow Tracer Audit Report
 
-**Generated:** 2025-10-25T07:26:47.018Z
-**Duration:** 1510ms
+**Generated:** 2025-10-25T21:12:45.221Z
+**Duration:** 1346ms
 **Score:** 0/100
 
 ---
@@ -9,7 +9,7 @@
 ## Summary
 
 - ✅ **Passed:** 6
-- ⚠️  **Warnings:** 230
+- ⚠️  **Warnings:** 124
 - ❌ **Errors:** 0
 
 ## Description
@@ -20,7 +20,7 @@ Complete frontend flow analysis: maps React component dependencies, validates ar
 
 ### 🟡 Warnings
 
-1. **main: 229 unreachable app files**
+1. **main: 123 unreachable app files**
    - Details: Dead code - files not imported from entry point
 
 2. **  apps/main/src/components/booking/api/booking.api.ts**
@@ -383,331 +383,13 @@ Complete frontend flow analysis: maps React component dependencies, validates ar
 121. **  apps/main/src/components/services/utils/protectionComparison.ts**
    - Details: Dead code - not imported from entry point
 
-122. **  apps/main/src/components/tenantDashboard/api/analytics.ts**
+122. **  apps/main/src/MainApp.tsx**
    - Details: Dead code - not imported from entry point
 
-123. **  apps/main/src/components/tenantDashboard/api/dashboard.api.ts**
+123. **  apps/main/src/modes/MarketingSite.tsx**
    - Details: Dead code - not imported from entry point
 
-124. **  apps/main/src/components/tenantDashboard/api/healthApi.ts**
-   - Details: Dead code - not imported from entry point
-
-125. **  apps/main/src/components/tenantDashboard/api/locationsApi.ts**
-   - Details: Dead code - not imported from entry point
-
-126. **  apps/main/src/components/tenantDashboard/api/reviewsApi.ts**
-   - Details: Dead code - not imported from entry point
-
-127. **  apps/main/src/components/tenantDashboard/api/websiteContentApi.ts**
-   - Details: Dead code - not imported from entry point
-
-128. **  apps/main/src/components/tenantDashboard/components/AddToHomeScreen.tsx**
-   - Details: Dead code - not imported from entry point
-
-129. **  apps/main/src/components/tenantDashboard/components/AutoSaveStatus.tsx**
-   - Details: Dead code - not imported from entry point
-
-130. **  apps/main/src/components/tenantDashboard/components/Dashboard.tsx**
-   - Details: Dead code - not imported from entry point
-
-131. **  apps/main/src/components/tenantDashboard/components/DashboardHeader.tsx**
-   - Details: Dead code - not imported from entry point
-
-132. **  apps/main/src/components/tenantDashboard/components/DashboardLayout.tsx**
-   - Details: Dead code - not imported from entry point
-
-133. **  apps/main/src/components/tenantDashboard/components/DashboardPage.tsx**
-   - Details: Dead code - not imported from entry point
-
-134. **  apps/main/src/components/tenantDashboard/components/DashboardTabs.tsx**
-   - Details: Dead code - not imported from entry point
-
-135. **  apps/main/src/components/tenantDashboard/components/TabContent.tsx**
-   - Details: Dead code - not imported from entry point
-
-136. **  apps/main/src/components/tenantDashboard/config/tabConfig.ts**
-   - Details: Dead code - not imported from entry point
-
-137. **  apps/main/src/components/tenantDashboard/hooks/useDashboardData.ts**
-   - Details: Dead code - not imported from entry point
-
-138. **  apps/main/src/components/tenantDashboard/hooks/useTenantBusinessData.ts**
-   - Details: Dead code - not imported from entry point
-
-139. **  apps/main/src/components/tenantDashboard/tabs/customers/CustomersTab.tsx**
-   - Details: Dead code - not imported from entry point
-
-140. **  apps/main/src/components/tenantDashboard/tabs/locations/components/AddLocationModal.tsx**
-   - Details: Dead code - not imported from entry point
-
-141. **  apps/main/src/components/tenantDashboard/tabs/locations/components/DeleteLocationModal.tsx**
-   - Details: Dead code - not imported from entry point
-
-142. **  apps/main/src/components/tenantDashboard/tabs/locations/components/LocationCard.tsx**
-   - Details: Dead code - not imported from entry point
-
-143. **  apps/main/src/components/tenantDashboard/tabs/locations/components/LocationSearch.tsx**
-   - Details: Dead code - not imported from entry point
-
-144. **  apps/main/src/components/tenantDashboard/tabs/locations/components/PrimaryServiceArea.tsx**
-   - Details: Dead code - not imported from entry point
-
-145. **  apps/main/src/components/tenantDashboard/tabs/locations/components/ServiceAreasList.tsx**
-   - Details: Dead code - not imported from entry point
-
-146. **  apps/main/src/components/tenantDashboard/tabs/locations/hooks/useGoogleMaps.ts**
-   - Details: Dead code - not imported from entry point
-
-147. **  apps/main/src/components/tenantDashboard/tabs/locations/hooks/useLocationSearch.ts**
-   - Details: Dead code - not imported from entry point
-
-148. **  apps/main/src/components/tenantDashboard/tabs/locations/hooks/useLocationState.ts**
-   - Details: Dead code - not imported from entry point
-
-149. **  apps/main/src/components/tenantDashboard/tabs/locations/LocationsTab.tsx**
-   - Details: Dead code - not imported from entry point
-
-150. **  apps/main/src/components/tenantDashboard/tabs/overview/components/MetricsCards.tsx**
-   - Details: Dead code - not imported from entry point
-
-151. **  apps/main/src/components/tenantDashboard/tabs/overview/components/NotificationPanel.tsx**
-   - Details: Dead code - not imported from entry point
-
-152. **  apps/main/src/components/tenantDashboard/tabs/overview/components/QuickActions.tsx**
-   - Details: Dead code - not imported from entry point
-
-153. **  apps/main/src/components/tenantDashboard/tabs/overview/components/RecentAppointments.tsx**
-   - Details: Dead code - not imported from entry point
-
-154. **  apps/main/src/components/tenantDashboard/tabs/overview/components/RecentReviews.tsx**
-   - Details: Dead code - not imported from entry point
-
-155. **  apps/main/src/components/tenantDashboard/tabs/overview/hooks/useDashboardStats.ts**
-   - Details: Dead code - not imported from entry point
-
-156. **  apps/main/src/components/tenantDashboard/tabs/overview/hooks/useNotifications.ts**
-   - Details: Dead code - not imported from entry point
-
-157. **  apps/main/src/components/tenantDashboard/tabs/overview/hooks/useRecentAppointments.ts**
-   - Details: Dead code - not imported from entry point
-
-158. **  apps/main/src/components/tenantDashboard/tabs/overview/hooks/useRecentReviews.ts**
-   - Details: Dead code - not imported from entry point
-
-159. **  apps/main/src/components/tenantDashboard/tabs/overview/OverviewTab.tsx**
-   - Details: Dead code - not imported from entry point
-
-160. **  apps/main/src/components/tenantDashboard/tabs/overview/utils/getStatusColor.ts**
-   - Details: Dead code - not imported from entry point
-
-161. **  apps/main/src/components/tenantDashboard/tabs/performance/PerformanceTab.tsx**
-   - Details: Dead code - not imported from entry point
-
-162. **  apps/main/src/components/tenantDashboard/tabs/profile/components/AutoSaveField.tsx**
-   - Details: Dead code - not imported from entry point
-
-163. **  apps/main/src/components/tenantDashboard/tabs/profile/components/ProfileForm.tsx**
-   - Details: Dead code - not imported from entry point
-
-164. **  apps/main/src/components/tenantDashboard/tabs/profile/components/SocialMediaUrlField.tsx**
-   - Details: Dead code - not imported from entry point
-
-165. **  apps/main/src/components/tenantDashboard/tabs/profile/hooks/useAutoSaveField.ts**
-   - Details: Dead code - not imported from entry point
-
-166. **  apps/main/src/components/tenantDashboard/tabs/profile/hooks/useProfileData.ts**
-   - Details: Dead code - not imported from entry point
-
-167. **  apps/main/src/components/tenantDashboard/tabs/profile/ProfileTab.tsx**
-   - Details: Dead code - not imported from entry point
-
-168. **  apps/main/src/components/tenantDashboard/tabs/schedule/api/appointments.ts**
-   - Details: Dead code - not imported from entry point
-
-169. **  apps/main/src/components/tenantDashboard/tabs/schedule/api/blockedDays.ts**
-   - Details: Dead code - not imported from entry point
-
-170. **  apps/main/src/components/tenantDashboard/tabs/schedule/api/scheduleSettings.ts**
-   - Details: Dead code - not imported from entry point
-
-171. **  apps/main/src/components/tenantDashboard/tabs/schedule/api/timeBlocks.ts**
-   - Details: Dead code - not imported from entry point
-
-172. **  apps/main/src/components/tenantDashboard/tabs/schedule/components/AppointmentCard.tsx**
-   - Details: Dead code - not imported from entry point
-
-173. **  apps/main/src/components/tenantDashboard/tabs/schedule/components/DayView.tsx**
-   - Details: Dead code - not imported from entry point
-
-174. **  apps/main/src/components/tenantDashboard/tabs/schedule/components/modals/AppointmentModal.tsx**
-   - Details: Dead code - not imported from entry point
-
-175. **  apps/main/src/components/tenantDashboard/tabs/schedule/components/MonthView.tsx**
-   - Details: Dead code - not imported from entry point
-
-176. **  apps/main/src/components/tenantDashboard/tabs/schedule/components/ScheduleGrid.tsx**
-   - Details: Dead code - not imported from entry point
-
-177. **  apps/main/src/components/tenantDashboard/tabs/schedule/components/ScheduleHeader.tsx**
-   - Details: Dead code - not imported from entry point
-
-178. **  apps/main/src/components/tenantDashboard/tabs/schedule/components/ScheduleLoadingState.tsx**
-   - Details: Dead code - not imported from entry point
-
-179. **  apps/main/src/components/tenantDashboard/tabs/schedule/components/ScheduleNavigationHeader.tsx**
-   - Details: Dead code - not imported from entry point
-
-180. **  apps/main/src/components/tenantDashboard/tabs/schedule/components/ScheduleSidebar.tsx**
-   - Details: Dead code - not imported from entry point
-
-181. **  apps/main/src/components/tenantDashboard/tabs/schedule/components/scheduleUtils.ts**
-   - Details: Dead code - not imported from entry point
-
-182. **  apps/main/src/components/tenantDashboard/tabs/schedule/components/WeekView.tsx**
-   - Details: Dead code - not imported from entry point
-
-183. **  apps/main/src/components/tenantDashboard/tabs/schedule/hooks/useScheduleData.ts**
-   - Details: Dead code - not imported from entry point
-
-184. **  apps/main/src/components/tenantDashboard/tabs/schedule/ScheduleTab.tsx**
-   - Details: Dead code - not imported from entry point
-
-185. **  apps/main/src/components/tenantDashboard/tabs/services/components/AddServiceModal.tsx**
-   - Details: Dead code - not imported from entry point
-
-186. **  apps/main/src/components/tenantDashboard/tabs/services/components/CategorySelector.tsx**
-   - Details: Dead code - not imported from entry point
-
-187. **  apps/main/src/components/tenantDashboard/tabs/services/components/DeleteServiceModal.tsx**
-   - Details: Dead code - not imported from entry point
-
-188. **  apps/main/src/components/tenantDashboard/tabs/services/components/FeatureDropdown.tsx**
-   - Details: Dead code - not imported from entry point
-
-189. **  apps/main/src/components/tenantDashboard/tabs/services/components/FeatureList.tsx**
-   - Details: Dead code - not imported from entry point
-
-190. **  apps/main/src/components/tenantDashboard/tabs/services/components/MultiTierPricingModal.tsx**
-   - Details: Dead code - not imported from entry point
-
-191. **  apps/main/src/components/tenantDashboard/tabs/services/components/SelectedServiceDetailsDisplay.tsx**
-   - Details: Dead code - not imported from entry point
-
-192. **  apps/main/src/components/tenantDashboard/tabs/services/components/SelectedServiceDisplay.tsx**
-   - Details: Dead code - not imported from entry point
-
-193. **  apps/main/src/components/tenantDashboard/tabs/services/components/ServiceActionsHeader.tsx**
-   - Details: Dead code - not imported from entry point
-
-194. **  apps/main/src/components/tenantDashboard/tabs/services/components/ServiceSelector.tsx**
-   - Details: Dead code - not imported from entry point
-
-195. **  apps/main/src/components/tenantDashboard/tabs/services/components/ServiceTierCards.tsx**
-   - Details: Dead code - not imported from entry point
-
-196. **  apps/main/src/components/tenantDashboard/tabs/services/components/VehicleSelector.tsx**
-   - Details: Dead code - not imported from entry point
-
-197. **  apps/main/src/components/tenantDashboard/tabs/services/FixedServicesTab.tsx**
-   - Details: Dead code - not imported from entry point
-
-198. **  apps/main/src/components/tenantDashboard/tabs/services/hooks/useFixedServicesHandlers.ts**
-   - Details: Dead code - not imported from entry point
-
-199. **  apps/main/src/components/tenantDashboard/tabs/services/hooks/useServiceOperations.ts**
-   - Details: Dead code - not imported from entry point
-
-200. **  apps/main/src/components/tenantDashboard/tabs/services/hooks/useServicesData.ts**
-   - Details: Dead code - not imported from entry point
-
-201. **  apps/main/src/components/tenantDashboard/tabs/services/hooks/useServiceSelection.ts**
-   - Details: Dead code - not imported from entry point
-
-202. **  apps/main/src/components/tenantDashboard/tabs/services/hooks/useTenantId.ts**
-   - Details: Dead code - not imported from entry point
-
-203. **  apps/main/src/components/tenantDashboard/tabs/services/ServicesTab.tsx**
-   - Details: Dead code - not imported from entry point
-
-204. **  apps/main/src/components/tenantDashboard/tabs/services/SimpleFixedServicesTab.tsx**
-   - Details: Dead code - not imported from entry point
-
-205. **  apps/main/src/components/tenantDashboard/tabs/services/types/ServiceClasses.ts**
-   - Details: Dead code - not imported from entry point
-
-206. **  apps/main/src/components/tenantDashboard/tabs/services/types/ServiceFeature.ts**
-   - Details: Dead code - not imported from entry point
-
-207. **  apps/main/src/components/tenantDashboard/tabs/website/components/AddReviewForm.tsx**
-   - Details: Dead code - not imported from entry point
-
-208. **  apps/main/src/components/tenantDashboard/tabs/website/components/FAQItemAutoSaveField.tsx**
-   - Details: Dead code - not imported from entry point
-
-209. **  apps/main/src/components/tenantDashboard/tabs/website/components/FAQSection.tsx**
-   - Details: Dead code - not imported from entry point
-
-210. **  apps/main/src/components/tenantDashboard/tabs/website/components/GallerySection.tsx**
-   - Details: Dead code - not imported from entry point
-
-211. **  apps/main/src/components/tenantDashboard/tabs/website/components/HealthTab.tsx**
-   - Details: Dead code - not imported from entry point
-
-212. **  apps/main/src/components/tenantDashboard/tabs/website/components/HeroSection.tsx**
-   - Details: Dead code - not imported from entry point
-
-213. **  apps/main/src/components/tenantDashboard/tabs/website/components/RemoveReviewTab.tsx**
-   - Details: Dead code - not imported from entry point
-
-214. **  apps/main/src/components/tenantDashboard/tabs/website/components/ReviewsContent.tsx**
-   - Details: Dead code - not imported from entry point
-
-215. **  apps/main/src/components/tenantDashboard/tabs/website/components/ReviewsSection.tsx**
-   - Details: Dead code - not imported from entry point
-
-216. **  apps/main/src/components/tenantDashboard/tabs/website/components/ServicesSection.tsx**
-   - Details: Dead code - not imported from entry point
-
-217. **  apps/main/src/components/tenantDashboard/tabs/website/components/WebsiteAutoSaveField.tsx**
-   - Details: Dead code - not imported from entry point
-
-218. **  apps/main/src/components/tenantDashboard/tabs/website/contexts/WebsiteContentContext.tsx**
-   - Details: Dead code - not imported from entry point
-
-219. **  apps/main/src/components/tenantDashboard/tabs/website/hooks/useWebsiteContentData.ts**
-   - Details: Dead code - not imported from entry point
-
-220. **  apps/main/src/components/tenantDashboard/tabs/website/hooks/useWebsiteContentField.ts**
-   - Details: Dead code - not imported from entry point
-
-221. **  apps/main/src/components/tenantDashboard/tabs/website/WebsiteContentTab.tsx**
-   - Details: Dead code - not imported from entry point
-
-222. **  apps/main/src/components/tenantDashboard/tabs/website/WebsiteDomainTab.tsx**
-   - Details: Dead code - not imported from entry point
-
-223. **  apps/main/src/components/tenantDashboard/tabs/website/WebsiteHealthTab.tsx**
-   - Details: Dead code - not imported from entry point
-
-224. **  apps/main/src/components/tenantDashboard/tabs/website/WebsitePerformanceTab.tsx**
-   - Details: Dead code - not imported from entry point
-
-225. **  apps/main/src/components/tenantDashboard/tabs/website/WebsiteTab.tsx**
-   - Details: Dead code - not imported from entry point
-
-226. **  apps/main/src/components/tenantDashboard/utils/constants.ts**
-   - Details: Dead code - not imported from entry point
-
-227. **  apps/main/src/components/tenantDashboard/utils/tenantEvents.ts**
-   - Details: Dead code - not imported from entry point
-
-228. **  apps/main/src/MainApp.tsx**
-   - Details: Dead code - not imported from entry point
-
-229. **  apps/main/src/modes/MarketingSite.tsx**
-   - Details: Dead code - not imported from entry point
-
-230. **  apps/main/src/providers.tsx**
+124. **  apps/main/src/providers.tsx**
    - Details: Dead code - not imported from entry point
 
 ---
@@ -718,7 +400,7 @@ Apps: main
 
 ## Phase 1: File Discovery
 
-✅ Found 1021 TypeScript/TSX files
+✅ Found 894 TypeScript/TSX files
 
 ## Phase 2: AST Parsing
 
@@ -726,13 +408,13 @@ Apps: main
 
 ## Phase 3: Graph Construction
 
-✅ Built dependency graph with 1021 nodes
+✅ Built dependency graph with 894 nodes
 
 ## Phase 4: App Analysis
 
-✅ main: 162 reachable files
+✅ main: 163 reachable files
 ✅ main: No boundary violations
-⚠️ **WARNING**: main: 229 unreachable app files
+⚠️ **WARNING**: main: 123 unreachable app files
 ⚠️ **WARNING**:   apps/main/src/components/booking/api/booking.api.ts
 ⚠️ **WARNING**:   apps/main/src/components/booking/BookingApp.tsx
 ⚠️ **WARNING**:   apps/main/src/components/booking/components/BookingFlowController.tsx
@@ -853,112 +535,6 @@ Apps: main
 ⚠️ **WARNING**:   apps/main/src/components/services/hooks/useServices.ts
 ⚠️ **WARNING**:   apps/main/src/components/services/types/service-data.ts
 ⚠️ **WARNING**:   apps/main/src/components/services/utils/protectionComparison.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/api/analytics.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/api/dashboard.api.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/api/healthApi.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/api/locationsApi.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/api/reviewsApi.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/api/websiteContentApi.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/components/AddToHomeScreen.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/components/AutoSaveStatus.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/components/Dashboard.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/components/DashboardHeader.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/components/DashboardLayout.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/components/DashboardPage.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/components/DashboardTabs.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/components/TabContent.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/config/tabConfig.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/hooks/useDashboardData.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/hooks/useTenantBusinessData.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/customers/CustomersTab.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/locations/components/AddLocationModal.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/locations/components/DeleteLocationModal.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/locations/components/LocationCard.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/locations/components/LocationSearch.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/locations/components/PrimaryServiceArea.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/locations/components/ServiceAreasList.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/locations/hooks/useGoogleMaps.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/locations/hooks/useLocationSearch.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/locations/hooks/useLocationState.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/locations/LocationsTab.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/overview/components/MetricsCards.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/overview/components/NotificationPanel.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/overview/components/QuickActions.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/overview/components/RecentAppointments.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/overview/components/RecentReviews.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/overview/hooks/useDashboardStats.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/overview/hooks/useNotifications.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/overview/hooks/useRecentAppointments.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/overview/hooks/useRecentReviews.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/overview/OverviewTab.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/overview/utils/getStatusColor.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/performance/PerformanceTab.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/profile/components/AutoSaveField.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/profile/components/ProfileForm.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/profile/components/SocialMediaUrlField.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/profile/hooks/useAutoSaveField.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/profile/hooks/useProfileData.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/profile/ProfileTab.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/schedule/api/appointments.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/schedule/api/blockedDays.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/schedule/api/scheduleSettings.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/schedule/api/timeBlocks.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/schedule/components/AppointmentCard.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/schedule/components/DayView.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/schedule/components/modals/AppointmentModal.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/schedule/components/MonthView.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/schedule/components/ScheduleGrid.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/schedule/components/ScheduleHeader.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/schedule/components/ScheduleLoadingState.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/schedule/components/ScheduleNavigationHeader.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/schedule/components/ScheduleSidebar.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/schedule/components/scheduleUtils.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/schedule/components/WeekView.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/schedule/hooks/useScheduleData.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/schedule/ScheduleTab.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/services/components/AddServiceModal.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/services/components/CategorySelector.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/services/components/DeleteServiceModal.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/services/components/FeatureDropdown.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/services/components/FeatureList.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/services/components/MultiTierPricingModal.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/services/components/SelectedServiceDetailsDisplay.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/services/components/SelectedServiceDisplay.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/services/components/ServiceActionsHeader.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/services/components/ServiceSelector.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/services/components/ServiceTierCards.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/services/components/VehicleSelector.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/services/FixedServicesTab.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/services/hooks/useFixedServicesHandlers.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/services/hooks/useServiceOperations.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/services/hooks/useServicesData.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/services/hooks/useServiceSelection.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/services/hooks/useTenantId.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/services/ServicesTab.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/services/SimpleFixedServicesTab.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/services/types/ServiceClasses.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/services/types/ServiceFeature.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/website/components/AddReviewForm.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/website/components/FAQItemAutoSaveField.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/website/components/FAQSection.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/website/components/GallerySection.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/website/components/HealthTab.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/website/components/HeroSection.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/website/components/RemoveReviewTab.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/website/components/ReviewsContent.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/website/components/ReviewsSection.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/website/components/ServicesSection.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/website/components/WebsiteAutoSaveField.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/website/contexts/WebsiteContentContext.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/website/hooks/useWebsiteContentData.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/website/hooks/useWebsiteContentField.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/website/WebsiteContentTab.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/website/WebsiteDomainTab.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/website/WebsiteHealthTab.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/website/WebsitePerformanceTab.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/tabs/website/WebsiteTab.tsx
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/utils/constants.ts
-⚠️ **WARNING**:   apps/main/src/components/tenantDashboard/utils/tenantEvents.ts
 ⚠️ **WARNING**:   apps/main/src/MainApp.tsx
 ⚠️ **WARNING**:   apps/main/src/modes/MarketingSite.tsx
 ⚠️ **WARNING**:   apps/main/src/providers.tsx

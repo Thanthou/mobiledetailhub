@@ -45,7 +45,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const checkAuth = async () => {
       // Only check auth on admin or dashboard routes
       const isAdminSite = window.location.hostname.startsWith('admin.');
-      const isDashboardRoute = window.location.pathname.includes('/dashboard');
+      const isDashboardRoute = window.location.pathname.includes('/dashboard') || window.location.pathname.includes('/admin');
       const needsAuth = isAdminSite || isDashboardRoute;
       
       // Skip auth check on public tenant sites

@@ -1,6 +1,6 @@
 # 📊 Frontend Flow Audit - tenant-app
 
-**Generated:** 10/25/2025, 12:14:21 AM
+**Generated:** 10/25/2025, 2:01:18 PM
 
 ## 🔴 Score: 0/100 (Poor Flow Health)
 
@@ -13,9 +13,9 @@
 | Reachable App Files | 232 |
 | Unreachable App Files | 62 |
 | **Shared Files** | |
-| Total Shared Files | 279 |
-| Reachable Shared Files | 202 |
-| Unreachable Shared Files | 60 |
+| Total Shared Files | 280 |
+| Reachable Shared Files | 201 |
+| Unreachable Shared Files | 62 |
 | **Issues** | |
 | Boundary Violations | 0 |
 | Parse Errors | 0 |
@@ -87,7 +87,7 @@ These files in **tenant-app** are not imported from the entry point (dead code):
 - apps/tenant-app/src/components/tenantDashboard/utils/tenantEvents.ts
 - apps/tenant-app/src/hooks/usePreviewParams.ts
 
-## 🟡 Unreachable Shared Files (60)
+## 🟡 Unreachable Shared Files (62)
 
 These shared files are not used by **tenant-app** (but may be used by other apps):
 
@@ -112,5 +112,5 @@ These shared files are not used by **tenant-app** (but may be used by other apps
 - src/shared/components/tenantOnboarding/components/IdentityContactSection.tsx
 - src/shared/components/tenantOnboarding/components/LegalTermsSection.tsx
 
-... and 40 more
+... and 42 more
 

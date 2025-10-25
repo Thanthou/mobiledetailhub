@@ -5,7 +5,7 @@ import { logger } from '../config/logger.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import { sendSuccess, sendError, sendValidationError } from '../utils/responseFormatter.js';
 import { validateBody, validateQuery } from '../middleware/zodValidation.js';
-import { reviewSchemas } from '../schemas/apiSchemas.js';
+import { reviewSchemas } from '../schemas/validation/index.js';
 import { env } from '../config/env.async.js';
 
 const router = express.Router();

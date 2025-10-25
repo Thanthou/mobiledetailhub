@@ -11,7 +11,7 @@ import { env } from '../config/env.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import { createModuleLogger } from '../config/logger.js';
 import { validateBody } from '../middleware/zodValidation.js';
-import { websiteContentSchemas } from '../schemas/apiSchemas.js';
+import { websiteContentSchemas } from '../schemas/validation/index.js';
 const router = express.Router();
 const logger = createModuleLogger('routeName');
 

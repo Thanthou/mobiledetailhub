@@ -1,6 +1,6 @@
 # 📊 Frontend Flow Audit - admin-app
 
-**Generated:** 10/25/2025, 12:14:21 AM
+**Generated:** 10/25/2025, 2:01:18 PM
 
 ## 🔴 Score: 18/100 (Poor Flow Health)
 
@@ -13,9 +13,9 @@
 | Reachable App Files | 6 |
 | Unreachable App Files | 41 |
 | **Shared Files** | |
-| Total Shared Files | 279 |
-| Reachable Shared Files | 128 |
-| Unreachable Shared Files | 120 |
+| Total Shared Files | 280 |
+| Reachable Shared Files | 129 |
+| Unreachable Shared Files | 122 |
 | **Issues** | |
 | Boundary Violations | 0 |
 | Parse Errors | 0 |
@@ -66,7 +66,7 @@ These files in **admin-app** are not imported from the entry point (dead code):
 - apps/admin-app/src/components/tenantOnboarding/hooks/useLocalDraft.ts
 - apps/admin-app/src/components/tenantOnboarding/utils/validation.ts
 
-## 🟡 Unreachable Shared Files (120)
+## 🟡 Unreachable Shared Files (122)
 
 These shared files are not used by **admin-app** (but may be used by other apps):
 
@@ -91,5 +91,5 @@ These shared files are not used by **admin-app** (but may be used by other apps)
 - src/shared/auth/hooks/useFormValidation.ts
 - src/shared/auth/hooks/useLoginModalPrefetch.ts
 
-... and 100 more
+... and 102 more
 

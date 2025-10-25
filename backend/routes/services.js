@@ -11,7 +11,7 @@ import { asyncHandler } from '../middleware/errorHandler.js';
 import { getDatabaseId } from '../utils/vehicleMapping.js';
 import { sendSuccess, sendError, sendValidationError } from '../utils/responseFormatter.js';
 import { validateBody, validateParams } from '../middleware/zodValidation.js';
-import { serviceSchemas } from '../schemas/apiSchemas.js';
+import { serviceSchemas } from '../schemas/validation/index.js';
 
 const router = express.Router();
 const logger = createModuleLogger('services');

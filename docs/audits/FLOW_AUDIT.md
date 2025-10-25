@@ -1,24 +1,66 @@
 # Backend Flow Tracer Audit Report
 
-**Generated:** 2025-10-25T07:26:14.978Z
-**Duration:** 361ms
-**Score:** 100/100
+**Generated:** 2025-10-25T21:01:15.883Z
+**Duration:** 345ms
+**Score:** 58/100
 
 ---
 
 ## Summary
 
-- ✅ **Passed:** 11
-- ⚠️  **Warnings:** 0
+- ✅ **Passed:** 10
+- ⚠️  **Warnings:** 14
 - ❌ **Errors:** 0
 
 ## Description
 
 Complete backend flow analysis: maps all HTTP request paths, builds call graph, identifies unreachable code.
 
-## ✅ All Checks Passed!
+## Issues Found
 
-No issues found during this audit.
+### 🟡 Warnings
+
+1. **Unreachable files: 13**
+   - Details: These files are not imported from any entry point
+
+2. **  schemas\validation\admin.schemas.js**
+   - Details: Has exports but not imported
+
+3. **  schemas\validation\analytics.schemas.js**
+   - Details: Has exports but not imported
+
+4. **  schemas\validation\auth.schemas.js**
+   - Details: Has exports but not imported
+
+5. **  schemas\validation\common.js**
+   - Details: Has exports but not imported
+
+6. **  schemas\validation\domains.schemas.js**
+   - Details: Has exports but not imported
+
+7. **  schemas\validation\errors.schemas.js**
+   - Details: Has exports but not imported
+
+8. **  schemas\validation\images.schemas.js**
+   - Details: Has exports but not imported
+
+9. **  schemas\validation\payments.schemas.js**
+   - Details: Has exports but not imported
+
+10. **  schemas\validation\reputation.schemas.js**
+   - Details: Has exports but not imported
+
+11. **  schemas\validation\schedule.schemas.js**
+   - Details: Has exports but not imported
+
+12. **  schemas\validation\services.schemas.js**
+   - Details: Has exports but not imported
+
+13. **  schemas\validation\tenants.schemas.js**
+   - Details: Has exports but not imported
+
+14. **  schemas\validation\website.schemas.js**
+   - Details: Has exports but not imported
 
 ---
 
@@ -27,18 +69,18 @@ No issues found during this audit.
 
 ## Phase 1: File Discovery
 
-✅ Found 95 files to analyze
+✅ Found 108 files to analyze
 
 ## Phase 2: AST Parsing
 
-✅ Successfully parsed 95 files
+✅ Successfully parsed 108 files
 
 ## Phase 3: Path Alias Resolution
 
 
 ## Phase 4: Call Graph Construction
 
-✅ Built call graph with 95 nodes
+✅ Built call graph with 108 nodes
 
 ## Phase 5: Reachability Analysis
 
@@ -51,7 +93,7 @@ No issues found during this audit.
 
 ## File Discovery
 
-✅ Discovered 95 backend files
+✅ Discovered 108 backend files
 
 ## Entry Points
 
@@ -63,8 +105,21 @@ No issues found during this audit.
 
 ## Reachability Analysis
 
-✅ Reachable files: 90/95 (94.7%)
-✅ All files are reachable from entry points
+✅ Reachable files: 90/108 (83.3%)
+⚠️ **WARNING**: Unreachable files: 13
+⚠️ **WARNING**:   schemas\validation\admin.schemas.js
+⚠️ **WARNING**:   schemas\validation\analytics.schemas.js
+⚠️ **WARNING**:   schemas\validation\auth.schemas.js
+⚠️ **WARNING**:   schemas\validation\common.js
+⚠️ **WARNING**:   schemas\validation\domains.schemas.js
+⚠️ **WARNING**:   schemas\validation\errors.schemas.js
+⚠️ **WARNING**:   schemas\validation\images.schemas.js
+⚠️ **WARNING**:   schemas\validation\payments.schemas.js
+⚠️ **WARNING**:   schemas\validation\reputation.schemas.js
+⚠️ **WARNING**:   schemas\validation\schedule.schemas.js
+⚠️ **WARNING**:   schemas\validation\services.schemas.js
+⚠️ **WARNING**:   schemas\validation\tenants.schemas.js
+⚠️ **WARNING**:   schemas\validation\website.schemas.js
 
 ## Dependency Analysis
 
@@ -73,8 +128,9 @@ No issues found during this audit.
 
 ## Recommendations
 
-1. Review unreachable files - they may be dead code that can be removed
-2. Ensure all route handlers are properly connected to controllers/services
-3. Consider refactoring files with high import counts (>10) to reduce coupling
-4. Monitor files imported by many others - changes will have wide impact
-5. Use this flow map for impact analysis before making changes
+1. ⚠️ PRIORITY: Investigate 13 unreachable files
+2. Review unreachable files - they may be dead code that can be removed
+3. Ensure all route handlers are properly connected to controllers/services
+4. Consider refactoring files with high import counts (>10) to reduce coupling
+5. Monitor files imported by many others - changes will have wide impact
+6. Use this flow map for impact analysis before making changes

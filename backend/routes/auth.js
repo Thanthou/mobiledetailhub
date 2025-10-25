@@ -1,7 +1,7 @@
 import express from 'express';
 import { authenticateToken } from '../middleware/auth.js';
 import { validateBody, validateQuery } from '../middleware/zodValidation.js';
-import { authSchemas } from '../schemas/apiSchemas.js';
+import { authSchemas } from '../schemas/validation/index.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import { authLimiter, sensitiveAuthLimiter, refreshTokenLimiter } from '../middleware/rateLimiter.js';
 import { csrfProtection } from '../middleware/csrfProtection.js';

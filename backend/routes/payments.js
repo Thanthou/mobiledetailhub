@@ -11,7 +11,7 @@ import { sendWelcomeEmail } from '../services/emailService.js'
 import { createModuleLogger } from '../config/logger.js'
 import { sendSuccess, sendError, sendValidationError } from '../utils/responseFormatter.js'
 import { validateBody } from '../middleware/zodValidation.js'
-import { paymentSchemas } from '../schemas/apiSchemas.js'
+import { paymentSchemas } from '../schemas/validation/index.js'
 
 const router = express.Router()
 const logger = createModuleLogger('payments');

@@ -5,7 +5,7 @@ import { asyncHandler } from '../middleware/errorHandler.js';
 import { getPool } from '../database/pool.js';
 import { createModuleLogger } from '../config/logger.js';
 import { validateBody } from '../middleware/zodValidation.js';
-import { tenantImagesSchemas } from '../schemas/apiSchemas.js';
+import { tenantImagesSchemas } from '../schemas/validation/index.js';
 
 /**
  * @fileoverview API routes for tenantImages

@@ -192,7 +192,7 @@ function main() {
   log('\n🎯 Migration Recommendations:', 'bold');
   log('1. Update imports to use zodValidation.js instead of validation.js', 'blue');
   log('2. Replace legacy validation functions with Zod schemas', 'blue');
-  log('3. Add appropriate schemas to backend/schemas/apiSchemas.js', 'blue');
+  log('3. Add appropriate schemas to backend/schemas/validation/[domain].schemas.js', 'blue');
   log('4. Test validation with invalid inputs to ensure proper error handling', 'blue');
   
   log('\n🎉 Validation analysis complete!', 'green');

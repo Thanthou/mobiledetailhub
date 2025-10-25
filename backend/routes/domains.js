@@ -15,7 +15,7 @@ import express from 'express';
 import * as domainController from '../controllers/domainController.js';
 import { createModuleLogger } from '../config/logger.js';
 import { validateBody, validateParams } from '../middleware/zodValidation.js';
-import { domainSchemas } from '../schemas/apiSchemas.js';
+import { domainSchemas } from '../schemas/validation/index.js';
 
 const logger = createModuleLogger('domainRoutes');
 const router = express.Router();

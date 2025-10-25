@@ -26,7 +26,7 @@ dotenv.config({ path: join(dirname(fileURLToPath(import.meta.url)), '../../.env'
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = join(__dirname, '../..');
-const outputPath = join(rootDir, 'backend/schemas/current-schema.json');
+const outputPath = join(rootDir, 'backend/schemas/generated/current-schema.json');
 
 async function generateSnapshot() {
   console.log(chalk.blue.bold('📸 Generating Database Schema Snapshot\n'));

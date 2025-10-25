@@ -53,18 +53,28 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   
   // Check if user has required role
   if (Array.isArray(requiredRole)) {
-    if (requiredRole.includes('admin') && !isAdmin) {
-      return <Navigate to={fallbackPath} replace />;
-    }
-    if (requiredRole.includes('tenant') && isAdmin) {
+    // User needs to have at least ONE of the required roles
+    const hasRequiredRole = requiredRole.some(role => {
+      if (role === 'admin') return isAdmin;
+      if (role === 'tenant') return !isAdmin; // Tenants are authenticated non-admins
+      if (role === 'user') return true; // Any authenticated user
+      return false;
+    });
+    
+    if (!hasRequiredRole) {
       return <Navigate to={fallbackPath} replace />;
     }
   } else {
+    // Single role check
     if (requiredRole === 'admin' && !isAdmin) {
       return <Navigate to={fallbackPath} replace />;
     }
     
     if (requiredRole === 'tenant' && isAdmin) {
+      return <Navigate to={fallbackPath} replace />;
+    }
+    
+    if (requiredRole === 'user' && !isAuthenticated) {
       return <Navigate to={fallbackPath} replace />;
     }
   }

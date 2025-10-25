@@ -14,7 +14,7 @@ import { asyncHandler } from '../middleware/errorHandler.js';
 import { authenticateToken, requireAdmin } from '../middleware/auth.js';
 import { logger } from '../config/logger.js';
 import { validateBody, validateParams, validateQuery } from '../middleware/zodValidation.js';
-import { analyticsSchemas } from '../schemas/apiSchemas.js';
+import { analyticsSchemas } from '../schemas/validation/index.js';
 import { analyticsLimiter } from '../middleware/rateLimiter.js';
 import { tenantResolverWithDB } from '../middleware/tenantResolver.js';
 import { queueEvent, getQueueSize } from '../utils/analyticsQueue.js';

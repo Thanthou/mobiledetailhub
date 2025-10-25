@@ -1,36 +1,19 @@
 // Tenant business data from API
 // Shared types for API responses
 
-export interface Business {
-  id: number;
-  slug: string;
-  business_name: string;
-  application_status: string;
-  business_phone: string;
-  sms_phone: string;
-  twilio_phone: string;
+import type { Business as DBBusiness } from './generated/db.types';
+
+/**
+ * Business type - imported from auto-generated database types
+ * Source: tenants.business table
+ * 
+ * Note: This is the raw database structure. For API responses that transform
+ * the data (e.g., parsing JSONB fields), you may need to extend this type.
+ */
+export type Business = DBBusiness & {
+  // Override service_areas to be strongly typed (DB stores as JSONB)
   service_areas: ServiceArea[];
-  owner: string;
-  business_email: string | null;
-  personal_email: string;
-  first_name: string;
-  last_name: string;
-  personal_phone: string;
-  business_start_date: string;
-  website: string;
-  gbp_url: string | null;
-  facebook_url: string | null;
-  facebook_enabled: boolean;
-  youtube_url: string | null;
-  youtube_enabled: boolean;
-  tiktok_url: string | null;
-  tiktok_enabled: boolean;
-  instagram_url: string | null;
-  instagram_enabled: boolean;
-  industry: string;
-  created_at: string;
-  updated_at: string;
-}
+};
 
 export interface ServiceArea {
   city: string;

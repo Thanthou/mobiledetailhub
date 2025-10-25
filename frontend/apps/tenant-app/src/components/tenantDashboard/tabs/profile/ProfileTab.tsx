@@ -1,17 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { AlertCircle } from 'lucide-react';
 
-import { ProfileForm } from './components/ProfileForm';
+import { SubTabNavigation, type ProfileSubTab } from './components/SubTabNavigation';
+import { PersonalSubTab } from './components/PersonalSubTab';
+import { BusinessSubTab } from './components/BusinessSubTab';
+import { SocialMediaSubTab } from './components/SocialMediaSubTab';
 import { useProfileData } from './hooks/useProfileData';
 
 const ProfileTab: React.FC = () => {
-  const {
-    businessData,
-    loading,
-    error,
-    updateBusiness,
-    isUpdating,
-  } = useProfileData();
+  const [activeSubTab, setActiveSubTab] = useState<ProfileSubTab>('personal');
+  const { businessData, loading, error } = useProfileData();
 
   if (loading) {
     return (
@@ -38,7 +36,11 @@ const ProfileTab: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <ProfileForm />
+      <SubTabNavigation activeTab={activeSubTab} onTabChange={setActiveSubTab} />
+      
+      {activeSubTab === 'personal' && <PersonalSubTab />}
+      {activeSubTab === 'business' && <BusinessSubTab />}
+      {activeSubTab === 'social' && <SocialMediaSubTab />}
     </div>
   );
 };

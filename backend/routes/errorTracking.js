@@ -10,7 +10,7 @@ import { asyncHandler } from '../middleware/errorHandler.js';
 import { createModuleLogger } from '../config/logger.js';
 import { getPool } from '../database/pool.js';
 import { validateBody } from '../middleware/zodValidation.js';
-import { errorTrackingSchemas } from '../schemas/apiSchemas.js';
+import { errorTrackingSchemas } from '../schemas/validation/index.js';
 
 const router = express.Router();
 const logger = createModuleLogger('errorTrackingRoutes');

@@ -2,7 +2,7 @@ import express from 'express';
 const router = express.Router();
 import { asyncHandler } from '../middleware/errorHandler.js';
 import { validateBody, validateParams, validateQuery } from '../middleware/zodValidation.js';
-import { tenantSchemas } from '../schemas/apiSchemas.js';
+import { tenantSchemas } from '../schemas/validation/index.js';
 // TODO: Add authentication to protected routes
 // import { authenticateToken } from '../middleware/auth.js';
 import { apiLimiter, sensitiveAuthLimiter } from '../middleware/rateLimiter.js';

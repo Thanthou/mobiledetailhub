@@ -7,12 +7,13 @@ import { TenantPage } from '@tenant-app/components/header';
 import { LazyRequestQuoteModal } from '@tenant-app/components/quotes';
 import { DashboardPage } from '@tenant-app/components/tenantDashboard';
 import TenantApplicationPage from '@shared/components/tenantOnboarding/components/TenantApplicationPage';
-import { LoginPage, ProtectedRoute } from '@shared/ui';
+import { ProtectedRoute } from '@shared/ui';
 import { SEOManager } from '@shared/bootstrap';
 
 import HomePage from './pages/HomePage';
 import ServicePage from './pages/ServicePage';
 import PreviewPage from './components/PreviewPage';
+import TenantLoginPage from './pages/TenantLoginPage';
 
 // Heavy modules are NOT imported here - they stay out of the initial bundle
 const Booking = lazy(() => import('./components/booking/BookingApp'));
@@ -66,11 +67,16 @@ function LiveRoutes() {
         <Route path="/" element={<TenantPage />} />
         
         {/* Login route */}
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/login" element={<TenantLoginPage />} />
         
-        {/* Tenant Dashboard - protected route */}
+        {/* Tenant Dashboard - protected route (accessible via /admin or /dashboard) */}
+        <Route path="/admin" element={
+          <ProtectedRoute requiredRole={['admin', 'tenant']} fallbackPath="/login">
+            <DashboardPage />
+          </ProtectedRoute>
+        } />
         <Route path="/dashboard" element={
-          <ProtectedRoute requiredRole={['admin', 'tenant']} fallbackPath="/">
+          <ProtectedRoute requiredRole={['admin', 'tenant']} fallbackPath="/login">
             <DashboardPage />
           </ProtectedRoute>
         } />
@@ -86,9 +92,14 @@ function LiveRoutes() {
         {/* Service routes - must come before generic businessSlug route */}
         <Route path=":businessSlug/services/:serviceType" element={<ServicePage />} />
         
-        {/* Business-specific dashboard */}
+        {/* Business-specific dashboard (accessible via /admin or /dashboard) */}
+        <Route path=":businessSlug/admin" element={
+          <ProtectedRoute requiredRole={['admin', 'tenant']} fallbackPath="/login">
+            <DashboardPage />
+          </ProtectedRoute>
+        } />
         <Route path=":businessSlug/dashboard" element={
-          <ProtectedRoute requiredRole={['admin', 'tenant']} fallbackPath="/">
+          <ProtectedRoute requiredRole={['admin', 'tenant']} fallbackPath="/login">
             <DashboardPage />
           </ProtectedRoute>
         } />

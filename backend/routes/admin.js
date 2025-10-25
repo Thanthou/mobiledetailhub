@@ -2,7 +2,7 @@ import express from 'express';
 import { getPool } from '../database/pool.js';
 import { authenticateToken, requireAdmin } from '../middleware/auth.js';
 import { validateBody, validateParams, validateQuery } from '../middleware/zodValidation.js';
-import { adminSchemas } from '../schemas/apiSchemas.js';
+import { adminSchemas } from '../schemas/validation/index.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import { createModuleLogger } from '../config/logger.js';
 import { criticalAdminLimiter } from '../middleware/rateLimiter.js';

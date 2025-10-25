@@ -8,7 +8,7 @@ import express from 'express';
 import { getPool } from '../database/pool.js';
 import { withTenantBySlug } from '../middleware/withTenant.js';
 import { validateBody } from '../middleware/zodValidation.js';
-import { serviceAreaSchemas } from '../schemas/apiSchemas.js';
+import { serviceAreaSchemas } from '../schemas/validation/index.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 const router = express.Router();
 

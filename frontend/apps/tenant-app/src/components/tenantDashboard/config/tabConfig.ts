@@ -18,7 +18,7 @@ export const DEFAULT_TAB_CONFIG: TabConfig = {
   schedule: false,
   customers: false,
   services: false,
-  locations: true,
+  locations: false, // Disabled - uses Google Maps (not needed currently)
   profile: true,
   website: true,
 };
@@ -36,7 +36,7 @@ export const TENANT_TAB_CONFIGS: Record<string, Partial<TabConfig>> = {
     schedule: false,
     customers: false,
     services: false,
-    locations: true,
+    locations: false, // Disabled - uses Google Maps (not needed currently)
     profile: true,
     website: true,
   },

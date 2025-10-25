@@ -1,10 +1,10 @@
 {
   "metadata": {
-    "generated": "2025-10-25T07:26:14.975Z",
-    "totalNodes": 95,
-    "totalEdges": 323,
+    "generated": "2025-10-25T21:01:15.880Z",
+    "totalNodes": 108,
+    "totalEdges": 331,
     "reachableNodes": 90,
-    "unreachableNodes": 5
+    "unreachableNodes": 18
   },
   "nodes": [
     {
@@ -2200,13 +2200,199 @@
       "importedByCount": 1
     },
     {
-      "id": "schemas\\apiSchemas.js",
+      "id": "schemas\\validation\\admin.schemas.js",
+      "reachable": false,
+      "exports": [
+        {
+          "name": "adminSchemas",
+          "type": "variable"
+        }
+      ],
+      "functions": [],
+      "routes": [],
+      "importCount": 1,
+      "importedByCount": 0
+    },
+    {
+      "id": "schemas\\validation\\analytics.schemas.js",
+      "reachable": false,
+      "exports": [
+        {
+          "name": "analyticsSchemas",
+          "type": "variable"
+        }
+      ],
+      "functions": [],
+      "routes": [],
+      "importCount": 1,
+      "importedByCount": 0
+    },
+    {
+      "id": "schemas\\validation\\auth.schemas.js",
+      "reachable": false,
+      "exports": [
+        {
+          "name": "authSchemas",
+          "type": "variable"
+        }
+      ],
+      "functions": [],
+      "routes": [],
+      "importCount": 1,
+      "importedByCount": 0
+    },
+    {
+      "id": "schemas\\validation\\common.js",
+      "reachable": false,
+      "exports": [
+        {
+          "name": "commonFields",
+          "type": "variable"
+        }
+      ],
+      "functions": [],
+      "routes": [],
+      "importCount": 0,
+      "importedByCount": 7
+    },
+    {
+      "id": "schemas\\validation\\domains.schemas.js",
+      "reachable": false,
+      "exports": [
+        {
+          "name": "domainSchemas",
+          "type": "variable"
+        }
+      ],
+      "functions": [],
+      "routes": [],
+      "importCount": 0,
+      "importedByCount": 0
+    },
+    {
+      "id": "schemas\\validation\\errors.schemas.js",
+      "reachable": false,
+      "exports": [
+        {
+          "name": "errorTrackingSchemas",
+          "type": "variable"
+        }
+      ],
+      "functions": [],
+      "routes": [],
+      "importCount": 0,
+      "importedByCount": 0
+    },
+    {
+      "id": "schemas\\validation\\images.schemas.js",
+      "reachable": false,
+      "exports": [
+        {
+          "name": "tenantImagesSchemas",
+          "type": "variable"
+        }
+      ],
+      "functions": [],
+      "routes": [],
+      "importCount": 0,
+      "importedByCount": 0
+    },
+    {
+      "id": "schemas\\validation\\index.js",
       "reachable": true,
       "exports": [],
       "functions": [],
       "routes": [],
       "importCount": 0,
       "importedByCount": 12
+    },
+    {
+      "id": "schemas\\validation\\payments.schemas.js",
+      "reachable": false,
+      "exports": [
+        {
+          "name": "paymentSchemas",
+          "type": "variable"
+        }
+      ],
+      "functions": [],
+      "routes": [],
+      "importCount": 2,
+      "importedByCount": 0
+    },
+    {
+      "id": "schemas\\validation\\reputation.schemas.js",
+      "reachable": false,
+      "exports": [
+        {
+          "name": "reviewSchemas",
+          "type": "variable"
+        }
+      ],
+      "functions": [],
+      "routes": [],
+      "importCount": 1,
+      "importedByCount": 0
+    },
+    {
+      "id": "schemas\\validation\\schedule.schemas.js",
+      "reachable": false,
+      "exports": [
+        {
+          "name": "scheduleSchemas",
+          "type": "variable"
+        }
+      ],
+      "functions": [],
+      "routes": [],
+      "importCount": 1,
+      "importedByCount": 0
+    },
+    {
+      "id": "schemas\\validation\\services.schemas.js",
+      "reachable": false,
+      "exports": [
+        {
+          "name": "serviceSchemas",
+          "type": "variable"
+        }
+      ],
+      "functions": [],
+      "routes": [],
+      "importCount": 0,
+      "importedByCount": 0
+    },
+    {
+      "id": "schemas\\validation\\tenants.schemas.js",
+      "reachable": false,
+      "exports": [
+        {
+          "name": "tenantSchemas",
+          "type": "variable"
+        },
+        {
+          "name": "serviceAreaSchemas",
+          "type": "variable"
+        }
+      ],
+      "functions": [],
+      "routes": [],
+      "importCount": 1,
+      "importedByCount": 1
+    },
+    {
+      "id": "schemas\\validation\\website.schemas.js",
+      "reachable": false,
+      "exports": [
+        {
+          "name": "websiteContentSchemas",
+          "type": "variable"
+        }
+      ],
+      "functions": [],
+      "routes": [],
+      "importCount": 0,
+      "importedByCount": 0
     },
     {
       "id": "scripts\\cleanup-tokens.js",
@@ -4016,7 +4202,7 @@
     },
     {
       "from": "routes\\admin.js",
-      "to": "schemas\\apiSchemas.js",
+      "to": "schemas\\validation\\index.js",
       "specifiers": [
         {
           "name": "adminSchemas",
@@ -4108,7 +4294,7 @@
     },
     {
       "from": "routes\\analytics.new.js",
-      "to": "schemas\\apiSchemas.js",
+      "to": "schemas\\validation\\index.js",
       "specifiers": [
         {
           "name": "analyticsSchemas",
@@ -4186,7 +4372,7 @@
     },
     {
       "from": "routes\\auth.js",
-      "to": "schemas\\apiSchemas.js",
+      "to": "schemas\\validation\\index.js",
       "specifiers": [
         {
           "name": "authSchemas",
@@ -4470,7 +4656,7 @@
     },
     {
       "from": "routes\\domains.js",
-      "to": "schemas\\apiSchemas.js",
+      "to": "schemas\\validation\\index.js",
       "specifiers": [
         {
           "name": "domainSchemas",
@@ -4530,7 +4716,7 @@
     },
     {
       "from": "routes\\errorTracking.js",
-      "to": "schemas\\apiSchemas.js",
+      "to": "schemas\\validation\\index.js",
       "specifiers": [
         {
           "name": "errorTrackingSchemas",
@@ -4892,7 +5078,7 @@
     },
     {
       "from": "routes\\locations.js",
-      "to": "schemas\\apiSchemas.js",
+      "to": "schemas\\validation\\index.js",
       "specifiers": [
         {
           "name": "serviceAreaSchemas",
@@ -4970,7 +5156,7 @@
     },
     {
       "from": "routes\\payments.js",
-      "to": "schemas\\apiSchemas.js",
+      "to": "schemas\\validation\\index.js",
       "specifiers": [
         {
           "name": "paymentSchemas",
@@ -5126,7 +5312,7 @@
     },
     {
       "from": "routes\\reviews.js",
-      "to": "schemas\\apiSchemas.js",
+      "to": "schemas\\validation\\index.js",
       "specifiers": [
         {
           "name": "reviewSchemas",
@@ -5372,7 +5558,7 @@
     },
     {
       "from": "routes\\services.js",
-      "to": "schemas\\apiSchemas.js",
+      "to": "schemas\\validation\\index.js",
       "specifiers": [
         {
           "name": "serviceSchemas",
@@ -5548,7 +5734,7 @@
     },
     {
       "from": "routes\\tenantImages.js",
-      "to": "schemas\\apiSchemas.js",
+      "to": "schemas\\validation\\index.js",
       "specifiers": [
         {
           "name": "tenantImagesSchemas",
@@ -5728,7 +5914,7 @@
     },
     {
       "from": "routes\\tenants.js",
-      "to": "schemas\\apiSchemas.js",
+      "to": "schemas\\validation\\index.js",
       "specifiers": [
         {
           "name": "tenantSchemas",
@@ -5826,10 +6012,90 @@
     },
     {
       "from": "routes\\websiteContent.js",
-      "to": "schemas\\apiSchemas.js",
+      "to": "schemas\\validation\\index.js",
       "specifiers": [
         {
           "name": "websiteContentSchemas",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "schemas\\validation\\admin.schemas.js",
+      "to": "schemas\\validation\\common.js",
+      "specifiers": [
+        {
+          "name": "commonFields",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "schemas\\validation\\analytics.schemas.js",
+      "to": "schemas\\validation\\common.js",
+      "specifiers": [
+        {
+          "name": "commonFields",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "schemas\\validation\\auth.schemas.js",
+      "to": "schemas\\validation\\common.js",
+      "specifiers": [
+        {
+          "name": "commonFields",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "schemas\\validation\\payments.schemas.js",
+      "to": "schemas\\validation\\common.js",
+      "specifiers": [
+        {
+          "name": "commonFields",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "schemas\\validation\\payments.schemas.js",
+      "to": "schemas\\validation\\tenants.schemas.js",
+      "specifiers": [
+        {
+          "name": "tenantSchemas",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "schemas\\validation\\reputation.schemas.js",
+      "to": "schemas\\validation\\common.js",
+      "specifiers": [
+        {
+          "name": "commonFields",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "schemas\\validation\\schedule.schemas.js",
+      "to": "schemas\\validation\\common.js",
+      "specifiers": [
+        {
+          "name": "commonFields",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "schemas\\validation\\tenants.schemas.js",
+      "to": "schemas\\validation\\common.js",
+      "specifiers": [
+        {
+          "name": "commonFields",
           "type": "named"
         }
       ]

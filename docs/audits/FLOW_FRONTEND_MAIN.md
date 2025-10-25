@@ -1,6 +1,6 @@
 # 📊 Frontend Flow Audit - main
 
-**Generated:** 10/25/2025, 12:26:47 AM
+**Generated:** 10/25/2025, 2:12:45 PM
 
 ## 🔴 Score: 0/100 (Poor Flow Health)
 
@@ -9,18 +9,18 @@
 | Metric | Value |
 |--------|-------|
 | **App Files** | |
-| Total App Files | 313 |
+| Total App Files | 185 |
 | Reachable App Files | 27 |
-| Unreachable App Files | 229 |
+| Unreachable App Files | 123 |
 | **Shared Files** | |
-| Total Shared Files | 279 |
-| Reachable Shared Files | 135 |
-| Unreachable Shared Files | 113 |
+| Total Shared Files | 280 |
+| Reachable Shared Files | 136 |
+| Unreachable Shared Files | 115 |
 | **Issues** | |
 | Boundary Violations | 0 |
 | Parse Errors | 0 |
 
-## 🔴 Unreachable App Files (229)
+## 🔴 Unreachable App Files (123)
 
 These files in **main** are not imported from the entry point (dead code):
 
@@ -144,117 +144,11 @@ These files in **main** are not imported from the entry point (dead code):
 - apps/main/src/components/services/hooks/useServices.ts
 - apps/main/src/components/services/types/service-data.ts
 - apps/main/src/components/services/utils/protectionComparison.ts
-- apps/main/src/components/tenantDashboard/api/analytics.ts
-- apps/main/src/components/tenantDashboard/api/dashboard.api.ts
-- apps/main/src/components/tenantDashboard/api/healthApi.ts
-- apps/main/src/components/tenantDashboard/api/locationsApi.ts
-- apps/main/src/components/tenantDashboard/api/reviewsApi.ts
-- apps/main/src/components/tenantDashboard/api/websiteContentApi.ts
-- apps/main/src/components/tenantDashboard/components/AddToHomeScreen.tsx
-- apps/main/src/components/tenantDashboard/components/AutoSaveStatus.tsx
-- apps/main/src/components/tenantDashboard/components/Dashboard.tsx
-- apps/main/src/components/tenantDashboard/components/DashboardHeader.tsx
-- apps/main/src/components/tenantDashboard/components/DashboardLayout.tsx
-- apps/main/src/components/tenantDashboard/components/DashboardPage.tsx
-- apps/main/src/components/tenantDashboard/components/DashboardTabs.tsx
-- apps/main/src/components/tenantDashboard/components/TabContent.tsx
-- apps/main/src/components/tenantDashboard/config/tabConfig.ts
-- apps/main/src/components/tenantDashboard/hooks/useDashboardData.ts
-- apps/main/src/components/tenantDashboard/hooks/useTenantBusinessData.ts
-- apps/main/src/components/tenantDashboard/tabs/customers/CustomersTab.tsx
-- apps/main/src/components/tenantDashboard/tabs/locations/components/AddLocationModal.tsx
-- apps/main/src/components/tenantDashboard/tabs/locations/components/DeleteLocationModal.tsx
-- apps/main/src/components/tenantDashboard/tabs/locations/components/LocationCard.tsx
-- apps/main/src/components/tenantDashboard/tabs/locations/components/LocationSearch.tsx
-- apps/main/src/components/tenantDashboard/tabs/locations/components/PrimaryServiceArea.tsx
-- apps/main/src/components/tenantDashboard/tabs/locations/components/ServiceAreasList.tsx
-- apps/main/src/components/tenantDashboard/tabs/locations/hooks/useGoogleMaps.ts
-- apps/main/src/components/tenantDashboard/tabs/locations/hooks/useLocationSearch.ts
-- apps/main/src/components/tenantDashboard/tabs/locations/hooks/useLocationState.ts
-- apps/main/src/components/tenantDashboard/tabs/locations/LocationsTab.tsx
-- apps/main/src/components/tenantDashboard/tabs/overview/components/MetricsCards.tsx
-- apps/main/src/components/tenantDashboard/tabs/overview/components/NotificationPanel.tsx
-- apps/main/src/components/tenantDashboard/tabs/overview/components/QuickActions.tsx
-- apps/main/src/components/tenantDashboard/tabs/overview/components/RecentAppointments.tsx
-- apps/main/src/components/tenantDashboard/tabs/overview/components/RecentReviews.tsx
-- apps/main/src/components/tenantDashboard/tabs/overview/hooks/useDashboardStats.ts
-- apps/main/src/components/tenantDashboard/tabs/overview/hooks/useNotifications.ts
-- apps/main/src/components/tenantDashboard/tabs/overview/hooks/useRecentAppointments.ts
-- apps/main/src/components/tenantDashboard/tabs/overview/hooks/useRecentReviews.ts
-- apps/main/src/components/tenantDashboard/tabs/overview/OverviewTab.tsx
-- apps/main/src/components/tenantDashboard/tabs/overview/utils/getStatusColor.ts
-- apps/main/src/components/tenantDashboard/tabs/performance/PerformanceTab.tsx
-- apps/main/src/components/tenantDashboard/tabs/profile/components/AutoSaveField.tsx
-- apps/main/src/components/tenantDashboard/tabs/profile/components/ProfileForm.tsx
-- apps/main/src/components/tenantDashboard/tabs/profile/components/SocialMediaUrlField.tsx
-- apps/main/src/components/tenantDashboard/tabs/profile/hooks/useAutoSaveField.ts
-- apps/main/src/components/tenantDashboard/tabs/profile/hooks/useProfileData.ts
-- apps/main/src/components/tenantDashboard/tabs/profile/ProfileTab.tsx
-- apps/main/src/components/tenantDashboard/tabs/schedule/api/appointments.ts
-- apps/main/src/components/tenantDashboard/tabs/schedule/api/blockedDays.ts
-- apps/main/src/components/tenantDashboard/tabs/schedule/api/scheduleSettings.ts
-- apps/main/src/components/tenantDashboard/tabs/schedule/api/timeBlocks.ts
-- apps/main/src/components/tenantDashboard/tabs/schedule/components/AppointmentCard.tsx
-- apps/main/src/components/tenantDashboard/tabs/schedule/components/DayView.tsx
-- apps/main/src/components/tenantDashboard/tabs/schedule/components/modals/AppointmentModal.tsx
-- apps/main/src/components/tenantDashboard/tabs/schedule/components/MonthView.tsx
-- apps/main/src/components/tenantDashboard/tabs/schedule/components/ScheduleGrid.tsx
-- apps/main/src/components/tenantDashboard/tabs/schedule/components/ScheduleHeader.tsx
-- apps/main/src/components/tenantDashboard/tabs/schedule/components/ScheduleLoadingState.tsx
-- apps/main/src/components/tenantDashboard/tabs/schedule/components/ScheduleNavigationHeader.tsx
-- apps/main/src/components/tenantDashboard/tabs/schedule/components/ScheduleSidebar.tsx
-- apps/main/src/components/tenantDashboard/tabs/schedule/components/scheduleUtils.ts
-- apps/main/src/components/tenantDashboard/tabs/schedule/components/WeekView.tsx
-- apps/main/src/components/tenantDashboard/tabs/schedule/hooks/useScheduleData.ts
-- apps/main/src/components/tenantDashboard/tabs/schedule/ScheduleTab.tsx
-- apps/main/src/components/tenantDashboard/tabs/services/components/AddServiceModal.tsx
-- apps/main/src/components/tenantDashboard/tabs/services/components/CategorySelector.tsx
-- apps/main/src/components/tenantDashboard/tabs/services/components/DeleteServiceModal.tsx
-- apps/main/src/components/tenantDashboard/tabs/services/components/FeatureDropdown.tsx
-- apps/main/src/components/tenantDashboard/tabs/services/components/FeatureList.tsx
-- apps/main/src/components/tenantDashboard/tabs/services/components/MultiTierPricingModal.tsx
-- apps/main/src/components/tenantDashboard/tabs/services/components/SelectedServiceDetailsDisplay.tsx
-- apps/main/src/components/tenantDashboard/tabs/services/components/SelectedServiceDisplay.tsx
-- apps/main/src/components/tenantDashboard/tabs/services/components/ServiceActionsHeader.tsx
-- apps/main/src/components/tenantDashboard/tabs/services/components/ServiceSelector.tsx
-- apps/main/src/components/tenantDashboard/tabs/services/components/ServiceTierCards.tsx
-- apps/main/src/components/tenantDashboard/tabs/services/components/VehicleSelector.tsx
-- apps/main/src/components/tenantDashboard/tabs/services/FixedServicesTab.tsx
-- apps/main/src/components/tenantDashboard/tabs/services/hooks/useFixedServicesHandlers.ts
-- apps/main/src/components/tenantDashboard/tabs/services/hooks/useServiceOperations.ts
-- apps/main/src/components/tenantDashboard/tabs/services/hooks/useServicesData.ts
-- apps/main/src/components/tenantDashboard/tabs/services/hooks/useServiceSelection.ts
-- apps/main/src/components/tenantDashboard/tabs/services/hooks/useTenantId.ts
-- apps/main/src/components/tenantDashboard/tabs/services/ServicesTab.tsx
-- apps/main/src/components/tenantDashboard/tabs/services/SimpleFixedServicesTab.tsx
-- apps/main/src/components/tenantDashboard/tabs/services/types/ServiceClasses.ts
-- apps/main/src/components/tenantDashboard/tabs/services/types/ServiceFeature.ts
-- apps/main/src/components/tenantDashboard/tabs/website/components/AddReviewForm.tsx
-- apps/main/src/components/tenantDashboard/tabs/website/components/FAQItemAutoSaveField.tsx
-- apps/main/src/components/tenantDashboard/tabs/website/components/FAQSection.tsx
-- apps/main/src/components/tenantDashboard/tabs/website/components/GallerySection.tsx
-- apps/main/src/components/tenantDashboard/tabs/website/components/HealthTab.tsx
-- apps/main/src/components/tenantDashboard/tabs/website/components/HeroSection.tsx
-- apps/main/src/components/tenantDashboard/tabs/website/components/RemoveReviewTab.tsx
-- apps/main/src/components/tenantDashboard/tabs/website/components/ReviewsContent.tsx
-- apps/main/src/components/tenantDashboard/tabs/website/components/ReviewsSection.tsx
-- apps/main/src/components/tenantDashboard/tabs/website/components/ServicesSection.tsx
-- apps/main/src/components/tenantDashboard/tabs/website/components/WebsiteAutoSaveField.tsx
-- apps/main/src/components/tenantDashboard/tabs/website/contexts/WebsiteContentContext.tsx
-- apps/main/src/components/tenantDashboard/tabs/website/hooks/useWebsiteContentData.ts
-- apps/main/src/components/tenantDashboard/tabs/website/hooks/useWebsiteContentField.ts
-- apps/main/src/components/tenantDashboard/tabs/website/WebsiteContentTab.tsx
-- apps/main/src/components/tenantDashboard/tabs/website/WebsiteDomainTab.tsx
-- apps/main/src/components/tenantDashboard/tabs/website/WebsiteHealthTab.tsx
-- apps/main/src/components/tenantDashboard/tabs/website/WebsitePerformanceTab.tsx
-- apps/main/src/components/tenantDashboard/tabs/website/WebsiteTab.tsx
-- apps/main/src/components/tenantDashboard/utils/constants.ts
-- apps/main/src/components/tenantDashboard/utils/tenantEvents.ts
 - apps/main/src/MainApp.tsx
 - apps/main/src/modes/MarketingSite.tsx
 - apps/main/src/providers.tsx
 
-## 🟡 Unreachable Shared Files (113)
+## 🟡 Unreachable Shared Files (115)
 
 These shared files are not used by **main** (but may be used by other apps):
 
@@ -279,5 +173,5 @@ These shared files are not used by **main** (but may be used by other apps):
 - src/shared/auth/hooks/useFormValidation.ts
 - src/shared/auth/hooks/useLoginModalPrefetch.ts
 
-... and 93 more
+... and 95 more
 

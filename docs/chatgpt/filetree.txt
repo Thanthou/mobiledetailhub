@@ -56,23 +56,16 @@
       📄 withTenant.js
       📄 zodValidation.js
    📁 migrations/
-      📄 2025-10-17_0001_create_error_logs_table.sql
-      📄 2025-10-17_1400_create_schemas.sql
-      📄 2025-10-17_1500_analytics.sql
-      📄 2025-10-17_1501_tenants.sql
-      📄 2025-10-17_1502_auth.sql
-      📄 2025-10-17_1503_booking.sql
-      📄 2025-10-17_1504_customers.sql
-      📄 2025-10-17_1505_reputation.sql
-      📄 2025-10-17_1506_schedule.sql
-      📄 2025-10-17_1507_system.sql
-      📄 2025-10-17_1508_website.sql
-      📄 2025-10-17_1600_example_migration.sql
-      📄 2025-10-19_add_cascade_delete_constraints.sql
-      📄 2025-10-20_0001_add_seo_audit_tracking.sql
-      📄 2025-10-20_0002_add_preview_expires_at.sql
-      📄 2025-10-21_0001_add_business_email_index.sql
-      📄 2025-10-24_0001_create_token_blacklist.sql
+      📄 2025-10-24_0001_create_schemas.sql
+      📄 2025-10-24_0002_analytics.sql
+      📄 2025-10-24_0003_tenants.sql
+      📄 2025-10-24_0004_auth.sql
+      📄 2025-10-24_0005_booking.sql
+      📄 2025-10-24_0006_customers.sql
+      📄 2025-10-24_0007_reputation.sql
+      📄 2025-10-24_0008_schedule.sql
+      📄 2025-10-24_0009_system.sql
+      📄 2025-10-24_0010_website.sql
       📄 README.md
    📁 mocks/
       📄 mockReviews.json
@@ -185,6 +178,7 @@
 📄 check-logo.js
 📄 DEV_WORKFLOW.md
 📁 docs/
+   📄 API.md
    📁 archive/
 
    📁 audits/
@@ -401,37 +395,6 @@
                   📁 utils/
                      📄 constants.ts
                      📄 index.ts
-               📁 devPreview/
-                  📁 components/
-                     📄 ViewportFrame.tsx
-                     📄 ViewportSwitcher.tsx
-                  📁 hooks/
-                     📄 useViewportAsync.ts
-                  📄 index.ts
-                  📁 state/
-                     📄 viewportStore.ts
-               📁 preview/
-                  📁 api/
-                     📄 preview.api.ts
-                  📁 components/
-                     📄 PreviewBanner.tsx
-                     📄 PreviewCTAButton.tsx
-                     📄 PreviewDataProvider.tsx
-                     📄 PreviewError.tsx
-                     📄 PreviewLoading.tsx
-                     📄 PreviewPage.tsx
-                  📁 data/
-
-                  📁 hooks/
-                     📄 usePreviewAsync.ts
-                     📄 usePreviewParams.ts
-                  📄 index.ts
-                  📁 pages/
-                     📄 PreviewGeneratorPage.tsx
-                  📁 state/
-                     📄 previewStore.ts
-                  📁 types/
-                     📄 preview.types.ts
                📁 tenantOnboarding/
                   📁 api/
                      📄 api.ts
@@ -677,35 +640,6 @@
                   📁 types/
                      📄 index.ts
                      📄 quotes.types.ts
-               📁 reviews/
-                  📁 api/
-                     📄 index.ts
-                     📄 reviewsApi.ts
-                  📁 components/
-                     📄 GoogleReviewsTest.tsx
-                     📄 index.ts
-                     📄 ReviewCard.tsx
-                     📄 ReviewModal.tsx
-                     📄 Reviews.tsx
-                     📄 ReviewsCarousel.tsx
-                     📄 ReviewsHeader.tsx
-                  📁 hooks/
-                     📄 index.ts
-                     📄 useGoogleReviews.ts
-                     📄 useReviews.ts
-                     📄 useReviewsAvailability.ts
-                     📄 useReviewsContent.ts
-                     📄 useReviewsRating.ts
-                     📄 useRotatingReviews.ts
-                  📄 index.ts
-                  📁 state/
-                     📄 index.ts
-                  📁 types/
-                     📄 index.ts
-                     📄 types.ts
-                  📁 utils/
-                     📄 index.ts
-                     📄 reviewUtils.ts
                📄 RocketPeelTransition.tsx
                📄 RuntimeConfigTest.tsx
                📁 sections/
@@ -1512,8 +1446,6 @@
             📄 main.tsx
             📁 pages/
                📄 HomePage.tsx
-               📄 IndustryPreviewPage.tsx
-               📄 MobileDetailingPreview.tsx
                📄 ServicePage.tsx
             📄 TenantApp.tsx
             📄 TenantProviders.tsx
@@ -1855,8 +1787,6 @@
             📄 ConfigProvider.tsx
             📄 ErrorFallback.tsx
             📁 faq/
-               📁 api/
-
                📁 components/
                   📄 FAQ.tsx
                   📄 FAQCategoryFilter.tsx
@@ -1871,74 +1801,10 @@
                   📄 useFAQData.ts
                   📄 useRotatingBackground.ts
                📄 index.ts
-               📁 state/
-
                📁 types/
                   📄 index.ts
                📁 utils/
                   📄 index.ts
-            📁 gallery/
-               📁 api/
-                  📄 gallery.api.ts
-               📁 components/
-                  📄 Gallery.tsx
-                  📄 GalleryItem.tsx
-                  📄 RotatingGalleryItem.tsx
-               📁 hooks/
-                  📄 useGallery.ts
-                  📄 useRotatingGallery.ts
-               📄 index.ts
-               📁 state/
-
-               📁 types/
-                  📄 index.ts
-               📁 utils/
-
-            📁 header/
-               📁 api/
-                  📄 tenant.api.ts
-               📁 components/
-                  📄 BusinessInfo.tsx
-                  📄 BusinessInfoDisplay.tsx
-                  📄 DevNavigation.tsx
-                  📄 Header.tsx
-                  📄 index.ts
-                  📄 LoginButton.tsx
-                  📄 Logo.tsx
-                  📄 Navigation.tsx
-                  📄 SocialMediaIcons.tsx
-                  📄 UserMenu.tsx
-               📁 contexts/
-                  📄 DataProvider.tsx
-                  📄 TenantContext.tsx
-               📁 hooks/
-                  📄 useBusiness.ts
-                  📄 useTenants.ts
-               📄 index.ts
-               📁 pages/
-
-               📁 routes/
-                  📄 tenantRoutes.tsx
-               📁 state/
-
-               📁 types/
-                  📄 business.types.ts
-                  📄 index.ts
-               📁 utils/
-                  📄 constants.ts
-                  📄 navigation.ts
-            📁 hero/
-               📁 components/
-                  📄 ContentContainer.tsx
-                  📄 CTA.tsx
-                  📄 Hero.tsx
-                  📄 ImageCarousel.tsx
-                  📄 TextDisplay.tsx
-               📁 hooks/
-                  📄 useHeroContent.ts
-               📄 index.ts
-               📁 types/
-
             📄 HomePageLayout.tsx
             📄 index.ts
             📄 MergeDemo.tsx
@@ -1952,8 +1818,6 @@
                   📄 PreviewError.tsx
                   📄 PreviewLoading.tsx
                   📄 PreviewPage.tsx
-               📁 data/
-
                📁 hooks/
                   📄 usePreviewAsync.ts
                   📄 usePreviewParams.ts
@@ -1965,118 +1829,9 @@
                📁 types/
                   📄 preview.types.ts
             📄 PreviewBanner.tsx
-            📁 quotes/
-               📁 api/
-                  📄 quotes.api.ts
-               📁 components/
-                  📄 ContactSection.tsx
-                  📄 index.ts
-                  📄 LazyRequestQuoteModal.tsx
-                  📄 QuoteForm.tsx
-                  📄 RequestQuoteModal.tsx
-                  📄 ServicesSection.tsx
-                  📄 SuccessMessage.tsx
-                  📄 VehicleSection.tsx
-               📁 hooks/
-                  📄 index.ts
-                  📄 useQuoteForm.ts
-                  📄 useQuoteFormLogic.refactored.ts
-                  📄 useQuoteFormLogic.test.ts
-                  📄 useQuoteFormLogic.ts
-                  📄 useQuoteFormState.ts
-                  📄 useQuoteModal.ts
-                  📄 useQuoteSubmission.ts
-                  📄 useQuoteTenantData.ts
-                  📄 useQuoteValidation.ts
-                  📄 useQuoteVehicleData.ts
-               📄 index.ts
-               📁 quotes/
-                  📁 api/
-                     📄 quotes.api.ts
-                  📁 components/
-                     📄 ContactSection.tsx
-                     📄 index.ts
-                     📄 LazyRequestQuoteModal.tsx
-                     📄 QuoteForm.tsx
-                     📄 RequestQuoteModal.tsx
-                     📄 ServicesSection.tsx
-                     📄 SuccessMessage.tsx
-                     📄 VehicleSection.tsx
-                  📁 hooks/
-                     📄 index.ts
-                     📄 useQuoteForm.ts
-                     📄 useQuoteFormLogic.refactored.ts
-                     📄 useQuoteFormLogic.test.ts
-                     📄 useQuoteFormLogic.ts
-                     📄 useQuoteFormState.ts
-                     📄 useQuoteModal.ts
-                     📄 useQuoteSubmission.ts
-                     📄 useQuoteTenantData.ts
-                     📄 useQuoteValidation.ts
-                     📄 useQuoteVehicleData.ts
-                  📄 index.ts
-                  📁 types/
-                     📄 index.ts
-                     📄 quotes.types.ts
-               📁 types/
-                  📄 index.ts
-                  📄 quotes.types.ts
-            📁 reviews/
-               📁 api/
-                  📄 index.ts
-                  📄 reviewsApi.ts
-               📁 components/
-                  📄 GoogleReviewsTest.tsx
-                  📄 index.ts
-                  📄 ReviewCard.tsx
-                  📄 ReviewModal.tsx
-                  📄 Reviews.tsx
-                  📄 ReviewsCarousel.tsx
-                  📄 ReviewsHeader.tsx
-               📁 hooks/
-                  📄 index.ts
-                  📄 useGoogleReviews.ts
-                  📄 useReviews.ts
-                  📄 useReviewsAvailability.ts
-                  📄 useReviewsContent.ts
-                  📄 useReviewsRating.ts
-                  📄 useRotatingReviews.ts
-               📄 index.ts
-               📁 state/
-                  📄 index.ts
-               📁 types/
-                  📄 index.ts
-                  📄 types.ts
-               📁 utils/
-                  📄 index.ts
-                  📄 reviewUtils.ts
             📁 seo/
                📄 JsonLdSchema.tsx
                📄 SeoHead.tsx
-            📁 services/
-               📁 api/
-                  📄 services.api.ts
-               📁 components/
-                  📄 BeforeAfterSlider.tsx
-                  📄 Process.tsx
-                  📄 ProtectionComparisonChart.tsx
-                  📄 Results.tsx
-                  📄 ServiceCard.tsx
-                  📄 ServiceCTA.tsx
-                  📄 ServiceHero.tsx
-                  📄 ServicesGrid.tsx
-                  📄 WhatItIs.tsx
-               📁 hooks/
-                  📄 useServicePage.ts
-                  📄 useServices.ts
-               📄 index.ts
-               📁 state/
-
-               📁 types/
-                  📄 service-data.ts
-                  📄 service.types.ts
-               📁 utils/
-                  📄 protectionComparison.ts
             📁 tenantOnboarding/
                📁 api/
                   📄 api.ts
@@ -2170,7 +1925,6 @@
             📄 usePrefetch.ts
             📄 usePreviewAsyncCore.ts
             📄 usePWAStatus.ts
-            📄 useReviewsAvailability.ts
             📄 useRouterDebug.ts
             📄 useScrollSpy.ts
             📄 useScrollToTop.ts
@@ -2240,6 +1994,7 @@
             📄 index.ts
             📄 location.ts
             📄 reviews.ts
+            📄 service.types.ts
             📄 site.ts
             📄 tenant-business.types.ts
             📄 tenant.types.ts
@@ -2505,6 +2260,15 @@
          📄 SYSTEM_REPORT.md
       📄 run-all.js
    📄 README.md
+   📁 seeding/
+      📁 data/
+         📄 house-cleaning.json
+         📄 lawn-care.json
+         📄 mobile-detailing.json
+      📁 factories/
+         📄 tenantFactory.js
+      📄 README.md
+      📄 seed-tenants.js
    📁 setup/
       📄 seo-provision.js
       📄 setup-hosts-windows.md

@@ -55,7 +55,9 @@ export const useProfileData = (): UseProfileDataReturn => {
         setLoading(true);
         setError(null);
 
-        const response = await fetch(`${config.apiUrl}/api/tenants/${slug}`);
+        const response = await fetch(`${config.apiUrl}/api/tenants/${slug}`, {
+          credentials: 'include', // Include auth cookies
+        });
         
         if (!response.ok) {
           if (response.status === 404) {
@@ -124,6 +126,7 @@ export const useProfileData = (): UseProfileDataReturn => {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Include auth cookies
         body: JSON.stringify(updateData),
       });
 
