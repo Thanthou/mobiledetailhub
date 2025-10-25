@@ -1,6 +1,6 @@
 # 📊 Frontend Flow Audit - tenant-app
 
-**Generated:** 10/25/2025, 2:01:18 PM
+**Generated:** 10/25/2025, 3:49:35 PM
 
 ## 🔴 Score: 0/100 (Poor Flow Health)
 
@@ -9,18 +9,18 @@
 | Metric | Value |
 |--------|-------|
 | **App Files** | |
-| Total App Files | 332 |
-| Reachable App Files | 232 |
-| Unreachable App Files | 62 |
+| Total App Files | 337 |
+| Reachable App Files | 233 |
+| Unreachable App Files | 65 |
 | **Shared Files** | |
-| Total Shared Files | 280 |
-| Reachable Shared Files | 201 |
-| Unreachable Shared Files | 62 |
+| Total Shared Files | 249 |
+| Reachable Shared Files | 187 |
+| Unreachable Shared Files | 49 |
 | **Issues** | |
 | Boundary Violations | 0 |
 | Parse Errors | 0 |
 
-## 🔴 Unreachable App Files (62)
+## 🔴 Unreachable App Files (65)
 
 These files in **tenant-app** are not imported from the entry point (dead code):
 
@@ -67,7 +67,10 @@ These files in **tenant-app** are not imported from the entry point (dead code):
 - apps/tenant-app/src/components/tenantDashboard/tabs/overview/hooks/useRecentReviews.ts
 - apps/tenant-app/src/components/tenantDashboard/tabs/overview/utils/getStatusColor.ts
 - apps/tenant-app/src/components/tenantDashboard/tabs/performance/PerformanceTab.tsx
+- apps/tenant-app/src/components/tenantDashboard/tabs/profile/components/AutoSaveField.tsx
+- apps/tenant-app/src/components/tenantDashboard/tabs/profile/components/ProfileForm.tsx
 - apps/tenant-app/src/components/tenantDashboard/tabs/profile/components/SocialMediaUrlField.tsx
+- apps/tenant-app/src/components/tenantDashboard/tabs/profile/hooks/useAutoSaveField.ts
 - apps/tenant-app/src/components/tenantDashboard/tabs/schedule/api/appointments.ts
 - apps/tenant-app/src/components/tenantDashboard/tabs/schedule/api/blockedDays.ts
 - apps/tenant-app/src/components/tenantDashboard/tabs/schedule/api/scheduleSettings.ts
@@ -87,7 +90,7 @@ These files in **tenant-app** are not imported from the entry point (dead code):
 - apps/tenant-app/src/components/tenantDashboard/utils/tenantEvents.ts
 - apps/tenant-app/src/hooks/usePreviewParams.ts
 
-## 🟡 Unreachable Shared Files (62)
+## 🟡 Unreachable Shared Files (49)
 
 These shared files are not used by **tenant-app** (but may be used by other apps):
 
@@ -106,11 +109,11 @@ These shared files are not used by **tenant-app** (but may be used by other apps
 - src/shared/components/PreviewBanner.tsx
 - src/shared/components/seo/JsonLdSchema.tsx
 - src/shared/components/seo/SeoHead.tsx
-- src/shared/components/tenantOnboarding/api/api.ts
-- src/shared/components/tenantOnboarding/api/onboarding.api.ts
-- src/shared/components/tenantOnboarding/components/GoogleBusinessProfileModal.tsx
-- src/shared/components/tenantOnboarding/components/IdentityContactSection.tsx
-- src/shared/components/tenantOnboarding/components/LegalTermsSection.tsx
+- src/shared/config/pricing.ts
+- src/shared/constants/externalUrls.ts
+- src/shared/constants/vehicleMapping.ts
+- src/shared/contexts/SiteContext.tsx
+- src/shared/data/states.ts
 
-... and 42 more
+... and 29 more
 

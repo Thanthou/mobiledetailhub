@@ -1,17 +1,17 @@
 # 📊 Frontend Flow Audit - admin-app
 
-**Generated:** 10/25/2025, 3:45:21 PM
+**Generated:** 10/25/2025, 3:48:33 PM
 
-## 🟡 Score: 70/100 (Needs Review)
+## 🟡 Score: 72/100 (Needs Review)
 
 ### Metrics
 
 | Metric | Value |
 |--------|-------|
 | **App Files** | |
-| Total App Files | 30 |
+| Total App Files | 29 |
 | Reachable App Files | 6 |
-| Unreachable App Files | 15 |
+| Unreachable App Files | 14 |
 | **Shared Files** | |
 | Total Shared Files | 249 |
 | Reachable Shared Files | 129 |
@@ -20,7 +20,7 @@
 | Boundary Violations | 0 |
 | Parse Errors | 0 |
 
-## 🔴 Unreachable App Files (15)
+## 🔴 Unreachable App Files (14)
 
 These files in **admin-app** are not imported from the entry point (dead code):
 
@@ -36,7 +36,6 @@ These files in **admin-app** are not imported from the entry point (dead code):
 - apps/admin-app/src/components/adminDashboard/components/tabs/reviews/ReviewsTab.tsx
 - apps/admin-app/src/components/adminDashboard/components/tabs/settings/SettingsTab.tsx
 - apps/admin-app/src/components/adminDashboard/components/tabs/users/UsersTab.tsx
-- apps/admin-app/src/components/adminDashboard/DashboardPage.tsx
 - apps/admin-app/src/components/adminDashboard/hooks/useSeedReview.ts
 - apps/admin-app/src/components/adminDashboard/utils/constants.ts
 
