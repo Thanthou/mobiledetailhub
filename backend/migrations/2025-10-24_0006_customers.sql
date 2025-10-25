@@ -1,5 +1,6 @@
 -- Customers Schema Migration
--- Creates customers tables (schema already exists from 1400_create_schemas.sql)
+-- Migration: 2025-10-24_0006_customers
+-- Purpose: Create customers tables (schema created in 0001_create_schemas.sql)
 
 -- Create customers table
 CREATE TABLE IF NOT EXISTS customers.customers (
@@ -31,7 +32,7 @@ CREATE TABLE IF NOT EXISTS customers.customers (
 -- Create customer_vehicles table
 CREATE TABLE IF NOT EXISTS customers.customer_vehicles (
     id SERIAL PRIMARY KEY,
-    customer_id INTEGER NOT NULL REFERENCES customers.customers(id),
+    customer_id INTEGER NOT NULL REFERENCES customers.customers(id) ON DELETE CASCADE,
     make VARCHAR(100) NOT NULL,
     model VARCHAR(100) NOT NULL,
     year INTEGER,
@@ -54,7 +55,7 @@ CREATE TABLE IF NOT EXISTS customers.customer_vehicles (
 -- Create customer_communications table
 CREATE TABLE IF NOT EXISTS customers.customer_communications (
     id SERIAL PRIMARY KEY,
-    customer_id INTEGER NOT NULL REFERENCES customers.customers(id),
+    customer_id INTEGER NOT NULL REFERENCES customers.customers(id) ON DELETE CASCADE,
     communication_type VARCHAR(50) NOT NULL,
     direction VARCHAR(10) NOT NULL,
     subject VARCHAR(255),
@@ -90,3 +91,4 @@ CREATE INDEX IF NOT EXISTS idx_customer_communications_type ON customers.custome
 
 -- ROLLBACK:
 -- DROP SCHEMA IF EXISTS customers CASCADE;
+

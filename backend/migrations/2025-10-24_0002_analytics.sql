@@ -1,5 +1,6 @@
 -- Analytics Schema Migration
--- Creates analytics tables (schema already exists from 1400_create_schemas.sql)
+-- Migration: 2025-10-24_0002_analytics
+-- Purpose: Create analytics tables (schema created in 0001_create_schemas.sql)
 
 -- Create google_analytics_tokens table
 CREATE TABLE IF NOT EXISTS analytics.google_analytics_tokens (
@@ -19,3 +20,4 @@ CREATE INDEX IF NOT EXISTS idx_analytics_tokens_expires_at ON analytics.google_a
 
 -- ROLLBACK:
 -- DROP SCHEMA IF EXISTS analytics CASCADE;
+

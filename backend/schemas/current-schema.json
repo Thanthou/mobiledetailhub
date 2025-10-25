@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "generated_at": "2025-10-24T06:55:24.684Z",
+  "generated_at": "2025-10-25T06:43:33.042Z",
   "database_version": "PostgreSQL 17.5 on x86_64-windows, compiled by msvc-19.44.35209, 64-bit",
   "schemas": {
     "analytics": {
@@ -1179,27 +1179,27 @@
           ],
           "constraints": [
             {
-              "name": "52618_62261_1_not_null",
+              "name": "52618_62718_1_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "52618_62261_2_not_null",
+              "name": "52618_62718_2_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "52618_62261_3_not_null",
+              "name": "52618_62718_3_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "52618_62261_4_not_null",
+              "name": "52618_62718_4_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "52618_62261_5_not_null",
+              "name": "52618_62718_5_not_null",
               "type": "CHECK",
               "columns": null
             },
@@ -1282,22 +1282,22 @@
           ],
           "constraints": [
             {
-              "name": "52618_62278_1_not_null",
+              "name": "52618_62735_1_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "52618_62278_2_not_null",
+              "name": "52618_62735_2_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "52618_62278_3_not_null",
+              "name": "52618_62735_3_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "52618_62278_4_not_null",
+              "name": "52618_62735_4_not_null",
               "type": "CHECK",
               "columns": null
             },
@@ -1371,27 +1371,27 @@
           ],
           "constraints": [
             {
-              "name": "52618_62247_1_not_null",
+              "name": "52618_62704_1_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "52618_62247_2_not_null",
+              "name": "52618_62704_2_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "52618_62247_3_not_null",
+              "name": "52618_62704_3_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "52618_62247_5_not_null",
+              "name": "52618_62704_5_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "52618_62247_6_not_null",
+              "name": "52618_62704_6_not_null",
               "type": "CHECK",
               "columns": null
             },
@@ -1561,32 +1561,32 @@
           ],
           "constraints": [
             {
-              "name": "52618_62227_1_not_null",
+              "name": "52618_62684_1_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "52618_62227_2_not_null",
+              "name": "52618_62684_2_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "52618_62227_5_not_null",
+              "name": "52618_62684_5_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "52618_62227_6_not_null",
+              "name": "52618_62684_6_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "52618_62227_7_not_null",
+              "name": "52618_62684_7_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "52618_62227_8_not_null",
+              "name": "52618_62684_8_not_null",
               "type": "CHECK",
               "columns": null
             },
@@ -2497,22 +2497,22 @@
           ],
           "constraints": [
             {
-              "name": "60567_62393_1_not_null",
+              "name": "60567_62784_1_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "60567_62393_2_not_null",
+              "name": "60567_62784_2_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "60567_62393_3_not_null",
+              "name": "60567_62784_3_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "60567_62393_4_not_null",
+              "name": "60567_62784_4_not_null",
               "type": "CHECK",
               "columns": null
             },
@@ -2732,22 +2732,22 @@
           ],
           "constraints": [
             {
-              "name": "60567_62409_1_not_null",
+              "name": "60567_62800_1_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "60567_62409_2_not_null",
+              "name": "60567_62800_2_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "60567_62409_3_not_null",
+              "name": "60567_62800_3_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "60567_62409_4_not_null",
+              "name": "60567_62800_4_not_null",
               "type": "CHECK",
               "columns": null
             },
@@ -2932,17 +2932,17 @@
           ],
           "constraints": [
             {
-              "name": "60567_62369_1_not_null",
+              "name": "60567_62760_1_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "60567_62369_2_not_null",
+              "name": "60567_62760_2_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "60567_62369_5_not_null",
+              "name": "60567_62760_5_not_null",
               "type": "CHECK",
               "columns": null
             },
@@ -3424,27 +3424,27 @@
           ],
           "constraints": [
             {
-              "name": "52372_62433_1_not_null",
+              "name": "52372_62824_1_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "52372_62433_2_not_null",
+              "name": "52372_62824_2_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "52372_62433_3_not_null",
+              "name": "52372_62824_3_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "52372_62433_4_not_null",
+              "name": "52372_62824_4_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "52372_62433_5_not_null",
+              "name": "52372_62824_5_not_null",
               "type": "CHECK",
               "columns": null
             },
@@ -3539,17 +3539,17 @@
           ],
           "constraints": [
             {
-              "name": "52372_62452_1_not_null",
+              "name": "52372_62843_1_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "52372_62452_2_not_null",
+              "name": "52372_62843_2_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "52372_62452_3_not_null",
+              "name": "52372_62843_3_not_null",
               "type": "CHECK",
               "columns": null
             },
@@ -3627,22 +3627,22 @@
           ],
           "constraints": [
             {
-              "name": "52372_62469_1_not_null",
+              "name": "52372_62860_1_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "52372_62469_2_not_null",
+              "name": "52372_62860_2_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "52372_62469_3_not_null",
+              "name": "52372_62860_3_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "52372_62469_4_not_null",
+              "name": "52372_62860_4_not_null",
               "type": "CHECK",
               "columns": null
             },
@@ -4100,22 +4100,189 @@
           ],
           "constraints": [
             {
-              "name": "60566_62516_1_not_null",
+              "name": "60566_62952_1_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "60566_62516_4_not_null",
+              "name": "60566_62952_4_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "60566_62516_5_not_null",
+              "name": "60566_62952_5_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
               "name": "audit_logs_pkey",
+              "type": "PRIMARY KEY",
+              "columns": "id"
+            }
+          ]
+        },
+        {
+          "name": "error_logs",
+          "columns": [
+            {
+              "name": "id",
+              "type": "integer",
+              "nullable": false,
+              "default": "nextval('system.error_logs_id_seq'::regclass)"
+            },
+            {
+              "name": "error_code",
+              "type": "character varying",
+              "nullable": false,
+              "default": null
+            },
+            {
+              "name": "error_message",
+              "type": "text",
+              "nullable": false,
+              "default": null
+            },
+            {
+              "name": "error_category",
+              "type": "character varying",
+              "nullable": false,
+              "default": null
+            },
+            {
+              "name": "severity",
+              "type": "character varying",
+              "nullable": false,
+              "default": null
+            },
+            {
+              "name": "tenant_id",
+              "type": "character varying",
+              "nullable": true,
+              "default": null
+            },
+            {
+              "name": "user_id",
+              "type": "character varying",
+              "nullable": true,
+              "default": null
+            },
+            {
+              "name": "correlation_id",
+              "type": "character varying",
+              "nullable": true,
+              "default": null
+            },
+            {
+              "name": "request_id",
+              "type": "character varying",
+              "nullable": true,
+              "default": null
+            },
+            {
+              "name": "metadata",
+              "type": "jsonb",
+              "nullable": true,
+              "default": null
+            },
+            {
+              "name": "stack_trace",
+              "type": "text",
+              "nullable": true,
+              "default": null
+            },
+            {
+              "name": "user_message",
+              "type": "text",
+              "nullable": true,
+              "default": null
+            },
+            {
+              "name": "created_at",
+              "type": "timestamp with time zone",
+              "nullable": true,
+              "default": "now()"
+            }
+          ],
+          "indexes": [
+            {
+              "name": "error_logs_pkey",
+              "definition": "CREATE UNIQUE INDEX error_logs_pkey ON system.error_logs USING btree (id)"
+            },
+            {
+              "name": "idx_error_logs_category",
+              "definition": "CREATE INDEX idx_error_logs_category ON system.error_logs USING btree (error_category)"
+            },
+            {
+              "name": "idx_error_logs_category_severity",
+              "definition": "CREATE INDEX idx_error_logs_category_severity ON system.error_logs USING btree (error_category, severity)"
+            },
+            {
+              "name": "idx_error_logs_correlation_id",
+              "definition": "CREATE INDEX idx_error_logs_correlation_id ON system.error_logs USING btree (correlation_id)"
+            },
+            {
+              "name": "idx_error_logs_created_at",
+              "definition": "CREATE INDEX idx_error_logs_created_at ON system.error_logs USING btree (created_at)"
+            },
+            {
+              "name": "idx_error_logs_error_code",
+              "definition": "CREATE INDEX idx_error_logs_error_code ON system.error_logs USING btree (error_code)"
+            },
+            {
+              "name": "idx_error_logs_severity",
+              "definition": "CREATE INDEX idx_error_logs_severity ON system.error_logs USING btree (severity)"
+            },
+            {
+              "name": "idx_error_logs_tenant_created",
+              "definition": "CREATE INDEX idx_error_logs_tenant_created ON system.error_logs USING btree (tenant_id, created_at)"
+            },
+            {
+              "name": "idx_error_logs_tenant_id",
+              "definition": "CREATE INDEX idx_error_logs_tenant_id ON system.error_logs USING btree (tenant_id)"
+            },
+            {
+              "name": "idx_error_logs_user_id",
+              "definition": "CREATE INDEX idx_error_logs_user_id ON system.error_logs USING btree (user_id)"
+            }
+          ],
+          "constraints": [
+            {
+              "name": "60566_62962_1_not_null",
+              "type": "CHECK",
+              "columns": null
+            },
+            {
+              "name": "60566_62962_2_not_null",
+              "type": "CHECK",
+              "columns": null
+            },
+            {
+              "name": "60566_62962_3_not_null",
+              "type": "CHECK",
+              "columns": null
+            },
+            {
+              "name": "60566_62962_4_not_null",
+              "type": "CHECK",
+              "columns": null
+            },
+            {
+              "name": "60566_62962_5_not_null",
+              "type": "CHECK",
+              "columns": null
+            },
+            {
+              "name": "error_logs_error_category_check",
+              "type": "CHECK",
+              "columns": null
+            },
+            {
+              "name": "error_logs_severity_check",
+              "type": "CHECK",
+              "columns": null
+            },
+            {
+              "name": "error_logs_pkey",
               "type": "PRIMARY KEY",
               "columns": "id"
             }
@@ -4133,7 +4300,7 @@
             {
               "name": "tenant_slug",
               "type": "character varying",
-              "nullable": false,
+              "nullable": true,
               "default": null
             },
             {
@@ -4144,30 +4311,24 @@
             },
             {
               "name": "url",
+              "type": "text",
+              "nullable": true,
+              "default": null
+            },
+            {
+              "name": "status",
               "type": "character varying",
               "nullable": false,
               "default": null
             },
             {
-              "name": "overall_score",
+              "name": "response_time_ms",
               "type": "integer",
               "nullable": true,
               "default": null
             },
             {
-              "name": "performance_score",
-              "type": "integer",
-              "nullable": true,
-              "default": null
-            },
-            {
-              "name": "accessibility_score",
-              "type": "integer",
-              "nullable": true,
-              "default": null
-            },
-            {
-              "name": "best_practices_score",
+              "name": "status_code",
               "type": "integer",
               "nullable": true,
               "default": null
@@ -4177,138 +4338,6 @@
               "type": "integer",
               "nullable": true,
               "default": null
-            },
-            {
-              "name": "strategy",
-              "type": "character varying",
-              "nullable": true,
-              "default": null
-            },
-            {
-              "name": "lcp_value",
-              "type": "numeric",
-              "nullable": true,
-              "default": null
-            },
-            {
-              "name": "lcp_score",
-              "type": "numeric",
-              "nullable": true,
-              "default": null
-            },
-            {
-              "name": "fid_value",
-              "type": "numeric",
-              "nullable": true,
-              "default": null
-            },
-            {
-              "name": "fid_score",
-              "type": "numeric",
-              "nullable": true,
-              "default": null
-            },
-            {
-              "name": "cls_value",
-              "type": "numeric",
-              "nullable": true,
-              "default": null
-            },
-            {
-              "name": "cls_score",
-              "type": "numeric",
-              "nullable": true,
-              "default": null
-            },
-            {
-              "name": "fcp_value",
-              "type": "numeric",
-              "nullable": true,
-              "default": null
-            },
-            {
-              "name": "fcp_score",
-              "type": "numeric",
-              "nullable": true,
-              "default": null
-            },
-            {
-              "name": "ttfb_value",
-              "type": "numeric",
-              "nullable": true,
-              "default": null
-            },
-            {
-              "name": "ttfb_score",
-              "type": "numeric",
-              "nullable": true,
-              "default": null
-            },
-            {
-              "name": "speed_index_value",
-              "type": "numeric",
-              "nullable": true,
-              "default": null
-            },
-            {
-              "name": "speed_index_score",
-              "type": "numeric",
-              "nullable": true,
-              "default": null
-            },
-            {
-              "name": "interactive_value",
-              "type": "numeric",
-              "nullable": true,
-              "default": null
-            },
-            {
-              "name": "interactive_score",
-              "type": "numeric",
-              "nullable": true,
-              "default": null
-            },
-            {
-              "name": "total_blocking_time_value",
-              "type": "numeric",
-              "nullable": true,
-              "default": null
-            },
-            {
-              "name": "total_blocking_time_score",
-              "type": "numeric",
-              "nullable": true,
-              "default": null
-            },
-            {
-              "name": "raw_data",
-              "type": "jsonb",
-              "nullable": true,
-              "default": null
-            },
-            {
-              "name": "opportunities",
-              "type": "jsonb",
-              "nullable": true,
-              "default": null
-            },
-            {
-              "name": "diagnostics",
-              "type": "jsonb",
-              "nullable": true,
-              "default": null
-            },
-            {
-              "name": "crux_data",
-              "type": "jsonb",
-              "nullable": true,
-              "default": null
-            },
-            {
-              "name": "status",
-              "type": "character varying",
-              "nullable": false,
-              "default": "'healthy'::character varying"
             },
             {
               "name": "error_message",
@@ -4327,18 +4356,6 @@
               "type": "timestamp with time zone",
               "nullable": true,
               "default": "CURRENT_TIMESTAMP"
-            },
-            {
-              "name": "updated_at",
-              "type": "timestamp with time zone",
-              "nullable": true,
-              "default": "CURRENT_TIMESTAMP"
-            },
-            {
-              "name": "business_id",
-              "type": "integer",
-              "nullable": true,
-              "default": null
             },
             {
               "name": "lighthouse_main_score",
@@ -4447,88 +4464,23 @@
               "definition": "CREATE INDEX idx_health_monitoring_audit_source ON system.health_monitoring USING btree (audit_source)"
             },
             {
-              "name": "idx_health_monitoring_business_id",
-              "definition": "CREATE INDEX idx_health_monitoring_business_id ON system.health_monitoring USING btree (business_id)"
-            },
-            {
-              "name": "idx_health_monitoring_check_type",
-              "definition": "CREATE INDEX idx_health_monitoring_check_type ON system.health_monitoring USING btree (check_type)"
-            },
-            {
-              "name": "idx_health_monitoring_checked_at",
-              "definition": "CREATE INDEX idx_health_monitoring_checked_at ON system.health_monitoring USING btree (checked_at)"
-            },
-            {
               "name": "idx_health_monitoring_lighthouse_avg",
               "definition": "CREATE INDEX idx_health_monitoring_lighthouse_avg ON system.health_monitoring USING btree (lighthouse_avg_score DESC NULLS LAST)"
-            },
-            {
-              "name": "idx_health_monitoring_low_performance",
-              "definition": "CREATE INDEX idx_health_monitoring_low_performance ON system.health_monitoring USING btree (performance_score) WHERE (performance_score < 50)"
-            },
-            {
-              "name": "idx_health_monitoring_low_seo",
-              "definition": "CREATE INDEX idx_health_monitoring_low_seo ON system.health_monitoring USING btree (seo_score) WHERE (seo_score < 50)"
-            },
-            {
-              "name": "idx_health_monitoring_status",
-              "definition": "CREATE INDEX idx_health_monitoring_status ON system.health_monitoring USING btree (status)"
-            },
-            {
-              "name": "idx_health_monitoring_tenant_checked",
-              "definition": "CREATE INDEX idx_health_monitoring_tenant_checked ON system.health_monitoring USING btree (tenant_slug, checked_at DESC)"
-            },
-            {
-              "name": "idx_health_monitoring_tenant_slug",
-              "definition": "CREATE INDEX idx_health_monitoring_tenant_slug ON system.health_monitoring USING btree (tenant_slug)"
-            },
-            {
-              "name": "idx_health_monitoring_tenant_type",
-              "definition": "CREATE INDEX idx_health_monitoring_tenant_type ON system.health_monitoring USING btree (tenant_slug, check_type)"
-            },
-            {
-              "name": "idx_health_monitoring_unhealthy",
-              "definition": "CREATE INDEX idx_health_monitoring_unhealthy ON system.health_monitoring USING btree (status) WHERE ((status)::text = ANY ((ARRAY['warning'::character varying, 'critical'::character varying, 'error'::character varying])::text[]))"
             }
           ],
           "constraints": [
             {
-              "name": "60566_61298_1_not_null",
+              "name": "60566_62974_1_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "60566_61298_2_not_null",
+              "name": "60566_62974_3_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "60566_61298_31_not_null",
-              "type": "CHECK",
-              "columns": null
-            },
-            {
-              "name": "60566_61298_3_not_null",
-              "type": "CHECK",
-              "columns": null
-            },
-            {
-              "name": "60566_61298_4_not_null",
-              "type": "CHECK",
-              "columns": null
-            },
-            {
-              "name": "health_monitoring_accessibility_score_check",
-              "type": "CHECK",
-              "columns": null
-            },
-            {
-              "name": "health_monitoring_best_practices_score_check",
-              "type": "CHECK",
-              "columns": null
-            },
-            {
-              "name": "health_monitoring_check_type_check",
+              "name": "60566_62974_5_not_null",
               "type": "CHECK",
               "columns": null
             },
@@ -4553,16 +4505,6 @@
               "columns": null
             },
             {
-              "name": "health_monitoring_overall_score_check",
-              "type": "CHECK",
-              "columns": null
-            },
-            {
-              "name": "health_monitoring_performance_score_check",
-              "type": "CHECK",
-              "columns": null
-            },
-            {
               "name": "health_monitoring_schema_validation_score_check",
               "type": "CHECK",
               "columns": null
@@ -4571,21 +4513,6 @@
               "name": "health_monitoring_seo_score_check",
               "type": "CHECK",
               "columns": null
-            },
-            {
-              "name": "health_monitoring_status_check",
-              "type": "CHECK",
-              "columns": null
-            },
-            {
-              "name": "health_monitoring_strategy_check",
-              "type": "CHECK",
-              "columns": null
-            },
-            {
-              "name": "fk_health_monitoring_business_id",
-              "type": "FOREIGN KEY",
-              "columns": "business_id"
             },
             {
               "name": "health_monitoring_pkey",
@@ -4672,17 +4599,17 @@
           ],
           "constraints": [
             {
-              "name": "60566_62505_1_not_null",
+              "name": "60566_62941_1_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "60566_62505_3_not_null",
+              "name": "60566_62941_3_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "60566_62505_4_not_null",
+              "name": "60566_62941_4_not_null",
               "type": "CHECK",
               "columns": null
             },
@@ -4846,12 +4773,12 @@
           ],
           "constraints": [
             {
-              "name": "60566_62490_1_not_null",
+              "name": "60566_62926_1_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "60566_62490_3_not_null",
+              "name": "60566_62926_3_not_null",
               "type": "CHECK",
               "columns": null
             },
@@ -6470,22 +6397,22 @@
           ],
           "constraints": [
             {
-              "name": "61347_62535_1_not_null",
+              "name": "61347_63026_1_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "61347_62535_2_not_null",
+              "name": "61347_63026_2_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "61347_62535_3_not_null",
+              "name": "61347_63026_3_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "61347_62535_4_not_null",
+              "name": "61347_63026_4_not_null",
               "type": "CHECK",
               "columns": null
             },
@@ -6592,27 +6519,27 @@
           ],
           "constraints": [
             {
-              "name": "61347_62577_1_not_null",
+              "name": "61347_63068_1_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "61347_62577_2_not_null",
+              "name": "61347_63068_2_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "61347_62577_3_not_null",
+              "name": "61347_63068_3_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "61347_62577_4_not_null",
+              "name": "61347_63068_4_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "61347_62577_5_not_null",
+              "name": "61347_63068_5_not_null",
               "type": "CHECK",
               "columns": null
             },
@@ -6724,22 +6651,22 @@
           ],
           "constraints": [
             {
-              "name": "61347_62556_1_not_null",
+              "name": "61347_63047_1_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "61347_62556_2_not_null",
+              "name": "61347_63047_2_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "61347_62556_3_not_null",
+              "name": "61347_63047_3_not_null",
               "type": "CHECK",
               "columns": null
             },
             {
-              "name": "61347_62556_4_not_null",
+              "name": "61347_63047_4_not_null",
               "type": "CHECK",
               "columns": null
             },

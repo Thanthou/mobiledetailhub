@@ -1,5 +1,6 @@
 -- Tenants Schema Migration
--- Creates tenants tables (schema already exists from 1400_create_schemas.sql)
+-- Migration: 2025-10-24_0003_tenants
+-- Purpose: Create tenants tables (schema created in 0001_create_schemas.sql)
 
 -- Create business table
 CREATE TABLE IF NOT EXISTS tenants.business (
@@ -37,49 +38,23 @@ CREATE TABLE IF NOT EXISTS tenants.business (
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     website TEXT,
-    example_field TEXT
+    example_field TEXT,
+    custom_domain VARCHAR(255) UNIQUE,
+    domain_verified BOOLEAN DEFAULT FALSE,
+    ssl_enabled BOOLEAN DEFAULT FALSE,
+    domain_added_at TIMESTAMP DEFAULT NOW()
 );
 
--- Add custom domain columns if they don't exist
-DO $$ 
-BEGIN
-    -- Add custom_domain column if it doesn't exist
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
-                   WHERE table_schema = 'tenants' 
-                   AND table_name = 'business' 
-                   AND column_name = 'custom_domain') THEN
-        ALTER TABLE tenants.business ADD COLUMN custom_domain VARCHAR(255) UNIQUE;
-    END IF;
-    
-    -- Add domain_verified column if it doesn't exist
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
-                   WHERE table_schema = 'tenants' 
-                   AND table_name = 'business' 
-                   AND column_name = 'domain_verified') THEN
-        ALTER TABLE tenants.business ADD COLUMN domain_verified BOOLEAN DEFAULT FALSE;
-    END IF;
-    
-    -- Add ssl_enabled column if it doesn't exist
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
-                   WHERE table_schema = 'tenants' 
-                   AND table_name = 'business' 
-                   AND column_name = 'ssl_enabled') THEN
-        ALTER TABLE tenants.business ADD COLUMN ssl_enabled BOOLEAN DEFAULT FALSE;
-    END IF;
-    
-    -- Add domain_added_at column if it doesn't exist
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
-                   WHERE table_schema = 'tenants' 
-                   AND table_name = 'business' 
-                   AND column_name = 'domain_added_at') THEN
-        ALTER TABLE tenants.business ADD COLUMN domain_added_at TIMESTAMP DEFAULT NOW();
-    END IF;
-END $$;
+-- Add column comments for custom domain fields
+COMMENT ON COLUMN tenants.business.custom_domain IS 'Custom domain name for tenant (e.g., mybusiness.com)';
+COMMENT ON COLUMN tenants.business.domain_verified IS 'Whether the custom domain has been verified via DNS';
+COMMENT ON COLUMN tenants.business.ssl_enabled IS 'Whether SSL certificate is active for custom domain';
+COMMENT ON COLUMN tenants.business.domain_added_at IS 'When the custom domain was first added';
 
 -- Create services table
 CREATE TABLE IF NOT EXISTS tenants.services (
     id SERIAL PRIMARY KEY,
-    business_id INTEGER NOT NULL REFERENCES tenants.business(id),
+    business_id INTEGER NOT NULL REFERENCES tenants.business(id) ON DELETE CASCADE,
     name VARCHAR(255) NOT NULL,
     description TEXT,
     price DECIMAL(10,2),
@@ -93,7 +68,7 @@ CREATE TABLE IF NOT EXISTS tenants.services (
 -- Create service_areas table
 CREATE TABLE IF NOT EXISTS tenants.service_areas (
     id SERIAL PRIMARY KEY,
-    business_id INTEGER NOT NULL REFERENCES tenants.business(id),
+    business_id INTEGER NOT NULL REFERENCES tenants.business(id) ON DELETE CASCADE,
     city VARCHAR(100) NOT NULL,
     state VARCHAR(50) NOT NULL,
     zip_code VARCHAR(20),
@@ -105,7 +80,7 @@ CREATE TABLE IF NOT EXISTS tenants.service_areas (
 -- Create subscriptions table
 CREATE TABLE IF NOT EXISTS tenants.subscriptions (
     id SERIAL PRIMARY KEY,
-    business_id INTEGER NOT NULL REFERENCES tenants.business(id),
+    business_id INTEGER NOT NULL REFERENCES tenants.business(id) ON DELETE CASCADE,
     stripe_subscription_id VARCHAR(255) UNIQUE,
     stripe_customer_id VARCHAR(255),
     plan_name VARCHAR(100) NOT NULL,
@@ -123,17 +98,16 @@ CREATE TABLE IF NOT EXISTS tenants.subscriptions (
 -- Create indexes
 CREATE INDEX IF NOT EXISTS idx_business_slug ON tenants.business(slug);
 CREATE INDEX IF NOT EXISTS idx_business_user_id ON tenants.business(user_id);
+CREATE INDEX IF NOT EXISTS idx_business_email ON tenants.business(business_email);
 CREATE INDEX IF NOT EXISTS idx_business_custom_domain ON tenants.business(custom_domain);
 CREATE INDEX IF NOT EXISTS idx_services_business_id ON tenants.services(business_id);
 CREATE INDEX IF NOT EXISTS idx_service_areas_business_id ON tenants.service_areas(business_id);
 CREATE INDEX IF NOT EXISTS idx_subscriptions_business_id ON tenants.subscriptions(business_id);
 CREATE INDEX IF NOT EXISTS idx_subscriptions_stripe_id ON tenants.subscriptions(stripe_subscription_id);
 
--- Add column comments for custom domain fields
-COMMENT ON COLUMN tenants.business.custom_domain IS 'Custom domain name for tenant (e.g., mybusiness.com)';
-COMMENT ON COLUMN tenants.business.domain_verified IS 'Whether the custom domain has been verified via DNS';
-COMMENT ON COLUMN tenants.business.ssl_enabled IS 'Whether SSL certificate is active for custom domain';
-COMMENT ON COLUMN tenants.business.domain_added_at IS 'When the custom domain was first added';
+-- Add comments
+COMMENT ON INDEX tenants.idx_business_email IS 'Index for fast email lookups during authentication and user searches';
 
 -- ROLLBACK:
 -- DROP SCHEMA IF EXISTS tenants CASCADE;
+

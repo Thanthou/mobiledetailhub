@@ -1,5 +1,6 @@
 -- Reputation Schema Migration
--- Creates reputation tables (schema already exists from 1400_create_schemas.sql)
+-- Migration: 2025-10-24_0007_reputation
+-- Purpose: Create reputation tables (schema created in 0001_create_schemas.sql)
 
 -- Drop existing reputation tables if they exist (to ensure clean migration)
 DROP TABLE IF EXISTS reputation.review_votes CASCADE;
@@ -9,7 +10,7 @@ DROP TABLE IF EXISTS reputation.reviews CASCADE;
 -- Create reviews table
 CREATE TABLE reputation.reviews (
     id SERIAL PRIMARY KEY,
-    tenant_id INTEGER NOT NULL REFERENCES tenants.business(id),
+    tenant_id INTEGER NOT NULL REFERENCES tenants.business(id) ON DELETE CASCADE,
     customer_id INTEGER,
     booking_id INTEGER,
     rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
@@ -65,3 +66,4 @@ CREATE INDEX IF NOT EXISTS idx_review_votes_review_id ON reputation.review_votes
 
 -- ROLLBACK:
 -- DROP SCHEMA IF EXISTS reputation CASCADE;
+

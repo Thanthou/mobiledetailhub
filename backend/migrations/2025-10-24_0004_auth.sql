@@ -1,5 +1,6 @@
 -- Auth Schema Migration
--- Creates auth tables (schema already exists from 1400_create_schemas.sql)
+-- Migration: 2025-10-24_0004_auth
+-- Purpose: Create auth tables (schema created in 0001_create_schemas.sql)
 
 -- Create users table
 CREATE TABLE IF NOT EXISTS auth.users (
@@ -46,7 +47,7 @@ CREATE TABLE IF NOT EXISTS auth.login_attempts (
 -- Create password_setup_tokens table
 CREATE TABLE IF NOT EXISTS auth.password_setup_tokens (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES auth.users(id),
+    user_id INTEGER NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     token_hash VARCHAR(255) NOT NULL,
     expires_at TIMESTAMPTZ NOT NULL,
     used_at TIMESTAMPTZ,
@@ -59,7 +60,7 @@ CREATE TABLE IF NOT EXISTS auth.password_setup_tokens (
 -- Create refresh_tokens table
 CREATE TABLE IF NOT EXISTS auth.refresh_tokens (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES auth.users(id),
+    user_id INTEGER NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     token_hash VARCHAR(255) NOT NULL,
     token_family VARCHAR(255) NOT NULL,
     token_type VARCHAR(20) DEFAULT 'refresh',
@@ -81,7 +82,7 @@ CREATE TABLE IF NOT EXISTS auth.refresh_tokens (
 -- Create user_sessions table
 CREATE TABLE IF NOT EXISTS auth.user_sessions (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES auth.users(id),
+    user_id INTEGER NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     session_token VARCHAR(255) NOT NULL UNIQUE,
     refresh_token_id INTEGER REFERENCES auth.refresh_tokens(id),
     ip_address INET,
@@ -96,6 +97,16 @@ CREATE TABLE IF NOT EXISTS auth.user_sessions (
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Create token_blacklist table for logout and security
+CREATE TABLE IF NOT EXISTS auth.token_blacklist (
+    id SERIAL PRIMARY KEY,
+    token_jti VARCHAR(255) NOT NULL UNIQUE,
+    user_id INTEGER REFERENCES auth.users(id) ON DELETE CASCADE,
+    reason VARCHAR(100), -- 'logout', 'security', 'password_change', etc.
+    expires_at TIMESTAMPTZ NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Create indexes
 CREATE INDEX IF NOT EXISTS idx_users_email ON auth.users(email);
 CREATE INDEX IF NOT EXISTS idx_users_stripe_customer_id ON auth.users(stripe_customer_id);
@@ -107,6 +118,12 @@ CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user_id ON auth.refresh_tokens(use
 CREATE INDEX IF NOT EXISTS idx_refresh_tokens_family ON auth.refresh_tokens(token_family);
 CREATE INDEX IF NOT EXISTS idx_user_sessions_user_id ON auth.user_sessions(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_sessions_token ON auth.user_sessions(session_token);
+CREATE INDEX IF NOT EXISTS idx_token_blacklist_jti ON auth.token_blacklist(token_jti);
+CREATE INDEX IF NOT EXISTS idx_token_blacklist_expires ON auth.token_blacklist(expires_at);
+
+-- Add comments
+COMMENT ON TABLE auth.token_blacklist IS 'Stores revoked JWT tokens until they expire naturally';
 
 -- ROLLBACK:
 -- DROP SCHEMA IF EXISTS auth CASCADE;
+

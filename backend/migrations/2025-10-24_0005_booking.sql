@@ -1,5 +1,6 @@
 -- Booking Schema Migration
--- Creates booking tables (schema already exists from 1400_create_schemas.sql)
+-- Migration: 2025-10-24_0005_booking
+-- Purpose: Create booking tables (schema created in 0001_create_schemas.sql)
 
 -- Drop existing booking tables if they exist (to ensure clean migration)
 DROP TABLE IF EXISTS booking.blackout_dates CASCADE;
@@ -10,7 +11,7 @@ DROP TABLE IF EXISTS booking.bookings CASCADE;
 -- Create bookings table
 CREATE TABLE booking.bookings (
     id SERIAL PRIMARY KEY,
-    tenant_id INTEGER NOT NULL REFERENCES tenants.business(id),
+    tenant_id INTEGER NOT NULL REFERENCES tenants.business(id) ON DELETE CASCADE,
     customer_id INTEGER,
     service_id INTEGER,
     booking_date DATE NOT NULL,
@@ -46,7 +47,7 @@ CREATE TABLE booking.booking_services (
 -- Create booking_availability table
 CREATE TABLE booking.availability (
     id SERIAL PRIMARY KEY,
-    tenant_id INTEGER NOT NULL REFERENCES tenants.business(id),
+    tenant_id INTEGER NOT NULL REFERENCES tenants.business(id) ON DELETE CASCADE,
     day_of_week INTEGER NOT NULL CHECK (day_of_week >= 0 AND day_of_week <= 6),
     start_time TIME NOT NULL,
     end_time TIME NOT NULL,
@@ -59,7 +60,7 @@ CREATE TABLE booking.availability (
 -- Create booking_blackout_dates table
 CREATE TABLE booking.blackout_dates (
     id SERIAL PRIMARY KEY,
-    tenant_id INTEGER NOT NULL REFERENCES tenants.business(id),
+    tenant_id INTEGER NOT NULL REFERENCES tenants.business(id) ON DELETE CASCADE,
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
     reason TEXT,
@@ -80,3 +81,4 @@ CREATE INDEX IF NOT EXISTS idx_blackout_dates_dates ON booking.blackout_dates(st
 
 -- ROLLBACK:
 -- DROP SCHEMA IF EXISTS booking CASCADE;
+
