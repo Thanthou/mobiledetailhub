@@ -195,14 +195,27 @@ function checkFaviconReferences() {
 }
 
 function checkStaticFileServing() {
-  const serverFile = path.join(projectRoot, 'backend/server.js');
+  // Check both server.js and bootstrap files
+  const serverFiles = [
+    path.join(projectRoot, 'backend/server.js'),
+    path.join(projectRoot, 'backend/bootstrap/server.start.js'),
+    path.join(projectRoot, 'backend/bootstrap/setupSecurity.js')
+  ];
   
-  if (!fs.existsSync(serverFile)) {
-    audit.error('Server file not found', { path: 'backend/server.js' });
+  let serverContent = '';
+  let filesFound = [];
+  
+  for (const serverFile of serverFiles) {
+    if (fs.existsSync(serverFile)) {
+      serverContent += fs.readFileSync(serverFile, 'utf8') + '\n';
+      filesFound.push(path.relative(projectRoot, serverFile));
+    }
+  }
+  
+  if (filesFound.length === 0) {
+    audit.error('Server files not found', { path: 'backend/server.js or backend/bootstrap/' });
     return;
   }
-
-  const serverContent = fs.readFileSync(serverFile, 'utf8');
   
   // Check for static file serving
   if (serverContent.includes('express.static')) {
@@ -216,21 +229,21 @@ function checkStaticFileServing() {
       }
     }
   } else {
-    audit.error('Express static file serving not configured', { path: 'backend/server.js' });
+    audit.error('Express static file serving not configured', { path: 'backend/server.js or backend/bootstrap/server.start.js' });
   }
 
-  // Check for proper static file headers
-  if (serverContent.includes('Cache-Control') || serverContent.includes('cache-control')) {
+  // Check for proper static file headers (cache headers)
+  if (serverContent.includes('maxAge') || serverContent.includes('Cache-Control') || serverContent.includes('cache-control')) {
     audit.pass('Cache headers configured for static files');
   } else {
-    audit.warn('Cache headers not configured for static files', { path: 'backend/server.js' });
+    audit.warn('Cache headers not configured for static files', { path: filesFound.join(', ') });
   }
 
   // Check for security headers on static files
   if (serverContent.includes('helmet') || serverContent.includes('security')) {
     audit.pass('Security headers configured');
   } else {
-    audit.warn('Security headers not configured', { path: 'backend/server.js' });
+    audit.warn('Security headers not configured', { path: filesFound.join(', ') });
   }
 }
 

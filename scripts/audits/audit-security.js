@@ -473,27 +473,39 @@ function checkSQLInjectionPrevention(audit) {
 function checkCORSConfiguration(audit) {
   audit.section('CORS Configuration');
 
+  // Check both main server and bootstrap security file
   const serverPath = path.join(root, 'backend/server.js');
+  const securityPath = path.join(root, 'backend/bootstrap/setupSecurity.js');
   
-  if (!fileExists(serverPath)) {
-    audit.error('server.js not found', {
-      path: serverPath
+  // Try to find CORS configuration in either location
+  let content = '';
+  let configLocation = '';
+  
+  if (fileExists(securityPath)) {
+    content = fs.readFileSync(securityPath, 'utf8');
+    configLocation = securityPath;
+  } else if (fileExists(serverPath)) {
+    content = fs.readFileSync(serverPath, 'utf8');
+    configLocation = serverPath;
+  } else {
+    audit.error('Neither server.js nor setupSecurity.js found', {
+      paths: [serverPath, securityPath]
     });
     return;
   }
 
-  const content = fs.readFileSync(serverPath, 'utf8');
-
-  // Check if CORS is configured
-  if (content.includes('app.use(cors')) {
+  // Check if CORS is configured (flexible whitespace matching)
+  const hasCors = /app\.use\s*\(\s*cors/s.test(content) || content.includes('import cors from');
+  
+  if (hasCors) {
     audit.pass('CORS middleware is configured');
     
     // Check for origin validation
-    if (content.includes('origin:') && content.includes('callback') || content.includes('cb')) {
+    if ((content.includes('origin:') && content.includes('callback')) || content.includes('corsOriginChecker')) {
       audit.pass('CORS has origin validation callback');
     } else {
       audit.warn('CORS may allow all origins', {
-        path: serverPath,
+        path: path.relative(root, configLocation),
         details: 'Use origin validation callback for security'
       });
     }
@@ -503,14 +515,14 @@ function checkCORSConfiguration(audit) {
       audit.pass('CORS allows credentials (required for cookies)');
     } else {
       audit.warn('CORS credentials not enabled', {
-        path: serverPath,
+        path: path.relative(root, configLocation),
         details: 'Required for cookie-based auth'
       });
     }
   } else {
     audit.error('CORS middleware not found', {
-      path: serverPath,
-      details: 'Add CORS configuration to server.js'
+      path: path.relative(root, configLocation),
+      details: 'Add CORS configuration to setupSecurity.js or server.js'
     });
   }
 }

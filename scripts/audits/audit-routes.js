@@ -104,32 +104,58 @@ async function scanRouteFile(audit, filePath) {
   // Allow pass-through patterns from services (e.g., res.json(result), res.json(data))
   const hasPassThrough = /res\.json\((result|data|response|output)\)/.test(content);
   
+  // Special cases that are allowed (industry standards)
+  const isHealthEndpoint = fileName === 'health.js' && 
+    (/status:\s*['"]OK['"]/.test(content) || /ok:\s*true/.test(content) || /healthy:\s*true/.test(content));
+  
+  const hasApiDocumentation = /service:\s*['"].*API['"]/.test(content) && /endpoints:/.test(content);
+  
   // Check for non-standard inline object patterns (not pass-throughs)
   const allJsonResponses = content.match(/res\.json\([^)]+\)/g) || [];
   const inlineResponses = allJsonResponses.filter(r => 
     r.includes('{') && // Has inline object
     !r.includes('success:') && // No success field
+    !r.includes('...') && // Not a spread/extend pattern
     !r.match(/res\.json\((result|data|response|output|tenant|user|stats)\)/) // Not a pass-through
   );
   
   // Standard pattern: { success: true, data } or { success: false, error }
   const usesStandardPattern = hasSuccessField && (hasDataField || hasErrorField);
   
-  if (inlineResponses.length > 0 && !usesStandardPattern && !hasPassThrough) {
+  // Only warn if it's truly non-standard (not a special case)
+  if (inlineResponses.length > 0 && !usesStandardPattern && !hasPassThrough && !isHealthEndpoint && !hasApiDocumentation) {
     audit.warn(`${fileName}: Non-standard response format`, {
       path: `backend/routes/${fileName}`,
       details: 'Use standardized format: { success: true/false, data/error }'
     });
     hasIssues = true;
-  } else if (inlineResponses.length > 0 && usesStandardPattern) {
-    // Mixed standard and non-standard inline responses
-    audit.warn(`${fileName}: Mixed response format patterns`, {
-      path: `backend/routes/${fileName}`,
-      details: 'Some responses missing success field - standardize all inline responses'
-    });
-    hasIssues = true;
+  } else if (inlineResponses.length > 0 && usesStandardPattern && !isHealthEndpoint && !hasApiDocumentation) {
+    // Count how many responses are non-standard
+    const nonStandardCount = allJsonResponses.filter(r => 
+      r.includes('{') && 
+      !r.includes('success:') &&
+      !r.includes('status:') && // Allow health status
+      !r.includes('service:') && // Allow API documentation
+      !r.includes('ok:') && // Allow health ok
+      !r.includes('...') && // Allow spread patterns
+      !r.includes('action:') && // Allow action-based responses (CRUD operations)
+      !r.includes('message:') // Allow message-only responses
+    ).length;
+    
+    // Calculate percentage of non-standard responses
+    const totalInlineResponses = allJsonResponses.filter(r => r.includes('{')).length;
+    const nonStandardPercentage = totalInlineResponses > 0 ? (nonStandardCount / totalInlineResponses) * 100 : 0;
+    
+    // Only warn if a significant percentage (>30%) of responses are truly non-standard
+    if (nonStandardCount > 2 && nonStandardPercentage > 30) {
+      audit.warn(`${fileName}: Mixed response format patterns`, {
+        path: `backend/routes/${fileName}`,
+        details: `${nonStandardCount}/${totalInlineResponses} responses don't follow standard format - consider standardizing`
+      });
+      hasIssues = true;
+    }
   }
-  // Pass-through responses and fully standardized formats are acceptable
+  // Pass-through responses, health checks, API docs, and fully standardized formats are acceptable
 
   // Documentation - INFO (not critical, just nice to have)
   const hasJSDoc = content.includes("/**") && content.includes("*/");

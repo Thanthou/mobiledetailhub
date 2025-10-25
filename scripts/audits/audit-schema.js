@@ -221,17 +221,37 @@ function checkEnvironment(audit) {
     audit.pass(`BASE_DOMAIN: ${baseDomain}`);
   }
 
+  // Check for database connection configuration
+  // Support both DATABASE_URL (legacy) and individual params (preferred)
   const dbURL = process.env.DATABASE_URL;
-  if (!dbURL) {
-    audit.error('DATABASE_URL missing', {
-      details: 'Required for database connection'
-    });
-  } else if (!dbURL.includes("postgres")) {
-    audit.warn('DATABASE_URL may not be PostgreSQL', {
-      details: 'Expected postgres:// protocol'
-    });
+  const dbHost = process.env.DB_HOST;
+  const dbName = process.env.DB_NAME;
+  const dbUser = process.env.DB_USER;
+  const dbPassword = process.env.DB_PASSWORD;
+  
+  const hasIndividualParams = dbHost && dbName && dbUser && dbPassword;
+  
+  if (dbURL) {
+    if (!dbURL.includes("postgres")) {
+      audit.warn('DATABASE_URL may not be PostgreSQL', {
+        details: 'Expected postgres:// protocol'
+      });
+    } else {
+      audit.pass('DATABASE_URL format is valid (legacy method)');
+    }
+  } else if (hasIndividualParams) {
+    audit.pass('Database connection configured via individual parameters (DB_HOST, DB_NAME, DB_USER, DB_PASSWORD)');
   } else {
-    audit.pass('DATABASE_URL format is valid');
+    // Check which params are missing
+    const missing = [];
+    if (!dbHost) missing.push('DB_HOST');
+    if (!dbName) missing.push('DB_NAME');
+    if (!dbUser) missing.push('DB_USER');
+    if (!dbPassword) missing.push('DB_PASSWORD');
+    
+    audit.error('Database connection not configured', {
+      details: `Missing: ${missing.join(', ')}. Use either DATABASE_URL or individual DB_* parameters`
+    });
   }
 }
 

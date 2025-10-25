@@ -1,6 +1,6 @@
 # 📊 Frontend Flow Audit - tenant-app
 
-**Generated:** 10/23/2025, 3:27:24 AM
+**Generated:** 10/25/2025, 12:14:21 AM
 
 ## 🔴 Score: 0/100 (Poor Flow Health)
 
@@ -9,18 +9,18 @@
 | Metric | Value |
 |--------|-------|
 | **App Files** | |
-| Total App Files | 334 |
-| Reachable App Files | 233 |
-| Unreachable App Files | 63 |
+| Total App Files | 332 |
+| Reachable App Files | 232 |
+| Unreachable App Files | 62 |
 | **Shared Files** | |
-| Total Shared Files | 393 |
-| Reachable Shared Files | 258 |
-| Unreachable Shared Files | 105 |
+| Total Shared Files | 279 |
+| Reachable Shared Files | 202 |
+| Unreachable Shared Files | 60 |
 | **Issues** | |
 | Boundary Violations | 0 |
 | Parse Errors | 0 |
 
-## 🔴 Unreachable App Files (63)
+## 🔴 Unreachable App Files (62)
 
 These files in **tenant-app** are not imported from the entry point (dead code):
 
@@ -86,9 +86,8 @@ These files in **tenant-app** are not imported from the entry point (dead code):
 - apps/tenant-app/src/components/tenantDashboard/tabs/services/types/ServiceFeature.ts
 - apps/tenant-app/src/components/tenantDashboard/utils/tenantEvents.ts
 - apps/tenant-app/src/hooks/usePreviewParams.ts
-- apps/tenant-app/src/pages/IndustryPreviewPage.tsx
 
-## 🟡 Unreachable Shared Files (105)
+## 🟡 Unreachable Shared Files (60)
 
 These shared files are not used by **tenant-app** (but may be used by other apps):
 
@@ -100,18 +99,18 @@ These shared files are not used by **tenant-app** (but may be used by other apps
 - src/shared/auth/hooks/useLoginModalPrefetch.ts
 - src/shared/components/AddToHomeScreen.tsx
 - src/shared/components/ErrorFallback.tsx
-- src/shared/components/header/routes/tenantRoutes.tsx
 - src/shared/components/HomePageLayout.tsx
 - src/shared/components/MergeDemo.tsx
 - src/shared/components/preview/components/PreviewBanner.tsx
 - src/shared/components/preview/hooks/usePreviewAsync.ts
 - src/shared/components/PreviewBanner.tsx
-- src/shared/components/quotes/api/quotes.api.ts
-- src/shared/components/quotes/components/ContactSection.tsx
-- src/shared/components/quotes/components/LazyRequestQuoteModal.tsx
-- src/shared/components/quotes/components/QuoteForm.tsx
-- src/shared/components/quotes/components/RequestQuoteModal.tsx
-- src/shared/components/quotes/components/ServicesSection.tsx
+- src/shared/components/seo/JsonLdSchema.tsx
+- src/shared/components/seo/SeoHead.tsx
+- src/shared/components/tenantOnboarding/api/api.ts
+- src/shared/components/tenantOnboarding/api/onboarding.api.ts
+- src/shared/components/tenantOnboarding/components/GoogleBusinessProfileModal.tsx
+- src/shared/components/tenantOnboarding/components/IdentityContactSection.tsx
+- src/shared/components/tenantOnboarding/components/LegalTermsSection.tsx
 
-... and 85 more
+... and 40 more
 

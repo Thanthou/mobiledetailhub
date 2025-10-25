@@ -73,7 +73,7 @@ router.get('/appointments', async (req, res) => {
     const { startDate, endDate } = req.query;
 
     if (!startDate || !endDate) {
-      return res.status(400).json({ error: 'startDate and endDate are required' });
+      return res.status(400).json({ success: false, error: 'startDate and endDate are required' });
     }
 
     const tenantId = req.tenant.id;
@@ -94,9 +94,9 @@ router.get('/appointments', async (req, res) => {
   } catch (error) {
     logger.error('Error fetching appointments:', error);
     if (error.message === 'No tenant business found for this user') {
-      return res.status(404).json({ error: error.message });
+      return res.status(404).json({ success: false, error: error.message });
     }
-    res.status(500).json({ error: 'Failed to fetch appointments' });
+    res.status(500).json({ success: false, error: 'Failed to fetch appointments' });
   }
 });
 
@@ -120,7 +120,7 @@ router.get('/appointments/date/:date', async (req, res) => {
     });
   } catch (error) {
     logger.error('Error fetching appointments for date:', error);
-    res.status(500).json({ error: 'Failed to fetch appointments' });
+    res.status(500).json({ success: false, error: 'Failed to fetch appointments' });
   }
 });
 
@@ -150,7 +150,7 @@ router.get('/appointments/:id', async (req, res) => {
     });
   } catch (error) {
     logger.error('Error fetching appointment:', error);
-    res.status(500).json({ error: 'Failed to fetch appointment' });
+    res.status(500).json({ success: false, error: 'Failed to fetch appointment' });
   }
 });
 
@@ -170,7 +170,7 @@ router.post('/appointments', validateBody(appointmentSchema.body), async (req, r
     const endTime = new Date(end_time);
     
     if (endTime <= startTime) {
-      return res.status(400).json({ error: 'End time must be after start time' });
+      return res.status(400).json({ success: false, error: 'End time must be after start time' });
     }
 
     // Check for conflicts
@@ -187,7 +187,7 @@ router.post('/appointments', validateBody(appointmentSchema.body), async (req, r
     const conflictResult = await pool.query(conflictQuery, [tenantId, start_time, end_time]);
     
     if (conflictResult.rows.length > 0) {
-      return res.status(409).json({ error: 'Time slot conflicts with existing appointment' });
+      return res.status(409).json({ success: false, error: 'Time slot conflicts with existing appointment' });
     }
 
     const query = `
@@ -211,7 +211,7 @@ router.post('/appointments', validateBody(appointmentSchema.body), async (req, r
     });
   } catch (error) {
     logger.error('Error creating appointment:', error);
-    res.status(500).json({ error: 'Failed to create appointment' });
+    res.status(500).json({ success: false, error: 'Failed to create appointment' });
   }
 });
 
@@ -231,7 +231,7 @@ router.put('/appointments/:id', validateBody(appointmentSchema.body), async (req
     
     const checkResult = await pool.query(checkQuery, [id, tenantId]);
     if (checkResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Appointment not found' });
+      return res.status(404).json({ success: false, error: 'Appointment not found' });
     }
 
     // Build dynamic update query
@@ -248,7 +248,7 @@ router.put('/appointments/:id', validateBody(appointmentSchema.body), async (req
     });
 
     if (updateFields.length === 0) {
-      return res.status(400).json({ error: 'No fields to update' });
+      return res.status(400).json({ success: false, error: 'No fields to update' });
     }
 
     updateFields.push(`updated_by = $${paramCount}`);
@@ -272,7 +272,7 @@ router.put('/appointments/:id', validateBody(appointmentSchema.body), async (req
     });
   } catch (error) {
     logger.error('Error updating appointment:', error);
-    res.status(500).json({ error: 'Failed to update appointment' });
+    res.status(500).json({ success: false, error: 'Failed to update appointment' });
   }
 });
 
@@ -286,7 +286,7 @@ router.patch('/appointments/:id/status', async (req, res) => {
 
     const validStatuses = ['scheduled', 'confirmed', 'in_progress', 'completed', 'cancelled', 'no_show'];
     if (!validStatuses.includes(status)) {
-      return res.status(400).json({ error: 'Invalid status' });
+      return res.status(400).json({ success: false, error: 'Invalid status' });
     }
 
     const query = `
@@ -311,7 +311,7 @@ router.patch('/appointments/:id/status', async (req, res) => {
     });
   } catch (error) {
     logger.error('Error updating appointment status:', error);
-    res.status(500).json({ error: 'Failed to update appointment status' });
+    res.status(500).json({ success: false, error: 'Failed to update appointment status' });
   }
 });
 
@@ -330,13 +330,13 @@ router.delete('/appointments/:id', async (req, res) => {
     const result = await pool.query(query, [id, tenantId]);
     
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Appointment not found' });
+      return res.status(404).json({ success: false, error: 'Appointment not found' });
     }
 
     res.status(204).send();
   } catch (error) {
     logger.error('Error deleting appointment:', error);
-    res.status(500).json({ error: 'Failed to delete appointment' });
+    res.status(500).json({ success: false, error: 'Failed to delete appointment' });
   }
 });
 
@@ -347,7 +347,7 @@ router.get('/appointments/available-slots', async (req, res) => {
     const tenantId = req.user.tenant_id;
 
     if (!date) {
-      return res.status(400).json({ error: 'date is required' });
+      return res.status(400).json({ success: false, error: 'date is required' });
     }
 
     // Get schedule settings for this tenant
@@ -360,7 +360,7 @@ router.get('/appointments/available-slots', async (req, res) => {
     const settings = settingsResult.rows[0];
 
     if (!settings) {
-      return res.status(404).json({ error: 'Schedule settings not found' });
+      return res.status(404).json({ success: false, error: 'Schedule settings not found' });
     }
 
     // Get existing appointments and time blocks for the date
@@ -410,10 +410,13 @@ router.get('/appointments/available-slots', async (req, res) => {
       }
     }
 
-    res.json(availableSlots);
+    res.json({
+      success: true,
+      data: { availableSlots }
+    });
   } catch (error) {
     logger.error('Error fetching available time slots:', error);
-    res.status(500).json({ error: 'Failed to fetch available time slots' });
+    res.status(500).json({ success: false, error: 'Failed to fetch available time slots' });
   }
 });
 
@@ -425,7 +428,7 @@ router.get('/time-blocks', async (req, res) => {
     const { startDate, endDate } = req.query;
 
     if (!startDate || !endDate) {
-      return res.status(400).json({ error: 'startDate and endDate are required' });
+      return res.status(400).json({ success: false, error: 'startDate and endDate are required' });
     }
 
     const tenantId = req.tenant.id;
@@ -446,9 +449,9 @@ router.get('/time-blocks', async (req, res) => {
   } catch (error) {
     logger.error('Error fetching time blocks:', error);
     if (error.message === 'No tenant business found for this user') {
-      return res.status(404).json({ error: error.message });
+      return res.status(404).json({ success: false, error: error.message });
     }
-    res.status(500).json({ error: 'Failed to fetch time blocks' });
+    res.status(500).json({ success: false, error: 'Failed to fetch time blocks' });
   }
 });
 
@@ -472,7 +475,7 @@ router.get('/time-blocks/date/:date', async (req, res) => {
     });
   } catch (error) {
     logger.error('Error fetching time blocks for date:', error);
-    res.status(500).json({ error: 'Failed to fetch time blocks' });
+    res.status(500).json({ success: false, error: 'Failed to fetch time blocks' });
   }
 });
 
@@ -491,7 +494,7 @@ router.post('/time-blocks', validateBody(timeBlockSchema.body), async (req, res)
     const endTime = new Date(end_time);
     
     if (endTime <= startTime) {
-      return res.status(400).json({ error: 'End time must be after start time' });
+      return res.status(400).json({ success: false, error: 'End time must be after start time' });
     }
 
     const query = `
@@ -509,10 +512,13 @@ router.post('/time-blocks', validateBody(timeBlockSchema.body), async (req, res)
       recurrence_end_date, userId
     ]);
 
-    res.status(201).json(result.rows[0]);
+    res.status(201).json({
+      success: true,
+      data: result.rows[0]
+    });
   } catch (error) {
     logger.error('Error creating time block:', error);
-    res.status(500).json({ error: 'Failed to create time block' });
+    res.status(500).json({ success: false, error: 'Failed to create time block' });
   }
 });
 
@@ -531,7 +537,7 @@ router.put('/time-blocks/:id', validateBody(timeBlockSchema.body), async (req, r
     
     const checkResult = await pool.query(checkQuery, [id, tenantId]);
     if (checkResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Time block not found' });
+      return res.status(404).json({ success: false, error: 'Time block not found' });
     }
 
     // Build dynamic update query
@@ -548,7 +554,7 @@ router.put('/time-blocks/:id', validateBody(timeBlockSchema.body), async (req, r
     });
 
     if (updateFields.length === 0) {
-      return res.status(400).json({ error: 'No fields to update' });
+      return res.status(400).json({ success: false, error: 'No fields to update' });
     }
 
     updateFields.push(`updated_at = CURRENT_TIMESTAMP`);
@@ -562,10 +568,13 @@ router.put('/time-blocks/:id', validateBody(timeBlockSchema.body), async (req, r
     `;
 
     const result = await pool.query(query, values);
-    res.json(result.rows[0]);
+    res.json({
+      success: true,
+      data: result.rows[0]
+    });
   } catch (error) {
     logger.error('Error updating time block:', error);
-    res.status(500).json({ error: 'Failed to update time block' });
+    res.status(500).json({ success: false, error: 'Failed to update time block' });
   }
 });
 
@@ -584,13 +593,13 @@ router.delete('/time-blocks/:id', async (req, res) => {
     const result = await pool.query(query, [id, tenantId]);
     
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Time block not found' });
+      return res.status(404).json({ success: false, error: 'Time block not found' });
     }
 
     res.status(204).send();
   } catch (error) {
     logger.error('Error deleting time block:', error);
-    res.status(500).json({ error: 'Failed to delete time block' });
+    res.status(500).json({ success: false, error: 'Failed to delete time block' });
   }
 });
 
@@ -602,7 +611,7 @@ router.get('/blocked-days', async (req, res) => {
     const { startDate, endDate } = req.query;
 
     if (!startDate || !endDate) {
-      return res.status(400).json({ error: 'startDate and endDate are required' });
+      return res.status(400).json({ success: false, error: 'startDate and endDate are required' });
     }
 
     const tenantId = req.tenant.id;
@@ -617,13 +626,16 @@ router.get('/blocked-days', async (req, res) => {
     `;
 
     const result = await pool.query(query, [tenantId, startDate, endDate]);
-    res.json(result.rows);
+    res.json({
+      success: true,
+      data: { blockedDays: result.rows }
+    });
   } catch (error) {
     logger.error('Error fetching blocked days:', error);
     if (error.message === 'No tenant business found for this user') {
-      return res.status(404).json({ error: error.message });
+      return res.status(404).json({ success: false, error: error.message });
     }
-    res.status(500).json({ error: 'Failed to fetch blocked days' });
+    res.status(500).json({ success: false, error: 'Failed to fetch blocked days' });
   }
 });
 
@@ -633,7 +645,7 @@ router.post('/blocked-days/toggle', async (req, res) => {
     const { date, reason } = req.body;
 
     if (!date) {
-      return res.status(400).json({ error: 'date is required' });
+      return res.status(400).json({ success: false, error: 'date is required' });
     }
 
     const tenantId = req.tenant.id;
@@ -656,10 +668,13 @@ router.post('/blocked-days/toggle', async (req, res) => {
       `;
       
       const deleteResult = await pool.query(deleteQuery, [tenantId, date]);
-      res.json({ 
-        action: 'removed', 
-        date: deleteResult.rows[0].blocked_date,
-        message: 'Day unblocked successfully'
+      res.json({
+        success: true,
+        data: {
+          action: 'removed', 
+          date: deleteResult.rows[0].blocked_date,
+          message: 'Day unblocked successfully'
+        }
       });
     } else {
       // Add blocked day
@@ -670,19 +685,22 @@ router.post('/blocked-days/toggle', async (req, res) => {
       `;
       
       const insertResult = await pool.query(insertQuery, [tenantId, date, reason || 'Blocked', userId]);
-      res.json({ 
-        action: 'added', 
-        date: insertResult.rows[0].blocked_date,
-        reason: insertResult.rows[0].reason,
-        message: 'Day blocked successfully'
+      res.json({
+        success: true,
+        data: {
+          action: 'added', 
+          date: insertResult.rows[0].blocked_date,
+          reason: insertResult.rows[0].reason,
+          message: 'Day blocked successfully'
+        }
       });
     }
   } catch (error) {
     logger.error('Error toggling blocked day:', error);
     if (error.message === 'No tenant business found for this user') {
-      return res.status(404).json({ error: error.message });
+      return res.status(404).json({ success: false, error: error.message });
     }
-    res.status(500).json({ error: 'Failed to toggle blocked day' });
+    res.status(500).json({ success: false, error: 'Failed to toggle blocked day' });
   }
 });
 
@@ -694,7 +712,7 @@ router.post('/blocked-days', async (req, res) => {
     const userId = req.user.id;
 
     if (!date) {
-      return res.status(400).json({ error: 'date is required' });
+      return res.status(400).json({ success: false, error: 'date is required' });
     }
 
     // Check if date is already blocked
@@ -705,7 +723,7 @@ router.post('/blocked-days', async (req, res) => {
     
     const checkResult = await pool.query(checkQuery, [tenantId, date]);
     if (checkResult.rows.length > 0) {
-      return res.status(409).json({ error: 'Date is already blocked' });
+      return res.status(409).json({ success: false, error: 'Date is already blocked' });
     }
 
     const query = `
@@ -721,10 +739,13 @@ router.post('/blocked-days', async (req, res) => {
       recurrence_pattern, recurrence_end_date, userId
     ]);
 
-    res.status(201).json(result.rows[0]);
+    res.status(201).json({
+      success: true,
+      data: result.rows[0]
+    });
   } catch (error) {
     logger.error('Error adding blocked day:', error);
-    res.status(500).json({ error: 'Failed to add blocked day' });
+    res.status(500).json({ success: false, error: 'Failed to add blocked day' });
   }
 });
 
@@ -743,16 +764,19 @@ router.delete('/blocked-days/:date', async (req, res) => {
     const result = await pool.query(query, [tenantId, date]);
     
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Blocked day not found' });
+      return res.status(404).json({ success: false, error: 'Blocked day not found' });
     }
 
-    res.json({ 
-      message: 'Blocked day removed successfully',
-      date: result.rows[0].blocked_date
+    res.json({
+      success: true,
+      data: {
+        message: 'Blocked day removed successfully',
+        date: result.rows[0].blocked_date
+      }
     });
   } catch (error) {
     logger.error('Error removing blocked day:', error);
-    res.status(500).json({ error: 'Failed to remove blocked day' });
+    res.status(500).json({ success: false, error: 'Failed to remove blocked day' });
   }
 });
 
@@ -771,13 +795,16 @@ router.get('/settings', async (req, res) => {
     const result = await pool.query(query, [tenantId]);
     
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Schedule settings not found' });
+      return res.status(404).json({ success: false, error: 'Schedule settings not found' });
     }
 
-    res.json(result.rows[0]);
+    res.json({
+      success: true,
+      data: result.rows[0]
+    });
   } catch (error) {
     logger.error('Error fetching schedule settings:', error);
-    res.status(500).json({ error: 'Failed to fetch schedule settings' });
+    res.status(500).json({ success: false, error: 'Failed to fetch schedule settings' });
   }
 });
 
@@ -802,7 +829,7 @@ router.put('/settings', async (req, res) => {
     });
 
     if (updateFields.length === 0) {
-      return res.status(400).json({ error: 'No fields to update' });
+      return res.status(400).json({ success: false, error: 'No fields to update' });
     }
 
     updateFields.push(`updated_by = $${paramCount}`);
@@ -822,13 +849,16 @@ router.put('/settings', async (req, res) => {
     const result = await pool.query(query, values);
     
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Schedule settings not found' });
+      return res.status(404).json({ success: false, error: 'Schedule settings not found' });
     }
 
-    res.json(result.rows[0]);
+    res.json({
+      success: true,
+      data: result.rows[0]
+    });
   } catch (error) {
     logger.error('Error updating schedule settings:', error);
-    res.status(500).json({ error: 'Failed to update schedule settings' });
+    res.status(500).json({ success: false, error: 'Failed to update schedule settings' });
   }
 });
 
@@ -868,10 +898,13 @@ router.post('/settings/reset', async (req, res) => {
     `;
 
     const result = await pool.query(query, [userId, tenantId]);
-    res.json(result.rows[0]);
+    res.json({
+      success: true,
+      data: result.rows[0]
+    });
   } catch (error) {
     logger.error('Error resetting schedule settings:', error);
-    res.status(500).json({ error: 'Failed to reset schedule settings' });
+    res.status(500).json({ success: false, error: 'Failed to reset schedule settings' });
   }
 });
 

@@ -1,26 +1,26 @@
 # 📊 Frontend Flow Audit - admin-app
 
-**Generated:** 10/23/2025, 3:27:24 AM
+**Generated:** 10/25/2025, 12:14:21 AM
 
-## 🔴 Score: 0/100 (Poor Flow Health)
+## 🔴 Score: 18/100 (Poor Flow Health)
 
 ### Metrics
 
 | Metric | Value |
 |--------|-------|
 | **App Files** | |
-| Total App Files | 79 |
+| Total App Files | 61 |
 | Reachable App Files | 6 |
-| Unreachable App Files | 56 |
+| Unreachable App Files | 41 |
 | **Shared Files** | |
-| Total Shared Files | 393 |
-| Reachable Shared Files | 219 |
-| Unreachable Shared Files | 139 |
+| Total Shared Files | 279 |
+| Reachable Shared Files | 128 |
+| Unreachable Shared Files | 120 |
 | **Issues** | |
 | Boundary Violations | 0 |
 | Parse Errors | 0 |
 
-## 🔴 Unreachable App Files (56)
+## 🔴 Unreachable App Files (41)
 
 These files in **admin-app** are not imported from the entry point (dead code):
 
@@ -39,21 +39,6 @@ These files in **admin-app** are not imported from the entry point (dead code):
 - apps/admin-app/src/components/adminDashboard/DashboardPage.tsx
 - apps/admin-app/src/components/adminDashboard/hooks/useSeedReview.ts
 - apps/admin-app/src/components/adminDashboard/utils/constants.ts
-- apps/admin-app/src/components/devPreview/components/ViewportFrame.tsx
-- apps/admin-app/src/components/devPreview/components/ViewportSwitcher.tsx
-- apps/admin-app/src/components/devPreview/hooks/useViewportAsync.ts
-- apps/admin-app/src/components/devPreview/state/viewportStore.ts
-- apps/admin-app/src/components/preview/api/preview.api.ts
-- apps/admin-app/src/components/preview/components/PreviewBanner.tsx
-- apps/admin-app/src/components/preview/components/PreviewCTAButton.tsx
-- apps/admin-app/src/components/preview/components/PreviewDataProvider.tsx
-- apps/admin-app/src/components/preview/components/PreviewError.tsx
-- apps/admin-app/src/components/preview/components/PreviewLoading.tsx
-- apps/admin-app/src/components/preview/components/PreviewPage.tsx
-- apps/admin-app/src/components/preview/hooks/usePreviewAsync.ts
-- apps/admin-app/src/components/preview/hooks/usePreviewParams.ts
-- apps/admin-app/src/components/preview/pages/PreviewGeneratorPage.tsx
-- apps/admin-app/src/components/preview/state/previewStore.ts
 - apps/admin-app/src/components/tenantOnboarding/api/api.ts
 - apps/admin-app/src/components/tenantOnboarding/api/onboarding.api.ts
 - apps/admin-app/src/components/tenantOnboarding/api/payments.api.ts
@@ -81,7 +66,7 @@ These files in **admin-app** are not imported from the entry point (dead code):
 - apps/admin-app/src/components/tenantOnboarding/hooks/useLocalDraft.ts
 - apps/admin-app/src/components/tenantOnboarding/utils/validation.ts
 
-## 🟡 Unreachable Shared Files (139)
+## 🟡 Unreachable Shared Files (120)
 
 These shared files are not used by **admin-app** (but may be used by other apps):
 
@@ -106,5 +91,5 @@ These shared files are not used by **admin-app** (but may be used by other apps)
 - src/shared/auth/hooks/useFormValidation.ts
 - src/shared/auth/hooks/useLoginModalPrefetch.ts
 
-... and 119 more
+... and 100 more
 

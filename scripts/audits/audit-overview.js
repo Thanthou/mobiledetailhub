@@ -115,7 +115,8 @@ function extractScoreFromReport(filename) {
     const filePath = path.join(docsDir, filename);
     if (!fileExists(filePath)) return null;
     const content = fs.readFileSync(filePath, "utf8");
-    const match = content.match(/Score:\s*(\d+)\/100/i);
+    // Match "Score:" or "**Score:**" followed by score
+    const match = content.match(/\*{0,2}Score:\*{0,2}\s*(\d+)\/100/i);
     if (match) return parseInt(match[1]);
   } catch {
     return null;

@@ -1,6 +1,6 @@
 # 📊 Frontend Flow Audit - main
 
-**Generated:** 10/23/2025, 3:29:15 AM
+**Generated:** 10/25/2025, 12:26:47 AM
 
 ## 🔴 Score: 0/100 (Poor Flow Health)
 
@@ -9,18 +9,18 @@
 | Metric | Value |
 |--------|-------|
 | **App Files** | |
-| Total App Files | 332 |
-| Reachable App Files | 24 |
-| Unreachable App Files | 244 |
+| Total App Files | 313 |
+| Reachable App Files | 27 |
+| Unreachable App Files | 229 |
 | **Shared Files** | |
-| Total Shared Files | 393 |
-| Reachable Shared Files | 137 |
-| Unreachable Shared Files | 203 |
+| Total Shared Files | 279 |
+| Reachable Shared Files | 135 |
+| Unreachable Shared Files | 113 |
 | **Issues** | |
 | Boundary Violations | 0 |
 | Parse Errors | 0 |
 
-## 🔴 Unreachable App Files (244)
+## 🔴 Unreachable App Files (229)
 
 These files in **main** are not imported from the entry point (dead code):
 
@@ -130,21 +130,6 @@ These files in **main** are not imported from the entry point (dead code):
 - apps/main/src/components/quotes/hooks/useQuoteTenantData.ts
 - apps/main/src/components/quotes/hooks/useQuoteValidation.ts
 - apps/main/src/components/quotes/hooks/useQuoteVehicleData.ts
-- apps/main/src/components/reviews/api/reviewsApi.ts
-- apps/main/src/components/reviews/components/GoogleReviewsTest.tsx
-- apps/main/src/components/reviews/components/ReviewCard.tsx
-- apps/main/src/components/reviews/components/ReviewModal.tsx
-- apps/main/src/components/reviews/components/Reviews.tsx
-- apps/main/src/components/reviews/components/ReviewsCarousel.tsx
-- apps/main/src/components/reviews/components/ReviewsHeader.tsx
-- apps/main/src/components/reviews/hooks/useGoogleReviews.ts
-- apps/main/src/components/reviews/hooks/useReviews.ts
-- apps/main/src/components/reviews/hooks/useReviewsAvailability.ts
-- apps/main/src/components/reviews/hooks/useReviewsContent.ts
-- apps/main/src/components/reviews/hooks/useReviewsRating.ts
-- apps/main/src/components/reviews/hooks/useRotatingReviews.ts
-- apps/main/src/components/reviews/types/types.ts
-- apps/main/src/components/reviews/utils/reviewUtils.ts
 - apps/main/src/components/services/api/services.api.ts
 - apps/main/src/components/services/components/BeforeAfterSlider.tsx
 - apps/main/src/components/services/components/Process.tsx
@@ -269,7 +254,7 @@ These files in **main** are not imported from the entry point (dead code):
 - apps/main/src/modes/MarketingSite.tsx
 - apps/main/src/providers.tsx
 
-## 🟡 Unreachable Shared Files (203)
+## 🟡 Unreachable Shared Files (113)
 
 These shared files are not used by **main** (but may be used by other apps):
 
@@ -294,5 +279,5 @@ These shared files are not used by **main** (but may be used by other apps):
 - src/shared/auth/hooks/useFormValidation.ts
 - src/shared/auth/hooks/useLoginModalPrefetch.ts
 
-... and 183 more
+... and 93 more
 

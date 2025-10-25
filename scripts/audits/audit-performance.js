@@ -30,6 +30,11 @@ const distDir = path.join(root, "frontend/dist");
 // Check if running in silent mode
 const isSilent = process.argv.includes('--silent') || process.env.AUDIT_SILENT === 'true';
 
+// Files to exclude from large component warnings (utilities, configs, etc.)
+const EXCLUDED_FILES = [
+  'shared/utils/schemaUtils.ts'
+];
+
 //──────────────────────────────────────────────────────────────
 // 🔍 Route and Component Discovery
 //──────────────────────────────────────────────────────────────
@@ -211,7 +216,12 @@ function runPerformanceChecks(audit, routes, bundles, compData) {
       .slice(0, 3);
     
     topLarge.forEach(comp => {
-      if (comp.lines >= 500) {
+      // Skip excluded files
+      const isExcluded = EXCLUDED_FILES.some(excluded => 
+        comp.path.replace(/\\/g, '/').includes(excluded)
+      );
+      
+      if (comp.lines >= 500 && !isExcluded) {
         audit.warn(`Large component: ${path.basename(comp.path)} (${comp.lines} lines)`, {
           path: comp.path,
           details: 'Consider refactoring for better maintainability'

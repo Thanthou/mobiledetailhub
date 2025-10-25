@@ -1,9 +1,9 @@
 {
   "metadata": {
-    "generated": "2025-10-24T06:47:19.945Z",
-    "totalNodes": 93,
-    "totalEdges": 314,
-    "reachableNodes": 88,
+    "generated": "2025-10-25T07:26:14.975Z",
+    "totalNodes": 95,
+    "totalEdges": 323,
+    "reachableNodes": 90,
     "unreachableNodes": 5
   },
   "nodes": [
@@ -105,6 +105,13 @@
           "path": "/api/health-monitoring",
           "handlers": [
             "healthMonitoringRoutes"
+          ]
+        },
+        {
+          "method": "use",
+          "path": "/api/performance",
+          "handlers": [
+            "performanceRoutes"
           ]
         },
         {
@@ -290,7 +297,7 @@
           ]
         }
       ],
-      "importCount": 29,
+      "importCount": 31,
       "importedByCount": 1
     },
     {
@@ -306,7 +313,7 @@
         "setupSecurity"
       ],
       "routes": [],
-      "importCount": 0,
+      "importCount": 1,
       "importedByCount": 1
     },
     {
@@ -345,7 +352,7 @@
       "functions": [],
       "routes": [],
       "importCount": 0,
-      "importedByCount": 13
+      "importedByCount": 16
     },
     {
       "id": "config\\logger.js",
@@ -365,7 +372,7 @@
         }
       ],
       "importCount": 1,
-      "importedByCount": 65
+      "importedByCount": 67
     },
     {
       "id": "config\\logging-environments.js",
@@ -553,7 +560,7 @@
       "functions": [],
       "routes": [],
       "importCount": 3,
-      "importedByCount": 8
+      "importedByCount": 9
     },
     {
       "id": "middleware\\csrfProtection.js",
@@ -607,7 +614,7 @@
         }
       ],
       "importCount": 5,
-      "importedByCount": 30
+      "importedByCount": 31
     },
     {
       "id": "middleware\\rateLimiter.js",
@@ -1460,7 +1467,7 @@
           "handlers": []
         }
       ],
-      "importCount": 4,
+      "importCount": 5,
       "importedByCount": 1
     },
     {
@@ -1584,6 +1591,61 @@
         }
       ],
       "importCount": 7,
+      "importedByCount": 1
+    },
+    {
+      "id": "routes\\performance.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "router",
+          "type": "default"
+        }
+      ],
+      "functions": [],
+      "routes": [
+        {
+          "method": "get",
+          "path": "/summary",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/routes",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/route/:method/*",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/recent",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/slow-requests",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/errors",
+          "handlers": []
+        },
+        {
+          "method": "post",
+          "path": "/reset",
+          "handlers": []
+        },
+        {
+          "method": "get",
+          "path": "/config",
+          "handlers": []
+        }
+      ],
+      "importCount": 4,
       "importedByCount": 1
     },
     {
@@ -2590,6 +2652,53 @@
       "importedByCount": 2
     },
     {
+      "id": "utils\\perfMonitor.js",
+      "reachable": true,
+      "exports": [
+        {
+          "name": "recordMetric",
+          "type": "function"
+        },
+        {
+          "name": "getRouteStats",
+          "type": "function"
+        },
+        {
+          "name": "getAllStats",
+          "type": "function"
+        },
+        {
+          "name": "getSummary",
+          "type": "function"
+        },
+        {
+          "name": "resetMetrics",
+          "type": "function"
+        },
+        {
+          "name": "getRecentMetrics",
+          "type": "function"
+        },
+        {
+          "name": "logSummary",
+          "type": "function"
+        }
+      ],
+      "functions": [
+        "recordMetric",
+        "calculatePercentiles",
+        "getRouteStats",
+        "getAllStats",
+        "getSummary",
+        "resetMetrics",
+        "getRecentMetrics",
+        "logSummary"
+      ],
+      "routes": [],
+      "importCount": 1,
+      "importedByCount": 1
+    },
+    {
       "id": "utils\\previewToken.js",
       "reachable": true,
       "exports": [
@@ -2854,6 +2963,10 @@
         {
           "name": "loadEnv",
           "type": "named"
+        },
+        {
+          "name": "env",
+          "type": "named"
         }
       ]
     },
@@ -2971,6 +3084,16 @@
       "specifiers": [
         {
           "name": "csrfProtection",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupRoutes.js",
+      "to": "config\\env.js",
+      "specifiers": [
+        {
+          "name": "env",
           "type": "named"
         }
       ]
@@ -3262,6 +3385,26 @@
         {
           "name": "healthMonitoringRoutes",
           "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupRoutes.js",
+      "to": "routes\\performance.js",
+      "specifiers": [
+        {
+          "name": "performanceRoutes",
+          "type": "default"
+        }
+      ]
+    },
+    {
+      "from": "bootstrap\\setupSecurity.js",
+      "to": "config\\env.js",
+      "specifiers": [
+        {
+          "name": "env",
+          "type": "named"
         }
       ]
     },
@@ -4654,6 +4797,16 @@
       ]
     },
     {
+      "from": "routes\\health.js",
+      "to": "config\\env.js",
+      "specifiers": [
+        {
+          "name": "env",
+          "type": "named"
+        }
+      ]
+    },
+    {
       "from": "routes\\healthMonitoring.js",
       "to": "database\\pool.js",
       "specifiers": [
@@ -4831,6 +4984,46 @@
       "specifiers": [
         {
           "name": "asyncHandler",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\performance.js",
+      "to": "middleware\\auth.js",
+      "specifiers": [
+        {
+          "name": "authenticateToken",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\performance.js",
+      "to": "middleware\\errorHandler.js",
+      "specifiers": [
+        {
+          "name": "asyncHandler",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "routes\\performance.js",
+      "to": "utils\\perfMonitor.js",
+      "specifiers": [
+        {
+          "name": "perfMonitor",
+          "type": "namespace"
+        }
+      ]
+    },
+    {
+      "from": "routes\\performance.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
           "type": "named"
         }
       ]
@@ -6132,6 +6325,16 @@
       "specifiers": [
         {
           "name": "logger",
+          "type": "named"
+        }
+      ]
+    },
+    {
+      "from": "utils\\perfMonitor.js",
+      "to": "config\\logger.js",
+      "specifiers": [
+        {
+          "name": "createModuleLogger",
           "type": "named"
         }
       ]

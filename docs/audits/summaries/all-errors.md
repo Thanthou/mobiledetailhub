@@ -1,203 +1,33 @@
 # All Audits - Issues Summary
 
-**Generated:** 2025-10-24T06:47:28.556Z
+**Generated:** 2025-10-25T07:24:44.299Z
 **Total Audits:** 17
 
 ---
 
-## ❌ Errors
-
-**Total Errors:** 7
-
-### 1. Security
-
-**Error:** CORS middleware not found
-
-**Path:** `C:\thatsmartsite\backend\server.js`
-
-### 2. Schema Switching
-
-**Error:** DATABASE_URL missing
-
-**Path:** `N/A`
-
-### 3. Middleware
-
-**Error:** Missing critical middleware: errorHandler
-
-**Path:** `backend/server.js`
-
-### 4. Middleware
-
-**Error:** Missing critical middleware: requestLogger
-
-**Path:** `backend/server.js`
-
-### 5. Middleware
-
-**Error:** Missing critical middleware: tenantResolver
-
-**Path:** `backend/server.js`
-
-### 6. Middleware
-
-**Error:** Missing critical middleware: subdomainMiddleware
-
-**Path:** `backend/server.js`
-
-### 7. Assets
-
-**Error:** Express static file serving not configured
-
-**Path:** `backend/server.js`
+## ✅ No Errors Found
 
 ---
 
 ## ⚠️  Warnings
 
-**Total Warnings:** 24
+**Total Warnings:** 3
 
-### 1. Environment
+### 1. Backend Flow Tracer
 
-**Warning:** Direct process.env.NODE_ENV usage
-
-**Path:** `backend/routes/health.js:45`
-
-### 2. Environment
-
-**Warning:** Direct process.env.FRONTEND_URL usage
-
-**Path:** `backend/bootstrap/setupSecurity.js:37`
-
-### 3. Environment
-
-**Warning:** Direct process.env.ADMIN_URL usage
-
-**Path:** `backend/bootstrap/setupSecurity.js:38`
-
-### 4. Environment
-
-**Warning:** Direct process.env.NODE_ENV usage
-
-**Path:** `backend/bootstrap/server.start.js:73`
-
-### 5. Environment
-
-**Warning:** Direct process.env.BASE_DOMAIN usage
-
-**Path:** `backend/bootstrap/server.start.js:98`
-
-### 6. Environment
-
-**Warning:** Direct process.env.PORT usage
-
-**Path:** `backend/bootstrap/server.start.js:126`
-
-### 7. Environment
-
-**Warning:** Direct process.env.PORT usage
-
-**Path:** `backend/bootstrap/loadEnv.js:13`
-
-### 8. Backend Flow Tracer
-
-**Warning:** Unreachable files: 1
+**Warning:** Unreachable files: 2
 
 **Path:** `N/A`
 
-### 9. Backend Flow Tracer
+### 2. Backend Flow Tracer
+
+**Warning:**   jest.config.js
+
+**Path:** `N/A`
+
+### 3. Backend Flow Tracer
 
 **Warning:**   routes\subdomainTest.js
-
-**Path:** `N/A`
-
-### 10. Middleware
-
-**Warning:** Error handler should be positioned after routes
-
-**Path:** `backend/server.js`
-
-### 11. Middleware
-
-**Warning:** Security middleware missing: helmet
-
-**Path:** `backend/server.js`
-
-### 12. Middleware
-
-**Warning:** Security middleware missing: cors
-
-**Path:** `backend/server.js`
-
-### 13. Middleware
-
-**Warning:** Security middleware missing: rateLimiter
-
-**Path:** `backend/server.js`
-
-### 14. Middleware
-
-**Warning:** Security middleware missing: csrfProtection
-
-**Path:** `backend/server.js`
-
-### 15. API Contracts
-
-**Warning:** Controller missing validation: tenantDashboardController.js
-
-**Path:** `N/A`
-
-### 16. API Contracts
-
-**Warning:** No API documentation found
-
-**Path:** `docs/`
-
-### 17. Assets
-
-**Warning:** Cache headers not configured for static files
-
-**Path:** `backend/server.js`
-
-### 18. Assets
-
-**Warning:** Security headers not configured
-
-**Path:** `backend/server.js`
-
-### 19. Backend Routes
-
-**Warning:** auth.js: Non-standard response format
-
-**Path:** `backend/routes/auth.js`
-
-### 20. Backend Routes
-
-**Warning:** health.js: Non-standard response format
-
-**Path:** `backend/routes/health.js`
-
-### 21. Backend Routes
-
-**Warning:** schedule.js: Mixed response format patterns
-
-**Path:** `backend/routes/schedule.js`
-
-### 22. Dependencies
-
-**Warning:** Port 3001 (backend) is already in use
-
-**Path:** `N/A`
-
-### 23. Performance
-
-**Warning:** Large component: schemaUtils.ts (549 lines)
-
-**Path:** `shared\utils\schemaUtils.ts`
-
-### 24. Project Overview
-
-**Warning:** No audit reports found
 
 **Path:** `N/A`
 
@@ -205,24 +35,24 @@
 
 ## 📊 Audit Results Summary
 
-- 🟡 **Environment**: Pass (0 errors, 7 warnings)
-- 🔴 **Security**: Fail (1 errors, 0 warnings)
+- 🟢 **Environment**: Pass (0 errors, 0 warnings)
+- 🟢 **Security**: Pass (0 errors, 0 warnings)
 - 🟢 **Database**: Pass (0 errors, 0 warnings)
-- 🔴 **Schema Switching**: Fail (1 errors, 0 warnings)
+- 🟢 **Schema Switching**: Pass (0 errors, 0 warnings)
 - 🟢 **Import Boundaries**: Pass (0 errors, 0 warnings)
-- 🟡 **Backend Flow Tracer**: Pass (0 errors, 2 warnings)
+- 🟡 **Backend Flow Tracer**: Pass (0 errors, 3 warnings)
 - 🔴 **Frontend Flow: main-site**: Fail (1 errors, 0 warnings)
 - 🔴 **Frontend Flow: tenant-app**: Fail (1 errors, 0 warnings)
 - 🔴 **Frontend Flow: admin-app**: Fail (1 errors, 0 warnings)
-- 🔴 **Middleware**: Fail (4 errors, 5 warnings)
-- 🟡 **API Contracts**: Pass (0 errors, 2 warnings)
-- 🔴 **Assets**: Fail (1 errors, 2 warnings)
-- 🟡 **Backend Routes**: Pass (0 errors, 3 warnings)
+- 🟢 **Middleware**: Pass (0 errors, 0 warnings)
+- 🟢 **API Contracts**: Pass (0 errors, 0 warnings)
+- 🟢 **Assets**: Pass (0 errors, 0 warnings)
+- 🟢 **Backend Routes**: Pass (0 errors, 0 warnings)
 - 🟢 **Frontend Routing**: Pass (0 errors, 0 warnings)
-- 🟡 **Dependencies**: Pass (0 errors, 1 warnings)
-- 🟡 **Performance**: Pass (0 errors, 1 warnings)
-- 🟡 **Project Overview**: Pass (0 errors, 1 warnings)
+- 🟢 **Dependencies**: Pass (0 errors, 0 warnings)
+- 🟢 **Performance**: Pass (0 errors, 0 warnings)
+- 🟢 **Project Overview**: Pass (0 errors, 0 warnings)
 
 ---
 
-_Generated by `npm run audit:all` at 2025-10-24T06:47:28.556Z_
+_Generated by `npm run audit:all` at 2025-10-25T07:24:44.299Z_

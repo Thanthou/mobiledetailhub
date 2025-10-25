@@ -1,29 +1,24 @@
 # API Contracts Audit Report
 
-**Generated:** 2025-10-24T06:47:20.150Z
+**Generated:** 2025-10-25T07:24:36.698Z
 **Duration:** 12ms
-**Score:** 94/100
+**Score:** 100/100
 
 ---
 
 ## Summary
 
-- ✅ **Passed:** 189
-- ⚠️  **Warnings:** 2
+- ✅ **Passed:** 195
+- ⚠️  **Warnings:** 0
 - ❌ **Errors:** 0
 
 ## Description
 
 Validates consistent request/response shapes across API endpoints
 
-## Issues Found
+## ✅ All Checks Passed!
 
-### 🟡 Warnings
-
-1. **Controller missing validation: tenantDashboardController.js**
-
-2. **No API documentation found**
-   - Path: `docs/`
+No issues found during this audit.
 
 ---
 
@@ -32,7 +27,7 @@ Validates consistent request/response shapes across API endpoints
 
 ## Route Files Analysis
 
-Found 29 route files: admin.js, analytics.new.js, auth.js, avatar.js, config.js, customers.js, domains.js, errorTracking.js, gallery.js, googleAnalytics.js, googleAuth.js, googleReviews.js, health.js, healthMonitoring.js, locations.js, payments.js, previews.js, reviews.js, schedule.js, seo.js, serviceAreas.js, services.js, subdomainTest.js, tenantDashboard.js, tenantImages.js, tenantManifest.js, tenantReviews.js, tenants.js, websiteContent.js
+Found 30 route files: admin.js, analytics.new.js, auth.js, avatar.js, config.js, customers.js, domains.js, errorTracking.js, gallery.js, googleAnalytics.js, googleAuth.js, googleReviews.js, health.js, healthMonitoring.js, locations.js, payments.js, performance.js, previews.js, reviews.js, schedule.js, seo.js, serviceAreas.js, services.js, subdomainTest.js, tenantDashboard.js, tenantImages.js, tenantManifest.js, tenantReviews.js, tenants.js, websiteContent.js
 ✅ Route file has validation: admin.js
 Found 3 GET endpoints in admin.js
 Found 3 POST endpoints in admin.js
@@ -79,6 +74,9 @@ Found 1 PUT endpoints in locations.js
 Found 1 DELETE endpoints in locations.js
 ✅ Route file has validation: payments.js
 Found 2 POST endpoints in payments.js
+✅ Route file has POST routes without body data (no validation needed): performance.js
+Found 7 GET endpoints in performance.js
+Found 1 POST endpoints in performance.js
 ✅ Route file has validation: previews.js
 Found 1 GET endpoints in previews.js
 Found 1 POST endpoints in previews.js
@@ -122,8 +120,8 @@ Found 1 PUT endpoints in tenants.js
 ✅ Route file has validation: websiteContent.js
 Found 2 GET endpoints in websiteContent.js
 Found 1 PUT endpoints in websiteContent.js
-Total endpoints across all routes: 144
-Routes with validation: 17/29
+Total endpoints across all routes: 152
+Routes with validation: 17/30
 
 ## Controller Patterns
 
@@ -150,11 +148,11 @@ Found 6 controller files
 ✅ Controller has proper exports: tenantController.js
 ✅ Controller uses async/await: tenantDashboardController.js
 ✅ Controller has error handling: tenantDashboardController.js
-⚠️ **WARNING**: Controller missing validation: tenantDashboardController.js
+✅ Controller has validation: tenantDashboardController.js
 ✅ Controller has proper exports: tenantDashboardController.js
 Controllers with async/await: 6/6
 Controllers with error handling: 6/6
-Controllers with validation: 5/6
+Controllers with validation: 6/6
 
 ## Response Consistency
 
@@ -254,6 +252,7 @@ Controllers with proper error handling: 6/6
 ✅ Body parsing with validation in locations.js
 ✅ Route file has validation middleware: payments.js
 ✅ Body parsing with validation in payments.js
+✅ Route file has POST routes without body data (no validation needed): performance.js
 ✅ Route file has validation middleware: previews.js
 ✅ Body parsing with validation in previews.js
 ✅ Route file has validation middleware: reviews.js
@@ -274,12 +273,12 @@ Controllers with proper error handling: 6/6
 ✅ Route file has validation middleware: tenants.js
 ✅ Route file has validation middleware: websiteContent.js
 ✅ Body parsing with validation in websiteContent.js
-Routes with validation: 105/144
+Routes with validation: 105/152
 
 ## API Documentation
 
-⚠️ **WARNING**: No API documentation found
-   - Path: `docs/`
+✅ API documentation found: API.md
+✅ API documentation found: api.md
 ✅ Route file has documentation: admin.js
 ✅ Route file has documentation: analytics.new.js
 ✅ Route file has documentation: auth.js
@@ -296,6 +295,7 @@ Routes with validation: 105/144
 ✅ Route file has documentation: healthMonitoring.js
 ✅ Route file has documentation: locations.js
 ✅ Route file has documentation: payments.js
+✅ Route file has documentation: performance.js
 ✅ Route file has documentation: previews.js
 ✅ Route file has documentation: reviews.js
 ✅ Route file has documentation: schedule.js
@@ -309,12 +309,12 @@ Routes with validation: 105/144
 ✅ Route file has documentation: tenantReviews.js
 ✅ Route file has documentation: tenants.js
 ✅ Route file has documentation: websiteContent.js
-Route files with documentation: 29/29
+Route files with documentation: 30/30
 
 ## Summary
 
-Total API contract checks: 191
-Score: 99/100
+Total API contract checks: 195
+Score: 100/100
 
 ---
 

@@ -35,8 +35,7 @@ router.get('/', (req, res) => {
  */
 router.get('/detailed', async (req, res) => {
   res.json({
-    status: 'success',
-    message: 'Detailed health check',
+    success: true,
     data: {
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),

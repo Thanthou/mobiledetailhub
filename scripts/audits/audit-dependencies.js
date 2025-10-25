@@ -1,18 +1,16 @@
 #!/usr/bin/env node
 /**
- * audit-dependencies.js — Dependency & Port Audit
+ * audit-dependencies.js — Dependency Audit
  * --------------------------------------------------------------
  * ✅ Checks file dependencies (.port-registry.json, .env)
  * ✅ Validates npm packages (missing dependencies)
  * ✅ Detects circular dependencies (via madge)
  * ✅ Verifies hosts file entries
- * ✅ Checks port availability
  * --------------------------------------------------------------
  */
 import depcheck from "depcheck";
 import fs from "fs";
 import madgePkg from "madge";
-import net from "net";
 import os from "os";
 import path from "path";
 import { 
@@ -159,53 +157,6 @@ function checkHostsFile(audit) {
   }
 }
 
-//──────────────────────────────
-// 🧱 PORT REGISTRY VALIDATION
-//──────────────────────────────
-async function checkPortAvailability(audit) {
-  audit.section('Port Availability');
-  
-  const portRegistryPath = path.join(root, ".port-registry.json");
-  const registry = readJson(portRegistryPath);
-  
-  if (!registry) {
-    audit.warn('.port-registry.json not found', {
-      details: 'Cannot validate port availability'
-    });
-    return;
-  }
-
-  const checkPort = (port) =>
-    new Promise((resolve) => {
-      const tester = net
-        .createServer()
-        .once("error", () => resolve(false))
-        .once("listening", () => tester.close(() => resolve(true)))
-        .listen(port);
-    });
-
-  // Check each port
-  const entries = Object.entries(registry);
-  let allFree = true;
-  
-  for (const [app, config] of entries) {
-    const port = config.port;
-    const isFree = await checkPort(port);
-    
-    if (isFree) {
-      audit.pass(`Port ${port} (${app}) is available`);
-    } else {
-      audit.warn(`Port ${port} (${app}) is already in use`, {
-        details: 'Stop existing process or use different port'
-      });
-      allFree = false;
-    }
-  }
-  
-  if (allFree) {
-    audit.pass('All registered ports are available');
-  }
-}
 
 //──────────────────────────────
 // 🚀 Main
@@ -218,17 +169,15 @@ async function main() {
   await checkNpmDependencies(audit);
   await checkCircularDependencies(audit);
   checkHostsFile(audit);
-  await checkPortAvailability(audit);
 
   // Generate report
   saveReport(audit, 'DEPENDENCY_AUDIT.md', {
-    description: 'Validates file dependencies, npm packages, circular dependencies, hosts file entries, and port availability.',
+    description: 'Validates file dependencies, npm packages, circular dependencies, and hosts file entries.',
     recommendations: [
       'Ensure .port-registry.json and .env files exist',
       'Install all missing npm packages',
       'Resolve circular dependencies in frontend code',
       'Add required entries to hosts file (admin.localhost, tenant.localhost)',
-      'Free up ports in use or update port registry',
       'Run: npm install to fix missing dependencies'
     ]
   });

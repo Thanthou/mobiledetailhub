@@ -1,7 +1,7 @@
 # Database Audit Report
 
-**Generated:** 2025-10-24T06:47:18.916Z
-**Duration:** 208ms
+**Generated:** 2025-10-25T07:24:35.481Z
+**Duration:** 297ms
 **Score:** 100/100
 
 ---
@@ -55,11 +55,11 @@ No issues found during this audit.
 
 ## Database Constraints
 
-✅ Found 94 constraints
+✅ Found 97 constraints
 
 ## Database Indexes
 
-✅ Found 242 indexes
+✅ Found 246 indexes
 
 ---
 

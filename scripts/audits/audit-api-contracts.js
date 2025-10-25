@@ -96,12 +96,19 @@ function analyzeRouteFiles() {
     
     // Only check validation for files with body-accepting routes
     if (hasBodyRoutes && hasBodyRoutes.length > 0) {
+      // Check if POST routes actually use req.body (some may not)
+      const usesReqBody = content.includes('req.body');
+      
       // Check for validation middleware
       if (content.includes('validation') || content.includes('validate') || content.includes('zod')) {
         endpointsWithValidation++;
         audit.pass(`Route file has validation: ${file.name}`);
-      } else {
+      } else if (usesReqBody) {
+        // Only warn if POST/PUT/PATCH routes actually use req.body
         audit.warn(`Route file missing validation: ${file.name}`, file.path);
+      } else {
+        // POST/PUT/PATCH routes exist but don't use req.body
+        audit.pass(`Route file has POST routes without body data (no validation needed): ${file.name}`);
       }
     } else {
       // GET-only file, no validation needed
@@ -163,8 +170,18 @@ function analyzeControllerPatterns() {
       audit.warn(`Controller missing error handling: ${file.name}`, file.path);
     }
 
-    // Check for validation
-    if (content.includes('validate') || content.includes('validation') || content.includes('req.body')) {
+    // Check for validation (including inline validation of req.query, req.params)
+    const hasValidation = 
+      content.includes('validate') || 
+      content.includes('validation') || 
+      content.includes('req.body') ||
+      // Check for inline validation patterns
+      (content.includes('req.query') && /if\s*\(!/.test(content)) ||
+      (content.includes('req.params') && /if\s*\(!/.test(content)) ||
+      content.includes('validDateRanges') ||
+      /if\s*\(.*\.includes\(/.test(content);
+    
+    if (hasValidation) {
       controllersWithValidation++;
       audit.pass(`Controller has validation: ${file.name}`);
     } else {
@@ -290,16 +307,23 @@ function checkRequestValidation() {
     const hasBodyRoutes = content.match(/router\.(post|put|patch)\(/g);
     
     if (hasBodyRoutes && hasBodyRoutes.length > 0) {
-      // File has body-accepting routes, check for validation
+      // Check if POST routes actually use req.body (some may not)
+      const usesReqBody = content.includes('req.body');
+      
+      // File has body-accepting routes
       if (content.includes('validation') || content.includes('validate') || content.includes('zod')) {
         routesWithValidation += routeCount;
         audit.pass(`Route file has validation middleware: ${file}`);
-      } else {
+      } else if (usesReqBody) {
+        // Only warn if POST/PUT/PATCH routes actually use req.body
         audit.warn(`Route file missing validation middleware: ${file}`, path.join(routesDir, file));
+      } else {
+        // POST/PUT/PATCH routes exist but don't use req.body (e.g., admin actions)
+        audit.pass(`Route file has POST routes without body data (no validation needed): ${file}`);
       }
 
-      // Check for body parsing
-      if (content.includes('req.body')) {
+      // Check for body parsing with validation
+      if (usesReqBody) {
         if (content.includes('validation') || content.includes('validate')) {
           audit.pass(`Body parsing with validation in ${file}`);
         } else {

@@ -47,6 +47,7 @@ digraph BackendFlows {
   routes_healthMonitoring_js [label="routes/healthMonitoring.js", fillcolor="lightblue", style="filled"];
   routes_locations_js [label="routes/locations.js", fillcolor="lightblue", style="filled"];
   routes_payments_js [label="routes/payments.js", fillcolor="lightblue", style="filled"];
+  routes_performance_js [label="routes/performance.js", fillcolor="lightblue", style="filled"];
   routes_previews_js [label="routes/previews.js", fillcolor="lightblue", style="filled"];
   routes_reviews_js [label="routes/reviews.js", fillcolor="lightblue", style="filled"];
   routes_schedule_js [label="routes/schedule.js", fillcolor="lightblue", style="filled"];
@@ -83,6 +84,7 @@ digraph BackendFlows {
   utils_avatarUtils_js [label="utils/avatarUtils.js", fillcolor="lightblue", style="filled"];
   utils_errorMonitor_js [label="utils/errorMonitor.js", fillcolor="lightblue", style="filled"];
   utils_logger_js [label="utils/logger.js", fillcolor="lightblue", style="filled"];
+  utils_perfMonitor_js [label="utils/perfMonitor.js", fillcolor="lightblue", style="filled"];
   utils_previewToken_js [label="utils/previewToken.js", fillcolor="lightblue", style="filled"];
   utils_responseFormatter_js [label="utils/responseFormatter.js", fillcolor="lightblue", style="filled"];
   utils_serviceAreaProcessor_js [label="utils/serviceAreaProcessor.js", fillcolor="lightblue", style="filled"];
@@ -109,6 +111,7 @@ digraph BackendFlows {
   bootstrap_setupMiddleware_js -> middleware_tenantResolver_js;
   bootstrap_setupMiddleware_js -> middleware_subdomainMiddleware_js;
   bootstrap_setupMiddleware_js -> middleware_csrfProtection_js;
+  bootstrap_setupRoutes_js -> config_env_js;
   bootstrap_setupRoutes_js -> middleware_rateLimiter_js;
   bootstrap_setupRoutes_js -> routes_health_js;
   bootstrap_setupRoutes_js -> routes_auth_js;
@@ -138,6 +141,8 @@ digraph BackendFlows {
   bootstrap_setupRoutes_js -> routes_previews_js;
   bootstrap_setupRoutes_js -> routes_errorTracking_js;
   bootstrap_setupRoutes_js -> routes_healthMonitoring_js;
+  bootstrap_setupRoutes_js -> routes_performance_js;
+  bootstrap_setupSecurity_js -> config_env_js;
   config_auth_js -> config_env_js;
   config_logger_js -> config_logging_environments_js;
   config_logging_environments_js -> config_env_js;
@@ -264,6 +269,7 @@ digraph BackendFlows {
   routes_health_js -> database_pool_js;
   routes_health_js -> config_logger_js;
   routes_health_js -> utils_responseFormatter_js;
+  routes_health_js -> config_env_js;
   routes_healthMonitoring_js -> database_pool_js;
   routes_healthMonitoring_js -> middleware_errorHandler_js;
   routes_healthMonitoring_js -> config_logger_js;
@@ -281,6 +287,10 @@ digraph BackendFlows {
   routes_payments_js -> middleware_zodValidation_js;
   routes_payments_js -> schemas_apiSchemas_js;
   routes_payments_js -> middleware_errorHandler_js;
+  routes_performance_js -> middleware_auth_js;
+  routes_performance_js -> middleware_errorHandler_js;
+  routes_performance_js -> utils_perfMonitor_js;
+  routes_performance_js -> config_logger_js;
   routes_previews_js -> utils_previewToken_js;
   routes_previews_js -> config_logger_js;
   routes_reviews_js -> database_pool_js;
@@ -398,6 +408,7 @@ digraph BackendFlows {
   utils_avatarUtils_js -> config_logger_js;
   utils_errorMonitor_js -> config_logger_js;
   utils_logger_js -> config_logger_js;
+  utils_perfMonitor_js -> config_logger_js;
   utils_previewToken_js -> config_logger_js;
   utils_previewToken_js -> config_env_async_js;
   utils_serviceAreaProcessor_js -> database_pool_js;

@@ -110,9 +110,12 @@ router.get('/me', authenticateToken, asyncHandler(async (req, res) => {
   }
   
   res.json({
-    ...user,
-    is_admin: isAdmin,
-    tenant_id: tenantId
+    success: true,
+    data: {
+      ...user,
+      is_admin: isAdmin,
+      tenant_id: tenantId
+    }
   });
 }));
 

@@ -106,48 +106,75 @@ function checkMiddlewareFiles() {
 }
 
 function checkServerMiddlewareOrder() {
+  // Check bootstrap files (modular architecture)
+  const bootstrapSecurity = path.join(projectRoot, 'backend/bootstrap/setupSecurity.js');
+  const bootstrapMiddleware = path.join(projectRoot, 'backend/bootstrap/setupMiddleware.js');
+  const bootstrapErrors = path.join(projectRoot, 'backend/bootstrap/setupErrors.js');
   const serverFile = path.join(projectRoot, 'backend/server.js');
   
-  if (!fs.existsSync(serverFile)) {
-    audit.error('Server file not found', { path: 'backend/server.js' });
+  // Collect content from all relevant files
+  let allContent = '';
+  const checkedFiles = [];
+  
+  if (fs.existsSync(bootstrapSecurity)) {
+    allContent += fs.readFileSync(bootstrapSecurity, 'utf8');
+    checkedFiles.push('setupSecurity.js');
+  }
+  if (fs.existsSync(bootstrapMiddleware)) {
+    allContent += fs.readFileSync(bootstrapMiddleware, 'utf8');
+    checkedFiles.push('setupMiddleware.js');
+  }
+  if (fs.existsSync(bootstrapErrors)) {
+    allContent += fs.readFileSync(bootstrapErrors, 'utf8');
+    checkedFiles.push('setupErrors.js');
+  }
+  if (fs.existsSync(serverFile)) {
+    allContent += fs.readFileSync(serverFile, 'utf8');
+    checkedFiles.push('server.js');
+  }
+  
+  if (!allContent) {
+    audit.error('No server or bootstrap files found', { path: 'backend/' });
     return;
   }
 
-  const serverContent = fs.readFileSync(serverFile, 'utf8');
+  audit.info(`Checking middleware in: ${checkedFiles.join(', ')}`);
   
   // Extract middleware usage patterns
   const middlewarePatterns = [
-    { name: 'cors', pattern: /app\.use\(.*cors/i },
-    { name: 'helmet', pattern: /app\.use\(.*helmet/i },
-    { name: 'compression', pattern: /app\.use\(.*compression/i },
-    { name: 'rateLimiter', pattern: /app\.use\(.*[rR]ateLimiter|app\.use\(.*apiLimiter/i },
-    { name: 'requestLogger', pattern: /app\.use\(.*requestLogger/i },
-    { name: 'subdomainMiddleware', pattern: /app\.use\(.*subdomainMiddleware/i },
-    { name: 'tenantResolver', pattern: /app\.use\(.*tenantResolver/i },
-    { name: 'auth', pattern: /app\.use\(.*auth/i },
-    { name: 'csrfProtection', pattern: /csrfProtection\(req,\s*res,\s*next\)|app\.use\(.*csrfProtection/i },
+    { name: 'cors', pattern: /app\.use\s*\(\s*cors|import.*cors.*from/i },
+    { name: 'helmet', pattern: /app\.use\s*\(\s*helmet|import.*helmet.*from/i },
+    { name: 'compression', pattern: /app\.use\s*\(\s*compression|import.*compression.*from/i },
+    { name: 'rateLimiter', pattern: /app\.use\(.*[rR]ateLimiter|import.*rateLimiter/i },
+    { name: 'requestLogger', pattern: /app\.use\(.*requestLogger|import.*requestLogger/i },
+    { name: 'subdomainMiddleware', pattern: /app\.use\(.*subdomainMiddleware|createSubdomainMiddleware|import.*subdomainMiddleware/i },
+    { name: 'tenantResolver', pattern: /app\.use\(.*tenantResolver|import.*tenantResolver/i },
+    { name: 'auth', pattern: /app\.use\(.*auth\)|import.*auth.*from/i },
+    { name: 'csrfProtection', pattern: /csrfProtection\(req,\s*res,\s*next\)|app\.use\(.*csrfProtection|import.*csrfProtection/i },
     { name: 'validation', pattern: /app\.use\(.*validation/i },
-    { name: 'errorHandler', pattern: /app\.use\(.*errorHandler|app\.use\(\s*\(err,\s*req,\s*res,\s*next\)/i }
+    { name: 'errorHandler', pattern: /app\.use\(.*errorHandler|setupErrors|import.*errorHandler/i }
   ];
 
   const foundMiddleware = [];
   
   for (const { name, pattern } of middlewarePatterns) {
-    if (pattern.test(serverContent)) {
+    if (pattern.test(allContent)) {
       foundMiddleware.push(name);
       audit.pass(`Middleware found: ${name}`);
     }
   }
 
   // Check order (simplified - look for patterns)
-  audit.info(`Found middleware in order: ${foundMiddleware.join(' → ')}`);
+  audit.info(`Found middleware: ${foundMiddleware.join(', ')}`);
 
   // Check for critical middleware
   for (const critical of CRITICAL_MIDDLEWARE) {
     if (foundMiddleware.includes(critical)) {
       audit.pass(`Critical middleware present: ${critical}`);
     } else {
-      audit.error(`Missing critical middleware: ${critical}`, { path: 'backend/server.js' });
+      audit.error(`Missing critical middleware: ${critical}`, { 
+        path: 'backend/bootstrap/ or backend/server.js' 
+      });
     }
   }
 }
@@ -210,65 +237,109 @@ function checkErrorHandling() {
     }
   }
 
-  // Check if error handler is last middleware (before catch-all routes)
-  const serverFile = path.join(projectRoot, 'backend/server.js');
-  if (fs.existsSync(serverFile)) {
-    const serverContent = fs.readFileSync(serverFile, 'utf8');
-    const errorHandlerIndex = serverContent.indexOf('app.use(errorHandler)');
-    const apiRoutesEndIndex = serverContent.indexOf('// 🔧 Error handlers');
-    const catchAllIndex = serverContent.indexOf('app.get(\'*\'');
+  // Check if error handler is properly configured in bootstrap
+  const setupErrorsFile = path.join(projectRoot, 'backend/bootstrap/setupErrors.js');
+  const serverStartFile = path.join(projectRoot, 'backend/bootstrap/server.start.js');
+  
+  if (fs.existsSync(setupErrorsFile)) {
+    audit.pass('Error handler configured in bootstrap/setupErrors.js');
+  }
+  
+  // Check if setupErrors is called after setupRoutes in bootstrap
+  if (fs.existsSync(serverStartFile)) {
+    const startContent = fs.readFileSync(serverStartFile, 'utf8');
+    const setupRoutesIndex = startContent.indexOf('setupRoutes');
+    const setupErrorsIndex = startContent.indexOf('setupErrors');
     
-    // Error handler should be after API routes but before catch-all routes
-    if (errorHandlerIndex > apiRoutesEndIndex && errorHandlerIndex < catchAllIndex) {
-      audit.pass('Error handler is positioned after routes (correct)');
-    } else {
-      audit.warn('Error handler should be positioned after routes', { path: 'backend/server.js' });
+    if (setupRoutesIndex >= 0 && setupErrorsIndex >= 0) {
+      if (setupErrorsIndex > setupRoutesIndex) {
+        audit.pass('Error handler is positioned after routes (correct)');
+      } else {
+        audit.warn('Error handler should be positioned after routes', { path: 'backend/bootstrap/server.start.js' });
+      }
     }
   }
 }
 
 function checkSecurityMiddleware() {
+  // Check bootstrap security file (modular architecture)
+  const bootstrapSecurity = path.join(projectRoot, 'backend/bootstrap/setupSecurity.js');
+  const bootstrapMiddleware = path.join(projectRoot, 'backend/bootstrap/setupMiddleware.js');
   const serverFile = path.join(projectRoot, 'backend/server.js');
   
-  if (!fs.existsSync(serverFile)) {
+  // Collect content from all relevant files
+  let allContent = '';
+  
+  if (fs.existsSync(bootstrapSecurity)) {
+    allContent += fs.readFileSync(bootstrapSecurity, 'utf8');
+  }
+  if (fs.existsSync(bootstrapMiddleware)) {
+    allContent += fs.readFileSync(bootstrapMiddleware, 'utf8');
+  }
+  if (fs.existsSync(serverFile)) {
+    allContent += fs.readFileSync(serverFile, 'utf8');
+  }
+  
+  if (!allContent) {
     return;
   }
-
-  const serverContent = fs.readFileSync(serverFile, 'utf8');
   
   for (const security of SECURITY_MIDDLEWARE) {
     // Create more flexible patterns to match different middleware usage styles
     let pattern;
     if (security === 'rateLimiter') {
-      pattern = /app\.use\(.*[rR]ateLimiter|app\.use\(.*apiLimiter/i;
+      // Check for rate limiting at global or route level
+      pattern = /app\.use\(.*[rR]ateLimiter|app\.use\(.*apiLimiter|import.*rateLimiter/i;
+      
+      // Also check routes directory for route-level rate limiting (preferred approach)
+      const routesDir = path.join(projectRoot, 'backend/routes');
+      if (fs.existsSync(routesDir)) {
+        const routeFiles = fs.readdirSync(routesDir).filter(f => f.endsWith('.js'));
+        let hasRouteLevelLimiter = false;
+        
+        for (const routeFile of routeFiles) {
+          const routeContent = fs.readFileSync(path.join(routesDir, routeFile), 'utf8');
+          if (/import.*rateLimiter|import.*Limiter/.test(routeContent)) {
+            hasRouteLevelLimiter = true;
+            break;
+          }
+        }
+        
+        if (hasRouteLevelLimiter) {
+          audit.pass('Rate limiting enabled at route level (preferred approach)');
+          continue;
+        }
+      }
     } else if (security === 'csrfProtection') {
-      pattern = /csrfProtection\(req,\s*res,\s*next\)|app\.use\(.*csrfProtection/i;
+      pattern = /csrfProtection\(req,\s*res,\s*next\)|app\.use\(.*csrfProtection|import.*csrfProtection/i;
     } else {
-      pattern = new RegExp(`app\\.use\\(.*${security}`, 'i');
+      pattern = new RegExp(`app\\.use\\s*\\(\\s*${security}|import.*${security}.*from`, 'i');
     }
     
-    if (pattern.test(serverContent)) {
+    if (pattern.test(allContent)) {
       audit.pass(`Security middleware enabled: ${security}`);
     } else {
-      audit.warn(`Security middleware missing: ${security}`, { path: 'backend/server.js' });
+      audit.warn(`Security middleware missing: ${security}`, { 
+        path: 'backend/bootstrap/setupSecurity.js or setupMiddleware.js' 
+      });
     }
   }
 
   // Check for helmet configuration
-  if (serverContent.includes('helmet')) {
-    if (serverContent.includes('helmet(') || serverContent.includes('helmet({')) {
+  if (allContent.includes('helmet')) {
+    if (allContent.includes('helmet(') || allContent.includes('helmet({')) {
       audit.pass('Helmet configured with options');
     } else {
-      audit.warn('Helmet used without configuration', { path: 'backend/server.js' });
+      audit.warn('Helmet used without configuration');
     }
   }
 
   // Check for CORS configuration
-  if (serverContent.includes('cors')) {
-    if (serverContent.includes('cors(') || serverContent.includes('cors({')) {
+  if (allContent.includes('cors')) {
+    if (allContent.includes('cors(') || allContent.includes('cors({')) {
       audit.pass('CORS configured with options');
     } else {
-      audit.warn('CORS used without configuration', { path: 'backend/server.js' });
+      audit.warn('CORS used without configuration');
     }
   }
 }

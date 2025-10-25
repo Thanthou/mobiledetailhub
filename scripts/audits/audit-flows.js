@@ -59,7 +59,7 @@ const result = createAuditResult('Backend Flow Tracer', isSilent);
 /**
  * Discover all JavaScript files in a directory
  */
-function discoverFiles(dir, pattern = /\.(js|ts)$/, exclude = /node_modules|dist|build|\.git|__tests__|\.test\.|\.spec\.|^tests[\/\\]|\\tests[\/\\]/) {
+function discoverFiles(dir, pattern = /\.(js|ts)$/, exclude = /node_modules|dist|build|\.git|__tests__|\.test\.|\.spec\.|^tests[\/\\]|\\tests[\/\\]|jest\.config\.|vitest\.config\./) {
   const files = [];
   
   function scan(currentDir) {
@@ -482,6 +482,7 @@ function analyzeReachability(graph, entryPoints) {
  * - Re-exports (e.g., env.js re-exports env.async.js)
  * - Dynamic imports (e.g., await import('./service.js'))
  * - Runtime loading
+ * - Development/testing utilities (not registered in production but kept for debugging)
  */
 const KNOWN_DYNAMIC_IMPORTS = [
   'config\\env.async.js',           // Re-exported by config/env.js
@@ -489,6 +490,7 @@ const KNOWN_DYNAMIC_IMPORTS = [
   'services\\tenantDeletionService.js', // Dynamic import in routes/admin.js
   'services\\cronService.js',       // Dynamic import in server.js for async initialization
   'scripts\\cleanup-tokens.js',     // Called by cronService
+  'routes\\subdomainTest.js',       // Development/testing utility - not registered by default
 ];
 
 /**

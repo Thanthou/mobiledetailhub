@@ -1,4 +1,5 @@
 // backend/bootstrap/setupRoutes.js
+import { env } from '../config/env.js';
 import { apiLimiter } from '../middleware/rateLimiter.js';
 import healthRoutes from '../routes/health.js';
 import authRoutes from '../routes/auth.js';
@@ -35,7 +36,7 @@ export function setupRoutes(app) {
   // DISABLED in development to prevent double-count errors
   app.use('/api', (req, res, next) => {
     // Skip rate limiting entirely in development
-    if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'dev') {
+    if (env.NODE_ENV === 'development') {
       return next();
     }
     // Skip rate limiting for health endpoints

@@ -1,27 +1,24 @@
 # Dependencies Audit Report
 
-**Generated:** 2025-10-24T06:47:28.348Z
-**Duration:** 7099ms
-**Score:** 97/100
+**Generated:** 2025-10-25T07:24:44.116Z
+**Duration:** 6502ms
+**Score:** 100/100
 
 ---
 
 ## Summary
 
-- ✅ **Passed:** 9
-- ⚠️  **Warnings:** 1
+- ✅ **Passed:** 6
+- ⚠️  **Warnings:** 0
 - ❌ **Errors:** 0
 
 ## Description
 
-Validates file dependencies, npm packages, circular dependencies, hosts file entries, and port availability.
+Validates file dependencies, npm packages, circular dependencies, and hosts file entries.
 
-## Issues Found
+## ✅ All Checks Passed!
 
-### 🟡 Warnings
-
-1. **Port 3001 (backend) is already in use**
-   - Details: Stop existing process or use different port
+No issues found during this audit.
 
 ---
 
@@ -39,19 +36,12 @@ Validates file dependencies, npm packages, circular dependencies, hosts file ent
 
 ## Circular Dependencies
 
-✅ Analyzed 1046 files
+✅ Analyzed 923 files
 ✅ No circular dependencies detected
 
 ## Hosts File
 
 ✅ All required hosts entries present
-
-## Port Availability
-
-✅ Port 5175 (main) is available
-✅ Port 5176 (admin) is available
-✅ Port 5177 (tenant) is available
-⚠️ **WARNING**: Port 3001 (backend) is already in use
 
 ---
 
@@ -61,5 +51,4 @@ Validates file dependencies, npm packages, circular dependencies, hosts file ent
 2. Install all missing npm packages
 3. Resolve circular dependencies in frontend code
 4. Add required entries to hosts file (admin.localhost, tenant.localhost)
-5. Free up ports in use or update port registry
-6. Run: npm install to fix missing dependencies
+5. Run: npm install to fix missing dependencies
