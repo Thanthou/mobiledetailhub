@@ -293,18 +293,6 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
               <Lock className="w-3 h-3" />
               <span>Your payment information is encrypted and secure</span>
             </div>
-            
-            {/* Test Card Information for Development */}
-            {env.DEV && (
-              <div className="mt-4 p-3 bg-yellow-900/20 border border-yellow-700 rounded-lg">
-                <h4 className="text-sm font-medium text-yellow-400 mb-2">🧪 Test Cards (Development)</h4>
-                <div className="text-xs text-yellow-300 space-y-1">
-                  <p><strong>Success:</strong> 4242 4242 4242 4242</p>
-                  <p><strong>Decline:</strong> 4000 0000 0000 0002</p>
-                  <p><strong>CVV:</strong> Any 3 digits | <strong>Expiry:</strong> Any future date</p>
-                </div>
-              </div>
-            )}
           </div>
 
           <div className="space-y-4">

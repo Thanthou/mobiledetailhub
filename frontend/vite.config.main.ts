@@ -9,6 +9,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   root: 'apps/main',
   base: '/',
+  envDir: path.resolve(__dirname, '..'), // Load .env from project root (parent of frontend/)
   publicDir: sharedPublicConfig.publicDir, // Shared public folder
   plugins: [react()],
   resolve: {

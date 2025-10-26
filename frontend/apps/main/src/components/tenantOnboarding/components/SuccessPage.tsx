@@ -1,18 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { CheckCircle, Settings,Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { CheckCircle, Settings, Sparkles } from 'lucide-react';
 
-import { useAuth } from '@shared/hooks';
 import { Button } from '@shared/ui';
 
 
 const SuccessPage: React.FC = () => {
-  const navigate = useNavigate();
-  const { login } = useAuth();
   const [tenantSlug, setTenantSlug] = useState<string | null>(null);
   const [websiteUrl, setWebsiteUrl] = useState<string | null>(null);
   const [dashboardUrl, setDashboardUrl] = useState<string | null>(null);
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   useEffect(() => {
     // Retrieve the tenant info from session storage
@@ -34,9 +30,9 @@ const SuccessPage: React.FC = () => {
 
 
   const handleGoToDashboard = () => {
-    // Simply navigate to dashboard - user will need to login with their email-set password
+    // Navigate to dashboard - user will need to login with their email/password
     if (dashboardUrl) {
-      void navigate(dashboardUrl);
+      window.location.href = dashboardUrl;
     }
   };
 

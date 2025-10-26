@@ -10,7 +10,6 @@ export const BusinessSubTab: React.FC = () => {
   const [businessName, setBusinessName] = useState('');
   const [businessEmail, setBusinessEmail] = useState('');
   const [businessPhone, setBusinessPhone] = useState('');
-  const [website, setWebsite] = useState('');
   const [businessStartDate, setBusinessStartDate] = useState('');
   
   const [isSaving, setIsSaving] = useState(false);
@@ -24,7 +23,6 @@ export const BusinessSubTab: React.FC = () => {
       setBusinessName(businessData.business_name || '');
       setBusinessEmail(businessData.business_email || '');
       setBusinessPhone(businessData.business_phone ? formatPhoneNumber(businessData.business_phone) : '');
-      setWebsite(businessData.website || '');
       setBusinessStartDate(
         businessData.business_start_date 
           ? new Date(businessData.business_start_date).toISOString().split('T')[0] 
@@ -45,11 +43,10 @@ export const BusinessSubTab: React.FC = () => {
       businessName !== (businessData.business_name || '') ||
       businessEmail !== (businessData.business_email || '') ||
       getPhoneDigits(businessPhone) !== (businessData.business_phone || '') ||
-      website !== (businessData.website || '') ||
       businessStartDate !== originalStartDate;
     
     setHasChanges(changed);
-  }, [businessName, businessEmail, businessPhone, website, businessStartDate, businessData]);
+  }, [businessName, businessEmail, businessPhone, businessStartDate, businessData]);
 
   const handlePhoneChange = (value: string) => {
     setBusinessPhone(formatPhoneNumber(value));
@@ -60,7 +57,6 @@ export const BusinessSubTab: React.FC = () => {
       setBusinessName(businessData.business_name || '');
       setBusinessEmail(businessData.business_email || '');
       setBusinessPhone(businessData.business_phone ? formatPhoneNumber(businessData.business_phone) : '');
-      setWebsite(businessData.website || '');
       setBusinessStartDate(
         businessData.business_start_date 
           ? new Date(businessData.business_start_date).toISOString().split('T')[0] 
@@ -82,8 +78,7 @@ export const BusinessSubTab: React.FC = () => {
         business_name: businessName,
         business_email: businessEmail,
         business_phone: getPhoneDigits(businessPhone),
-        website: website,
-        business_start_date: businessStartDate,
+        business_start_date: businessStartDate || null, // Send null if empty, not empty string
       });
 
       if (success) {
@@ -178,16 +173,15 @@ export const BusinessSubTab: React.FC = () => {
 
         <div>
           <label htmlFor="website" className="block text-sm font-medium text-gray-200 mb-2">
-            Website
+            Website URL
+            <span className="ml-2 text-xs text-gray-400">(Auto-generated, read-only)</span>
           </label>
-          <input
-            type="url"
-            id="website"
-            value={website}
-            onChange={(e) => setWebsite(e.target.value)}
-            className="w-full px-4 py-2.5 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all placeholder-gray-400"
-            placeholder="https://www.acme.com"
-          />
+          <div className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 text-gray-400 rounded-lg">
+            {businessData?.website || 'Not set'}
+          </div>
+          <p className="text-xs text-gray-400 mt-1">
+            Contact support to set up a custom domain
+          </p>
         </div>
 
         <div>

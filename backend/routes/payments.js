@@ -22,16 +22,22 @@ router.post('/create-intent', validateBody(paymentSchemas.createIntent), async (
   try {
     // Debug
     logger.info('=== PAYMENT INTENT DEBUG ===')
-    logger.info('Request body:', req.body)
+    logger.info('Request body:', JSON.stringify(req.body, null, 2))
 
     const { amount, customerEmail, businessName, planType, metadata } = req.body || {}
+    
+    logger.info('Destructured values:', { amount, customerEmail, businessName, planType, metadata })
+    
     if (!amount || !customerEmail || !businessName || !planType) {
-      throw new Error('Missing required fields: amount, customerEmail, businessName, planType')
+      const error = `Missing required fields: amount=${amount}, customerEmail=${customerEmail}, businessName=${businessName}, planType=${planType}`
+      logger.error(error)
+      throw new Error(error)
     }
 
     // Use real Stripe test mode
+    logger.info('Calling Stripe createPaymentIntent...')
     const { default: StripeService } = await import('../services/stripeService.js');
-const result = await StripeService.createPaymentIntent({
+    const result = await StripeService.createPaymentIntent({
       amount,
       customerEmail,
       metadata: {
@@ -41,16 +47,22 @@ const result = await StripeService.createPaymentIntent({
       }
     });
     
+    logger.info('Stripe result:', { success: result.success, hasClientSecret: !!result.clientSecret, error: result.error })
+    
     if (result.success) {
-      sendSuccess(res, 'Payment intent created successfully', {
+      logger.info('✅ Payment intent created successfully')
+      // Return format expected by frontend
+      return res.json({
+        success: true,
         clientSecret: result.clientSecret,
-        paymentIntentId: result.paymentIntentId,
-        received: { amount, customerEmail, businessName, planType, metadata }
+        paymentIntentId: result.paymentIntentId
       });
     } else {
+      logger.error('❌ Stripe createPaymentIntent failed:', result.error)
       throw new Error(result.error || 'Failed to create payment intent');
     }
   } catch (err) {
+    logger.error('❌ Payment intent route error:', err.message)
     next(err)
   }
 })
@@ -181,13 +193,17 @@ router.post('/confirm', validateBody(paymentSchemas.confirm), async (req, res, n
         // Don't fail the entire transaction if email fails
       }
       
-      sendSuccess(res, 'Payment confirmed and tenant created successfully', {
-        slug: tenant.slug,
-        websiteUrl: `http://${tenant.slug}.thatsmartsite.com`,
-        dashboardUrl: `/${tenant.slug}/dashboard`,
-        tenantId: tenant.id,
-        userId: user.id,
-        paymentIntentId
+      // Return format expected by frontend
+      return res.json({
+        success: true,
+        data: {
+          slug: tenant.slug,
+          websiteUrl: `http://${tenant.slug}.thatsmartsite.com`,
+          dashboardUrl: `/${tenant.slug}/dashboard`,
+          tenantId: tenant.id,
+          userId: user.id,
+          paymentIntentId
+        }
       });
       
     } catch (transactionError) {

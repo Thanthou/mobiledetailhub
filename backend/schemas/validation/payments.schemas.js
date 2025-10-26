@@ -21,7 +21,7 @@ export const paymentSchemas = {
     currency: z.string().length(3).default('usd'),
     customerEmail: commonFields.email,
     businessName: commonFields.businessName,
-    planType: z.enum(['basic', 'premium', 'enterprise']),
+    planType: z.enum(['starter', 'metro', 'pro']), // Match actual plan IDs from pricing config
     metadata: commonFields.metadata
   }),
   

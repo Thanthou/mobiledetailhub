@@ -16,7 +16,14 @@ export const commonFields = {
   email: z.string().email().max(255),
   password: z.string().min(8).max(128),
   name: z.string().min(2).max(100).regex(/^[a-zA-Z\s'\-.]+$/, 'Name must contain only letters, spaces, hyphens, apostrophes, and periods'),
-  phone: z.string().regex(/^\+?1?\d{10,15}$/, 'Phone must be 10-15 digits with optional country code'),
+  phone: z.string().regex(/^[\d\s()+.-]{10,20}$/, 'Phone must be a valid phone number').refine(
+    (val) => {
+      // Strip non-digits and check if 10-15 digits remain
+      const digitsOnly = val.replace(/\D/g, '');
+      return digitsOnly.length >= 10 && digitsOnly.length <= 15;
+    },
+    { message: 'Phone must contain 10-15 digits' }
+  ),
   
   // Address fields
   address: z.string().min(5).max(255),

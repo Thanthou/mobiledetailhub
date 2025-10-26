@@ -34,7 +34,7 @@ export const tenantSchemas = {
     }),
     
     // Plan information
-    selectedPlan: z.enum(['basic', 'premium', 'enterprise']),
+    selectedPlan: z.enum(['starter', 'metro', 'pro']), // Match actual plan IDs from pricing config
     planPrice: commonFields.price,
     industry: z.enum(['mobile-detailing', 'house-cleaning', 'lawn-care', 'pet-grooming', 'barber-shop']).default('mobile-detailing'),
     

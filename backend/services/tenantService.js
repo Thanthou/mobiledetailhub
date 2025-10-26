@@ -218,6 +218,90 @@ export async function getTenantWebsiteContent(slug) {
 }
 
 /**
+ * Update tenant business data by slug
+ * @param {string} slug - The tenant slug
+ * @param {Object} updateData - The data to update
+ * @returns {Object} - Updated tenant object
+ */
+export async function updateTenantBySlug(slug, updateData) {
+  if (!slug || typeof slug !== 'string') {
+    throw new Error('Invalid slug provided');
+  }
+
+  if (!updateData || typeof updateData !== 'object') {
+    throw new Error('No valid fields to update');
+  }
+
+  const pool = await getPool();
+  
+  try {
+    // Build dynamic UPDATE query based on provided fields
+    const allowedFields = [
+      'business_name', 'business_email', 'business_phone',
+      'personal_email', 'personal_phone', 
+      'first_name', 'last_name',
+      'business_start_date',
+      'facebook_url', 'instagram_url', 'youtube_url', 'tiktok_url', 'gbp_url',
+      'facebook_enabled', 'instagram_enabled', 'youtube_enabled', 'tiktok_enabled'
+    ];
+    // Note: 'website' is a generated column, cannot be updated directly
+    
+    const updates = [];
+    const values = [];
+    let paramCount = 0;
+    
+    for (const field of allowedFields) {
+      if (updateData[field] !== undefined) {
+        paramCount++;
+        updates.push(`${field} = $${paramCount}`);
+        values.push(updateData[field]);
+      }
+    }
+    
+    if (updates.length === 0) {
+      throw new Error('No valid fields to update');
+    }
+    
+    // Add slug as final parameter
+    paramCount++;
+    values.push(slug);
+    
+    const query = `
+      UPDATE tenants.business
+      SET ${updates.join(', ')}, updated_at = NOW()
+      WHERE slug = $${paramCount} AND application_status = 'approved'
+      RETURNING *
+    `;
+    
+    const result = await pool.query(query, values);
+    
+    if (result.rows.length === 0) {
+      throw new Error('Tenant not found or not approved');
+    }
+    
+    const updatedTenant = result.rows[0];
+    
+    logger.info({
+      slug,
+      updatedFields: Object.keys(updateData),
+      tenantId: updatedTenant.id
+    }, 'Tenant updated successfully');
+    
+    return updatedTenant;
+    
+  } catch (error) {
+    logger.error({
+      error: error.message,
+      stack: error.stack,
+      slug,
+      updateData: Object.keys(updateData)
+    }, 'Error updating tenant by slug');
+    
+    throw error;
+  }
+}
+
+/**
  * Validate tenant slug format
  * @param {string} slug - The slug to validate
  * @returns {boolean} - Whether the slug is valid
@@ -299,6 +383,7 @@ export default {
   getTenantBySlug,
   getTenantById,
   getTenantWebsiteContent,
+  updateTenantBySlug,
   validateTenantSlug,
   getAllActiveTenants
 };

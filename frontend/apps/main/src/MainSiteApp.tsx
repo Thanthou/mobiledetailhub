@@ -4,7 +4,6 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { HomePage } from './routes/HomePage';
 import { DevDashboard } from './routes/DevDashboard';
 import { TenantOnboardingPage } from './routes/TenantOnboardingPage';
-import { PricingPage } from './routes/PricingPage';
 
 // Admin redirect component
 function AdminRedirect() {
@@ -63,9 +62,6 @@ export default function MainSiteApp() {
         <Route path="/signup" element={<TenantOnboardingPage />} />
         {/* Legacy redirect */}
         <Route path="/onboard" element={<Navigate to="/signup" replace />} />
-        
-        {/* Marketing pages */}
-        <Route path="/pricing" element={<PricingPage />} />
         
         {/* Admin redirect */}
         <Route path="/admin" element={<AdminRedirect />} />
